@@ -190,7 +190,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		ecommerceTransaction = ecommerceTransactionTemplate(),
 
 		// Detect whether we have localStorage available
-		hasLocalStorage = SnowPlow.hasLocalStorage(),
+		hasLocalStorage = SnowPlow.localStorageAccessible(),
 		executingQueue = false,
 		imageQueue;
 

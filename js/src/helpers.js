@@ -138,6 +138,26 @@ SnowPlow.hasLocalStorage = function () {
 	}
 }
 
+/*
+ * Checks whether localStorage is accessible
+ * reuses the "modernizr" string to keep global namespace tromping to a minimum.
+ * sets and removes an item to handle IOS5 private browsing.
+ * (http://git.io/jFB2Xw)
+ */
+SnowPlow.localStorageAccessible = function() {
+    var mod = 'modernizr';
+    if( !SnowPlow.hasLocalStorage() ) {
+      return false;
+    }
+    try {
+      SnowPlow.windowAlias.localStorage.setItem(mod,mod);
+      SnowPlow.windowAlias.localStorage.removeItem(mod);
+      return true;
+    } catch(e) {
+      return false;
+    }
+}
+
 
 /*
  * Converts a date object to Unix timestamp with or without milliseconds
