@@ -68,7 +68,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		// Request method is always GET for SnowPlow
 		configRequestMethod = 'GET',
 
-		// Platform is always web for this tracker
+		// Platform defaults to web for this tracker
 		configPlatform = 'web',
 
 		// SnowPlow collector URL
@@ -1675,6 +1675,15 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 */
 		setCollectorUrl: function (rawUrl) {
 			configCollectorUrl = asCollectorUrl(rawUrl);
+		},
+
+		/**
+		 * Specify the platform
+		 *
+		 * @param string userId The business-defined user ID
+		 */
+		setPlatform: function(platform) {
+			configPlatform = platform;
 		},
 
 		/**
