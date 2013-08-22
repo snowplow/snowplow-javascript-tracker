@@ -29,39 +29,43 @@ usage() {
 
 parse_args() {
 
-  while getopts “cy:” opt; do
+  while getopts “cy:h” opt; do
     case $opt in
       c)
         COMBINE_ONLY=true
+        return
         ;;
       y)
         YUI_COMPRESSOR_PATH=$OPTARG
+        return
         ;;
       \?)
         usage
-        exit 1
         ;;
       h)
         usage
-        exit
         ;;
     esac
   done
+
+  echo "No options provided"
+  usage
 }
 
 validate_options() {
+  if [ ! $COMBINE_ONLY ]; then
+    if [ ! $YUI_COMPRESSOR_PATH ]; then
+      echo "Path to YUICompressor 2.4.2 not provided"
+      usage
+      exit 1
+    fi
 
-  if [ ! $YUI_COMPRESSOR_PATH ]; then
-    echo "Path to YUICompressor 2.4.2 not provided"
-    usage
-    exit 1
+    YUI_COMPRESSOR_PATH=$YUI_COMPRESSOR_PATH'/'$YUIC_JARPATH
+    if [ ! -f ${YUI_COMPRESSOR_PATH} ]; then
+      echo "Cannot find YUICompressor 2.4.2 jarfile at ${YUI_COMPRESSOR_PATH}"
+      usage
+    fi  
   fi
-
-  YUI_COMPRESSOR_PATH=$YUI_COMPRESSOR_PATH'/'$YUIC_JARPATH
-  if [ ! -f ${YUI_COMPRESSOR_PATH} ];then
-    echo "Cannot find YUICompressor 2.4.2 jarfile at ${YUI_COMPRESSOR_PATH}"
-    usage
-  fi  
 }
 
 combine_files() {
