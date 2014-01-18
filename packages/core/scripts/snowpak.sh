@@ -3,7 +3,7 @@
 # Bash script to minify snowplow.js
 # Depends on YUICompressor 2.4.2 and sed
 #
-# Copyright 2012-2013 Snowplow Analytics Ltd
+# Copyright 2012-2014 Snowplow Analytics Ltd
 # License: http://www.opensource.org/licenses/bsd-license.php Simplified BSD
 
 
@@ -12,6 +12,9 @@ DEPENDENCIES_FILE='dependencies.txt'
 FULL_OUTPUTFILE="snowplow.js"
 MIN_OUTPUTFILE="sp.js"
 YUIC_JARPATH="build/yuicompressor-2.4.2.jar"
+
+# Where are we?
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 usage() {
   echo "Usage: ${0} [options]"
@@ -65,7 +68,7 @@ validate_options() {
 }
 
 combine_files() {
-  while read F; do cat $F; done <$DEPENDENCIES_FILE
+  while read F; do cat $DIR/../$F; done <$DEPENDENCIES_FILE
 }
 
 filter_out_debug() {
