@@ -1,0 +1,115 @@
+Version 0.13.0 (2013-0X-XX)
+---------------------------
+Added fully retrospective CHANGELOG (#20)
+Added retrospective tags back in (#22) - TODO
+
+Version 0.12.0 (2013-07-07)
+---------------------------
+Fixed document reference to use documentAlias (#247)
+Fixed bug with setCustomUrl (#267)
+Changed ev_ to se_ for structured events (#197)
+Fixed Firefox failure when "Always ask" set for cookies (#163)
+Fixed bug in page ping functionality detected in IE 8 (#260)
+Replaced forEach as not supported in IE 6-8 (#295)
+
+Version 0.11.2 (2013-05-14)
+---------------------------
+Added unstructured events, thanks @rgabo, @tarsolya, @lackac (#198)
+Remove leading ampersand in querystring (#188)
+
+Version 0.11.1 (2013-02-25)
+---------------------------
+Fixed bug with cookie secure flag killing user ID cookies (#181)
+
+Version 0.11.0 (2013-02-22)
+---------------------------
+Introduced setAppId() and deprecated setSiteId() (#168)
+1st party user ID now transmitted as duid (domain uid) (part of #150)
+Now sends dtm - the client timestamp (#149)
+Deprecated and disabled attachUserId()
+Deprecated getVisitorId() and getVisitorInfo() - use getDomainUserId() and getDomainUserInfo() instead
+Added setUserId which sets the uid field (#167)
+Snowplow cookies no longer tied to site ID (#148)
+
+Version 0.10.0 (2013-02-15)
+---------------------------
+Updated copyright notices
+Removed deprecated setAccount(), setTracker(), setHeartBeatTimer() - BREAKING CHANGE (#86)
+Added document charset to querystring (#138)
+Page ping no longer killed by 1 heartbeat w/o activity (#132)
+Added document & viewport dimensions (#94)
+Introduced trackStructEvent and deprecated trackEvent (#143)
+Cleaned up getRequest code to use improved requestStringBuilder
+Fixed logImpression (was using wrong argument names) (#162)
+Added scroll offsets to page ping (#127)
+
+Version 0.9.1 (2013-01-29)
+--------------------------
+Bumped to 0.9.1
+Fixed bug where secure flag not being set on cookies sent via HTTPS
+
+Version 0.9.0 (2012-12-26)
+--------------------------
+Bumped to 0.9.0
+Each event now sent with an event type `e` (#63)
+Refactoring of event definition code
+Added attachUserId(boolean) method (#92)
+Removed configCustomData from logImpression (#115)
+Cleaned up activity tracking (page pings)
+Added a combine only option to snowpak.sh
+
+Version 0.8.2 (2012-12-18)
+--------------------------
+Fixed regressions from splitting JS into multiple files (#103)
+
+Version 0.8.1 (2012-11-29)
+--------------------------
+Fixed bug with trailing comma (#102)
+Removed console.log when not debugging (#101)
+Removed minified sp.js from version control (added .gitignore to keep it out)
+
+Version 0.8.0 (2012-11-28)
+--------------------------
+Rename ice.png to i - BREAKING CHANGE (#29)
+Added setCollectorCf() and deprecated setAccount() (#32)
+Tracker constructor now supports Cf or Url (part of #44)
+getTrackerCf() and -Url() added, getTracker() deprecated (part of #44)
+Added tracker version (`tv`) to querystring (#41)
+Added color depth tracking (part of #69)
+Added timezone tracking (part of #69)
+Added user fingerprinting (#70)
+Broke out .js into multiple files (#55)
+
+Version 0.7.0 (2012-10-01)
+--------------------------
+Renamed said to aid for application ID
+
+Version 0.6 (2012-09-05)
+------------------------
+Added setSiteId functionality
+Added ecommerce tracking
+
+Version 0.5 (2012-08-18)
+--------------------------
+Changed header comments from Doxygen format to JsDoc
+Added support for specifying collectorUrl directly
+Added versioning into header comment (so survives minification)
+Took f_ off res and cookie; added url onto end, renamed rdm to tid
+
+Version 0.4 (2012-05-30)
+------------------------
+Improved names of querystring params
+Added page-url to querystring as fallback
+
+Version 0.3 (2012-05-18)
+------------------------
+Updated to prepend f_ to browser features
+Revised the querystring name-value pairs to make them more user-friendly
+
+Version 0.2 (2012-05-08)
+------------------------
+Formalised minification process
+
+Version 0.1 (2012-03-21)
+------------------------
+Initial release
