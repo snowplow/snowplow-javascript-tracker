@@ -79,7 +79,8 @@
               '',                     // shipping
               '',                     // city
               '',                     // state or province
-              ''                      // country
+              '',                     // country
+              'JPY'                   // currency
               ]);
 
           // addItem might be called for each item in the shopping cart,
@@ -90,7 +91,8 @@
               'Blue t-shirt',         // product name
               '',                     // category
               '2000',                 // unit price - required
-              '2'                     // quantity - required
+              '2',                    // quantity - required
+              'JPY'                   // currency
               ]);
 
           _snaq.push(['addItem',
@@ -99,7 +101,8 @@
               'Red shoes',            // product name
               '',                     // category
               '4000',                 // unit price - required
-              '1'                     // quantity - required
+              '1',                    // quantity - required
+              'JPY'                   // currency
               ]);
 
           // trackTrans sends the transaction to Snowplow tracking servers.
