@@ -1,7 +1,7 @@
 Version 0.13.0 (2013-0X-XX)
 ---------------------------
 Added fully retrospective CHANGELOG (#20)
-Added retrospective tags back in (#22) - TODO
+Added retrospective tags back in (#22)
 
 Version 0.12.0 (2013-07-07)
 ---------------------------
@@ -45,12 +45,10 @@ Added scroll offsets to page ping (#127)
 
 Version 0.9.1 (2013-01-29)
 --------------------------
-Bumped to 0.9.1
 Fixed bug where secure flag not being set on cookies sent via HTTPS
 
 Version 0.9.0 (2012-12-26)
 --------------------------
-Bumped to 0.9.0
 Each event now sent with an event type `e` (#63)
 Refactoring of event definition code
 Added attachUserId(boolean) method (#92)
