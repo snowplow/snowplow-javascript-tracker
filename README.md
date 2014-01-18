@@ -18,7 +18,7 @@ With this tracker you can collect user event data (page views, e-commerce transa
 
 The Snowplow JavaScript Tracker is based on Anthon Pang's [`piwik.js`] [piwikjs], the JavaScript tracker for the open-source [Piwik] [piwik] project, and is distributed under the same license ([Simplified BSD] [bsd]).
 
-Significant portions of the Snowplow JavaScript Tracker copyright 2010 Anthon Pang. Remainder copyright 2012-13 Snowplow Analytics Ltd.
+Significant portions of the Snowplow JavaScript Tracker copyright 2010 Anthon Pang. Remainder copyright 2012-14 Snowplow Analytics Ltd.
 
 Licensed under the [Simplified BSD] [bsd] license.
 
