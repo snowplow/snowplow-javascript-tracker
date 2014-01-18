@@ -766,9 +766,10 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 * @param string city 
  	 * @param string state 
  	 * @param string country 
+ 	 * @param string currency The currency the total/tax/shipping are expressed in
 	 */
 	// TODO: add params to comment
-	function logTransaction(orderId, affiliation, total, tax, shipping, city, state, country) {
+	function logTransaction(orderId, affiliation, total, tax, shipping, city, state, country, currency) {
 		var sb = requestStringBuilder();
 		sb.add('e', 'tr'); // 'tr' for TRansaction
 		sb.add('tr_id', orderId);
@@ -779,6 +780,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		sb.add('tr_ci', city);
 		sb.add('tr_st', state);
 		sb.add('tr_co', country);
+		sb.add('tr_cu', currency);
 		var request = getRequest(sb, 'transaction');
 		sendRequest(request, configTrackerPause);
 	}
@@ -792,9 +794,10 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 * @param string category
 	 * @param string price
 	 * @param string quantity
+	 * @param string currency The currency the price is expressed in
 	 */
 	// TODO: add params to comment
-	function logTransactionItem(orderId, sku, name, category, price, quantity) {
+	function logTransactionItem(orderId, sku, name, category, price, quantity, currency) {
 		var sb = requestStringBuilder();
 		sb.add('e', 'ti'); // 'ti' for Transaction Item
 		sb.add('ti_id', orderId);
@@ -803,6 +806,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		sb.add('ti_ca', category);
 		sb.add('ti_pr', price);
 		sb.add('ti_qu', quantity);
+		sb.add('ti_cu', currency);
 		var request = getRequest(sb, 'transactionItem');
 		sendRequest(request, configTrackerPause);
 	}
@@ -1764,8 +1768,9 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 * @param string city Optional. City to associate with transaction.
 		 * @param string state Optional. State to associate with transaction.
 		 * @param string country Optional. Country to associate with transaction.
+		 * @param string currency Optional. Currency to associate with this transaction.
 		 */
-		 addTrans: function(orderId, affiliation, total, tax, shipping, city, state, country) {
+		 addTrans: function(orderId, affiliation, total, tax, shipping, city, state, country, currency) {
 			 ecommerceTransaction.transaction = {
 				 orderId: orderId,
 				 affiliation: affiliation,
@@ -1774,7 +1779,8 @@ SnowPlow.Tracker = function Tracker(argmap) {
 				 shipping: shipping,
 				 city: city,
 				 state: state,
-				 country: country};
+				 country: country,
+				 currency: currency};
 		 },
 
 		/**
@@ -1786,15 +1792,17 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 * @param string category Optional. Product category.
 		 * @param string price Required. Product price.
 		 * @param string quantity Required. Purchase quantity.
+		 * @param string currency Optional. Product price currency.
 		 */
-		 addItem: function(orderId, sku, name, category, price, quantity) {
+		 addItem: function(orderId, sku, name, category, price, quantity, currency) {
 			 ecommerceTransaction.items.push({
 						orderId: orderId,
 						sku: sku,
 						name: name,
 						category: category,
 						price: price,
-						quantity: quantity});
+						quantity: quantity,
+						currency: currency});
 		 },
 
 		/**
@@ -1812,7 +1820,8 @@ SnowPlow.Tracker = function Tracker(argmap) {
 					 ecommerceTransaction.transaction.shipping,
 					 ecommerceTransaction.transaction.city,
 					 ecommerceTransaction.transaction.state,
-					 ecommerceTransaction.transaction.country
+					 ecommerceTransaction.transaction.country,
+					 ecommerceTransaction.transaction.currency
 					);
 			for (var i = 0; i < ecommerceTransaction.items.length; i++) {
         		var item = ecommerceTransaction.items[i];
@@ -1822,7 +1831,8 @@ SnowPlow.Tracker = function Tracker(argmap) {
 					item.name,
 					item.category,
 					item.price,
-					item.quantity
+					item.quantity,
+					item.currency
 					);
 			}
 
