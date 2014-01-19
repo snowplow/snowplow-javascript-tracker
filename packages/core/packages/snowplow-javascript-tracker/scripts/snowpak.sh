@@ -68,7 +68,7 @@ validate_options() {
 }
 
 combine_files() {
-  while read F; do cat $DIR/../$F; done <$DEPENDENCIES_FILE
+  while read F; do cat $DIR/../src/$F; done <$DIR/../src/$DEPENDENCIES_FILE
 }
 
 filter_out_debug() {
