@@ -9,4 +9,3 @@ js/lib/base64.js
 js/tracker.js
 js/snowplow.js
 js/constructor.js
-
