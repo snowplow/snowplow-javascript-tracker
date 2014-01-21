@@ -21,7 +21,7 @@
  *   improved by: Rafał Kukawski (http://kukawski.pl)
  */
 
-SnowPlow.base64encode = function sha1(data) {
+SnowPlow.base64encode = function(data) {
   if (!data) return data;
   if (typeof window['btoa'] == 'function') return btoa(data);
 
