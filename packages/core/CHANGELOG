@@ -6,7 +6,7 @@ Restructured folders (#21)
 Added setPlatform support, thanks @rcs! (#25)
 Added currency field to ecommerce transactions (#34)
 Added base64decode to Tracker (#36)                          - TODO
-Added `value !== null` check to requestStringBuilder() (#40) - TODO
+Added `value !== null` check to requestStringBuilder() (#40)
 Added custom unstructured contexts (#49)                     - TODO
 Added array helpers (#41)                                    - TODO
 Fixed (harmless) bug in base64.js (#35)
