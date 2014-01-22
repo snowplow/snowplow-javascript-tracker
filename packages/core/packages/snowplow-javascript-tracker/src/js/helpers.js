@@ -47,6 +47,22 @@ SnowPlow.isFunction = function (property) {
 }
 
 /*
+ * Is property an array?
+ */
+SnowPlow.isArray = ('isArray' in Array) ? 
+	Array.isArray : 
+	function (value) {
+		return Object.prototype.toString.call(value) === '[object Array]';
+	}
+
+/*
+ * Is property an empty array?
+ */
+SnowPlow.isEmptyArray = function (property) {
+	return SnowPlow.isArray(property) && property.length < 1;
+}
+
+/*
  * Is property an object?
  *
  * @return bool Returns true if property is null, an Object, or subclass of Object (i.e., an instanceof String, Date, etc.)

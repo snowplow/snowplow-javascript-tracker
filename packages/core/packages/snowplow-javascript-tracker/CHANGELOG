@@ -8,7 +8,7 @@ Added currency field to ecommerce transactions (#34)
 Added base64decode to Tracker (#36)
 Added `value !== null` check to requestStringBuilder() (#40)
 Added custom unstructured contexts (#49)                     - TODO
-Added array helpers (#41)                                    - TODO
+Added array helpers (#41)
 Fixed (harmless) bug in base64.js (#35)
 
 Version 0.12.0 (2013-07-07)
