@@ -1,15 +1,16 @@
 Version 0.13.0 (2013-0X-XX)
 ---------------------------
+Added setPlatform support, thanks @rcs! (#25)
+Added currency field to ecommerce transactions (#34)
+Added custom unstructured contexts (#49)                     - TODO
+Added base64decode to Tracker (#36)
+Added `value !== null` check to requestStringBuilder() (#40)
+Added array helpers (#41)
+Fixed (harmless) bug in base64.js (#35)
+Added package.json (#38)                                     - TODO
 Added fully retrospective CHANGELOG (#20)
 Added retrospective tags back in (#22)
 Restructured folders (#21)
-Added setPlatform support, thanks @rcs! (#25)
-Added currency field to ecommerce transactions (#34)
-Added base64decode to Tracker (#36)
-Added `value !== null` check to requestStringBuilder() (#40)
-Added custom unstructured contexts (#49)                     - TODO
-Added array helpers (#41)
-Fixed (harmless) bug in base64.js (#35)
 
 Version 0.12.0 (2013-07-07)
 ---------------------------
