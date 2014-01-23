@@ -672,7 +672,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 			    matches = e.exec(property);
 
 			if (matches) return matches[1];
-		}
+		};
 
 		/*
 		 * Translates a value of an unstructured date property
@@ -688,7 +688,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		    default:
 		      return date;
 		  }
-		}
+		};
 
 		var add = function (key, value) {
 			addNvPair(key, value, true);
@@ -722,7 +722,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 			} else {
 				add(keyIfNotEncoded, pr_string);
 			};
-		}
+		};
 
 		return {
 			add,
@@ -731,7 +731,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 			build: function() {
 				return str;
 			}
-		}
+		};
 	}
 
 	/**
