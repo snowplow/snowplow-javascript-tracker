@@ -9,8 +9,8 @@
 
 # Constants which should apply on any box
 DEPENDENCIES_FILE='dependencies.txt'
-FULL_OUTPUTFILE="snowplow.js"
-MIN_OUTPUTFILE="sp.js"
+FULL_OUTPUTFILE="../dist/snowplow.js"
+MIN_OUTPUTFILE="../dist/sp.js"
 YUIC_JARPATH="build/yuicompressor-2.4.2.jar"
 
 # Where are we?
