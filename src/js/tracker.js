@@ -712,19 +712,19 @@ SnowPlow.Tracker = function Tracker(argmap) {
 			if (properties.hasOwnProperty(p) && SnowPlow.isDate(properties[p])) {
 				type = SnowPlow.getPropertySuffix(p);
 				if(!type) {
-          type = 'tms'
-          key += '$' + type
-        }
-        value = SnowPlow.translateDateValue(value, type);
+					type = 'tms'
+					key += '$' + type
+				}
+				value = SnowPlow.translateDateValue(value, type);
 			};
 			translated[key] = value;
 		}
 
 		pr_string = JSON2.stringify(translated);
 		if(configEncodeBase64) {
-		  sb.addRaw('ue_px', SnowPlow.base64urlencode(pr_string));
+			sb.addRaw('ue_px', SnowPlow.base64urlencode(pr_string));
 		} else {
-		  sb.add('ue_pr', pr_string);
+			sb.add('ue_pr', pr_string);
 		};
 		request = getRequest(sb, 'unstructEvent');
 		sendRequest(request, configTrackerPause);
