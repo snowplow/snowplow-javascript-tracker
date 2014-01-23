@@ -1,0 +1,12 @@
+{
+  "name": "snowplow-tracker",
+  "version": "0.13.0",
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "intern": "~1.2.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snowplow/snowplow-javascript-tracker.git"
+  }
+}
