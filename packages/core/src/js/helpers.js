@@ -119,16 +119,6 @@ SnowPlow.getHostName = function (url) {
 }
 
 /*
- * Extract suffix from a property
- */
-SnowPlow.getPropertySuffix = function (property) {
-	var e = new RegExp('\\$(.[^\\$]+)$'),
-	    matches = e.exec(property);
-
-	if (matches) return matches[1];
-}
-
-/*
  * Checks whether sessionStorage is available, in a way that
  * does not throw a SecurityError in Firefox if "always ask"
  * is enabled for cookies (https://github.com/snowplow/snowplow/issues/163).
@@ -168,23 +158,6 @@ SnowPlow.toTimestamp = function (date, milliseconds) {
 SnowPlow.toDatestamp = function (date) {
 	return Math.floor(date / 86400000);
 }
-
-/*
- * Translates a value of an unstructured date property
- */
-SnowPlow.translateDateValue = function (date, type) {
-  switch (type) {
-    case 'tms':
-      return SnowPlow.toTimestamp(date, true);
-    case 'ts':
-      return SnowPlow.toTimestamp(date, false);
-    case 'dt':
-      return SnowPlow.toDatestamp(date);
-    default:
-      return date;
-  }
-}
-
   
 /*
  * Fix-up URL when page rendered from search engine cache or translated page.
