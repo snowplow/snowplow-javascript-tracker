@@ -8,13 +8,13 @@
 
 
 # Constants which should apply on any box
-DEPENDENCIES_FILE='dependencies.txt'
-FULL_OUTPUTFILE="../dist/snowplow.js"
-MIN_OUTPUTFILE="../dist/sp.js"
+DEPENDENCIES_FILE='src/dependencies.txt'
+FULL_OUTPUTFILE="dist/snowplow.js"
+MIN_OUTPUTFILE="dist/sp.js"
 YUIC_JARPATH="build/yuicompressor-2.4.2.jar"
 
-# Where are we?
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Get project root
+ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 
 usage() {
   echo "Usage: ${0} [options]"
@@ -68,7 +68,7 @@ validate_options() {
 }
 
 combine_files() {
-  while read F; do cat $DIR/../src/$F; done <$DIR/../src/$DEPENDENCIES_FILE
+  while read F; do cat "$ROOT_DIR/src/$F"; done <$ROOT_DIR'/'$DEPENDENCIES_FILE
 }
 
 filter_out_debug() {
@@ -88,10 +88,10 @@ validate_options
 
 if [ $COMBINE_ONLY ]; then
   echo "Combining source files only..."
-  combine_files > $FULL_OUTPUTFILE
+  combine_files > $ROOT_DIR'/'$FULL_OUTPUTFILE
 else
   echo "Running minification..."
-  combine_files | filter_out_debug | compress > $MIN_OUTPUTFILE
+  combine_files | filter_out_debug | compress > $ROOT_DIR'/'$MIN_OUTPUTFILE
 fi
 
 exit 0
