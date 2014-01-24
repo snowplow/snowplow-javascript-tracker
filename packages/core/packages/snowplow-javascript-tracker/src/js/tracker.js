@@ -742,8 +742,9 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 * @param string label (optional) An optional string to provide additional dimensions to the event data
 	 * @param string property (optional) Describes the object or the action performed on it, e.g. quantity of item added to basket
 	 * @param numeric value (optional) An integer or floating point number to provide numerical data about the user event
+	 * @param object context Custom context relating to the event
 	 */
-	function logStructEvent(category, action, label, property, value) {
+	function logStructEvent(category, action, label, property, value, context) {
 		var sb = requestStringBuilder(configEncodeBase64);
 		sb.add('e', 'se'); // 'se' for Structured Event
 		sb.add('se_ca', category);
@@ -751,6 +752,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		sb.add('se_la', label);
 		sb.add('se_pr', property);
 		sb.add('se_va', value);
+		sb.addJson('cx', 'co', context);
 		request = getRequest(sb, 'structEvent');
 		sendRequest(request, configTrackerPause);
 	}
@@ -760,12 +762,14 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 *
 	 * @param string name The name of the event
 	 * @param object properties The properties of the event
+	 * @param object context Custom context relating to the event
 	 */
-	function logUnstructEvent(name, properties) {
+	function logUnstructEvent(name, properties, context) {
 		var sb = requestStringBuilder(configEncodeBase64);
 		sb.add('e', 'ue'); // 'ue' for Unstructured Event
 		sb.add('ue_na', name);
 		sb.addJson('ue_px', 'ue_pr', properties);
+		sb.addJson('cx', 'co', context);
 		request = getRequest(sb, 'unstructEvent');
 		sendRequest(request, configTrackerPause);
 	}
@@ -777,18 +781,20 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 * @param string campaignId (optional) Identifier for the campaign which the banner belongs to
 	 * @param string advertiserId (optional) Identifier for the advertiser which the campaign belongs to
 	 * @param string userId (optional) Ad server identifier for the viewer of the banner
+	 * @param object context Custom context relating to the event
 	 */
 	// TODO: rename to logAdImpression and deprecate logImpression
 	// TODO: should add impressionId as well.
 	// TODO: should add in zoneId (aka placementId, slotId?) as well
 	// TODO: change ad_ to ai_?
-	function logImpression(bannerId, campaignId, advertiserId, userId) {
+	function logImpression(bannerId, campaignId, advertiserId, userId, context) {
 		var sb = requestStringBuilder(configEncodeBase64);
 		sb.add('e', 'ad'); // 'ad' for AD impression
 		sb.add('ad_ba', bannerId);
 		sb.add('ad_ca', campaignId)
 		sb.add('ad_ad', advertiserId);
 		sb.add('ad_uid', userId);
+		sb.addJson('cx', 'co', context);
 		request = getRequest(sb, 'impression');
 		sendRequest(request, configTrackerPause);
 	}
@@ -807,9 +813,10 @@ SnowPlow.Tracker = function Tracker(argmap) {
  	 * @param string state 
  	 * @param string country 
  	 * @param string currency The currency the total/tax/shipping are expressed in
+	 * @param object context Custom context relating to the event
 	 */
 	// TODO: add params to comment
-	function logTransaction(orderId, affiliation, total, tax, shipping, city, state, country, currency) {
+	function logTransaction(orderId, affiliation, total, tax, shipping, city, state, country, currency, context) {
 		var sb = requestStringBuilder(configEncodeBase64);
 		sb.add('e', 'tr'); // 'tr' for TRansaction
 		sb.add('tr_id', orderId);
@@ -821,6 +828,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		sb.add('tr_st', state);
 		sb.add('tr_co', country);
 		sb.add('tr_cu', currency);
+		sb.addJson('cx', 'co', context);
 		var request = getRequest(sb, 'transaction');
 		sendRequest(request, configTrackerPause);
 	}
@@ -835,9 +843,10 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 * @param string price
 	 * @param string quantity
 	 * @param string currency The currency the price is expressed in
+	 * @param object context Custom context relating to the event
 	 */
 	// TODO: add params to comment
-	function logTransactionItem(orderId, sku, name, category, price, quantity, currency) {
+	function logTransactionItem(orderId, sku, name, category, price, quantity, currency, context) {
 		var sb = requestStringBuilder(configEncodeBase64);
 		sb.add('e', 'ti'); // 'ti' for Transaction Item
 		sb.add('ti_id', orderId);
@@ -847,6 +856,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		sb.add('ti_pr', price);
 		sb.add('ti_qu', quantity);
 		sb.add('ti_cu', currency);
+		sb.addJson('cx', 'co', context);
 		var request = getRequest(sb, 'transactionItem');
 		sendRequest(request, configTrackerPause);
 	}
@@ -855,8 +865,9 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 * Log the page view / visit
 	 *
 	 * @param string customTitle The user-defined page title to attach to this page view
+	 * @param object context Custom context relating to the event
 	 */
-	function logPageView(customTitle) {
+	function logPageView(customTitle, context) {
 
 		// Fixup page title. We'll pass this to logPagePing too.
 		var pageTitle = SnowPlow.fixupTitle(customTitle || configTitle);
@@ -865,6 +876,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		var sb = requestStringBuilder(configEncodeBase64);
 		sb.add('e', 'pv'); // 'pv' for Page View
 		sb.add('page', pageTitle);
+		sb.addJson('cx', 'co', context);
 		var request = getRequest(sb, 'pageView');
 		sendRequest(request, configTrackerPause);
 
@@ -902,7 +914,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 				if ((lastActivityTime + configHeartBeatTimer) > now.getTime()) {
 					// Send ping if minimum visit time has elapsed
 					if (configMinimumVisitTime < now.getTime()) {
-						logPagePing(pageTitle); // Grab the min/max globals
+						logPagePing(pageTitle, context); // Grab the min/max globals
 					}
 				}
 			}, configHeartBeatTimer);
@@ -916,8 +928,9 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 * logPageView() above.
 	 *
 	 * @param string pageTitle The page title to attach to this page ping
+	 * @param object context Custom context relating to the event
 	 */
-	function logPagePing(pageTitle) {
+	function logPagePing(pageTitle, context) {
 		var sb = requestStringBuilder(configEncodeBase64);
 		sb.add('e', 'pp'); // 'pp' for Page Ping
 		sb.add('page', pageTitle);
@@ -925,6 +938,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		sb.addRaw('pp_max', maxXOffset); // Global
 		sb.addRaw('pp_miy', minYOffset); // Global
 		sb.addRaw('pp_may', maxYOffset); // Global
+		sb.addJson('cx', 'co', context);
 		resetMaxScrolls();
 		var request = getRequest(sb, 'pagePing');
 		sendRequest(request, configTrackerPause);
@@ -1669,10 +1683,11 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 * Log visit to this page
 		 *
 		 * @param string customTitle
+		 * @param object Custom context relating to the event
 		 */
-		trackPageView: function (customTitle) {
+		trackPageView: function (customTitle, context) {
 			trackCallback(function () {
-				logPageView(customTitle);
+				logPageView(customTitle, context);
 			});
 		},
 
@@ -1770,9 +1785,10 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 * @param string label (optional) An optional string to provide additional dimensions to the event data
 		 * @param string property (optional) Describes the object or the action performed on it, e.g. quantity of item added to basket
 		 * @param int|float|string value (optional) An integer that you can use to provide numerical data about the user event
+		 * @param object Custom context relating to the event
 		 */
-		trackStructEvent: function (category, action, label, property, value) {
-			logStructEvent(category, action, label, property, value);                   
+		trackStructEvent: function (category, action, label, property, value, context) {
+			logStructEvent(category, action, label, property, value, context);                   
 		},
 
 		/**
@@ -1780,9 +1796,10 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 *
 		 * @param string name The name of the event
 		 * @param object properties The properties of the event
+		 * @param object Custom context relating to the event
 		 */
-		trackUnstructEvent: function (name, properties) {
-			logUnstructEvent(name, properties);
+		trackUnstructEvent: function (name, properties, context) {
+			logUnstructEvent(name, properties, context);
 		},
 
 		/**
@@ -1792,9 +1809,10 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 * @param string campaignId (optional) Identifier for the campaign which the banner belongs to
 		 * @param string advertiserId (optional) Identifier for the advertiser which the campaign belongs to
 		 * @param string userId (optional) Ad server identifier for the viewer of the banner
+		 * @param object Custom context relating to the event
 		 */
-		 trackImpression: function (bannerId, campaignId, advertiserId, userId) {
-				 logImpression(bannerId, campaignId, advertiserId, userId);
+		 trackImpression: function (bannerId, campaignId, advertiserId, userId, context) {
+				 logImpression(bannerId, campaignId, advertiserId, userId, context);
 		 },
 
 		/**
@@ -1809,8 +1827,9 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 * @param string state Optional. State to associate with transaction.
 		 * @param string country Optional. Country to associate with transaction.
 		 * @param string currency Optional. Currency to associate with this transaction.
+		 * @param object context Option. Context relating to the event.
 		 */
-		 addTrans: function(orderId, affiliation, total, tax, shipping, city, state, country, currency) {
+		 addTrans: function(orderId, affiliation, total, tax, shipping, city, state, country, currency, context) {
 			 ecommerceTransaction.transaction = {
 				 orderId: orderId,
 				 affiliation: affiliation,
@@ -1820,7 +1839,8 @@ SnowPlow.Tracker = function Tracker(argmap) {
 				 city: city,
 				 state: state,
 				 country: country,
-				 currency: currency};
+				 currency: currency,
+				 context: context};
 		 },
 
 		/**
@@ -1833,6 +1853,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 * @param string price Required. Product price.
 		 * @param string quantity Required. Purchase quantity.
 		 * @param string currency Optional. Product price currency.
+		 * @param object context Option. Context relating to the event.
 		 */
 		 addItem: function(orderId, sku, name, category, price, quantity, currency) {
 			 ecommerceTransaction.items.push({
@@ -1842,7 +1863,8 @@ SnowPlow.Tracker = function Tracker(argmap) {
 						category: category,
 						price: price,
 						quantity: quantity,
-						currency: currency});
+						currency: currency
+						context: context});
 		 },
 
 		/**
@@ -1861,7 +1883,8 @@ SnowPlow.Tracker = function Tracker(argmap) {
 					 ecommerceTransaction.transaction.city,
 					 ecommerceTransaction.transaction.state,
 					 ecommerceTransaction.transaction.country,
-					 ecommerceTransaction.transaction.currency
+					 ecommerceTransaction.transaction.currency,
+					 ecommerceTransaction.transaction.context
 					);
 			for (var i = 0; i < ecommerceTransaction.items.length; i++) {
         		var item = ecommerceTransaction.items[i];
@@ -1872,7 +1895,8 @@ SnowPlow.Tracker = function Tracker(argmap) {
 					item.category,
 					item.price,
 					item.quantity,
-					item.currency
+					item.currency,
+					item.context
 					);
 			}
 
