@@ -919,6 +919,10 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		sendRequest(request, configTrackerPause);
 	}
 
+	// ---------------------------------------
+	// Next 2 log methods are not supported in
+	// Snowplow Enrichment process yet
+
 	/*
 	 * Log the link or click with the server
 	 *
@@ -1883,7 +1887,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		},
 
 		// ---------------------------------------
-		// Below track events not supported in
+		// Next 2 track events not supported in
 		// Snowplow Enrichment process yet
 
 		/**
