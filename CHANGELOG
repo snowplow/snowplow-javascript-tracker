@@ -1,15 +1,15 @@
-Version 0.13.0 (2013-0X-XX)
+Version 0.13.0 (2014-01-XX)
 ---------------------------
+Added fully retrospective CHANGELOG (#20)
 Added setPlatform support, thanks @rcs! (#25)
 Added currency field to ecommerce transactions (#34)
-Added custom unstructured contexts (#49)                     - TODO
+Added custom unstructured contexts (#49)
 Added base64decode to Tracker (#36)
 Added `value !== null` check to requestStringBuilder() (#40)
 Added array helpers (#41)
 Fixed (harmless) bug in base64.js (#35)
 Update .gitignore to be node-friendly .gitignore (#52)
 Added package.json (#38)
-Added fully retrospective CHANGELOG (#20)
 Added retrospective tags back in (#22)
 Restructured folders (#21)
 
