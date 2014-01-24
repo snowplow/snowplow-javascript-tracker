@@ -734,133 +734,6 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		};
 	}
 
-	/**
-	 * Log a structured event happening on this page
-	 *
-	 * @param string category The name you supply for the group of objects you want to track
-	 * @param string action A string that is uniquely paired with each category, and commonly used to define the type of user interaction for the web object
-	 * @param string label (optional) An optional string to provide additional dimensions to the event data
-	 * @param string property (optional) Describes the object or the action performed on it, e.g. quantity of item added to basket
-	 * @param numeric value (optional) An integer or floating point number to provide numerical data about the user event
-	 * @param object context Custom context relating to the event
-	 */
-	function logStructEvent(category, action, label, property, value, context) {
-		var sb = requestStringBuilder(configEncodeBase64);
-		sb.add('e', 'se'); // 'se' for Structured Event
-		sb.add('se_ca', category);
-		sb.add('se_ac', action)
-		sb.add('se_la', label);
-		sb.add('se_pr', property);
-		sb.add('se_va', value);
-		sb.addJson('cx', 'co', context);
-		request = getRequest(sb, 'structEvent');
-		sendRequest(request, configTrackerPause);
-	}
-
-	/**
-	 * Log an unstructured event happening on this page
-	 *
-	 * @param string name The name of the event
-	 * @param object properties The properties of the event
-	 * @param object context Custom context relating to the event
-	 */
-	function logUnstructEvent(name, properties, context) {
-		var sb = requestStringBuilder(configEncodeBase64);
-		sb.add('e', 'ue'); // 'ue' for Unstructured Event
-		sb.add('ue_na', name);
-		sb.addJson('ue_px', 'ue_pr', properties);
-		sb.addJson('cx', 'co', context);
-		request = getRequest(sb, 'unstructEvent');
-		sendRequest(request, configTrackerPause);
-	}
-
-	/**
-	 * Log an ad impression
-	 *
-	 * @param string bannerId Identifier for the ad banner displayed
-	 * @param string campaignId (optional) Identifier for the campaign which the banner belongs to
-	 * @param string advertiserId (optional) Identifier for the advertiser which the campaign belongs to
-	 * @param string userId (optional) Ad server identifier for the viewer of the banner
-	 * @param object context Custom context relating to the event
-	 */
-	// TODO: rename to logAdImpression and deprecate logImpression
-	// TODO: should add impressionId as well.
-	// TODO: should add in zoneId (aka placementId, slotId?) as well
-	// TODO: change ad_ to ai_?
-	function logImpression(bannerId, campaignId, advertiserId, userId, context) {
-		var sb = requestStringBuilder(configEncodeBase64);
-		sb.add('e', 'ad'); // 'ad' for AD impression
-		sb.add('ad_ba', bannerId);
-		sb.add('ad_ca', campaignId)
-		sb.add('ad_ad', advertiserId);
-		sb.add('ad_uid', userId);
-		sb.addJson('cx', 'co', context);
-		request = getRequest(sb, 'impression');
-		sendRequest(request, configTrackerPause);
-	}
-
-	// TODO: add in ad clicks
-
-	/**
-	 * Log ecommerce transaction metadata
-	 *
-	 * @param string orderId 
-	 * @param string affiliation 
-	 * @param string total 
-	 * @param string tax 
- 	 * @param string shipping 
-	 * @param string city 
- 	 * @param string state 
- 	 * @param string country 
- 	 * @param string currency The currency the total/tax/shipping are expressed in
-	 * @param object context Custom context relating to the event
-	 */
-	// TODO: add params to comment
-	function logTransaction(orderId, affiliation, total, tax, shipping, city, state, country, currency, context) {
-		var sb = requestStringBuilder(configEncodeBase64);
-		sb.add('e', 'tr'); // 'tr' for TRansaction
-		sb.add('tr_id', orderId);
-		sb.add('tr_af', affiliation);
-		sb.add('tr_tt', total);
-		sb.add('tr_tx', tax);
-		sb.add('tr_sh', shipping);
-		sb.add('tr_ci', city);
-		sb.add('tr_st', state);
-		sb.add('tr_co', country);
-		sb.add('tr_cu', currency);
-		sb.addJson('cx', 'co', context);
-		var request = getRequest(sb, 'transaction');
-		sendRequest(request, configTrackerPause);
-	}
-
-	/**
-	 * Log ecommerce transaction item
-	 *
-	 * @param string orderId
-	 * @param string sku
-	 * @param string name
-	 * @param string category
-	 * @param string price
-	 * @param string quantity
-	 * @param string currency The currency the price is expressed in
-	 * @param object context Custom context relating to the event
-	 */
-	// TODO: add params to comment
-	function logTransactionItem(orderId, sku, name, category, price, quantity, currency, context) {
-		var sb = requestStringBuilder(configEncodeBase64);
-		sb.add('e', 'ti'); // 'ti' for Transaction Item
-		sb.add('ti_id', orderId);
-		sb.add('ti_sk', sku);
-		sb.add('ti_na', name);
-		sb.add('ti_ca', category);
-		sb.add('ti_pr', price);
-		sb.add('ti_qu', quantity);
-		sb.add('ti_cu', currency);
-		sb.addJson('cx', 'co', context);
-		var request = getRequest(sb, 'transactionItem');
-		sendRequest(request, configTrackerPause);
-	}
-
 	/*
 	 * Log the page view / visit
 	 *
@@ -944,20 +817,148 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		sendRequest(request, configTrackerPause);
 	}
 
+	/**
+	 * Log a structured event happening on this page
+	 *
+	 * @param string category The name you supply for the group of objects you want to track
+	 * @param string action A string that is uniquely paired with each category, and commonly used to define the type of user interaction for the web object
+	 * @param string label (optional) An optional string to provide additional dimensions to the event data
+	 * @param string property (optional) Describes the object or the action performed on it, e.g. quantity of item added to basket
+	 * @param numeric value (optional) An integer or floating point number to provide numerical data about the user event
+	 * @param object context Custom context relating to the event
+	 */
+	function logStructEvent(category, action, label, property, value, context) {
+		var sb = requestStringBuilder(configEncodeBase64);
+		sb.add('e', 'se'); // 'se' for Structured Event
+		sb.add('se_ca', category);
+		sb.add('se_ac', action)
+		sb.add('se_la', label);
+		sb.add('se_pr', property);
+		sb.add('se_va', value);
+		sb.addJson('cx', 'co', context);
+		request = getRequest(sb, 'structEvent');
+		sendRequest(request, configTrackerPause);
+	}
+
+	/**
+	 * Log an unstructured event happening on this page
+	 *
+	 * @param string name The name of the event
+	 * @param object properties The properties of the event
+	 * @param object context Custom context relating to the event
+	 */
+	function logUnstructEvent(name, properties, context) {
+		var sb = requestStringBuilder(configEncodeBase64);
+		sb.add('e', 'ue'); // 'ue' for Unstructured Event
+		sb.add('ue_na', name);
+		sb.addJson('ue_px', 'ue_pr', properties);
+		sb.addJson('cx', 'co', context);
+		request = getRequest(sb, 'unstructEvent');
+		sendRequest(request, configTrackerPause);
+	}
+
+	// TODO: add in ad clicks
+
+	/**
+	 * Log ecommerce transaction metadata
+	 *
+	 * @param string orderId 
+	 * @param string affiliation 
+	 * @param string total 
+	 * @param string tax 
+ 	 * @param string shipping 
+	 * @param string city 
+ 	 * @param string state 
+ 	 * @param string country 
+ 	 * @param string currency The currency the total/tax/shipping are expressed in
+	 * @param object context Custom context relating to the event
+	 */
+	// TODO: add params to comment
+	function logTransaction(orderId, affiliation, total, tax, shipping, city, state, country, currency, context) {
+		var sb = requestStringBuilder(configEncodeBase64);
+		sb.add('e', 'tr'); // 'tr' for TRansaction
+		sb.add('tr_id', orderId);
+		sb.add('tr_af', affiliation);
+		sb.add('tr_tt', total);
+		sb.add('tr_tx', tax);
+		sb.add('tr_sh', shipping);
+		sb.add('tr_ci', city);
+		sb.add('tr_st', state);
+		sb.add('tr_co', country);
+		sb.add('tr_cu', currency);
+		sb.addJson('cx', 'co', context);
+		var request = getRequest(sb, 'transaction');
+		sendRequest(request, configTrackerPause);
+	}
+
+	/**
+	 * Log ecommerce transaction item
+	 *
+	 * @param string orderId
+	 * @param string sku
+	 * @param string name
+	 * @param string category
+	 * @param string price
+	 * @param string quantity
+	 * @param string currency The currency the price is expressed in
+	 * @param object context Custom context relating to the event
+	 */
+	// TODO: add params to comment
+	function logTransactionItem(orderId, sku, name, category, price, quantity, currency, context) {
+		var sb = requestStringBuilder(configEncodeBase64);
+		sb.add('e', 'ti'); // 'ti' for Transaction Item
+		sb.add('ti_id', orderId);
+		sb.add('ti_sk', sku);
+		sb.add('ti_na', name);
+		sb.add('ti_ca', category);
+		sb.add('ti_pr', price);
+		sb.add('ti_qu', quantity);
+		sb.add('ti_cu', currency);
+		sb.addJson('cx', 'co', context);
+		var request = getRequest(sb, 'transactionItem');
+		sendRequest(request, configTrackerPause);
+	}
+
 	/*
 	 * Log the link or click with the server
 	 *
 	 * @param string url The target URL
 	 * @param string linkType The type of link - link or download (see getLinkType() for details)
+	 * @param object context Custom context relating to the event
 	 */
 	// TODO: rename to LinkClick
 	// TODO: this functionality is not yet fully implemented.
 	// See https://github.com/snowplow/snowplow/issues/75
-	function logLink(url, linkType) {
+	function logLink(url, linkType, context) {
 		var sb = requestStringBuilder(configEncodeBase64);
 		sb.add('e', linkType);
 		sb.add('t_url', purify(url));
 		var request = getRequest(sb, 'link');
+		sendRequest(request, configTrackerPause);
+	}
+
+	/**
+	 * Log an ad impression
+	 *
+	 * @param string bannerId Identifier for the ad banner displayed
+	 * @param string campaignId (optional) Identifier for the campaign which the banner belongs to
+	 * @param string advertiserId (optional) Identifier for the advertiser which the campaign belongs to
+	 * @param string userId (optional) Ad server identifier for the viewer of the banner
+	 * @param object context Custom context relating to the event
+	 */
+	// TODO: rename to logAdImpression and deprecate logImpression
+	// TODO: should add impressionId as well.
+	// TODO: should add in zoneId (aka placementId, slotId?) as well
+	// TODO: change ad_ to ai_?
+	function logImpression(bannerId, campaignId, advertiserId, userId, context) {
+		var sb = requestStringBuilder(configEncodeBase64);
+		sb.add('e', 'ad'); // 'ad' for AD impression
+		sb.add('ad_ba', bannerId);
+		sb.add('ad_ca', campaignId)
+		sb.add('ad_ad', advertiserId);
+		sb.add('ad_uid', userId);
+		sb.addJson('cx', 'co', context);
+		request = getRequest(sb, 'impression');
 		sendRequest(request, configTrackerPause);
 	}
 
@@ -1667,31 +1668,6 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		},
 
 		/**
-		 * Manually log a click from your own code
-		 *
-		 * @param string sourceUrl
-		 * @param string linkType
-		 */
-		// TODO: break this into trackLink(destUrl) and trackDownload(destUrl)
-		trackLink: function (sourceUrl, linkType) {
-			trackCallback(function () {
-				logLink(sourceUrl, linkType);
-			});
-		},
-
-		/**
-		 * Log visit to this page
-		 *
-		 * @param string customTitle
-		 * @param object Custom context relating to the event
-		 */
-		trackPageView: function (customTitle, context) {
-			trackCallback(function () {
-				logPageView(customTitle, context);
-			});
-		},
-
-		/**
 		 * Set the business-defined user ID for this user.
 		 *
 		 * @param string userId The business-defined user ID
@@ -1756,6 +1732,20 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		},
 
 		/**
+		 * Log visit to this page
+		 *
+		 * @param string customTitle
+		 * @param object Custom context relating to the event
+		 */
+		trackPageView: function (customTitle, context) {
+			trackCallback(function () {
+				logPageView(customTitle, context);
+			});
+		},
+
+		// No public method to track a page ping
+
+		/**
 		 * Track an event happening on this page
 		 *
 		 * DEPRECATED: use getStructEvent instead
@@ -1803,19 +1793,6 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		},
 
 		/**
-		 * Track an ad being served
-		 *
-		 * @param string bannerId Identifier for the ad banner displayed
-		 * @param string campaignId (optional) Identifier for the campaign which the banner belongs to
-		 * @param string advertiserId (optional) Identifier for the advertiser which the campaign belongs to
-		 * @param string userId (optional) Ad server identifier for the viewer of the banner
-		 * @param object Custom context relating to the event
-		 */
-		 trackImpression: function (bannerId, campaignId, advertiserId, userId, context) {
-				 logImpression(bannerId, campaignId, advertiserId, userId, context);
-		 },
-
-		/**
 		 * Track an ecommerce transaction
 		 *
 		 * @param string orderId Required. Internal unique order id number for this transaction.
@@ -1829,8 +1806,8 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 * @param string currency Optional. Currency to associate with this transaction.
 		 * @param object context Option. Context relating to the event.
 		 */
-		 addTrans: function(orderId, affiliation, total, tax, shipping, city, state, country, currency, context) {
-			 ecommerceTransaction.transaction = {
+		addTrans: function(orderId, affiliation, total, tax, shipping, city, state, country, currency, context) {
+			ecommerceTransaction.transaction = {
 				 orderId: orderId,
 				 affiliation: affiliation,
 				 total: total,
@@ -1840,8 +1817,9 @@ SnowPlow.Tracker = function Tracker(argmap) {
 				 state: state,
 				 country: country,
 				 currency: currency,
-				 context: context};
-		 },
+				 context: context
+			};
+		},
 
 		/**
 		 * Track an ecommerce transaction item
@@ -1855,17 +1833,18 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 * @param string currency Optional. Product price currency.
 		 * @param object context Option. Context relating to the event.
 		 */
-		 addItem: function(orderId, sku, name, category, price, quantity, currency) {
-			 ecommerceTransaction.items.push({
-						orderId: orderId,
-						sku: sku,
-						name: name,
-						category: category,
-						price: price,
-						quantity: quantity,
-						currency: currency
-						context: context});
-		 },
+		addItem: function(orderId, sku, name, category, price, quantity, currency, context) {
+			ecommerceTransaction.items.push({
+				orderId: orderId,
+				sku: sku,
+				name: name,
+				category: category,
+				price: price,
+				quantity: quantity,
+				currency: currency
+				context: context
+			});
+		},
 
 		/**
 		 * Commit the ecommerce transaction
@@ -1873,7 +1852,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 * This call will send the data specified with addTrans,
 		 * addItem methods to the tracking server.
 		 */
-		 trackTrans: function() {
+		trackTrans: function() {
 			 logTransaction(
 					 ecommerceTransaction.transaction.orderId,
 					 ecommerceTransaction.transaction.affiliation,
@@ -1901,7 +1880,38 @@ SnowPlow.Tracker = function Tracker(argmap) {
 			}
 
 			ecommerceTransaction = ecommerceTransactionTemplate();
-		 }
+		},
+
+		// ---------------------------------------
+		// Below track events not supported in
+		// Snowplow Enrichment process yet
+
+		/**
+		 * Manually log a click from your own code
+		 *
+		 * @param string sourceUrl
+		 * @param string linkType
+		 * @param object Custom context relating to the event
+		 */
+		// TODO: break this into trackLink(destUrl) and trackDownload(destUrl)
+		trackLink: function (sourceUrl, linkType, context) {
+			trackCallback(function () {
+				logLink(sourceUrl, linkType, context);
+			});
+		},
+
+		/**
+		 * Track an ad being served
+		 *
+		 * @param string bannerId Identifier for the ad banner displayed
+		 * @param string campaignId (optional) Identifier for the campaign which the banner belongs to
+		 * @param string advertiserId (optional) Identifier for the advertiser which the campaign belongs to
+		 * @param string userId (optional) Ad server identifier for the viewer of the banner
+		 * @param object Custom context relating to the event
+		 */
+		trackImpression: function (bannerId, campaignId, advertiserId, userId, context) {
+				 logImpression(bannerId, campaignId, advertiserId, userId, context);
+		}
 
 	};
 }
