@@ -1845,7 +1845,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 				category: category,
 				price: price,
 				quantity: quantity,
-				currency: currency
+				currency: currency,
 				context: context
 			});
 		},
