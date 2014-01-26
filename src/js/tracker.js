@@ -698,14 +698,15 @@ SnowPlow.Tracker = function Tracker(argmap) {
 			addNvPair(key, value, false);
 		};
 
-		var addJson = function (keyIfEncoded, keyIfNotEncoded, value) {
-			var translated = {}
-			for (var p in properties) {
-				var key = p, value = properties[p];
+		var addJson = function (keyIfEncoded, keyIfNotEncoded, json) {
+			
+			var translated = {};
+			for (var prop in json) {
+				var key = prop, value = json[prop];
 
 				// Special treatment for JavaScript Dates
-				if (properties.hasOwnProperty(p) && SnowPlow.isDate(properties[p])) {
-					type = getPropertySuffix(p);
+				if (properties.hasOwnProperty(key) && SnowPlow.isDate(value)) {
+					type = getPropertySuffix(key);
 					if (!type) {
 						type = 'tms';
 						key += '$' + type;
@@ -716,12 +717,12 @@ SnowPlow.Tracker = function Tracker(argmap) {
 				translated[key] = value;
 			}
 
-			pr_string = JSON2.stringify(translated);
-			if(configEncodeBase64) {
-				addRaw(keyIfEncoded, SnowPlow.base64urlencode(pr_string));
+			var jsonString = JSON2.stringify(translated);
+			if (base64Encode) {
+				addRaw(keyIfEncoded, SnowPlow.base64urlencode(jsonString));
 			} else {
-				add(keyIfNotEncoded, pr_string);
-			};
+				add(keyIfNotEncoded, jsonString);
+			}
 		};
 
 		return {
