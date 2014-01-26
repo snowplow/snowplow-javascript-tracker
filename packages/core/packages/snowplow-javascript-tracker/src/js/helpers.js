@@ -86,10 +86,24 @@ SnowPlow.isJson = function (property) {
 }
 
 /*
+ * Is property a non-empty JSON?
+ */
+SnowPlow.isNonEmptyJson = function (property) {
+	return SnowPlow.isJson(property) && property !== {};
+}
+
+/*
  * Is property a string?
  */
 SnowPlow.isString = function (property) {
 	return typeof property === 'string' || property instanceof String;
+}
+
+/*
+ * Is property a non-empty string?
+ */
+SnowPlow.isNonEmptyString = function (property) {
+	return SnowPlow.isString(property) && property !== '';
 }
 
 /*
