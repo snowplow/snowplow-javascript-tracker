@@ -726,9 +726,9 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		};
 
 		return {
-			add,
-			addRaw,
-			addJson,
+			add: add,
+			addRaw: addRaw,
+			addJson: addJson,
 			build: function() {
 				return str;
 			}
