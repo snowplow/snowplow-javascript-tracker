@@ -886,8 +886,6 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		sendRequest(request, configTrackerPause);
 	}
 
-	// TODO: add in ad clicks
-
 	/**
 	 * Log ecommerce transaction metadata
 	 *
@@ -994,6 +992,8 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		request = getRequest(sb, 'impression');
 		sendRequest(request, configTrackerPause);
 	}
+
+	// TODO: add in ad clicks and conversions
 
 	/*
 	 * Browser prefix
@@ -1946,5 +1946,6 @@ SnowPlow.Tracker = function Tracker(argmap) {
 				 logImpression(bannerId, campaignId, advertiserId, userId, context);
 		}
 
+		// TODO: add in ad clicks and conversions
 	};
 }
