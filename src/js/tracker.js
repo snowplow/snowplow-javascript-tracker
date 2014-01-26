@@ -658,7 +658,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		var str = '';
 		
 		var addNvPair = function (key, value, encode) {
-			if (value !== undefined && value !== null && value !== '') {
+			if (SnowPlow.isNonEmptyString(value)) {
 				var sep = (str.length > 0) ? "&" : "?";
 				str += sep + key + '=' + (encode ? SnowPlow.encodeWrapper(value) : value);
 			}
@@ -738,18 +738,15 @@ SnowPlow.Tracker = function Tracker(argmap) {
 
 		var addJson = function (keyIfEncoded, keyIfNotEncoded, json) {
 			
-			// Shortcircuit
-			if (json === undefined || json === null || json === {}) {
-				return;
-			}
+			if (SnowPlow.isNonEmptyJson(json)) {
+				var typed = appendTypes(json);
+				var str = JSON2.stringify(typed);
 
-			var typed = appendTypes(json);
-			var str = JSON2.stringify(typed);
-
-			if (base64Encode) {
-				addRaw(keyIfEncoded, SnowPlow.base64urlencode(str));
-			} else {
-				add(keyIfNotEncoded, str);
+				if (base64Encode) {
+					addRaw(keyIfEncoded, SnowPlow.base64urlencode(str));
+				} else {
+					add(keyIfNotEncoded, str);
+				}
 			}
 		};
 
