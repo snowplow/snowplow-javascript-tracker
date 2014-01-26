@@ -103,7 +103,8 @@
               '',                     // category
               '2000',                 // unit price - required
               '2',                    // quantity - required
-              'JPY'                   // currency
+              'JPY',                  // currency
+              { products: { "launch_date$tm": new Date(2013,3,7) } } // context
               ]);
 
           _snaq.push(['addItem',
