@@ -700,12 +700,17 @@ SnowPlow.Tracker = function Tracker(argmap) {
 
 		var addJson = function (keyIfEncoded, keyIfNotEncoded, json) {
 			
+			// Shortcircuit
+			if (json === undefined || json === null || json === {}) {
+				return;
+			}
+
 			var translated = {};
 			for (var prop in json) {
 				var key = prop, value = json[prop];
 
 				// Special treatment for JavaScript Dates
-				if (properties.hasOwnProperty(key) && SnowPlow.isDate(value)) {
+				if (json.hasOwnProperty(key) && SnowPlow.isDate(value)) {
 					type = getPropertySuffix(key);
 					if (!type) {
 						type = 'tms';
