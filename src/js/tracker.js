@@ -713,8 +713,8 @@ SnowPlow.Tracker = function Tracker(argmap) {
 							value = translateDateValue(value, type);
 						}
 
-						// ... for JavaScript Objects (but not Arrays)
-						if (!SnowPlow.isArray(value) && SnowPlow.isObject(value)) {
+						// ... for JSON objects
+						if (SnowPlow.isJson(value)) {
 							value = recurse(value);
 						}
 
