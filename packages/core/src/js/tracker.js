@@ -690,6 +690,44 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		  }
 		};
 
+		/*
+		 * Add type suffixes as needed to JSON properties
+		 */
+		var appendTypes = (function() {
+
+			function recurse(json) {
+				var translated = {};
+				for (var prop in json) {
+					var key = prop, value = json[prop];
+
+					// Special treatment...
+					if (json.hasOwnProperty(key)) {
+
+						// ... for JavaScript Dates
+						if (SnowPlow.isDate(value)) {
+							type = getPropertySuffix(key);
+							if (!type) {
+								type = 'tms';
+								key += '$' + type;
+							}
+							value = translateDateValue(value, type);
+						}
+
+						// ... for JavaScript Objects (but not Arrays)
+						if (!SnowPlow.isArray(value) && SnowPlow.isObject(value)) {
+							value = recurse(value);
+						}
+
+						// TODO: should think about Arrays of Dates too
+					}
+
+					translated[key] = value;
+				}
+				return translated;
+			}
+			return recurse;
+		})();
+
 		var add = function (key, value) {
 			addNvPair(key, value, true);
 		};
@@ -705,28 +743,13 @@ SnowPlow.Tracker = function Tracker(argmap) {
 				return;
 			}
 
-			var translated = {};
-			for (var prop in json) {
-				var key = prop, value = json[prop];
+			var typed = appendTypes(json);
+			var str = JSON2.stringify(typed);
 
-				// Special treatment for JavaScript Dates
-				if (json.hasOwnProperty(key) && SnowPlow.isDate(value)) {
-					type = getPropertySuffix(key);
-					if (!type) {
-						type = 'tms';
-						key += '$' + type;
-					}
-					value = translateDateValue(value, type);
-				}
-
-				translated[key] = value;
-			}
-
-			var jsonString = JSON2.stringify(translated);
 			if (base64Encode) {
-				addRaw(keyIfEncoded, SnowPlow.base64urlencode(jsonString));
+				addRaw(keyIfEncoded, SnowPlow.base64urlencode(str));
 			} else {
-				add(keyIfNotEncoded, jsonString);
+				add(keyIfNotEncoded, str);
 			}
 		};
 
