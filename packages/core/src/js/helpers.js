@@ -39,6 +39,13 @@ SnowPlow.isDefined = function (property) {
 	return typeof property !== 'undefined';
 }
 
+/**
+ * Is property null?
+ */
+SnowPlow.isNotNull = function (property) {
+	return property !== null;
+}
+
 /*
  * Is property a function?
  */
@@ -69,6 +76,13 @@ SnowPlow.isEmptyArray = function (property) {
  */
 SnowPlow.isObject = function (property) {
 	return typeof property === 'object';
+}
+
+/*
+ * Is property a JSON?
+ */
+SnowPlow.isJson = function (property) {
+	return (SnowPlow.isDefined(property) && SnowPlow.isNotNull(property) && property.constructor === {}.constructor);
 }
 
 /*
