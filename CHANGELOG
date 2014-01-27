@@ -1,3 +1,7 @@
+Version 0.14.0 (2014-XX-XX)
+---------------------------
+Fred to add all TODOs
+
 Version 0.13.1 (2014-01-28)
 ---------------------------
 Fixed bug where non-String values are not being added to our payload (#71)
