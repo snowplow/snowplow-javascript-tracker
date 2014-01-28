@@ -2,7 +2,7 @@ Version 0.14.0 (2014-02-XX)
 ---------------------------
 Bumped version to 0.14.0
 Removed all DEBUG blocks from codebase (#65)
-Renamed requesStringBuilder to payloadBuilder and moved it into its own file, payload.js (#55) (TODO)
+Renamed requestStringBuilder to payloadBuilder and moved it into its own file, payload.js (#55)
 Introduced gzipped sp.js library (#48) (TODO)
 Updated grunt and intern dependencies (#54) (TODO)
 Replaced snowpak.sh with Grunt, grunt-wrap and either uglify or yuicompressor (#53) (TODO)
