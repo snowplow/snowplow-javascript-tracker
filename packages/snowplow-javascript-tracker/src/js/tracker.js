@@ -658,7 +658,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		var str = '';
 		
 		var addNvPair = function (key, value, encode) {
-			if (SnowPlow.isNonEmptyString(value)) {
+			if (value !== undefined && value !== null && value !== '') {
 				var sep = (str.length > 0) ? "&" : "?";
 				str += sep + key + '=' + (encode ? SnowPlow.encodeWrapper(value) : value);
 			}
