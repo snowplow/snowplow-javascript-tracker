@@ -6,6 +6,7 @@ js/helpers.js
 js/lib/sha1.js
 js/lib/murmur.js
 js/lib/base64.js
+js/payload.js
 js/tracker.js
 js/snowplow.js
 js/constructor.js

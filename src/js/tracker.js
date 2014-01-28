@@ -637,122 +637,6 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		return ('https:' == SnowPlow.documentAlias.location.protocol ? 'https' : 'http') + '://' + rawUrl + '/i';               
 	}
 
-	/**
-	 * A helper to build a SnowPlow request string from an
-	 * an optional initial value plus a set of individual
-	 * name-value pairs, provided using the add method.
-	 *
-	 * @param boolean base64Encode Whether or not JSONs should be
-	 * Base64-URL-safe-encoded
-	 *
-	 * @return object The request string builder, with add, addRaw and build methods
-	 */
-	function requestStringBuilder(base64Encode) {
-		var str = '';
-		
-		var addNvPair = function (key, value, encode) {
-			if (value !== undefined && value !== null && value !== '') {
-				var sep = (str.length > 0) ? "&" : "?";
-				str += sep + key + '=' + (encode ? SnowPlow.encodeWrapper(value) : value);
-			}
-		};
-
-		/*
-		 * Extract suffix from a property
-		 */
-		var getPropertySuffix = function (property) {
-			var e = new RegExp('\\$(.[^\\$]+)$'),
-			    matches = e.exec(property);
-
-			if (matches) return matches[1];
-		};
-
-		/*
-		 * Translates a value of an unstructured date property
-		 */
-		var translateDateValue = function (date, type) {
-		  switch (type) {
-		    case 'tms':
-		      return SnowPlow.toTimestamp(date, true);
-		    case 'ts':
-		      return SnowPlow.toTimestamp(date, false);
-		    case 'dt':
-		      return SnowPlow.toDatestamp(date);
-		    default:
-		      return date;
-		  }
-		};
-
-		/*
-		 * Add type suffixes as needed to JSON properties
-		 */
-		var appendTypes = (function() {
-
-			function recurse(json) {
-				var translated = {};
-				for (var prop in json) {
-					var key = prop, value = json[prop];
-
-					// Special treatment...
-					if (json.hasOwnProperty(key)) {
-
-						// ... for JavaScript Dates
-						if (SnowPlow.isDate(value)) {
-							type = getPropertySuffix(key);
-							if (!type) {
-								type = 'tms';
-								key += '$' + type;
-							}
-							value = translateDateValue(value, type);
-						}
-
-						// ... for JSON objects
-						if (SnowPlow.isJson(value)) {
-							value = recurse(value);
-						}
-
-						// TODO: should think about Arrays of Dates too
-					}
-
-					translated[key] = value;
-				}
-				return translated;
-			}
-			return recurse;
-		})();
-
-		var add = function (key, value) {
-			addNvPair(key, value, true);
-		};
-
-		var addRaw = function (key, value) {
-			addNvPair(key, value, false);
-		};
-
-		var addJson = function (keyIfEncoded, keyIfNotEncoded, json) {
-			
-			if (SnowPlow.isNonEmptyJson(json)) {
-				var typed = appendTypes(json);
-				var str = JSON2.stringify(typed);
-
-				if (base64Encode) {
-					addRaw(keyIfEncoded, SnowPlow.base64urlencode(str));
-				} else {
-					add(keyIfNotEncoded, str);
-				}
-			}
-		};
-
-		return {
-			add: add,
-			addRaw: addRaw,
-			addJson: addJson,
-			build: function() {
-				return str;
-			}
-		};
-	}
-
 	/*
 	 * Log the page view / visit
 	 *
@@ -765,7 +649,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		var pageTitle = SnowPlow.fixupTitle(customTitle || configTitle);
 
 		// Log page view
-		var sb = requestStringBuilder(configEncodeBase64);
+		var sb = SnowPlow.payloadBuilder(configEncodeBase64);
 		sb.add('e', 'pv'); // 'pv' for Page View
 		sb.add('page', pageTitle);
 		sb.addJson('cx', 'co', context);
@@ -823,7 +707,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 * @param object context Custom context relating to the event
 	 */
 	function logPagePing(pageTitle, context) {
-		var sb = requestStringBuilder(configEncodeBase64);
+		var sb = SnowPlow.payloadBuilder(configEncodeBase64);
 		sb.add('e', 'pp'); // 'pp' for Page Ping
 		sb.add('page', pageTitle);
 		sb.addRaw('pp_mix', minXOffset); // Global
@@ -847,7 +731,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 * @param object context Custom context relating to the event
 	 */
 	function logStructEvent(category, action, label, property, value, context) {
-		var sb = requestStringBuilder(configEncodeBase64);
+		var sb = SnowPlow.payloadBuilder(configEncodeBase64);
 		sb.add('e', 'se'); // 'se' for Structured Event
 		sb.add('se_ca', category);
 		sb.add('se_ac', action)
@@ -867,7 +751,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 * @param object context Custom context relating to the event
 	 */
 	function logUnstructEvent(name, properties, context) {
-		var sb = requestStringBuilder(configEncodeBase64);
+		var sb = SnowPlow.payloadBuilder(configEncodeBase64);
 		sb.add('e', 'ue'); // 'ue' for Unstructured Event
 		sb.add('ue_na', name);
 		sb.addJson('ue_px', 'ue_pr', properties);
@@ -892,7 +776,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 */
 	// TODO: add params to comment
 	function logTransaction(orderId, affiliation, total, tax, shipping, city, state, country, currency, context) {
-		var sb = requestStringBuilder(configEncodeBase64);
+		var sb = SnowPlow.payloadBuilder(configEncodeBase64);
 		sb.add('e', 'tr'); // 'tr' for TRansaction
 		sb.add('tr_id', orderId);
 		sb.add('tr_af', affiliation);
@@ -922,7 +806,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 */
 	// TODO: add params to comment
 	function logTransactionItem(orderId, sku, name, category, price, quantity, currency, context) {
-		var sb = requestStringBuilder(configEncodeBase64);
+		var sb = SnowPlow.payloadBuilder(configEncodeBase64);
 		sb.add('e', 'ti'); // 'ti' for Transaction Item
 		sb.add('ti_id', orderId);
 		sb.add('ti_sk', sku);
@@ -951,7 +835,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	// TODO: this functionality is not yet fully implemented.
 	// See https://github.com/snowplow/snowplow/issues/75
 	function logLink(url, linkType, context) {
-		var sb = requestStringBuilder(configEncodeBase64);
+		var sb = SnowPlow.payloadBuilder(configEncodeBase64);
 		sb.add('e', linkType);
 		sb.add('t_url', purify(url));
 		var request = getRequest(sb, 'link');
@@ -972,7 +856,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	// TODO: should add in zoneId (aka placementId, slotId?) as well
 	// TODO: change ad_ to ai_?
 	function logImpression(bannerId, campaignId, advertiserId, userId, context) {
-		var sb = requestStringBuilder(configEncodeBase64);
+		var sb = SnowPlow.payloadBuilder(configEncodeBase64);
 		sb.add('e', 'ad'); // 'ad' for AD impression
 		sb.add('ad_ba', bannerId);
 		sb.add('ad_ca', campaignId)
