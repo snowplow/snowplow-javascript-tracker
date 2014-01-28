@@ -52,13 +52,6 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 ************************************************************/
 
 	var
-/*<DEBUG>*/
-		/*
-		 * registered test hooks
-		 */
-		registeredHooks = {},
-/*</DEBUG>*/
-
 		// Current URL and Referrer URL
 		locationArray = SnowPlow.fixupUrl(SnowPlow.documentAlias.domain, SnowPlow.windowAlias.location.href, SnowPlow.getReferrer()),
 		domainAlias = SnowPlow.fixupDomain(locationArray[0]),
@@ -1312,29 +1305,6 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		return features;
 	}
 
-/*<DEBUG>*/
-	/*
-	 * Register a test hook. Using eval() permits access to otherwise
-	 * privileged members.
-	 */
-	function registerHook(hookName, userHook) {
-		var hookObj = null;
-
-		if (SnowPlow.isString(hookName) && !SnowPlow.isDefined(registeredHooks[hookName]) && userHook) {
-			if (SnowPlow.isObject(userHook)) {
-				hookObj = userHook;
-			} else if (SnowPlow.isString(userHook)) {
-				try {
-					eval('hookObj =' + userHook);
-				} catch (e) { }
-			}
-
-			registeredHooks[hookName] = hookObj;
-		}
-		return hookObj;
-	}
-/*</DEBUG>*/
-
 	/************************************************************
 	 * Constructor
 	 ************************************************************/
@@ -1344,27 +1314,12 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 */
 	updateDomainHash();
 
-/*<DEBUG>*/
-	/*
-	 * initialize test plugin
-	 */
-	SnowPlow.executePluginMethod('run', registerHook);
-/*</DEBUG>*/
 
 	/************************************************************
 	 * Public data and methods
 	 ************************************************************/
 
 	return {
-/*<DEBUG>*/
-		/*
-		 * Test hook accessors
-		 */
-		hook: registeredHooks,
-		getHook: function (hookName) {
-			return registeredHooks[hookName];
-		},
-/*</DEBUG>*/
 
 		/**
 		 * Get the current user ID (as set previously
