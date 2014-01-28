@@ -1,5 +1,6 @@
 Version 0.14.0 (2014-02-XX)
 ---------------------------
+Bumped version to 0.14.0
 Removed all DEBUG blocks from codebase (#65)
 Renamed requesStringBuilder to payloadBuilder and moved it into its own file, payload.js (#55) (TODO)
 Introduced gzipped sp.js library (#48) (TODO)
