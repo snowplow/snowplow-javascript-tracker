@@ -4,9 +4,12 @@ Bumped version to 0.14.0
 Removed all DEBUG blocks from codebase (#65)
 Renamed requestStringBuilder to payloadBuilder and moved it into its own file, payload.js (#55)
 Introduced gzipped sp.js library (#48) (TODO)
-Updated grunt and intern dependencies (#54) (TODO)
+Updated grunt and intern dependencies (#54)
 Replaced snowpak.sh with Grunt and grunt-yui-compressor (#53)
 Replaced lib/.js with modules (#68) (TODO)
+Added setUserIdFromReferer('oaid') (#57) (TODO)
+Start using Bower? (#33) (TODO)
+Added intern tests (#5) (TODO)
 
 Version 0.13.1 (2014-01-28)
 ---------------------------

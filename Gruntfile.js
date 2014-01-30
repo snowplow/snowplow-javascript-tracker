@@ -21,7 +21,7 @@ module.exports = function(grunt) {
               'src/js/snowplow.js',
               'src/js/constructor.js'],
 
-        dest: 'dist/concatenate.js'
+        dest: 'dist/snowplow.js'
       }
     },
 
@@ -33,7 +33,7 @@ module.exports = function(grunt) {
       },
       js: {
         files: {
-          'dist/yuied.js': ['dist/concatenate.js']
+          'dist/sp.js': ['dist/snowplow.js']
         }
       }    
     }
@@ -41,7 +41,6 @@ module.exports = function(grunt) {
   });
 
 grunt.loadNpmTasks('grunt-contrib-concat');
-grunt.loadNpmTasks('grunt-contrib-uglify');
 grunt.loadNpmTasks('grunt-yui-compressor');
 
 grunt.registerTask('default', ['concat', 'min']);
