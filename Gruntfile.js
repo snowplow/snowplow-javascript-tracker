@@ -5,6 +5,9 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
     concat: {
       dist: {
+        options: {
+          'report': 'gzip'
+        },
         src: ['src/js/banner.js',
               'src/js/lib/json.js',
               'src/js/lib/jstz.js',
@@ -17,7 +20,7 @@ module.exports = function(grunt) {
               'src/js/tracker.js',
               'src/js/snowplow.js',
               'src/js/constructor.js'],
-              
+
         dest: 'dist/concatenate.js'
       }
     },
