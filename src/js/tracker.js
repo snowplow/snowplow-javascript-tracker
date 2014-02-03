@@ -52,11 +52,8 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 ************************************************************/
 
 	var
-		// Get the referrer URL
-		referrer =  SnowPlow.getReferrer(),
-
 		// Current URL and Referrer URL
-		locationArray = SnowPlow.fixupUrl(SnowPlow.documentAlias.domain, SnowPlow.windowAlias.location.href, referrer),
+		locationArray = SnowPlow.fixupUrl(SnowPlow.documentAlias.domain, SnowPlow.windowAlias.location.href, SnowPlow.getReferrer()),
 		domainAlias = SnowPlow.fixupDomain(locationArray[0]),
 		locationHrefAlias = locationArray[1],
 		configReferrerUrl = locationArray[2],
@@ -1553,11 +1550,8 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 * 
 		 * @param string queryName Name of a querystring name-value pair
 		 */
-
 		 setUserIdFromLocation: function(queryName) {
-		 	
-		 	var location = document.URL;
-		 	businessUserId = SnowPlow.fromQuerystring(queryName, location);
+		 	businessUserId = SnowPlow.fromQuerystring(queryName, locationHrefAlias);
 		 },
 
 		/**
@@ -1565,10 +1559,8 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 * 
 		 * @param string queryName Name of a querystring name-value pair
 		 */
-
 		 setUserIdFromReferrer: function(queryName) {
-
-		 	businessUserId = SnowPlow.fromQuerystring(queryName, referrer);
+		 	businessUserId = SnowPlow.fromQuerystring(queryName, configReferrerUrl);
 		 },
 
 		/**
