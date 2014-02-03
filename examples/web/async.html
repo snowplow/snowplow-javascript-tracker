@@ -23,8 +23,8 @@
 	
         _snaq.push(['setCollectorCf', 'd3rkrsqld9gmqf']); // Update to your CloudFront distribution subdomain
         _snaq.push(['setAppId', 'CFe23a']); // Site ID can be anything you want. Set it if you're tracking more than one site in this account
-        _snaq.push(['setUserId', 'alex 123']); // Business-defined user ID
-        // Deprecated _snaq.push(['attachUserId', false]); // Don't attach &uid=xxx to the querystring
+        //_snaq.push(['setUserId', 'alex 123']); // Business-defined user ID
+        //_snaq.push(['setUserIdFromLocation', 'id']); // To test this, reload the page with ?id=xxx
         _snaq.push(['setCustomUrl', '/overridden-url/']); // Override the page URL
         _snaq.push(['enableActivityTracking', 10, 10]); // Ping every 10 seconds after 10 seconds
         _snaq.push(['enableLinkTracking']);
@@ -45,7 +45,7 @@
         (function() {
             var sp = document.createElement('script'); sp.type = 'text/javascript'; sp.async = true; sp.defer = true;
             //sp.src = ('https:' == document.location.protocol ? 'https' : 'http') + '://d1fc8wv8zag5ca.cloudfront.net/0.13.0/sp.js';
-             sp.src = '../../dist/sp.js'; // For testing
+             sp.src = '../../dist/sp.nogz.js'; // For testing
             var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(sp, s);
             })();
     </script>

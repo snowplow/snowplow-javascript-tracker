@@ -324,3 +324,10 @@ SnowPlow.executePluginMethod = function (methodName, callback) {
 	return result;
 }
 
+SnowPlow.fromQuerystring = function (field, url) {
+	var match = RegExp('[?&]' + field + '=([^&]*)').exec(url);
+	if (!match) {
+		return null;
+	}
+	return SnowPlow.decodeWrapper(match[1].replace(/\+/g, ' '));
+}
