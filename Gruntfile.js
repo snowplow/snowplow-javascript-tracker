@@ -68,7 +68,7 @@ module.exports = function(grunt) {
       },
       js: {
         files: {
-          'dist/sp.js': ['dist/snowplow.js']
+          'dist/sp.nogz.js': ['dist/snowplow.js']
         }
       }    
     },
@@ -81,8 +81,7 @@ module.exports = function(grunt) {
         files: [
 
           {
-            expand: true,
-            src: ['dist/sp.js'], dest: 'dist/sq.js'
+            src: ['dist/sp.nogz.js'], dest: 'dist/sp.js', ext: ''
             
           }
 
