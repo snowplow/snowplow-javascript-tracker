@@ -52,8 +52,11 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 ************************************************************/
 
 	var
+		// Get the referrer URL
+		referrer =  SnowPlow.getReferrer(),
+
 		// Current URL and Referrer URL
-		locationArray = SnowPlow.fixupUrl(SnowPlow.documentAlias.domain, SnowPlow.windowAlias.location.href, SnowPlow.getReferrer()),
+		locationArray = SnowPlow.fixupUrl(SnowPlow.documentAlias.domain, SnowPlow.windowAlias.location.href, referrer),
 		domainAlias = SnowPlow.fixupDomain(locationArray[0]),
 		locationHrefAlias = locationArray[1],
 		configReferrerUrl = locationArray[2],
@@ -1546,6 +1549,29 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		},
 
 		/**
+		 * Set the business-defined user ID for this user using the location querystring.
+		 * 
+		 * @param string queryName Name of a querystring name-value pair
+		 */
+
+		 setUserIdFromLocation: function(queryName) {
+		 	
+		 	var location = document.URL;
+		 	businessUserId = SnowPlow.fromQuerystring(queryName, location);
+		 },
+
+		/**
+		 * Set the business-defined user ID for this user using the referrer querystring.
+		 * 
+		 * @param string queryName Name of a querystring name-value pair
+		 */
+
+		 setUserIdFromReferrer: function(queryName) {
+
+		 	businessUserId = SnowPlow.fromQuerystring(queryName, referrer);
+		 },
+
+		/**
 		 * Toggle whether to attach User ID to the querystring or not
 		 *
 		 * DEPRECATED: because we now have three separate user IDs:
@@ -1553,7 +1579,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 * cookie). So there's no need to enable or disable specific user IDs.
 		 *
 		 * @param bool attach Whether to attach User ID or not
-		 */
+		 */ 
 		attachUserId: function (attach) {
 
 			if (typeof console !== 'undefined') {

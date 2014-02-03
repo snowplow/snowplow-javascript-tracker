@@ -6,8 +6,8 @@ Renamed requestStringBuilder to payloadBuilder and moved it into its own file, p
 Introduced gzipped sp.js library (#48)
 Updated grunt and intern dependencies (#54)
 Replaced snowpak.sh with Grunt and grunt-yui-compressor (#53)
-Added setUserIdFromReferer('oaid') (#57) (TODO)
-Added ability to pass a referer to Snowplow from an IFRAME (#1) (TODO)
+Added setUserIdFromReferrer and setUserIdFromLocation (#57)
+Added ability to pass a referrer to Snowplow from an IFRAME (#1) (TODO)
 Added user fingerprinting on/off switch and configurable hash seed (#7) (TODO)
 
 Version 0.13.1 (2014-01-28)
