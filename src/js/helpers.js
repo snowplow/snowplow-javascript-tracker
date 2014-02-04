@@ -241,7 +241,16 @@ SnowPlow.fixupDomain = function (domain) {
  * Get page referrer
  */
 SnowPlow.getReferrer = function () {
+
 	var referrer = '';
+	
+	var fromQs = SnowPlow.fromQuerystring('referrer', SnowPlow.windowAlias.location.href) ||
+	SnowPlow.fromQuerystring('referer', SnowPlow.windowAlias.location.href);
+
+	// Short-circuit
+	if (fromQs) {
+		return fromQs;
+	}
 
 	try {
 		referrer = SnowPlow.windowAlias.top.document.referrer;
@@ -257,7 +266,6 @@ SnowPlow.getReferrer = function () {
 	if (referrer === '') {
 		referrer = SnowPlow.documentAlias.referrer;
 	}
-
 	return referrer;
 }
 
@@ -324,6 +332,9 @@ SnowPlow.executePluginMethod = function (methodName, callback) {
 	return result;
 }
 
+/*
+ * Return value from name-value pair in querystring 
+ */
 SnowPlow.fromQuerystring = function (field, url) {
 	var match = RegExp('[?&]' + field + '=([^&]*)').exec(url);
 	if (!match) {
@@ -331,3 +342,7 @@ SnowPlow.fromQuerystring = function (field, url) {
 	}
 	return SnowPlow.decodeWrapper(match[1].replace(/\+/g, ' '));
 }
+
+
+
+
