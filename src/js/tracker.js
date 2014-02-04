@@ -1442,9 +1442,9 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		},
 
 		/**
-		 * Handle do-not-track requests
+		 * Prevent tracking if user's browser has Do Not Track feature enabled
 		 *
-		 * @param bool enable If true, don't track if user agent sends 'do-not-track' header
+		 * @param bool enable If true and Do Not Track feature enabled, don't track. 
 		 */
 		respectDoNotTrack: function (enable) {
 			var dnt = SnowPlow.navigatorAlias.doNotTrack || SnowPlow.navigatorAlias.msDoNotTrack;
