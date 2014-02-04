@@ -342,7 +342,3 @@ SnowPlow.fromQuerystring = function (field, url) {
 	}
 	return SnowPlow.decodeWrapper(match[1].replace(/\+/g, ' '));
 }
-
-
-
-

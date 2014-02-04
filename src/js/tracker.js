@@ -1442,8 +1442,10 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		},
 
 		/**
-		 * Prevent tracking if user's browser has Do Not Track feature enabled
-		 *
+		 * Prevent tracking if user's browser has Do Not Track feature enabled,
+		 * where tracking is:
+		 * 1) Sending events to a collector
+		 * 2) Setting first-party cookies
 		 * @param bool enable If true and Do Not Track feature enabled, don't track. 
 		 */
 		respectDoNotTrack: function (enable) {
