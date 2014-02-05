@@ -498,9 +498,9 @@ SnowPlow.Tracker = function Tracker(argmap) {
 			currentReferrerHostName,
 			originalReferrerHostName,
 			idname = getSnowplowCookieName('id'),
-			sesname = getSnowplowCookieName('ses'), // NOT sesname
+			sesname = getSnowplowCookieName('ses'),
 			id = loadDomainUserIdCookie(),
-			ses = getSnowplowCookieValue('ses'),
+			ses = getSnowplowCookieValue('ses'), // aka Snowplow.getCookieValue(sesname)
 			currentUrl = configCustomUrl || locationHrefAlias,
 			featurePrefix;
 
