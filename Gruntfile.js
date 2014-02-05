@@ -37,6 +37,7 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+    aws: grunt.file.readJSON('aws.json'),
 
     concat: {
       dist: {
@@ -67,7 +68,7 @@ module.exports = function(grunt) {
         'options': {
           'linebreak': 1000,
           'report': 'gzip'
-        },
+        },  
         'files': [{
           'src': 'dist/snowplow.js',
           'dest': 'dist/sp.nogz.js'
@@ -75,7 +76,6 @@ module.exports = function(grunt) {
       }
     },
     
-
     compress: {
       main: {
         options: {
@@ -92,11 +92,44 @@ module.exports = function(grunt) {
       }
 
     },
+
+    s3: {
+      options: {
+        key: '<%= aws.key %>',
+        secret: '<%= aws.secret %>',
+        bucket: '<%= aws.bucket %>',
+        access: 'private'
+      },
+      dev: {
+        upload: [
+          {
+            src: 'dist/sp.js',
+            dest: 'INSERTBUCKETSTUFF'
+          }
+        ]
+      }
+    },
+
+    invalidate_cloudfront: {
+      options: {
+        key: '<%= aws.key %>',
+        secret: '<%= aws.secret %>',
+        distribution:  's3://xxx/{MAJOR-version}/sp.js'
+      },
+      production: {
+        files: [{
+          src: ['dist/sp.js'],
+          dest: ''
+        }]
+      }
+    }
   });
 
   grunt.loadNpmTasks('grunt-contrib-compress');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-yui-compressor');
+  grunt.loadNpmTasks('grunt-s3');
+  grunt.loadNpmTasks('grunt-invalidate-cloudfront');
 
   grunt.registerTask('default', ['concat', 'min', 'compress']);
 
