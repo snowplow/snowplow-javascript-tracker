@@ -9,6 +9,8 @@ Replaced snowpak.sh with Grunt and grunt-yui-compressor (#53)
 Added setUserIdFromReferrer and setUserIdFromLocation (#57)
 Added ability to pass a referrer to Snowplow from an IFRAME (#1)
 Tested setDoNotTrack and renamed it to respectDoNotTrack (#28)
+Moved detect...() functions into new file context.js (#37) (TODO)
+Switched deployment to use Grunt (#58) (TODO)
 
 Version 0.13.1 (2014-01-28)
 ---------------------------
