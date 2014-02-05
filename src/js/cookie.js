@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker for Snowplow: Gruntfile.js
+ * JavaScript tracker for Snowplow: cookie.js
  * 
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
  * 2012-2014 Snowplow Analytics Ltd. All rights reserved. 
@@ -32,72 +32,31 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*global module:false*/
-module.exports = function(grunt) {
+/*
+ * Get cookie value
+ */
+SnowPlow.getCookie = function (cookieName) {
+	var cookiePattern = new RegExp('(^|;)[ ]*' + cookieName + '=([^;]*)'),
+			cookieMatch = cookiePattern.exec(SnowPlow.documentAlias.cookie);
 
-  grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json'),
+	return cookieMatch ? SnowPlow.decodeWrapper(cookieMatch[2]) : 0;
+}
 
-    concat: {
-      dist: {
-        options: {
-          'report': 'gzip'
-        },
-        src: ['src/js/banner.js',
-              'src/js/lib/json.js',
-              'src/js/lib/jstz.js',
-              'src/js/init.js',
-              'src/js/helpers.js',
-              'src/js/cookie.js',
-              'src/js/context.js',
-              'src/js/lib/sha1.js',
-              'src/js/lib/murmur.js',
-              'src/js/lib/base64.js',
-              'src/js/payload.js',
-              'src/js/tracker.js',
-              'src/js/snowplow.js',
-              'src/js/constructor.js'],
+/*
+ * Set cookie value
+ */
+SnowPlow.setCookie = function (cookieName, value, msToExpire, path, domain, secure) {
+	var expiryDate;
 
-        dest: 'dist/snowplow.js'
-      }
-    },
+	// relative time to expire in milliseconds
+	if (msToExpire) {
+		expiryDate = new Date();
+		expiryDate.setTime(expiryDate.getTime() + msToExpire);
+	}
 
-    min: {
-      'w_breaks': {
-        'options': {
-          'linebreak': 1000,
-          'report': 'gzip'
-        },
-        'files': [{
-          'src': 'dist/snowplow.js',
-          'dest': 'dist/sp.nogz.js'
-        }]
-      }
-    },
-    
-
-    compress: {
-      main: {
-        options: {
-          mode: 'gzip'
-        },
-        files: [
-
-          {
-            src: ['dist/sp.nogz.js'], dest: 'dist/sp.js', ext: ''
-            
-          }
-
-        ]
-      }
-
-    },
-  });
-
-  grunt.loadNpmTasks('grunt-contrib-compress');
-  grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-yui-compressor');
-
-  grunt.registerTask('default', ['concat', 'min', 'compress']);
-
+	SnowPlow.documentAlias.cookie = cookieName + '=' + SnowPlow.encodeWrapper(value) +
+		(msToExpire ? ';expires=' + expiryDate.toGMTString() : '') +
+		';path=' + (path || '/') +
+		(domain ? ';domain=' + domain : '') +
+		(secure ? ';secure' : '');
 }

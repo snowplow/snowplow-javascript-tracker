@@ -284,35 +284,6 @@ SnowPlow.addEventListener = function (element, eventType, eventHandler, useCaptu
 }
 
 /*
- * Get cookie value
- */
-SnowPlow.getCookie = function (cookieName) {
-	var cookiePattern = new RegExp('(^|;)[ ]*' + cookieName + '=([^;]*)'),
-			cookieMatch = cookiePattern.exec(SnowPlow.documentAlias.cookie);
-
-	return cookieMatch ? SnowPlow.decodeWrapper(cookieMatch[2]) : 0;
-}
-
-/*
- * Set cookie value
- */
-SnowPlow.setCookie = function (cookieName, value, msToExpire, path, domain, secure) {
-	var expiryDate;
-
-	// relative time to expire in milliseconds
-	if (msToExpire) {
-		expiryDate = new Date();
-		expiryDate.setTime(expiryDate.getTime() + msToExpire);
-	}
-
-	SnowPlow.documentAlias.cookie = cookieName + '=' + SnowPlow.encodeWrapper(value) +
-		(msToExpire ? ';expires=' + expiryDate.toGMTString() : '') +
-		';path=' + (path || '/') +
-		(domain ? ';domain=' + domain : '') +
-		(secure ? ';secure' : '');
-}
-
-/*
  * Call plugin hook methods
  */
 SnowPlow.executePluginMethod = function (methodName, callback) {

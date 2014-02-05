@@ -129,8 +129,8 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		// Life of the referral cookie (in milliseconds)
 		configReferralCookieTimeout = 15768000000, // 6 months
 
-    // Enable Base64 encoding for unstructured events
-    configEncodeBase64 = true,
+		// Enable Base64 encoding for unstructured events
+		configEncodeBase64 = true,
 
 		// Document character set
 		documentCharset = SnowPlow.documentAlias.characterSet || SnowPlow.documentAlias.charset,
@@ -139,13 +139,13 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		browserLanguage = SnowPlow.navigatorAlias.userLanguage || SnowPlow.navigatorAlias.language,
 
 		// Browser features via client-side data collection
-		browserFeatures = detectBrowserFeatures(),
+		browserFeatures = SnowPlow.detectBrowserFeatures(getSnowplowCookieName('testcookie')),
 
 		// Visitor timezone
-		timezone = detectTimezone(),
+		timezone = SnowPlow.detectTimezone(),
 
 		// Visitor fingerprint
-		fingerprint = generateFingerprint(),
+		fingerprint = SnowPlow.detectSignature(),
 
 		// Guard against installing the link tracker more than once per Tracker instance
 		linkTrackingInstalled = false,
@@ -330,60 +330,15 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	/*
 	 * Get cookie name with prefix and domain hash
 	 */
-	function getCookieName(baseName) {
+	function getSnowplowCookieName(baseName) {
 		return configCookieNamePrefix + baseName + '.' + domainHash;
 	}
 
 	/*
-	 * Legacy getCookieName. This is the old version inherited from
-	 * Piwik which includes the site ID. Including the site ID in
-	 * the user cookie doesn't make sense, so we have removed it.
-	 * But, to avoid breaking sites with existing cookies, we leave
-	 * this function in as a legacy, and use it to check for a
-	 * 'legacy' cookie.
-	 *
-	 * TODO: delete in February 2013 or so!
-	 */
-	function getLegacyCookieName(baseName) {
-		return configCookieNamePrefix + baseName + '.' + configTrackerSiteId + '.' + domainHash;
-	}
-
-	/*
 	 * Cookie getter.
-	 *
-	 * This exists because we cannot guarantee whether a cookie will
-	 * be available using getCookieName or getLegacyCookieName (i.e.
-	 * whether the cookie includes the legacy site ID in its name).
-	 *
-	 * This wrapper supports both.
-	 *
-	 * TODO: simplify in February 2013 back to:
-	 * return SnowPlow.getCookie(getCookieName(cookieName));
 	 */
-	function getCookieValue(cookieName) {
-
-		// First we try the new cookie
-		var cookieValue = SnowPlow.getCookie(getCookieName(cookieName));
-		if (cookieValue) {
-			return cookieValue;
-		}
-
-		// Last we try the legacy cookie. May still return failure.
-		return SnowPlow.getCookie(getLegacyCookieName(cookieName));
-	}
-
-	/*
-	 * Does browser have cookies enabled (for this site)?
-	 */
-	function hasCookies() {
-		var testCookieName = getCookieName('testcookie');
-
-		if (!SnowPlow.isDefined(SnowPlow.navigatorAlias.cookieEnabled)) {
-			SnowPlow.setCookie(testCookieName, '1');
-			return SnowPlow.getCookie(testCookieName) === '1' ? '1' : '0';
-		}
-
-		return SnowPlow.navigatorAlias.cookieEnabled ? '1' : '0';
+	function getSnowplowCookieValue(cookieName) {
+		return SnowPlow.getCookie(getSnowplowCookieName(cookieName));
 	}
 
 	/*
@@ -463,7 +418,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 * or when there is a new visit or a new page view
 	 */
 	function setDomainUserIdCookie(_domainUserId, createTs, visitCount, nowTs, lastVisitTs) {
-		SnowPlow.setCookie(getCookieName('id'), _domainUserId + '.' + createTs + '.' + visitCount + '.' + nowTs + '.' + lastVisitTs, configVisitorCookieTimeout, configCookiePath, configCookieDomain);
+		SnowPlow.setCookie(getSnowplowCookieName('id'), _domainUserId + '.' + createTs + '.' + visitCount + '.' + nowTs + '.' + lastVisitTs, configVisitorCookieTimeout, configCookiePath, configCookieDomain);
 	}
 
 	/*
@@ -472,7 +427,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	function loadDomainUserIdCookie() {
 		var now = new Date(),
 			nowTs = Math.round(now.getTime() / 1000),
-			id = getCookieValue('id'),
+			id = getSnowplowCookieValue('id'),
 			tmpContainer;
 
 		if (id) {
@@ -542,10 +497,10 @@ SnowPlow.Tracker = function Tracker(argmap) {
 			referralUrlMaxLength = 1024,
 			currentReferrerHostName,
 			originalReferrerHostName,
-			idname = getCookieName('id'),
-			sesname = getCookieName('ses'), // NOT sesname
+			idname = getSnowplowCookieName('id'),
+			sesname = getSnowplowCookieName('ses'), // NOT sesname
 			id = loadDomainUserIdCookie(),
-			ses = getCookieValue('ses'),
+			ses = getSnowplowCookieValue('ses'),
 			currentUrl = configCustomUrl || locationHrefAlias,
 			featurePrefix;
 
@@ -573,8 +528,8 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		// Build out the rest of the request - first add fields we can safely skip encoding
 		sb.addRaw('dtm', getTimestamp());
 		sb.addRaw('tid', String(Math.random()).slice(2, 8));
-		sb.addRaw('vp', detectViewport());
-		sb.addRaw('ds', detectDocumentSize());
+		sb.addRaw('vp', SnowPlow.detectViewport());
+		sb.addRaw('ds', SnowPlow.detectDocumentSize());
 		sb.addRaw('vid', visitCount);
 		sb.addRaw('duid', _domainUserId); // Set to our local variable
 
@@ -1059,134 +1014,6 @@ SnowPlow.Tracker = function Tracker(argmap) {
 				}
 			}
 		}
-	}
-
-	/*
-	 * JS Implementation for browser fingerprint.
-	 * Does not require any external resources.
-	 * Based on https://github.com/carlo/jquery-browser-fingerprint
-	 * @return {number} 32-bit positive integer hash 
-	 */
-	// TODO: make seed for hashing configurable
-	function generateFingerprint() {
-
-	    var fingerprint = [
-	        navigator.userAgent,
-	        [ screen.height, screen.width, screen.colorDepth ].join("x"),
-	        ( new Date() ).getTimezoneOffset(),
-	        SnowPlow.hasSessionStorage(),
-	        SnowPlow.hasLocalStorage(),
-	    ];
-
-	    var plugins = [];
-	    if (navigator.plugins)
-	    {
-	        for(var i = 0; i < navigator.plugins.length; i++)
-	        {
-	            var mt = [];
-	            for(var j = 0; j < navigator.plugins[i].length; j++)
-	            {
-	                mt.push([navigator.plugins[i][j].type, navigator.plugins[i][j].suffixes]);
-	            }
-	            plugins.push([navigator.plugins[i].name + "::" + navigator.plugins[i].description, mt.join("~")]);
-	        }
-	    }
-	    return SnowPlow.murmurhash3_32_gc(fingerprint.join("###") + "###" + plugins.sort().join(";"), 123412414);
-	}
-
-	/*
-	 * Returns visitor timezone
-	 */
-	function detectTimezone() {
-		var tz = jstz.determine();  
-        	return (typeof (tz) === 'undefined') ? '' : tz.name();
-	}
-
-	/**
-	 * Gets the current viewport.
-	 *
-	 * Code based on:
-	 * - http://andylangton.co.uk/articles/javascript/get-viewport-size-javascript/
-	 * - http://responsejs.com/labs/dimensions/
-	 */
-	function detectViewport() {
-		var e = SnowPlow.windowAlias, a = 'inner';
-		if (!('innerWidth' in SnowPlow.windowAlias)) {
-			a = 'client';
-			e = SnowPlow.documentAlias.documentElement || SnowPlow.documentAlias.body;
-		}
-		return e[a+'Width'] + 'x' + e[a+'Height'];
-	}
-
-	/**
-	 * Gets the dimensions of the current
-	 * document.
-	 *
-	 * Code based on:
-	 * - http://andylangton.co.uk/articles/javascript/get-viewport-size-javascript/
-	 */
-	function detectDocumentSize() {
-		var de = SnowPlow.documentAlias.documentElement; // Alias
-		var w = Math.max(de.clientWidth, de.offsetWidth, de.scrollWidth);
-		var h = Math.max(de.clientHeight, de.offsetHeight, de.scrollHeight);
-		return w + 'x' + h;
-	}
-
-	/*
-	 * Returns browser features (plugins, resolution, cookies)
-	 */
-	function detectBrowserFeatures() {
-		var i,
-			mimeType,
-			pluginMap = {
-				// document types
-				pdf: 'application/pdf',
-
-				// media players
-				qt: 'video/quicktime',
-				realp: 'audio/x-pn-realaudio-plugin',
-				wma: 'application/x-mplayer2',
-
-				// interactive multimedia
-				dir: 'application/x-director',
-				fla: 'application/x-shockwave-flash',
-
-				// RIA
-				java: 'application/x-java-vm',
-				gears: 'application/x-googlegears',
-				ag: 'application/x-silverlight'
-			},
-			features = {};
-
-		// General plugin detection
-		if (SnowPlow.navigatorAlias.mimeTypes && SnowPlow.navigatorAlias.mimeTypes.length) {
-			for (i in pluginMap) {
-				if (Object.prototype.hasOwnProperty.call(pluginMap, i)) {
-					mimeType = SnowPlow.navigatorAlias.mimeTypes[pluginMap[i]];
-					features[i] = (mimeType && mimeType.enabledPlugin) ? '1' : '0';
-				}
-			}
-		}
-
-		// Safari and Opera
-		// IE6/IE7 navigator.javaEnabled can't be aliased, so test directly
-		if (typeof navigator.javaEnabled !== 'unknown' &&
-				SnowPlow.isDefined(SnowPlow.navigatorAlias.javaEnabled) &&
-				SnowPlow.navigatorAlias.javaEnabled()) {
-			features.java = '1';
-		}
-
-		// Firefox
-		if (SnowPlow.isFunction(SnowPlow.windowAlias.GearsFactory)) {
-			features.gears = '1';
-		}
-
-		// Other browser features
-		features.res = SnowPlow.screenAlias.width + 'x' + SnowPlow.screenAlias.height;
-		features.cd = screen.colorDepth;
-		features.cookie = hasCookies();
-
-		return features;
 	}
 
 	/************************************************************
