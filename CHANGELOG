@@ -13,6 +13,8 @@ Moved detect...() functions into new file context.js (#37)
 Moved cookie-related functionality into new file cookie.js (#77)
 Removed getLegacyCookieName as no longer needed for migrating cookie IDs (#50)
 Switched deployment to use Grunt (#58) (TODO)
+Added setUserIdFromCookie (#78)
+
 
 Version 0.13.1 (2014-01-28)
 ---------------------------

@@ -1379,8 +1379,8 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 * 
 		 * @param string queryName Name of a querystring name-value pair
 		 */
-		 setUserIdFromLocation: function(queryName) {
-		 	businessUserId = SnowPlow.fromQuerystring(queryName, locationHrefAlias);
+		 setUserIdFromLocation: function(querystringField) {
+		 	businessUserId = SnowPlow.fromQuerystring(querystringField, locationHrefAlias);
 		 },
 
 		/**
@@ -1388,8 +1388,15 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 * 
 		 * @param string queryName Name of a querystring name-value pair
 		 */
-		 setUserIdFromReferrer: function(queryName) {
-		 	businessUserId = SnowPlow.fromQuerystring(queryName, configReferrerUrl);
+		 setUserIdFromReferrer: function(querystringField) {
+		 	businessUserId = SnowPlow.fromQuerystring(querystringField, configReferrerUrl);
+		 },
+
+		 /**
+		 * Set the business-defined user ID for this user using.
+		 */
+		 setUserIdFromCookie: function(cookieName) {
+		 	businessUserId = SnowPlow.getCookie(cookieName);
 		 },
 
 		/**
