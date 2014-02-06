@@ -1392,8 +1392,10 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 	businessUserId = SnowPlow.fromQuerystring(querystringField, configReferrerUrl);
 		 },
 
-		 /**
-		 * Set the business-defined user ID for this user using.
+		/**
+		 * Set the business-defined user ID for this user to the value of a cookie.
+		 * 
+		 * @param string cookieName Name of the cookie whose value will be assigned to businessUserId
 		 */
 		 setUserIdFromCookie: function(cookieName) {
 		 	businessUserId = SnowPlow.getCookie(cookieName);
