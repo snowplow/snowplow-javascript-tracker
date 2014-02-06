@@ -5,7 +5,6 @@
     "grunt": "~0.4.2",
     "intern": "~1.3.1",
     "grunt-contrib-concat": "~0.3.0",
-    "grunt-contrib-compress": "~0.6.0",
     "grunt-yui-compressor": "fblundun/grunt-yui-compressor/tree/feature/issue-8",
     "grunt-invalidate-cloudfront": "~0.1.4",
     "grunt-s3": "~0.2.0-alpha.3"
