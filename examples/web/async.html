@@ -25,10 +25,11 @@
         _snaq.push(['setAppId', 'CFe23a']); // Site ID can be anything you want. Set it if you're tracking more than one site in this account
         _snaq.push(['setUserId', 'alex 123']); // Business-defined user ID
         //_snaq.push(['setUserIdFromLocation', 'id']); // To test this, reload the page with ?id=xxx
+        //_snaq.push(['setUserIdFromCookie', '_sp_id.4209']) // Test this using Firefox because Chrome doesn't allow local cookies.
         _snaq.push(['setCustomUrl', '/overridden-url/']); // Override the page URL
         _snaq.push(['enableActivityTracking', 10, 10]); // Ping every 10 seconds after 10 seconds
         _snaq.push(['enableLinkTracking']);
-        _snaq.push(['setPlatform', 'mob']);        
+        _snaq.push(['setPlatform', 'mob']);
         _snaq.push(['encodeBase64', false]); // Default is true
         _snaq.push(['respectDoNotTrack', true]); // Prevent all tracking if browser's Do Not Track feature is enabled
         // _snaq.push(['trackPageView', 'Async Test']); // Track the page view with custom title
