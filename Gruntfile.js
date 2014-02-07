@@ -103,7 +103,7 @@ module.exports = function(grunt) {
       options: {
         key: '<%= aws.key %>',
         secret: '<%= aws.secret %>',
-        distribution:  '<%= aws.distribution %>'
+        distribution: '<%= aws.distribution %>'
       },
       production: {
         files: [{
@@ -124,6 +124,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-invalidate-cloudfront');
 
   grunt.registerTask('default', ['concat', 'min']);
-  grunt.registerTask('publish', ['concat', 'min', 's3', 'invalidate_cloudfront'])
+  grunt.registerTask('publish', ['concat', 'min', 's3', 'invalidate_cloudfront']);
 
 }
