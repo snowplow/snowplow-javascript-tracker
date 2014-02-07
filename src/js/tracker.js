@@ -1440,7 +1440,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		/**
 		 * Specify the platform
 		 *
-		 * @param string userId The business-defined user ID
+		 * @param string platform Overrides the default tracking platform
 		 */
 		setPlatform: function(platform) {
 			configPlatform = platform;
