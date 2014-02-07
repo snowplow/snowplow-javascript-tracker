@@ -1,4 +1,12 @@
+<<<<<<< HEAD
 Version 0.14.0 (2014-02-12)
+=======
+Version 1.0.0 (2014-02-XX)
+--------------------------
+Fred to fill in
+
+Version 0.14.0 (2014-02-XX)
+>>>>>>> Stubbed for 1.0.0
 ---------------------------
 Bumped version to 0.14.0
 Removed all DEBUG blocks from codebase (#65)
