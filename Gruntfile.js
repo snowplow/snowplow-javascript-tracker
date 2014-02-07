@@ -67,7 +67,7 @@ module.exports = function(grunt) {
     min: {
       w_breaks: {
         options: {
-          linebreak: 10,
+          linebreak: 1000,
           report: 'gzip'
         },  
         files: [{
@@ -108,6 +108,10 @@ module.exports = function(grunt) {
       production: {
         files: [{
           src: ['<%= majorVersion %>/sp.js'],
+          dest: ''
+        }, 
+        {
+          src: ['<%= pkg.version %>/sp.js'],
           dest: ''
         }]
       }
