@@ -1,6 +1,6 @@
 {
-  "secret": "ADD HERE",
   "key":    "ADD HERE",
+  "secret": "ADD HERE",
   "bucket": "ADD HERE",
   "distribution": "ADD HERE"
 }
