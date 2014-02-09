@@ -32,14 +32,19 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+var semver = require('semver');
+
 /*global module:false*/
 module.exports = function(grunt) {
 
+  var pkg = grunt.file.readJSON('package.json');
+  var semVer = semver.parse(pkg.version);
+  pkg.pinnedVersion = semVer.major;
+
   grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json'),
-    
-    version: '<%= Semver(pkg.version) %>',
-    
+
+    pkg: pkg,
+
     aws: grunt.file.readJSON('aws.json'),
 
     concat: {
@@ -67,15 +72,17 @@ module.exports = function(grunt) {
     },
 
     min: {
-      w_breaks: {
+      dist: {
         options: {
           linebreak: 1000,
           report: 'gzip'
         },  
-        files: [{
+        files: [
+          {
           src: 'dist/snowplow.js',
           dest: 'dist/sp.js'
-        }]
+          }
+        ]
       }
     },
 
@@ -87,18 +94,22 @@ module.exports = function(grunt) {
         access: 'public-read',
         gzip: true
       },
-      dev: {
+      not_pinned: {
         upload: [
           {
             src: 'dist/sp.js',
-            dest: '<%= version.raw %>/sp.js'
-          },
+            dest: '<%= pkg.version %>/sp.js'
+          }      
+        ]
+      },
+      pinned: {
+        upload: [
           {
             src: 'dist/sp.js',
-            dest: '<%= version.major %>/sp.js'
+            dest: '<%= pkg.pinnedVersion %>/sp.js'
           }        
         ]
-      }
+      },      
     },
 
     invalidate_cloudfront: {
@@ -107,14 +118,18 @@ module.exports = function(grunt) {
         secret: '<%= aws.secret %>',
         distribution: '<%= aws.distribution %>'
       },
-      production: {
+      not_pinned: {
         files: [
           {
-            src: ['<%= version.raw %>/sp.js'],
+            src: ['<%= pkg.version %>/sp.js'],
             dest: ''
-          }, 
+          }
+        ]
+      },
+      pinned: {
+        files: [
           {
-            src: ['<%= version.major %>/sp.js'],
+            src: ['<%= pkg.pinnedVersion %>/sp.js'],
             dest: ''
           }
         ]
@@ -128,6 +143,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-invalidate-cloudfront');
 
   grunt.registerTask('default', ['concat', 'min']);
-  grunt.registerTask('publish', ['concat', 'min', 's3', 'invalidate_cloudfront']);
+  grunt.registerTask('publish', ['concat', 'min', 's3:not_pinned', 'invalidate_cloudfront:not_pinned']);
+  grunt.registerTask('publish-pinned', ['concat', 'min', 's3', 'invalidate_cloudfront']);
 
 }
