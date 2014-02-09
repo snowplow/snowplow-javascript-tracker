@@ -37,7 +37,9 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
-    majorVersion: '<%= pkg.version.split(".")[0] %>',
+    
+    version: '<%= Semver(pkg.version) %>',
+    
     aws: grunt.file.readJSON('aws.json'),
 
     concat: {
@@ -89,11 +91,11 @@ module.exports = function(grunt) {
         upload: [
           {
             src: 'dist/sp.js',
-            dest: '<%= pkg.version %>/sp.js'
+            dest: '<%= version.raw %>/sp.js'
           },
           {
             src: 'dist/sp.js',
-            dest: '<%= majorVersion %>/sp.js'
+            dest: '<%= version.major %>/sp.js'
           }        
         ]
       }
@@ -107,11 +109,11 @@ module.exports = function(grunt) {
       },
       production: {
         files: [{
-          src: ['<%= majorVersion %>/sp.js'],
+          src: ['<%= version.raw %>/sp.js'],
           dest: ''
         }, 
         {
-          src: ['<%= pkg.version %>/sp.js'],
+          src: ['<%= version.major %>/sp.js'],
           dest: ''
         }]
       }
