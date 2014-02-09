@@ -108,14 +108,16 @@ module.exports = function(grunt) {
         distribution: '<%= aws.distribution %>'
       },
       production: {
-        files: [{
-          src: ['<%= version.raw %>/sp.js'],
-          dest: ''
-        }, 
-        {
-          src: ['<%= version.major %>/sp.js'],
-          dest: ''
-        }]
+        files: [
+          {
+            src: ['<%= version.raw %>/sp.js'],
+            dest: ''
+          }, 
+          {
+            src: ['<%= version.major %>/sp.js'],
+            dest: ''
+          }
+        ]
       }
     }
   });
