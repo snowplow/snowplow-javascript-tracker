@@ -1,13 +1,3 @@
-/*!
- * Snowplow - The world's most powerful web analytics platform
- *
- * @description JavaScript tracker for Snowplow
- * @version     0.14.0
- * @author      Alex Dean, Simon Andersson, Anthon Pang, Fred Blundun
- * @copyright   Anthon Pang, Snowplow Analytics Ltd
- * @license     Simplified BSD
- */
-
 /*
  * For technical documentation:
  * https://github.com/snowplow/snowplow/wiki/javascript-tracker
