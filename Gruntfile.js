@@ -52,7 +52,6 @@ module.exports = function(grunt) {
   var semVer = semver.parse(pkg.version);
   pkg.pinnedVersion = semVer.major;
 
-  console.log(pkg.version);
   banner = banner.replace('--version--', pkg.version);
   banner = banner.replace('--authors--', pkg.contributors.join(', '));
   banner = banner.replace('--license--', pkg.license);

@@ -52,8 +52,7 @@ SnowPlow.hasCookies = function(testCookieName) {
  * Based on https://github.com/carlo/jquery-browser-fingerprint
  * @return {number} 32-bit positive integer hash 
  */
-// TODO: make seed for hashing configurable
-SnowPlow.detectSignature = function() {
+SnowPlow.detectSignature = function(hashSeed) {
 
     var fingerprint = [
         navigator.userAgent,
@@ -76,7 +75,7 @@ SnowPlow.detectSignature = function() {
             plugins.push([navigator.plugins[i].name + "::" + navigator.plugins[i].description, mt.join("~")]);
         }
     }
-    return SnowPlow.murmurhash3_32_gc(fingerprint.join("###") + "###" + plugins.sort().join(";"), 123412414);
+    return SnowPlow.murmurhash3_32_gc(fingerprint.join("###") + "###" + plugins.sort().join(";"), hashSeed);
 }
 
 /*

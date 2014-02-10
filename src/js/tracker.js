@@ -132,6 +132,9 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		// Enable Base64 encoding for unstructured events
 		configEncodeBase64 = true,
 
+		// Default hash seed for MurmurHash3 in SnowPlow.detectSignature
+		configUserFingerprintHashSeed = 123412414,
+
 		// Document character set
 		documentCharset = SnowPlow.documentAlias.characterSet || SnowPlow.documentAlias.charset,
 
@@ -145,7 +148,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		timezone = SnowPlow.detectTimezone(),
 
 		// Visitor fingerprint
-		fingerprint = SnowPlow.detectSignature(),
+		userFingerprint,
 
 		// Guard against installing the link tracker more than once per Tracker instance
 		linkTrackingInstalled = false,
@@ -536,7 +539,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		// Encode all these
 		sb.add('p', configPlatform);		
 		sb.add('tv', SnowPlow.version);
-		sb.add('fp', fingerprint);
+		sb.add('fp', userFingerprint);
 		sb.add('aid', configTrackerSiteId);
 		sb.add('lang', browserLanguage);
 		sb.add('cs', documentCharset);
@@ -1279,6 +1282,20 @@ SnowPlow.Tracker = function Tracker(argmap) {
 			var dnt = SnowPlow.navigatorAlias.doNotTrack || SnowPlow.navigatorAlias.msDoNotTrack;
 
 			configDoNotTrack = enable && (dnt === 'yes' || dnt === '1');
+		},
+
+		/**
+		 * Enable user fingerprinting
+		 * @param bool enable If true, turn on user fingerprinting;
+		 * @param number hashSeed The seed used for MurmurHash3
+		 */
+		enableUserFingerprinting: function(enable, hashSeed) {
+			if (enable) {
+				configUserFingerprintHashSeed = hashSeed || configUserFingerprintHashSeed;
+				userFingerprint = SnowPlow.detectSignature(configUserFingerprintHashSeed);
+			} else {
+				userFingerprint = null;
+			}
 		},
 
 		/**
