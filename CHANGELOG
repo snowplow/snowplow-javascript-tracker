@@ -7,6 +7,12 @@ Started using Browserify for modules (#74) (TODO)
 Replaced some/all of lib/.js with modules (#7) (TODO)
 Added user fingerprinting on/off switch and configurable hash seed (#7)
 Added Intern unit tests for payload.js (#5) (TODO)
+Deprecated trackImpression (#66) (TODO)
+Removed attachUserId as fully deprecated now (#64) (TODO)
+Removed setSiteId as fully deprecated now (#63) (TODO)
+Removed getVisitor-Id, -Info as fully deprecated now (#62) (TODO)
+Removed trackEvent as fully deprecated now (#61) (TODO)
+Tightened public API for SnowPlow (#29) (TODO)
 
 Version 0.14.0 (2014-02-XX)
 ---------------------------
