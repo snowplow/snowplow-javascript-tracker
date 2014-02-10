@@ -1,6 +1,12 @@
 Version 1.0.0 (2014-02-XX)
 --------------------------
-Fred to fill in
+
+Added extra meta-data to package.json (#83)
+Moved banner.js into Gruntfi9le with grunt-concat's banner option (#82) (TODO)
+Started using Browserify for modules (#74) (TODO)
+Replaced some/all of lib/.js with modules (#7) (TODO)
+Added user fingerprinting on/off switch and configurable hash seed (#7) (TODO)
+Added Intern unit tests for payload.js (#5) (TODO)
 
 Version 0.14.0 (2014-02-XX)
 ---------------------------
