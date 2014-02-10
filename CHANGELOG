@@ -1,5 +1,21 @@
+Version 1.0.0 (2014-02-XX)
+--------------------------
+
+Added extra meta-data to package.json (#83)
+Moved part of banner.js into Gruntfile with grunt-concat's banner option so its values are based on package.json (#82)
+Started using Browserify for modules (#74) (TODO)
+Replaced some/all of lib/.js with modules (#7) (TODO)
+Added user fingerprinting on/off switch and configurable hash seed (#7)
+Added Intern unit tests for payload.js (#5) (TODO)
+Deprecated trackImpression (#66) (TODO)
+Removed attachUserId as fully deprecated now (#64) (TODO)
+Removed setSiteId as fully deprecated now (#63) (TODO)
+Removed getVisitor-Id, -Info as fully deprecated now (#62) (TODO)
+Removed trackEvent as fully deprecated now (#61) (TODO)
+Tightened public API for SnowPlow (#29) (TODO)
+
 Version 0.14.0 (2014-02-XX)
->>>>>>> Stubbed for 1.0.0
+
 ---------------------------
 Bumped version to 0.14.0
 Removed all DEBUG blocks from codebase (#65)
