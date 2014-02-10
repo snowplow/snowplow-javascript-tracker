@@ -10,8 +10,17 @@
     "grunt-invalidate-cloudfront": "~0.1.4",
     "grunt-s3": "~0.2.0-alpha.3"
   },
+  "contributors": [
+    "Alex Dean",
+    "Simon Andersson",
+    "Anthon Pang",
+    "Fred Blundun"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/snowplow/snowplow-javascript-tracker.git"
-  }
+  },
+  "bugs": "https://github.com/snowplow/snowplow-javascript-tracker/issues",
+  "keywords": ["tracking", "web analytics", "events", "open source"],
+  "license": "Simplified BSD"
 }
