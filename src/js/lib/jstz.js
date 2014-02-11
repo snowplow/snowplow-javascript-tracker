@@ -16,7 +16,7 @@
 /*global exports*/
 /*version 2012-05-10*/
 
-(function(root) {
+module.exports = (function() {
   /**
    * Namespace to hold all the code for timezone detection.
    */
@@ -315,11 +315,6 @@
       'America/Halifax' : ['America/Goose_Bay', 'America/Halifax'],
       'America/Godthab' : ['America/Miquelon', 'America/Godthab']
   };
-
-  if (typeof exports !== 'undefined') {
-    exports.jstz = jstz;
-  } else {
-    root.jstz = jstz;
-  }
-})(this);
+  return jstz;
+})();
 

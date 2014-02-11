@@ -129,7 +129,7 @@ SnowPlow.payloadBuilder = function (base64Encode) {
 		
 		if (SnowPlow.isNonEmptyJson(json)) {
 			var typed = appendTypes(json);
-			var str = JSON2.stringify(typed);
+			var str = SnowPlow.JSON2.stringify(typed);
 
 			if (base64Encode) {
 				addRaw(keyIfEncoded, SnowPlow.base64urlencode(str));
