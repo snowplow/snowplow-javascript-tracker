@@ -13,6 +13,7 @@ Removed setSiteId as fully deprecated now (#63) (TODO)
 Removed getVisitor-Id, -Info as fully deprecated now (#62) (TODO)
 Removed trackEvent as fully deprecated now (#61) (TODO)
 Tightened public API for SnowPlow (#29) (TODO)
+Renamed SnowPlow everywhere to Snowplow (#69) (TODO)
 
 Version 0.14.0 (2014-02-XX)
 ---------------------------
