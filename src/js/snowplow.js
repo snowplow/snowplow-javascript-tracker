@@ -215,12 +215,12 @@ SnowPlow.build = function () {
 
 		SnowPlow.asyncTracker = new SnowPlow.Tracker();
 
-		for (var i = 0; i < _snaq.length; i++) {
-			apply(_snaq[i]);
+		for (var i = 0; i < SnowPlow.windowAlias._snaq.length; i++) {
+			apply(SnowPlow.windowAlias._snaq[i]);
 		}
 
 		// replace initialization array with proxy object
-		_snaq = new TrackerProxy();
+		SnowPlow.windowAlias._snaq = new TrackerProxy();
 
 
 		/************************************************************
