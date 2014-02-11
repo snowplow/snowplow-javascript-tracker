@@ -33,15 +33,6 @@
 */
 
 var semver = require('semver');
-var banner = "/*!" +
-" * Snowplow - The world's most powerful web analytics platform\n" +
-" *\n" +
-" * @description JavaScript tracker for Snowplow\n" +
-" * @version     --version--\n" +
-" * @author      --authors--\n" +
-" * @copyright   Anthon Pang, Snowplow Analytics Ltd\n" +
-" * @license     --license--\n" +
-" */\n\n"
 
 var semver = require('semver');
 
@@ -51,12 +42,15 @@ module.exports = function(grunt) {
   var pkg = grunt.file.readJSON('package.json');
   var semVer = semver.parse(pkg.version);
   pkg.pinnedVersion = semVer.major;
-
-  banner = banner.replace('--version--', pkg.version);
-  banner = banner.replace('--authors--', pkg.contributors.join(', '));
-  banner = banner.replace('--license--', pkg.license);
-
-
+  var banner = "/*!" +
+  " * Snowplow - The world's most powerful web analytics platform\n" +
+  " *\n" +
+  " * @description <%= pkg.description %>\n" +
+  " * @version     <%= pkg.version %>\n" +
+  " * @author      <%= pkg.contributors %>\n" +
+  " * @copyright   Anthon Pang, Snowplow Analytics Ltd\n" +
+  " * @license     <%= pkg.license %>\n" +
+  " */\n\n"
 
   grunt.initConfig({
 
