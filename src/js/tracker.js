@@ -170,7 +170,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		lastTarget,
 
 		// Hash function
-		hash = SnowPlow.sha1,
+		hash = require('sha1'),
 
 		// Domain hash value
 		domainHash,
@@ -444,7 +444,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 				domainUserId = hash(
 					(SnowPlow.navigatorAlias.userAgent || '') +
 						(SnowPlow.navigatorAlias.platform || '') +
-						JSON2.stringify(browserFeatures) + nowTs
+						SnowPlow.JSON2.stringify(browserFeatures) + nowTs
 				).slice(0, 16); // 16 hexits = 64 bits
 			}
 

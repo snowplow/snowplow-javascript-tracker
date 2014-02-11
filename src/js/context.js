@@ -82,7 +82,8 @@ SnowPlow.detectSignature = function(hashSeed) {
  * Returns visitor timezone
  */
 SnowPlow.detectTimezone = function() {
-	var tz = jstz.determine();  
+	//var tz = require('jstimezonedetect').determine(); // For the online version
+	var tz = require('../src/js/lib/jstz.js').determine();  
     	return (typeof (tz) === 'undefined') ? '' : tz.name();
 }
 

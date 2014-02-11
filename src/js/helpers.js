@@ -313,3 +313,34 @@ SnowPlow.fromQuerystring = function (field, url) {
 	}
 	return SnowPlow.decodeWrapper(match[1].replace(/\+/g, ' '));
 }
+
+// Base64 module
+SnowPlow.base64 = require('Base64');
+
+/*
+ * Base64 encode data
+ */
+SnowPlow.base64encode = SnowPlow.base64.btoa;
+
+/*
+ * Base64 decode data
+ */
+SnowPlow.base64decode = SnowPlow.base64.atob;
+
+/*
+ * Bas64 encode data with URL and Filename Safe Alphabet (base64url)
+ *
+ * See: http://tools.ietf.org/html/rfc4648#page-7
+ */
+SnowPlow.base64urlencode = function(data) {
+  if (!data) return data;
+
+  var enc = SnowPlow.base64encode(data);
+  return enc.replace(/=/g, '')
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_');
+};
+
+SnowPlow.murmurhash3_32_gc = require('murmurhash').v3;
+
+SnowPlow.JSON2 = require('JSON');

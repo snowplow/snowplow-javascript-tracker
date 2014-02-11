@@ -67,21 +67,24 @@ module.exports = function(grunt) {
           'banner': '<%= banner %>'
         },
         src: ['src/js/banner.js',
-              'src/js/lib/json.js',
-              'src/js/lib/jstz.js',
               'src/js/init.js',
               'src/js/helpers.js',
               'src/js/cookie.js',
               'src/js/context.js',
-              'src/js/lib/sha1.js',
-              'src/js/lib/murmur.js',
-              'src/js/lib/base64.js',
               'src/js/payload.js',
               'src/js/tracker.js',
               'src/js/snowplow.js',
               'src/js/constructor.js'],
 
         dest: 'dist/snowplow.js'
+      }
+    },
+
+    browserify: {
+      dist: {
+        files: {
+          'dist/bundle.js': ['dist/snowplow.js']
+        }
       }
     },
 
@@ -155,8 +158,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-yui-compressor');
   grunt.loadNpmTasks('grunt-s3');
   grunt.loadNpmTasks('grunt-invalidate-cloudfront');
+  grunt.loadNpmTasks('grunt-browserify');
 
-  grunt.registerTask('default', ['concat', 'min']);
+  grunt.registerTask('default', ['concat', 'browserify']);
   grunt.registerTask('publish', ['concat', 'min', 's3:not_pinned', 'invalidate_cloudfront:not_pinned']);
   grunt.registerTask('publish-pinned', ['concat', 'min', 's3', 'invalidate_cloudfront']);
 
