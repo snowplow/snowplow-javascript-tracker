@@ -16,11 +16,17 @@
     "Anthon Pang",
     "Fred Blundun"
   ],
+  "description": "JavaScript tracker for Snowplow",
   "repository": {
     "type": "git",
     "url": "https://github.com/snowplow/snowplow-javascript-tracker.git"
   },
   "bugs": "https://github.com/snowplow/snowplow-javascript-tracker/issues",
-  "keywords": ["tracking", "web analytics", "events", "open source"],
+  "keywords": [
+    "tracking",
+    "web analytics",
+    "events",
+    "open source"
+  ],
   "license": "Simplified BSD"
 }
