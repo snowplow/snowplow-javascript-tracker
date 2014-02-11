@@ -32,9 +32,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-// SnowPlow Asynchronous Queue
-var _snaq = _snaq || [];
-
 /**
  * SnowPlow namespace.
  * Add classes and functions in this namespace.
@@ -75,3 +72,5 @@ var SnowPlow = SnowPlow || function() {
 	}
 }();
 
+// SnowPlow Asynchronous Queue
+SnowPlow.windowAlias._snaq = SnowPlow.windowAlias._snaq || [];
