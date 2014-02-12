@@ -1,4 +1,4 @@
-Version 0.14.0 (2014-02-XX)
+Version 0.14.0 (2014-02-12)
 ---------------------------
 Bumped version to 0.14.0
 Removed all DEBUG blocks from codebase (#65)
