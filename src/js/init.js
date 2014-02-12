@@ -38,6 +38,9 @@
  */
 var SnowPlow = SnowPlow || function() {
 	var windowAlias = window;
+
+	// SnowPlow Asynchronous Queue
+	windowAlias._snaq = windowAlias._snaq || [];
 	return {
 
 		/* Tracker identifier with version */
@@ -71,6 +74,3 @@ var SnowPlow = SnowPlow || function() {
 		asyncTracker: null
 	}
 }();
-
-// SnowPlow Asynchronous Queue
-SnowPlow.windowAlias._snaq = SnowPlow.windowAlias._snaq || [];
