@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker for Snowplow: init.js
+ * JavaScript tracker for Snowplow: cookie.js
  * 
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
  * 2012-2014 Snowplow Analytics Ltd. All rights reserved. 
@@ -32,46 +32,31 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-// SnowPlow Asynchronous Queue
-var _snaq = _snaq || [];
-
-/**
- * SnowPlow namespace.
- * Add classes and functions in this namespace.
+/*
+ * Get cookie value
  */
-var SnowPlow = SnowPlow || function() {
-	var windowAlias = window;
-	return {
+SnowPlow.getCookie = function (cookieName) {
+	var cookiePattern = new RegExp('(^|;)[ ]*' + cookieName + '=([^;]*)'),
+			cookieMatch = cookiePattern.exec(SnowPlow.documentAlias.cookie);
 
-		/* Tracker identifier with version */
-		version: 'js-0.14.0', // Update banner.js too
+	return cookieMatch ? SnowPlow.decodeWrapper(cookieMatch[2]) : 0;
+}
 
-		expireDateTime: null,
+/*
+ * Set cookie value
+ */
+SnowPlow.setCookie = function (cookieName, value, msToExpire, path, domain, secure) {
+	var expiryDate;
 
-		/* Plugins */
-		plugins: {},
-
-		/* DOM Ready */
-		hasLoaded: false,
-		registeredOnLoadHandlers: [],
-
-		/* Alias frequently used globals for added minification */
-		documentAlias: document,
-		windowAlias: windowAlias,
-		navigatorAlias: navigator,
-		screenAlias: screen,
-
-		/* Encode */
-		encodeWrapper: windowAlias.encodeURIComponent,
-
-		/* Decode */
-		decodeWrapper: windowAlias.decodeURIComponent,
-
-		/* decodeUrl */
-		decodeUrl: unescape,
-
-		/* Asynchronous tracker */
-		asyncTracker: null
+	// relative time to expire in milliseconds
+	if (msToExpire) {
+		expiryDate = new Date();
+		expiryDate.setTime(expiryDate.getTime() + msToExpire);
 	}
-}();
 
+	SnowPlow.documentAlias.cookie = cookieName + '=' + SnowPlow.encodeWrapper(value) +
+		(msToExpire ? ';expires=' + expiryDate.toGMTString() : '') +
+		';path=' + (path || '/') +
+		(domain ? ';domain=' + domain : '') +
+		(secure ? ';secure' : '');
+}
