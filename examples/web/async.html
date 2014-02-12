@@ -18,18 +18,20 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
     <!-- Snowplow starts plowing -->
-    <script type="text/javascript">
+    <script type="text/javascript">   
         var _snaq = _snaq || [];
 	
         _snaq.push(['setCollectorCf', 'd3rkrsqld9gmqf']); // Update to your CloudFront distribution subdomain
         _snaq.push(['setAppId', 'CFe23a']); // Site ID can be anything you want. Set it if you're tracking more than one site in this account
         _snaq.push(['setUserId', 'alex 123']); // Business-defined user ID
-        // Deprecated _snaq.push(['attachUserId', false]); // Don't attach &uid=xxx to the querystring
+        //_snaq.push(['setUserIdFromLocation', 'id']); // To test this, reload the page with ?id=xxx
+        //_snaq.push(['setUserIdFromCookie', '_sp_id.4209']) // Test this using Firefox because Chrome doesn't allow local cookies.
         _snaq.push(['setCustomUrl', '/overridden-url/']); // Override the page URL
         _snaq.push(['enableActivityTracking', 10, 10]); // Ping every 10 seconds after 10 seconds
         _snaq.push(['enableLinkTracking']);
-        _snaq.push(['setPlatform', 'mob']);        
+        _snaq.push(['setPlatform', 'mob']);
         _snaq.push(['encodeBase64', false]); // Default is true
+        _snaq.push(['respectDoNotTrack', true]); // Prevent all tracking if browser's Do Not Track feature is enabled
         // _snaq.push(['trackPageView', 'Async Test']); // Track the page view with custom title
         _snaq.push(['trackPageView', , { // Auto-set page title; add page context
           page: {
@@ -44,8 +46,8 @@
 
         (function() {
             var sp = document.createElement('script'); sp.type = 'text/javascript'; sp.async = true; sp.defer = true;
-            sp.src = ('https:' == document.location.protocol ? 'https' : 'http') + '://d1fc8wv8zag5ca.cloudfront.net/0.13.1/sp.js';
-            // sp.src = '../../dist/snowplow.js'; // For testing
+            //sp.src = ('https:' == document.location.protocol ? 'https' : 'http') + '://d1fc8wv8zag5ca.cloudfront.net/0.13.0/sp.js';
+            sp.src = '../../dist/snowplow.js'; // For testing
             var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(sp, s);
             })();
     </script>
@@ -53,6 +55,7 @@
 
     <!-- Example events -->
     <script type="text/javascript">
+
         function playMix() {
             alert("Playing a DJ mix");
             _snaq.push(['trackStructEvent', 'Mixes', 'Play', 'MRC/fabric-0503-mix', '', '0.0']);
@@ -133,6 +136,7 @@
         <button type="button" onclick="viewProduct()">View a product</button><br>
         <button type="button" onclick="addEcommerceTransaction()">Add an ecommerce transaction</button>
     </p>
+    <p>Warning: if your browser's Do Not Track feature is enabled and respectDoNotTrack is not commented out, all tracking will be prevented.</p>
 </body>
 
 </html>
