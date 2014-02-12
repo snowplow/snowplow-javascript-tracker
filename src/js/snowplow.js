@@ -71,7 +71,7 @@
 	addPlugin, getAsyncTracker
 */
 
-var helpers = require('../src/js/lib/helpers.js');
+var helpers = require('helpers');
 
 SnowPlow.build = function () {
 		"use strict";

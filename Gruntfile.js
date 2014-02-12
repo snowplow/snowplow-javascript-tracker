@@ -80,6 +80,13 @@ module.exports = function(grunt) {
 
     browserify: {
       dist: {
+        options: {
+          alias: [
+          'src/js/lib/identifiers.js:identifiers',
+          'src/js/lib/helpers.js:helpers',
+          'src/js/lib/payload.js:payload'
+          ]
+        },
         files: {
           'dist/bundle.js': ['dist/snowplow.js']
         }
