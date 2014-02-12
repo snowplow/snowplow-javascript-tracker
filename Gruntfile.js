@@ -168,7 +168,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-invalidate-cloudfront');
   grunt.loadNpmTasks('grunt-browserify');
 
-  grunt.registerTask('default', ['concat', 'browserify']);
+  grunt.registerTask('default', ['concat', 'browserify', 'min']);
   grunt.registerTask('publish', ['concat', 'min', 's3:not_pinned', 'invalidate_cloudfront:not_pinned']);
   grunt.registerTask('publish-pinned', ['concat', 'min', 's3', 'invalidate_cloudfront']);
 
