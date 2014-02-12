@@ -75,6 +75,6 @@ var SnowPlow = SnowPlow || function() {
 
 // Load all our modules (at least until we fully modularize & remove grunt-concat)
 
-var identifiers = require('../src/js/lib/identifiers.js');
-var payload = require('../src/js/lib/payload.js');
+var identifiers = require('identifiers');
+var payload = require('payload');
 var json2 = require('JSON');

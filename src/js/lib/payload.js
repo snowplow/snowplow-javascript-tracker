@@ -32,11 +32,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-(function() {
+;(function() {
 
 	var object = typeof module.exports != 'undefined' ? module.exports : this; // For eventual node.js environment support
 
-	var identifiers = require('./identifiers.js');
+	var identifiers = require('identifiers');
 
 	var json2 = require('JSON');
 
