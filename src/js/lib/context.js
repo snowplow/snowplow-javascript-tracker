@@ -38,7 +38,7 @@
 SnowPlow.hasCookies = function(testCookieName) {
 	var cookieName = testCookieName || 'testcookie';
 
-	if (!SnowPlow.isDefined(SnowPlow.navigatorAlias.cookieEnabled)) {
+	if (!Identifiers.isDefined(SnowPlow.navigatorAlias.cookieEnabled)) {
 		SnowPlow.setCookie(cookieName, '1');
 		return SnowPlow.getCookie(cookieName) === '1' ? '1' : '0';
 	}
@@ -156,13 +156,13 @@ SnowPlow.detectBrowserFeatures = function(testCookieName) {
 	// Safari and Opera
 	// IE6/IE7 navigator.javaEnabled can't be aliased, so test directly
 	if (typeof navigator.javaEnabled !== 'unknown' &&
-			SnowPlow.isDefined(SnowPlow.navigatorAlias.javaEnabled) &&
+			Identifiers.isDefined(SnowPlow.navigatorAlias.javaEnabled) &&
 			SnowPlow.navigatorAlias.javaEnabled()) {
 		features.java = '1';
 	}
 
 	// Firefox
-	if (SnowPlow.isFunction(SnowPlow.windowAlias.GearsFactory)) {
+	if (Identifiers.isFunction(SnowPlow.windowAlias.GearsFactory)) {
 		features.gears = '1';
 	}
 

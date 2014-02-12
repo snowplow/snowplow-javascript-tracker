@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker for Snowplow: helpers.js
+ * JavaScript tracker for Snowplow: SnowPlow.js
  * 
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
  * 2012-2014 Snowplow Analytics Ltd. All rights reserved. 
@@ -33,87 +33,6 @@
  */
 
 /*
- * Is property defined?
- */
-SnowPlow.isDefined = function (property) {
-	return typeof property !== 'undefined';
-}
-
-/**
- * Is property null?
- */
-SnowPlow.isNotNull = function (property) {
-	return property !== null;
-}
-
-/*
- * Is property a function?
- */
-SnowPlow.isFunction = function (property) {
-	return typeof property === 'function';
-}
-
-/*
- * Is property an array?
- */
-SnowPlow.isArray = ('isArray' in Array) ? 
-	Array.isArray : 
-	function (value) {
-		return Object.prototype.toString.call(value) === '[object Array]';
-	}
-
-/*
- * Is property an empty array?
- */
-SnowPlow.isEmptyArray = function (property) {
-	return SnowPlow.isArray(property) && property.length < 1;
-}
-
-/*
- * Is property an object?
- *
- * @return bool Returns true if property is null, an Object, or subclass of Object (i.e., an instanceof String, Date, etc.)
- */
-SnowPlow.isObject = function (property) {
-	return typeof property === 'object';
-}
-
-/*
- * Is property a JSON?
- */
-SnowPlow.isJson = function (property) {
-	return (SnowPlow.isDefined(property) && SnowPlow.isNotNull(property) && property.constructor === {}.constructor);
-}
-
-/*
- * Is property a non-empty JSON?
- */
-SnowPlow.isNonEmptyJson = function (property) {
-	return SnowPlow.isJson(property) && property !== {};
-}
-
-/*
- * Is property a string?
- */
-SnowPlow.isString = function (property) {
-	return typeof property === 'string' || property instanceof String;
-}
-
-/*
- * Is property a non-empty string?
- */
-SnowPlow.isNonEmptyString = function (property) {
-	return SnowPlow.isString(property) && property !== '';
-}
-
-/*
- * Is property a date?
- */
-SnowPlow.isDate = function (property) {
-	return Object.prototype.toString.call(property) === "[object Date]";
-}
-
-/*
  * UTF-8 encoding
  */
 SnowPlow.encodeUtf8 = function (argString) {
@@ -124,11 +43,11 @@ SnowPlow.encodeUtf8 = function (argString) {
  * Cleans up the page title
  */
 SnowPlow.fixupTitle = function (title) {
-	if (!SnowPlow.isString(title)) {
+	if (!Identifiers.isString(title)) {
 		title = title.text || '';
 
 		var tmp = SnowPlow.documentAlias.getElementsByTagName('title');
-		if (tmp && SnowPlow.isDefined(tmp[0])) {
+		if (tmp && Identifiers.isDefined(tmp[0])) {
 			title = tmp[0].text;
 		}
 	}
@@ -294,7 +213,7 @@ SnowPlow.executePluginMethod = function (methodName, callback) {
 	for (i in SnowPlow.plugins) {
 		if (Object.prototype.hasOwnProperty.call(SnowPlow.plugins, i)) {
 			pluginMethod = SnowPlow.plugins[i][methodName];
-			if (SnowPlow.isFunction(pluginMethod)) {
+			if (Identifiers.isFunction(pluginMethod)) {
 				result += pluginMethod(callback);
 			}
 		}
@@ -314,33 +233,4 @@ SnowPlow.fromQuerystring = function (field, url) {
 	return SnowPlow.decodeWrapper(match[1].replace(/\+/g, ' '));
 }
 
-// Base64 module
-SnowPlow.base64 = require('Base64');
-
-/*
- * Base64 encode data
- */
-SnowPlow.base64encode = SnowPlow.base64.btoa;
-
-/*
- * Base64 decode data
- */
-SnowPlow.base64decode = SnowPlow.base64.atob;
-
-/*
- * Bas64 encode data with URL and Filename Safe Alphabet (base64url)
- *
- * See: http://tools.ietf.org/html/rfc4648#page-7
- */
-SnowPlow.base64urlencode = function(data) {
-  if (!data) return data;
-
-  var enc = SnowPlow.base64encode(data);
-  return enc.replace(/=/g, '')
-            .replace(/\+/g, '-')
-            .replace(/\//g, '_');
-};
-
 SnowPlow.murmurhash3_32_gc = require('murmurhash').v3;
-
-SnowPlow.JSON2 = require('JSON');

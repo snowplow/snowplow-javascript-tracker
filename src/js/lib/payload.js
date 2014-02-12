@@ -32,6 +32,51 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+var Identifiers = require('./identifiers.js');
+
+var JSON2 = require('JSON');
+
+// Base64 module
+var Base64 = require('Base64');
+
+/*
+ * Base64 encode data
+ */
+var base64encode = Base64.btoa;
+
+/*
+ * Base64 decode data
+ */
+var base64decode = Base64.atob;
+
+/*
+ * Bas64 encode data with URL and Filename Safe Alphabet (base64url)
+ *
+ * See: http://tools.ietf.org/html/rfc4648#page-7
+ */
+function base64urlencode(data) {
+  if (!data) return data;
+
+  var enc = base64encode(data);
+  return enc.replace(/=/g, '')
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_');
+};
+
+/*
+ * Converts a date object to Unix timestamp with or without milliseconds
+ */
+function toTimestamp(date, milliseconds) {
+	return milliseconds ? date / 1 : Math.floor(date / 1000);
+}
+
+/*
+ * Converts a date object to Unix datestamp (number of days since epoch)
+ */
+function toDatestamp(date) {
+	return Math.floor(date / 86400000);
+}
+
 /**
  * A helper to build a SnowPlow request string from an
  * an optional initial value plus a set of individual
@@ -42,14 +87,13 @@
  *
  * @return object The request string builder, with add, addRaw and build methods
  */
-
-SnowPlow.payloadBuilder = function (base64Encode) {
+module.exports = function (base64Encode) {
 	var str = '';
 	
 	var addNvPair = function (key, value, encode) {
 			if (value !== undefined && value !== null && value !== '') {
 			var sep = (str.length > 0) ? "&" : "?";
-			str += sep + key + '=' + (encode ? SnowPlow.encodeWrapper(value) : value);
+			str += sep + key + '=' + (encode ? window.encodeURIComponent(value) : value);
 		}
 	};
 
@@ -69,11 +113,11 @@ SnowPlow.payloadBuilder = function (base64Encode) {
 	var translateDateValue = function (date, type) {
 	  switch (type) {
 	    case 'tms':
-	      return SnowPlow.toTimestamp(date, true);
+	      return toTimestamp(date, true);
 	    case 'ts':
-	      return SnowPlow.toTimestamp(date, false);
+	      return toTimestamp(date, false);
 	    case 'dt':
-	      return SnowPlow.toDatestamp(date);
+	      return toDatestamp(date);
 	    default:
 	      return date;
 	  }
@@ -93,7 +137,7 @@ SnowPlow.payloadBuilder = function (base64Encode) {
 				if (json.hasOwnProperty(key)) {
 
 					// ... for JavaScript Dates
-					if (SnowPlow.isDate(value)) {
+					if (Identifiers.isDate(value)) {
 						type = getPropertySuffix(key);
 						if (!type) {
 							type = 'tms';
@@ -103,7 +147,7 @@ SnowPlow.payloadBuilder = function (base64Encode) {
 					}
 
 					// ... for JSON objects
-					if (SnowPlow.isJson(value)) {
+					if (Identifiers.isJson(value)) {
 						value = recurse(value);
 					}
 
@@ -127,12 +171,12 @@ SnowPlow.payloadBuilder = function (base64Encode) {
 
 	var addJson = function (keyIfEncoded, keyIfNotEncoded, json) {
 		
-		if (SnowPlow.isNonEmptyJson(json)) {
+		if (Identifiers.isNonEmptyJson(json)) {
 			var typed = appendTypes(json);
-			var str = SnowPlow.JSON2.stringify(typed);
+			var str = JSON2.stringify(typed);
 
 			if (base64Encode) {
-				addRaw(keyIfEncoded, SnowPlow.base64urlencode(str));
+				addRaw(keyIfEncoded, base64urlencode(str));
 			} else {
 				add(keyIfNotEncoded, str);
 			}
