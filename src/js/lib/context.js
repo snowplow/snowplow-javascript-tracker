@@ -32,13 +32,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+var murmurhash3_32_gc = require('murmurhash').v3;
+var helpers = require('../src/js/lib/helpers.js');
+
 /*
  * Does browser have cookies enabled (for this site)?
  */
 SnowPlow.hasCookies = function(testCookieName) {
 	var cookieName = testCookieName || 'testcookie';
 
-	if (!Identifiers.isDefined(SnowPlow.navigatorAlias.cookieEnabled)) {
+	if (!identifiers.isDefined(SnowPlow.navigatorAlias.cookieEnabled)) {
 		SnowPlow.setCookie(cookieName, '1');
 		return SnowPlow.getCookie(cookieName) === '1' ? '1' : '0';
 	}
@@ -58,8 +61,8 @@ SnowPlow.detectSignature = function(hashSeed) {
         navigator.userAgent,
         [ screen.height, screen.width, screen.colorDepth ].join("x"),
         ( new Date() ).getTimezoneOffset(),
-        SnowPlow.hasSessionStorage(),
-        SnowPlow.hasLocalStorage(),
+        helpers.hasSessionStorage(),
+        helpers.hasLocalStorage(),
     ];
 
     var plugins = [];
@@ -75,7 +78,7 @@ SnowPlow.detectSignature = function(hashSeed) {
             plugins.push([navigator.plugins[i].name + "::" + navigator.plugins[i].description, mt.join("~")]);
         }
     }
-    return SnowPlow.murmurhash3_32_gc(fingerprint.join("###") + "###" + plugins.sort().join(";"), hashSeed);
+    return murmurhash3_32_gc(fingerprint.join("###") + "###" + plugins.sort().join(";"), hashSeed);
 }
 
 /*
@@ -156,13 +159,13 @@ SnowPlow.detectBrowserFeatures = function(testCookieName) {
 	// Safari and Opera
 	// IE6/IE7 navigator.javaEnabled can't be aliased, so test directly
 	if (typeof navigator.javaEnabled !== 'unknown' &&
-			Identifiers.isDefined(SnowPlow.navigatorAlias.javaEnabled) &&
+			identifiers.isDefined(SnowPlow.navigatorAlias.javaEnabled) &&
 			SnowPlow.navigatorAlias.javaEnabled()) {
 		features.java = '1';
 	}
 
 	// Firefox
-	if (Identifiers.isFunction(SnowPlow.windowAlias.GearsFactory)) {
+	if (identifiers.isFunction(SnowPlow.windowAlias.GearsFactory)) {
 		features.gears = '1';
 	}
 

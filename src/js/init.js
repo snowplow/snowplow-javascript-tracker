@@ -37,9 +37,6 @@
  * Add classes and functions in this namespace.
  */
 
-var Identifiers = require('../src/js/lib/identifiers.js');
-var JSON2 = require('JSON');
-
 var SnowPlow = SnowPlow || function() {
 	var windowAlias = window;
 
@@ -51,9 +48,6 @@ var SnowPlow = SnowPlow || function() {
 		version: 'js-0.14.0', // Update banner.js too
 
 		expireDateTime: null,
-
-		/* Plugins */
-		plugins: {},
 
 		/* DOM Ready */
 		hasLoaded: false,
@@ -78,3 +72,9 @@ var SnowPlow = SnowPlow || function() {
 		asyncTracker: null
 	}
 }();
+
+// Load all our modules (at least until we fully modularize & remove grunt-concat)
+
+var identifiers = require('../src/js/lib/identifiers.js');
+var payload = require('../src/js/lib/payload.js');
+var json2 = require('JSON');

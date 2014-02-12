@@ -71,6 +71,8 @@
 	addPlugin, getAsyncTracker
 */
 
+var helpers = require('../src/js/lib/helpers.js');
+
 SnowPlow.build = function () {
 		"use strict";
 
@@ -93,7 +95,7 @@ SnowPlow.build = function () {
 				parameterArray = arguments[i];
 				f = parameterArray.shift();
 
-				if (Identifiers.isString(f)) {
+				if (identifiers.isString(f)) {
 					SnowPlow.asyncTracker[f].apply(SnowPlow.asyncTracker, parameterArray);
 				} else {
 					f.apply(SnowPlow.asyncTracker, parameterArray);
@@ -111,18 +113,16 @@ SnowPlow.build = function () {
 		function beforeUnloadHandler() {
 			var now;
 
-			SnowPlow.executePluginMethod('unload');
-
 			/*
 			 * Delay/pause (blocks UI)
 			 */
-			if (SnowPlow.expireDateTime) {
+			if (helpers.expireDateTime) {
 				// the things we do for backwards compatibility...
 				// in ECMA-262 5th ed., we could simply use:
-				//     while (Date.now() < SnowPlow.expireDateTime) { }
+				//     while (Date.now() < helpers.expireDateTime) { }
 				do {
 					now = new Date();
-				} while (now.getTimeAlias() < SnowPlow.expireDateTime);
+				} while (now.getTimeAlias() < helpers.expireDateTime);
 			}
 		}
 
@@ -134,7 +134,6 @@ SnowPlow.build = function () {
 
 			if (!SnowPlow.hasLoaded) {
 				SnowPlow.hasLoaded = true;
-				SnowPlow.executePluginMethod('load');
 				for (i = 0; i < SnowPlow.registeredOnLoadHandlers.length; i++) {
 					SnowPlow.registeredOnLoadHandlers[i]();
 				}
@@ -149,7 +148,7 @@ SnowPlow.build = function () {
 			var _timer;
 
 			if (SnowPlow.documentAlias.addEventListener) {
-				SnowPlow.addEventListener(SnowPlow.documentAlias, 'DOMContentLoaded', function ready() {
+				helpers.addEventListener(SnowPlow.documentAlias, 'DOMContentLoaded', function ready() {
 					SnowPlow.documentAlias.removeEventListener('DOMContentLoaded', ready, false);
 					loadHandler();
 				});
@@ -187,7 +186,7 @@ SnowPlow.build = function () {
 			}
 
 			// fallback
-			SnowPlow.addEventListener(SnowPlow.windowAlias, 'load', loadHandler, false);
+			helpers.addEventListener(SnowPlow.windowAlias, 'load', loadHandler, false);
 		}
 
 
@@ -208,7 +207,7 @@ SnowPlow.build = function () {
 		 ************************************************************/
 
 		// initialize the SnowPlow singleton
-		SnowPlow.addEventListener(SnowPlow.windowAlias, 'beforeunload', beforeUnloadHandler, false);
+		helpers.addEventListener(SnowPlow.windowAlias, 'beforeunload', beforeUnloadHandler, false);
 		addReadyListener();
 
 		Date.prototype.getTimeAlias = Date.prototype.getTime;
@@ -228,15 +227,6 @@ SnowPlow.build = function () {
 		 ************************************************************/
 
 	return {
-		/**
-		* Add plugin
-		*
-		* @param string pluginName
-		* @param Object pluginObj
-		*/
-		addPlugin: function (pluginName, pluginObj) {
-			SnowPlow.plugins[pluginName] = pluginObj;
-		},
 
 		/**
 		* Returns a Tracker object, configured with a

@@ -15,6 +15,7 @@ Removed trackEvent as fully deprecated now (#61)
 Tightened public API for SnowPlow (#29) (TODO)
 Renamed SnowPlow everywhere to Snowplow (#69) (TODO)
 Prepended window. or SnowPlow.windowAlias. onto _snaq everywhere (#39)
+Removed legacy Piwik plugin framework (#56)
 
 Version 0.14.0 (2014-02-XX)
 
