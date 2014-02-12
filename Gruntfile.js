@@ -84,7 +84,10 @@ module.exports = function(grunt) {
           alias: [
           'src/js/lib/identifiers.js:identifiers',
           'src/js/lib/helpers.js:helpers',
-          'src/js/lib/payload.js:payload'
+          'src/js/lib/payload.js:payload',
+          'src/js/lib/cookie.js:cookie',
+          'src/js/lib/context.js:detectors',
+          'src/js/lib/jstz.js:jstz'
           ]
         },
         files: {
@@ -101,7 +104,7 @@ module.exports = function(grunt) {
         },
         files: [
           {
-          src: 'dist/snowplow.js',
+          src: 'dist/bundle.js',
           dest: 'dist/sp.js'
           }
         ]

@@ -32,31 +32,37 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*
- * Get cookie value
- */
-SnowPlow.getCookie = function (cookieName) {
-	var cookiePattern = new RegExp('(^|;)[ ]*' + cookieName + '=([^;]*)'),
-			cookieMatch = cookiePattern.exec(SnowPlow.documentAlias.cookie);
+;(function() {
 
-	return cookieMatch ? SnowPlow.decodeWrapper(cookieMatch[2]) : 0;
-}
+	var object = typeof module.exports != 'undefined' ? module.exports : this; // For eventual node.js environment support
 
-/*
- * Set cookie value
- */
-SnowPlow.setCookie = function (cookieName, value, msToExpire, path, domain, secure) {
-	var expiryDate;
+	/*
+	 * Get cookie value
+	 */
+	object.getCookie = function (cookieName) {
+		var cookiePattern = new RegExp('(^|;)[ ]*' + cookieName + '=([^;]*)'),
+				cookieMatch = cookiePattern.exec(document.cookie);
 
-	// relative time to expire in milliseconds
-	if (msToExpire) {
-		expiryDate = new Date();
-		expiryDate.setTime(expiryDate.getTime() + msToExpire);
+		return cookieMatch ? window.decodeURIComponent(cookieMatch[2]) : 0;
 	}
 
-	SnowPlow.documentAlias.cookie = cookieName + '=' + SnowPlow.encodeWrapper(value) +
-		(msToExpire ? ';expires=' + expiryDate.toGMTString() : '') +
-		';path=' + (path || '/') +
-		(domain ? ';domain=' + domain : '') +
-		(secure ? ';secure' : '');
-}
+	/*
+	 * Set cookie value
+	 */
+	object.setCookie = function (cookieName, value, msToExpire, path, domain, secure) {
+		var expiryDate;
+
+		// relative time to expire in milliseconds
+		if (msToExpire) {
+			expiryDate = new Date();
+			expiryDate.setTime(expiryDate.getTime() + msToExpire);
+		}
+
+		document.cookie = cookieName + '=' + window.encodeURIComponent(value) +
+			(msToExpire ? ';expires=' + expiryDate.toGMTString() : '') +
+			';path=' + (path || '/') +
+			(domain ? ';domain=' + domain : '') +
+			(secure ? ';secure' : '');
+	}
+
+}());

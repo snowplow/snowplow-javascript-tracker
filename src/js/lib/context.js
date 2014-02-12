@@ -32,147 +32,154 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-var murmurhash3_32_gc = require('murmurhash').v3;
-var helpers = require('../src/js/lib/helpers.js');
+;(function() {
 
-/*
- * Does browser have cookies enabled (for this site)?
- */
-SnowPlow.hasCookies = function(testCookieName) {
-	var cookieName = testCookieName || 'testcookie';
+	var object = typeof module.exports != 'undefined' ? module.exports : this; // For eventual node.js environment support
 
-	if (!identifiers.isDefined(SnowPlow.navigatorAlias.cookieEnabled)) {
-		SnowPlow.setCookie(cookieName, '1');
-		return SnowPlow.getCookie(cookieName) === '1' ? '1' : '0';
+	var identifiers = require('identifiers');
+	var helpers = require('helpers');
+	var murmurhash3_32_gc = require('murmurhash').v3;
+
+	/*
+	 * Does browser have cookies enabled (for this site)?
+	 */
+	object.hasCookies = function(testCookieName) {
+		var cookieName = testCookieName || 'testcookie';
+
+		if (!identifiers.isDefined(navigator.cookieEnabled)) {
+			cookies.setCookie(cookieName, '1');
+			return cookies.getCookie(cookieName) === '1' ? '1' : '0';
+		}
+
+		return navigator.cookieEnabled ? '1' : '0';
 	}
 
-	return SnowPlow.navigatorAlias.cookieEnabled ? '1' : '0';
-}
+	/*
+	 * JS Implementation for browser fingerprint.
+	 * Does not require any external resources.
+	 * Based on https://github.com/carlo/jquery-browser-fingerprint
+	 * @return {number} 32-bit positive integer hash 
+	 */
+	object.detectSignature = function(hashSeed) {
 
-/*
- * JS Implementation for browser fingerprint.
- * Does not require any external resources.
- * Based on https://github.com/carlo/jquery-browser-fingerprint
- * @return {number} 32-bit positive integer hash 
- */
-SnowPlow.detectSignature = function(hashSeed) {
+	    var fingerprint = [
+	        navigator.userAgent,
+	        [ screen.height, screen.width, screen.colorDepth ].join("x"),
+	        ( new Date() ).getTimezoneOffset(),
+	        helpers.hasSessionStorage(),
+	        helpers.hasLocalStorage(),
+	    ];
 
-    var fingerprint = [
-        navigator.userAgent,
-        [ screen.height, screen.width, screen.colorDepth ].join("x"),
-        ( new Date() ).getTimezoneOffset(),
-        helpers.hasSessionStorage(),
-        helpers.hasLocalStorage(),
-    ];
-
-    var plugins = [];
-    if (navigator.plugins)
-    {
-        for(var i = 0; i < navigator.plugins.length; i++)
-        {
-            var mt = [];
-            for(var j = 0; j < navigator.plugins[i].length; j++)
-            {
-                mt.push([navigator.plugins[i][j].type, navigator.plugins[i][j].suffixes]);
-            }
-            plugins.push([navigator.plugins[i].name + "::" + navigator.plugins[i].description, mt.join("~")]);
-        }
-    }
-    return murmurhash3_32_gc(fingerprint.join("###") + "###" + plugins.sort().join(";"), hashSeed);
-}
-
-/*
- * Returns visitor timezone
- */
-SnowPlow.detectTimezone = function() {
-	//var tz = require('jstimezonedetect').determine(); // For the online version
-	var tz = require('../src/js/lib/jstz.js').determine();  
-    	return (typeof (tz) === 'undefined') ? '' : tz.name();
-}
-
-/**
- * Gets the current viewport.
- *
- * Code based on:
- * - http://andylangton.co.uk/articles/javascript/get-viewport-size-javascript/
- * - http://responsejs.com/labs/dimensions/
- */
-SnowPlow.detectViewport = function() {
-	var e = SnowPlow.windowAlias, a = 'inner';
-	if (!('innerWidth' in SnowPlow.windowAlias)) {
-		a = 'client';
-		e = SnowPlow.documentAlias.documentElement || SnowPlow.documentAlias.body;
+	    var plugins = [];
+	    if (navigator.plugins)
+	    {
+	        for(var i = 0; i < navigator.plugins.length; i++)
+	        {
+	            var mt = [];
+	            for(var j = 0; j < navigator.plugins[i].length; j++)
+	            {
+	                mt.push([navigator.plugins[i][j].type, navigator.plugins[i][j].suffixes]);
+	            }
+	            plugins.push([navigator.plugins[i].name + "::" + navigator.plugins[i].description, mt.join("~")]);
+	        }
+	    }
+	    return murmurhash3_32_gc(fingerprint.join("###") + "###" + plugins.sort().join(";"), hashSeed);
 	}
-	return e[a+'Width'] + 'x' + e[a+'Height'];
-}
 
-/**
- * Gets the dimensions of the current
- * document.
- *
- * Code based on:
- * - http://andylangton.co.uk/articles/javascript/get-viewport-size-javascript/
- */
-SnowPlow.detectDocumentSize = function() {
-	var de = SnowPlow.documentAlias.documentElement; // Alias
-	var w = Math.max(de.clientWidth, de.offsetWidth, de.scrollWidth);
-	var h = Math.max(de.clientHeight, de.offsetHeight, de.scrollHeight);
-	return w + 'x' + h;
-}
+	/*
+	 * Returns visitor timezone
+	 */
+	object.detectTimezone = function() {
+		//var tz = require('jstimezonedetect').determine(); // For the online version
+		var tz = require('jstz').determine();  
+	    	return (typeof (tz) === 'undefined') ? '' : tz.name();
+	}
 
-/*
- * Returns browser features (plugins, resolution, cookies)
- */
-SnowPlow.detectBrowserFeatures = function(testCookieName) {
-	var i,
-		mimeType,
-		pluginMap = {
-			// document types
-			pdf: 'application/pdf',
+	/**
+	 * Gets the current viewport.
+	 *
+	 * Code based on:
+	 * - http://andylangton.co.uk/articles/javascript/get-viewport-size-javascript/
+	 * - http://responsejs.com/labs/dimensions/
+	 */
+	object.detectViewport = function() {
+		var e = window, a = 'inner';
+		if (!('innerWidth' in window)) {
+			a = 'client';
+			e = document.documentElement || document.body;
+		}
+		return e[a+'Width'] + 'x' + e[a+'Height'];
+	}
 
-			// media players
-			qt: 'video/quicktime',
-			realp: 'audio/x-pn-realaudio-plugin',
-			wma: 'application/x-mplayer2',
+	/**
+	 * Gets the dimensions of the current
+	 * document.
+	 *
+	 * Code based on:
+	 * - http://andylangton.co.uk/articles/javascript/get-viewport-size-javascript/
+	 */
+	object.detectDocumentSize = function() {
+		var de = document.documentElement; // Alias
+		var w = Math.max(de.clientWidth, de.offsetWidth, de.scrollWidth);
+		var h = Math.max(de.clientHeight, de.offsetHeight, de.scrollHeight);
+		return w + 'x' + h;
+	}
 
-			// interactive multimedia
-			dir: 'application/x-director',
-			fla: 'application/x-shockwave-flash',
+	/*
+	 * Returns browser features (plugins, resolution, cookies)
+	 */
+	object.detectBrowserFeatures = function(testCookieName) {
+		var i,
+			mimeType,
+			pluginMap = {
+				// document types
+				pdf: 'application/pdf',
 
-			// RIA
-			java: 'application/x-java-vm',
-			gears: 'application/x-googlegears',
-			ag: 'application/x-silverlight'
-		},
-		features = {};
+				// media players
+				qt: 'video/quicktime',
+				realp: 'audio/x-pn-realaudio-plugin',
+				wma: 'application/x-mplayer2',
 
-	// General plugin detection
-	if (SnowPlow.navigatorAlias.mimeTypes && SnowPlow.navigatorAlias.mimeTypes.length) {
-		for (i in pluginMap) {
-			if (Object.prototype.hasOwnProperty.call(pluginMap, i)) {
-				mimeType = SnowPlow.navigatorAlias.mimeTypes[pluginMap[i]];
-				features[i] = (mimeType && mimeType.enabledPlugin) ? '1' : '0';
+				// interactive multimedia
+				dir: 'application/x-director',
+				fla: 'application/x-shockwave-flash',
+
+				// RIA
+				java: 'application/x-java-vm',
+				gears: 'application/x-googlegears',
+				ag: 'application/x-silverlight'
+			},
+			features = {};
+
+		// General plugin detection
+		if (navigator.mimeTypes && navigator.mimeTypes.length) {
+			for (i in pluginMap) {
+				if (Object.prototype.hasOwnProperty.call(pluginMap, i)) {
+					mimeType = navigator.mimeTypes[pluginMap[i]];
+					features[i] = (mimeType && mimeType.enabledPlugin) ? '1' : '0';
+				}
 			}
 		}
+
+		// Safari and Opera
+		// IE6/IE7 navigator.javaEnabled can't be aliased, so test directly
+		if (typeof navigator.javaEnabled !== 'unknown' &&
+				identifiers.isDefined(navigator.javaEnabled) &&
+				navigator.javaEnabled()) {
+			features.java = '1';
+		}
+
+		// Firefox
+		if (identifiers.isFunction(window.GearsFactory)) {
+			features.gears = '1';
+		}
+
+		// Other browser features
+		features.res = screen.width + 'x' + screen.height;
+		features.cd = screen.colorDepth;
+		features.cookie = object.hasCookies(testCookieName);
+
+		return features;
 	}
 
-	// Safari and Opera
-	// IE6/IE7 navigator.javaEnabled can't be aliased, so test directly
-	if (typeof navigator.javaEnabled !== 'unknown' &&
-			identifiers.isDefined(SnowPlow.navigatorAlias.javaEnabled) &&
-			SnowPlow.navigatorAlias.javaEnabled()) {
-		features.java = '1';
-	}
-
-	// Firefox
-	if (identifiers.isFunction(SnowPlow.windowAlias.GearsFactory)) {
-		features.gears = '1';
-	}
-
-	// Other browser features
-	features.res = SnowPlow.screenAlias.width + 'x' + SnowPlow.screenAlias.height;
-	features.cd = screen.colorDepth;
-	features.cookie = SnowPlow.hasCookies(testCookieName);
-
-	return features;
-}
+}());
