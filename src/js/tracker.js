@@ -1566,6 +1566,8 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		/**
 		 * Track an ad being served
 		 *
+		 * DEPRECATED: Use trackAdImpression() (scheduled for version 1.1.0)
+		 *
 		 * @param string bannerId Identifier for the ad banner displayed
 		 * @param string campaignId (optional) Identifier for the campaign which the banner belongs to
 		 * @param string advertiserId (optional) Identifier for the advertiser which the campaign belongs to
