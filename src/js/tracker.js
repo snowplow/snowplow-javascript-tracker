@@ -132,7 +132,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		// Enable Base64 encoding for unstructured events
 		configEncodeBase64 = true,
 
-		// Default hash seed for MurmurHash3 in SnowPlow.detectSignature
+		// Default hash seed for MurmurHash3 in detectors.detectSignature
 		configUserFingerprintHashSeed = 123412414,
 
 		// Document character set
@@ -142,10 +142,10 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		browserLanguage = SnowPlow.navigatorAlias.userLanguage || SnowPlow.navigatorAlias.language,
 
 		// Browser features via client-side data collection
-		browserFeatures = SnowPlow.detectBrowserFeatures(getSnowplowCookieName('testcookie')),
+		browserFeatures = detectors.detectBrowserFeatures(getSnowplowCookieName('testcookie')),
 
 		// Visitor timezone
-		timezone = SnowPlow.detectTimezone(),
+		timezone = detectors.detectTimezone(),
 
 		// Visitor fingerprint
 		userFingerprint,
@@ -341,7 +341,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 * Cookie getter.
 	 */
 	function getSnowplowCookieValue(cookieName) {
-		return SnowPlow.getCookie(getSnowplowCookieName(cookieName));
+		return cookie.getCookie(getSnowplowCookieName(cookieName));
 	}
 
 	/*
@@ -421,7 +421,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 * or when there is a new visit or a new page view
 	 */
 	function setDomainUserIdCookie(_domainUserId, createTs, visitCount, nowTs, lastVisitTs) {
-		SnowPlow.setCookie(getSnowplowCookieName('id'), _domainUserId + '.' + createTs + '.' + visitCount + '.' + nowTs + '.' + lastVisitTs, configVisitorCookieTimeout, configCookiePath, configCookieDomain);
+		cookie.setCookie(getSnowplowCookieName('id'), _domainUserId + '.' + createTs + '.' + visitCount + '.' + nowTs + '.' + lastVisitTs, configVisitorCookieTimeout, configCookiePath, configCookieDomain);
 	}
 
 	/*
@@ -503,13 +503,13 @@ SnowPlow.Tracker = function Tracker(argmap) {
 			idname = getSnowplowCookieName('id'),
 			sesname = getSnowplowCookieName('ses'),
 			id = loadDomainUserIdCookie(),
-			ses = getSnowplowCookieValue('ses'), // aka Snowplow.getCookieValue(sesname)
+			ses = getSnowplowCookieValue('ses'), // aka cookie.getCookieValue(sesname)
 			currentUrl = configCustomUrl || locationHrefAlias,
 			featurePrefix;
 
 		if (configDoNotTrack) {
-			SnowPlow.setCookie(idname, '', -1, configCookiePath, configCookieDomain);
-			SnowPlow.setCookie(sesname, '', -1, configCookiePath, configCookieDomain);
+			cookie.setCookie(idname, '', -1, configCookiePath, configCookieDomain);
+			cookie.setCookie(sesname, '', -1, configCookiePath, configCookieDomain);
 			return '';
 		}
 
@@ -531,8 +531,8 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		// Build out the rest of the request - first add fields we can safely skip encoding
 		sb.addRaw('dtm', getTimestamp());
 		sb.addRaw('tid', String(Math.random()).slice(2, 8));
-		sb.addRaw('vp', SnowPlow.detectViewport());
-		sb.addRaw('ds', SnowPlow.detectDocumentSize());
+		sb.addRaw('vp', detectors.detectViewport());
+		sb.addRaw('ds', detectors.detectDocumentSize());
 		sb.addRaw('vid', visitCount);
 		sb.addRaw('duid', _domainUserId); // Set to our local variable
 
@@ -563,7 +563,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 
 		// Update cookies
 		setDomainUserIdCookie(_domainUserId, createTs, visitCount, nowTs, lastVisitTs);
-		SnowPlow.setCookie(sesname, '*', configSessionCookieTimeout, configCookiePath, configCookieDomain);
+		cookie.setCookie(sesname, '*', configSessionCookieTimeout, configCookiePath, configCookieDomain);
 
 		return request;
 	}
@@ -1246,7 +1246,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		enableUserFingerprinting: function(enable, hashSeed) {
 			if (enable) {
 				configUserFingerprintHashSeed = hashSeed || configUserFingerprintHashSeed;
-				userFingerprint = SnowPlow.detectSignature(configUserFingerprintHashSeed);
+				userFingerprint = detectors.detectSignature(configUserFingerprintHashSeed);
 			} else {
 				userFingerprint = null;
 			}
@@ -1369,7 +1369,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 * @param string cookieName Name of the cookie whose value will be assigned to businessUserId
 		 */
 		 setUserIdFromCookie: function(cookieName) {
-		 	businessUserId = SnowPlow.getCookie(cookieName);
+		 	businessUserId = cookie.getCookie(cookieName);
 		 },
 
 		/**

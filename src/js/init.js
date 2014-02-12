@@ -78,3 +78,6 @@ var SnowPlow = SnowPlow || function() {
 var identifiers = require('identifiers');
 var payload = require('payload');
 var json2 = require('JSON');
+var cookie = require('cookie');
+var detectors = require('detectors');
+var detectors = require('detectors');
