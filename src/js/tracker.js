@@ -1064,48 +1064,6 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		},
 
 		/**
-		 * Get visitor ID (from first party cookie)
-		 *
-		 * DEPRECATED: use getDomainUserId() above.
-		 *
-		 * @return string Visitor ID in hexits (or null, if not yet known)
-		 */
-		getVisitorId: function () {
-			if (typeof console !== 'undefined') {
-				console.log("SnowPlow: getVisitorId() is deprecated and will be removed in an upcoming version. Please use getDomainUserId() instead.");
-			}
-			return (loadVisitorIdCookie())[1];
-		},
-
-		/**
-		 * Get the visitor information (from first party cookie)
-		 *
-		 * DEPRECATED: use getDomainUserInfo() above.
-		 *
-		 * @return array
-		 */
-		getVisitorInfo: function () {
-			if (typeof console !== 'undefined') {
-				console.log("SnowPlow: getVisitorInfo() is deprecated and will be removed in an upcoming version. Please use getDomainUserInfo() instead.");
-			}
-			return loadVisitorIdCookie();
-		},
-
-		/**
-		 * Specify the site ID
-		 *
-		 * DEPRECATED: use setAppId() below
-		 *
-		 * @param int|string siteId
-		 */
-		setSiteId: function (siteId) {
-			if (typeof console !== 'undefined') {
-				console.log("SnowPlow: setSiteId() is deprecated and will be removed in an upcoming version. Please use setAppId() instead.");
-			}
-			configTrackerSiteId = siteId;
-		},
-
-		/**
 		 * Specify the app ID
 		 *
 		 * @param int|string appId
@@ -1419,22 +1377,6 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 },
 
 		/**
-		 * Toggle whether to attach User ID to the querystring or not
-		 *
-		 * DEPRECATED: because we now have three separate user IDs:
-		 * uid (business-set), nuid (3rd-party cookie) and duid (1st-party
-		 * cookie). So there's no need to enable or disable specific user IDs.
-		 *
-		 * @param bool attach Whether to attach User ID or not
-		 */ 
-		attachUserId: function (attach) {
-
-			if (typeof console !== 'undefined') {
-				console.log("SnowPlow: attachUserId() is deprecated and will be removed in an upcoming version. It no longer does anything (because nuid and duid have been separated out).");
-			}
-		},
-
-		/**
 		 * Configure this tracker to log to a CloudFront collector. 
 		 *
 		 * @param string distSubdomain The subdomain on your CloudFront collector's distribution
@@ -1483,27 +1425,6 @@ SnowPlow.Tracker = function Tracker(argmap) {
 			trackCallback(function () {
 				logPageView(customTitle, context);
 			});
-		},
-
-		// No public method to track a page ping
-
-		/**
-		 * Track an event happening on this page
-		 *
-		 * DEPRECATED: use getStructEvent instead
-		 *
-		 * @param string category The name you supply for the group of objects you want to track
-		 * @param string action A string that is uniquely paired with each category, and commonly used to define the type of user interaction for the web object
-		 * @param string label (optional) An optional string to provide additional dimensions to the event data
-		 * @param string property (optional) Describes the object or the action performed on it, e.g. quantity of item added to basket
-		 * @param int|float|string value (optional) An integer that you can use to provide numerical data about the user event
-		 */
-		trackEvent: function (category, action, label, property, value) {
-
-			if (typeof console !== 'undefined') {
-				console.log("SnowPlow: trackEvent() is deprecated and will be removed in an upcoming version. Please use trackStructEvent() instead.");
-			}
-			logStructEvent(category, action, label, property, value);
 		},
 
 		/**
