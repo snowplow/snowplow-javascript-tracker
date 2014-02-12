@@ -241,7 +241,16 @@ SnowPlow.fixupDomain = function (domain) {
  * Get page referrer
  */
 SnowPlow.getReferrer = function () {
+
 	var referrer = '';
+	
+	var fromQs = SnowPlow.fromQuerystring('referrer', SnowPlow.windowAlias.location.href) ||
+	SnowPlow.fromQuerystring('referer', SnowPlow.windowAlias.location.href);
+
+	// Short-circuit
+	if (fromQs) {
+		return fromQs;
+	}
 
 	try {
 		referrer = SnowPlow.windowAlias.top.document.referrer;
@@ -257,7 +266,6 @@ SnowPlow.getReferrer = function () {
 	if (referrer === '') {
 		referrer = SnowPlow.documentAlias.referrer;
 	}
-
 	return referrer;
 }
 
@@ -273,35 +281,6 @@ SnowPlow.addEventListener = function (element, eventType, eventHandler, useCaptu
 		return element.attachEvent('on' + eventType, eventHandler);
 	}
 	element['on' + eventType] = eventHandler;
-}
-
-/*
- * Get cookie value
- */
-SnowPlow.getCookie = function (cookieName) {
-	var cookiePattern = new RegExp('(^|;)[ ]*' + cookieName + '=([^;]*)'),
-			cookieMatch = cookiePattern.exec(SnowPlow.documentAlias.cookie);
-
-	return cookieMatch ? SnowPlow.decodeWrapper(cookieMatch[2]) : 0;
-}
-
-/*
- * Set cookie value
- */
-SnowPlow.setCookie = function (cookieName, value, msToExpire, path, domain, secure) {
-	var expiryDate;
-
-	// relative time to expire in milliseconds
-	if (msToExpire) {
-		expiryDate = new Date();
-		expiryDate.setTime(expiryDate.getTime() + msToExpire);
-	}
-
-	SnowPlow.documentAlias.cookie = cookieName + '=' + SnowPlow.encodeWrapper(value) +
-		(msToExpire ? ';expires=' + expiryDate.toGMTString() : '') +
-		';path=' + (path || '/') +
-		(domain ? ';domain=' + domain : '') +
-		(secure ? ';secure' : '');
 }
 
 /*
@@ -324,3 +303,13 @@ SnowPlow.executePluginMethod = function (methodName, callback) {
 	return result;
 }
 
+/*
+ * Return value from name-value pair in querystring 
+ */
+SnowPlow.fromQuerystring = function (field, url) {
+	var match = RegExp('[?&]' + field + '=([^&]*)').exec(url);
+	if (!match) {
+		return null;
+	}
+	return SnowPlow.decodeWrapper(match[1].replace(/\+/g, ' '));
+}
