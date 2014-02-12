@@ -52,13 +52,6 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 ************************************************************/
 
 	var
-/*<DEBUG>*/
-		/*
-		 * registered test hooks
-		 */
-		registeredHooks = {},
-/*</DEBUG>*/
-
 		// Current URL and Referrer URL
 		locationArray = SnowPlow.fixupUrl(SnowPlow.documentAlias.domain, SnowPlow.windowAlias.location.href, SnowPlow.getReferrer()),
 		domainAlias = SnowPlow.fixupDomain(locationArray[0]),
@@ -136,8 +129,8 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		// Life of the referral cookie (in milliseconds)
 		configReferralCookieTimeout = 15768000000, // 6 months
 
-    // Enable Base64 encoding for unstructured events
-    configEncodeBase64 = true,
+		// Enable Base64 encoding for unstructured events
+		configEncodeBase64 = true,
 
 		// Document character set
 		documentCharset = SnowPlow.documentAlias.characterSet || SnowPlow.documentAlias.charset,
@@ -146,13 +139,13 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		browserLanguage = SnowPlow.navigatorAlias.userLanguage || SnowPlow.navigatorAlias.language,
 
 		// Browser features via client-side data collection
-		browserFeatures = detectBrowserFeatures(),
+		browserFeatures = SnowPlow.detectBrowserFeatures(getSnowplowCookieName('testcookie')),
 
 		// Visitor timezone
-		timezone = detectTimezone(),
+		timezone = SnowPlow.detectTimezone(),
 
 		// Visitor fingerprint
-		fingerprint = generateFingerprint(),
+		fingerprint = SnowPlow.detectSignature(),
 
 		// Guard against installing the link tracker more than once per Tracker instance
 		linkTrackingInstalled = false,
@@ -337,60 +330,15 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	/*
 	 * Get cookie name with prefix and domain hash
 	 */
-	function getCookieName(baseName) {
+	function getSnowplowCookieName(baseName) {
 		return configCookieNamePrefix + baseName + '.' + domainHash;
 	}
 
 	/*
-	 * Legacy getCookieName. This is the old version inherited from
-	 * Piwik which includes the site ID. Including the site ID in
-	 * the user cookie doesn't make sense, so we have removed it.
-	 * But, to avoid breaking sites with existing cookies, we leave
-	 * this function in as a legacy, and use it to check for a
-	 * 'legacy' cookie.
-	 *
-	 * TODO: delete in February 2013 or so!
-	 */
-	function getLegacyCookieName(baseName) {
-		return configCookieNamePrefix + baseName + '.' + configTrackerSiteId + '.' + domainHash;
-	}
-
-	/*
 	 * Cookie getter.
-	 *
-	 * This exists because we cannot guarantee whether a cookie will
-	 * be available using getCookieName or getLegacyCookieName (i.e.
-	 * whether the cookie includes the legacy site ID in its name).
-	 *
-	 * This wrapper supports both.
-	 *
-	 * TODO: simplify in February 2013 back to:
-	 * return SnowPlow.getCookie(getCookieName(cookieName));
 	 */
-	function getCookieValue(cookieName) {
-
-		// First we try the new cookie
-		var cookieValue = SnowPlow.getCookie(getCookieName(cookieName));
-		if (cookieValue) {
-			return cookieValue;
-		}
-
-		// Last we try the legacy cookie. May still return failure.
-		return SnowPlow.getCookie(getLegacyCookieName(cookieName));
-	}
-
-	/*
-	 * Does browser have cookies enabled (for this site)?
-	 */
-	function hasCookies() {
-		var testCookieName = getCookieName('testcookie');
-
-		if (!SnowPlow.isDefined(SnowPlow.navigatorAlias.cookieEnabled)) {
-			SnowPlow.setCookie(testCookieName, '1');
-			return SnowPlow.getCookie(testCookieName) === '1' ? '1' : '0';
-		}
-
-		return SnowPlow.navigatorAlias.cookieEnabled ? '1' : '0';
+	function getSnowplowCookieValue(cookieName) {
+		return SnowPlow.getCookie(getSnowplowCookieName(cookieName));
 	}
 
 	/*
@@ -470,7 +418,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 * or when there is a new visit or a new page view
 	 */
 	function setDomainUserIdCookie(_domainUserId, createTs, visitCount, nowTs, lastVisitTs) {
-		SnowPlow.setCookie(getCookieName('id'), _domainUserId + '.' + createTs + '.' + visitCount + '.' + nowTs + '.' + lastVisitTs, configVisitorCookieTimeout, configCookiePath, configCookieDomain);
+		SnowPlow.setCookie(getSnowplowCookieName('id'), _domainUserId + '.' + createTs + '.' + visitCount + '.' + nowTs + '.' + lastVisitTs, configVisitorCookieTimeout, configCookiePath, configCookieDomain);
 	}
 
 	/*
@@ -479,7 +427,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	function loadDomainUserIdCookie() {
 		var now = new Date(),
 			nowTs = Math.round(now.getTime() / 1000),
-			id = getCookieValue('id'),
+			id = getSnowplowCookieValue('id'),
 			tmpContainer;
 
 		if (id) {
@@ -549,10 +497,10 @@ SnowPlow.Tracker = function Tracker(argmap) {
 			referralUrlMaxLength = 1024,
 			currentReferrerHostName,
 			originalReferrerHostName,
-			idname = getCookieName('id'),
-			sesname = getCookieName('ses'), // NOT sesname
+			idname = getSnowplowCookieName('id'),
+			sesname = getSnowplowCookieName('ses'),
 			id = loadDomainUserIdCookie(),
-			ses = getCookieValue('ses'),
+			ses = getSnowplowCookieValue('ses'), // aka Snowplow.getCookieValue(sesname)
 			currentUrl = configCustomUrl || locationHrefAlias,
 			featurePrefix;
 
@@ -580,8 +528,8 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		// Build out the rest of the request - first add fields we can safely skip encoding
 		sb.addRaw('dtm', getTimestamp());
 		sb.addRaw('tid', String(Math.random()).slice(2, 8));
-		sb.addRaw('vp', detectViewport());
-		sb.addRaw('ds', detectDocumentSize());
+		sb.addRaw('vp', SnowPlow.detectViewport());
+		sb.addRaw('ds', SnowPlow.detectDocumentSize());
 		sb.addRaw('vid', visitCount);
 		sb.addRaw('duid', _domainUserId); // Set to our local variable
 
@@ -644,122 +592,6 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		return ('https:' == SnowPlow.documentAlias.location.protocol ? 'https' : 'http') + '://' + rawUrl + '/i';               
 	}
 
-	/**
-	 * A helper to build a SnowPlow request string from an
-	 * an optional initial value plus a set of individual
-	 * name-value pairs, provided using the add method.
-	 *
-	 * @param boolean base64Encode Whether or not JSONs should be
-	 * Base64-URL-safe-encoded
-	 *
-	 * @return object The request string builder, with add, addRaw and build methods
-	 */
-	function requestStringBuilder(base64Encode) {
-		var str = '';
-		
-		var addNvPair = function (key, value, encode) {
-			if (value !== undefined && value !== null && value !== '') {
-				var sep = (str.length > 0) ? "&" : "?";
-				str += sep + key + '=' + (encode ? SnowPlow.encodeWrapper(value) : value);
-			}
-		};
-
-		/*
-		 * Extract suffix from a property
-		 */
-		var getPropertySuffix = function (property) {
-			var e = new RegExp('\\$(.[^\\$]+)$'),
-			    matches = e.exec(property);
-
-			if (matches) return matches[1];
-		};
-
-		/*
-		 * Translates a value of an unstructured date property
-		 */
-		var translateDateValue = function (date, type) {
-		  switch (type) {
-		    case 'tms':
-		      return SnowPlow.toTimestamp(date, true);
-		    case 'ts':
-		      return SnowPlow.toTimestamp(date, false);
-		    case 'dt':
-		      return SnowPlow.toDatestamp(date);
-		    default:
-		      return date;
-		  }
-		};
-
-		/*
-		 * Add type suffixes as needed to JSON properties
-		 */
-		var appendTypes = (function() {
-
-			function recurse(json) {
-				var translated = {};
-				for (var prop in json) {
-					var key = prop, value = json[prop];
-
-					// Special treatment...
-					if (json.hasOwnProperty(key)) {
-
-						// ... for JavaScript Dates
-						if (SnowPlow.isDate(value)) {
-							type = getPropertySuffix(key);
-							if (!type) {
-								type = 'tms';
-								key += '$' + type;
-							}
-							value = translateDateValue(value, type);
-						}
-
-						// ... for JSON objects
-						if (SnowPlow.isJson(value)) {
-							value = recurse(value);
-						}
-
-						// TODO: should think about Arrays of Dates too
-					}
-
-					translated[key] = value;
-				}
-				return translated;
-			}
-			return recurse;
-		})();
-
-		var add = function (key, value) {
-			addNvPair(key, value, true);
-		};
-
-		var addRaw = function (key, value) {
-			addNvPair(key, value, false);
-		};
-
-		var addJson = function (keyIfEncoded, keyIfNotEncoded, json) {
-			
-			if (SnowPlow.isNonEmptyJson(json)) {
-				var typed = appendTypes(json);
-				var str = JSON2.stringify(typed);
-
-				if (base64Encode) {
-					addRaw(keyIfEncoded, SnowPlow.base64urlencode(str));
-				} else {
-					add(keyIfNotEncoded, str);
-				}
-			}
-		};
-
-		return {
-			add: add,
-			addRaw: addRaw,
-			addJson: addJson,
-			build: function() {
-				return str;
-			}
-		};
-	}
-
 	/*
 	 * Log the page view / visit
 	 *
@@ -772,7 +604,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		var pageTitle = SnowPlow.fixupTitle(customTitle || configTitle);
 
 		// Log page view
-		var sb = requestStringBuilder(configEncodeBase64);
+		var sb = SnowPlow.payloadBuilder(configEncodeBase64);
 		sb.add('e', 'pv'); // 'pv' for Page View
 		sb.add('page', pageTitle);
 		sb.addJson('cx', 'co', context);
@@ -830,7 +662,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 * @param object context Custom context relating to the event
 	 */
 	function logPagePing(pageTitle, context) {
-		var sb = requestStringBuilder(configEncodeBase64);
+		var sb = SnowPlow.payloadBuilder(configEncodeBase64);
 		sb.add('e', 'pp'); // 'pp' for Page Ping
 		sb.add('page', pageTitle);
 		sb.addRaw('pp_mix', minXOffset); // Global
@@ -854,7 +686,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 * @param object context Custom context relating to the event
 	 */
 	function logStructEvent(category, action, label, property, value, context) {
-		var sb = requestStringBuilder(configEncodeBase64);
+		var sb = SnowPlow.payloadBuilder(configEncodeBase64);
 		sb.add('e', 'se'); // 'se' for Structured Event
 		sb.add('se_ca', category);
 		sb.add('se_ac', action)
@@ -874,7 +706,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 * @param object context Custom context relating to the event
 	 */
 	function logUnstructEvent(name, properties, context) {
-		var sb = requestStringBuilder(configEncodeBase64);
+		var sb = SnowPlow.payloadBuilder(configEncodeBase64);
 		sb.add('e', 'ue'); // 'ue' for Unstructured Event
 		sb.add('ue_na', name);
 		sb.addJson('ue_px', 'ue_pr', properties);
@@ -899,7 +731,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 */
 	// TODO: add params to comment
 	function logTransaction(orderId, affiliation, total, tax, shipping, city, state, country, currency, context) {
-		var sb = requestStringBuilder(configEncodeBase64);
+		var sb = SnowPlow.payloadBuilder(configEncodeBase64);
 		sb.add('e', 'tr'); // 'tr' for TRansaction
 		sb.add('tr_id', orderId);
 		sb.add('tr_af', affiliation);
@@ -929,7 +761,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 */
 	// TODO: add params to comment
 	function logTransactionItem(orderId, sku, name, category, price, quantity, currency, context) {
-		var sb = requestStringBuilder(configEncodeBase64);
+		var sb = SnowPlow.payloadBuilder(configEncodeBase64);
 		sb.add('e', 'ti'); // 'ti' for Transaction Item
 		sb.add('ti_id', orderId);
 		sb.add('ti_sk', sku);
@@ -958,7 +790,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	// TODO: this functionality is not yet fully implemented.
 	// See https://github.com/snowplow/snowplow/issues/75
 	function logLink(url, linkType, context) {
-		var sb = requestStringBuilder(configEncodeBase64);
+		var sb = SnowPlow.payloadBuilder(configEncodeBase64);
 		sb.add('e', linkType);
 		sb.add('t_url', purify(url));
 		var request = getRequest(sb, 'link');
@@ -979,7 +811,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	// TODO: should add in zoneId (aka placementId, slotId?) as well
 	// TODO: change ad_ to ai_?
 	function logImpression(bannerId, campaignId, advertiserId, userId, context) {
-		var sb = requestStringBuilder(configEncodeBase64);
+		var sb = SnowPlow.payloadBuilder(configEncodeBase64);
 		sb.add('e', 'ad'); // 'ad' for AD impression
 		sb.add('ad_ba', bannerId);
 		sb.add('ad_ca', campaignId)
@@ -1184,157 +1016,6 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		}
 	}
 
-	/*
-	 * JS Implementation for browser fingerprint.
-	 * Does not require any external resources.
-	 * Based on https://github.com/carlo/jquery-browser-fingerprint
-	 * @return {number} 32-bit positive integer hash 
-	 */
-	// TODO: make seed for hashing configurable
-	function generateFingerprint() {
-
-	    var fingerprint = [
-	        navigator.userAgent,
-	        [ screen.height, screen.width, screen.colorDepth ].join("x"),
-	        ( new Date() ).getTimezoneOffset(),
-	        SnowPlow.hasSessionStorage(),
-	        SnowPlow.hasLocalStorage(),
-	    ];
-
-	    var plugins = [];
-	    if (navigator.plugins)
-	    {
-	        for(var i = 0; i < navigator.plugins.length; i++)
-	        {
-	            var mt = [];
-	            for(var j = 0; j < navigator.plugins[i].length; j++)
-	            {
-	                mt.push([navigator.plugins[i][j].type, navigator.plugins[i][j].suffixes]);
-	            }
-	            plugins.push([navigator.plugins[i].name + "::" + navigator.plugins[i].description, mt.join("~")]);
-	        }
-	    }
-	    return SnowPlow.murmurhash3_32_gc(fingerprint.join("###") + "###" + plugins.sort().join(";"), 123412414);
-	}
-
-	/*
-	 * Returns visitor timezone
-	 */
-	function detectTimezone() {
-		var tz = jstz.determine();  
-        	return (typeof (tz) === 'undefined') ? '' : tz.name();
-	}
-
-	/**
-	 * Gets the current viewport.
-	 *
-	 * Code based on:
-	 * - http://andylangton.co.uk/articles/javascript/get-viewport-size-javascript/
-	 * - http://responsejs.com/labs/dimensions/
-	 */
-	function detectViewport() {
-		var e = SnowPlow.windowAlias, a = 'inner';
-		if (!('innerWidth' in SnowPlow.windowAlias)) {
-			a = 'client';
-			e = SnowPlow.documentAlias.documentElement || SnowPlow.documentAlias.body;
-		}
-		return e[a+'Width'] + 'x' + e[a+'Height'];
-	}
-
-	/**
-	 * Gets the dimensions of the current
-	 * document.
-	 *
-	 * Code based on:
-	 * - http://andylangton.co.uk/articles/javascript/get-viewport-size-javascript/
-	 */
-	function detectDocumentSize() {
-		var de = SnowPlow.documentAlias.documentElement; // Alias
-		var w = Math.max(de.clientWidth, de.offsetWidth, de.scrollWidth);
-		var h = Math.max(de.clientHeight, de.offsetHeight, de.scrollHeight);
-		return w + 'x' + h;
-	}
-
-	/*
-	 * Returns browser features (plugins, resolution, cookies)
-	 */
-	function detectBrowserFeatures() {
-		var i,
-			mimeType,
-			pluginMap = {
-				// document types
-				pdf: 'application/pdf',
-
-				// media players
-				qt: 'video/quicktime',
-				realp: 'audio/x-pn-realaudio-plugin',
-				wma: 'application/x-mplayer2',
-
-				// interactive multimedia
-				dir: 'application/x-director',
-				fla: 'application/x-shockwave-flash',
-
-				// RIA
-				java: 'application/x-java-vm',
-				gears: 'application/x-googlegears',
-				ag: 'application/x-silverlight'
-			},
-			features = {};
-
-		// General plugin detection
-		if (SnowPlow.navigatorAlias.mimeTypes && SnowPlow.navigatorAlias.mimeTypes.length) {
-			for (i in pluginMap) {
-				if (Object.prototype.hasOwnProperty.call(pluginMap, i)) {
-					mimeType = SnowPlow.navigatorAlias.mimeTypes[pluginMap[i]];
-					features[i] = (mimeType && mimeType.enabledPlugin) ? '1' : '0';
-				}
-			}
-		}
-
-		// Safari and Opera
-		// IE6/IE7 navigator.javaEnabled can't be aliased, so test directly
-		if (typeof navigator.javaEnabled !== 'unknown' &&
-				SnowPlow.isDefined(SnowPlow.navigatorAlias.javaEnabled) &&
-				SnowPlow.navigatorAlias.javaEnabled()) {
-			features.java = '1';
-		}
-
-		// Firefox
-		if (SnowPlow.isFunction(SnowPlow.windowAlias.GearsFactory)) {
-			features.gears = '1';
-		}
-
-		// Other browser features
-		features.res = SnowPlow.screenAlias.width + 'x' + SnowPlow.screenAlias.height;
-		features.cd = screen.colorDepth;
-		features.cookie = hasCookies();
-
-		return features;
-	}
-
-/*<DEBUG>*/
-	/*
-	 * Register a test hook. Using eval() permits access to otherwise
-	 * privileged members.
-	 */
-	function registerHook(hookName, userHook) {
-		var hookObj = null;
-
-		if (SnowPlow.isString(hookName) && !SnowPlow.isDefined(registeredHooks[hookName]) && userHook) {
-			if (SnowPlow.isObject(userHook)) {
-				hookObj = userHook;
-			} else if (SnowPlow.isString(userHook)) {
-				try {
-					eval('hookObj =' + userHook);
-				} catch (e) { }
-			}
-
-			registeredHooks[hookName] = hookObj;
-		}
-		return hookObj;
-	}
-/*</DEBUG>*/
-
 	/************************************************************
 	 * Constructor
 	 ************************************************************/
@@ -1344,27 +1025,12 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 */
 	updateDomainHash();
 
-/*<DEBUG>*/
-	/*
-	 * initialize test plugin
-	 */
-	SnowPlow.executePluginMethod('run', registerHook);
-/*</DEBUG>*/
 
 	/************************************************************
 	 * Public data and methods
 	 ************************************************************/
 
 	return {
-/*<DEBUG>*/
-		/*
-		 * Test hook accessors
-		 */
-		hook: registeredHooks,
-		getHook: function (hookName) {
-			return registeredHooks[hookName];
-		},
-/*</DEBUG>*/
 
 		/**
 		 * Get the current user ID (as set previously
@@ -1603,11 +1269,13 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		},
 
 		/**
-		 * Handle do-not-track requests
-		 *
-		 * @param bool enable If true, don't track if user agent sends 'do-not-track' header
+		 * Prevent tracking if user's browser has Do Not Track feature enabled,
+		 * where tracking is:
+		 * 1) Sending events to a collector
+		 * 2) Setting first-party cookies
+		 * @param bool enable If true and Do Not Track feature enabled, don't track. 
 		 */
-		setDoNotTrack: function (enable) {
+		respectDoNotTrack: function (enable) {
 			var dnt = SnowPlow.navigatorAlias.doNotTrack || SnowPlow.navigatorAlias.msDoNotTrack;
 
 			configDoNotTrack = enable && (dnt === 'yes' || dnt === '1');
@@ -1707,6 +1375,33 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		},
 
 		/**
+		 * Set the business-defined user ID for this user using the location querystring.
+		 * 
+		 * @param string queryName Name of a querystring name-value pair
+		 */
+		 setUserIdFromLocation: function(querystringField) {
+		 	businessUserId = SnowPlow.fromQuerystring(querystringField, locationHrefAlias);
+		 },
+
+		/**
+		 * Set the business-defined user ID for this user using the referrer querystring.
+		 * 
+		 * @param string queryName Name of a querystring name-value pair
+		 */
+		 setUserIdFromReferrer: function(querystringField) {
+		 	businessUserId = SnowPlow.fromQuerystring(querystringField, configReferrerUrl);
+		 },
+
+		/**
+		 * Set the business-defined user ID for this user to the value of a cookie.
+		 * 
+		 * @param string cookieName Name of the cookie whose value will be assigned to businessUserId
+		 */
+		 setUserIdFromCookie: function(cookieName) {
+		 	businessUserId = SnowPlow.getCookie(cookieName);
+		 },
+
+		/**
 		 * Toggle whether to attach User ID to the querystring or not
 		 *
 		 * DEPRECATED: because we now have three separate user IDs:
@@ -1714,7 +1409,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 * cookie). So there's no need to enable or disable specific user IDs.
 		 *
 		 * @param bool attach Whether to attach User ID or not
-		 */
+		 */ 
 		attachUserId: function (attach) {
 
 			if (typeof console !== 'undefined') {
@@ -1745,7 +1440,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		/**
 		 * Specify the platform
 		 *
-		 * @param string userId The business-defined user ID
+		 * @param string platform Overrides the default tracking platform
 		 */
 		setPlatform: function(platform) {
 			configPlatform = platform;

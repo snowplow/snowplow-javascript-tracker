@@ -62,7 +62,7 @@
 	discardHashTag,
 	setCookieNamePrefix, setCookieDomain, setCookiePath, setVisitorIdCookie,
 	setVisitorCookieTimeout, setSessionCookieTimeout, setReferralCookieTimeout,
-	doNotTrack, setDoNotTrack, msDoNotTrack, getTimestamp, getCookieValue,
+	doNotTrack, respectDoNotTrack, msDoNotTrack, getTimestamp, getCookieValue,
 	detectTimezone, detectViewport,
 	addListener, enableLinkTracking, enableActivityTracking, setLinkTrackingTimer,
 	enableDarkSocialTracking,
