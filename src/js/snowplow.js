@@ -53,8 +53,8 @@
 	exec,
 	res, width, height,
 	pdf, qt, realp, wma, dir, fla, java, gears, ag,
-	hook, getHook, getVisitorId, getVisitorInfo,
-	setCollectorCf, setCollectorUrl, setSiteId, setAppId,
+	hook, getHook,
+	setCollectorCf, setCollectorUrl, setAppId,
 	setDownloadExtensions, addDownloadExtensions,
 	setDomains, setIgnoreClasses, setRequestMethod,
 	setReferrerUrl, setCustomUrl, setDocumentTitle,
@@ -67,7 +67,7 @@
 	addListener, enableLinkTracking, enableActivityTracking, setLinkTrackingTimer,
 	enableDarkSocialTracking,
 	killFrame, redirectFile, setCountPreRendered,
-	trackEvent, trackLink, trackPageView, trackImpression,
+	trackLink, trackPageView, trackImpression,
 	addPlugin, getAsyncTracker
 */
 
