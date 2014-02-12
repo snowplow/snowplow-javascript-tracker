@@ -32,8 +32,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-PayloadBuilder = require('../src/js/lib/payload.js');
-
 /*
  * SnowPlow Tracker class
  *
@@ -55,8 +53,8 @@ SnowPlow.Tracker = function Tracker(argmap) {
 
 	var
 		// Current URL and Referrer URL
-		locationArray = SnowPlow.fixupUrl(SnowPlow.documentAlias.domain, SnowPlow.windowAlias.location.href, SnowPlow.getReferrer()),
-		domainAlias = SnowPlow.fixupDomain(locationArray[0]),
+		locationArray = helpers.fixupUrl(SnowPlow.documentAlias.domain, SnowPlow.windowAlias.location.href, helpers.getReferrer()),
+		domainAlias = helpers.fixupDomain(locationArray[0]),
 		locationHrefAlias = locationArray[1],
 		configReferrerUrl = locationArray[2],
 
@@ -250,7 +248,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		}
 
 		if (url.slice(0, 1) === '/') {
-			return getProtocolScheme(baseUrl) + '://' + SnowPlow.getHostName(baseUrl) + url;
+			return getProtocolScheme(baseUrl) + '://' + helpers.getHostName(baseUrl) + url;
 		}
 
 		baseUrl = purify(baseUrl);
@@ -282,7 +280,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 
 		for (i = 0; i < configHostsAlias.length; i++) {
 
-			alias = SnowPlow.fixupDomain(configHostsAlias[i].toLowerCase());
+			alias = helpers.fixupDomain(configHostsAlias[i].toLowerCase());
 
 			if (hostName === alias) {
 				return true;
@@ -446,7 +444,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 				domainUserId = hash(
 					(SnowPlow.navigatorAlias.userAgent || '') +
 						(SnowPlow.navigatorAlias.platform || '') +
-						JSON2.stringify(browserFeatures) + nowTs
+						json2.stringify(browserFeatures) + nowTs
 				).slice(0, 16); // 16 hexits = 64 bits
 			}
 
@@ -487,7 +485,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 * Takes in a string builder, adds in parameters to it
 	 * and then generates the request.
 	 */
-	function getRequest(sb, pluginMethod) {
+	function getRequest(sb) {
 		var i,
 			now = new Date(),
 			nowTs = Math.round(now.getTime() / 1000),
@@ -567,10 +565,6 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		setDomainUserIdCookie(_domainUserId, createTs, visitCount, nowTs, lastVisitTs);
 		SnowPlow.setCookie(sesname, '*', configSessionCookieTimeout, configCookiePath, configCookieDomain);
 
-		// Tracker plugin hook
-		// TODO: we can blow this away for SnowPlow
-		request += SnowPlow.executePluginMethod(pluginMethod);
-
 		return request;
 	}
 
@@ -606,10 +600,10 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	function logPageView(customTitle, context) {
 
 		// Fixup page title. We'll pass this to logPagePing too.
-		var pageTitle = SnowPlow.fixupTitle(customTitle || configTitle);
+		var pageTitle = helpers.fixupTitle(customTitle || configTitle);
 
 		// Log page view
-		var sb = PayloadBuilder(configEncodeBase64);
+		var sb = payload.payloadBuilder(configEncodeBase64);
 		sb.add('e', 'pv'); // 'pv' for Page View
 		sb.add('page', pageTitle);
 		sb.addJson('cx', 'co', context);
@@ -626,19 +620,19 @@ SnowPlow.Tracker = function Tracker(argmap) {
 
 			// Add event handlers; cross-browser compatibility here varies significantly
 			// @see http://quirksmode.org/dom/events
-			SnowPlow.addEventListener(SnowPlow.documentAlias, 'click', activityHandler);
-			SnowPlow.addEventListener(SnowPlow.documentAlias, 'mouseup', activityHandler);
-			SnowPlow.addEventListener(SnowPlow.documentAlias, 'mousedown', activityHandler);
-			SnowPlow.addEventListener(SnowPlow.documentAlias, 'mousemove', activityHandler);
-			SnowPlow.addEventListener(SnowPlow.documentAlias, 'mousewheel', activityHandler);
-			SnowPlow.addEventListener(SnowPlow.windowAlias, 'DOMMouseScroll', activityHandler);
-			SnowPlow.addEventListener(SnowPlow.windowAlias, 'scroll', scrollHandler); // Will updateMaxScrolls() for us
-			SnowPlow.addEventListener(SnowPlow.documentAlias, 'keypress', activityHandler);
-			SnowPlow.addEventListener(SnowPlow.documentAlias, 'keydown', activityHandler);
-			SnowPlow.addEventListener(SnowPlow.documentAlias, 'keyup', activityHandler);
-			SnowPlow.addEventListener(SnowPlow.windowAlias, 'resize', activityHandler);
-			SnowPlow.addEventListener(SnowPlow.windowAlias, 'focus', activityHandler);
-			SnowPlow.addEventListener(SnowPlow.windowAlias, 'blur', activityHandler);
+			helpers.addEventListener(SnowPlow.documentAlias, 'click', activityHandler);
+			helpers.addEventListener(SnowPlow.documentAlias, 'mouseup', activityHandler);
+			helpers.addEventListener(SnowPlow.documentAlias, 'mousedown', activityHandler);
+			helpers.addEventListener(SnowPlow.documentAlias, 'mousemove', activityHandler);
+			helpers.addEventListener(SnowPlow.documentAlias, 'mousewheel', activityHandler);
+			helpers.addEventListener(SnowPlow.windowAlias, 'DOMMouseScroll', activityHandler);
+			helpers.addEventListener(SnowPlow.windowAlias, 'scroll', scrollHandler); // Will updateMaxScrolls() for us
+			helpers.addEventListener(SnowPlow.documentAlias, 'keypress', activityHandler);
+			helpers.addEventListener(SnowPlow.documentAlias, 'keydown', activityHandler);
+			helpers.addEventListener(SnowPlow.documentAlias, 'keyup', activityHandler);
+			helpers.addEventListener(SnowPlow.windowAlias, 'resize', activityHandler);
+			helpers.addEventListener(SnowPlow.windowAlias, 'focus', activityHandler);
+			helpers.addEventListener(SnowPlow.windowAlias, 'blur', activityHandler);
 
 			// Periodic check for activity.
 			lastActivityTime = now.getTime();
@@ -667,7 +661,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 * @param object context Custom context relating to the event
 	 */
 	function logPagePing(pageTitle, context) {
-		var sb = PayloadBuilder(configEncodeBase64);
+		var sb = payload.payloadBuilder(configEncodeBase64);
 		sb.add('e', 'pp'); // 'pp' for Page Ping
 		sb.add('page', pageTitle);
 		sb.addRaw('pp_mix', minXOffset); // Global
@@ -691,7 +685,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 * @param object context Custom context relating to the event
 	 */
 	function logStructEvent(category, action, label, property, value, context) {
-		var sb = PayloadBuilder(configEncodeBase64);
+		var sb = payload.payloadBuilder(configEncodeBase64);
 		sb.add('e', 'se'); // 'se' for Structured Event
 		sb.add('se_ca', category);
 		sb.add('se_ac', action)
@@ -711,7 +705,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 * @param object context Custom context relating to the event
 	 */
 	function logUnstructEvent(name, properties, context) {
-		var sb = PayloadBuilder(configEncodeBase64);
+		var sb = payload.payloadBuilder(configEncodeBase64);
 		sb.add('e', 'ue'); // 'ue' for Unstructured Event
 		sb.add('ue_na', name);
 		sb.addJson('ue_px', 'ue_pr', properties);
@@ -736,7 +730,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 */
 	// TODO: add params to comment
 	function logTransaction(orderId, affiliation, total, tax, shipping, city, state, country, currency, context) {
-		var sb = PayloadBuilder(configEncodeBase64);
+		var sb = payload.payloadBuilder(configEncodeBase64);
 		sb.add('e', 'tr'); // 'tr' for TRansaction
 		sb.add('tr_id', orderId);
 		sb.add('tr_af', affiliation);
@@ -766,7 +760,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 */
 	// TODO: add params to comment
 	function logTransactionItem(orderId, sku, name, category, price, quantity, currency, context) {
-		var sb = PayloadBuilder(configEncodeBase64);
+		var sb = payload.payloadBuilder(configEncodeBase64);
 		sb.add('e', 'ti'); // 'ti' for Transaction Item
 		sb.add('ti_id', orderId);
 		sb.add('ti_sk', sku);
@@ -795,7 +789,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	// TODO: this functionality is not yet fully implemented.
 	// See https://github.com/snowplow/snowplow/issues/75
 	function logLink(url, linkType, context) {
-		var sb = PayloadBuilder(configEncodeBase64);
+		var sb = payload.payloadBuilder(configEncodeBase64);
 		sb.add('e', linkType);
 		sb.add('t_url', purify(url));
 		var request = getRequest(sb, 'link');
@@ -816,7 +810,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	// TODO: should add in zoneId (aka placementId, slotId?) as well
 	// TODO: change ad_ to ai_?
 	function logImpression(bannerId, campaignId, advertiserId, userId, context) {
-		var sb = PayloadBuilder(configEncodeBase64);
+		var sb = payload.payloadBuilder(configEncodeBase64);
 		sb.add('e', 'ad'); // 'ad' for AD impression
 		sb.add('ad_ba', bannerId);
 		sb.add('ad_ca', campaignId)
@@ -871,7 +865,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 
 		if (isPreRendered) {
 			// note: the event name doesn't follow the same naming convention as vendor properties
-			SnowPlow.addEventListener(SnowPlow.documentAlias, prefix + 'visibilitychange', function ready() {
+			helpers.addEventListener(SnowPlow.documentAlias, prefix + 'visibilitychange', function ready() {
 				SnowPlow.documentAlias.removeEventListener(prefix + 'visibilitychange', ready, false);
 				callback();
 			});
@@ -929,14 +923,14 @@ SnowPlow.Tracker = function Tracker(argmap) {
 			linkType;
 
 		while ((parentElement = sourceElement.parentNode) !== null &&
-				Identifiers.isDefined(parentElement) && // buggy IE5.5
+				identifiers.isDefined(parentElement) && // buggy IE5.5
 				((tag = sourceElement.tagName.toUpperCase()) !== 'A' && tag !== 'AREA')) {
 			sourceElement = parentElement;
 		}
 
-		if (Identifiers.isDefined(sourceElement.href)) {
+		if (identifiers.isDefined(sourceElement.href)) {
 			// browsers, such as Safari, don't downcase hostname and href
-			var originalSourceHostName = sourceElement.hostname || SnowPlow.getHostName(sourceElement.href),
+			var originalSourceHostName = sourceElement.hostname || helpers.getHostName(sourceElement.href),
 				sourceHostName = originalSourceHostName.toLowerCase(),
 				sourceHref = sourceElement.href.replace(originalSourceHostName, sourceHostName),
 				scriptProtocol = new RegExp('^(javascript|vbscript|jscript|mocha|livescript|ecmascript|mailto):', 'i');
@@ -991,10 +985,10 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	function addClickListener(element, enable) {
 		if (enable) {
 			// for simplicity and performance, we ignore drag events
-			SnowPlow.addEventListener(element, 'mouseup', clickHandler, false);
-			SnowPlow.addEventListener(element, 'mousedown', clickHandler, false);
+			helpers.addEventListener(element, 'mouseup', clickHandler, false);
+			helpers.addEventListener(element, 'mousedown', clickHandler, false);
 		} else {
-			SnowPlow.addEventListener(element, 'click', clickHandler, false);
+			helpers.addEventListener(element, 'click', clickHandler, false);
 		}
 	}
 
@@ -1107,7 +1101,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 * @param string|array hostsAlias
 		 */
 		setDomains: function (hostsAlias) {
-			configHostsAlias = Identifiers.isString(hostsAlias) ? [hostsAlias] : hostsAlias;
+			configHostsAlias = identifiers.isString(hostsAlias) ? [hostsAlias] : hostsAlias;
 			configHostsAlias.push(domainAlias);
 		},
 
@@ -1117,7 +1111,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 * @param string|array ignoreClasses
 		 */
 		setIgnoreClasses: function (ignoreClasses) {
-			configIgnoreClasses = Identifiers.isString(ignoreClasses) ? [ignoreClasses] : ignoreClasses;
+			configIgnoreClasses = identifiers.isString(ignoreClasses) ? [ignoreClasses] : ignoreClasses;
 		},
 
 		/**
@@ -1153,7 +1147,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 * @param string|array downloadClasses
 		 */
 		setDownloadClasses: function (downloadClasses) {
-			configDownloadClasses = Identifiers.isString(downloadClasses) ? [downloadClasses] : downloadClasses;
+			configDownloadClasses = identifiers.isString(downloadClasses) ? [downloadClasses] : downloadClasses;
 		},
 
 		/**
@@ -1162,7 +1156,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 * @param string|array linkClasses
 		 */
 		setLinkClasses: function (linkClasses) {
-			configLinkClasses = Identifiers.isString(linkClasses) ? [linkClasses] : linkClasses;
+			configLinkClasses = identifiers.isString(linkClasses) ? [linkClasses] : linkClasses;
 		},
 
 		/**
@@ -1357,7 +1351,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 * @param string queryName Name of a querystring name-value pair
 		 */
 		 setUserIdFromLocation: function(querystringField) {
-		 	businessUserId = SnowPlow.fromQuerystring(querystringField, locationHrefAlias);
+		 	businessUserId = helpers.fromQuerystring(querystringField, locationHrefAlias);
 		 },
 
 		/**
@@ -1366,7 +1360,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 * @param string queryName Name of a querystring name-value pair
 		 */
 		 setUserIdFromReferrer: function(querystringField) {
-		 	businessUserId = SnowPlow.fromQuerystring(querystringField, configReferrerUrl);
+		 	businessUserId = helpers.fromQuerystring(querystringField, configReferrerUrl);
 		 },
 
 		/**

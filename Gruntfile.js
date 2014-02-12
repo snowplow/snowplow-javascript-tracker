@@ -66,7 +66,6 @@ module.exports = function(grunt) {
         },
         src: ['src/js/banner.js',
               'src/js/init.js',
-              'src/js/lib/helpers.js',
               'src/js/lib/cookie.js',
               'src/js/lib/context.js',
               'src/js/tracker.js',

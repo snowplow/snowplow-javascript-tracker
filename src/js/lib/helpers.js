@@ -31,206 +31,178 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+;(function () {
 
-/*
- * UTF-8 encoding
- */
-SnowPlow.encodeUtf8 = function (argString) {
-	return SnowPlow.decodeUrl(SnowPlow.encodeWrapper(argString));
-}
+	var identifiers = require('./identifiers.js');
 
-/**
- * Cleans up the page title
- */
-SnowPlow.fixupTitle = function (title) {
-	if (!Identifiers.isString(title)) {
-		title = title.text || '';
+	var object = typeof module.exports != 'undefined' ? module.exports : this; // For eventual node.js environment support
 
-		var tmp = SnowPlow.documentAlias.getElementsByTagName('title');
-		if (tmp && Identifiers.isDefined(tmp[0])) {
-			title = tmp[0].text;
-		}
-	}
-	return title;
-}
-
-/*
- * Extract hostname from URL
- */
-SnowPlow.getHostName = function (url) {
-	// scheme : // [username [: password] @] hostname [: port] [/ [path] [? query] [# fragment]]
-	var e = new RegExp('^(?:(?:https?|ftp):)/*(?:[^@]+@)?([^:/#]+)'),
-		matches = e.exec(url);
-
-	return matches ? matches[1] : url;
-}
-
-/*
- * Checks whether sessionStorage is available, in a way that
- * does not throw a SecurityError in Firefox if "always ask"
- * is enabled for cookies (https://github.com/snowplow/snowplow/issues/163).
- */
-SnowPlow.hasSessionStorage = function () {
-	try {
-		return !!SnowPlow.windowAlias.sessionStorage;
-	} catch (e) {
-		return true; // SecurityError when referencing it means it exists
-	}
-}
-
-/*
- * Checks whether localStorage is available, in a way that
- * does not throw a SecurityError in Firefox if "always ask"
- * is enabled for cookies (https://github.com/snowplow/snowplow/issues/163).
- */
-SnowPlow.hasLocalStorage = function () {
-	try {
-		return !!SnowPlow.windowAlias.localStorage;
-	} catch (e) {
-		return true; // SecurityError when referencing it means it exists
-	}
-}
-
-
-/*
- * Converts a date object to Unix timestamp with or without milliseconds
- */
-SnowPlow.toTimestamp = function (date, milliseconds) {
-	return milliseconds ? date / 1 : Math.floor(date / 1000);
-}
-
-/*
- * Converts a date object to Unix datestamp (number of days since epoch)
- */
-SnowPlow.toDatestamp = function (date) {
-	return Math.floor(date / 86400000);
-}
-  
-/*
- * Fix-up URL when page rendered from search engine cache or translated page.
- * TODO: it would be nice to generalise this and/or move into the ETL phase.
- */
-SnowPlow.fixupUrl = function (hostName, href, referrer) {
 	/*
-	 * Extract parameter from URL
+	 * UTF-8 encoding
 	 */
-	function getParameter(url, name) {
+	object.encodeUtf8 = function (argString) {
+		return unescape(window.decodeURIComponent(argString));
+	}
+
+	/**
+	 * Cleans up the page title
+	 */
+	object.fixupTitle = function (title) {
+		if (!identifiers.isString(title)) {
+			title = title.text || '';
+
+			var tmp = document.getElementsByTagName('title');
+			if (tmp && identifiers.isDefined(tmp[0])) {
+				title = tmp[0].text;
+			}
+		}
+		return title;
+	}
+
+	/*
+	 * Extract hostname from URL
+	 */
+	object.getHostName = function (url) {
 		// scheme : // [username [: password] @] hostname [: port] [/ [path] [? query] [# fragment]]
-		var e = new RegExp('^(?:https?|ftp)(?::/*(?:[^?]+)[?])([^#]+)'),
-			matches = e.exec(url),
-			f = new RegExp('(?:^|&)' + name + '=([^&]*)'),
-			result = matches ? f.exec(matches[1]) : 0;
+		var e = new RegExp('^(?:(?:https?|ftp):)/*(?:[^@]+@)?([^:/#]+)'),
+			matches = e.exec(url);
 
-		return result ? SnowPlow.decodeWrapper(result[1]) : '';
+		return matches ? matches[1] : url;
 	}
 
-	if (hostName === 'translate.googleusercontent.com') {		// Google
+	/*
+	 * Checks whether sessionStorage is available, in a way that
+	 * does not throw a SecurityError in Firefox if "always ask"
+	 * is enabled for cookies (https://github.com/snowplow/snowplow/issues/163).
+	 */
+	object.hasSessionStorage = function () {
+		try {
+			return !!window.sessionStorage;
+		} catch (e) {
+			return true; // SecurityError when referencing it means it exists
+		}
+	}
+
+	/*
+	 * Checks whether localStorage is available, in a way that
+	 * does not throw a SecurityError in Firefox if "always ask"
+	 * is enabled for cookies (https://github.com/snowplow/snowplow/issues/163).
+	 */
+	object.hasLocalStorage = function () {
+		try {
+			return !!window.localStorage;
+		} catch (e) {
+			return true; // SecurityError when referencing it means it exists
+		}
+	}
+
+	/*
+	 * Fix-up URL when page rendered from search engine cache or translated page.
+	 * TODO: it would be nice to generalise this and/or move into the ETL phase.
+	 */
+	object.fixupUrl = function (hostName, href, referrer) {
+		/*
+		 * Extract parameter from URL
+		 */
+		function getParameter(url, name) {
+			// scheme : // [username [: password] @] hostname [: port] [/ [path] [? query] [# fragment]]
+			var e = new RegExp('^(?:https?|ftp)(?::/*(?:[^?]+)[?])([^#]+)'),
+				matches = e.exec(url),
+				f = new RegExp('(?:^|&)' + name + '=([^&]*)'),
+				result = matches ? f.exec(matches[1]) : 0;
+
+			return result ? window.decodeURIComponent(result[1]) : '';
+		}
+
+		if (hostName === 'translate.googleusercontent.com') {		// Google
+			if (referrer === '') {
+				referrer = href;
+			}
+			href = getParameter(href, 'u');
+			hostName = object.getHostName(href);
+		} else if (hostName === 'cc.bingj.com' ||					// Bing
+				hostName === 'webcache.googleusercontent.com' ||	// Google
+				hostName.slice(0, 5) === '74.6.') {					// Yahoo (via Inktomi 74.6.0.0/16)
+			href = document.links[0].href;
+			hostName = object.getHostName(href);
+		}
+		return [hostName, href, referrer];
+	}
+
+	/*
+	 * Fix-up domain
+	 */
+	object.fixupDomain = function (domain) {
+		var dl = domain.length;
+
+		// remove trailing '.'
+		if (domain.charAt(--dl) === '.') {
+			domain = domain.slice(0, dl);
+		}
+		// remove leading '*'
+		if (domain.slice(0, 2) === '*.') {
+			domain = domain.slice(1);
+		}
+		return domain;
+	}
+
+	/*
+	 * Get page referrer
+	 */
+	object.getReferrer = function () {
+
+		var referrer = '';
+		
+		var fromQs = object.fromQuerystring('referrer', window.location.href) ||
+		object.fromQuerystring('referer', window.location.href);
+
+		// Short-circuit
+		if (fromQs) {
+			return fromQs;
+		}
+
+		try {
+			referrer = window.top.document.referrer;
+		} catch (e) {
+			if (window.parent) {
+				try {
+					referrer = window.parent.document.referrer;
+				} catch (e2) {
+					referrer = '';
+				}
+			}
+		}
 		if (referrer === '') {
-			referrer = href;
+			referrer = document.referrer;
 		}
-		href = getParameter(href, 'u');
-		hostName = SnowPlow.getHostName(href);
-	} else if (hostName === 'cc.bingj.com' ||					// Bing
-			hostName === 'webcache.googleusercontent.com' ||	// Google
-			hostName.slice(0, 5) === '74.6.') {					// Yahoo (via Inktomi 74.6.0.0/16)
-		href = SnowPlow.documentAlias.links[0].href;
-		hostName = SnowPlow.getHostName(href);
-	}
-	return [hostName, href, referrer];
-}
-
-/*
- * Fix-up domain
- */
-SnowPlow.fixupDomain = function (domain) {
-	var dl = domain.length;
-
-	// remove trailing '.'
-	if (domain.charAt(--dl) === '.') {
-		domain = domain.slice(0, dl);
-	}
-	// remove leading '*'
-	if (domain.slice(0, 2) === '*.') {
-		domain = domain.slice(1);
-	}
-	return domain;
-}
-
-/*
- * Get page referrer
- */
-SnowPlow.getReferrer = function () {
-
-	var referrer = '';
-	
-	var fromQs = SnowPlow.fromQuerystring('referrer', SnowPlow.windowAlias.location.href) ||
-	SnowPlow.fromQuerystring('referer', SnowPlow.windowAlias.location.href);
-
-	// Short-circuit
-	if (fromQs) {
-		return fromQs;
+		return referrer;
 	}
 
-	try {
-		referrer = SnowPlow.windowAlias.top.document.referrer;
-	} catch (e) {
-		if (SnowPlow.windowAlias.parent) {
-			try {
-				referrer = SnowPlow.windowAlias.parent.document.referrer;
-			} catch (e2) {
-				referrer = '';
-			}
+	/*
+	 * Cross-browser helper function to add event handler
+	 */
+	object.addEventListener = function (element, eventType, eventHandler, useCapture) {
+		if (element.addEventListener) {
+			element.addEventListener(eventType, eventHandler, useCapture);
+			return true;
 		}
-	}
-	if (referrer === '') {
-		referrer = SnowPlow.documentAlias.referrer;
-	}
-	return referrer;
-}
-
-/*
- * Cross-browser helper function to add event handler
- */
-SnowPlow.addEventListener = function (element, eventType, eventHandler, useCapture) {
-	if (element.addEventListener) {
-		element.addEventListener(eventType, eventHandler, useCapture);
-		return true;
-	}
-	if (element.attachEvent) {
-		return element.attachEvent('on' + eventType, eventHandler);
-	}
-	element['on' + eventType] = eventHandler;
-}
-
-/*
- * Call plugin hook methods
- */
-SnowPlow.executePluginMethod = function (methodName, callback) {
-	var result = '',
-			i,
-			pluginMethod;
-
-	for (i in SnowPlow.plugins) {
-		if (Object.prototype.hasOwnProperty.call(SnowPlow.plugins, i)) {
-			pluginMethod = SnowPlow.plugins[i][methodName];
-			if (Identifiers.isFunction(pluginMethod)) {
-				result += pluginMethod(callback);
-			}
+		if (element.attachEvent) {
+			return element.attachEvent('on' + eventType, eventHandler);
 		}
+		element['on' + eventType] = eventHandler;
 	}
 
-	return result;
-}
-
-/*
- * Return value from name-value pair in querystring 
- */
-SnowPlow.fromQuerystring = function (field, url) {
-	var match = RegExp('[?&]' + field + '=([^&]*)').exec(url);
-	if (!match) {
-		return null;
+	/*
+	 * Return value from name-value pair in querystring 
+	 */
+	object.fromQuerystring = function (field, url) {
+		var match = RegExp('[?&]' + field + '=([^&]*)').exec(url);
+		if (!match) {
+			return null;
+		}
+		return window.decodeURIComponent(match[1].replace(/\+/g, ' '));
 	}
-	return SnowPlow.decodeWrapper(match[1].replace(/\+/g, ' '));
-}
 
-SnowPlow.murmurhash3_32_gc = require('murmurhash').v3;
+	module.exports = object;
+
+}());
