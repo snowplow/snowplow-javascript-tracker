@@ -93,7 +93,7 @@ SnowPlow.build = function () {
 				parameterArray = arguments[i];
 				f = parameterArray.shift();
 
-				if (SnowPlow.isString(f)) {
+				if (Identifiers.isString(f)) {
 					SnowPlow.asyncTracker[f].apply(SnowPlow.asyncTracker, parameterArray);
 				} else {
 					f.apply(SnowPlow.asyncTracker, parameterArray);

@@ -36,6 +36,10 @@
  * SnowPlow namespace.
  * Add classes and functions in this namespace.
  */
+
+var Identifiers = require('../src/js/lib/identifiers.js');
+var JSON2 = require('JSON');
+
 var SnowPlow = SnowPlow || function() {
 	var windowAlias = window;
 

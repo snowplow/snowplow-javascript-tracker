@@ -32,6 +32,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+PayloadBuilder = require('../src/js/lib/payload.js');
+
 /*
  * SnowPlow Tracker class
  *
@@ -444,7 +446,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 				domainUserId = hash(
 					(SnowPlow.navigatorAlias.userAgent || '') +
 						(SnowPlow.navigatorAlias.platform || '') +
-						SnowPlow.JSON2.stringify(browserFeatures) + nowTs
+						JSON2.stringify(browserFeatures) + nowTs
 				).slice(0, 16); // 16 hexits = 64 bits
 			}
 
@@ -607,7 +609,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		var pageTitle = SnowPlow.fixupTitle(customTitle || configTitle);
 
 		// Log page view
-		var sb = SnowPlow.payloadBuilder(configEncodeBase64);
+		var sb = PayloadBuilder(configEncodeBase64);
 		sb.add('e', 'pv'); // 'pv' for Page View
 		sb.add('page', pageTitle);
 		sb.addJson('cx', 'co', context);
@@ -665,7 +667,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 * @param object context Custom context relating to the event
 	 */
 	function logPagePing(pageTitle, context) {
-		var sb = SnowPlow.payloadBuilder(configEncodeBase64);
+		var sb = PayloadBuilder(configEncodeBase64);
 		sb.add('e', 'pp'); // 'pp' for Page Ping
 		sb.add('page', pageTitle);
 		sb.addRaw('pp_mix', minXOffset); // Global
@@ -689,7 +691,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 * @param object context Custom context relating to the event
 	 */
 	function logStructEvent(category, action, label, property, value, context) {
-		var sb = SnowPlow.payloadBuilder(configEncodeBase64);
+		var sb = PayloadBuilder(configEncodeBase64);
 		sb.add('e', 'se'); // 'se' for Structured Event
 		sb.add('se_ca', category);
 		sb.add('se_ac', action)
@@ -709,7 +711,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 * @param object context Custom context relating to the event
 	 */
 	function logUnstructEvent(name, properties, context) {
-		var sb = SnowPlow.payloadBuilder(configEncodeBase64);
+		var sb = PayloadBuilder(configEncodeBase64);
 		sb.add('e', 'ue'); // 'ue' for Unstructured Event
 		sb.add('ue_na', name);
 		sb.addJson('ue_px', 'ue_pr', properties);
@@ -734,7 +736,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 */
 	// TODO: add params to comment
 	function logTransaction(orderId, affiliation, total, tax, shipping, city, state, country, currency, context) {
-		var sb = SnowPlow.payloadBuilder(configEncodeBase64);
+		var sb = PayloadBuilder(configEncodeBase64);
 		sb.add('e', 'tr'); // 'tr' for TRansaction
 		sb.add('tr_id', orderId);
 		sb.add('tr_af', affiliation);
@@ -764,7 +766,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	 */
 	// TODO: add params to comment
 	function logTransactionItem(orderId, sku, name, category, price, quantity, currency, context) {
-		var sb = SnowPlow.payloadBuilder(configEncodeBase64);
+		var sb = PayloadBuilder(configEncodeBase64);
 		sb.add('e', 'ti'); // 'ti' for Transaction Item
 		sb.add('ti_id', orderId);
 		sb.add('ti_sk', sku);
@@ -793,7 +795,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	// TODO: this functionality is not yet fully implemented.
 	// See https://github.com/snowplow/snowplow/issues/75
 	function logLink(url, linkType, context) {
-		var sb = SnowPlow.payloadBuilder(configEncodeBase64);
+		var sb = PayloadBuilder(configEncodeBase64);
 		sb.add('e', linkType);
 		sb.add('t_url', purify(url));
 		var request = getRequest(sb, 'link');
@@ -814,7 +816,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 	// TODO: should add in zoneId (aka placementId, slotId?) as well
 	// TODO: change ad_ to ai_?
 	function logImpression(bannerId, campaignId, advertiserId, userId, context) {
-		var sb = SnowPlow.payloadBuilder(configEncodeBase64);
+		var sb = PayloadBuilder(configEncodeBase64);
 		sb.add('e', 'ad'); // 'ad' for AD impression
 		sb.add('ad_ba', bannerId);
 		sb.add('ad_ca', campaignId)
@@ -927,12 +929,12 @@ SnowPlow.Tracker = function Tracker(argmap) {
 			linkType;
 
 		while ((parentElement = sourceElement.parentNode) !== null &&
-				SnowPlow.isDefined(parentElement) && // buggy IE5.5
+				Identifiers.isDefined(parentElement) && // buggy IE5.5
 				((tag = sourceElement.tagName.toUpperCase()) !== 'A' && tag !== 'AREA')) {
 			sourceElement = parentElement;
 		}
 
-		if (SnowPlow.isDefined(sourceElement.href)) {
+		if (Identifiers.isDefined(sourceElement.href)) {
 			// browsers, such as Safari, don't downcase hostname and href
 			var originalSourceHostName = sourceElement.hostname || SnowPlow.getHostName(sourceElement.href),
 				sourceHostName = originalSourceHostName.toLowerCase(),
@@ -1105,7 +1107,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 * @param string|array hostsAlias
 		 */
 		setDomains: function (hostsAlias) {
-			configHostsAlias = SnowPlow.isString(hostsAlias) ? [hostsAlias] : hostsAlias;
+			configHostsAlias = Identifiers.isString(hostsAlias) ? [hostsAlias] : hostsAlias;
 			configHostsAlias.push(domainAlias);
 		},
 
@@ -1115,7 +1117,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 * @param string|array ignoreClasses
 		 */
 		setIgnoreClasses: function (ignoreClasses) {
-			configIgnoreClasses = SnowPlow.isString(ignoreClasses) ? [ignoreClasses] : ignoreClasses;
+			configIgnoreClasses = Identifiers.isString(ignoreClasses) ? [ignoreClasses] : ignoreClasses;
 		},
 
 		/**
@@ -1151,7 +1153,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 * @param string|array downloadClasses
 		 */
 		setDownloadClasses: function (downloadClasses) {
-			configDownloadClasses = SnowPlow.isString(downloadClasses) ? [downloadClasses] : downloadClasses;
+			configDownloadClasses = Identifiers.isString(downloadClasses) ? [downloadClasses] : downloadClasses;
 		},
 
 		/**
@@ -1160,7 +1162,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 * @param string|array linkClasses
 		 */
 		setLinkClasses: function (linkClasses) {
-			configLinkClasses = SnowPlow.isString(linkClasses) ? [linkClasses] : linkClasses;
+			configLinkClasses = Identifiers.isString(linkClasses) ? [linkClasses] : linkClasses;
 		},
 
 		/**
