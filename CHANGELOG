@@ -1,6 +1,5 @@
 Version 1.0.0 (2014-02-XX)
 --------------------------
-
 Added extra meta-data to package.json (#83)
 Moved part of banner.js into Gruntfile with grunt-concat's banner option so its values are based on package.json (#82)
 Started using Browserify for modules (#74) (TODO)
@@ -19,7 +18,6 @@ Removed legacy Piwik plugin framework (#56)
 Rebased with 0.14.0 (#87)
 
 Version 0.14.0 (2014-02-12)
-
 ---------------------------
 Bumped version to 0.14.0
 Removed all DEBUG blocks from codebase (#65)
