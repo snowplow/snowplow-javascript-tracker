@@ -85,7 +85,8 @@ module.exports = function(grunt) {
           'src/js/lib/payload.js:payload',
           'src/js/lib/cookie.js:cookie',
           'src/js/lib/context.js:detectors',
-          'src/js/lib/jstz.js:jstz'
+          'src/js/lib/jstz.js:jstz',
+          'src/js/lib/sha1.js:sha1'
           ]
         },
         files: {

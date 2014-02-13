@@ -170,7 +170,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		lastTarget,
 
 		// Hash function
-		hash = require('sha1'),
+		hash = require('sha1').sha1,
 
 		// Domain hash value
 		domainHash,
