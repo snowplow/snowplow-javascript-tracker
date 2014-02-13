@@ -80,18 +80,6 @@ module.exports = function(grunt) {
 
     aws: grunt.file.readJSON('aws.json'),
 
-    concat: {
-      dist: {
-        options: {
-          'report': 'gzip',
-          'banner': '<%= banner %>'
-        },
-        src: ['src/js/init.js'],
-
-        dest: 'dist/snowplow.js'
-      }
-    },
-
     browserify: {
       dist: {
         options: {
@@ -108,8 +96,20 @@ module.exports = function(grunt) {
           ]
         },
         files: {
-          'dist/bundle.js': ['dist/snowplow.js']
+          'dist/bundle.js': ['src/js/init.js']
         }
+      }
+    },
+
+    concat: {
+      dist: {
+        options: {
+          'report': 'gzip',
+          'banner': '<%= banner %>'
+        },
+        src: ['dist/bundle.js'],
+
+        dest: 'dist/snowplow.js'
       }
     },
 
@@ -185,7 +185,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-invalidate-cloudfront');
   grunt.loadNpmTasks('grunt-browserify');
 
-  grunt.registerTask('default', ['concat', 'browserify', 'min']);
+  grunt.registerTask('default', ['browserify', 'concat', 'min']);
   grunt.registerTask('publish', ['concat', 'min', 's3:not_pinned', 'invalidate_cloudfront:not_pinned']);
   grunt.registerTask('publish-pinned', ['concat', 'min', 's3', 'invalidate_cloudfront']);
 
