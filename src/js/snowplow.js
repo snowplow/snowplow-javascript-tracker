@@ -121,7 +121,7 @@
 			navigatorAlias = navigator,
 
 			/* Tracker identifier with version */
-			version = 'js-0.14.0', // Update banner.js too
+			version = 'js-1.0.0', // Update banner.js too
 
 			/* Contains three variables that are shared with tracker.js and must be passed by reference */
 			mutSnowplowState = {
@@ -133,7 +133,7 @@
 			},
 
 			/* Asynchronous tracker */
-			asyncTracker = null
+			asyncTracker = null;
 
 		/************************************************************
 		 * Private methods

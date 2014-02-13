@@ -47,7 +47,10 @@
 	/*
 	 * SnowPlow Tracker class
 	 *
-	 * TODO: update with new args
+	 * @param version The current version of the JavaScript Tracker
+	 *
+	 * @param mutSnowplowState An object containing hasLoaded, registeredOnLoadHandlers, and expireDateTime
+	 * Passed in by reference in case they are altered by snowplow.js
 	 *
 	 * Takes an argmap as its sole parameter. Argmap supports:
 	 *

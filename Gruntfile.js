@@ -48,7 +48,29 @@ module.exports = function(grunt) {
   " * @author      <%= pkg.contributors %>\n" +
   " * @copyright   Anthon Pang, Snowplow Analytics Ltd\n" +
   " * @license     <%= pkg.license %>\n" +
-  " */\n\n"
+  " */\n\n" +
+  "/*\n" +
+  " * For technical documentation:\n" +
+  " * https://github.com/snowplow/snowplow/wiki/javascript-tracker\n" +
+  " *\n" +
+  " * For the setup guide:\n" +
+  " * https://github.com/snowplow/snowplow/wiki/javascript-tracker-setup\n" +
+  " * /\n" +
+  "\n" +
+  "/*\n" +
+  " * Browser [In]Compatibility\n" +
+  " * - minimum required ECMAScript: ECMA-262, edition 3\n" +
+  " *\n" +
+  " * Incompatible with these (and earlier) versions of:\n" +
+  " * - IE4 - try..catch and for..in introduced in IE5\n" +
+  " *- IE5 - named anonymous functions, array.push, encodeURIComponent, decodeURIComponent, and getElementsByTagName introduced in IE5.5\n" +
+  " * - Firefox 1.0 and Netscape 8.x - FF1.5 adds array.indexOf, among other things\n" +
+  " * - Mozilla 1.7 and Netscape 6.x-7.x\n" +
+  " * - Netscape 4.8\n" +
+  " * - Opera 6 - Error object (and Presto) introduced in Opera 7\n" +
+  " * - Opera 7\n" +
+  " */\n\n";
+
 
   grunt.initConfig({
 
@@ -64,8 +86,7 @@ module.exports = function(grunt) {
           'report': 'gzip',
           'banner': '<%= banner %>'
         },
-        src: ['src/js/banner.js',
-              'src/js/init.js'],
+        src: ['src/js/init.js'],
 
         dest: 'dist/snowplow.js'
       }
@@ -79,7 +100,7 @@ module.exports = function(grunt) {
           'src/js/lib/helpers.js:helpers',
           'src/js/lib/payload.js:payload',
           'src/js/lib/cookie.js:cookie',
-          'src/js/lib/context.js:detectors',
+          'src/js/lib/detectors.js:detectors',
           'src/js/lib/jstz.js:jstz',
           'src/js/lib/sha1.js:sha1',
           'src/js/tracker.js:tracker',
