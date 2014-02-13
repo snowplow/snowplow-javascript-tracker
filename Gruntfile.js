@@ -68,7 +68,6 @@ module.exports = function(grunt) {
               'src/js/init.js',
               'src/js/lib/cookie.js',
               'src/js/lib/context.js',
-              'src/js/tracker.js',
               'src/js/snowplow.js',
               'src/js/constructor.js'],
 
@@ -86,7 +85,8 @@ module.exports = function(grunt) {
           'src/js/lib/cookie.js:cookie',
           'src/js/lib/context.js:detectors',
           'src/js/lib/jstz.js:jstz',
-          'src/js/lib/sha1.js:sha1'
+          'src/js/lib/sha1.js:sha1',
+          'src/js/tracker.js:tracker'
           ]
         },
         files: {

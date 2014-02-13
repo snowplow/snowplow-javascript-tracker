@@ -47,11 +47,14 @@ var SnowPlow = SnowPlow || function() {
 		/* Tracker identifier with version */
 		version: 'js-0.14.0', // Update banner.js too
 
-		expireDateTime: null,
+		/* Contains three variables that are shared with tracker.js and must be passed by reference */
+		mutSnowplowState: {
+			expireDateTime: null,
 
-		/* DOM Ready */
-		hasLoaded: false,
-		registeredOnLoadHandlers: [],
+			/* DOM Ready */
+			hasLoaded: false,
+			registeredOnLoadHandlers: []
+		},
 
 		/* Alias frequently used globals for added minification */
 		documentAlias: document,
@@ -80,3 +83,4 @@ var payload = require('payload');
 var json2 = require('JSON');
 var cookie = require('cookie');
 var detectors = require('detectors');
+var tracker = require('tracker');

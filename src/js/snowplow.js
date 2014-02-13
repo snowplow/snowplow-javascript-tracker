@@ -116,13 +116,13 @@ SnowPlow.build = function () {
 			/*
 			 * Delay/pause (blocks UI)
 			 */
-			if (helpers.expireDateTime) {
+			if (SnowPlow.mutSnowplowState.expireDate) {
 				// the things we do for backwards compatibility...
 				// in ECMA-262 5th ed., we could simply use:
-				//     while (Date.now() < helpers.expireDateTime) { }
+				//     while (Date.now() < SnowPlow.mutSnowplowState.expireDate) { }
 				do {
 					now = new Date();
-				} while (now.getTimeAlias() < helpers.expireDateTime);
+				} while (now.getTimeAlias() < SnowPlow.mutSnowplowState.expireDate);
 			}
 		}
 
@@ -132,10 +132,10 @@ SnowPlow.build = function () {
 		function loadHandler() {
 			var i;
 
-			if (!SnowPlow.hasLoaded) {
-				SnowPlow.hasLoaded = true;
-				for (i = 0; i < SnowPlow.registeredOnLoadHandlers.length; i++) {
-					SnowPlow.registeredOnLoadHandlers[i]();
+			if (!SnowPlow.mutSnowplowState.hasLoaded) {
+				SnowPlow.mutSnowplowState.hasLoaded = true;
+				for (i = 0; i < SnowPlow.mutSnowplowState.registeredOnLoadHandlers.length; i++) {
+					SnowPlow.mutSnowplowState.registeredOnLoadHandlers[i]();
 				}
 			}
 			return true;
@@ -162,7 +162,7 @@ SnowPlow.build = function () {
 
 				if (SnowPlow.documentAlias.documentElement.doScroll && SnowPlow.windowAlias === SnowPlow.windowAlias.top) {
 					(function ready() {
-						if (!SnowPlow.hasLoaded) {
+						if (!SnowPlow.mutSnowplowState.hasLoaded) {
 							try {
 								SnowPlow.documentAlias.documentElement.doScroll('left');
 							} catch (error) {
@@ -178,7 +178,7 @@ SnowPlow.build = function () {
 			// sniff for older WebKit versions
 			if ((new RegExp('WebKit')).test(SnowPlow.navigatorAlias.userAgent)) {
 				_timer = setInterval(function () {
-					if (SnowPlow.hasLoaded || /loaded|complete/.test(SnowPlow.documentAlias.readyState)) {
+					if (SnowPlow.mutSnowplowState.hasLoaded || /loaded|complete/.test(SnowPlow.documentAlias.readyState)) {
 						clearInterval(_timer);
 						loadHandler();
 					}
@@ -212,7 +212,7 @@ SnowPlow.build = function () {
 
 		Date.prototype.getTimeAlias = Date.prototype.getTime;
 
-		SnowPlow.asyncTracker = new SnowPlow.Tracker();
+		SnowPlow.asyncTracker = new tracker.Tracker(SnowPlow.version, SnowPlow.mutSnowplowState);
 
 		for (var i = 0; i < SnowPlow.windowAlias._snaq.length; i++) {
 			apply(SnowPlow.windowAlias._snaq[i]);
@@ -235,7 +235,7 @@ SnowPlow.build = function () {
 		* @param string distSubdomain The subdomain on your CloudFront collector's distribution
 		*/
 		getTrackerCf: function (distSubdomain) {
-			return new SnowPlow.Tracker({cf: distSubdomain});
+			return new tracker.Tracker(SnowPlow.version, SnowPlow.mutSnowplowState, {cf: distSubdomain});
 		},
 
 		/**
@@ -245,7 +245,7 @@ SnowPlow.build = function () {
 		* @param string rawUrl The collector URL minus protocol and /i
 		*/
 		getTrackerUrl: function (rawUrl) {
-			return new SnowPlow.Tracker({url: rawUrl});
+			return new tracker.Tracker(SnowPlow.version, SnowPlow.mutSnowplowState, {url: rawUrl});
 		},
 
 		/**
