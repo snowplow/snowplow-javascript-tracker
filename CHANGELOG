@@ -16,8 +16,9 @@ Tightened public API for SnowPlow (#29) (TODO)
 Renamed SnowPlow everywhere to Snowplow (#69) (TODO)
 Prepended window. or SnowPlow.windowAlias. onto _snaq everywhere (#39)
 Removed legacy Piwik plugin framework (#56)
+Rebased with 0.14.0 (#87)
 
-Version 0.14.0 (2014-02-XX)
+Version 0.14.0 (2014-02-12)
 
 ---------------------------
 Bumped version to 0.14.0

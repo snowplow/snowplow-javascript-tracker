@@ -34,8 +34,6 @@
 
 var semver = require('semver');
 
-var semver = require('semver');
-
 /*global module:false*/
 module.exports = function(grunt) {
 

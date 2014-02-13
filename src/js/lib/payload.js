@@ -48,33 +48,6 @@
 	 */
 	var base64encode = Base64.btoa;
 
-/*
- * Converts a date object to Unix datestamp (number of days since epoch)
- */
-function toDatestamp(date) {
-	return Math.floor(date / 86400000);
-}
-
-/**
- * A helper to build a SnowPlow request string from an
- * an optional initial value plus a set of individual
- * name-value pairs, provided using the add method.
- *
- * @param boolean base64Encode Whether or not JSONs should be
- * Base64-URL-safe-encoded
- *
- * @return object The request string builder, with add, addRaw and build methods
- */
-module.exports = function (base64Encode) {
-	var str = '';
-	
-	var addNvPair = function (key, value, encode) {
-		if (value !== undefined && value !== null && value !== '') {
-			var sep = (str.length > 0) ? "&" : "?";
-			str += sep + key + '=' + (encode ? window.encodeURIComponent(value) : value);
-		}
-	};
-
 	/*
 	 * Base64 decode data
 	 */
@@ -223,4 +196,5 @@ module.exports = function (base64Encode) {
 			}
 		};
 	}
-}())
+
+}());
