@@ -1184,7 +1184,7 @@ SnowPlow.Tracker = function Tracker(argmap) {
 		 */
 		setCookieDomain: function (domain) {
 
-			configCookieDomain = SnowPlow.fixupDomain(domain);
+			configCookieDomain = helpers.fixupDomain(domain);
 			updateDomainHash();
 		},
 
