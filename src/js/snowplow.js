@@ -70,11 +70,70 @@
 	trackLink, trackPageView, trackImpression,
 	addPlugin, getAsyncTracker
 */
+/*
+ * JavaScript tracker for Snowplow: init.js
+ * 
+ * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
+ * 2012-2014 Snowplow Analytics Ltd. All rights reserved. 
+ * 
+ * Redistribution and use in source and binary forms, with or without 
+ * modification, are permitted provided that the following conditions are 
+ * met: 
+ *
+ * * Redistributions of source code must retain the above copyright 
+ *   notice, this list of conditions and the following disclaimer. 
+ *
+ * * Redistributions in binary form must reproduce the above copyright 
+ *   notice, this list of conditions and the following disclaimer in the 
+ *   documentation and/or other materials provided with the distribution. 
+ *
+ * * Neither the name of Anthon Pang nor Snowplow Analytics Ltd nor the
+ *   names of their contributors may be used to endorse or promote products
+ *   derived from this software without specific prior written permission. 
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
-var helpers = require('helpers');
+;(function() {
 
-SnowPlow.build = function () {
-		"use strict";
+	// Load all our modules (at least until we fully modularize & remove grunt-concat)
+	var identifiers = require('identifiers');
+	var tracker = require('tracker');
+	var helpers = require('helpers');
+
+	var object = typeof module.exports != 'undefined' ? module.exports : this; // For eventual node.js environment support
+
+	object.build = function() {
+
+		var
+			documentAlias = document,
+			windowAlias = window,
+			navigatorAlias = navigator,
+
+			/* Tracker identifier with version */
+			version = 'js-0.14.0', // Update banner.js too
+
+			/* Contains three variables that are shared with tracker.js and must be passed by reference */
+			mutSnowplowState = {
+				expireDateTime: null,
+
+				/* DOM Ready */
+				hasLoaded: false,
+				registeredOnLoadHandlers: []
+			},
+
+			/* Asynchronous tracker */
+			asyncTracker = null
 
 		/************************************************************
 		 * Private methods
@@ -96,9 +155,9 @@ SnowPlow.build = function () {
 				f = parameterArray.shift();
 
 				if (identifiers.isString(f)) {
-					SnowPlow.asyncTracker[f].apply(SnowPlow.asyncTracker, parameterArray);
+					asyncTracker[f].apply(asyncTracker, parameterArray);
 				} else {
-					f.apply(SnowPlow.asyncTracker, parameterArray);
+					f.apply(asyncTracker, parameterArray);
 				}
 			}
 		}
@@ -116,13 +175,13 @@ SnowPlow.build = function () {
 			/*
 			 * Delay/pause (blocks UI)
 			 */
-			if (SnowPlow.mutSnowplowState.expireDate) {
+			if (mutSnowplowState.expireDate) {
 				// the things we do for backwards compatibility...
 				// in ECMA-262 5th ed., we could simply use:
-				//     while (Date.now() < SnowPlow.mutSnowplowState.expireDate) { }
+				//     while (Date.now() < mutSnowplowState.expireDate) { }
 				do {
 					now = new Date();
-				} while (now.getTimeAlias() < SnowPlow.mutSnowplowState.expireDate);
+				} while (now.getTimeAlias() < mutSnowplowState.expireDate);
 			}
 		}
 
@@ -132,10 +191,10 @@ SnowPlow.build = function () {
 		function loadHandler() {
 			var i;
 
-			if (!SnowPlow.mutSnowplowState.hasLoaded) {
-				SnowPlow.mutSnowplowState.hasLoaded = true;
-				for (i = 0; i < SnowPlow.mutSnowplowState.registeredOnLoadHandlers.length; i++) {
-					SnowPlow.mutSnowplowState.registeredOnLoadHandlers[i]();
+			if (!mutSnowplowState.hasLoaded) {
+				mutSnowplowState.hasLoaded = true;
+				for (i = 0; i < mutSnowplowState.registeredOnLoadHandlers.length; i++) {
+					mutSnowplowState.registeredOnLoadHandlers[i]();
 				}
 			}
 			return true;
@@ -147,24 +206,24 @@ SnowPlow.build = function () {
 		function addReadyListener() {
 			var _timer;
 
-			if (SnowPlow.documentAlias.addEventListener) {
-				helpers.addEventListener(SnowPlow.documentAlias, 'DOMContentLoaded', function ready() {
-					SnowPlow.documentAlias.removeEventListener('DOMContentLoaded', ready, false);
+			if (documentAlias.addEventListener) {
+				helpers.addEventListener(documentAlias, 'DOMContentLoaded', function ready() {
+					documentAlias.removeEventListener('DOMContentLoaded', ready, false);
 					loadHandler();
 				});
-			} else if (SnowPlow.documentAlias.attachEvent) {
-				SnowPlow.documentAlias.attachEvent('onreadystatechange', function ready() {
-					if (SnowPlow.documentAlias.readyState === 'complete') {
-						SnowPlow.documentAlias.detachEvent('onreadystatechange', ready);
+			} else if (documentAlias.attachEvent) {
+				documentAlias.attachEvent('onreadystatechange', function ready() {
+					if (documentAlias.readyState === 'complete') {
+						documentAlias.detachEvent('onreadystatechange', ready);
 						loadHandler();
 					}
 				});
 
-				if (SnowPlow.documentAlias.documentElement.doScroll && SnowPlow.windowAlias === SnowPlow.windowAlias.top) {
+				if (documentAlias.documentElement.doScroll && windowAlias === windowAlias.top) {
 					(function ready() {
-						if (!SnowPlow.mutSnowplowState.hasLoaded) {
+						if (!mutSnowplowState.hasLoaded) {
 							try {
-								SnowPlow.documentAlias.documentElement.doScroll('left');
+								documentAlias.documentElement.doScroll('left');
 							} catch (error) {
 								setTimeout(ready, 0);
 								return;
@@ -176,9 +235,9 @@ SnowPlow.build = function () {
 			}
 
 			// sniff for older WebKit versions
-			if ((new RegExp('WebKit')).test(SnowPlow.navigatorAlias.userAgent)) {
+			if ((new RegExp('WebKit')).test(navigatorAlias.userAgent)) {
 				_timer = setInterval(function () {
-					if (SnowPlow.mutSnowplowState.hasLoaded || /loaded|complete/.test(SnowPlow.documentAlias.readyState)) {
+					if (mutSnowplowState.hasLoaded || /loaded|complete/.test(documentAlias.readyState)) {
 						clearInterval(_timer);
 						loadHandler();
 					}
@@ -186,7 +245,7 @@ SnowPlow.build = function () {
 			}
 
 			// fallback
-			helpers.addEventListener(SnowPlow.windowAlias, 'load', loadHandler, false);
+			helpers.addEventListener(windowAlias, 'load', loadHandler, false);
 		}
 
 
@@ -207,55 +266,57 @@ SnowPlow.build = function () {
 		 ************************************************************/
 
 		// initialize the SnowPlow singleton
-		helpers.addEventListener(SnowPlow.windowAlias, 'beforeunload', beforeUnloadHandler, false);
+		helpers.addEventListener(windowAlias, 'beforeunload', beforeUnloadHandler, false);
 		addReadyListener();
 
+		// TODO: why is this here?
 		Date.prototype.getTimeAlias = Date.prototype.getTime;
 
-		SnowPlow.asyncTracker = new tracker.Tracker(SnowPlow.version, SnowPlow.mutSnowplowState);
+		asyncTracker = new tracker.Tracker(version, mutSnowplowState);
 
-		for (var i = 0; i < SnowPlow.windowAlias._snaq.length; i++) {
-			apply(SnowPlow.windowAlias._snaq[i]);
+		// We need to manually apply any events collected before this initialization
+		for (var i = 0; i < windowAlias._snaq.length; i++) {
+			apply(windowAlias._snaq[i]);
 		}
 
-		// replace initialization array with proxy object
-		SnowPlow.windowAlias._snaq = new TrackerProxy();
+		// Now replace initialization array with proxy object
+		windowAlias._snaq = new TrackerProxy();
 
 
 		/************************************************************
 		 * Public data and methods
 		 ************************************************************/
 
-	return {
+		 return {
+		 	/**
+		 	* Returns a Tracker object, configured with a
+		 	* CloudFront collector.
+		 	*
+		 	* @param string distSubdomain The subdomain on your CloudFront collector's distribution
+		 	*/
+		 	getTrackerCf: function (distSubdomain) {
+		 		return new tracker.Tracker(version, mutSnowplowState, {cf: distSubdomain});
+		 	},
+		 
+		 	/**
+		 	* Returns a Tracker object, configured with the
+		 	* URL to the collector to use.
+		 	*
+		 	* @param string rawUrl The collector URL minus protocol and /i
+		 	*/
+		 	getTrackerUrl: function (rawUrl) {
+		 		return new tracker.Tracker(version, mutSnowplowState, {url: rawUrl});
+		 	},
+		 
+		 	/**
+		 	* Get internal asynchronous tracker object
+		 	*
+		 	* @return Tracker
+		 	*/
+		 	getAsyncTracker: function () {
+		 		return asyncTracker;
+		 	}
+		 }
+	}
 
-		/**
-		* Returns a Tracker object, configured with a
-		* CloudFront collector.
-		*
-		* @param string distSubdomain The subdomain on your CloudFront collector's distribution
-		*/
-		getTrackerCf: function (distSubdomain) {
-			return new tracker.Tracker(SnowPlow.version, SnowPlow.mutSnowplowState, {cf: distSubdomain});
-		},
-
-		/**
-		* Returns a Tracker object, configured with the
-		* URL to the collector to use.
-		*
-		* @param string rawUrl The collector URL minus protocol and /i
-		*/
-		getTrackerUrl: function (rawUrl) {
-			return new tracker.Tracker(SnowPlow.version, SnowPlow.mutSnowplowState, {url: rawUrl});
-		},
-
-		/**
-		* Get internal asynchronous tracker object
-		*
-		* @return Tracker
-		*/
-		getAsyncTracker: function () {
-			return SnowPlow.asyncTracker;
-		}
-	};
-};
-
+}());

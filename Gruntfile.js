@@ -65,11 +65,7 @@ module.exports = function(grunt) {
           'banner': '<%= banner %>'
         },
         src: ['src/js/banner.js',
-              'src/js/init.js',
-              'src/js/lib/cookie.js',
-              'src/js/lib/context.js',
-              'src/js/snowplow.js',
-              'src/js/constructor.js'],
+              'src/js/init.js'],
 
         dest: 'dist/snowplow.js'
       }
@@ -86,7 +82,8 @@ module.exports = function(grunt) {
           'src/js/lib/context.js:detectors',
           'src/js/lib/jstz.js:jstz',
           'src/js/lib/sha1.js:sha1',
-          'src/js/tracker.js:tracker'
+          'src/js/tracker.js:tracker',
+          'src/js/snowplow.js:snowplow'
           ]
         },
         files: {

@@ -47,6 +47,8 @@
 	/*
 	 * SnowPlow Tracker class
 	 *
+	 * TODO: update with new args
+	 *
 	 * Takes an argmap as its sole parameter. Argmap supports:
 	 *
 	 * 1. Empty             - to initialize an Async Tracker
@@ -201,6 +203,9 @@
 		 * Determines how to build our collector URL,
 		 * based on the argmap passed into the
 		 * Tracker's constructor.
+		 *
+		 * argmap is optional because we cannot know it
+		 * when constructing an AsyncTracker
 		 */
 		function constructCollectorUrl(argmap) {
 			if (typeof argmap === "undefined") {

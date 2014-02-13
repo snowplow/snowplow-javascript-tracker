@@ -10,11 +10,11 @@
     "grunt-invalidate-cloudfront": "~0.1.4",
     "grunt-s3": "~0.2.0-alpha.3",
     "murmurhash": "0.0.2",
-    "sha1": "~1.1.0",
     "browserify": "~3.28.1",
     "grunt-browserify": "~1.3.0",
     "jstimezonedetect": "~1.0.5",
-    "JSON": "~1.0.0"
+    "JSON": "~1.0.0",
+    "Base64": "~0.2.0"
   },
   "contributors": [
     "Alex Dean",

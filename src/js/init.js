@@ -32,55 +32,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * SnowPlow namespace.
- * Add classes and functions in this namespace.
- */
+// SnowPlow Asynchronous Queue
+window._snaq = window._snaq || [];
 
-var SnowPlow = SnowPlow || function() {
-	var windowAlias = window;
-
-	// SnowPlow Asynchronous Queue
-	windowAlias._snaq = windowAlias._snaq || [];
-	return {
-
-		/* Tracker identifier with version */
-		version: 'js-0.14.0', // Update banner.js too
-
-		/* Contains three variables that are shared with tracker.js and must be passed by reference */
-		mutSnowplowState: {
-			expireDateTime: null,
-
-			/* DOM Ready */
-			hasLoaded: false,
-			registeredOnLoadHandlers: []
-		},
-
-		/* Alias frequently used globals for added minification */
-		documentAlias: document,
-		windowAlias: windowAlias,
-		navigatorAlias: navigator,
-		screenAlias: screen,
-
-		/* Encode */
-		encodeWrapper: windowAlias.encodeURIComponent,
-
-		/* Decode */
-		decodeWrapper: windowAlias.decodeURIComponent,
-
-		/* decodeUrl */
-		decodeUrl: unescape,
-
-		/* Asynchronous tracker */
-		asyncTracker: null
-	}
-}();
-
-// Load all our modules (at least until we fully modularize & remove grunt-concat)
-
-var identifiers = require('identifiers');
-var payload = require('payload');
-var json2 = require('JSON');
-var cookie = require('cookie');
-var detectors = require('detectors');
-var tracker = require('tracker');
+var snowplow = require('snowplow');
+window.SnowPlow = window.SnowPlow || snowplow.build();
