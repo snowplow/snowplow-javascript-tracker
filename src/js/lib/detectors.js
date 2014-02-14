@@ -34,11 +34,17 @@
 
 ;(function() {
 
-	var object = typeof module.exports != 'undefined' ? module.exports : this; // For eventual node.js environment support
-
 	var identifiers = require('identifiers');
 	var helpers = require('helpers');
 	var murmurhash3_32_gc = require('murmurhash').v3;
+
+	var object = typeof module.exports != 'undefined' ? module.exports : this; // For eventual node.js environment support
+
+	var 
+		windowAlias = window,
+		navigatorAlias = navigator,
+		screenAlias = screen,
+		documentAlias = document;
 
 	/*
 	 * Checks whether sessionStorage is available, in a way that
@@ -47,7 +53,7 @@
 	 */
 	object.hasSessionStorage = function () {
 		try {
-			return !!window.sessionStorage;
+			return !!windowAlias.sessionStorage;
 		} catch (e) {
 			return true; // SecurityError when referencing it means it exists
 		}
@@ -60,7 +66,7 @@
 	 */
 	object.hasLocalStorage = function () {
 		try {
-			return !!window.localStorage;
+			return !!windowAlias.localStorage;
 		} catch (e) {
 			return true; // SecurityError when referencing it means it exists
 		}
@@ -72,12 +78,12 @@
 	object.hasCookies = function(testCookieName) {
 		var cookieName = testCookieName || 'testcookie';
 
-		if (!identifiers.isDefined(navigator.cookieEnabled)) {
+		if (!identifiers.isDefined(navigatorAlias.cookieEnabled)) {
 			cookies.setCookie(cookieName, '1');
 			return cookies.getCookie(cookieName) === '1' ? '1' : '0';
 		}
 
-		return navigator.cookieEnabled ? '1' : '0';
+		return navigatorAlias.cookieEnabled ? '1' : '0';
 	}
 
 	/*
@@ -89,24 +95,24 @@
 	object.detectSignature = function(hashSeed) {
 
 	    var fingerprint = [
-	        navigator.userAgent,
-	        [ screen.height, screen.width, screen.colorDepth ].join("x"),
+	        navigatorAlias.userAgent,
+	        [ screenAlias.height, screenAlias.width, screenAlias.colorDepth ].join("x"),
 	        ( new Date() ).getTimezoneOffset(),
 	        object.hasSessionStorage(),
 	        object.hasLocalStorage(),
 	    ];
 
 	    var plugins = [];
-	    if (navigator.plugins)
+	    if (navigatorAlias.plugins)
 	    {
-	        for(var i = 0; i < navigator.plugins.length; i++)
+	        for(var i = 0; i < navigatorAlias.plugins.length; i++)
 	        {
 	            var mt = [];
-	            for(var j = 0; j < navigator.plugins[i].length; j++)
+	            for(var j = 0; j < navigatorAlias.plugins[i].length; j++)
 	            {
-	                mt.push([navigator.plugins[i][j].type, navigator.plugins[i][j].suffixes]);
+	                mt.push([navigatorAlias.plugins[i][j].type, navigatorAlias.plugins[i][j].suffixes]);
 	            }
-	            plugins.push([navigator.plugins[i].name + "::" + navigator.plugins[i].description, mt.join("~")]);
+	            plugins.push([navigatorAlias.plugins[i].name + "::" + navigatorAlias.plugins[i].description, mt.join("~")]);
 	        }
 	    }
 	    return murmurhash3_32_gc(fingerprint.join("###") + "###" + plugins.sort().join(";"), hashSeed);
@@ -129,10 +135,10 @@
 	 * - http://responsejs.com/labs/dimensions/
 	 */
 	object.detectViewport = function() {
-		var e = window, a = 'inner';
-		if (!('innerWidth' in window)) {
+		var e = windowAlias, a = 'inner';
+		if (!('innerWidth' in windowAlias)) {
 			a = 'client';
-			e = document.documentElement || document.body;
+			e = documentAlias.documentElement || documentAlias.body;
 		}
 		return e[a+'Width'] + 'x' + e[a+'Height'];
 	}
@@ -145,7 +151,7 @@
 	 * - http://andylangton.co.uk/articles/javascript/get-viewport-size-javascript/
 	 */
 	object.detectDocumentSize = function() {
-		var de = document.documentElement; // Alias
+		var de = documentAlias.documentElement; // Alias
 		var w = Math.max(de.clientWidth, de.offsetWidth, de.scrollWidth);
 		var h = Math.max(de.clientHeight, de.offsetHeight, de.scrollHeight);
 		return w + 'x' + h;
@@ -178,10 +184,10 @@
 			features = {};
 
 		// General plugin detection
-		if (navigator.mimeTypes && navigator.mimeTypes.length) {
+		if (navigatorAlias.mimeTypes && navigatorAlias.mimeTypes.length) {
 			for (i in pluginMap) {
 				if (Object.prototype.hasOwnProperty.call(pluginMap, i)) {
-					mimeType = navigator.mimeTypes[pluginMap[i]];
+					mimeType = navigatorAlias.mimeTypes[pluginMap[i]];
 					features[i] = (mimeType && mimeType.enabledPlugin) ? '1' : '0';
 				}
 			}
@@ -189,20 +195,20 @@
 
 		// Safari and Opera
 		// IE6/IE7 navigator.javaEnabled can't be aliased, so test directly
-		if (typeof navigator.javaEnabled !== 'unknown' &&
-				identifiers.isDefined(navigator.javaEnabled) &&
-				navigator.javaEnabled()) {
+		if (typeof navigatorAlias.javaEnabled !== 'unknown' &&
+				identifiers.isDefined(navigatorAlias.javaEnabled) &&
+				navigatorAlias.javaEnabled()) {
 			features.java = '1';
 		}
 
 		// Firefox
-		if (identifiers.isFunction(window.GearsFactory)) {
+		if (identifiers.isFunction(windowAlias.GearsFactory)) {
 			features.gears = '1';
 		}
 
 		// Other browser features
-		features.res = screen.width + 'x' + screen.height;
-		features.cd = screen.colorDepth;
+		features.res = screenAlias.width + 'x' + screenAlias.height;
+		features.cd = screenAlias.colorDepth;
 		features.cookie = object.hasCookies(testCookieName);
 
 		return features;
