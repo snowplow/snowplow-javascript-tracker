@@ -86,7 +86,7 @@ module.exports = function(grunt) {
           alias: [
           'src/js/lib/identifiers.js:identifiers',
           'src/js/lib/helpers.js:helpers',
-          'src/js/lib/payload.js:payload',
+          'src/js/payload.js:payload',
           'src/js/lib/cookie.js:cookie',
           'src/js/lib/detectors.js:detectors',
           'src/js/lib/jstz.js:jstz',
