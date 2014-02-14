@@ -86,7 +86,6 @@
 		var
 			documentAlias = document,
 			windowAlias = window,
-			navigatorAlias = navigator,
 
 			/* Tracker identifier with version */
 			version = 'js-1.0.0', // Update banner.js too
@@ -180,7 +179,7 @@
 			}
 
 			// sniff for older WebKit versions
-			if ((new RegExp('WebKit')).test(navigatorAlias.userAgent)) {
+			if ((new RegExp('WebKit')).test(navigator.userAgent)) {
 				_timer = setInterval(function () {
 					if (mutSnowplowState.hasLoaded || /loaded|complete/.test(documentAlias.readyState)) {
 						clearInterval(_timer);

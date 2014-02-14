@@ -69,8 +69,13 @@
 		 ************************************************************/
 
 		var
+			// Aliases
+			documentAlias = document,
+			windowAlias = window,
+			navigatorAlias = navigator,
+
 			// Current URL and Referrer URL
-			locationArray = helpers.fixupUrl(document.domain, window.location.href, helpers.getReferrer()),
+			locationArray = helpers.fixupUrl(documentAlias.domain, windowAlias.location.href, helpers.getReferrer()),
 			domainAlias = helpers.fixupDomain(locationArray[0]),
 			locationHrefAlias = locationArray[1],
 			configReferrerUrl = locationArray[2],
@@ -91,7 +96,7 @@
 			configCustomUrl,
 
 			// Document title
-			configTitle = document.title,
+			configTitle = documentAlias.title,
 
 			// Extensions to be treated as download links
 			configDownloadExtensions = '7z|aac|ar[cj]|as[fx]|avi|bin|csv|deb|dmg|doc|exe|flv|gif|gz|gzip|hqx|jar|jpe?g|js|mp(2|3|4|e?g)|mov(ie)?|ms[ip]|od[bfgpst]|og[gv]|pdf|phps|png|ppt|qtm?|ra[mr]?|rpm|sea|sit|tar|t?bz2?|tgz|torrent|txt|wav|wm[av]|wpd||xls|xml|z|zip',
@@ -153,10 +158,10 @@
 			configUserFingerprintHashSeed = 123412414,
 
 			// Document character set
-			documentCharset = document.characterSet || document.charset,
+			documentCharset = documentAlias.characterSet || documentAlias.charset,
 
 			// Browser language (or Windows language for IE). Imperfect but CloudFront doesn't log the Accept-Language header
-			browserLanguage = navigator.userLanguage || navigator.language,
+			browserLanguage = navigatorAlias.userLanguage || navigatorAlias.language,
 
 			// Browser features via client-side data collection
 			browserFeatures = detectors.detectBrowserFeatures(getSnowplowCookieName('testcookie')),
@@ -393,11 +398,11 @@
 		 * Adapts code taken from: http://www.javascriptkit.com/javatutors/static2.shtml
 		 */
 		function getPageOffsets() {
-			var iebody = (document.compatMode && document.compatMode != "BackCompat") ?
-			               document.documentElement :
-			               document.body;
-			return [iebody.scrollLeft || window.pageXOffset,
-			       iebody.scrollTop || window.pageYOffset];
+			var iebody = (documentAlias.compatMode && documentAlias.compatMode != "BackCompat") ?
+			               documentAlias.documentElement :
+			               documentAlias.body;
+			return [iebody.scrollLeft || windowAlias.pageXOffset,
+			       iebody.scrollTop || windowAlias.pageYOffset];
 		}
 
 		/*
@@ -462,8 +467,8 @@
 				// Note: this isn't a RFC4122-compliant UUID
 				if (!domainUserId) {
 					domainUserId = hash(
-						(navigator.userAgent || '') +
-							(navigator.platform || '') +
+						(navigatorAlias.userAgent || '') +
+							(navigatorAlias.platform || '') +
 							json2.stringify(browserFeatures) + nowTs
 					).slice(0, 16); // 16 hexits = 64 bits
 				}
@@ -608,7 +613,7 @@
 		 * @return string collectorUrl The tracker URL with protocol
 		 */
 		function asCollectorUrl(rawUrl) {
-			return ('https:' == document.location.protocol ? 'https' : 'http') + '://' + rawUrl + '/i';               
+			return ('https:' == documentAlias.location.protocol ? 'https' : 'http') + '://' + rawUrl + '/i';               
 		}
 
 		/*
@@ -640,19 +645,19 @@
 
 				// Add event handlers; cross-browser compatibility here varies significantly
 				// @see http://quirksmode.org/dom/events
-				helpers.addEventListener(document, 'click', activityHandler);
-				helpers.addEventListener(document, 'mouseup', activityHandler);
-				helpers.addEventListener(document, 'mousedown', activityHandler);
-				helpers.addEventListener(document, 'mousemove', activityHandler);
-				helpers.addEventListener(document, 'mousewheel', activityHandler);
-				helpers.addEventListener(window, 'DOMMouseScroll', activityHandler);
-				helpers.addEventListener(window, 'scroll', scrollHandler); // Will updateMaxScrolls() for us
-				helpers.addEventListener(document, 'keypress', activityHandler);
-				helpers.addEventListener(document, 'keydown', activityHandler);
-				helpers.addEventListener(document, 'keyup', activityHandler);
-				helpers.addEventListener(window, 'resize', activityHandler);
-				helpers.addEventListener(window, 'focus', activityHandler);
-				helpers.addEventListener(window, 'blur', activityHandler);
+				helpers.addEventListener(documentAlias, 'click', activityHandler);
+				helpers.addEventListener(documentAlias, 'mouseup', activityHandler);
+				helpers.addEventListener(documentAlias, 'mousedown', activityHandler);
+				helpers.addEventListener(documentAlias, 'mousemove', activityHandler);
+				helpers.addEventListener(documentAlias, 'mousewheel', activityHandler);
+				helpers.addEventListener(windowAlias, 'DOMMouseScroll', activityHandler);
+				helpers.addEventListener(windowAlias, 'scroll', scrollHandler); // Will updateMaxScrolls() for us
+				helpers.addEventListener(documentAlias, 'keypress', activityHandler);
+				helpers.addEventListener(documentAlias, 'keydown', activityHandler);
+				helpers.addEventListener(documentAlias, 'keyup', activityHandler);
+				helpers.addEventListener(windowAlias, 'resize', activityHandler);
+				helpers.addEventListener(windowAlias, 'focus', activityHandler);
+				helpers.addEventListener(windowAlias, 'blur', activityHandler);
 
 				// Periodic check for activity.
 				lastActivityTime = now.getTime();
@@ -873,9 +878,9 @@
 					prefix = prefixes[i];
 
 					// does this browser support the page visibility API?
-					if (Object.prototype.hasOwnProperty.call(document, prefixPropertyName(prefix, 'hidden'))) {
+					if (Object.prototype.hasOwnProperty.call(documentAlias, prefixPropertyName(prefix, 'hidden'))) {
 						// if pre-rendered, then defer callback until page visibility changes
-						if (document[prefixPropertyName(prefix, 'visibilityState')] === 'prerender') {
+						if (documentAlias[prefixPropertyName(prefix, 'visibilityState')] === 'prerender') {
 							isPreRendered = true;
 						}
 						break;
@@ -885,8 +890,8 @@
 
 			if (isPreRendered) {
 				// note: the event name doesn't follow the same naming convention as vendor properties
-				helpers.addEventListener(document, prefix + 'visibilitychange', function ready() {
-					document.removeEventListener(prefix + 'visibilitychange', ready, false);
+				helpers.addEventListener(documentAlias, prefix + 'visibilitychange', function ready() {
+					documentAlias.removeEventListener(prefix + 'visibilitychange', ready, false);
 					callback();
 				});
 				return;
@@ -975,7 +980,7 @@
 			var button,
 				target;
 
-			evt = evt || window.event;
+			evt = evt || windowAlias.event;
 			button = evt.which || evt.button;
 			target = evt.target || evt.srcElement;
 
@@ -1023,7 +1028,7 @@
 
 				var i,
 					ignorePattern = getClassesRegExp(configIgnoreClasses, 'ignore'),
-					linkElements = document.links;
+					linkElements = documentAlias.links;
 
 				if (linkElements) {
 					for (i = 0; i < linkElements.length; i++) {
@@ -1253,7 +1258,7 @@
 			 * @param bool enable If true and Do Not Track feature enabled, don't track. 
 			 */
 			respectDoNotTrack: function (enable) {
-				var dnt = navigator.doNotTrack || navigator.msDoNotTrack;
+				var dnt = navigatorAlias.doNotTrack || navigatorAlias.msDoNotTrack;
 
 				configDoNotTrack = enable && (dnt === 'yes' || dnt === '1');
 			},
@@ -1331,8 +1336,8 @@
 			 * Frame buster
 			 */
 			killFrame: function () {
-				if (window.location !== window.top.location) {
-					window.top.location = window.location;
+				if (windowAlias.location !== windowAlias.top.location) {
+					windowAlias.top.location = windowAlias.location;
 				}
 			},
 
@@ -1342,8 +1347,8 @@
 			 * @param string url Redirect to this URL
 			 */
 			redirectFile: function (url) {
-				if (window.location.protocol === 'file:') {
-					window.location = url;
+				if (windowAlias.location.protocol === 'file:') {
+					windowAlias.location = url;
 				}
 			},
 
