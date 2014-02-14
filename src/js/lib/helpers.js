@@ -33,7 +33,7 @@
  */
 ;(function () {
 
-	var identifiers = require('identifiers');
+	var identifiers = require('./identifiers.js');
 
 	var object = typeof module.exports != 'undefined' ? module.exports : this; // For eventual node.js environment support
 

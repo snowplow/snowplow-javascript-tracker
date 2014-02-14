@@ -20,7 +20,7 @@
 
 ;(function(){
 
-	var helpers = require('helpers');
+	var helpers = require('./helpers.js');
 
 	var object = typeof module.exports != 'undefined' ? module.exports : this; // For eventual node.js environment support 
 

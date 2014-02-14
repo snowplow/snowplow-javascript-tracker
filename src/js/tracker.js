@@ -34,12 +34,12 @@
 
 ;(function() {
 
-	var identifiers = require('identifiers');
-	var helpers = require('helpers');
-	var sha1 = require('sha1');
-	var cookie = require('cookie');
-	var detectors = require('detectors');
-	var payload = require('payload');
+	var identifiers = require('./lib/identifiers.js');
+	var helpers = require('./lib/helpers.js');
+	var sha1 = require('./lib/sha1.js');
+	var cookie = require('./lib/cookie.js');
+	var detectors = require('./lib/detectors.js');
+	var payload = require('./payload.js');
 	var json2 = require('JSON');
 
 	var object = typeof module.exports != 'undefined' ? module.exports : this; // For eventual node.js environment support

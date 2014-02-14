@@ -36,7 +36,7 @@
 
 	var object = typeof module.exports != 'undefined' ? module.exports : this; // For eventual node.js environment support
 
-	var identifiers = require('identifiers');
+	var identifiers = require('./lib/identifiers.js');
 
 	var json2 = require('JSON');
 

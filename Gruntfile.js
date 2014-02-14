@@ -82,20 +82,6 @@ module.exports = function(grunt) {
 
     browserify: {
       dist: {
-        options: {
-          alias: [
-          'src/js/lib/identifiers.js:identifiers',
-          'src/js/lib/helpers.js:helpers',
-          'src/js/payload.js:payload',
-          'src/js/lib/cookie.js:cookie',
-          'src/js/lib/detectors.js:detectors',
-          'src/js/lib/jstz.js:jstz',
-          'src/js/queue.js:queue',
-          'src/js/lib/sha1.js:sha1',
-          'src/js/tracker.js:tracker',
-          'src/js/snowplow.js:snowplow'
-          ]
-        },
         files: {
           'dist/bundle.js': ['src/js/init.js']
         }
