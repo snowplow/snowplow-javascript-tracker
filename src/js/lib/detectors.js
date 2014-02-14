@@ -34,10 +34,10 @@
 
 ;(function() {
 
-	var identifiers = require('./identifiers.js');
-	var helpers = require('./helpers.js');
+	var identifiers = require('identifiers');
+	var helpers = require('helpers');
 	var murmurhash3_32_gc = require('murmurhash').v3;
-	var tz = require('./jstz.js').determine();
+	var tz = require('jstz').determine();
 
 	var object = typeof module.exports != 'undefined' ? module.exports : this; // For eventual node.js environment support
 
@@ -123,7 +123,7 @@
 	 * Returns visitor timezone
 	 */
 	object.detectTimezone = function() {
-		//var tz = require('jstimezonedetect').determine(); // For the online version
+		//var tz = require('jstimezonedetect').determine(); // For the online version TODO: fix this
 	    return (typeof (tz) === 'undefined') ? '' : tz.name();
 	}
 

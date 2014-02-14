@@ -34,7 +34,7 @@
 
 ;(function() {
 
-	var identifiers = require('./lib/identifiers.js');
+	var identifiers = require('identifiers');
 
 	var object = typeof module.exports != 'undefined' ? module.exports : this; // For eventual node.js environment support
 
