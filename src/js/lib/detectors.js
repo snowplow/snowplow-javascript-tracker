@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker for Snowplow: context.js
+ * JavaScript tracker for Snowplow: detectors.js
  * 
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
  * 2012-2014 Snowplow Analytics Ltd. All rights reserved. 

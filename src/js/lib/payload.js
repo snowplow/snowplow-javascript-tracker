@@ -82,7 +82,7 @@
 	}
 
 	/**
-	 * A helper to build a SnowPlow request string from an
+	 * A helper to build a Snowplow request string from an
 	 * an optional initial value plus a set of individual
 	 * name-value pairs, provided using the add method.
 	 *

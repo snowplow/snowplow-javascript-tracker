@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker for Snowplow: init.js
+ * JavaScript tracker for Snowplow: queue.js
  * 
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
  * 2012-2014 Snowplow Analytics Ltd. All rights reserved. 
@@ -32,8 +32,51 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-// Snowplow Asynchronous Queue
-window._snaq = window._snaq || [];
+;(function() {
 
-var snowplow = require('snowplow');
-window.Snowplow = window.Snowplow || new snowplow.Snowplow();
+	var identifiers = require('identifiers');
+
+	var object = typeof module.exports != 'undefined' ? module.exports : this; // For eventual node.js environment support
+
+	/************************************************************
+	 * Proxy object
+	 * - this allows the caller to continue push()'ing to _snaq
+	 *   after the Tracker has been initialized and loaded
+	 ************************************************************/
+
+	object.AsyncQueueProxy = function(asyncTracker, asyncQueue) {
+
+		/*
+		 * apply wrapper
+		 *
+		 * @param array parameterArray An array comprising either:
+		 *      [ 'methodName', optional_parameters ]
+		 * or:
+		 *      [ functionObject, optional_parameters ]
+		 */
+		function applyAsyncFunction() {
+			var i, f, parameterArray;
+
+			for (i = 0; i < arguments.length; i += 1) {
+				parameterArray = arguments[i];
+				f = parameterArray.shift();
+
+				if (identifiers.isString(f)) {
+					asyncTracker[f].apply(asyncTracker, parameterArray);
+				} else {
+					f.apply(asyncTracker, parameterArray);
+				}
+			}
+		}
+
+		// We need to manually apply any events collected before this initialization
+		for (var i = 0; i < asyncQueue.length; i++) {
+			applyAsyncFunction(asyncQueue[i]);
+		}
+
+		return {
+			push: applyAsyncFunction
+		};
+	}
+
+}());

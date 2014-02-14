@@ -90,6 +90,7 @@ module.exports = function(grunt) {
           'src/js/lib/cookie.js:cookie',
           'src/js/lib/detectors.js:detectors',
           'src/js/lib/jstz.js:jstz',
+          'src/js/queue.js:queue',
           'src/js/lib/sha1.js:sha1',
           'src/js/tracker.js:tracker',
           'src/js/snowplow.js:snowplow'

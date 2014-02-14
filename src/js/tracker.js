@@ -36,7 +36,7 @@
 
 	var identifiers = require('identifiers');
 	var helpers = require('helpers');
-	var sha1 = require('sha1').sha1;
+	var sha1 = require('sha1');
 	var cookie = require('cookie');
 	var detectors = require('detectors');
 	var payload = require('payload');
@@ -45,7 +45,7 @@
 	var object = typeof module.exports != 'undefined' ? module.exports : this; // For eventual node.js environment support
 
 	/*
-	 * SnowPlow Tracker class
+	 * Snowplow Tracker class
 	 *
 	 * @param version The current version of the JavaScript Tracker
 	 *
@@ -75,17 +75,17 @@
 			locationHrefAlias = locationArray[1],
 			configReferrerUrl = locationArray[2],
 
-			// Request method is always GET for SnowPlow
+			// Request method is always GET for Snowplow
 			configRequestMethod = 'GET',
 
 			// Platform defaults to web for this tracker
 			configPlatform = 'web',
 
-			// SnowPlow collector URL
+			// Snowplow collector URL
 			configCollectorUrl = constructCollectorUrl(argmap),
 
 			// Site ID
-			configTrackerSiteId = '', // Updated for SnowPlow
+			configTrackerSiteId = '', // Updated for Snowplow
 
 			// Document URL
 			configCustomUrl,
@@ -187,7 +187,7 @@
 			lastTarget,
 
 			// Hash function
-			hash = sha1,
+			hash = sha1.sha1,
 
 			// Domain hash value
 			domainHash,
@@ -289,7 +289,7 @@
 		 * a website only has one domain.
 		 *
 		 * TODO: I think we can blow this away for
-		 * SnowPlow and handle the equivalent with a
+		 * Snowplow and handle the equivalent with a
 		 * whitelist of the site's domains. 
 		 * 
 		 */
@@ -321,7 +321,7 @@
 		}
 
 		/*
-		 * Send image request to the SnowPlow Collector using GET.
+		 * Send image request to the Snowplow Collector using GET.
 		 * The Collector serves a transparent, single pixel (1x1) GIF
 		 */
 		function getImage(request) {
@@ -330,7 +330,7 @@
 
 			// Let's chec that we have a Url to ping
 			if (configCollectorUrl === null) {
-				throw "No SnowPlow collector configured, cannot track";
+				throw "No Snowplow collector configured, cannot track";
 			}
 
 			// Okay? Let's proceed.
@@ -1403,7 +1403,7 @@
 
 			/**
 			 *
-			 * Specify the SnowPlow collector URL. No need to include HTTP
+			 * Specify the Snowplow collector URL. No need to include HTTP
 			 * or HTTPS - we will add this.
 			 * 
 			 * @param string rawUrl The collector URL minus protocol and /i
