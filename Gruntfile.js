@@ -121,7 +121,7 @@ module.exports = function(grunt) {
         },
         files: [
           {
-          src: 'dist/bundle.js',
+          src: 'dist/snowplow.js',
           dest: 'dist/sp.js'
           }
         ]

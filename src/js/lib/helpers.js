@@ -71,32 +71,6 @@
 	}
 
 	/*
-	 * Checks whether sessionStorage is available, in a way that
-	 * does not throw a SecurityError in Firefox if "always ask"
-	 * is enabled for cookies (https://github.com/snowplow/snowplow/issues/163).
-	 */
-	object.hasSessionStorage = function () {
-		try {
-			return !!window.sessionStorage;
-		} catch (e) {
-			return true; // SecurityError when referencing it means it exists
-		}
-	}
-
-	/*
-	 * Checks whether localStorage is available, in a way that
-	 * does not throw a SecurityError in Firefox if "always ask"
-	 * is enabled for cookies (https://github.com/snowplow/snowplow/issues/163).
-	 */
-	object.hasLocalStorage = function () {
-		try {
-			return !!window.localStorage;
-		} catch (e) {
-			return true; // SecurityError when referencing it means it exists
-		}
-	}
-
-	/*
 	 * Fix-up URL when page rendered from search engine cache or translated page.
 	 * TODO: it would be nice to generalise this and/or move into the ETL phase.
 	 */
