@@ -118,6 +118,15 @@ module.exports = function(grunt) {
       }
     },
 
+    intern: {
+      something: {
+        options: {
+          runType: 'client',
+          config: 'tests/intern.js'
+        }
+      }
+    },
+
     s3: {
       options: {
         key: '<%= aws.key %>',
@@ -174,8 +183,10 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-s3');
   grunt.loadNpmTasks('grunt-invalidate-cloudfront');
   grunt.loadNpmTasks('grunt-browserify');
+  grunt.loadNpmTasks('intern');
 
   grunt.registerTask('default', ['browserify', 'concat', 'min']);
+  grunt.registerTask('test', ['intern']);
   grunt.registerTask('publish', ['concat', 'min', 's3:not_pinned', 'invalidate_cloudfront:not_pinned']);
   grunt.registerTask('publish-pinned', ['concat', 'min', 's3', 'invalidate_cloudfront']);
 
