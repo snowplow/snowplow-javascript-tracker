@@ -34,7 +34,7 @@
 
 ;(function () {
 
-	var object = typeof module.exports != 'undefined' ? module.exports : this; // For eventual node.js environment support
+	var object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
 	/*
 	 * Is property defined?

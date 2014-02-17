@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "devDependencies": {
     "grunt": "~0.4.2",
-    "intern": "~1.3.1",
+    "intern": "~1.4.0",
     "semver": "~2.2.1",
     "grunt-contrib-concat": "~0.3.0",
     "grunt-yui-compressor": "git://github.com/fblundun/grunt-yui-compressor.git#feature/issue-8",
@@ -15,7 +15,8 @@
     "jstimezonedetect": "~1.0.5",
     "JSON": "~1.0.0",
     "Base64": "~0.2.0",
-    "aliasify": "~1.4.0"
+    "aliasify": "~1.4.0",
+    "sha1": "~1.1.0"
   },
   "aliasify": {
     "aliases": {
@@ -23,8 +24,8 @@
       "helpers": "./src/js/lib/helpers.js",
       "cookie": "./src/js/lib/cookie.js",
       "detectors": "./src/js/lib/detectors.js",
-      "sha1": "./src/js/lib/sha1.js",
       "jstz": "./src/js/lib/jstz.js",
+      "sha1": "./src/js/lib/sha1.js",
       "payload": "./src/js/payload.js",
       "tracker": "./src/js/tracker.js",
       "queue": "./src/js/queue.js",
