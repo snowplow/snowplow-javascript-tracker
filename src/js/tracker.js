@@ -42,7 +42,7 @@
 	var payload = require('payload');
 	var json2 = require('JSON');
 
-	var object = typeof module.exports != 'undefined' ? module.exports : this; // For eventual node.js environment support
+	var object = typeof module.exports !== 'undefined' ? module.exports : this; // For eventual node.js environment support
 
 	/*
 	 * Snowplow Tracker class
@@ -192,7 +192,7 @@
 			lastTarget,
 
 			// Hash function
-			hash = sha1.sha1,
+			hash = sha1,
 
 			// Domain hash value
 			domainHash,

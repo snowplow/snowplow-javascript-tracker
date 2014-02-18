@@ -16,7 +16,7 @@
     "JSON": "~1.0.0",
     "Base64": "~0.2.0",
     "aliasify": "~1.4.0",
-    "sha1": "~1.1.0"
+    "sha1": "git://github.com/pvorb/node-sha1.git#v1.0.0"
   },
   "aliasify": {
     "aliases": {
@@ -25,7 +25,6 @@
       "cookie": "./src/js/lib/cookie.js",
       "detectors": "./src/js/lib/detectors.js",
       "jstz": "./src/js/lib/jstz.js",
-      "sha1": "./src/js/lib/sha1.js",
       "payload": "./src/js/payload.js",
       "tracker": "./src/js/tracker.js",
       "queue": "./src/js/queue.js",
