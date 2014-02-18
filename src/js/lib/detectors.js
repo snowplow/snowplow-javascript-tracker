@@ -37,9 +37,9 @@
 	var identifiers = require('identifiers');
 	var helpers = require('helpers');
 	var murmurhash3_32_gc = require('murmurhash').v3;
-	var tz = require('jstz').determine();
+	var tz = require('jstimezonedetect').jstz.determine();
 
-	var object = typeof module.exports != 'undefined' ? module.exports : this; // For eventual node.js environment support
+	var object = typeof module.exports !== 'undefined' ? module.exports : this; // For eventual node.js environment support
 
 	var 
 		windowAlias = window,

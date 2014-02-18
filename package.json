@@ -24,7 +24,6 @@
       "helpers": "./src/js/lib/helpers.js",
       "cookie": "./src/js/lib/cookie.js",
       "detectors": "./src/js/lib/detectors.js",
-      "jstz": "./src/js/lib/jstz.js",
       "payload": "./src/js/payload.js",
       "tracker": "./src/js/tracker.js",
       "queue": "./src/js/queue.js",
