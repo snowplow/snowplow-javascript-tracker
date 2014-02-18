@@ -33,10 +33,13 @@
  */
 
 ;(function() {
+	// TODO: swap back once intern can deal with requires. Change isString to identifiers.isString.
+	//var identifiers = require('identifiers'); 
+	isString = function (property) {
+		return typeof property === 'string' || property instanceof String;
+	}; 
 
-	var identifiers = require('identifiers');
-
-	var object = typeof module.exports != 'undefined' ? module.exports : this; // For eventual node.js environment support
+	var object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
 	/************************************************************
 	 * Proxy object
@@ -61,7 +64,7 @@
 				parameterArray = arguments[i];
 				f = parameterArray.shift();
 
-				if (identifiers.isString(f)) {
+				if (isString(f)) {
 					asyncTracker[f].apply(asyncTracker, parameterArray);
 				} else {
 					f.apply(asyncTracker, parameterArray);

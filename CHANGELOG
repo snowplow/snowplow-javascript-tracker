@@ -17,7 +17,7 @@ Prepended window. or SnowPlow.windowAlias. onto _snaq everywhere (#39)
 Removed legacy Piwik plugin framework (#56)
 Rebased with 0.14.0 (#87)
 Moved hasSessionStorage and hasLocalStorage into detectors.js (#91)
-Wrote tests fotr AsyncQueueProxy (#100) (TODO)
+Wrote tests for AsyncQueueProxy (#100)
 
 Version 0.14.0 (2014-02-12)
 ---------------------------
