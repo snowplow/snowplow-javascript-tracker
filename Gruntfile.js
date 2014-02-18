@@ -84,7 +84,6 @@ module.exports = function(grunt) {
       dist: {
         options: {
           transform: ['aliasify'],
-          insert_global_vars: ['__filename','__dirname','process','global']
         },
         files: {
           'dist/bundle.js': ['src/js/init.js']
