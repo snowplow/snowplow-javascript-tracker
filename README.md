@@ -1,5 +1,7 @@
 # JavaScript web analytics for Snowplow
 
+[ ![Built with Grunt] [grunt-image] ] [grunt]
+
 ## Overview
 
 Add analytics to your websites and web apps with the [Snowplow] [snowplow] event tracker for JavaScript.
@@ -35,3 +37,5 @@ Licensed under the [Simplified BSD] [bsd] license.
 [techdocs-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/techdocs.png
 [setup-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/setup.png
 [roadmap-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/roadmap.png
+[grunt-image]: https://cdn.gruntjs.com/builtwith.png
+[grunt]: http://gruntjs.com/

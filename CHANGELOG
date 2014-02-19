@@ -18,7 +18,7 @@ Rebased with 0.14.0 (#87)
 Moved hasSessionStorage and hasLocalStorage into detectors.js (#91)
 Wrote tests for AsyncQueueProxy (#100)
 Added Travis CI to the project (#103) (TODO)
-Added a built with Grunt button to the README (#102) (TODO)
+Added a built with Grunt button to the README (#102)
 
 Version 0.14.0 (2014-02-12)
 ---------------------------
