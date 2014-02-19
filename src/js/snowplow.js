@@ -79,7 +79,7 @@
 	var helpers = require('helpers');
 	var queue = require('queue');
 
-	var object = typeof module.exports != 'undefined' ? module.exports : this; // For eventual node.js environment support
+	var object = typeof module.exports !== 'undefined' ? module.exports : this; // For eventual node.js environment support
 
 	object.Snowplow = function() {
 

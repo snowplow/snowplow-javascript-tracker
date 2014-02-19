@@ -35,7 +35,7 @@
 
 	var identifiers = require('identifiers');
 
-	var object = typeof module.exports != 'undefined' ? module.exports : this; // For eventual node.js environment support
+	var object = typeof module.exports !== 'undefined' ? module.exports : this; // For eventual node.js environment support
 
 	/*
 	 * UTF-8 encoding
