@@ -1,6 +1,6 @@
 # JavaScript web analytics for Snowplow
 
-[ ![Built with Grunt] [grunt-image] ] [grunt]
+[ ![Build Status] [travis-image] ] [travis] [ ![Built with Grunt] [grunt-image] ] [grunt]
 
 ## Overview
 
@@ -39,3 +39,5 @@ Licensed under the [Simplified BSD] [bsd] license.
 [roadmap-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/roadmap.png
 [grunt-image]: https://cdn.gruntjs.com/builtwith.png
 [grunt]: http://gruntjs.com/
+[travis-image]: https://api.travis-ci.org/snowplow/snowplow-javascript-tracker.png?branch=master
+[travis]: http://travis-ci.org/snowplow/snowplow-javascript-tracker
