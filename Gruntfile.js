@@ -189,5 +189,5 @@ module.exports = function(grunt) {
   grunt.registerTask('test', ['intern']);
   grunt.registerTask('publish', ['concat', 'min', 's3:not_pinned', 'invalidate_cloudfront:not_pinned']);
   grunt.registerTask('publish-pinned', ['concat', 'min', 's3', 'invalidate_cloudfront']);
-
+  grunt.registerTask('travis',  ['intern']);
 }

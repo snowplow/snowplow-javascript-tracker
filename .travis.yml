@@ -1,0 +1,6 @@
+node_js:
+- "0.10"
+script: node node_modules/intern/runner.js config=tests/intern
+language: node_js
+
+script: grunt travis
