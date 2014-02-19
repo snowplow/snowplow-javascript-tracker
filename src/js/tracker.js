@@ -34,15 +34,16 @@
 
 ;(function() {
 
-	var identifiers = require('identifiers');
-	var helpers = require('helpers');
-	var sha1 = require('sha1');
-	var cookie = require('cookie');
-	var detectors = require('detectors');
-	var payload = require('payload');
-	var json2 = require('JSON');
+	var
+		identifiers = require('identifiers'),
+		helpers = require('helpers'),
+		sha1 = require('sha1'),
+		cookie = require('cookie'),
+		detectors = require('detectors'),
+		payload = require('payload'),
+		json2 = require('JSON'),
 
-	var object = typeof module.exports !== 'undefined' ? module.exports : this; // For eventual node.js environment support
+		object = typeof module.exports !== 'undefined' ? module.exports : this; // For eventual node.js environment support
 
 	/*
 	 * Snowplow Tracker class

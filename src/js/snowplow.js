@@ -74,12 +74,13 @@
 ;(function() {
 
 	// Load all our modules (at least until we fully modularize & remove grunt-concat)
-	var identifiers = require('identifiers');
-	var tracker = require('tracker');
-	var helpers = require('helpers');
-	var queue = require('queue');
+	var
+		identifiers = require('identifiers'),
+		tracker = require('tracker'),
+		helpers = require('helpers'),
+		queue = require('queue'),
 
-	var object = typeof module.exports !== 'undefined' ? module.exports : this; // For eventual node.js environment support
+		object = typeof module.exports !== 'undefined' ? module.exports : this; // For eventual node.js environment support
 
 	object.Snowplow = function() {
 

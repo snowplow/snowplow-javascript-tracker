@@ -34,24 +34,14 @@
 
 ;(function() {
 
-	var object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
+	var
+		identifiers = require('identifiers'),
+		json2 = require('JSON'),
+		Base64 = require('Base64'),
+		base64encode = Base64.btoa,
+		base64decode = Base64.atob,
 
-	var identifiers = require('identifiers');
-
-	var json2 = require('JSON');
-
-	// Base64 module
-	var Base64 = require('Base64');
-
-	/*
-	 * Base64 encode data
-	 */
-	var base64encode = Base64.btoa;
-
-	/*
-	 * Base64 decode data
-	 */
-	var base64decode = Base64.atob;
+		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
 	/*
 	 * Bas64 encode data with URL and Filename Safe Alphabet (base64url)
