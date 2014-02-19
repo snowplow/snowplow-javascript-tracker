@@ -40,6 +40,7 @@ module.exports = function(grunt) {
   var pkg = grunt.file.readJSON('package.json');
   var semVer = semver.parse(pkg.version);
   pkg.pinnedVersion = semVer.major;
+  var aws;
   var banner = "/*!" +
   " * Snowplow - The world's most powerful web analytics platform\n" +
   " *\n" +
@@ -71,6 +72,11 @@ module.exports = function(grunt) {
   " * - Opera 7\n" +
   " */\n\n";
 
+  try {
+    aws = grunt.file.readJSON('aws.json');
+  } catch (err) {
+    console.log('Could not read aws.json. This is to be expected when Travis is testing.');
+  }
 
   grunt.initConfig({
 
@@ -78,7 +84,7 @@ module.exports = function(grunt) {
 
     pkg: pkg,
 
-    aws: grunt.file.readJSON('aws.json'),
+    aws: aws,
 
     browserify: {
       dist: {
