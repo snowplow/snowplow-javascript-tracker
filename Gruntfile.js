@@ -40,7 +40,6 @@ module.exports = function(grunt) {
   var pkg = grunt.file.readJSON('package.json');
   var semVer = semver.parse(pkg.version);
   pkg.pinnedVersion = semVer.major;
-  var aws;
   var banner = "/*!" +
   " * Snowplow - The world's most powerful web analytics platform\n" +
   " *\n" +
@@ -72,19 +71,11 @@ module.exports = function(grunt) {
   " * - Opera 7\n" +
   " */\n\n";
 
-  try {
-    aws = grunt.file.readJSON('aws.json');
-  } catch (err) {
-    console.log('Could not read aws.json. This is to be expected when Travis is testing.');
-  }
-
   grunt.initConfig({
 
     banner: banner,
 
     pkg: pkg,
-
-    aws: aws,
 
     browserify: {
       dist: {
@@ -131,9 +122,22 @@ module.exports = function(grunt) {
           config: 'tests/intern.js'
         }
       }
-    },
+    }
+  });
 
-    s3: {
+  grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-yui-compressor');
+  grunt.loadNpmTasks('grunt-s3');
+  grunt.loadNpmTasks('grunt-invalidate-cloudfront');
+  grunt.loadNpmTasks('grunt-browserify');
+  grunt.loadNpmTasks('intern');
+
+  grunt.registerTask('upload_setup', function() {
+    var aws = grunt.file.readJSON('aws.json');
+
+    grunt.config('aws', aws);
+
+    grunt.config('s3', {
       options: {
         key: '<%= aws.key %>',
         secret: '<%= aws.secret %>',
@@ -156,10 +160,10 @@ module.exports = function(grunt) {
             dest: '<%= pkg.pinnedVersion %>/sp.js'
           }        
         ]
-      },      
-    },
+      },  
+    });
 
-    invalidate_cloudfront: {
+    grunt.config('invalidate_cloudfront', {
       options: {
         key: '<%= aws.key %>',
         secret: '<%= aws.secret %>',
@@ -181,19 +185,12 @@ module.exports = function(grunt) {
           }
         ]
       }
-    }
+    });
   });
-
-  grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-yui-compressor');
-  grunt.loadNpmTasks('grunt-s3');
-  grunt.loadNpmTasks('grunt-invalidate-cloudfront');
-  grunt.loadNpmTasks('grunt-browserify');
-  grunt.loadNpmTasks('intern');
 
   grunt.registerTask('default', ['browserify', 'concat', 'min']);
   grunt.registerTask('test', ['intern']);
-  grunt.registerTask('publish', ['concat', 'min', 's3:not_pinned', 'invalidate_cloudfront:not_pinned']);
-  grunt.registerTask('publish-pinned', ['concat', 'min', 's3', 'invalidate_cloudfront']);
+  grunt.registerTask('publish', ['upload_setup', 'concat', 'min', 's3:not_pinned', 'invalidate_cloudfront:not_pinned']);
+  grunt.registerTask('publish-pinned', ['upload_setup', 'concat', 'min', 's3', 'invalidate_cloudfront']);
   grunt.registerTask('travis',  ['intern']);
 }
