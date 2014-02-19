@@ -7,8 +7,11 @@ define([
 	var MockTracker = function () {
 		var attribute = 10;
 		return {
-			increase: function(n) {
+			increaseAttribute: function(n) {
 				attribute += n;
+			},
+			setAttribute: function(p) {
+				attribute = p;
 			},
 			getAttribute: function() {
 				return attribute;
@@ -17,7 +20,7 @@ define([
 	};
 
 	var mockTracker = new MockTracker();
-	var snaq = [['increase', 5]];
+	var snaq = [['increaseAttribute', 5]];
 	snaq = new AsyncQueueProxy(mockTracker, snaq);
 
 	registerSuite({
@@ -27,8 +30,8 @@ define([
 		},
 
 		'add to snaq after conversion': function() {
-			snaq.push(['increase', 7]);
-			assert.equal(mockTracker.getAttribute(), 22, 'Function added to snaq after it becomes an AsyncQueueProxy gets executed')
+			snaq.push(['setAttribute', 7]);
+			assert.equal(mockTracker.getAttribute(), 7, 'Function added to snaq after it becomes an AsyncQueueProxy gets executed')
 		}
 	});
 });

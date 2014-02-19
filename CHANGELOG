@@ -5,7 +5,6 @@ Moved part of banner.js into Gruntfile with grunt-concat's banner option so its 
 Started using Browserify for modules (#74)
 Replaced some/all of lib/.js with modules (#7)
 Added user fingerprinting on/off switch and configurable hash seed (#7)
-Added Intern unit tests for payload.js (#5) (TODO)
 Deprecated trackImpression (#66)
 Removed attachUserId as fully deprecated now (#64)
 Removed setSiteId as fully deprecated now (#63)
@@ -18,6 +17,8 @@ Removed legacy Piwik plugin framework (#56)
 Rebased with 0.14.0 (#87)
 Moved hasSessionStorage and hasLocalStorage into detectors.js (#91)
 Wrote tests for AsyncQueueProxy (#100)
+Added Travis CI to the project (#103) (TODO)
+Added a built with Grunt button to the README (#102) (TODO)
 
 Version 0.14.0 (2014-02-12)
 ---------------------------
