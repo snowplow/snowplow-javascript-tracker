@@ -47,15 +47,20 @@ port: 4444
 
 // The desired AMD loader to use when running unit tests (client.html/client.js). Omit to use the default Dojo
 // loader
- useLoader: {
-  'host-node': 'requirejs',
-  'host-browser': '../../lib/requirejs/require.js'
+useLoader: {
+  'host-node': 'dojo/dojo',
+  'host-browser': 'node_modules/dojo/dojo.js'
 },
-
+/*
+useLoader: {
+  'host-node': 'requirejs',
+  'host-browser': '../../node_modules/requirejs/require.js'
+},
+*/
 
 // Configuration options for the module loader; any AMD configuration options supported by the specified AMD loader
 // can be used here
-loader: {
+/*loader: {
 // Packages that should be registered with the loader in each testing environment
 
 	packages: [
@@ -70,10 +75,14 @@ loader: {
     	}
     }
 
-}, 
+},*/ 
+
+loader: {
+  packages: ['node']
+},
 
 // Non-functional test suite(s) to run in each browser
-suites: ['tests/payloadT.js'],
+suites: ['tests/queueT.js'],
 
 // Functional test suite(s) to run in each browser once non-functional tests are completed
 functionalSuites: [ /* 'myPackage/tests/functional' */ ],
