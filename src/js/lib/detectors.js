@@ -40,7 +40,7 @@
 		murmurhash3_32_gc = require('murmurhash').v3,
 		tz = require('jstimezonedetect').jstz.determine(),
 
-		object = typeof module.exports !== 'undefined' ? module.exports : this, // For eventual node.js environment support
+		object = typeof exports !== 'undefined' ? exports : this, // For eventual node.js environment support
 		
 		windowAlias = window,
 		navigatorAlias = navigator,
@@ -95,28 +95,28 @@
 	 */
 	object.detectSignature = function(hashSeed) {
 
-	    var fingerprint = [
-	        navigatorAlias.userAgent,
-	        [ screenAlias.height, screenAlias.width, screenAlias.colorDepth ].join("x"),
-	        ( new Date() ).getTimezoneOffset(),
-	        object.hasSessionStorage(),
-	        object.hasLocalStorage(),
-	    ];
+		var fingerprint = [
+			navigatorAlias.userAgent,
+			[ screenAlias.height, screenAlias.width, screenAlias.colorDepth ].join("x"),
+			( new Date() ).getTimezoneOffset(),
+			object.hasSessionStorage(),
+			object.hasLocalStorage(),
+		];
 
-	    var plugins = [];
-	    if (navigatorAlias.plugins)
-	    {
-	        for(var i = 0; i < navigatorAlias.plugins.length; i++)
-	        {
-	            var mt = [];
-	            for(var j = 0; j < navigatorAlias.plugins[i].length; j++)
-	            {
-	                mt.push([navigatorAlias.plugins[i][j].type, navigatorAlias.plugins[i][j].suffixes]);
-	            }
-	            plugins.push([navigatorAlias.plugins[i].name + "::" + navigatorAlias.plugins[i].description, mt.join("~")]);
-	        }
-	    }
-	    return murmurhash3_32_gc(fingerprint.join("###") + "###" + plugins.sort().join(";"), hashSeed);
+		var plugins = [];
+		if (navigatorAlias.plugins)
+		{
+			for(var i = 0; i < navigatorAlias.plugins.length; i++)
+			{
+				var mt = [];
+				for(var j = 0; j < navigatorAlias.plugins[i].length; j++)
+				{
+					mt.push([navigatorAlias.plugins[i][j].type, navigatorAlias.plugins[i][j].suffixes]);
+				}
+				plugins.push([navigatorAlias.plugins[i].name + "::" + navigatorAlias.plugins[i].description, mt.join("~")]);
+			}
+		}
+		return murmurhash3_32_gc(fingerprint.join("###") + "###" + plugins.sort().join(";"), hashSeed);
 	}
 
 	/*

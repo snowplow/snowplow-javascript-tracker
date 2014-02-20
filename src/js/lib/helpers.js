@@ -36,7 +36,7 @@
 	var 
 		identifiers = require('identifiers'),
 
-		object = typeof module.exports !== 'undefined' ? module.exports : this; // For eventual node.js environment support
+		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
 	/*
 	 * UTF-8 encoding
@@ -177,7 +177,5 @@
 		}
 		return window.decodeURIComponent(match[1].replace(/\+/g, ' '));
 	}
-
-	module.exports = object;
 
 }());

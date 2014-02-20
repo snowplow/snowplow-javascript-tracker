@@ -43,7 +43,7 @@
 		payload = require('payload'),
 		json2 = require('JSON'),
 
-		object = typeof module.exports !== 'undefined' ? module.exports : this; // For eventual node.js environment support
+		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
 	/*
 	 * Snowplow Tracker class
