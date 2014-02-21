@@ -34,7 +34,7 @@
 ;(function () {
 
 	var 
-		identifiers = require('identifiers'),
+		identifiers = require('./identifiers'),
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 

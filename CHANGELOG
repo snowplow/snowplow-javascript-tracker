@@ -17,9 +17,10 @@ Removed legacy Piwik plugin framework (#56)
 Rebased with 0.14.0 (#87)
 Moved hasSessionStorage and hasLocalStorage into detectors.js (#91)
 Wrote tests for AsyncQueueProxy (#100)
-Added Travis CI to the project (#103) (TODO)
+Added Travis CI to the project (#103)
 Added a built with Grunt button to the README (#102)
 Added named Grunt tasks (#86)
+Added Intern unit tests for payload.js (#5)
 
 Version 0.14.0 (2014-02-12)
 ---------------------------

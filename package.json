@@ -15,20 +15,7 @@
     "jstimezonedetect": "~1.0.5",
     "JSON": "~1.0.0",
     "Base64": "~0.2.0",
-    "aliasify": "~1.4.0",
     "sha1": "git://github.com/pvorb/node-sha1.git#v1.0.0"
-  },
-  "aliasify": {
-    "aliases": {
-      "identifiers": "./src/js/lib/identifiers.js",
-      "helpers": "./src/js/lib/helpers.js",
-      "cookie": "./src/js/lib/cookie.js",
-      "detectors": "./src/js/lib/detectors.js",
-      "payload": "./src/js/payload.js",
-      "tracker": "./src/js/tracker.js",
-      "queue": "./src/js/queue.js",
-      "snowplow": "./src/js/snowplow.js"
-    }
   },
   "contributors": [
     "Alex Dean",

@@ -35,13 +35,13 @@
 ;(function() {
 
 	var
-		identifiers = require('identifiers'),
-		helpers = require('helpers'),
-		sha1 = require('sha1'),
-		cookie = require('cookie'),
-		detectors = require('detectors'),
-		payload = require('payload'),
+		identifiers = require('./lib/identifiers'),
+		helpers = require('./lib/helpers'),
+		cookie = require('./lib/cookie'),
+		detectors = require('./lib/detectors'),
+		payload = require('./payload'),
 		json2 = require('JSON'),
+		sha1 = require('sha1'),
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 

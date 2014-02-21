@@ -35,7 +35,7 @@
 ;(function() {
 
 	var
-		identifiers = require('identifiers'),
+		identifiers = require('./lib/identifiers'),
 		json2 = require('JSON'),
 		Base64 = require('Base64'),
 		base64encode = Base64.btoa,
@@ -87,7 +87,7 @@
 		var addNvPair = function (key, value, encode) {
 				if (value !== undefined && value !== null && value !== '') {
 				var sep = (str.length > 0) ? "&" : "?";
-				str += sep + key + '=' + (encode ? window.encodeURIComponent(value) : value);
+				str += sep + key + '=' + (encode ? encodeURIComponent(value) : value);
 			}
 		};
 

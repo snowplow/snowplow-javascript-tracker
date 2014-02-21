@@ -35,5 +35,5 @@
 // Snowplow Asynchronous Queue
 window._snaq = window._snaq || [];
 
-var snowplow = require('./snowplow.js');
+var snowplow = require('./snowplow');
 window.Snowplow = window.Snowplow || new snowplow.Snowplow();

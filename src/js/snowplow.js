@@ -75,10 +75,10 @@
 
 	// Load all our modules (at least until we fully modularize & remove grunt-concat)
 	var
-		identifiers = require('identifiers'),
-		tracker = require('tracker'),
-		helpers = require('helpers'),
-		queue = require('queue'),
+		identifiers = require('./lib/identifiers'),
+		tracker = require('./tracker'),
+		helpers = require('./lib/helpers'),
+		queue = require('./queue'),
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
