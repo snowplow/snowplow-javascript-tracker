@@ -42,7 +42,7 @@
 	 * UTF-8 encoding
 	 */
 	object.encodeUtf8 = function (argString) {
-		return unescape(window.decodeURIComponent(argString));
+		return unescape(decodeURIComponent(argString));
 	}
 
 	/**
@@ -86,7 +86,7 @@
 				f = new RegExp('(?:^|&)' + name + '=([^&]*)'),
 				result = matches ? f.exec(matches[1]) : 0;
 
-			return result ? window.decodeURIComponent(result[1]) : '';
+			return result ? decodeURIComponent(result[1]) : '';
 		}
 
 		if (hostName === 'translate.googleusercontent.com') {		// Google
@@ -175,7 +175,7 @@
 		if (!match) {
 			return null;
 		}
-		return window.decodeURIComponent(match[1].replace(/\+/g, ' '));
+		return decodeURIComponent(match[1].replace(/\+/g, ' '));
 	}
 
 }());

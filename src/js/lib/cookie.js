@@ -43,7 +43,7 @@
 		var cookiePattern = new RegExp('(^|;)[ ]*' + cookieName + '=([^;]*)'),
 				cookieMatch = cookiePattern.exec(document.cookie);
 
-		return cookieMatch ? window.decodeURIComponent(cookieMatch[2]) : 0;
+		return cookieMatch ? decodeURIComponent(cookieMatch[2]) : 0;
 	}
 
 	/*
@@ -58,7 +58,7 @@
 			expiryDate.setTime(expiryDate.getTime() + msToExpire);
 		}
 
-		document.cookie = cookieName + '=' + window.encodeURIComponent(value) +
+		document.cookie = cookieName + '=' + encodeURIComponent(value) +
 			(msToExpire ? ';expires=' + expiryDate.toGMTString() : '') +
 			';path=' + (path || '/') +
 			(domain ? ';domain=' + domain : '') +
