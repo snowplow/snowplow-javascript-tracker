@@ -1,6 +1,6 @@
 define({
 
-// Non-functional test suite(s) to run in each browser
+// Non-functional test suites
 suites: ['tests/queueT', 'tests/payloadT'],
 
 });
