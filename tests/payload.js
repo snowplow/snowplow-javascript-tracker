@@ -73,13 +73,13 @@ define([
 		'Identify non-JSON': function() {
 			var nonJson = [1,2,3];
 
-			assert.strictEqual(payload.isJson(nonJson), false, 'non-JSON should be rejected');
+			assert.strictEqual(payload.isJson(nonJson), false, 'Non-JSON should be rejected');
 		},
 
 		'Identify empty JSON': function() {
 			var emptyJson = {};
 
-			assert.strictEqual(payload.isNonEmptyJson(emptyJson), false, 'identify {} as empty')
+			assert.strictEqual(payload.isNonEmptyJson(emptyJson), false, 'Identify {} as empty')
 		},
 
 		'Build payload': function () {
@@ -88,7 +88,7 @@ define([
 			sb.add('e', 'pv');
 			sb.add('page', 'Asynchronous website/webapp examples for snowplow.js');
 
-			assert.equal(sb.build(), expectedStrings[0], 'text should be encoded correctly');
+			assert.equal(sb.build(), expectedStrings[0], 'Text should be encoded correctly');
 		},
 
 		'Add JSON': function() {
