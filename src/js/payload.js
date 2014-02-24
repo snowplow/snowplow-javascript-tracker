@@ -36,7 +36,6 @@
 
 	var
 		lodash = require('./lib/lodash'),
-		identifiers = require('./lib/identifiers'),
 		json2 = require('JSON'),
 		Base64 = require('Base64'),
 		base64encode = Base64.btoa,
@@ -70,6 +69,28 @@
 	 */
 	function toDatestamp(date) {
 		return Math.floor(date / 86400000);
+	}
+
+	/*
+	 * Is property a JSON?
+	 */
+	object.isJson = function (property) {
+		return (!lodash.isUndefined(property) && !lodash.isNull(property) && property.constructor === {}.constructor);
+	}
+
+	/*
+	 * Is property a non-empty JSON?
+	 */
+	object.isNonEmptyJson = function (property) {
+		if (!object.isJson(property)) {
+			return false;
+		}
+		for (var key in property) {
+			if (property.hasOwnProperty(key)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -142,7 +163,7 @@
 						}
 
 						// ... for JSON objects
-						if (identifiers.isJson(value)) {
+						if (object.isJson(value)) {
 							value = recurse(value);
 						}
 
@@ -166,7 +187,7 @@
 
 		var addJson = function (keyIfEncoded, keyIfNotEncoded, json) {
 
-			if (identifiers.isNonEmptyJson(json)) {
+			if (object.isNonEmptyJson(json)) {
 				var typed = appendTypes(json);
 				var str = json2.stringify(typed);
 

@@ -75,7 +75,6 @@
 
 	// Load all our modules (at least until we fully modularize & remove grunt-concat)
 	var
-		identifiers = require('./lib/identifiers'),
 		tracker = require('./tracker'),
 		helpers = require('./lib/helpers'),
 		queue = require('./queue'),
