@@ -198,6 +198,6 @@ module.exports = function(grunt) {
   grunt.registerTask('default', 'Build lodash, Browserify, add banner, and minify', ['lodash', 'browserify', 'concat', 'min']);
   grunt.registerTask('publish', 'Upload to S3 and invalidate Cloudfront (full semantic version only)', ['upload_setup', 'concat', 'min', 's3:not_pinned', 'invalidate_cloudfront:not_pinned']);
   grunt.registerTask('publish-pinned', 'Upload to S3 and invalidate Cloudfront (full semantic version and semantic major version)', ['upload_setup', 'concat', 'min', 's3', 'invalidate_cloudfront']);
-  grunt.registerTask('travis', 'Intern tests for Travis CI',  ['intern']);
+  grunt.registerTask('travis', 'Intern tests for Travis CI',  ['lodash','intern']);
 
 }

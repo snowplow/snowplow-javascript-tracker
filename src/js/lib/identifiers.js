@@ -40,22 +40,6 @@
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
 	/*
-	 * Is property an empty array? UNNEC
-	 */
-//	object.isEmptyArray = function (property) {
-//		return object.isArray(property) && property.length < 1;
-//	}
-
-	/*
-	 * Is property an object? UNNEC
-	 *
-	 * @return bool Returns true if property is null, an Object, or subclass of Object (i.e., an instanceof String, Date, etc.)
-	 */
-//	object.isObject = function (property) {
-//		return typeof property === 'object';
-//	}
-
-	/*
 	 * Is property a JSON?
 	 */
 	object.isJson = function (property) {
@@ -68,12 +52,5 @@
 	object.isNonEmptyJson = function (property) {
 		return object.isJson(property) && property !== {};
 	}
-
-	/*
-	 * Is property a non-empty string? UNNEC
-	 */
-//	object.isNonEmptyString = function (property) {
-//		return object.isString(property) && property !== '';
-//	}
 
 }());
