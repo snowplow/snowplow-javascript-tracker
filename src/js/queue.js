@@ -35,7 +35,7 @@
 ;(function() {
 
 	var
-		identifiers = require('./lib/identifiers'),
+		lodash = require('./lib/lodash'),
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
 	/************************************************************
@@ -61,7 +61,7 @@
 				parameterArray = arguments[i];
 				f = parameterArray.shift();
 
-				if (identifiers.isString(f)) {
+				if (lodash.isString(f)) {
 					asyncTracker[f].apply(asyncTracker, parameterArray);
 				} else {
 					f.apply(asyncTracker, parameterArray);

@@ -35,7 +35,7 @@
 ;(function() {
 
 	var
-		identifiers = require('./lib/identifiers'),
+		lodash = require('./lib/lodash'),
 		helpers = require('./lib/helpers'),
 		cookie = require('./lib/cookie'),
 		detectors = require('./lib/detectors'),
@@ -949,12 +949,12 @@
 				linkType;
 
 			while ((parentElement = sourceElement.parentNode) !== null &&
-					identifiers.isDefined(parentElement) && // buggy IE5.5
+					!lodash.isUndefined(parentElement) && // buggy IE5.5
 					((tag = sourceElement.tagName.toUpperCase()) !== 'A' && tag !== 'AREA')) {
 				sourceElement = parentElement;
 			}
 
-			if (identifiers.isDefined(sourceElement.href)) {
+			if (!lodash.isUndefined(sourceElement.href)) {
 				// browsers, such as Safari, don't downcase hostname and href
 				var originalSourceHostName = sourceElement.hostname || helpers.getHostName(sourceElement.href),
 					sourceHostName = originalSourceHostName.toLowerCase(),
@@ -1127,7 +1127,7 @@
 			 * @param string|array hostsAlias
 			 */
 			setDomains: function (hostsAlias) {
-				configHostsAlias = identifiers.isString(hostsAlias) ? [hostsAlias] : hostsAlias;
+				configHostsAlias = lodash.isString(hostsAlias) ? [hostsAlias] : hostsAlias;
 				configHostsAlias.push(domainAlias);
 			},
 
@@ -1137,7 +1137,7 @@
 			 * @param string|array ignoreClasses
 			 */
 			setIgnoreClasses: function (ignoreClasses) {
-				configIgnoreClasses = identifiers.isString(ignoreClasses) ? [ignoreClasses] : ignoreClasses;
+				configIgnoreClasses = lodash.isString(ignoreClasses) ? [ignoreClasses] : ignoreClasses;
 			},
 
 			/**
@@ -1173,7 +1173,7 @@
 			 * @param string|array downloadClasses
 			 */
 			setDownloadClasses: function (downloadClasses) {
-				configDownloadClasses = identifiers.isString(downloadClasses) ? [downloadClasses] : downloadClasses;
+				configDownloadClasses = lodash.isString(downloadClasses) ? [downloadClasses] : downloadClasses;
 			},
 
 			/**
@@ -1182,7 +1182,7 @@
 			 * @param string|array linkClasses
 			 */
 			setLinkClasses: function (linkClasses) {
-				configLinkClasses = identifiers.isString(linkClasses) ? [linkClasses] : linkClasses;
+				configLinkClasses = lodash.isString(linkClasses) ? [linkClasses] : linkClasses;
 			},
 
 			/**
@@ -1551,7 +1551,7 @@
 						 ecommerceTransaction.transaction.context
 						);
 				for (var i = 0; i < ecommerceTransaction.items.length; i++) {
-	        		var item = ecommerceTransaction.items[i];
+					var item = ecommerceTransaction.items[i];
 					logTransactionItem(
 						item.orderId,
 						item.sku,

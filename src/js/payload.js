@@ -35,6 +35,7 @@
 ;(function() {
 
 	var
+		lodash = require('./lib/lodash'),
 		identifiers = require('./lib/identifiers'),
 		json2 = require('JSON'),
 		Base64 = require('Base64'),
@@ -131,7 +132,7 @@
 					if (json.hasOwnProperty(key)) {
 
 						// ... for JavaScript Dates
-						if (identifiers.isDate(value)) {
+						if (lodash.isDate(value)) {
 							type = getPropertySuffix(key);
 							if (!type) {
 								type = 'tms';

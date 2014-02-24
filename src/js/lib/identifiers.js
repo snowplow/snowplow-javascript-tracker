@@ -34,59 +34,32 @@
 
 ;(function () {
 
-	var object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
+	var
+		lodash = require('./lodash'),
+
+		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
 	/*
-	 * Is property defined?
+	 * Is property an empty array? UNNEC
 	 */
-	object.isDefined = function (property) {
-		return typeof property !== 'undefined';
-	}
-
-	/**
-	 * Is property null?
-	 */
-	object.isNotNull = function (property) {
-		return property !== null;
-	}
+//	object.isEmptyArray = function (property) {
+//		return object.isArray(property) && property.length < 1;
+//	}
 
 	/*
-	 * Is property a function?
-	 */
-	object.isFunction = function (property) {
-		return typeof property === 'function';
-	}
-
-	/*
-	 * Is property an array?
-	 */
-	object.isArray = ('isArray' in Array) ? 
-		Array.isArray : 
-		function (value) {
-			return Object.prototype.toString.call(value) === '[object Array]';
-		}
-
-	/*
-	 * Is property an empty array?
-	 */
-	object.isEmptyArray = function (property) {
-		return object.isArray(property) && property.length < 1;
-	}
-
-	/*
-	 * Is property an object?
+	 * Is property an object? UNNEC
 	 *
 	 * @return bool Returns true if property is null, an Object, or subclass of Object (i.e., an instanceof String, Date, etc.)
 	 */
-	object.isObject = function (property) {
-		return typeof property === 'object';
-	}
+//	object.isObject = function (property) {
+//		return typeof property === 'object';
+//	}
 
 	/*
 	 * Is property a JSON?
 	 */
 	object.isJson = function (property) {
-		return (object.isDefined(property) && object.isNotNull(property) && property.constructor === {}.constructor);
+		return (!lodash.isUndefined(property) && !lodash.isNull(property) && property.constructor === {}.constructor);
 	}
 
 	/*
@@ -97,24 +70,10 @@
 	}
 
 	/*
-	 * Is property a string?
+	 * Is property a non-empty string? UNNEC
 	 */
-	object.isString = function (property) {
-		return typeof property === 'string' || property instanceof String;
-	}
-
-	/*
-	 * Is property a non-empty string?
-	 */
-	object.isNonEmptyString = function (property) {
-		return object.isString(property) && property !== '';
-	}
-
-	/*
-	 * Is property a date?
-	 */
-	object.isDate = function (property) {
-		return Object.prototype.toString.call(property) === "[object Date]";
-	}
+//	object.isNonEmptyString = function (property) {
+//		return object.isString(property) && property !== '';
+//	}
 
 }());

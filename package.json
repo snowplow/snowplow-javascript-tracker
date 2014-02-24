@@ -15,7 +15,8 @@
     "jstimezonedetect": "~1.0.5",
     "JSON": "~1.0.0",
     "Base64": "~0.2.0",
-    "sha1": "git://github.com/pvorb/node-sha1.git#v1.0.0"
+    "sha1": "git://github.com/pvorb/node-sha1.git#v1.0.0",
+    "lodash": "~2.4.1"
   },
   "contributors": [
     "Alex Dean",
