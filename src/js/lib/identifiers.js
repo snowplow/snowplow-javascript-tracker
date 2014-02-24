@@ -50,7 +50,15 @@
 	 * Is property a non-empty JSON?
 	 */
 	object.isNonEmptyJson = function (property) {
-		return object.isJson(property) && property !== {};
+		if (!object.isJson(property)) {
+			return false;
+		}
+		for (var key in property) {
+			if (property.hasOwnProperty(key)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }());

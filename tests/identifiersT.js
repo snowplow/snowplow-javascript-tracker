@@ -24,6 +24,12 @@ define([
 			var nonJson = [1,2,3];
 
 			assert.strictEqual(identifiers.isJson(nonJson), false, 'non-JSON should be rejected');
+		},
+
+		'Identify empty JSON': function() {
+			var emptyJson = {};
+
+			assert.strictEqual(identifiers.isNonEmptyJson(emptyJson), false, 'identify {} as empty')
 		}
 	});
 });

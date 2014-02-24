@@ -165,7 +165,7 @@
 		};
 
 		var addJson = function (keyIfEncoded, keyIfNotEncoded, json) {
-			
+
 			if (identifiers.isNonEmptyJson(json)) {
 				var typed = appendTypes(json);
 				var str = json2.stringify(typed);
