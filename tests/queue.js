@@ -59,11 +59,11 @@ define([
 
 	registerSuite({
 		name: 'queue test',
-		'make a proxy': function() {
+		'Make a proxy': function() {
 			assert.equal(mockTracker.getAttribute(), 15, 'Function originally stored in snaq is executed when snaq becomes an AsyncQueueProxy');
 		},
 
-		'add to snaq after conversion': function() {
+		'Add to snaq after conversion': function() {
 			snaq.push(['setAttribute', 7]);
 			assert.equal(mockTracker.getAttribute(), 7, 'Function added to snaq after it becomes an AsyncQueueProxy is executed');
 		}

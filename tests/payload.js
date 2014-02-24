@@ -82,7 +82,7 @@ define([
 			assert.strictEqual(payload.isNonEmptyJson(emptyJson), false, 'identify {} as empty')
 		},
 
-		'build payload': function () {
+		'Build payload': function () {
 
 			var sb = payload.payloadBuilder(false);
 			sb.add('e', 'pv');
@@ -91,7 +91,7 @@ define([
 			assert.equal(sb.build(), expectedStrings[0], 'text should be encoded correctly');
 		},
 
-		'add JSON': function() {
+		'Add JSON': function() {
 
 			var sb = payload.payloadBuilder(false);
 
@@ -100,7 +100,7 @@ define([
 			assert.equal(sb.build(), expectedStrings[1], 'JSON should be added correctly');
 		},
 
-		'base 64 encoding': function() {
+		'Base 64 encoding': function() {
 
 			var sb = payload.payloadBuilder(true);
 
