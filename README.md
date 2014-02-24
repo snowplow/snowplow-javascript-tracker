@@ -39,6 +39,6 @@ Licensed under the [Simplified BSD] [bsd] license.
 [roadmap-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/roadmap.png
 [grunt-image]: https://cdn.gruntjs.com/builtwith.png
 [grunt]: http://gruntjs.com/
-[travis-image]: https://travis-ci.org/snowplow/snowplow-javascript-tracker.png
+[travis-image]: https://travis-ci.org/snowplow/snowplow-javascript-tracker.png?branch=master
 [travis]: http://travis-ci.org/snowplow/snowplow-javascript-tracker
                 
