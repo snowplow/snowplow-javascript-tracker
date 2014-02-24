@@ -1597,7 +1597,10 @@
 			 * @param object Custom context relating to the event
 			 */
 			trackImpression: function (bannerId, campaignId, advertiserId, userId, context) {
-					 logImpression(bannerId, campaignId, advertiserId, userId, context);
+				if (typeof console !== 'undefined') {
+					console.log("Snowplow: trackImpression is deprecated. When version 1.1.0 is released, switch to trackAdImpression.");
+				}
+				logImpression(bannerId, campaignId, advertiserId, userId, context);
 			}
 
 			// TODO: add in ad clicks and conversions
