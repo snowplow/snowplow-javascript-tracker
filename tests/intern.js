@@ -35,6 +35,6 @@
 define({
 
 // Non-functional test suites
-suites: ['tests/queueT', 'tests/payloadT'],
+suites: ['tests/queue', 'tests/payload'],
 
 });
