@@ -8,7 +8,7 @@ Added guard to prevent document size field from being set as "NaNxNaN" (#220)
 Fixed Grunt publish tasks to build sp.js as well as upload it to S3 (#224)
 Added cache control to Grunt upload for full semantic version (#225)
 
-Version 1.1.0 (2014-02-XX)
+Version 1.1.0 (2014-03-XX)
 --------------------------
 Moved fixUpUrl into its own file, called lib/proxies.js (#112)
 Fixed duplication of querystring parameter lookup (#111)
