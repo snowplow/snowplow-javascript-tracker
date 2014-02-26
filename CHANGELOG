@@ -10,7 +10,7 @@ Added cache control to Grunt upload for full semantic version (#225)
 
 Version 1.1.0 (2014-02-XX)
 --------------------------
-Moved fixUpUrl into its own file, called lib/proxies.js (#112)
+Moved fixUpUrl into its own file, called lib/proxies.js (#112) (TODO)
 Fixed duplication of querystring parameter lookup (#111) (TODO)
 Tried running Snowplow JS Tracker from PhoneGap (#107) (TODO)
 Added tests for helpers.js (#96) (TODO)
