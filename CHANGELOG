@@ -8,6 +8,19 @@ Added guard to prevent document size field from being set as "NaNxNaN" (#220)
 Fixed Grunt publish tasks to build sp.js as well as upload it to S3 (#224)
 Added cache control to Grunt upload for full semantic version (#225)
 
+Version 1.1.0 (2014-02-XX)
+--------------------------
+Moved fixUpUrl into its own file, called lib/proxies.js (#112) (TODO)
+Fixed duplication of querystring parameter lookup (#111) (TODO)
+Tried running Snowplow JS Tracker from PhoneGap (#107) (TODO)
+Added tests for helpers.js (#96) (TODO)
+Added tests for detectors.js (#95) (TODO)
+Replaced cookie.js with browser-cookie-lite (#88) (TODO)
+Added ad conversion tracking (#60) (TODO)
+Added ad click tracking (#59) (TODO)
+Added initial localStorage support for intermittent offline beacons (#24) (TODO)
+Added new trackAdImpression, mapping to unstructured event (#13) (TODO)
+
 Version 1.0.1 (2014-04-09)
 --------------------------
 Fixed lodash.js to work in the presence of AMD modules (#165)
