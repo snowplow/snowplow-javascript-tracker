@@ -34,7 +34,9 @@
 
 ;(function(){
 
-	var object = typeof exports !== 'undefined' ? exports : this; 
+	var
+		helpers = require('./helpers'),
+		object = typeof exports !== 'undefined' ? exports : this; 
 
 	/*
 	 * Fix-up URL when page rendered from search engine cache or translated page.
@@ -50,7 +52,7 @@
 				matches = e.exec(url),
 				f = new RegExp('(?:^|&)' + name + '=([^&]*)'),
 				result = matches ? f.exec(matches[1]) : 0;
-
+console.log('matches:', matches)
 			return result ? decodeURIComponent(result[1]) : '';
 		}
 
@@ -59,12 +61,12 @@
 				referrer = href;
 			}
 			href = getParameter(href, 'u');
-			hostName = object.getHostName(href);
+			hostName = helpers.getHostName(href);
 		} else if (hostName === 'cc.bingj.com' ||					// Bing
 				hostName === 'webcache.googleusercontent.com' ||	// Google
 				hostName.slice(0, 5) === '74.6.') {					// Yahoo (via Inktomi 74.6.0.0/16)
 			href = document.links[0].href;
-			hostName = object.getHostName(href);
+			hostName = helpers.getHostName(href);
 		}
 		return [hostName, href, referrer];
 	}
