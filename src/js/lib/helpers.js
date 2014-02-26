@@ -171,7 +171,7 @@
 	 * Return value from name-value pair in querystring 
 	 */
 	object.fromQuerystring = function (field, url) {
-		var match = RegExp('[?&]' + field + '=([^&]*)').exec(url);
+		var match = RegExp('^[^#]*[?&]' + field + '=([^&#]*)').exec(url);
 		if (!match) {
 			return null;
 		}
