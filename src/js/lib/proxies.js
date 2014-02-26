@@ -43,17 +43,17 @@
 	 * TODO: it would be nice to generalise this and/or move into the ETL phase.
 	 */
 	object.fixupUrl = function (hostName, href, referrer) {
+
 		/*
 		 * Extract parameter from URL
 		 */
 		function getParameter(url, name) {
 			// scheme : // [username [: password] @] hostname [: port] [/ [path] [? query] [# fragment]]
-			var e = new RegExp('^(?:https?|ftp)(?::/*(?:[^?]+)[?])([^#]+)'),
+			var e = new RegExp('^(?:https?|ftp)(?::/*(?:[^?]+))([?][^#]+)'),
 				matches = e.exec(url),
-				f = new RegExp('(?:^|&)' + name + '=([^&]*)'),
-				result = matches ? f.exec(matches[1]) : 0;
+				result = helpers.fromQuerystring(name, matches[1]);
 
-			return result ? decodeURIComponent(result[1]) : '';
+			return result;
 		}
 
 		if (hostName === 'translate.googleusercontent.com') {		// Google
