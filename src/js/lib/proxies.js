@@ -52,7 +52,7 @@
 				matches = e.exec(url),
 				f = new RegExp('(?:^|&)' + name + '=([^&]*)'),
 				result = matches ? f.exec(matches[1]) : 0;
-console.log('matches:', matches)
+
 			return result ? decodeURIComponent(result[1]) : '';
 		}
 
