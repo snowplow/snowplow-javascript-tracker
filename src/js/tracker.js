@@ -37,11 +37,13 @@
 	var
 		lodash = require('./lib/lodash'),
 		helpers = require('./lib/helpers'),
+		proxies = require('./lib/proxies'),
 		cookie = require('./lib/cookie'),
 		detectors = require('./lib/detectors'),
 		payload = require('./payload'),
 		json2 = require('JSON'),
 		sha1 = require('sha1'),
+
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
@@ -76,7 +78,7 @@
 			navigatorAlias = navigator,
 
 			// Current URL and Referrer URL
-			locationArray = helpers.fixupUrl(documentAlias.domain, windowAlias.location.href, helpers.getReferrer()),
+			locationArray = proxies.fixupUrl(documentAlias.domain, windowAlias.location.href, helpers.getReferrer()),
 			domainAlias = helpers.fixupDomain(locationArray[0]),
 			locationHrefAlias = locationArray[1],
 			configReferrerUrl = locationArray[2],

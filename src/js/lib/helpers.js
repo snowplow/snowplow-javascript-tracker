@@ -72,39 +72,6 @@
 	}
 
 	/*
-	 * Fix-up URL when page rendered from search engine cache or translated page.
-	 * TODO: it would be nice to generalise this and/or move into the ETL phase.
-	 */
-	object.fixupUrl = function (hostName, href, referrer) {
-		/*
-		 * Extract parameter from URL
-		 */
-		function getParameter(url, name) {
-			// scheme : // [username [: password] @] hostname [: port] [/ [path] [? query] [# fragment]]
-			var e = new RegExp('^(?:https?|ftp)(?::/*(?:[^?]+)[?])([^#]+)'),
-				matches = e.exec(url),
-				f = new RegExp('(?:^|&)' + name + '=([^&]*)'),
-				result = matches ? f.exec(matches[1]) : 0;
-
-			return result ? decodeURIComponent(result[1]) : '';
-		}
-
-		if (hostName === 'translate.googleusercontent.com') {		// Google
-			if (referrer === '') {
-				referrer = href;
-			}
-			href = getParameter(href, 'u');
-			hostName = object.getHostName(href);
-		} else if (hostName === 'cc.bingj.com' ||					// Bing
-				hostName === 'webcache.googleusercontent.com' ||	// Google
-				hostName.slice(0, 5) === '74.6.') {					// Yahoo (via Inktomi 74.6.0.0/16)
-			href = document.links[0].href;
-			hostName = object.getHostName(href);
-		}
-		return [hostName, href, referrer];
-	}
-
-	/*
 	 * Fix-up domain
 	 */
 	object.fixupDomain = function (domain) {
