@@ -151,9 +151,6 @@
 			// Life of the session cookie (in milliseconds)
 			configSessionCookieTimeout = 1800000, // 30 minutes
 
-			// Life of the referral cookie (in milliseconds)
-			configReferralCookieTimeout = 15768000000, // 6 months
-
 			// Enable Base64 encoding for unstructured events
 			configEncodeBase64 = true,
 
@@ -1254,15 +1251,6 @@
 			 */
 			setSessionCookieTimeout: function (timeout) {
 				configSessionCookieTimeout = timeout * 1000;
-			},
-
-			/**
-			 * Set referral cookie timeout (in seconds)
-			 *
-			 * @param int timeout
-			 */
-			setReferralCookieTimeout: function (timeout) {
-				configReferralCookieTimeout = timeout * 1000;
 			},
 
 			/**

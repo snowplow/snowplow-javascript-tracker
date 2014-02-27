@@ -20,6 +20,7 @@ Added ad conversion tracking (#60) (TODO)
 Added ad click tracking (#59)
 Added initial localStorage support for intermittent offline beacons (#24) (TODO)
 Added new trackAdImpression, mapping to unstructured event (#13) (TODO)
+Removed references to referral cookie (#118) 
 
 Version 1.0.1 (2014-04-09)
 --------------------------
