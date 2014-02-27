@@ -850,6 +850,18 @@
 		}
 
 		// TODO: add in ad clicks and conversions
+		function logAdClick(bannerId, campaignId, advertiserId, userId, target_url, context) {
+			var sb = payload.payloadBuilder(configEncodeBase64);
+			sb.add('e', 'ac'); // 'ac' for Ad Click
+			sb.add('ad_ba', bannerId);
+			sb.add('ad_ca', campaignId)
+			sb.add('ad_ad', advertiserId);
+			sb.add('ad_uid', userId);
+			sb.add('ad_url', target_url);
+			sb.addJson('cx', 'co', context);
+			request = getRequest(sb, 'ad_click');
+			sendRequest(request, configTrackerPause);
+		}
 
 		/*
 		 * Browser prefix
@@ -1607,9 +1619,12 @@
 					console.log("Snowplow: trackImpression is deprecated. When version 1.1.0 is released, switch to trackAdImpression.");
 				}
 				logImpression(bannerId, campaignId, advertiserId, userId, context);
-			}
+			},
 
 			// TODO: add in ad clicks and conversions
+			trackAdClick: function(bannerId, campaignId, advertiserId, userId, target_url, context) {
+				logAdClick(bannerId, campaignId, advertiserId, userId, target_url, context);
+			}
 		};
 	}
 
