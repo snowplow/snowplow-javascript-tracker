@@ -205,7 +205,81 @@
 
 			// Ecommerce transaction data
 			// Will be committed, sent and emptied by a call to trackTrans.
-			ecommerceTransaction = ecommerceTransactionTemplate();
+			ecommerceTransaction = ecommerceTransactionTemplate(),
+
+			// Detect whether we have localStorage available
+			hasLocalStorage = detectors.localStorageAccessible(),
+			executingQueue = false,
+			imageQueue;
+
+			if (hasLocalStorage) {
+				// Catch and JSON parse errors that might be thrown
+				try {
+					imageQueue = json2.parse(localStorage.getItem('snaqImageQueue'));
+				}
+				catch(e) {}
+			}
+
+		// Initialize to and empty array if we didn't get anything out of localStorage
+		if (typeof imageQueue === 'undefined' || imageQueue == null) {
+			imageQueue = [];
+		}
+
+		/*
+		 * Queue an image beacon for submission to the collector.
+		 * If we're not processing the queue, we'll start.
+		 */
+		function queueImage(request) {
+			imageQueue.push(request);
+			if (hasLocalStorage) {
+				localStorage.setItem('snaqImageQueue', json2.stringify(imageQueue));
+			}
+
+			if (!executingQueue) {
+				executeQueue();
+			}
+		}
+
+		/*
+		 * Run through the queue of image beacons, sending them one at a time.
+		 * Stops processing when we run out of queued requests, or we get an error.
+		 */
+		function executeQueue() {
+			if (imageQueue.length < 1) {
+				executingQueue = false;
+				return;
+			}
+
+			executingQueue = true;
+			var nextRequest = imageQueue[0];
+
+			/*
+			 * Send image request to the Snowplow Collector using GET.
+			 * The Collecor serves a transparent, single pixel (1x1) GIF
+			 */
+			var image = new Image(1,1);
+
+			// Let's check hat we have a Url to ping
+			if (configCollectorUrl === null) {
+				throw "No Snowplow collector configured, cannot track";
+			}
+
+			// Okay? Let's proceed.
+			image.onload = function() {
+				// We succeeded, let's remove this request from the queue
+				imageQueue.shift();
+				if (hasLocalStorage) {
+					localStorage.setItem('snaqImageQueue', json2.stringify(imageQueue));
+				}
+				executeQueue();
+			}
+
+			image.onerror = function() {
+				executingQueue = false;
+			}
+
+			image.src = configCollectorUrl + nextRequest;
+		}
 
 		/**
 		 * Determines how to build our collector URL,
@@ -326,31 +400,13 @@
 		}
 
 		/*
-		 * Send image request to the Snowplow Collector using GET.
-		 * The Collector serves a transparent, single pixel (1x1) GIF
-		 */
-		function getImage(request) {
-
-			var image = new Image(1, 1);
-
-			// Let's check that we have a Url to ping
-			if (configCollectorUrl === null) {
-				throw "No Snowplow collector configured, cannot track";
-			}
-
-			// Okay? Let's proceed.
-			image.onload = function () { };
-			image.src = configCollectorUrl + request;
-		}
-
-		/*
 		 * Send request
 		 */
 		function sendRequest(request, delay) {
 			var now = new Date();
 
 			if (!configDoNotTrack) {
-				getImage(request);
+				queueImage(request);
 				mutSnowplowState.expireDateTime = now.getTime() + delay;
 			}
 		}
