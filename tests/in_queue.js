@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker for Snowplow: tests/queue.js
+ * JavaScript tracker for Snowplow: tests/in_queue.js
  * 
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
  * 2012-2014 Snowplow Analytics Ltd. All rights reserved. 
@@ -35,8 +35,8 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'intern/dojo/node!../src/js/queue'
-], function(registerSuite, assert, queue) {
+	'intern/dojo/node!../src/js/in_queue'
+], function(registerSuite, assert, in_queue) {
 
 	var MockTracker = function () {
 		var attribute = 10;
@@ -55,7 +55,7 @@ define([
 
 	var mockTracker = MockTracker(),
 		snaq = [['increaseAttribute', 5]];
-	snaq = new queue.AsyncQueueProxy(mockTracker, snaq);
+	snaq = new in_queue.AsyncQueueProxy(mockTracker, snaq);
 
 	registerSuite({
 		name: 'queue test',

@@ -77,7 +77,7 @@
 	var
 		tracker = require('./tracker'),
 		helpers = require('./lib/helpers'),
-		queue = require('./queue'),
+		queue = require('./in_queue'),
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
