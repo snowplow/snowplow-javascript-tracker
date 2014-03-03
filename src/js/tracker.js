@@ -255,11 +255,11 @@
 
 			/*
 			 * Send image request to the Snowplow Collector using GET.
-			 * The Collecor serves a transparent, single pixel (1x1) GIF
+			 * The Collector serves a transparent, single pixel (1x1) GIF
 			 */
 			var image = new Image(1,1);
 
-			// Let's check hat we have a Url to ping
+			// Let's check that we have a Url to ping
 			if (configCollectorUrl === null) {
 				throw "No Snowplow collector configured, cannot track";
 			}

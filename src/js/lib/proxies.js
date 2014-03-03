@@ -56,15 +56,15 @@
 			return result;
 		}
 
-		if (hostName === 'translate.googleusercontent.com') {		// Google
+		if (hostName === 'translate.googleusercontent.com') {       // Google
 			if (referrer === '') {
 				referrer = href;
 			}
 			href = getParameter(href, 'u');
 			hostName = helpers.getHostName(href);
-		} else if (hostName === 'cc.bingj.com' ||					// Bing
-				hostName === 'webcache.googleusercontent.com' ||	// Google
-				hostName.slice(0, 5) === '74.6.') {					// Yahoo (via Inktomi 74.6.0.0/16)
+		} else if (hostName === 'cc.bingj.com' ||                   // Bing
+		hostName === 'webcache.googleusercontent.com' ||            // Google
+		hostName.slice(0, 5) === '74.6.') {                         // Yahoo (via Inktomi 74.6.0.0/16)
 			href = document.links[0].href;
 			hostName = helpers.getHostName(href);
 		}
