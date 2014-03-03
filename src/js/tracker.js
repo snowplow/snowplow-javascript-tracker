@@ -735,7 +735,7 @@
 			sb.add('ue_na', name);
 			sb.addJson('ue_px', 'ue_pr', properties);
 			sb.addJson('cx', 'co', context);
-			var request = getRequest(sb, 'unstructEvent');
+			request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
 		}
 
@@ -767,7 +767,7 @@
 			sb.add('tr_co', country);
 			sb.add('tr_cu', currency);
 			sb.addJson('cx', 'co', context);
-			var request = getRequest(sb, 'transaction');
+			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
 		}
 
@@ -795,7 +795,7 @@
 			sb.add('ti_qu', quantity);
 			sb.add('ti_cu', currency);
 			sb.addJson('cx', 'co', context);
-			var request = getRequest(sb, 'transactionItem');
+			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
 		}
 
@@ -817,7 +817,7 @@
 			var sb = payload.payloadBuilder(configEncodeBase64);
 			sb.add('e', linkType);
 			sb.add('t_url', purify(url));
-			var request = getRequest(sb, 'link');
+			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
 		}
 
@@ -842,7 +842,7 @@
 			sb.add('ad_ad', advertiserId);
 			sb.add('ad_uid', userId);
 			sb.addJson('cx', 'co', context);
-			var request = getRequest(sb, 'impression');
+			request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
 		}
 
