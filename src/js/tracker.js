@@ -632,7 +632,7 @@
 			sb.add('e', 'pv'); // 'pv' for Page View
 			sb.add('page', pageTitle);
 			sb.addJson('cx', 'co', context);
-			var request = getRequest(sb, 'pageView');
+			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
 
 			// Send ping (to log that user has stayed on page)
@@ -695,7 +695,7 @@
 			sb.addRaw('pp_may', maxYOffset); // Global
 			sb.addJson('cx', 'co', context);
 			resetMaxScrolls();
-			var request = getRequest(sb, 'pagePing');
+			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
 		}
 
@@ -718,7 +718,7 @@
 			sb.add('se_pr', property);
 			sb.add('se_va', value);
 			sb.addJson('cx', 'co', context);
-			var request = getRequest(sb, 'structEvent');
+			request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
 		}
 
