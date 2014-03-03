@@ -846,64 +846,6 @@
 			sendRequest(request, configTrackerPause);
 		}
 
-		function addAdvertisingWideFields(sb, advertiserId, costModel, campaignId) {
-			sb.add('ad_ad', advertiserId);
-			sb.add('ad_cm', costModel);
-			sb.add('ad_ca', campaignId);
-			request = getRequest(sb);
-			sendRequest(request, configTrackerPause);
-		}
-
-		function logAdImpression(impressionId, costIfCpm, bannerId, zoneId, advertiserId, costModel, campaignId, context) {
-			var sb = payload.payloadBuilder(configEncodeBase64);
-			sb.add('e', 'ai'); // 'ai' for Ad Impression
-			sb.add('ad_im', impressionId);
-			sb.add('ad_cpm', costIfCpm);
-			sb.add('ad_ba', bannerId);
-			sb.add('ad_zo', zoneId);
-			sb.add('ad_ad', advertiserId);
-			sb.add('ad_ca', campaignId);
-			sb.add('ad_uid', userId);
-			sb.addJson('cx', 'co', context);
-			request = getRequest(sb, 'ad_impression');
-			sendRequest(request, configTrackerPause);
-		}
-
-		function logAdImpression(properties, context) {
-			var sb = payload.payloadBuilder(configEncodeBase64);
-			sb.add('e', 'ai'); // 'ai' for Ad Impression
-			sb.addJson('ai_px', 'ai_pr', properties);
-			sb.addJson('cx', 'co', context);
-			request = getRequest(sb, 'ad_impression');
-			sendRequest(request, configTrackerPause);
-		}
-
-		// TODO: add in ad clicks and conversions
-		function logAdClick(clickId, costIfCpc, targetUrl, bannerId, zoneId, impressionId, advertiserId, costModel, campaignId, context) {
-			var sb = payload.payloadBuilder(configEncodeBase64);
-			sb.add('e', 'ac'); // 'ac' for Ad Click
-			sb.add('ad_cpc', costIfCpc);
-			sb.add('ad_url', targetUrl);
-			sb.add('ad_ba', bannerId);
-			sb.add('ad_zo', zoneId);
-			sb.add('ad_im', impressionId);
-			sb.add('ad_ad', advertiserId);
-			sb.add('ad_ca', campaignId);
-			sb.add('ad_uid', userId);
-			sb.addJson('cx', 'co', context);
-			request = getRequest(sb, 'ad_click');
-			sendRequest(request, configTrackerPause);
-		}
-
-		function logAdClick(properties, context) {
-			var sb = payload.payloadBuilder(configEncodeBase64);
-			sb.add('e', 'ac'); // 'ac' for Ad Click
-			sb.addJson('ai_px', 'ai_pr', properties);
-			sb.addJson('cx', 'co', context);
-			request = getRequest(sb, 'ad_clik');
-			sendRequest(request, configTrackerPause);
-		}
-
 		/*
 		 * Browser prefix
 		 */
@@ -1655,13 +1597,51 @@
 
 			// TODO: comments for ad tracking functions
 			trackAdImpression: function(impressionId, costIfCpm, bannerId, zoneId, advertiserId, costModel, campaignId, context) {
-				logAdImpression(impressionId, costIfCpm, bannerId, zoneId, advertiserId, costModel, campaignId, context);
-			}
+				trackUnstructEvent('ad_impression', 
+				{
+					impression_id: impressionId,
+					cost_if_cpm: costIfCpm,
+					banner_id: bannerId,
+					zone_id: zoneId,
+					advertiser_id: advertiserId,
+					cost_model: costModel,
+					campaign_id: campaignId
+				},
+				context);
+			},
+			
+			trackAdclick: function(clickId, costIfCpc, targetUrl, bannerId, zoneId, impressionId, advertiserId, costModel, campaignId, context) {
+				trackUnstructEvent('ad_click',
+				{
+					click_id: clickId,
+					cost_if_cpc: costIfCpc,
+					target_url: targetUrl,
+					banner_id: bannerId,
+					zone_id: zoneId,
+					impression_id: impressionId,
+					advertiser_id: advertiserId,
+					cost_model: costModel,
+					campaign_id: campaignId
+				},
+				context);
+			},
 
-			trackAdClick: function(clickId, costIfCpc, targetUrl, bannerId, zoneId, impressionId, advertiserId, costModel, campaignId, context) {
-				logAdClick(clickId, costIfCpc, targetUrl, bannerId, zoneId, impressionId, advertiserId, costModel, campaignId, context);
+			trackAdConversion: function(conversionId, costIfCpa, category, action, property, initialValue, advertiserId, costModel, campaignId, context) {
+				trackUnstructEvent('ad_conversion',
+				{
+					conversion_id: conversionId,
+					cost_if_cpa: costIfCpa,
+					category: category,
+					action: action,
+					property: property,
+					initial_value: initialValue,
+					advertiser_id: advertiserId,
+					cost_model: costModel,
+					campaign_id: campaignId					
+				},
+				context)
 			}
-		};
+		}
 	}
 
 }());
