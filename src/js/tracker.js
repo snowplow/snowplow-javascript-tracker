@@ -1597,7 +1597,7 @@
 
 			// TODO: comments for ad tracking functions
 			trackAdImpression: function(impressionId, costIfCpm, bannerId, zoneId, advertiserId, costModel, campaignId, context) {
-				trackUnstructEvent('ad_impression', 
+				logUnstructEvent('ad_impression', 
 				{
 					impression_id: impressionId,
 					cost_if_cpm: costIfCpm,
@@ -1610,8 +1610,8 @@
 				context);
 			},
 			
-			trackAdclick: function(clickId, costIfCpc, targetUrl, bannerId, zoneId, impressionId, advertiserId, costModel, campaignId, context) {
-				trackUnstructEvent('ad_click',
+			trackAdClick: function(clickId, costIfCpc, targetUrl, bannerId, zoneId, impressionId, advertiserId, costModel, campaignId, context) {
+				logUnstructEvent('ad_click',
 				{
 					click_id: clickId,
 					cost_if_cpc: costIfCpc,
@@ -1627,7 +1627,7 @@
 			},
 
 			trackAdConversion: function(conversionId, costIfCpa, category, action, property, initialValue, advertiserId, costModel, campaignId, context) {
-				trackUnstructEvent('ad_conversion',
+				logUnstructEvent('ad_conversion',
 				{
 					conversion_id: conversionId,
 					cost_if_cpa: costIfCpa,
