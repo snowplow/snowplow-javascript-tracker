@@ -846,17 +846,61 @@
 			sendRequest(request, configTrackerPause);
 		}
 
+		function addAdvertisingWideFields(sb, advertiserId, costModel, campaignId) {
+			sb.add('ad_ad', advertiserId);
+			sb.add('ad_cm', costModel);
+			sb.add('ad_ca', campaignId);
+			request = getRequest(sb);
+			sendRequest(request, configTrackerPause);
+		}
+
+		function logAdImpression(impressionId, costIfCpm, bannerId, zoneId, advertiserId, costModel, campaignId, context) {
+			var sb = payload.payloadBuilder(configEncodeBase64);
+			sb.add('e', 'ai'); // 'ai' for Ad Impression
+			sb.add('ad_im', impressionId);
+			sb.add('ad_cpm', costIfCpm);
+			sb.add('ad_ba', bannerId);
+			sb.add('ad_zo', zoneId);
+			sb.add('ad_ad', advertiserId);
+			sb.add('ad_ca', campaignId);
+			sb.add('ad_uid', userId);
+			sb.addJson('cx', 'co', context);
+			request = getRequest(sb, 'ad_impression');
+			sendRequest(request, configTrackerPause);
+		}
+
+		function logAdImpression(properties, context) {
+			var sb = payload.payloadBuilder(configEncodeBase64);
+			sb.add('e', 'ai'); // 'ai' for Ad Impression
+			sb.addJson('ai_px', 'ai_pr', properties);
+			sb.addJson('cx', 'co', context);
+			request = getRequest(sb, 'ad_impression');
+			sendRequest(request, configTrackerPause);
+		}
+
 		// TODO: add in ad clicks and conversions
-		function logAdClick(bannerId, campaignId, advertiserId, userId, target_url, context) {
+		function logAdClick(clickId, costIfCpc, targetUrl, bannerId, zoneId, impressionId, advertiserId, costModel, campaignId, context) {
 			var sb = payload.payloadBuilder(configEncodeBase64);
 			sb.add('e', 'ac'); // 'ac' for Ad Click
+			sb.add('ad_cpc', costIfCpc);
+			sb.add('ad_url', targetUrl);
 			sb.add('ad_ba', bannerId);
-			sb.add('ad_ca', campaignId)
+			sb.add('ad_zo', zoneId);
+			sb.add('ad_im', impressionId);
 			sb.add('ad_ad', advertiserId);
+			sb.add('ad_ca', campaignId);
 			sb.add('ad_uid', userId);
-			sb.add('ad_url', target_url);
 			sb.addJson('cx', 'co', context);
 			request = getRequest(sb, 'ad_click');
+			sendRequest(request, configTrackerPause);
+		}
+
+		function logAdClick(properties, context) {
+			var sb = payload.payloadBuilder(configEncodeBase64);
+			sb.add('e', 'ac'); // 'ac' for Ad Click
+			sb.addJson('ai_px', 'ai_pr', properties);
+			sb.addJson('cx', 'co', context);
+			request = getRequest(sb, 'ad_clik');
 			sendRequest(request, configTrackerPause);
 		}
 
@@ -1609,9 +1653,13 @@
 				logImpression(bannerId, campaignId, advertiserId, userId, context);
 			},
 
-			// TODO: add in ad clicks and conversions
-			trackAdClick: function(bannerId, campaignId, advertiserId, userId, target_url, context) {
-				logAdClick(bannerId, campaignId, advertiserId, userId, target_url, context);
+			// TODO: comments for ad tracking functions
+			trackAdImpression: function(impressionId, costIfCpm, bannerId, zoneId, advertiserId, costModel, campaignId, context) {
+				logAdImpression(impressionId, costIfCpm, bannerId, zoneId, advertiserId, costModel, campaignId, context);
+			}
+
+			trackAdClick: function(clickId, costIfCpc, targetUrl, bannerId, zoneId, impressionId, advertiserId, costModel, campaignId, context) {
+				logAdClick(clickId, costIfCpc, targetUrl, bannerId, zoneId, impressionId, advertiserId, costModel, campaignId, context);
 			}
 		};
 	}
