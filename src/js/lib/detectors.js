@@ -76,6 +76,25 @@
 	}
 
 	/*
+	 * Checks whether localStorage is accessible
+	 * sets and removes an item to handle private IOS5 browsing
+	 * (http://git.io/jFB2Xw)
+	 */
+	 object.localStorageAccessible = function() {
+	 	var mod = 'modernizr';
+	 	if (!object.hasLocalStorage()) {
+	 		return false;
+	 	}
+	 	try {
+	 		windowAlias.localStorage.setItem(mod, mod);
+	 		windowAlias.localStorage.removeItem(mod);
+	 		return true;
+	 	} catch(e) {
+	 		return false;
+	 	}
+	 }
+
+	/*
 	 * Does browser have cookies enabled (for this site)?
 	 */
 	object.hasCookies = function(testCookieName) {
