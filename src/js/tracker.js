@@ -102,21 +102,6 @@
 			// Document title
 			configTitle = documentAlias.title,
 
-			// Extensions to be treated as download links
-			configDownloadExtensions = '7z|aac|ar[cj]|as[fx]|avi|bin|csv|deb|dmg|doc|exe|flv|gif|gz|gzip|hqx|jar|jpe?g|js|mp(2|3|4|e?g)|mov(ie)?|ms[ip]|od[bfgpst]|og[gv]|pdf|phps|png|ppt|qtm?|ra[mr]?|rpm|sea|sit|tar|t?bz2?|tgz|torrent|txt|wav|wm[av]|wpd||xls|xml|z|zip',
-
-			// Hosts or alias(es) to not treat as outlinks
-			configHostsAlias = [domainAlias],
-
-			// HTML anchor element classes to not track
-			configIgnoreClasses = [],
-
-			// HTML anchor element classes to treat as downloads
-			configDownloadClasses = [],
-
-			// HTML anchor element classes to treat at outlinks
-			configLinkClasses = [],
-
 			// Maximum delay to wait for web bug image to be fetched (in milliseconds)
 			configTrackerPause = 500,
 
@@ -126,7 +111,7 @@
 			// Recurring heart beat after initial ping (in milliseconds)
 			configHeartBeatTimer,
 
-			// Disallow hash tags in URL
+			// Disallow hash tags in URL. TODO: Should this be set to true by default?
 			configDiscardHashTag,
 
 			// First-party cookie name prefix
@@ -286,44 +271,6 @@
 			}
 
 			return baseUrl + url;
-		}
-
-		/*
-		 * Is the host local? (i.e., not an outlink)
-		 *
-		 * This is a pretty flawed approach - assumes
-		 * a website only has one domain.
-		 *
-		 * TODO: I think we can blow this away for
-		 * Snowplow and handle the equivalent with a
-		 * whitelist of the site's domains. 
-		 * 
-		 */
-		function isSiteHostName(hostName) {
-			var i,
-				alias,
-				offset;
-
-			for (i = 0; i < configHostsAlias.length; i++) {
-
-				alias = helpers.fixupDomain(configHostsAlias[i].toLowerCase());
-
-				if (hostName === alias) {
-					return true;
-				}
-
-				if (alias.slice(0, 1) === '.') {
-					if (hostName === alias.slice(1)) {
-						return true;
-					}
-
-					offset = hostName.length - alias.length;
-					if ((offset > 0) && (hostName.slice(offset) === alias)) {
-						return true;
-					}
-				}
-			}
-			return false;
 		}
 
 		/*
@@ -796,12 +743,14 @@
 		// TODO: rename to LinkClick
 		// TODO: this functionality is not yet fully implemented.
 		// See https://github.com/snowplow/snowplow/issues/75
-		function logLink(url, linkType, context) {
-			var sb = payload.payloadBuilder(configEncodeBase64);
-			sb.add('e', linkType);
-			sb.add('t_url', purify(url));
-			var request = getRequest(sb);
-			sendRequest(request, configTrackerPause);
+		function logLink(linkId, linkClass, targetUrl, context) {
+			logUnstructEvent('link_click',{
+				link_id: linkId,
+				link_class: linkClass,
+				target_url: targetUrl
+			},
+			context)
+
 		}
 
 		/**
@@ -883,50 +832,15 @@
 		}
 
 		/*
-		 * Construct regular expression of classes
-		 */
-		function getClassesRegExp(configClasses, defaultClass) {
-			var i,
-				classesRegExp = '(^| )(piwik[_-]' + defaultClass;
-
-			if (configClasses) {
-				for (i = 0; i < configClasses.length; i++) {
-					classesRegExp += '|' + configClasses[i];
-				}
-			}
-			classesRegExp += ')( |$)';
-
-			return new RegExp(classesRegExp);
-		}
-
-		/*
-		 * Link or Download?
-		 */
-		// TODO: why is a download assumed to always be on the same host?
-		// TODO: why return 0 if can't detect it as a link or download?
-		function getLinkType(className, href, isInLink) {
-			// outlinks
-			if (!isInLink) {
-				return 'lnk';
-			}
-
-			// does class indicate whether it is an (explicit/forced) outlink or a download?
-			var downloadPattern = getClassesRegExp(configDownloadClasses, 'download'),
-				linkPattern = getClassesRegExp(configLinkClasses, 'link'),
-
-				// does file extension indicate that it is a download?
-				downloadExtensionsPattern = new RegExp('\\.(' + configDownloadExtensions + ')([?&#]|$)', 'i');
-
-			return linkPattern.test(className) ? 'lnk' : (downloadPattern.test(className) || downloadExtensionsPattern.test(href) ? 'dl' : 0);
-		}
-
-		/*
 		 * Process clicks
 		 */
 		function processClick(sourceElement) {
 			var parentElement,
 				tag,
-				linkType;
+				linkId,
+				linkClass,
+				childElementId = sourceElement.id, // TODO: Do we need childElementId/-Class?
+				childElementClass = sourceElement.class;
 
 			while ((parentElement = sourceElement.parentNode) !== null &&
 					!lodash.isUndefined(parentElement) && // buggy IE5.5
@@ -943,13 +857,14 @@
 
 				// Ignore script pseudo-protocol links
 				if (!scriptProtocol.test(sourceHref)) {
-					// Track outlinks and all downloads
-					linkType = getLinkType(sourceElement.className, sourceHref, isSiteHostName(sourceHostName));
-					if (linkType) {
-						// decodeUrl %xx
-						sourceHref = unescape(sourceHref);
-						logLink(sourceHref, linkType);
-					}
+
+					linkId = sourceElement.id;
+					linkClass = sourceElement.class;
+
+					// decodeUrl %xx
+					sourceHref = unescape(sourceHref);
+					logLink(linkId, linkClass, sourceHref);
+
 				}
 			}
 		}
@@ -1001,19 +916,38 @@
 		/*
 		 * Add click handlers to anchor and AREA elements, except those to be ignored
 		 */
-		function addClickListeners(enable) {
+		function addClickListeners(enable, excludedClasses) {
 			if (!linkTrackingInstalled) {
 				linkTrackingInstalled = true;
 
 				// iterate through anchor elements with href and AREA elements
 
 				var i,
-					ignorePattern = getClassesRegExp(configIgnoreClasses, 'ignore'),
+					j,
+					excluded,
 					linkElements = documentAlias.links;
+
+				if (lodash.isUndefined(excludedClasses)) {
+					for (i = 0; i<linkElements.lenght; i++) {
+						addClickListener(linkElements[i], enable)
+					}
+					return;
+				}
+
+				if (lodash.isString(excludedClasses)) {
+					excludedClasses = [excludedClasses];
+				}
 
 				if (linkElements) {
 					for (i = 0; i < linkElements.length; i++) {
-						if (!ignorePattern.test(linkElements[i].className)) {
+						excluded = false;
+						for (j = 0; j < excludedClasses.length; j++) {
+							if (linkElements[i].className === excludedClasses[j]) {
+								excluded = true;
+								break;
+							}
+						}
+						if (!excluded) {
 							addClickListener(linkElements[i], enable);
 						}
 					}
@@ -1084,43 +1018,6 @@
 			},
 
 			/**
-			 * Set list of file extensions to be recognized as downloads
-			 *
-			 * @param string extensions
-			 */
-			setDownloadExtensions: function (extensions) {
-				configDownloadExtensions = extensions;
-			},
-
-			/**
-			 * Specify additional file extensions to be recognized as downloads
-			 *
-			 * @param string extensions
-			 */
-			addDownloadExtensions: function (extensions) {
-				configDownloadExtensions += '|' + extensions;
-			},
-
-			/**
-			 * Set array of domains to be treated as local
-			 *
-			 * @param string|array hostsAlias
-			 */
-			setDomains: function (hostsAlias) {
-				configHostsAlias = lodash.isString(hostsAlias) ? [hostsAlias] : hostsAlias;
-				configHostsAlias.push(domainAlias);
-			},
-
-			/**
-			 * Set array of classes to be ignored if present in link
-			 *
-			 * @param string|array ignoreClasses
-			 */
-			setIgnoreClasses: function (ignoreClasses) {
-				configIgnoreClasses = lodash.isString(ignoreClasses) ? [ignoreClasses] : ignoreClasses;
-			},
-
-			/**
 			 * Override referrer
 			 *
 			 * @param string url
@@ -1145,24 +1042,6 @@
 			 */
 			setDocumentTitle: function (title) {
 				configTitle = title;
-			},
-
-			/**
-			 * Set array of classes to be treated as downloads
-			 *
-			 * @param string|array downloadClasses
-			 */
-			setDownloadClasses: function (downloadClasses) {
-				configDownloadClasses = lodash.isString(downloadClasses) ? [downloadClasses] : downloadClasses;
-			},
-
-			/**
-			 * Set array of classes to be treated as outlinks
-			 *
-			 * @param string|array linkClasses
-			 */
-			setLinkClasses: function (linkClasses) {
-				configLinkClasses = lodash.isString(linkClasses) ? [linkClasses] : linkClasses;
 			},
 
 			/**
@@ -1279,16 +1158,17 @@
 			 *
 			 * @see https://bugs.webkit.org/show_bug.cgi?id=54783
 			 *
+			 * @param array excluded CSS classes to exclude from tracking
 			 * @param bool enable If true, use pseudo click-handler (mousedown+mouseup)
 			 */
-			enableLinkTracking: function (enable) {
+			enableLinkTracking: function (enable, excludedClasses) {
 				if (mutSnowplowState.hasLoaded) {
 					// the load event has already fired, add the click listeners now
-					addClickListeners(enable);
+					addClickListeners(enable, excludedClasses);
 				} else {
 					// defer until page has loaded
 					mutSnowplowState.registeredOnLoadHandlers.push(function () {
-						addClickListeners(enable);
+						addClickListeners(enable, excludedClasses);
 					});
 				}
 			},
@@ -1554,9 +1434,9 @@
 			 * @param object Custom context relating to the event
 			 */
 			// TODO: break this into trackLink(destUrl) and trackDownload(destUrl)
-			trackLink: function (sourceUrl, linkType, context) {
+			trackLink: function(linkId, linkClass, targetUrl, context) {
 				trackCallback(function () {
-					logLink(sourceUrl, linkType, context);
+					logLink(linkId, linkClass, targetUrl, context);
 				});
 			},
 
