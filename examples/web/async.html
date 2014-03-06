@@ -28,7 +28,7 @@
         //window._snaq.push(['setUserIdFromCookie', '_sp_id.4209']) // Test this using Firefox because Chrome doesn't allow local cookies.
         window._snaq.push(['setCustomUrl', '/overridden-url/']); // Override the page URL
         window._snaq.push(['enableActivityTracking', 10, 10]); // Ping every 10 seconds after 10 seconds
-        window._snaq.push(['enableLinkTracking']);
+        window._snaq.push(['enableLinkClickTracking', 'barred', true]);
         window._snaq.push(['setPlatform', 'mob']);
         window._snaq.push(['encodeBase64', false]); // Default is true
         //window._snaq.push(['enableUserFingerprint', false]); // Turn off user fingerprinting
@@ -139,6 +139,9 @@
         <button type="button" onclick="addEcommerceTransaction()">Add an ecommerce transaction</button>
     </p>
     <p>Warning: if your browser's Do Not Track feature is enabled and respectDoNotTrack is not commented out, all tracking will be prevented.</p>
+    <a href=http://en.wikipedia.org/wiki/Main_Page id=legal class="link out">Link</a>
+    <a href=http://en.wikipedia.org/wiki/Main_Page id=illegal class=barred>Ignored link</a>
+
 </body>
 
 </html>

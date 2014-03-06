@@ -737,7 +737,7 @@
 		 * Log the link or click with the server
 		 *
 		 * @param string elementId
-		 * @param string elementClass
+		 * @param array elementClasses
 		 * @param string elementTarget
 		 * @param string targetUrl
 		 * @param object context Custom context relating to the event
@@ -745,10 +745,10 @@
 		// TODO: rename to LinkClick
 		// TODO: this functionality is not yet fully implemented.
 		// See https://github.com/snowplow/snowplow/issues/75
-		function logLink(elementId, elementClass, elementTarget, targetUrl, context) {
+		function logLink(elementId, elementClasses, elementTarget, targetUrl, context) {
 			logUnstructEvent('link_click',{
 				element_id: elementId,
-				element_class: elementClass,
+				element_class: elementClasses,
 				element_target: elementTarget,
 				target_url: targetUrl
 			},
@@ -842,7 +842,7 @@
 			var parentElement,
 				tag,
 				elementId,
-				elementClass,
+				elementClasses,
 				elementTarget;
 
 			while ((parentElement = sourceElement.parentNode) !== null &&
@@ -862,12 +862,12 @@
 				if (!scriptProtocol.test(sourceHref)) {
 
 					elementId = sourceElement.id;
-					elementClass = sourceElement.className;
+					elementClasses = sourceElement.className.split(' ');
 					elementTarget = sourceElement.target;
 
 					// decodeUrl %xx
 					sourceHref = unescape(sourceHref);
-					logLink(elementId, elementClass, elementTarget, sourceHref, context);
+					logLink(elementId, elementClasses, elementTarget, sourceHref, context);
 				}
 			}
 		}
@@ -1435,15 +1435,15 @@
 			 * Manually log a click from your own code
 			 *
 			 * @param string elementId
-			 * @param string elementClass
+			 * @param array elementClasses
 			 * @param string elementTarget
 			 * @param string targetUrl
 			 * @param object Custom context relating to the event
 			 */
 			// TODO: break this into trackLink(destUrl) and trackDownload(destUrl)
-			trackLinkClick: function(elementId, elementClass, elementTarget, targetUrl, context) {
+			trackLinkClick: function(elementId, elementClasses, elementTarget, targetUrl, context) {
 				trackCallback(function () {
-					logLink(elementId, elementClass, elementTarget, targetUrl, context);
+					logLink(elementId, elementClasses, elementTarget, targetUrl, context);
 				});
 			},
 

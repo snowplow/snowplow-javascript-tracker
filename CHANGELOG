@@ -22,6 +22,7 @@ Added initial localStorage support for intermittent offline beacons (#24)
 Added new trackAdImpression, mapping to unstructured event (#13)
 Removed references to referral cookie (#118)
 Implement enableLinkTracking support (#51) (TODO)
+Replaced hard-coded version with template value (#120) (TODO)
 
 Version 1.0.1 (2014-04-09)
 --------------------------
