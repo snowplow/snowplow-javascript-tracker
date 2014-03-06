@@ -119,13 +119,13 @@
 			/*
 			 * Delay/pause (blocks UI)
 			 */
-			if (mutSnowplowState.expireDate) {
+			if (mutSnowplowState.expireDateTime) {
 				// the things we do for backwards compatibility...
 				// in ECMA-262 5th ed., we could simply use:
-				//     while (Date.now() < mutSnowplowState.expireDate) { }
+				//     while (Date.now() < mutSnowplowState.expireDateTime) { }
 				do {
 					now = new Date();
-				} while (now.getTime() < mutSnowplowState.expireDate);
+				} while (now.getTime() < mutSnowplowState.expireDateTime);
 			}
 		}
 
