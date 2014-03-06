@@ -834,7 +834,7 @@
 		/*
 		 * Process clicks
 		 */
-		function processClick(sourceElement) {
+		function processClick(sourceElement, context) {
 			var parentElement,
 				tag,
 				linkId,
@@ -863,60 +863,62 @@
 
 					// decodeUrl %xx
 					sourceHref = unescape(sourceHref);
-					logLink(linkId, linkClass, sourceHref);
+					logLink(linkId, linkClass, sourceHref, context);
 
 				}
 			}
 		}
 
 		/*
-		 * Handle click event
+		 * Return function to handle click event
 		 */
-		function clickHandler(evt) {
-			var button,
-				target;
+		function getClickHandler(context) {
+			return function(evt) {
+				var button,
+					target;
 
-			evt = evt || windowAlias.event;
-			button = evt.which || evt.button;
-			target = evt.target || evt.srcElement;
+				evt = evt || windowAlias.event;
+				button = evt.which || evt.button;
+				target = evt.target || evt.srcElement;
 
-			// Using evt.type (added in IE4), we avoid defining separate handlers for mouseup and mousedown.
-			if (evt.type === 'click') {
-				if (target) {
-					processClick(target);
-				}
-			} else if (evt.type === 'mousedown') {
-				if ((button === 1 || button === 2) && target) {
-					lastButton = button;
-					lastTarget = target;
-				} else {
+				// Using evt.type (added in IE4), we avoid defining separate handlers for mouseup and mousedown.
+				if (evt.type === 'click') {
+					if (target) {
+						processClick(target, context);
+					}
+				} else if (evt.type === 'mousedown') {
+					if ((button === 1 || button === 2) && target) {
+						lastButton = button;
+						lastTarget = target;
+					} else {
+						lastButton = lastTarget = null;
+					}
+				} else if (evt.type === 'mouseup') {
+					if (button === lastButton && target === lastTarget) {
+						processClick(target, context);
+					}
 					lastButton = lastTarget = null;
 				}
-			} else if (evt.type === 'mouseup') {
-				if (button === lastButton && target === lastTarget) {
-					processClick(target);
-				}
-				lastButton = lastTarget = null;
 			}
 		}
 
 		/*
 		 * Add click listener to a DOM element
 		 */
-		function addClickListener(element, enable) {
+		function addClickListener(element, enable, context) {
 			if (enable) {
 				// for simplicity and performance, we ignore drag events
-				helpers.addEventListener(element, 'mouseup', clickHandler, false);
-				helpers.addEventListener(element, 'mousedown', clickHandler, false);
+				helpers.addEventListener(element, 'mouseup', getClickHandler(context), false);
+				helpers.addEventListener(element, 'mousedown', getClickHandler(context), false);
 			} else {
-				helpers.addEventListener(element, 'click', clickHandler, false);
+				helpers.addEventListener(element, 'click', getClickHandler(context), false);
 			}
 		}
 
 		/*
 		 * Add click handlers to anchor and AREA elements, except those to be ignored
 		 */
-		function addClickListeners(enable, excludedClasses) {
+		function addClickListeners(enable, excludedClasses, context) {
 			if (!linkTrackingInstalled) {
 				linkTrackingInstalled = true;
 
@@ -948,7 +950,7 @@
 							}
 						}
 						if (!excluded) {
-							addClickListener(linkElements[i], enable);
+							addClickListener(linkElements[i], enable, context);
 						}
 					}
 				}
@@ -1139,8 +1141,8 @@
 			 * @param DOMElement element
 			 * @param bool enable If true, use pseudo click-handler (mousedown+mouseup)
 			 */
-			addListener: function (element, enable) {
-				addClickListener(element, enable);
+			addListener: function (element, enable, context) {
+				addClickListener(element, enable, context);
 			},
 
 			/**
@@ -1161,14 +1163,14 @@
 			 * @param array excluded CSS classes to exclude from tracking
 			 * @param bool enable If true, use pseudo click-handler (mousedown+mouseup)
 			 */
-			enableLinkTracking: function (enable, excludedClasses) {
+			enableLinkTracking: function (enable, excludedClasses, context) {
 				if (mutSnowplowState.hasLoaded) {
 					// the load event has already fired, add the click listeners now
-					addClickListeners(enable, excludedClasses);
+					addClickListeners(enable, excludedClasses, context);
 				} else {
 					// defer until page has loaded
 					mutSnowplowState.registeredOnLoadHandlers.push(function () {
-						addClickListeners(enable, excludedClasses);
+						addClickListeners(enable, excludedClasses, context);
 					});
 				}
 			},
