@@ -736,17 +736,20 @@
 		/*
 		 * Log the link or click with the server
 		 *
-		 * @param string url The target URL
-		 * @param string linkType The type of link - link or download (see getLinkType() for details)
+		 * @param string elementId
+		 * @param string elementClass
+		 * @param string elementTarget
+		 * @param string targetUrl
 		 * @param object context Custom context relating to the event
 		 */
 		// TODO: rename to LinkClick
 		// TODO: this functionality is not yet fully implemented.
 		// See https://github.com/snowplow/snowplow/issues/75
-		function logLink(linkId, linkClass, targetUrl, context) {
+		function logLink(elementId, elementClass, elementTarget, targetUrl, context) {
 			logUnstructEvent('link_click',{
-				link_id: linkId,
-				link_class: linkClass,
+				element_id: elementId,
+				element_class: elementClass,
+				element_target: elementTarget,
 				target_url: targetUrl
 			},
 			context)
@@ -835,12 +838,12 @@
 		 * Process clicks
 		 */
 		function processClick(sourceElement, context) {
+
 			var parentElement,
 				tag,
-				linkId,
-				linkClass,
-				childElementId = sourceElement.id, // TODO: Do we need childElementId/-Class?
-				childElementClass = sourceElement.class;
+				elementId,
+				elementClass,
+				elementTarget;
 
 			while ((parentElement = sourceElement.parentNode) !== null &&
 					!lodash.isUndefined(parentElement) && // buggy IE5.5
@@ -858,13 +861,13 @@
 				// Ignore script pseudo-protocol links
 				if (!scriptProtocol.test(sourceHref)) {
 
-					linkId = sourceElement.id;
-					linkClass = sourceElement.class;
+					elementId = sourceElement.id;
+					elementClass = sourceElement.className;
+					elementTarget = sourceElement.target;
 
 					// decodeUrl %xx
 					sourceHref = unescape(sourceHref);
-					logLink(linkId, linkClass, sourceHref, context);
-
+					logLink(elementId, elementClass, elementTarget, sourceHref, context);
 				}
 			}
 		}
@@ -905,8 +908,8 @@
 		/*
 		 * Add click listener to a DOM element
 		 */
-		function addClickListener(element, enable, context) {
-			if (enable) {
+		function addClickListener(element, pseudoClicks, context) {
+			if (pseudoClicks) {
 				// for simplicity and performance, we ignore drag events
 				helpers.addEventListener(element, 'mouseup', getClickHandler(context), false);
 				helpers.addEventListener(element, 'mousedown', getClickHandler(context), false);
@@ -918,7 +921,7 @@
 		/*
 		 * Add click handlers to anchor and AREA elements, except those to be ignored
 		 */
-		function addClickListeners(enable, excludedClasses, context) {
+		function addClickListeners(pseudoClicks, excludedClasses, context) {
 			if (!linkTrackingInstalled) {
 				linkTrackingInstalled = true;
 
@@ -950,7 +953,7 @@
 							}
 						}
 						if (!excluded) {
-							addClickListener(linkElements[i], enable, context);
+							addClickListener(linkElements[i], pseudoClicks, context);
 						}
 					}
 				}
@@ -1141,8 +1144,8 @@
 			 * @param DOMElement element
 			 * @param bool enable If true, use pseudo click-handler (mousedown+mouseup)
 			 */
-			addListener: function (element, enable, context) {
-				addClickListener(element, enable, context);
+			addListener: function (element, pseudoClicks, context) {
+				addClickListener(element, pseudoClicks, context);
 			},
 
 			/**
@@ -1159,18 +1162,18 @@
 			 * be "_self", "_top", or "_parent").
 			 *
 			 * @see https://bugs.webkit.org/show_bug.cgi?id=54783
-			 *
+			 * 
 			 * @param array excluded CSS classes to exclude from tracking
-			 * @param bool enable If true, use pseudo click-handler (mousedown+mouseup)
+			 * @param bool pseudoClicks If true, use pseudo click-handler (mousedown+mouseup)
 			 */
-			enableLinkTracking: function (enable, excludedClasses, context) {
+			enableLinkClickTracking: function (excludedClasses, pseudoClicks, context) {
 				if (mutSnowplowState.hasLoaded) {
 					// the load event has already fired, add the click listeners now
-					addClickListeners(enable, excludedClasses, context);
+					addClickListeners(pseudoClicks, excludedClasses, context);
 				} else {
 					// defer until page has loaded
 					mutSnowplowState.registeredOnLoadHandlers.push(function () {
-						addClickListeners(enable, excludedClasses, context);
+						addClickListeners(pseudoClicks, excludedClasses, context);
 					});
 				}
 			},
@@ -1431,14 +1434,16 @@
 			/**
 			 * Manually log a click from your own code
 			 *
-			 * @param string sourceUrl
-			 * @param string linkType
+			 * @param string elementId
+			 * @param string elementClass
+			 * @param string elementTarget
+			 * @param string targetUrl
 			 * @param object Custom context relating to the event
 			 */
 			// TODO: break this into trackLink(destUrl) and trackDownload(destUrl)
-			trackLink: function(linkId, linkClass, targetUrl, context) {
+			trackLinkClick: function(elementId, elementClass, elementTarget, targetUrl, context) {
 				trackCallback(function () {
-					logLink(linkId, linkClass, targetUrl, context);
+					logLink(elementId, elementClass, elementTarget, targetUrl, context);
 				});
 			},
 
