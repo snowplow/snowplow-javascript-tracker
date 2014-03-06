@@ -748,7 +748,7 @@
 		function logLink(elementId, elementClasses, elementTarget, targetUrl, context) {
 			logUnstructEvent('link_click',{
 				element_id: elementId,
-				element_class: elementClasses,
+				element_classes: elementClasses,
 				element_target: elementTarget,
 				target_url: targetUrl
 			},
