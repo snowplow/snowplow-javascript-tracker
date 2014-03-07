@@ -834,6 +834,22 @@
 			callback();
 		}
 
+		/* 
+		 * Return an array containing the classes of an HTML element
+		 */
+		function getClassArray(element) {
+
+			var classList = element.classList,
+				classArray = new Array(classList.length),
+				i;
+
+			for (i=0; i<classArray.length; i++) {
+				classArray[i] = classList[i];
+			}
+			return classArray;
+
+		}
+
 		/*
 		 * Process clicks
 		 */
@@ -862,7 +878,7 @@
 				if (!scriptProtocol.test(sourceHref)) {
 
 					elementId = sourceElement.id;
-					elementClasses = sourceElement.className.split(' ');
+					elementClasses = getClassArray(sourceElement);
 					elementTarget = sourceElement.target;
 
 					// decodeUrl %xx
@@ -929,11 +945,13 @@
 
 				var i,
 					j,
+					k,
 					excluded,
-					linkElements = documentAlias.links;
+					linkElements = documentAlias.links,
+					classArray;
 
 				if (lodash.isUndefined(excludedClasses)) {
-					for (i = 0; i<linkElements.lenght; i++) {
+					for (i = 0; i<linkElements.length; i++) {
 						addClickListener(linkElements[i], enable)
 					}
 					return;
@@ -943,13 +961,17 @@
 					excludedClasses = [excludedClasses];
 				}
 
+				// Iterate over link elements, each element's classes, and the excluded classes
 				if (linkElements) {
 					for (i = 0; i < linkElements.length; i++) {
 						excluded = false;
-						for (j = 0; j < excludedClasses.length; j++) {
-							if (linkElements[i].className === excludedClasses[j]) {
-								excluded = true;
-								break;
+						classArray = getClassArray(linkElements[i]);
+						for (j = 0; j < classArray.length; j++) {
+							for (k = 0 ; k < excludedClasses.length; k++) {
+								if (classArray[j] === excludedClasses[k]) {
+									excluded = true;
+									break;
+								}
 							}
 						}
 						if (!excluded) {
