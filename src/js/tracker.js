@@ -834,22 +834,6 @@
 			callback();
 		}
 
-		/* 
-		 * Return an array containing the classes of an HTML element
-		 */
-		function getClassArray(element) {
-
-			var classList = element.classList,
-				classArray = new Array(classList.length),
-				i;
-
-			for (i=0; i<classArray.length; i++) {
-				classArray[i] = classList[i];
-			}
-			return classArray;
-
-		}
-
 		/*
 		 * Process clicks
 		 */
@@ -878,7 +862,7 @@
 				if (!scriptProtocol.test(sourceHref)) {
 
 					elementId = sourceElement.id;
-					elementClasses = getClassArray(sourceElement);
+					elementClasses = lodash.map(sourceElement.classList);
 					elementTarget = sourceElement.target;
 
 					// decodeUrl %xx
@@ -965,7 +949,7 @@
 				if (linkElements) {
 					for (i = 0; i < linkElements.length; i++) {
 						excluded = false;
-						classArray = getClassArray(linkElements[i]);
+						classArray = lodash.map(linkElements[i].classList);
 						for (j = 0; j < classArray.length; j++) {
 							for (k = 0 ; k < excludedClasses.length; k++) {
 								if (classArray[j] === excludedClasses[k]) {

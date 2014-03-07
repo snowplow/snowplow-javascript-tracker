@@ -23,6 +23,8 @@ Added new trackAdImpression, mapping to unstructured event (#13)
 Removed references to referral cookie (#118)
 Implement enableLinkTracking support (#51) (TODO)
 Replaced hard-coded version with template value (#120) (TODO)
+Added Sauce Labs small button at top of README (#123) (TODO)
+Added Sauce full test summary widget (long bar) at bottom of README (#124) (TODO)
 
 Version 1.0.1 (2014-04-09)
 --------------------------
