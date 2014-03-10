@@ -16,6 +16,17 @@ With this tracker you can collect user event data (page views, e-commerce transa
 | [Technical Docs] [tech-docs] | [Setup Guide] [setup] | _coming soon_                        |
 
 
+## Developers
+
+### Getting started
+Make sure you have `node` and `npm` installed and in your `$PATH`.
+* Install npm deps: `npm install`
+* Install `grunt-cli`:  `(sudo) npm install -g grunt-cli`
+* Set up an `./aws.json` file using the example `./aws.sample.json`
+  * If you just want to concat + minify you don't need to fill out the
+    `aws.json` file with valid credentials.
+* Build the package (default task concatenates and minifies) `grunt`
+
 ## Copyright and license
 
 The Snowplow JavaScript Tracker is based on Anthon Pang's [`piwik.js`] [piwikjs], the JavaScript tracker for the open-source [Piwik] [piwik] project, and is distributed under the same license ([Simplified BSD] [bsd]).
