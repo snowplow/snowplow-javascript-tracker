@@ -35,7 +35,7 @@
 ;(function() {
 
 	var
-		lodash = require('./lib/lodash'),
+		lodash = require('./lib_managed/lodash'),
 		json2 = require('JSON'),
 		base64 = require('./lib/base64'),
 

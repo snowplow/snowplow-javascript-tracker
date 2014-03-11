@@ -34,7 +34,7 @@
 ;(function () {
 
 	var 
-		lodash = require('./lodash'),
+		lodash = require('../lib_managed/lodash'),
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 

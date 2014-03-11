@@ -35,7 +35,7 @@
 ;(function() {
 
 	var 
-		lodash = require('./lodash'),
+		lodash = require('../lib_managed/lodash'),
 		helpers = require('./helpers'),
 		cookie = require('./cookie'),
 		murmurhash3_32_gc = require('murmurhash').v3,

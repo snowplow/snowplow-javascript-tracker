@@ -35,7 +35,9 @@
 ;(function() {
 
 	var
-		lodash = require('./lib/lodash'),
+		lodash = require('./lib_managed/lodash'),
+		tracker = require('./tracker'),
+
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
 	/************************************************************
@@ -44,7 +46,81 @@
 	 *   after the Tracker has been initialized and loaded
 	 ************************************************************/
 
-	object.AsyncQueueProxy = function(asyncTracker, asyncQueue) {
+	object.InQueueManager = function(version, mutSnowplowState, asyncQueue) {
+
+		var trackerDictionary = {};
+
+		/*
+		 * Get an array of trackers to which a function should be applied.
+		 *
+		 * @param names array List of namespaces to use. If empty, use all namespaces.
+		 */
+		function getNamedTrackers(names) {
+			var namedTrackers = [];
+			if (!names || names.length === 0) {
+				namedTrackers = lodash.values(trackerDictionary);
+			} else {
+				for (var i = 0; i < names.length; i++) {
+					if (trackerDictionary.hasOwnProperty(names[i])) {
+						namedTrackers.push(trackerDictionary[names[i]]);
+					} else if (!lodash.isUndefined(console)) {
+						console.log('Warning: Tracker namespace "' + names[i] + '" not configured');
+					}
+				}
+			}
+			
+			return namedTrackers;
+		}
+
+		/*
+		 * Legacy support for input of the form _snaq.push(['setCollectorCf', 'd34uzc5hjrimh8'])
+		 * 
+		 * @param f string Either 'setCollectorCf' or 'setCollectorUrl'
+		 * @param endpoint string
+		 * @param namespace string Optional tracker name
+		 * 
+		 * TODO: remove this in 1.2.0
+		 */
+		function legacyCreateNewNamespace(f, endpoint, namespace) {
+			if (!lodash.isUndefined(console)) {
+				console.log(f, 'is deprecated.'); //TODO: more instructions for switching
+			}
+
+			var name;
+
+			if (lodash.isUndefined(namespace)) {
+				name = 'default'    // TODO: make default names work properly
+			} else {
+				name = namespace;
+			}
+
+			createNewNamespace(name);
+			trackerDictionary[name][f](endpoint);
+		}
+
+		/*
+		 * Initiate a new tracker namespace
+		 *
+		 * @param namespace string
+		 * @param endpoint string Of the form d3rkrsqld9gmqf.cloudfront.net
+		 */
+		function createNewNamespace(namespace, endpoint) {
+			trackerDictionary[namespace] = new tracker.Tracker(version, mutSnowplowState) // TODO: what of argmap?
+			trackerDictionary[namespace].setCollectorUrl(endpoint);
+		}
+
+		/*
+		 * Output an array of the form ['functionName', [trackerName1, trackerName2, ...]]
+		 *
+		 * @param inputString String
+		 */
+		function parseInputString(inputString) {
+			var separatedString = inputString.split(':'),
+				extractedFunction = separatedString[0],
+				extractedNames = (separatedString.length > 1) ? separatedString[1].split(';') : [];
+
+			return [extractedFunction, extractedNames];
+		}
 
 		/*
 		 * apply wrapper
@@ -60,6 +136,23 @@
 			for (i = 0; i < arguments.length; i += 1) {
 				parameterArray = arguments[i];
 				f = parameterArray.shift();
+				inputString = parameterArray.shift();
+				parsedString = parseInputString(inputString);
+				f = parsedString[0];
+				names = parsedString[1];
+
+				if (f === 'newTracker') {
+					createNewNamespace(parameterArray[0], parameterArray[1]);
+					continue;
+				}
+
+				if ((f === 'setCollectorCf' || f === 'setCollectorUrl') && (!names || names.length === 0)) {
+					legacyCreateNewNamespace(f, parameterArray[0], parameterArray[1]);
+
+					continue;
+				}
+
+				namedTrackers = getNamedTrackers(names);
 
 				if (lodash.isString(f)) {
 					asyncTracker[f].apply(asyncTracker, parameterArray);

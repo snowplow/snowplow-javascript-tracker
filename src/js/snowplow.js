@@ -200,10 +200,8 @@
 		helpers.addEventListener(windowAlias, 'beforeunload', beforeUnloadHandler, false);
 		addReadyListener();
 
-		asyncTracker = new tracker.Tracker(version, mutSnowplowState); // No argmap
-
-		// Now replace initialization array with proxy object
-		windowAlias._snaq = new queue.AsyncQueueProxy(asyncTracker, windowAlias._snaq);
+		// Now replace initialization array with queue manager object
+		windowAlias._snaq = new queue.InQueueManager(version, mutSnowplowState, windowAlias._snaq);
 
 		/************************************************************
 		 * Public data and methods

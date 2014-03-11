@@ -36,33 +36,34 @@
 
 	var
 		json2 = require('JSON'),
+		lodash = require('./lib_managed/lodash'),
 		localStorageAccessible = require('./lib/detectors').localStorageAccessible(),
 		object = typeof exports !== 'undefined' ? exports : this, // For eventual node.js environment support
 
 		executingQueue = false,
-		imageQueue;
+		outQueue;
 
 	if (localStorageAccessible) {
 		// Catch any JSON parse errors that might be thrown
 		try {
-			imageQueue = json2.parse(localStorage.getItem('snaqImageQueue'));
+			outQueue = json2.parse(localStorage.getItem('snaqoutQueue'));
 		}
 		catch(e) {}
 	}
 
 	// Initialize to and empty array if we didn't get anything out of localStorage
-	if (typeof imageQueue === 'undefined' || imageQueue == null) {
-		imageQueue = [];
+	if (typeof outQueue === 'undefined' || outQueue == null) {
+		outQueue = [];
 	}
 
 	/*
 	 * Queue an image beacon for submission to the collector.
 	 * If we're not processing the queue, we'll start.
 	 */
-	object.queueImage = function(request, configCollectorUrl) {
-		imageQueue.push(request);
+	object.enqueueImage = function(request, configCollectorUrl) {
+		outQueue.push([request, configCollectorUrl]);
 		if (localStorageAccessible) {
-			localStorage.setItem('snaqImageQueue', json2.stringify(imageQueue));
+			localStorage.setItem('snaqoutQueue', json2.stringify(outQueue));
 		}
 
 		if (!executingQueue) {
@@ -74,14 +75,15 @@
 	 * Run through the queue of image beacons, sending them one at a time.
 	 * Stops processing when we run out of queued requests, or we get an error.
 	 */
-	function executeQueue(configCollectorUrl) {
-		if (imageQueue.length < 1) {
+	function executeQueue() {
+		if (outQueue.length < 1) {
 			executingQueue = false;
 			return;
 		}
 
 		executingQueue = true;
-		var nextRequest = imageQueue[0];
+		var nextRequest = outQueue[0][0],
+			collectorUrl = outQueue[0][1];
 
 		/*
 		 * Send image request to the Snowplow Collector using GET.
@@ -97,9 +99,9 @@
 		// Okay? Let's proceed.
 		image.onload = function() {
 			// We succeeded, let's remove this request from the queue
-			imageQueue.shift();
+			outQueue.shift();
 			if (localStorageAccessible) {
-				localStorage.setItem('snaqImageQueue', json2.stringify(imageQueue));
+				localStorage.setItem('snaqoutQueue', json2.stringify(outQueue));
 			}
 			executeQueue(configCollectorUrl);
 		}
