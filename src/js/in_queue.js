@@ -57,6 +57,7 @@
 		 */
 		function getNamedTrackers(names) {
 			var namedTrackers = [];
+
 			if (!names || names.length === 0) {
 				namedTrackers = lodash.values(trackerDictionary);
 			} else {
@@ -68,7 +69,6 @@
 					}
 				}
 			}
-			
 			return namedTrackers;
 		}
 
@@ -105,7 +105,7 @@
 		 * @param endpoint string Of the form d3rkrsqld9gmqf.cloudfront.net
 		 */
 		function createNewNamespace(namespace, endpoint) {
-			trackerDictionary[namespace] = new tracker.Tracker(version, mutSnowplowState) // TODO: what of argmap?
+			trackerDictionary[namespace] = new tracker.Tracker(namespace, version, mutSnowplowState);
 			trackerDictionary[namespace].setCollectorUrl(endpoint);
 		}
 

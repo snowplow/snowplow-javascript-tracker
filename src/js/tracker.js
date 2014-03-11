@@ -65,7 +65,7 @@
 	 *
 	 * See also: Tracker.setCollectorUrl() and Tracker.setCollectorCf()
 	 */
-	object.Tracker = function Tracker(version, mutSnowplowState, argmap) {
+	object.Tracker = function Tracker(namespace, version, mutSnowplowState, argmap) {
 
 		/************************************************************
 		 * Private members
@@ -192,7 +192,7 @@
 			// Will be committed, sent and emptied by a call to trackTrans.
 			ecommerceTransaction = ecommerceTransactionTemplate(),
 
-			outQueueManager = new images.OutQueueManager();
+			outQueueManager = new images.OutQueueManager(namespace);
 
 		/**
 		 * Determines how to build our collector URL,
@@ -501,6 +501,7 @@
 			sb.add('cs', documentCharset);
 			sb.add('tz', timezone);
 			sb.add('uid', businessUserId); // Business-defined user ID
+			sb.add('tna', namespace);
 
 			// Adds with custom conditions
 			if (configReferrerUrl.length) sb.add('refr', purify(configReferrerUrl));

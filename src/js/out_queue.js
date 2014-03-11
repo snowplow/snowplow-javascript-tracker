@@ -40,15 +40,16 @@
 		localStorageAccessible = require('./lib/detectors').localStorageAccessible(),
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
-	object.OutQueueManager = function() {
+	object.OutQueueManager = function(namespace) {
 
-		var	executingQueue = false,
+		var	queueName = 'snowplowOutQueue' + namespace,
+			executingQueue = false,
 			outQueue;
 
 		if (localStorageAccessible) {
 			// Catch any JSON parse errors that might be thrown
 			try {
-				outQueue = json2.parse(localStorage.getItem('snowplowOutQueue'));
+				outQueue = json2.parse(localStorage.getItem(queueName));
 			}
 			catch(e) {}
 		}
@@ -65,7 +66,7 @@
 		function enqueueRequest(request, configCollectorUrl) {
 			outQueue.push([request, configCollectorUrl]);
 			if (localStorageAccessible) {
-				localStorage.setItem('snowplowOutQueue', json2.stringify(outQueue));
+				localStorage.setItem(queueName, json2.stringify(outQueue));
 			}
 
 			if (!executingQueue) {
@@ -89,9 +90,9 @@
 
 			executingQueue = true;
 
-			for (var i = 0; i < outQueue.length; i++) {
+			for (i in outQueue) {
 
-				if (outQueue[i]) {
+				if (outQueue[i] && outQueue.hasOwnProperty(i)) {
 
 					var nextRequest = outQueue[i][0],
 						collectorUrl = outQueue[i][1];
@@ -114,14 +115,12 @@
 							// We succeeded, let's remove this request from the queue
 							delete outQueue[j];
 							if (localStorageAccessible) {
-								localStorage.setItem('snowplowOutQueue', json2.stringify(outQueue));
+								localStorage.setItem(queueName, json2.stringify(outQueue));
 							}
 							executeQueue();
 						}
 
-						image.onerror = function() {
-							executingQueue = false;
-						}
+						image.onerror = function() {}
 
 						image.src = collectorUrl + nextRequest;
 
