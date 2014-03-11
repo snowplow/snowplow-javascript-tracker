@@ -38,79 +38,85 @@
 		json2 = require('JSON'),
 		lodash = require('./lib_managed/lodash'),
 		localStorageAccessible = require('./lib/detectors').localStorageAccessible(),
-		object = typeof exports !== 'undefined' ? exports : this, // For eventual node.js environment support
+		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
-		executingQueue = false,
-		outQueue;
+	object.OutQueueManager = function() {
 
-	if (localStorageAccessible) {
-		// Catch any JSON parse errors that might be thrown
-		try {
-			outQueue = json2.parse(localStorage.getItem('snaqoutQueue'));
-		}
-		catch(e) {}
-	}
+		var	executingQueue = false,
+			outQueue;
 
-	// Initialize to and empty array if we didn't get anything out of localStorage
-	if (typeof outQueue === 'undefined' || outQueue == null) {
-		outQueue = [];
-	}
-
-	/*
-	 * Queue an image beacon for submission to the collector.
-	 * If we're not processing the queue, we'll start.
-	 */
-	object.enqueueImage = function(request, configCollectorUrl) {
-		outQueue.push([request, configCollectorUrl]);
 		if (localStorageAccessible) {
-			localStorage.setItem('snaqoutQueue', json2.stringify(outQueue));
+			// Catch any JSON parse errors that might be thrown
+			try {
+				outQueue = json2.parse(localStorage.getItem('snaqOutQueue'));
+			}
+			catch(e) {}
 		}
 
-		if (!executingQueue) {
-			executeQueue(configCollectorUrl);
+		// Initialize to and empty array if we didn't get anything out of localStorage
+		if (typeof outQueue === 'undefined' || outQueue == null) {
+			outQueue = [];
 		}
-	}
-
-	/*
-	 * Run through the queue of image beacons, sending them one at a time.
-	 * Stops processing when we run out of queued requests, or we get an error.
-	 */
-	function executeQueue() {
-		if (outQueue.length < 1) {
-			executingQueue = false;
-			return;
-		}
-
-		executingQueue = true;
-		var nextRequest = outQueue[0][0],
-			collectorUrl = outQueue[0][1];
 
 		/*
-		 * Send image request to the Snowplow Collector using GET.
-		 * The Collector serves a transparent, single pixel (1x1) GIF
+		 * Queue an image beacon for submission to the collector.
+		 * If we're not processing the queue, we'll start.
 		 */
-		var image = new Image(1,1);
-
-		// Let's check that we have a Url to ping
-		if (configCollectorUrl === null) {
-			throw "No Snowplow collector configured, cannot track";
-		}
-
-		// Okay? Let's proceed.
-		image.onload = function() {
-			// We succeeded, let's remove this request from the queue
-			outQueue.shift();
+		function enqueueRequest(request, configCollectorUrl) {
+			outQueue.push([request, configCollectorUrl]);
 			if (localStorageAccessible) {
-				localStorage.setItem('snaqoutQueue', json2.stringify(outQueue));
+				localStorage.setItem('snaqOutQueue', json2.stringify(outQueue));
 			}
-			executeQueue(configCollectorUrl);
+
+			if (!executingQueue) {
+				executeQueue();
+			}
 		}
 
-		image.onerror = function() {
-			executingQueue = false;
+		/*
+		 * Run through the queue of image beacons, sending them one at a time.
+		 * Stops processing when we run out of queued requests, or we get an error.
+		 */
+		function executeQueue() {
+			if (outQueue.length < 1) {
+				executingQueue = false;
+				return;
+			}
+
+			executingQueue = true;
+			var nextRequest = outQueue[0][0],
+				collectorUrl = outQueue[0][1];
+
+			/*
+			 * Send image request to the Snowplow Collector using GET.
+			 * The Collector serves a transparent, single pixel (1x1) GIF
+			 */
+			var image = new Image(1,1);
+
+			// Let's check that we have a Url to ping
+			if (!lodash.isString(collectorUrl)) {
+				throw "No Snowplow collector configured, cannot track";
+			}
+
+			// Okay? Let's proceed.
+			image.onload = function() {
+				// We succeeded, let's remove this request from the queue
+				outQueue.shift();
+				if (localStorageAccessible) {
+					localStorage.setItem('snaqOutQueue', json2.stringify(outQueue));
+				}
+				executeQueue();
+			}
+
+			image.onerror = function() {
+				executingQueue = false;
+			}
+
+			image.src = collectorUrl + nextRequest;
 		}
 
-		image.src = configCollectorUrl + nextRequest;
+		return  {
+			enqueueImage: enqueueRequest
+		}
 	}
-
 }());
