@@ -48,7 +48,7 @@
 		if (localStorageAccessible) {
 			// Catch any JSON parse errors that might be thrown
 			try {
-				outQueue = json2.parse(localStorage.getItem('snaqOutQueue'));
+				outQueue = json2.parse(localStorage.getItem('snowplowOutQueue'));
 			}
 			catch(e) {}
 		}
@@ -65,7 +65,7 @@
 		function enqueueRequest(request, configCollectorUrl) {
 			outQueue.push([request, configCollectorUrl]);
 			if (localStorageAccessible) {
-				localStorage.setItem('snaqOutQueue', json2.stringify(outQueue));
+				localStorage.setItem('snowplowOutQueue', json2.stringify(outQueue));
 			}
 
 			if (!executingQueue) {
@@ -83,40 +83,62 @@
 				return;
 			}
 
+			var nextRequest,
+				collectorUrl,
+				i;
+
 			executingQueue = true;
-			var nextRequest = outQueue[0][0],
-				collectorUrl = outQueue[0][1];
 
-			/*
-			 * Send image request to the Snowplow Collector using GET.
-			 * The Collector serves a transparent, single pixel (1x1) GIF
-			 */
-			var image = new Image(1,1);
+			for (var i = 0; i < outQueue.length; i++) {
 
-			// Let's check that we have a Url to ping
-			if (!lodash.isString(collectorUrl)) {
-				throw "No Snowplow collector configured, cannot track";
-			}
+				if (outQueue[i]) {
 
-			// Okay? Let's proceed.
-			image.onload = function() {
-				// We succeeded, let's remove this request from the queue
-				outQueue.shift();
-				if (localStorageAccessible) {
-					localStorage.setItem('snaqOutQueue', json2.stringify(outQueue));
+					var nextRequest = outQueue[i][0],
+						collectorUrl = outQueue[i][1];
+
+					// Let's check that we have a Url to ping
+					if (!lodash.isString(collectorUrl)) {
+						throw "No Snowplow collector configured, cannot track";
+					}
+
+					/*
+					 * Send image request to the Snowplow Collector using GET.
+					 * The Collector serves a transparent, single pixel (1x1) GIF
+					 * IIFE used because i may change between setting image.onload and the image loading.
+					 */
+					(function(j) {
+						var image = new Image(1,1);
+
+						image.onload = function() {
+
+							// We succeeded, let's remove this request from the queue
+							delete outQueue[j];
+							if (localStorageAccessible) {
+								localStorage.setItem('snowplowOutQueue', json2.stringify(outQueue));
+							}
+							executeQueue();
+						}
+
+						image.onerror = function() {
+							executingQueue = false;
+						}
+
+						image.src = collectorUrl + nextRequest;
+
+					}(i));
 				}
-				executeQueue();
 			}
 
-			image.onerror = function() {
-				executingQueue = false;
-			}
+			executingQueue = false;
 
-			image.src = collectorUrl + nextRequest;
+			// If every request has been sent, set the queue to []
+			if (lodash.compact(outQueue).length === 0) {
+				outQueue = [];
+			}
 		}
 
 		return  {
-			enqueueImage: enqueueRequest
+			enqueueRequest: enqueueRequest
 		}
 	}
 }());

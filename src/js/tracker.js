@@ -190,7 +190,7 @@
 
 			// Ecommerce transaction data
 			// Will be committed, sent and emptied by a call to trackTrans.
-			ecommerceTransaction = ecommerceTransactionTemplate();
+			ecommerceTransaction = ecommerceTransactionTemplate(),
 
 			outQueueManager = new images.OutQueueManager();
 
@@ -281,7 +281,7 @@
 			var now = new Date();
 
 			if (!configDoNotTrack) {
-				outQueueManager.enqueueImage(request, configCollectorUrl);
+				outQueueManager.enqueueRequest(request, configCollectorUrl);
 				mutSnowplowState.expireDateTime = now.getTime() + delay;
 			}
 		}
