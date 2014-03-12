@@ -1,4 +1,4 @@
-Version 0.14.1 (2014-02-26)
+Version 0.14.1 (2014-03-12)
 ---------------------------
 Fixed bug where fromQueryString was matching fragments instead of just the querystring (#116) 
 
