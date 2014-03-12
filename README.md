@@ -55,4 +55,4 @@ Licensed under the [Simplified BSD] [bsd] license.
 [travis-image]: https://travis-ci.org/snowplow/snowplow-javascript-tracker.png?branch=master
 [travis]: http://travis-ci.org/snowplow/snowplow-javascript-tracker
 [codeclimate-image]: https://codeclimate.com/github/snowplow/snowplow-javascript-tracker.png
-[codeclimate]: https://codeclimate.com/github/github/snowplow/snowplow-javascript-tracker      
+[codeclimate]: https://codeclimate.com/github/snowplow/snowplow-javascript-tracker      
