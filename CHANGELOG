@@ -22,6 +22,7 @@ Added named Grunt tasks (#86)
 Added Intern unit tests for payload.js (#5)
 Replaced all functions in identifiers.js which are directly available from lodash (#85)
 Moved functions from identifers.js into payload.js and wrote Intern tests for them (#108)
+Added getting started info for developers to README, thanks @pkallos! (#129)
 
 Version 0.14.1 (2014-03-12)
 ---------------------------
