@@ -78,6 +78,7 @@
 		tracker = require('./tracker'),
 		helpers = require('./lib/helpers'),
 		queue = require('./in_queue'),
+		tracker = require('./tracker'),
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
@@ -201,7 +202,7 @@
 		addReadyListener();
 
 		// Now replace initialization array with queue manager object
-		windowAlias._snaq = new queue.InQueueManager(version, mutSnowplowState, windowAlias._snaq);
+		windowAlias._snaq = new queue.InQueueManager(tracker.Tracker, version, mutSnowplowState, windowAlias._snaq);
 
 		/************************************************************
 		 * Public data and methods

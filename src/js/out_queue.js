@@ -42,7 +42,7 @@
 
 	object.OutQueueManager = function(namespace) {
 
-		var	queueName = 'snowplowOutQueue' + namespace,
+		var	queueName = 'snowplowOutQueue_' + namespace,
 			executingQueue = false,
 			outQueue;
 
@@ -107,13 +107,13 @@
 					 * The Collector serves a transparent, single pixel (1x1) GIF
 					 * IIFE used because i may change between setting image.onload and the image loading.
 					 */
-					(function(j) {
+					(function(queueIndex) {
 						var image = new Image(1,1);
 
 						image.onload = function() {
 
 							// We succeeded, let's remove this request from the queue
-							delete outQueue[j];
+							delete outQueue[queueIndex];
 							if (localStorageAccessible) {
 								localStorage.setItem(queueName, json2.stringify(outQueue));
 							}

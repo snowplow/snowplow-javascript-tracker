@@ -43,7 +43,7 @@
 		payload = require('./payload'),
 		json2 = require('JSON'),
 		sha1 = require('sha1'),
-		images = require('./out_queue'),
+		requestQueue = require('./out_queue'),
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
@@ -192,7 +192,7 @@
 			// Will be committed, sent and emptied by a call to trackTrans.
 			ecommerceTransaction = ecommerceTransactionTemplate(),
 
-			outQueueManager = new images.OutQueueManager(namespace);
+			outQueueManager = new requestQueue.OutQueueManager(namespace);
 
 		/**
 		 * Determines how to build our collector URL,

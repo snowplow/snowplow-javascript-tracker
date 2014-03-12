@@ -36,8 +36,7 @@
 
 	var
 		lodash = require('./lib_managed/lodash'),
-		tracker = require('./tracker'),
-
+		
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
 	/************************************************************
@@ -46,7 +45,7 @@
 	 *   after the Tracker has been initialized and loaded
 	 ************************************************************/
 
-	object.InQueueManager = function(version, mutSnowplowState, asyncQueue) {
+	object.InQueueManager = function(TrackerConstructor, version, mutSnowplowState, asyncQueue) {
 
 		var trackerDictionary = {};
 
@@ -105,7 +104,7 @@
 		 * @param endpoint string Of the form d3rkrsqld9gmqf.cloudfront.net
 		 */
 		function createNewNamespace(namespace, endpoint) {
-			trackerDictionary[namespace] = new tracker.Tracker(namespace, version, mutSnowplowState);
+			trackerDictionary[namespace] = new TrackerConstructor(namespace, version, mutSnowplowState);
 			trackerDictionary[namespace].setCollectorUrl(endpoint);
 		}
 
