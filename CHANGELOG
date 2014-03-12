@@ -23,6 +23,10 @@ Added Intern unit tests for payload.js (#5)
 Replaced all functions in identifiers.js which are directly available from lodash (#85)
 Moved functions from identifers.js into payload.js and wrote Intern tests for them (#108)
 
+Version 0.14.1 (2014-03-12)
+---------------------------
+Fixed bug where fromQuerystring was matching fragments instead of just the querystring (#116) 
+
 Version 0.14.0 (2014-02-12)
 ---------------------------
 Bumped version to 0.14.0
