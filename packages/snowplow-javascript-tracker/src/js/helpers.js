@@ -307,7 +307,7 @@ SnowPlow.executePluginMethod = function (methodName, callback) {
  * Return value from name-value pair in querystring 
  */
 SnowPlow.fromQuerystring = function (field, url) {
-	var match = RegExp('[?&]' + field + '=([^&]*)').exec(url);
+	var match = RegExp('^[^#]*[?&]' + field + '=([^&#]*)').exec(url);
 	if (!match) {
 		return null;
 	}
