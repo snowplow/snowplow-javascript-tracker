@@ -88,7 +88,7 @@
 			var name;
 
 			if (lodash.isUndefined(namespace)) {
-				name = 'default'    // TODO: make default names work properly
+				name = 'sp'    // TODO: make default names work properly
 			} else {
 				name = namespace;
 			}
@@ -134,7 +134,9 @@
 
 			for (i = 0; i < arguments.length; i += 1) {
 				parameterArray = arguments[i];
-				f = parameterArray.shift();
+
+				// Arguments is not an array, so we turn it into one
+				parameterArray = Array.prototype.slice.call(parameterArray, 0);
 				inputString = parameterArray.shift();
 				parsedString = parseInputString(inputString);
 				f = parsedString[0];
@@ -147,7 +149,6 @@
 
 				if ((f === 'setCollectorCf' || f === 'setCollectorUrl') && (!names || names.length === 0)) {
 					legacyCreateNewNamespace(f, parameterArray[0], parameterArray[1]);
-
 					continue;
 				}
 

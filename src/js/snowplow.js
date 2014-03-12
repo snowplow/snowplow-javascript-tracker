@@ -107,6 +107,15 @@
 		 * Private methods
 		 ************************************************************/
 
+		 /*
+		  * Get the name of the global input function
+		  */
+		function getAsynchronousQueue() {
+			var queueName = windowAlias['GlobalSnowplowNamespace'].shift();
+			var queue = windowAlias[queueName];
+			return queue.q;
+		}
+
 		/*
 		 * Handle beforeunload event
 		 *
@@ -202,7 +211,8 @@
 		addReadyListener();
 
 		// Now replace initialization array with queue manager object
-		windowAlias._snaq = new queue.InQueueManager(tracker.Tracker, version, mutSnowplowState, windowAlias._snaq);
+		var newQueue = getAsynchronousQueue();
+		newQueue = new queue.InQueueManager(tracker.Tracker, version, mutSnowplowState, newQueue);
 
 		/************************************************************
 		 * Public data and methods

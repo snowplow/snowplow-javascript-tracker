@@ -114,7 +114,7 @@
 			configDiscardHashTag,
 
 			// First-party cookie name prefix
-			configCookieNamePrefix = '_sp_',
+			configCookieNamePrefix = '_' + namespace + '_',
 
 			// First-party cookie domain
 			// User agent defaults to origin hostname

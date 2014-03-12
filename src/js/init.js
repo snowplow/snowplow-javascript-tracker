@@ -36,4 +36,5 @@
 window._snaq = window._snaq || [];
 
 var snowplow = require('./snowplow');
-window.Snowplow = window.Snowplow || new snowplow.Snowplow();
+//window.Snowplow = window.Snowplow || new snowplow.Snowplow();
+var snowplow = new snowplow.Snowplow();

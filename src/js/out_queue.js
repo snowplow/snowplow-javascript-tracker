@@ -105,7 +105,7 @@
 					/*
 					 * Send image request to the Snowplow Collector using GET.
 					 * The Collector serves a transparent, single pixel (1x1) GIF
-					 * IIFE used because i may change between setting image.onload and the image loading.
+					 * Use IIFE to close over i because i may change between setting image.onload and the image loading.
 					 */
 					(function(queueIndex) {
 						var image = new Image(1,1);
