@@ -17,7 +17,7 @@ Added Sauce Labs small button at top of README (#123) (TODO)
 Added Sauce full test summary widget (long bar) at bottom of README (#124) (TODO)
 Added support for namespacing (#4) (TODO)
 Passed tracker namespace through to collector in Tracker Protocol (#126)
-Moved to argmap-style tracker creation with 'newTracker' (#132) (TODO)
+Moved to argmap-style tracker creation with 'newTracker' (#132)
 Added support for cookie namespacing (#131) (TODO)
 Added new tag which allows queue to be renamed (#130) (TODO)
 

@@ -50,20 +50,19 @@
 	/*
 	 * Snowplow Tracker class
 	 *
+	 * @param namespace The namespace of the tracker object
+
 	 * @param version The current version of the JavaScript Tracker
 	 *
 	 * @param mutSnowplowState An object containing hasLoaded, registeredOnLoadHandlers, and expireDateTime
 	 * Passed in by reference in case they are altered by snowplow.js
 	 *
-	 * Takes an argmap as its sole parameter. Argmap supports:
+	 * @param argmap Optional dictionary of configuration options. Supported fields:
 	 *
-	 * 1. Empty             - to initialize an Async Tracker
-	 * 2. {cf: 'subdomain'} - to initialize a Sync Tracker with
-	 *                        a CloudFront-based collector 
-	 * 3. {url: 'rawurl'}   - to initialize a Sync Tracker with a
-	 *                        URL-based collector
-	 *
-	 * See also: Tracker.setCollectorUrl() and Tracker.setCollectorCf()
+	 * 1. encodeBase64
+	 * 2. setCookieDomain
+	 * 3. setCookieName
+	 * 4. setAppId
 	 */
 	object.Tracker = function Tracker(namespace, version, mutSnowplowState, argmap) {
 
@@ -83,6 +82,8 @@
 			locationHrefAlias = locationArray[1],
 			configReferrerUrl = locationArray[2],
 
+			argmap = argmap || {},
+
 			// Request method is always GET for Snowplow
 			configRequestMethod = 'GET',
 
@@ -90,10 +91,10 @@
 			configPlatform = 'web',
 
 			// Snowplow collector URL
-			configCollectorUrl = constructCollectorUrl(argmap),
+			configCollectorUrl,
 
 			// Site ID
-			configTrackerSiteId = '', // Updated for Snowplow
+			configTrackerSiteId = argmap.hasOwnProperty('setAppId') ? argmap.setAppid : '', // Updated for Snowplow
 
 			// Document URL
 			configCustomUrl,
@@ -114,11 +115,11 @@
 			configDiscardHashTag,
 
 			// First-party cookie name prefix
-			configCookieNamePrefix = '_' + namespace + '_',
+			configCookieNamePrefix = argmap.hasOwnProperty('setCookieNamePrefix') ? argmap.setCookieNamePrefix : '_sp_',
 
 			// First-party cookie domain
 			// User agent defaults to origin hostname
-			configCookieDomain,
+			configCookieDomain = argmap.hasOwnProperty('setCookieDomain') ? argmap.setCookieDomain : undefined,
 
 			// First-party cookie path
 			// Default is user agent defined.
@@ -137,7 +138,7 @@
 			configSessionCookieTimeout = 1800000, // 30 minutes
 
 			// Enable Base64 encoding for unstructured events
-			configEncodeBase64 = true,
+			configEncodeBase64 = argmap.hasOwnProperty('encodeBase64') ? argmap.encodeBase64 : true,
 
 			// Default hash seed for MurmurHash3 in detectors.detectSignature
 			configUserFingerprintHashSeed = 123412414,
@@ -193,24 +194,6 @@
 			ecommerceTransaction = ecommerceTransactionTemplate(),
 
 			outQueueManager = new requestQueue.OutQueueManager(namespace);
-
-		/**
-		 * Determines how to build our collector URL,
-		 * based on the argmap passed into the
-		 * Tracker's constructor.
-		 *
-		 * argmap is optional because we cannot know it
-		 * when constructing an AsyncTracker
-		 */
-		function constructCollectorUrl(argmap) {
-			if (typeof argmap === "undefined") {
-				return null; // JavaScript joys, changing an undefined into a null
-			} else if ('cf' in argmap) {
-				return collectorUrlFromCfDist(argmap.cf);
-			} else if ('url' in argmap) {
-				return asCollectorUrl(argmap.url);
-			}
-		}
 
 		/*
 		 * Initializes an empty ecommerce
@@ -1013,15 +996,6 @@
 			},
 
 			/**
-			 * Specify the app ID
-			 *
-			 * @param int|string appId
-			 */
-			setAppId: function (appId) {
-				configTrackerSiteId = appId;
-			},
-
-			/**
 			 * Set delay for link tracking (in milliseconds)
 			 *
 			 * @param int delay
@@ -1293,16 +1267,6 @@
 			 */
 			setPlatform: function(platform) {
 				configPlatform = platform;
-			},
-
-			/**
-			 *
-			 * Enable Base64 encoding for unstructured event payload
-			 *
-			 * @param boolean enabled A boolean value indicating if the Base64 encoding for unstructured events should be enabled or not
-			 */
-			encodeBase64: function (enabled) {
-				configEncodeBase64 = enabled;
 			},
 
 			/**

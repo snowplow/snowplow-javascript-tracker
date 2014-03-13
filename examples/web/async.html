@@ -21,28 +21,28 @@
     <script type="text/javascript">
 
           ;(function(p,l,o,w,i,n,g) {
-          p.scriptManager = p.scriptManager || (function(a) {
+          p.scriptRequestManager = p.scriptRequestManager || (function(a) {
             var scriptQueue = [];
-            function enqueueScript(src) {
+            function enqueueScriptRequest(src) {
               scriptQueue.push(src);
               if (scriptQueue.length === 1) {
-                dealWithNextScript();
+                sendScriptRequest();
               }
             }
-            function dealWithNextScript() {
+            function sendScriptRequest() {
               if (scriptQueue.length > 0) {
                 var newScript = l.createElement(o),
                     initialScript = l.getElementsByTagName(o)[0];
                 newScript.async = 1;
                 newScript.onload = newScript.onError = function() {
                   scriptQueue.shift();
-                  dealWithNextScript();
+                  sendScriptRequest();
                 }
                 newScript.src = scriptQueue[0];
                 initialScript.parentNode.insertBefore(newScript, initialScript);
               }
             }
-            return {enqueueScript: enqueueScript}
+            return {enqueueScriptRequest: enqueueScriptRequest}
           })();
           p['GlobalSnowplowNamespace'] = p['GlobalSnowplowNamespace']||[];
           p['GlobalSnowplowNamespace'].push(i);
@@ -50,13 +50,15 @@
             (p[i].q = p[i].q||[]).push(arguments);
           };
           p[i].q = p[i].q || [];
-          scriptManager.enqueueScript(w, i);
+          scriptRequestManager.enqueueScriptRequest(w, i);
 
         }(window, document, 'script', '../../dist/snowplow.js', 'new_name_here'));
 
-        window.new_name_here('newTracker', 'primaryTrackerNamespace', 'd3rkrsqld9gmqf.cloudfront.net'); 
+        window.new_name_here('newTracker', 'primaryTrackerNamespace', 'd3rkrsqld9gmqf.cloudfront.net', {
+          encodeBase64: false,
+          setAppId: 'CFe23a'
+        });
 
-        window.new_name_here('setAppId', 'CFe23a'); // Site ID can be anything you want. Set it if you're tracking more than one site in this account
         window.new_name_here('setUserId', 'alex 123'); // Business-defined user ID
         //window.new_name_here('setUserIdFromLocation', 'id'); // To test this, reload the page with ?id=xxx
         //window.new_name_here('setUserIdFromCookie', '_sp_id.4209') // Test this using Firefox because Chrome doesn't allow local cookies.
@@ -64,7 +66,6 @@
         window.new_name_here('enableActivityTracking', 10, 10); // Ping every 10 seconds after 10 seconds
         window.new_name_here('enableLinkClickTracking', 'barred', true);
         window.new_name_here('setPlatform', 'mob');
-        window.new_name_here('encodeBase64', false); // Default is true
         window.new_name_here('enableUserFingerprinting', true); // Turn on user fingerprinting
         window.new_name_here('respectDoNotTrack', true); // Prevent all tracking if browser's Do Not Track feature is enabled
         // window.new_name_here('trackPageView', 'Async Test'); // Track the page view with custom title

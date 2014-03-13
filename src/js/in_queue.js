@@ -78,7 +78,7 @@
 		 * @param endpoint string
 		 * @param namespace string Optional tracker name
 		 * 
-		 * TODO: remove this in 1.2.0
+		 * TODO: remove this in 2.1.0
 		 */
 		function legacyCreateNewNamespace(f, endpoint, namespace) {
 			if (!lodash.isUndefined(console)) {
@@ -103,8 +103,8 @@
 		 * @param namespace string
 		 * @param endpoint string Of the form d3rkrsqld9gmqf.cloudfront.net
 		 */
-		function createNewNamespace(namespace, endpoint) {
-			trackerDictionary[namespace] = new TrackerConstructor(namespace, version, mutSnowplowState);
+		function createNewNamespace(namespace, endpoint, argmap) {
+			trackerDictionary[namespace] = new TrackerConstructor(namespace, version, mutSnowplowState, argmap);
 			trackerDictionary[namespace].setCollectorUrl(endpoint);
 		}
 
@@ -142,7 +142,7 @@
 				names = parsedString[1];
 
 				if (f === 'newTracker') {
-					createNewNamespace(parameterArray[0], parameterArray[1]);
+					createNewNamespace(parameterArray[0], parameterArray[1], parameterArray[2]);
 					continue;
 				}
 
