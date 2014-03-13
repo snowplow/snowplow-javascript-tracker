@@ -33,8 +33,17 @@
  */
 
 // Snowplow Asynchronous Queue
-window._snaq = window._snaq || [];
 
-var snowplow = require('./snowplow');
-//window.Snowplow = window.Snowplow || new snowplow.Snowplow();
-var snowplow = new snowplow.Snowplow();
+/*
+ * Get the name of the global input function
+ */
+function getAsynchronousQueue() {
+	var queueName = window['GlobalSnowplowNamespace'].shift();
+	var queue = window[queueName];
+	return queue;
+}
+
+var snowplow = require('./snowplow'),
+	queue = getAsynchronousQueue();
+
+queue.q = new snowplow.Snowplow(queue.q);

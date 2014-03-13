@@ -82,7 +82,7 @@
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
-	object.Snowplow = function() {
+	object.Snowplow = function(asynchronousQueue) {
 
 		var
 			documentAlias = document,
@@ -107,14 +107,6 @@
 		 * Private methods
 		 ************************************************************/
 
-		 /*
-		  * Get the name of the global input function
-		  */
-		function getAsynchronousQueue() {
-			var queueName = windowAlias['GlobalSnowplowNamespace'].shift();
-			var queue = windowAlias[queueName];
-			return queue;
-		}
 
 		/*
 		 * Handle beforeunload event
@@ -211,8 +203,7 @@
 		addReadyListener();
 
 		// Now replace initialization array with queue manager object
-		var newQueue = getAsynchronousQueue();
-		newQueue.q = new queue.InQueueManager(tracker.Tracker, version, mutSnowplowState, newQueue.q);
+		return new queue.InQueueManager(tracker.Tracker, version, mutSnowplowState, asynchronousQueue);
 
 		/************************************************************
 		 * Public data and methods
