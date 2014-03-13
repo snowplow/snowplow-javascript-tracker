@@ -1,7 +1,6 @@
 {
   "name": "snowplow-tracker",
   "version": "1.0.0",
-  "version": "0.14.1",
   "devDependencies": {
     "grunt": "~0.4.2",
     "intern": "~1.4.0",
