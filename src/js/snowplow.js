@@ -113,7 +113,7 @@
 		function getAsynchronousQueue() {
 			var queueName = windowAlias['GlobalSnowplowNamespace'].shift();
 			var queue = windowAlias[queueName];
-			return queue.q;
+			return queue;
 		}
 
 		/*
@@ -212,7 +212,7 @@
 
 		// Now replace initialization array with queue manager object
 		var newQueue = getAsynchronousQueue();
-		newQueue = new queue.InQueueManager(tracker.Tracker, version, mutSnowplowState, newQueue);
+		newQueue.q = new queue.InQueueManager(tracker.Tracker, version, mutSnowplowState, newQueue.q);
 
 		/************************************************************
 		 * Public data and methods

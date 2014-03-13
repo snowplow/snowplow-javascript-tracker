@@ -136,8 +136,7 @@
 				parameterArray = arguments[i];
 
 				// Arguments is not an array, so we turn it into one
-				parameterArray = Array.prototype.slice.call(parameterArray, 0);
-				inputString = parameterArray.shift();
+				inputString = Array.prototype.shift.call(parameterArray);
 				parsedString = parseInputString(inputString);
 				f = parsedString[0];
 				names = parsedString[1];
