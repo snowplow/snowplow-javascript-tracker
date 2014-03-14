@@ -171,7 +171,7 @@
 			timezone = detectors.detectTimezone(),
 
 			// Visitor fingerprint
-			userFingerprint,
+			userFingerprint = detectors.detectSignature(configUserFingerprintHashSeed),
 
 			// Guard against installing the link tracker more than once per Tracker instance
 			linkTrackingInstalled = false,
@@ -1252,6 +1252,14 @@
 			},
 
 			/**
+			 * @param number seed The seed used for MurmurHash3
+			 */
+			setUserFingerprintSeed: function(seed) {
+				configUserFingerprintHashSeed = seed;
+				userFingerprint = detectors.detectSignature(configUserFingerprintHashSeed);
+			},
+
+			/**
 			 * Prevent tracking if user's browser has Do Not Track feature enabled,
 			 * where tracking is:
 			 * 1) Sending events to a collector
@@ -1265,16 +1273,12 @@
 			},
 
 			/**
-			 * Enable user fingerprinting
-			 * @param bool enable If true, turn on user fingerprinting;
-			 * @param number hashSeed The seed used for MurmurHash3
+			 * Enable/disable user fingerprinting. User fingerprinting is enabled by default.
+			 * @param bool enable If false, turn off user fingerprinting
 			 */
-			enableUserFingerprinting: function(enable, hashSeed) {
-				if (enable) {
-					configUserFingerprintHashSeed = hashSeed || configUserFingerprintHashSeed;
-					userFingerprint = detectors.detectSignature(configUserFingerprintHashSeed);
-				} else {
-					userFingerprint = null;
+			enableUserFingerprint: function(enable) {
+				if (!enable) {
+					userFingerprint = '';
 				}
 			},
 

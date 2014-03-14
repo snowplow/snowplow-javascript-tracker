@@ -31,7 +31,8 @@
         window._snaq.push(['enableLinkTracking']);
         window._snaq.push(['setPlatform', 'mob']);
         window._snaq.push(['encodeBase64', false]); // Default is true
-        window._snaq.push(['enableUserFingerprinting', true]); // Turn on user fingerprinting
+        //window._snaq.push(['enableUserFingerprint', false]); // Turn off user fingerprinting
+        //window._snaq.push(['setUserFingerprintSeed', 987654321]); // Set user fingerprint hash seed
         window._snaq.push(['respectDoNotTrack', true]); // Prevent all tracking if browser's Do Not Track feature is enabled
         // window._snaq.push(['trackPageView', 'Async Test']); // Track the page view with custom title
         window._snaq.push(['trackPageView', , { // Auto-set page title; add page context
