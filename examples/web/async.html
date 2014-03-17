@@ -14,7 +14,7 @@
  -->
 <html>
 <head>
-    <title>Asynchronous website/webapp examples for snowplow.js</title>localStorage.clear()
+    <title>Asynchronous website/webapp examples for snowplow.js</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
     <!-- Snowplow starts plowing -->
@@ -56,7 +56,8 @@
 
         window.new_name_here('newTracker', 'primaryTrackerNamespace', 'd3rkrsqld9gmqf.cloudfront.net', {
           encodeBase64: false,
-          setAppId: 'CFe23a'
+          appId: 'CFe23a',
+          platform: 'mob'
         });
 
         window.new_name_here('setUserId', 'alex 123'); // Business-defined user ID
@@ -65,9 +66,6 @@
         window.new_name_here('setCustomUrl', '/overridden-url/'); // Override the page URL
         window.new_name_here('enableActivityTracking', 10, 10); // Ping every 10 seconds after 10 seconds
         window.new_name_here('enableLinkClickTracking', 'barred', true);
-        window.new_name_here('setPlatform', 'mob');
-        window.new_name_here('enableUserFingerprinting', true); // Turn on user fingerprinting
-        window.new_name_here('respectDoNotTrack', true); // Prevent all tracking if browser's Do Not Track feature is enabled
         // window.new_name_here('trackPageView', 'Async Test'); // Track the page view with custom title
         window.new_name_here('trackPageView', null , { // Auto-set page title; add page context
           page: {

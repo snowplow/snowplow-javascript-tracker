@@ -60,9 +60,13 @@
 	 * @param argmap Optional dictionary of configuration options. Supported fields:
 	 *
 	 * 1. encodeBase64
-	 * 2. setCookieDomain
-	 * 3. setCookieName
-	 * 4. setAppId
+	 * 2. cookieDomain
+	 * 3. cookieName
+	 * 4. appId
+	 * 5. platform
+	 * 6. respectDoNotTrack
+	 * 7. userFingerprint
+	 * 8. userFingerprintSeed
 	 */
 	object.Tracker = function Tracker(namespace, version, mutSnowplowState, argmap) {
 
@@ -88,13 +92,13 @@
 			configRequestMethod = 'GET',
 
 			// Platform defaults to web for this tracker
-			configPlatform = 'web',
+			configPlatform = argmap.hasOwnProperty('platform') ? argmap.platform : 'web',
 
 			// Snowplow collector URL
 			configCollectorUrl,
 
 			// Site ID
-			configTrackerSiteId = argmap.hasOwnProperty('setAppId') ? argmap.setAppid : '', // Updated for Snowplow
+			configTrackerSiteId = argmap.hasOwnProperty('appId') ? argmap.setAppid : '', // Updated for Snowplow
 
 			// Document URL
 			configCustomUrl,
@@ -115,18 +119,21 @@
 			configDiscardHashTag,
 
 			// First-party cookie name prefix
-			configCookieNamePrefix = argmap.hasOwnProperty('setCookieNamePrefix') ? argmap.setCookieNamePrefix : '_sp_',
+			configCookieNamePrefix = argmap.hasOwnProperty('cookieName') ? argmap.cookieName : '_sp_',
 
 			// First-party cookie domain
 			// User agent defaults to origin hostname
-			configCookieDomain = argmap.hasOwnProperty('setCookieDomain') ? argmap.setCookieDomain : undefined,
+			configCookieDomain = argmap.hasOwnProperty('cookieDomain') ? argmap.cookieDomain : null,
 
 			// First-party cookie path
 			// Default is user agent defined.
 			configCookiePath,
 
+			// Do Not Track browser feature
+			dnt = navigatorAlias.doNotTrack || navigatorAlias.msDoNotTrack,
+
 			// Do Not Track
-			configDoNotTrack,
+			configDoNotTrack = argmap.hasOwnProperty('respectDoNotTrack') ? argmap.respectDoNotTrack && (dnt === 'yes' || dnt === '1') : false,
 
 			// Count sites which are pre-rendered
 			configCountPreRendered,
@@ -141,7 +148,7 @@
 			configEncodeBase64 = argmap.hasOwnProperty('encodeBase64') ? argmap.encodeBase64 : true,
 
 			// Default hash seed for MurmurHash3 in detectors.detectSignature
-			configUserFingerprintHashSeed = 123412414,
+			configUserFingerprintHashSeed = argmap.hasOwnProperty('userFingerprintSeed') ? argmap.userFingerprintSeed : 123412414,
 
 			// Document character set
 			documentCharset = documentAlias.characterSet || documentAlias.charset,
@@ -156,7 +163,7 @@
 			timezone = detectors.detectTimezone(),
 
 			// Visitor fingerprint
-			userFingerprint = detectors.detectSignature(configUserFingerprintHashSeed),
+			userFingerprint = (argmap.userFingerprint === false) ? '' : detectors.detectSignature(configUserFingerprintHashSeed),
 
 			// Guard against installing the link tracker more than once per Tracker instance
 			linkTrackingInstalled = false,
@@ -995,6 +1002,16 @@
 				return loadDomainUserIdCookie();
 			},
 
+
+			/**
+			* Specify the app ID
+			*
+			* @param int|string appId
+			*/
+			setAppId: function (appId) {
+				configTrackerSiteId = appId;
+			},
+
 			/**
 			 * Set delay for link tracking (in milliseconds)
 			 *
@@ -1055,7 +1072,6 @@
 			 * @param string domain
 			 */
 			setCookieDomain: function (domain) {
-
 				configCookieDomain = helpers.fixupDomain(domain);
 				updateDomainHash();
 			},
@@ -1261,12 +1277,22 @@
 			},
 
 			/**
-			 * Specify the platform
-			 *
-			 * @param string platform Overrides the default tracking platform
-			 */
+			* Specify the platform
+			*
+			* @param string platform Overrides the default tracking platform
+			*/
 			setPlatform: function(platform) {
 				configPlatform = platform;
+			},
+
+			/**
+			*
+			* Enable Base64 encoding for unstructured event payload
+			*
+			* @param boolean enabled A boolean value indicating if the Base64 encoding for unstructured events should be enabled or not
+			*/
+			encodeBase64: function (enabled) {
+				configEncodeBase64 = enabled;
 			},
 
 			/**
