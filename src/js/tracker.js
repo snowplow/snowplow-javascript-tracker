@@ -67,6 +67,7 @@
 	 * 6. respectDoNotTrack, false
 	 * 7. userFingerprint, true
 	 * 8. userFingerprintSeed, 123412414
+	 * 9. writeCookies, true
 	 */
 	object.Tracker = function Tracker(namespace, version, mutSnowplowState, argmap) {
 
@@ -128,6 +129,8 @@
 			// First-party cookie path
 			// Default is user agent defined.
 			configCookiePath,
+
+			configWriteCookies = argmap.hasOwnProperty('writeCookies') ? argmap.writeCookies : true,
 
 			// Do Not Track browser feature
 			dnt = navigatorAlias.doNotTrack || navigatorAlias.msDoNotTrack,
@@ -453,7 +456,7 @@
 				currentUrl = configCustomUrl || locationHrefAlias,
 				featurePrefix;
 
-			if (configDoNotTrack) {
+			if (configDoNotTrack && configWriteCookies) {
 				cookie.cookie(idname, '', -1, configCookiePath, configCookieDomain);
 				cookie.cookie(sesname, '', -1, configCookiePath, configCookieDomain);
 				return '';
@@ -509,9 +512,10 @@
 			var request = sb.build();
 
 			// Update cookies
-			setDomainUserIdCookie(_domainUserId, createTs, visitCount, nowTs, lastVisitTs);
-			cookie.cookie(sesname, '*', configSessionCookieTimeout, configCookiePath, configCookieDomain);
-
+			if (configWriteCookies) {
+				setDomainUserIdCookie(_domainUserId, createTs, visitCount, nowTs, lastVisitTs);
+				cookie.cookie(sesname, '*', configSessionCookieTimeout, configCookiePath, configCookieDomain);
+			}
 			return request;
 		}
 

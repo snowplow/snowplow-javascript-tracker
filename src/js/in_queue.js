@@ -48,7 +48,8 @@
 
 	object.InQueueManager = function(TrackerConstructor, version, mutSnowplowState, asyncQueue) {
 
-		var trackerDictionary = {};
+		var trackerDictionary = {},
+			usedCookieNames = {};
 
 		/*
 		 * Get an array of trackers to which a function should be applied.
@@ -64,7 +65,7 @@
 				for (var i = 0; i < names.length; i++) {
 					if (trackerDictionary.hasOwnProperty(names[i])) {
 						namedTrackers.push(trackerDictionary[names[i]]);
-					} else if (!lodash.isUndefined(console)) {
+					} else {
 						helpers.warn('Warning: Tracker namespace "' + names[i] + '" not configured');
 					}
 				}
@@ -103,6 +104,12 @@
 		 * @param endpoint string Of the form d3rkrsqld9gmqf.cloudfront.net
 		 */
 		function createNewNamespace(namespace, endpoint, argmap) {
+			argmap = argmap || {};
+			if ((!argmap.writeCookies) && (argmap.cookieName in usedCookieNames)) {
+				argmap.writeCookies = false;
+			} else {
+				usedCookieNames[argmap.cookieName] = true;
+			}
 			trackerDictionary[namespace] = new TrackerConstructor(namespace, version, mutSnowplowState, argmap);
 			trackerDictionary[namespace].setCollectorUrl(endpoint);
 		}
