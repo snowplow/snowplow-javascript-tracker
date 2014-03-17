@@ -434,7 +434,7 @@
 		 * Takes in a string builder, adds in parameters to it
 		 * and then generates the request.
 		 */
-		function getRequest(sb) {
+		function getRequest(sb, snowplowSchema) {
 			var i,
 				now = new Date(),
 				nowTs = Math.round(now.getTime() / 1000),
@@ -454,7 +454,8 @@
 				id = loadDomainUserIdCookie(),
 				ses = getSnowplowCookieValue('ses'), // aka cookie.cookie(sesname)
 				currentUrl = configCustomUrl || locationHrefAlias,
-				featurePrefix;
+				featurePrefix,
+				eventVendor = 'com.snowplowanalytics';
 
 			if (configDoNotTrack && configWriteCookies) {
 				cookie.cookie(idname, '', -1, configCookiePath, configCookieDomain);
@@ -495,6 +496,11 @@
 			sb.add('tz', timezone);
 			sb.add('uid', businessUserId); // Business-defined user ID
 			sb.add('tna', namespace);
+
+			// Add event vendor field except for unstructured events whose JSON schema was not authored by Snowplow
+			if (snowplowSchema || (lodash.isUndefined(snowplowSchema))) {
+				sb.add('ven', eventVendor);
+			}
 
 			// Adds with custom conditions
 			if (configReferrerUrl.length) sb.add('refr', purify(configReferrerUrl));
@@ -653,15 +659,16 @@
 		 *
 		 * @param string name The name of the event
 		 * @param object properties The properties of the event
+		 * @param snowplowSchema Whether the JSON schema is authored by Snowplow
 		 * @param object context Custom context relating to the event
 		 */
-		function logUnstructEvent(name, properties, context) {
+		function logUnstructEvent(name, properties, snowplowSchema, context) {
 			var sb = payload.payloadBuilder(configEncodeBase64);
 			sb.add('e', 'ue'); // 'ue' for Unstructured Event
 			sb.add('ue_na', name);
 			sb.addJson('ue_px', 'ue_pr', properties);
 			sb.addJson('cx', 'co', context);
-			request = getRequest(sb);
+			request = getRequest(sb, snowplowSchema);
 			sendRequest(request, configTrackerPause);
 		}
 
@@ -748,7 +755,7 @@
 				element_target: elementTarget,
 				target_url: targetUrl
 			},
-			context)
+			true, context)
 
 		}
 
@@ -1354,7 +1361,7 @@
 			 * @param object Custom context relating to the event
 			 */
 			trackUnstructEvent: function (name, properties, context) {
-				logUnstructEvent(name, properties, context);
+				logUnstructEvent(name, properties, false, context);
 			},
 
 			/**
@@ -1495,7 +1502,7 @@
 					cost_model: costModel,
 					campaign_id: campaignId
 				},
-				context);
+				true, context);
 			},
 			
 			trackAdClick: function(clickId, costIfCpc, targetUrl, bannerId, zoneId, impressionId, advertiserId, costModel, campaignId, context) {
@@ -1511,7 +1518,7 @@
 					cost_model: costModel,
 					campaign_id: campaignId
 				},
-				context);
+				true, context);
 			},
 
 			trackAdConversion: function(conversionId, costIfCpa, category, action, property, initialValue, advertiserId, costModel, campaignId, context) {
@@ -1527,7 +1534,7 @@
 					cost_model: costModel,
 					campaign_id: campaignId					
 				},
-				context)
+				true, context)
 			}
 		}
 	}
