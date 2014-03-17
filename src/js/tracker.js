@@ -142,10 +142,10 @@
 			configCountPreRendered,
 
 			// Life of the visitor cookie (in milliseconds)
-			configVisitorCookieTimeout = 63072000000, // 2 years
+			configVisitorCookieTimeout = 63072000, // 2 years
 
 			// Life of the session cookie (in milliseconds)
-			configSessionCookieTimeout = 1800000, // 30 minutes
+			configSessionCookieTimeout = 1800, // 30 minutes
 
 			// Enable Base64 encoding for unstructured events
 			configEncodeBase64 = argmap.hasOwnProperty('encodeBase64') ? argmap.encodeBase64 : true,
