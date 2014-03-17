@@ -203,15 +203,6 @@
 			outQueueManager = new requestQueue.OutQueueManager(namespace);
 
 		/*
-		 * Only log deprecation warnings if they won't cause an error
-		 */
-		function warn(message) {
-			if (typeof console !== undefined) {
-				console.log(message);
-			}
-		}
-
-		/*
 		 * Initializes an empty ecommerce
 		 * transaction and line items
 		 */
@@ -1018,7 +1009,7 @@
 			* @param int|string appId
 			*/
 			setAppId: function (appId) {
-				warn('setAppId is deprecated. Instead add an "appId" field to the argmap argument of newTracker.');
+				helpers.warn('setAppId is deprecated. Instead add an "appId" field to the argmap argument of newTracker.');
 				configTrackerSiteId = appId;
 			},
 
@@ -1073,7 +1064,7 @@
 			 * @param string cookieNamePrefix
 			 */
 			setCookieNamePrefix: function (cookieNamePrefix) {
-				warn('setCookieNamePrefix is deprecated. Instead add a "cookieName" field to the argmap argument of newTracker.');
+				helpers.warn('setCookieNamePrefix is deprecated. Instead add a "cookieName" field to the argmap argument of newTracker.');
 				configCookieNamePrefix = cookieNamePrefix;
 			},
 
@@ -1083,7 +1074,7 @@
 			 * @param string domain
 			 */
 			setCookieDomain: function (domain) {
-				warn('setCookieDomain is deprecated. Instead add a "cookieDomain" field to the argmap argument of newTracker.');
+				helpers.warn('setCookieDomain is deprecated. Instead add a "cookieDomain" field to the argmap argument of newTracker.');
 				configCookieDomain = helpers.fixupDomain(domain);
 				updateDomainHash();
 			},
@@ -1120,7 +1111,7 @@
 			* @param number seed The seed used for MurmurHash3
 			*/
 			setUserFingerprintSeed: function(seed) {
-				warn('setUserFingerprintSeed is deprecated. Instead add a "userFingerprintSeed" field to the argmap argument of newTracker.');
+				helpers.warn('setUserFingerprintSeed is deprecated. Instead add a "userFingerprintSeed" field to the argmap argument of newTracker.');
 				configUserFingerprintHashSeed = seed;
 				userFingerprint = detectors.detectSignature(configUserFingerprintHashSeed);
 			},
@@ -1130,7 +1121,7 @@
 			* @param bool enable If false, turn off user fingerprinting
 			*/
 			enableUserFingerprint: function(enable) {
-			warn('enableUserFingerprintSeed is deprecated. Instead add a "userFingerprint" field to the argmap argument of newTracker.');
+			helpers.warn('enableUserFingerprintSeed is deprecated. Instead add a "userFingerprint" field to the argmap argument of newTracker.');
 				if (!enable) {
 					userFingerprint = '';
 				}
@@ -1144,7 +1135,7 @@
 			 * @param bool enable If true and Do Not Track feature enabled, don't track. 
 			 */
 			respectDoNotTrack: function (enable) {
-				warn('This usage of respectDoNotTrack is deprecated. Instead add a "respectDoNotTrack" field to the argmap argument of newTracker.');
+				helpers.warn('This usage of respectDoNotTrack is deprecated. Instead add a "respectDoNotTrack" field to the argmap argument of newTracker.');
 				var dnt = navigatorAlias.doNotTrack || navigatorAlias.msDoNotTrack;
 
 				configDoNotTrack = enable && (dnt === 'yes' || dnt === '1');
@@ -1307,7 +1298,7 @@
 			* @param string platform Overrides the default tracking platform
 			*/
 			setPlatform: function(platform) {
-				warn('setPlatform is deprecated. Instead add a "platform" field to the argmap argument of newTracker.');
+				helpers.warn('setPlatform is deprecated. Instead add a "platform" field to the argmap argument of newTracker.');
 				configPlatform = platform;
 			},
 
@@ -1318,7 +1309,7 @@
 			* @param boolean enabled A boolean value indicating if the Base64 encoding for unstructured events should be enabled or not
 			*/
 			encodeBase64: function (enabled) {
-				warn('This usage of encodeBase64 is deprecated. Instead add an "encodeBase64" field to the argmap argument of newTracker.');
+				helpers.warn('This usage of encodeBase64 is deprecated. Instead add an "encodeBase64" field to the argmap argument of newTracker.');
 				configEncodeBase64 = enabled;
 			},
 
@@ -1484,7 +1475,7 @@
 			 * @param object Custom context relating to the event
 			 */
 			trackImpression: function (bannerId, campaignId, advertiserId, userId, context) {
-				warn('Snowplow: trackImpression is deprecated. When version 1.1.0 is released, switch to trackAdImpression.');
+				helpers.warn('Snowplow: trackImpression is deprecated. When version 1.1.0 is released, switch to trackAdImpression.');
 				logImpression(bannerId, campaignId, advertiserId, userId, context);
 			},
 
