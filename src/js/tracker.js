@@ -1210,7 +1210,7 @@
 			 */
 			setCookieDomain: function (domain) {
 
-				configCookieDomain = Helpers.fixupDomain(domain);
+				configCookieDomain = helpers.fixupDomain(domain);
 				updateDomainHash();
 			},
 
