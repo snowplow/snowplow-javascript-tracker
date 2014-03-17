@@ -20,6 +20,7 @@ Passed tracker namespace through to collector in Tracker Protocol (#126)
 Moved to argmap-style tracker creation with 'newTracker' (#132)
 Added support for cookie namespacing (#131) (TODO)
 Added new tag which allows queue to be renamed (#130) (TODO)
+Added event vendor parameter sent through on querystring (#138)
 
 Version 1.0.3 (2014-06-27)
 --------------------------

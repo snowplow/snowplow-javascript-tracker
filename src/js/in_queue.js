@@ -83,7 +83,7 @@
 		 * TODO: remove this in 2.1.0
 		 */
 		function legacyCreateNewNamespace(f, endpoint, namespace) {
-			helpers.warn(f, 'is deprecated.'); //TODO: more instructions for switching
+			helpers.warn(f + ' is deprecated.'); //TODO: more instructions for switching
 
 			var name;
 

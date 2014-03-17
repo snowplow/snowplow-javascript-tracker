@@ -37,13 +37,16 @@
 /*
  * Get the name of the global input function
  */
-function getAsynchronousQueue() {
-	var queueName = window['GlobalSnowplowNamespace'].shift();
-	var queue = window[queueName];
-	return queue;
-}
 
 var snowplow = require('./snowplow'),
-	queue = getAsynchronousQueue();
+	queueName,
+	queue;
 
-queue.q = new snowplow.Snowplow(queue.q);
+if (window.GlobalSnowplowNamespace && window.GlobalSnowplowNamespace.length > 0) {
+	queueName = window.GlobalSnowplowNamespace.shift();
+	queue = window[queueName];
+	queue.q = new snowplow.Snowplow(queue.q);
+} else {
+	window._snaq = window._snaq || [];
+	window._snaq = new snowplow.Snowplow(window._snaq);
+}
