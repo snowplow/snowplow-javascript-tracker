@@ -33,39 +33,78 @@
  */
 
 define([
-	'intern!object',
-	'intern/chai!assert',
-	'intern/dojo/node!../src/js/in_queue'
+	"intern!object",
+	"intern/chai!assert",
+	"intern/dojo/node!../src/js/in_queue"
 ], function(registerSuite, assert, in_queue) {
 
-	var MockTracker = function () {
-		var attribute = 10;
+	var output = 0,
+		writeCookies;
+
+	function mockTrackerConstructor (namespace, version, mutSnowplowState, argmap) {
+		var configCollectorUrl,
+			configWriteCookies = argmap.hasOwnProperty('writeCookies') ? argmap.writeCookies : true,
+			attribute = 10;
+
 		return {
+			setCollectorUrl: function(rawUrl) {
+				configCollectorUrl = "http://" + rawUrl + "/i";
+			},
 			increaseAttribute: function(n) {
 				attribute += n;
 			},
 			setAttribute: function(p) {
 				attribute = p;
 			},
-			getAttribute: function() {
-				return attribute;
+			setOutputToAttribute: function() {
+				output = attribute;
+			},
+			addAttributeToOutput: function() {
+				output += attribute;
+			},
+			logConfigWriteCookies: function() {
+				writeCookies = configWriteCookies;
 			}
 		}
 	};
 
-	var mockTracker = MockTracker(),
-		snaq = [['increaseAttribute', 5]];
-	snaq = new in_queue.AsyncQueueProxy(mockTracker, snaq);
+	var asyncQueue = [
+		["newTracker", "firstTracker", "firstEndpoint"],
+		["increaseAttribute", 5],
+		["setOutputToAttribute"]
+	];
+	asyncQueue = new in_queue.InQueueManager(mockTrackerConstructor, 0, {}, asyncQueue);
 
 	registerSuite({
-		name: 'queue test',
-		'Make a proxy': function() {
-			assert.equal(mockTracker.getAttribute(), 15, 'Function originally stored in snaq is executed when snaq becomes an AsyncQueueProxy');
+		name: "queue test",
+		"Make a proxy": function() {
+			assert.equal(output, 15, "Function originally stored in asyncQueue is executed when asyncQueue becomes an AsyncQueueProxy");
 		},
 
-		'Add to snaq after conversion': function() {
-			snaq.push(['setAttribute', 7]);
-			assert.equal(mockTracker.getAttribute(), 7, 'Function added to snaq after it becomes an AsyncQueueProxy is executed');
-		}
+		"Add to asyncQueue after conversion": function() {
+			asyncQueue.push(["setAttribute", 7]);
+			asyncQueue.push(["setOutputToAttribute"]);
+			assert.equal(output, 7, "Function added to asyncQueue after it becomes an AsyncQueueProxy is executed");
+		},
+
+		"Backward compatibility: Create a tracker using the legacy setCollectorUrl method": function() {
+			asyncQueue.push(["setCollectorUrl", "secondEndpoint"]);
+			asyncQueue.push(["addAttributeToOutput"]);
+			assert.equal(output, 24, "A second tracker is created and both trackers' attributes are added to output");
+		},
+
+		"Use 'function:tracker1;tracker2' syntax to control which trackers execute which functions": function() {
+			asyncQueue.push(["setAttribute:firstTracker", 2]);
+			asyncQueue.push(["setAttribute:sp", 3]);
+			asyncQueue.push(["addAttributeToOutput:firstTracker;sp"]);
+			assert.equal(output, 29, "Set the attributes of the two trackers individually, then add both to output");
+		},
+
+		"writeCookies properties have been correctly assigned": function() {
+			asyncQueue.push(["logConfigWriteCookies:firstTracker"]);
+			assert.strictEqual(writeCookies, true, "The first tracker is configured to create cookies");
+			asyncQueue.push(["logConfigWriteCookies:sp"]);
+			assert.strictEqual(writeCookies, false, "The second tracker has not been assigned a unique cookie namespace, so cannot create cookies");
+		},
 	});
 });
