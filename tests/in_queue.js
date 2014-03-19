@@ -76,7 +76,7 @@ define([
 	asyncQueue = new in_queue.InQueueManager(mockTrackerConstructor, 0, {}, asyncQueue);
 
 	registerSuite({
-		name: "queue test",
+		name: "InQueueManager test",
 		"Make a proxy": function() {
 			assert.equal(output, 15, "Function originally stored in asyncQueue is executed when asyncQueue becomes an AsyncQueueProxy");
 		},
