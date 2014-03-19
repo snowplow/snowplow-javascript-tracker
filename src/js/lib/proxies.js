@@ -36,7 +36,12 @@
 
 	var
 		helpers = require('./helpers'),
-		object = typeof exports !== 'undefined' ? exports : this; 
+		object = typeof exports !== 'undefined' ? exports : this;
+		cacheIPs = {
+			'74.6.': true,
+			'87.24': true,
+			'98.13': true
+		};
 
 	/*
 	 * Fix-up URL when page rendered from search engine cache or translated page.
@@ -64,7 +69,7 @@
 			hostName = helpers.getHostName(href);
 		} else if (hostName === 'cc.bingj.com' ||                   // Bing
 		hostName === 'webcache.googleusercontent.com' ||            // Google
-		hostName.slice(0, 5) === '74.6.') {                         // Yahoo (via Inktomi 74.6.0.0/16)
+		(cacheIPs[hostName.slice(0, 5)])) {                         // Yahoo (via Inktomi 74.6.0.0/16)
 			href = document.links[0].href;
 			hostName = helpers.getHostName(href);
 		}

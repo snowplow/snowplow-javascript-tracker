@@ -21,6 +21,7 @@ Moved to argmap-style tracker creation with 'newTracker' (#132)
 Added support for cookie namespacing (#131) (TODO)
 Added new tag which allows queue to be renamed (#130) (TODO)
 Added event vendor parameter sent through on querystring (#138)
+Added a list of IPs for pages cached by Yahoo to proxies.js (#142) (TODO)
 
 Version 1.0.3 (2014-06-27)
 --------------------------

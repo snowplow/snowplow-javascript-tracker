@@ -40,7 +40,7 @@ define([
 
 	this.document = {
 		links: [{href: "http://www.example.com/"}]
-	}
+	};
 
 	registerSuite({
 
