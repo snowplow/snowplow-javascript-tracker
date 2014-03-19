@@ -141,7 +141,7 @@
 		 *      [ functionObject, optional_parameters ]
 		 */
 		function applyAsyncFunction() {
-			var i, f, parameterArray;
+			var i, f, parameterArray, inputString, parsedString, names, namedTrackers;
 
 			for (i = 0; i < arguments.length; i += 1) {
 				parameterArray = arguments[i];

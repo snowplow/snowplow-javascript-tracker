@@ -650,7 +650,7 @@
 			sb.add('se_pr', property);
 			sb.add('se_va', value);
 			sb.addJson('cx', 'co', context);
-			request = getRequest(sb);
+			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
 		}
 
@@ -668,7 +668,7 @@
 			sb.add('ue_na', name);
 			sb.addJson('ue_px', 'ue_pr', properties);
 			sb.addJson('cx', 'co', context);
-			request = getRequest(sb, snowplowSchema);
+			var request = getRequest(sb, snowplowSchema);
 			sendRequest(request, configTrackerPause);
 		}
 
@@ -780,7 +780,7 @@
 			sb.add('ad_ad', advertiserId);
 			sb.add('ad_uid', userId);
 			sb.addJson('cx', 'co', context);
-			request = getRequest(sb);
+			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
 		}
 
