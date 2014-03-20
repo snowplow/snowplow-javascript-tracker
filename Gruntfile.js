@@ -45,7 +45,7 @@ module.exports = function(grunt) {
   " *\n" +
   " * @description <%= pkg.description %>\n" +
   " * @version     <%= pkg.version %>\n" +
-  " * @author      <%= pkg.contributors %>\n" +
+  " * @author      " + pkg.contributors.join(', ') +"\n" +
   " * @copyright   Anthon Pang, Snowplow Analytics Ltd\n" +
   " * @license     <%= pkg.license %>\n" +
   " */\n\n" +
