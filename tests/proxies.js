@@ -39,7 +39,22 @@ define([
 ], function(registerSuite, assert, proxies) {
 
 	this.document = {
-		links: [{href: "http://www.example.com/"}]
+		links: [{href: "http://www.example.com/"}],
+		body: {
+			children: [{
+				children: [{
+					children: [{
+						children: [{
+							children: [{
+								children: [{
+									innerHTML: 'You have reached the cached page for'
+								}]
+							}]
+						}]
+					}]
+				}]
+			}]
+		}
 	};
 
 	registerSuite({
@@ -48,7 +63,8 @@ define([
 
 		"Host name is not a special case": function() {
 
-			var initialLocationArray = ["normalhostname", "href", "http://referrer.com"],
+			var 
+				initialLocationArray = ["normalhostname", "href", "http://referrer.com"],
 				fixedupLocationArray = proxies.fixupUrl.apply(null, initialLocationArray),
 				expectedLocationArray = fixedupLocationArray,
 				i;
@@ -59,13 +75,16 @@ define([
 		},
 
 		"Host name = 'translate.googleusercontent.com'": function() {
-			var initialLocationArray = ["translate.googleusercontent.com",
-										"http://translate.googleusercontent.com/translate?hl=en&sl=fr&u=http:www.francais.fr/path",
-										""],
+			var 
+				initialLocationArray = [
+					"translate.googleusercontent.com",
+					"http://translate.googleusercontent.com/translate?hl=en&sl=fr&u=http:www.francais.fr/path",
+					""],
 				fixedupLocationArray = proxies.fixupUrl.apply(null, initialLocationArray),
-				expectedLocationArray = ["www.francais.fr",
-										 "http:www.francais.fr/path",
-										 "http://translate.googleusercontent.com/translate?hl=en&sl=fr&u=http:www.francais.fr/path"],
+				expectedLocationArray = [
+					"www.francais.fr",
+					"http:www.francais.fr/path",
+					"http://translate.googleusercontent.com/translate?hl=en&sl=fr&u=http:www.francais.fr/path"],
 				i;
 
 			for (i = 0; i < 3; i++) {
@@ -74,9 +93,11 @@ define([
 		},
 
 		"Host name = 'ccj.bingj.com'": function() {
-			var initialLocationArray = ["cc.bingj.com",
-										"http://cc.bingj.com/cache.aspx?q=example.com&d=4870936571937837&mkt=en-GB&setlang=en-GB&w=QyOPD1fo3C2nC9sXMLmUUs81Jt78MYIp",
-										"http://referrer.com"],
+			var 
+				initialLocationArray = [
+					"cc.bingj.com",
+					"http://cc.bingj.com/cache.aspx?q=example.com&d=4870936571937837&mkt=en-GB&setlang=en-GB&w=QyOPD1fo3C2nC9sXMLmUUs81Jt78MYIp",
+					"http://referrer.com"],
 				fixedupLocationArray = proxies.fixupUrl.apply(null, initialLocationArray),
 				expectedLocationArray = [ "www.example.com", "http://www.example.com/", "http://referrer.com" ],
 				i;
@@ -87,9 +108,11 @@ define([
 		},
 
 		"Host name = 'webcache.googleusercontent.com'": function() {
-			var initialLocationArray = ["webcache.googleusercontent.com",
-										"http://webcache.googleusercontent.com/search?q=cache:http://example.com/#fragment",
-										"http://referrer.com"],
+			var 
+				initialLocationArray = [
+					"webcache.googleusercontent.com",
+					"http://webcache.googleusercontent.com/search?q=cache:http://example.com/#fragment",
+					"http://referrer.com"],
 				fixedupLocationArray = proxies.fixupUrl.apply(null, initialLocationArray),
 				expectedLocationArray = [ "www.example.com", "http://www.example.com/", "http://referrer.com" ],
 				i;
@@ -100,10 +123,12 @@ define([
 		},
 
 
-		"Host name begins '74.6.'": function() {
-			var initialLocationArray = ["74.6.",
-										"http://74.6.1/search/srpcache",
-										"http://referrer.com"],
+		"Host name is an IP address": function() {
+			var 
+				initialLocationArray = [
+					"98.139.21.31",
+					"http://98.139.21.31/search/srpcache",
+					"http://referrer.com"],
 				fixedupLocationArray = proxies.fixupUrl.apply(null, initialLocationArray),
 				expectedLocationArray = [ "www.example.com", "http://www.example.com/", "http://referrer.com" ],
 				i;

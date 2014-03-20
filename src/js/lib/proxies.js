@@ -44,6 +44,24 @@
 		};
 
 	/*
+	 * If the hostname is of the 
+	 */
+	function isYahooCachedPage(hostname) {
+		var IPRegExp = new RegExp('^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'),
+			initialDivText,
+			cachedText;
+		if (IPRegExp.test(hostname)) {
+			try {
+				initialDivText = document.body.children[0].children[0].children[0].children[0].children[0].children[0].innerHTML;
+				cachedText = 'You have reached the cached page for';
+				return initialDivText.slice(0, cachedText.length) === cachedText; 
+			} catch (e) {
+				return false;
+			};
+		}
+	}
+
+	/*
 	 * Fix-up URL when page rendered from search engine cache or translated page.
 	 * TODO: it would be nice to generalise this and/or move into the ETL phase.
 	 */
@@ -69,7 +87,7 @@
 			hostName = helpers.getHostName(href);
 		} else if (hostName === 'cc.bingj.com' ||                   // Bing
 		hostName === 'webcache.googleusercontent.com' ||            // Google
-		(cacheIPs[hostName.slice(0, 5)])) {                         // Yahoo (via Inktomi 74.6.0.0/16)
+		isYahooCachedPage(hostName)) {                         // Yahoo (via Inktomi 74.6.0.0/16)
 			href = document.links[0].href;
 			hostName = helpers.getHostName(href);
 		}
