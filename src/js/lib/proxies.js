@@ -66,7 +66,7 @@
 				return initialDivText.slice(0, cachedIndicator.length) === cachedIndicator; 
 			} catch (e) {
 				return false;
-			};
+			}
 		}
 	}
 

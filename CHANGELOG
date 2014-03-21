@@ -22,6 +22,7 @@ Added support for cookie namespacing (#131) (TODO)
 Added new tag which allows queue to be renamed (#130) (TODO)
 Added event vendor parameter sent through on querystring (#138)
 Started rigorously checking whether a page is cached by Yahoo (#142)
+Upgraded Intern to 1.5.0 (#119)
 
 Version 1.0.3 (2014-06-27)
 --------------------------

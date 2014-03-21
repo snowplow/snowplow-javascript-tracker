@@ -126,7 +126,7 @@ module.exports = function(grunt) {
     intern: {
       tests: {
         options: {
-          runType: 'client',
+          runType: 'runner',
           config: 'tests/intern.js'
         }
       }
