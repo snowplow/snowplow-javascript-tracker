@@ -100,7 +100,8 @@ module.exports = function(grunt) {
       dist: {
         options: {
           'report': 'gzip',
-          'banner': '<%= banner %>'
+          'banner': '<%= banner %>',
+          'process': true
         },
         src: ['dist/bundle.js'],
 

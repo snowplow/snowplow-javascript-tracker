@@ -12,7 +12,7 @@ Added initial localStorage support for intermittent offline beacons, thanks @rcs
 Added new trackAdImpression, mapping to unstructured event (#13)
 Removed references to referral cookie (#118)
 Implement enableLinkTracking support (#51) (TODO)
-Replaced hard-coded version with template value (#120) (TODO)
+Replaced hard-coded version with template value (#120)
 Added Sauce Labs small button at top of README (#123) (TODO)
 Added Sauce full test summary widget (long bar) at bottom of README (#124) (TODO)
 Added support for namespacing (#4) (TODO)
