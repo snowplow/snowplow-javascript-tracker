@@ -89,7 +89,7 @@
 			windowAlias = window,
 
 			/* Tracker identifier with version */
-			version = '<%= pkg.version %>' // Update banner.js too
+			version = '<%= pkg.version %>', // Update banner.js too
 
 			/* Contains three variables that are shared with tracker.js and must be passed by reference */
 			mutSnowplowState = {
