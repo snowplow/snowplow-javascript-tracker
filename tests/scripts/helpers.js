@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker for Snowplow: tests/intern.js
+ * JavaScript tracker for Snowplow: tests/helpers.js
  * 
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
  * 2012-2014 Snowplow Analytics Ltd. All rights reserved. 
@@ -32,36 +32,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-define({
+var helpers = require('../../src/js/lib/helpers.js');
 
-	proxyPort: 9000,
-	proxyUrl: 'http://localhost:9000/',
-
-	capabilities: {
-		'selenium-version': '2.39.0'
-	},
-
-	environments: [
-		{ browserName: 'firefox', version: '27', platform: ['Linux'] }
-	],
-
-	maxConcurrency: 3,
-	useSauceConnect: true,
-
-	// Connection information for the remote WebDriver service.
-	webdriver: {
-		host: 'localhost',
-		port: 4444
-	},
-
-	// Configuration options for the module loader; any AMD configuration options supported by the Dojo loader can be
-	// used here
-	loader: {},
-
-	// Functional test suite(s) to run in each browser once non-functional tests are completed
-	functionalSuites: ['tests/functional/helpers'],
-
-	// A regular expression matching URLs to files that should not be included in code coverage analysis
-	excludeInstrumentation: /^tests\//
-
-});
+document.getElementById('title').innerHTML = helpers.fixupTitle(0);
+document.getElementById('hostname').innerHTML = helpers.getHostName(location.href);
+document.getElementById('referrer').innerHTML = helpers.getReferrer();
+helpers.addEventListener(document.getElementById('click'), 'click', function(){alert('clicked')}, true);

@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker for Snowplow: tests/payload.js
+ * JavaScript tracker for Snowplow: tests/nonfunctional/payload.js
  * 
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
  * 2012-2014 Snowplow Analytics Ltd. All rights reserved. 
@@ -35,7 +35,7 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'intern/dojo/node!../src/js/payload.js'
+	'intern/dojo/node!../../src/js/payload.js'
 ], function (registerSuite, assert, payload) {
 
 	var 

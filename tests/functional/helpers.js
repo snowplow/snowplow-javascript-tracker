@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker for Snowplow: tests/helpers.js
+ * JavaScript tracker for Snowplow: tests/functional/helpers.js
  * 
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
  * 2012-2014 Snowplow Analytics Ltd. All rights reserved. 
@@ -35,33 +35,61 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'intern/dojo/node!../src/js/lib/helpers'
+	'intern/dojo/node!../../src/js/lib/helpers'
 ], function(registerSuite, assert, helpers) {
-
-	var url = 'http://www.example.com/path?lang=en&page=2#fragment';
 
 	registerSuite({
 
 		name: 'Helpers test',
 
-		'Get host name from url': function() {
-			var value = helpers.getHostName(url);
-			assert.equal(value, 'www.example.com');
+		'Get page title': function() {
+
+			return this.remote
+				.get(require.toUrl('tests/pages/helpers.html'))
+				.waitForElementByCssSelector('body.loaded', 5000)
+				.elementById('title')
+				.text()
+				.then(function (text) {
+					assert.strictEqual(text, 'Helpers test page', 'Get the page title' );
+				});
 		},
 
-		'Fix up domain': function() {
-			var dom = '*.www.example.com.';
-			var fixedDom = helpers.fixUpDomain(dom);
-			assert.equal(fixedDom, '.www.example.com', 'Remove leading * and trailing . from domain name');
+		'Get host name': function() {
+
+			return this.remote
+				.get(require.toUrl('tests/pages/helpers.html'))
+				.waitForElementByCssSelector('body.loaded', 5000)
+				.elementById('hostname')
+				.text()
+				.then(function (text){
+					assert.strictEqual(text, 'localhost', 'Get the host name');
+				})
 		},
 
-		'Get value from url': function() {
-			var value = helpers.fromQuerystring(page, url);
-			assert.equal(value, 2, 'Gets the value of a field-value pair')
+		'Get referrer from querystring': function() {
+
+			return this.remote
+				.get(require.toUrl('tests/pages/helpers.html') + '?name=value&referrer=previous#fragment')
+				.waitForElementByCssSelector('body.loaded', 5000)
+				.elementById('referrer')
+				.text()
+				.then(function (text){
+					assert.strictEqual(text, 'previous', 'Get the referrer from the querystring');
+				})
 		},
 
+		'Add event listener': function() {
 
-
-
-
-	})	
+			return this.remote
+				.get(require.toUrl('tests/pages/helpers.html'))
+				.waitForElementByCssSelector('body.loaded', 5000)
+				.elementById('click')
+				.clickElement()
+				.alertText()
+				.then(function (text){
+					assert.strictEqual(text, 'clicked', 'Add a click event listener');
+				})
+				.acceptAlert();
+		}
+	});
+});	

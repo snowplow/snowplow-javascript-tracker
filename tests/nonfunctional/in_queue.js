@@ -35,7 +35,7 @@
 define([
 	"intern!object",
 	"intern/chai!assert",
-	"intern/dojo/node!../src/js/in_queue"
+	"intern/dojo/node!../../src/js/in_queue"
 ], function(registerSuite, assert, in_queue) {
 
 	var output = 0,
