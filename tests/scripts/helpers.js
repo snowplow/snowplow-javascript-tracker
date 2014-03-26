@@ -37,4 +37,6 @@ var helpers = require('../../src/js/lib/helpers.js');
 document.getElementById('title').innerHTML = helpers.fixupTitle(0);
 document.getElementById('hostname').innerHTML = helpers.getHostName(location.href);
 document.getElementById('referrer').innerHTML = helpers.getReferrer();
-helpers.addEventListener(document.getElementById('click'), 'click', function(){alert('clicked')}, true);
+helpers.addEventListener(document.getElementById('click'), 'click', function(){
+	document.getElementById('click').innerHTML = 'clicked';
+});

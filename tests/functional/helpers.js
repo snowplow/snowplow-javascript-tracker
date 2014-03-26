@@ -63,7 +63,7 @@ define([
 				.text()
 				.then(function (text){
 					assert.strictEqual(text, 'localhost', 'Get the host name');
-				})
+				});
 		},
 
 		'Get referrer from querystring': function() {
@@ -75,7 +75,7 @@ define([
 				.text()
 				.then(function (text){
 					assert.strictEqual(text, 'previous', 'Get the referrer from the querystring');
-				})
+				});
 		},
 
 		'Add event listener': function() {
@@ -85,11 +85,10 @@ define([
 				.waitForElementByCssSelector('body.loaded', 5000)
 				.elementById('click')
 				.clickElement()
-				.alertText()
+				.text()
 				.then(function (text){
 					assert.strictEqual(text, 'clicked', 'Add a click event listener');
-				})
-				.acceptAlert();
+				});
 		}
 	});
 });	

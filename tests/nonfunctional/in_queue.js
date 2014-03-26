@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker for Snowplow: tests/in_queue.js
+ * JavaScript tracker for Snowplow: tests/nonfunctional/in_queue.js
  * 
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
  * 2012-2014 Snowplow Analytics Ltd. All rights reserved. 
