@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker for Snowplow: tests/intern.js
+ * JavaScript tracker for Snowplow: tests/functional/detectors.js
  * 
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
  * 2012-2014 Snowplow Analytics Ltd. All rights reserved. 
@@ -32,42 +32,32 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-define({
+define([
+	'intern!object',
+	'intern/chai!assert',
+	'intern/dojo/node!../../src/js/lib/helpers'
+], function(registerSuite, assert, helpers) {
 
-	proxyPort: 9000,
-	proxyUrl: 'http://localhost:9000/',
+	// Expected viewport dimensions vary based on browser
+    var expectedWidths = [980, 1024],
+        expectedHeights = [636, 644, 670, 673, 684, 695, 705, 706, 712];
 
-	capabilities: {
-		'selenium-version': '2.39.0'
-	},
+	registerSuite({
 
-	environments: [
-		{ browserName: 'internet explorer', version: '11', platform: 'Windows 8.1' },
-		{ browserName: 'internet explorer', version: '10', platform: 'Windows 8' },
-		{ browserName: 'internet explorer', version: '9', platform: 'Windows 7' },
-		{ browserName: 'firefox', version: '27', platform: [ 'OS X 10.6', 'Windows 7', 'Linux' ] },
-		{ browserName: 'chrome', version: '32', platform: [ 'OS X 10.6', 'Windows 7', 'Linux' ] },
-		{ browserName: 'safari', version: '6', platform: 'OS X 10.8' },
-		{ browserName: 'safari', version: '7', platform: 'OS X 10.9' }
-	],
+		name: 'Detectors test',
 
-	maxConcurrency: 3,
-	useSauceConnect: true,
+		'Get viewport': function() {
 
-	// Connection information for the remote WebDriver service.
-	webdriver: {
-		host: 'localhost',
-		port: 4444
-	},
-
-	// Configuration options for the module loader; any AMD configuration options supported by the Dojo loader can be
-	// used here
-	loader: {},
-
-	// Functional test suite(s) to run in each browser once non-functional tests are completed
-	functionalSuites: ['tests/functional/helpers','tests/functional/detectors'],
-
-	// A regular expression matching URLs to files that should not be included in code coverage analysis
-	excludeInstrumentation: /^tests\//
-
-});
+			return this.remote
+				.get(require.toUrl('tests/pages/detectors.html'))
+				.waitForElementByCssSelector('body.loaded', 5000)
+				.elementById('viewport')
+				.text()
+				.then(function (text) {
+					var dimensions = text.split('x');
+					assert.include(expectedWidths, parseInt(dimensions[0]), 'Viewport width is valid');
+					assert.include(expectedHeights, parseInt(dimensions[1]), 'Viewport height is valid');
+				});
+		}
+	});
+});	

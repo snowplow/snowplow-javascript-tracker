@@ -121,7 +121,7 @@
 			[ screenAlias.height, screenAlias.width, screenAlias.colorDepth ].join("x"),
 			( new Date() ).getTimezoneOffset(),
 			object.hasSessionStorage(),
-			object.hasLocalStorage(),
+			object.hasLocalStorage()
 		];
 
 		var plugins = [];

@@ -38,13 +38,6 @@
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
-	/*
-	 * UTF-8 encoding
-	 */
-	object.encodeUtf8 = function (argString) {
-		return unescape(decodeURIComponent(argString));
-	}
-
 	/**
 	 * Cleans up the page title
 	 */

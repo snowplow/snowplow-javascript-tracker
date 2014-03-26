@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker for Snowplow: tests/intern.js
+ * JavaScript tracker for Snowplow: tests/scripts/detectors.js
  * 
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
  * 2012-2014 Snowplow Analytics Ltd. All rights reserved. 
@@ -32,42 +32,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-define({
+var detectors = require('../../src/js/lib/detectors.js');
 
-	proxyPort: 9000,
-	proxyUrl: 'http://localhost:9000/',
-
-	capabilities: {
-		'selenium-version': '2.39.0'
-	},
-
-	environments: [
-		{ browserName: 'internet explorer', version: '11', platform: 'Windows 8.1' },
-		{ browserName: 'internet explorer', version: '10', platform: 'Windows 8' },
-		{ browserName: 'internet explorer', version: '9', platform: 'Windows 7' },
-		{ browserName: 'firefox', version: '27', platform: [ 'OS X 10.6', 'Windows 7', 'Linux' ] },
-		{ browserName: 'chrome', version: '32', platform: [ 'OS X 10.6', 'Windows 7', 'Linux' ] },
-		{ browserName: 'safari', version: '6', platform: 'OS X 10.8' },
-		{ browserName: 'safari', version: '7', platform: 'OS X 10.9' }
-	],
-
-	maxConcurrency: 3,
-	useSauceConnect: true,
-
-	// Connection information for the remote WebDriver service.
-	webdriver: {
-		host: 'localhost',
-		port: 4444
-	},
-
-	// Configuration options for the module loader; any AMD configuration options supported by the Dojo loader can be
-	// used here
-	loader: {},
-
-	// Functional test suite(s) to run in each browser once non-functional tests are completed
-	functionalSuites: ['tests/functional/helpers','tests/functional/detectors'],
-
-	// A regular expression matching URLs to files that should not be included in code coverage analysis
-	excludeInstrumentation: /^tests\//
-
-});
+document.getElementById('viewport').innerHTML = detectors.detectViewport();

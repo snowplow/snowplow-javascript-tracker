@@ -18,5 +18,9 @@ results
 npm-debug.log
 node_modules
 
+lib_managed
+dist
+tests/pages/*.js
+
 # creds for Grunt
 aws.json

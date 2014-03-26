@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker for Snowplow: tests/helpers.js
+ * JavaScript tracker for Snowplow: tests/scripts/helpers.js
  * 
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
  * 2012-2014 Snowplow Analytics Ltd. All rights reserved. 
