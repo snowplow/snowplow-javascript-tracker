@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker for Snowplow: constructor.js
+ * JavaScript tracker for Snowplow: cookie.js
  * 
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
  * 2012-2014 Snowplow Analytics Ltd. All rights reserved. 
@@ -32,15 +32,37 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* Extend SnowPlow object */
-(function() {
-	var snowPlow = SnowPlow.build();
-	for (prop in snowPlow) {
-		if (snowPlow.hasOwnProperty(prop)) {
-			if (SnowPlow[prop] === undefined) {
-				SnowPlow[prop] = snowPlow[prop];
-			}
-		}
-	}
-}());
+;(function() {
 
+	var object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
+
+	/*
+	 * Get cookie value
+	 */
+	object.getCookie = function (cookieName) {
+		var cookiePattern = new RegExp('(^|;)[ ]*' + cookieName + '=([^;]*)'),
+				cookieMatch = cookiePattern.exec(document.cookie);
+
+		return cookieMatch ? decodeURIComponent(cookieMatch[2]) : 0;
+	}
+
+	/*
+	 * Set cookie value
+	 */
+	object.setCookie = function (cookieName, value, msToExpire, path, domain, secure) {
+		var expiryDate;
+
+		// relative time to expire in milliseconds
+		if (msToExpire) {
+			expiryDate = new Date();
+			expiryDate.setTime(expiryDate.getTime() + msToExpire);
+		}
+
+		document.cookie = cookieName + '=' + encodeURIComponent(value) +
+			(msToExpire ? ';expires=' + expiryDate.toGMTString() : '') +
+			';path=' + (path || '/') +
+			(domain ? ';domain=' + domain : '') +
+			(secure ? ';secure' : '');
+	}
+
+}());

@@ -1,5 +1,9 @@
 # JavaScript web analytics for Snowplow
 
+[ ![Build Status] [travis-image] ] [travis]
+[ ![Built with Grunt] [grunt-image] ] [grunt]
+[ ![Code Climate] [codeclimate-image] ] [codeclimate]
+
 ## Overview
 
 Add analytics to your websites and web apps with the [Snowplow] [snowplow] event tracker for JavaScript.
@@ -13,6 +17,17 @@ With this tracker you can collect user event data (page views, e-commerce transa
 | ![i1] [techdocs-image]      | ![i2] [setup-image]   | ![i3] [roadmap-image]                |
 | [Technical Docs] [tech-docs] | [Setup Guide] [setup] | _coming soon_                        |
 
+
+## Developers
+
+### Getting started
+Make sure you have `node` and `npm` installed and in your `$PATH`.
+* Install npm deps: `npm install`
+* Install `grunt-cli`:  `(sudo) npm install -g grunt-cli`
+* Set up an `./aws.json` file using the example `./aws.sample.json`
+  * If you just want to concat + minify you don't need to fill out the
+    `aws.json` file with valid credentials.
+* Build the package (default task concatenates and minifies) `grunt`
 
 ## Copyright and license
 
@@ -35,3 +50,9 @@ Licensed under the [Simplified BSD] [bsd] license.
 [techdocs-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/techdocs.png
 [setup-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/setup.png
 [roadmap-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/roadmap.png
+[grunt-image]: https://cdn.gruntjs.com/builtwith.png
+[grunt]: http://gruntjs.com/
+[travis-image]: https://travis-ci.org/snowplow/snowplow-javascript-tracker.png?branch=master
+[travis]: http://travis-ci.org/snowplow/snowplow-javascript-tracker
+[codeclimate-image]: https://codeclimate.com/github/snowplow/snowplow-javascript-tracker.png
+[codeclimate]: https://codeclimate.com/github/github/snowplow/snowplow-javascript-tracker      

@@ -32,119 +32,181 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * A helper to build a SnowPlow request string from an
- * an optional initial value plus a set of individual
- * name-value pairs, provided using the add method.
- *
- * @param boolean base64Encode Whether or not JSONs should be
- * Base64-URL-safe-encoded
- *
- * @return object The request string builder, with add, addRaw and build methods
- */
+;(function() {
 
-SnowPlow.payloadBuilder = function (base64Encode) {
-	var str = '';
-	
-	var addNvPair = function (key, value, encode) {
-		if (value !== undefined && value !== null && value !== '') {
-			var sep = (str.length > 0) ? "&" : "?";
-			str += sep + key + '=' + (encode ? SnowPlow.encodeWrapper(value) : value);
+	var
+		lodash = require('./lib/lodash'),
+		json2 = require('JSON'),
+		Base64 = require('Base64'),
+		base64encode = Base64.btoa,
+		base64decode = Base64.atob,
+
+		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
+
+	/*
+	 * Bas64 encode data with URL and Filename Safe Alphabet (base64url)
+	 *
+	 * See: http://tools.ietf.org/html/rfc4648#page-7
+	 */
+	function base64urlencode(data) {
+	  if (!data) return data;
+
+	  var enc = base64encode(data);
+	  return enc.replace(/=/g, '')
+	            .replace(/\+/g, '-')
+	            .replace(/\//g, '_');
+	};
+
+	/*
+	 * Converts a date object to Unix timestamp with or without milliseconds
+	 */
+	function toTimestamp(date, milliseconds) {
+		return milliseconds ? date / 1 : Math.floor(date / 1000);
+	}
+
+	/*
+	 * Converts a date object to Unix datestamp (number of days since epoch)
+	 */
+	function toDatestamp(date) {
+		return Math.floor(date / 86400000);
+	}
+
+	/*
+	 * Is property a JSON?
+	 */
+	object.isJson = function (property) {
+		return (!lodash.isUndefined(property) && !lodash.isNull(property) && property.constructor === {}.constructor);
+	}
+
+	/*
+	 * Is property a non-empty JSON?
+	 */
+	object.isNonEmptyJson = function (property) {
+		if (!object.isJson(property)) {
+			return false;
 		}
-	};
-
-	/*
-	 * Extract suffix from a property
-	 */
-	var getPropertySuffix = function (property) {
-		var e = new RegExp('\\$(.[^\\$]+)$'),
-		    matches = e.exec(property);
-
-		if (matches) return matches[1];
-	};
-
-	/*
-	 * Translates a value of an unstructured date property
-	 */
-	var translateDateValue = function (date, type) {
-	  switch (type) {
-	    case 'tms':
-	      return SnowPlow.toTimestamp(date, true);
-	    case 'ts':
-	      return SnowPlow.toTimestamp(date, false);
-	    case 'dt':
-	      return SnowPlow.toDatestamp(date);
-	    default:
-	      return date;
-	  }
-	};
-
-	/*
-	 * Add type suffixes as needed to JSON properties
-	 */
-	var appendTypes = (function() {
-
-		function recurse(json) {
-			var translated = {};
-			for (var prop in json) {
-				var key = prop, value = json[prop];
-
-				// Special treatment...
-				if (json.hasOwnProperty(key)) {
-
-					// ... for JavaScript Dates
-					if (SnowPlow.isDate(value)) {
-						type = getPropertySuffix(key);
-						if (!type) {
-							type = 'tms';
-							key += '$' + type;
-						}
-						value = translateDateValue(value, type);
-					}
-
-					// ... for JSON objects
-					if (SnowPlow.isJson(value)) {
-						value = recurse(value);
-					}
-
-					// TODO: should think about Arrays of Dates too
-				}
-
-				translated[key] = value;
+		for (var key in property) {
+			if (property.hasOwnProperty(key)) {
+				return true;
 			}
-			return translated;
 		}
-		return recurse;
-	})();
+		return false;
+	}
 
-	var add = function (key, value) {
-		addNvPair(key, value, true);
-	};
-
-	var addRaw = function (key, value) {
-		addNvPair(key, value, false);
-	};
-
-	var addJson = function (keyIfEncoded, keyIfNotEncoded, json) {
+	/**
+	 * A helper to build a Snowplow request string from an
+	 * an optional initial value plus a set of individual
+	 * name-value pairs, provided using the add method.
+	 *
+	 * @param boolean base64Encode Whether or not JSONs should be
+	 * Base64-URL-safe-encoded
+	 *
+	 * @return object The request string builder, with add, addRaw and build methods
+	 */
+	object.payloadBuilder = function (base64Encode) {
+		var str = '';
 		
-		if (SnowPlow.isNonEmptyJson(json)) {
-			var typed = appendTypes(json);
-			var str = JSON2.stringify(typed);
-
-			if (base64Encode) {
-				addRaw(keyIfEncoded, SnowPlow.base64urlencode(str));
-			} else {
-				add(keyIfNotEncoded, str);
+		var addNvPair = function (key, value, encode) {
+				if (value !== undefined && value !== null && value !== '') {
+				var sep = (str.length > 0) ? "&" : "?";
+				str += sep + key + '=' + (encode ? encodeURIComponent(value) : value);
 			}
-		}
-	};
+		};
 
-	return {
-		add: add,
-		addRaw: addRaw,
-		addJson: addJson,
-		build: function() {
-			return str;
-		}
-	};
-}
+		/*
+		 * Extract suffix from a property
+		 */
+		var getPropertySuffix = function (property) {
+			var e = new RegExp('\\$(.[^\\$]+)$'),
+			    matches = e.exec(property);
+
+			if (matches) return matches[1];
+		};
+
+		/*
+		 * Translates a value of an unstructured date property
+		 */
+		var translateDateValue = function (date, type) {
+		  switch (type) {
+		    case 'tms':
+		      return toTimestamp(date, true);
+		    case 'ts':
+		      return toTimestamp(date, false);
+		    case 'dt':
+		      return toDatestamp(date);
+		    default:
+		      return date;
+		  }
+		};
+
+		/*
+		 * Add type suffixes as needed to JSON properties
+		 */
+		var appendTypes = (function() {
+
+			function recurse(json) {
+				var translated = {};
+				for (var prop in json) {
+					var key = prop, value = json[prop];
+
+					// Special treatment...
+					if (json.hasOwnProperty(key)) {
+
+						// ... for JavaScript Dates
+						if (lodash.isDate(value)) {
+							type = getPropertySuffix(key);
+							if (!type) {
+								type = 'tms';
+								key += '$' + type;
+							}
+							value = translateDateValue(value, type);
+						}
+
+						// ... for JSON objects
+						if (object.isJson(value)) {
+							value = recurse(value);
+						}
+
+						// TODO: should think about Arrays of Dates too
+					}
+
+					translated[key] = value;
+				}
+				return translated;
+			}
+			return recurse;
+		})();
+
+		var add = function (key, value) {
+			addNvPair(key, value, true);
+		};
+
+		var addRaw = function (key, value) {
+			addNvPair(key, value, false);
+		};
+
+		var addJson = function (keyIfEncoded, keyIfNotEncoded, json) {
+
+			if (object.isNonEmptyJson(json)) {
+				var typed = appendTypes(json);
+				var str = json2.stringify(typed);
+
+				if (base64Encode) {
+					addRaw(keyIfEncoded, base64urlencode(str));
+				} else {
+					add(keyIfNotEncoded, str);
+				}
+			}
+		};
+
+		return {
+			add: add,
+			addRaw: addRaw,
+			addJson: addJson,
+			build: function() {
+				return str;
+			}
+		};
+	}
+
+}());
