@@ -53,8 +53,8 @@
 	exec,
 	res, width, height,
 	pdf, qt, realp, wma, dir, fla, java, gears, ag,
-	hook, getHook, getVisitorId, getVisitorInfo,
-	setCollectorCf, setCollectorUrl, setSiteId, setAppId,
+	hook, getHook,
+	setCollectorCf, setCollectorUrl, setAppId,
 	setDownloadExtensions, addDownloadExtensions,
 	setDomains, setIgnoreClasses, setRequestMethod,
 	setReferrerUrl, setCustomUrl, setDocumentTitle,
@@ -67,39 +67,44 @@
 	addListener, enableLinkTracking, enableActivityTracking, setLinkTrackingTimer,
 	enableDarkSocialTracking,
 	killFrame, redirectFile, setCountPreRendered,
-	trackEvent, trackLink, trackPageView, trackImpression,
+	trackLink, trackPageView, trackImpression,
 	addPlugin, getAsyncTracker
 */
 
-SnowPlow.build = function () {
-		"use strict";
+;(function() {
+
+	// Load all our modules (at least until we fully modularize & remove grunt-concat)
+	var
+		tracker = require('./tracker'),
+		helpers = require('./lib/helpers'),
+		queue = require('./queue'),
+
+		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
+
+	object.Snowplow = function() {
+
+		var
+			documentAlias = document,
+			windowAlias = window,
+
+			/* Tracker identifier with version */
+			version = 'js-1.0.0', // Update banner.js too
+
+			/* Contains three variables that are shared with tracker.js and must be passed by reference */
+			mutSnowplowState = {
+				expireDateTime: null,
+
+				/* DOM Ready */
+				hasLoaded: false,
+				registeredOnLoadHandlers: []
+			},
+
+			/* Asynchronous tracker */
+			asyncTracker = null;
 
 		/************************************************************
 		 * Private methods
 		 ************************************************************/
-
-		/*
-		 * apply wrapper
-		 *
-		 * @param array parameterArray An array comprising either:
-		 *      [ 'methodName', optional_parameters ]
-		 * or:
-		 *      [ functionObject, optional_parameters ]
-		 */
-		function apply() {
-			var i, f, parameterArray;
-
-			for (i = 0; i < arguments.length; i += 1) {
-				parameterArray = arguments[i];
-				f = parameterArray.shift();
-
-				if (SnowPlow.isString(f)) {
-					SnowPlow.asyncTracker[f].apply(SnowPlow.asyncTracker, parameterArray);
-				} else {
-					f.apply(SnowPlow.asyncTracker, parameterArray);
-				}
-			}
-		}
 
 		/*
 		 * Handle beforeunload event
@@ -111,18 +116,16 @@ SnowPlow.build = function () {
 		function beforeUnloadHandler() {
 			var now;
 
-			SnowPlow.executePluginMethod('unload');
-
 			/*
 			 * Delay/pause (blocks UI)
 			 */
-			if (SnowPlow.expireDateTime) {
+			if (mutSnowplowState.expireDateTime) {
 				// the things we do for backwards compatibility...
 				// in ECMA-262 5th ed., we could simply use:
-				//     while (Date.now() < SnowPlow.expireDateTime) { }
+				//     while (Date.now() < mutSnowplowState.expireDateTime) { }
 				do {
 					now = new Date();
-				} while (now.getTimeAlias() < SnowPlow.expireDateTime);
+				} while (now.getTime() < mutSnowplowState.expireDateTime);
 			}
 		}
 
@@ -132,11 +135,10 @@ SnowPlow.build = function () {
 		function loadHandler() {
 			var i;
 
-			if (!SnowPlow.hasLoaded) {
-				SnowPlow.hasLoaded = true;
-				SnowPlow.executePluginMethod('load');
-				for (i = 0; i < SnowPlow.registeredOnLoadHandlers.length; i++) {
-					SnowPlow.registeredOnLoadHandlers[i]();
+			if (!mutSnowplowState.hasLoaded) {
+				mutSnowplowState.hasLoaded = true;
+				for (i = 0; i < mutSnowplowState.registeredOnLoadHandlers.length; i++) {
+					mutSnowplowState.registeredOnLoadHandlers[i]();
 				}
 			}
 			return true;
@@ -148,24 +150,24 @@ SnowPlow.build = function () {
 		function addReadyListener() {
 			var _timer;
 
-			if (SnowPlow.documentAlias.addEventListener) {
-				SnowPlow.addEventListener(SnowPlow.documentAlias, 'DOMContentLoaded', function ready() {
-					SnowPlow.documentAlias.removeEventListener('DOMContentLoaded', ready, false);
+			if (documentAlias.addEventListener) {
+				helpers.addEventListener(documentAlias, 'DOMContentLoaded', function ready() {
+					documentAlias.removeEventListener('DOMContentLoaded', ready, false);
 					loadHandler();
 				});
-			} else if (SnowPlow.documentAlias.attachEvent) {
-				SnowPlow.documentAlias.attachEvent('onreadystatechange', function ready() {
-					if (SnowPlow.documentAlias.readyState === 'complete') {
-						SnowPlow.documentAlias.detachEvent('onreadystatechange', ready);
+			} else if (documentAlias.attachEvent) {
+				documentAlias.attachEvent('onreadystatechange', function ready() {
+					if (documentAlias.readyState === 'complete') {
+						documentAlias.detachEvent('onreadystatechange', ready);
 						loadHandler();
 					}
 				});
 
-				if (SnowPlow.documentAlias.documentElement.doScroll && SnowPlow.windowAlias === SnowPlow.windowAlias.top) {
+				if (documentAlias.documentElement.doScroll && windowAlias === windowAlias.top) {
 					(function ready() {
-						if (!SnowPlow.hasLoaded) {
+						if (!mutSnowplowState.hasLoaded) {
 							try {
-								SnowPlow.documentAlias.documentElement.doScroll('left');
+								documentAlias.documentElement.doScroll('left');
 							} catch (error) {
 								setTimeout(ready, 0);
 								return;
@@ -177,9 +179,9 @@ SnowPlow.build = function () {
 			}
 
 			// sniff for older WebKit versions
-			if ((new RegExp('WebKit')).test(SnowPlow.navigatorAlias.userAgent)) {
+			if ((new RegExp('WebKit')).test(navigator.userAgent)) {
 				_timer = setInterval(function () {
-					if (SnowPlow.hasLoaded || /loaded|complete/.test(SnowPlow.documentAlias.readyState)) {
+					if (mutSnowplowState.hasLoaded || /loaded|complete/.test(documentAlias.readyState)) {
 						clearInterval(_timer);
 						loadHandler();
 					}
@@ -187,85 +189,56 @@ SnowPlow.build = function () {
 			}
 
 			// fallback
-			SnowPlow.addEventListener(SnowPlow.windowAlias, 'load', loadHandler, false);
-		}
-
-
-		/************************************************************
-		 * Proxy object
-		 * - this allows the caller to continue push()'ing to _snaq
-		 *   after the Tracker has been initialized and loaded
-		 ************************************************************/
-
-		function TrackerProxy() {
-			return {
-				push: apply
-			};
+			helpers.addEventListener(windowAlias, 'load', loadHandler, false);
 		}
 
 		/************************************************************
 		 * Constructor
 		 ************************************************************/
 
-		// initialize the SnowPlow singleton
-		SnowPlow.addEventListener(SnowPlow.windowAlias, 'beforeunload', beforeUnloadHandler, false);
+		// initialize the Snowplow singleton
+		helpers.addEventListener(windowAlias, 'beforeunload', beforeUnloadHandler, false);
 		addReadyListener();
 
-		Date.prototype.getTimeAlias = Date.prototype.getTime;
+		asyncTracker = new tracker.Tracker(version, mutSnowplowState); // No argmap
 
-		SnowPlow.asyncTracker = new SnowPlow.Tracker();
-
-		for (var i = 0; i < _snaq.length; i++) {
-			apply(_snaq[i]);
-		}
-
-		// replace initialization array with proxy object
-		_snaq = new TrackerProxy();
-
+		// Now replace initialization array with proxy object
+		windowAlias._snaq = new queue.AsyncQueueProxy(asyncTracker, windowAlias._snaq);
 
 		/************************************************************
 		 * Public data and methods
 		 ************************************************************/
 
-	return {
-		/**
-		* Add plugin
-		*
-		* @param string pluginName
-		* @param Object pluginObj
-		*/
-		addPlugin: function (pluginName, pluginObj) {
-			SnowPlow.plugins[pluginName] = pluginObj;
-		},
+		 return {
+		 	/**
+		 	* Returns a Tracker object, configured with a
+		 	* CloudFront collector.
+		 	*
+		 	* @param string distSubdomain The subdomain on your CloudFront collector's distribution
+		 	*/
+		 	getTrackerCf: function (distSubdomain) {
+		 		return new tracker.Tracker(version, mutSnowplowState, {cf: distSubdomain});
+		 	},
+		 
+		 	/**
+		 	* Returns a Tracker object, configured with the
+		 	* URL to the collector to use.
+		 	*
+		 	* @param string rawUrl The collector URL minus protocol and /i
+		 	*/
+		 	getTrackerUrl: function (rawUrl) {
+		 		return new tracker.Tracker(version, mutSnowplowState, {url: rawUrl});
+		 	},
+		 
+		 	/**
+		 	* Get internal asynchronous tracker object
+		 	*
+		 	* @return Tracker
+		 	*/
+		 	getAsyncTracker: function () {
+		 		return asyncTracker;
+		 	}
+		 }
+	}
 
-		/**
-		* Returns a Tracker object, configured with a
-		* CloudFront collector.
-		*
-		* @param string distSubdomain The subdomain on your CloudFront collector's distribution
-		*/
-		getTrackerCf: function (distSubdomain) {
-			return new SnowPlow.Tracker({cf: distSubdomain});
-		},
-
-		/**
-		* Returns a Tracker object, configured with the
-		* URL to the collector to use.
-		*
-		* @param string rawUrl The collector URL minus protocol and /i
-		*/
-		getTrackerUrl: function (rawUrl) {
-			return new SnowPlow.Tracker({url: rawUrl});
-		},
-
-		/**
-		* Get internal asynchronous tracker object
-		*
-		* @return Tracker
-		*/
-		getAsyncTracker: function () {
-			return SnowPlow.asyncTracker;
-		}
-	};
-};
-
+}());
