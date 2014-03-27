@@ -1,8 +1,8 @@
 # JavaScript web analytics for Snowplow
 
 [ ![Build Status] [travis-image] ] [travis]
-[ ![Built with Grunt] [grunt-image] ] [grunt]
 [ ![Code Climate] [codeclimate-image] ] [codeclimate]
+[ ![Built with Grunt] [grunt-image] ] [grunt]
 
 ## Overview
 
