@@ -1,4 +1,4 @@
-Version 1.0.0 (2014-03-XX)
+Version 1.0.0 (2014-03-27)
 --------------------------
 Added extra meta-data to package.json (#83)
 Moved part of banner.js into Gruntfile with grunt-concat's banner option so its values are based on package.json (#82)
