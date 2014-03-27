@@ -34,4 +34,9 @@
 
 var detectors = require('../../src/js/lib/detectors.js');
 
-document.getElementById('viewport').innerHTML = detectors.detectViewport();
+document.getElementById('detectViewport').innerHTML = detectors.detectViewport();
+document.getElementById('localStorageAccessible').innerHTML = detectors.localStorageAccessible();
+document.getElementById('hasSessionStorage').innerHTML = detectors.hasSessionStorage();
+document.getElementById('hasCookies').innerHTML = detectors.hasCookies();
+document.getElementById('detectTimezone').innerHTML = detectors.detectTimezone();
+document.getElementById('detectSignature').innerHTML = detectors.detectSignature();

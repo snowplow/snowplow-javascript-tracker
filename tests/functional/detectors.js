@@ -38,26 +38,92 @@ define([
 	'intern/dojo/node!../../src/js/lib/helpers'
 ], function(registerSuite, assert, helpers) {
 
-	// Expected viewport dimensions vary based on browser
-    var expectedWidths = [980, 1024],
-        expectedHeights = [636, 644, 670, 673, 684, 695, 705, 706, 712];
+    var 
+    	// Expected viewport dimensions vary based on browser
+    	expectedViewportWidths = [980, 1024],
+        expectedViewportHeights = [636, 644, 670, 673, 684, 695, 705, 706, 712],
+
+        // User fingerprint varies based on browser features
+        expectedSignatures = [
+        90940656, 3343029130, 1101697779, 3900377526, 987357563, 
+        2536308034, 1421522027, 4288521977, 3773734853, 2744319702, 710620838];
 
 	registerSuite({
 
 		name: 'Detectors test',
 
-		'Get viewport': function() {
+		'Get viewport dimensions': function() {
 
 			return this.remote
 				.get(require.toUrl('tests/pages/detectors.html'))
 				.waitForElementByCssSelector('body.loaded', 5000)
-				.elementById('viewport')
+				.elementById('detectViewport')
 				.text()
 				.then(function (text) {
 					var dimensions = text.split('x');
-					assert.include(expectedWidths, parseInt(dimensions[0]), 'Viewport width is valid');
-					assert.include(expectedHeights, parseInt(dimensions[1]), 'Viewport height is valid');
+					assert.include(expectedViewportWidths, parseInt(dimensions[0]), 'Viewport width is valid');
+					assert.include(expectedViewportHeights, parseInt(dimensions[1]), 'Viewport height is valid');
+				});
+		},
+
+		'Check localStorage availability': function() {
+
+			return this.remote
+				.get(require.toUrl('tests/pages/detectors.html'))
+				.waitForElementByCssSelector('body.loaded', 5000)
+				.elementById('localStorageAccessible')
+				.text()
+				.then(function (text) {
+					assert.strictEqual(text, 'true', 'Detect localStorage accessibility');
+				});
+		},
+
+		'Check sessionStorage availability': function() {
+
+			return this.remote
+				.get(require.toUrl('tests/pages/detectors.html'))
+				.waitForElementByCssSelector('body.loaded', 5000)
+				.elementById('hasSessionStorage')
+				.text()
+				.then(function (text) {
+					assert.strictEqual(text, 'true', 'Detect sessionStorage');
+				});
+		},
+
+		'Check whether cookies are enabled availability': function() {
+
+			return this.remote
+				.get(require.toUrl('tests/pages/detectors.html'))
+				.waitForElementByCssSelector('body.loaded', 5000)
+				.elementById('hasCookies')
+				.text()
+				.then(function (text) {
+					assert.equal(text, '1', 'Detect whether cookies can be set');
+				});
+		},
+
+		'Detect timezone': function() {
+
+			return this.remote
+				.get(require.toUrl('tests/pages/detectors.html'))
+				.waitForElementByCssSelector('body.loaded', 5000)
+				.elementById('detectTimezone')
+				.text()
+				.then(function (text) {
+					assert.include(['UTC', 'America/Los_Angeles'], text, 'Detect the timezone');
+				});
+		},
+
+		'User fingerprinting': function() {
+
+			return this.remote
+				.get(require.toUrl('tests/pages/detectors.html'))
+				.waitForElementByCssSelector('body.loaded', 5000)
+				.elementById('detectSignature')
+				.text()
+				.then(function (text) {
+					assert.include(expectedSignatures, parseInt(text), 'Create a user fingerprint based on browser features');
 				});
 		}
 	});
-});	
+});
