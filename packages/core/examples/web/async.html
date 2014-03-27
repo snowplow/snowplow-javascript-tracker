@@ -19,21 +19,23 @@
 
     <!-- Snowplow starts plowing -->
     <script type="text/javascript">   
-        var _snaq = _snaq || [];
-	
-        _snaq.push(['setCollectorCf', 'd3rkrsqld9gmqf']); // Update to your CloudFront distribution subdomain
-        _snaq.push(['setAppId', 'CFe23a']); // Site ID can be anything you want. Set it if you're tracking more than one site in this account
-        _snaq.push(['setUserId', 'alex 123']); // Business-defined user ID
-        //_snaq.push(['setUserIdFromLocation', 'id']); // To test this, reload the page with ?id=xxx
-        //_snaq.push(['setUserIdFromCookie', '_sp_id.4209']) // Test this using Firefox because Chrome doesn't allow local cookies.
-        _snaq.push(['setCustomUrl', '/overridden-url/']); // Override the page URL
-        _snaq.push(['enableActivityTracking', 10, 10]); // Ping every 10 seconds after 10 seconds
-        _snaq.push(['enableLinkTracking']);
-        _snaq.push(['setPlatform', 'mob']);
-        _snaq.push(['encodeBase64', false]); // Default is true
-        _snaq.push(['respectDoNotTrack', true]); // Prevent all tracking if browser's Do Not Track feature is enabled
-        // _snaq.push(['trackPageView', 'Async Test']); // Track the page view with custom title
-        _snaq.push(['trackPageView', , { // Auto-set page title; add page context
+        window._snaq = window._snaq || [];
+
+        window._snaq.push(['setCollectorCf', 'd3rkrsqld9gmqf']); // Update to your CloudFront distribution subdomain
+        window._snaq.push(['setAppId', 'CFe23a']); // Site ID can be anything you want. Set it if you're tracking more than one site in this account
+        window._snaq.push(['setUserId', 'alex 123']); // Business-defined user ID
+        //window._snaq.push(['setUserIdFromLocation', 'id']); // To test this, reload the page with ?id=xxx
+        //window._snaq.push(['setUserIdFromCookie', '_sp_id.4209']) // Test this using Firefox because Chrome doesn't allow local cookies.
+        window._snaq.push(['setCustomUrl', '/overridden-url/']); // Override the page URL
+        window._snaq.push(['enableActivityTracking', 10, 10]); // Ping every 10 seconds after 10 seconds
+        window._snaq.push(['enableLinkTracking']);
+        window._snaq.push(['setPlatform', 'mob']);
+        window._snaq.push(['encodeBase64', false]); // Default is true
+        //window._snaq.push(['enableUserFingerprint', false]); // Turn off user fingerprinting
+        //window._snaq.push(['setUserFingerprintSeed', 987654321]); // Set user fingerprint hash seed
+        window._snaq.push(['respectDoNotTrack', true]); // Prevent all tracking if browser's Do Not Track feature is enabled
+        // window._snaq.push(['trackPageView', 'Async Test']); // Track the page view with custom title
+        window._snaq.push(['trackPageView', , { // Auto-set page title; add page context
           page: {
             page_type: 'test',
             last_updated: new Date(2014,1,26)
@@ -58,15 +60,15 @@
 
         function playMix() {
             alert("Playing a DJ mix");
-            _snaq.push(['trackStructEvent', 'Mixes', 'Play', 'MRC/fabric-0503-mix', '', '0.0']);
+            window._snaq.push(['trackStructEvent', 'Mixes', 'Play', 'MRC/fabric-0503-mix', '', '0.0']);
         }
         function addProduct() {
             alert("Adding a product to basket");
-            _snaq.push(['trackStructEvent', 'Checkout', 'Add', 'ASO01043', 'blue:xxl', '2.0', { user: { fb_uid: '123456 x' } } ]);      
+            window._snaq.push(['trackStructEvent', 'Checkout', 'Add', 'ASO01043', 'blue:xxl', '2.0', { user: { fb_uid: '123456 x' } } ]);      
         }
         function viewProduct() {
             alert("Viewing a product");
-            _snaq.push(['trackUnstructEvent', 'Viewed Product',
+            window._snaq.push(['trackUnstructEvent', 'Viewed Product',
                 {
                     product_id: 'ASO01043',
                     category: 'Dresses',
@@ -85,7 +87,7 @@
           var orderId = 'order-123';
 
           // addTrans sets up the transaction, should be called first.
-          _snaq.push(['addTrans',
+          window._snaq.push(['addTrans',
               orderId,                // order ID - required
               '',                     // affiliation or store name
               '8000',                 // total - required
@@ -99,7 +101,7 @@
 
           // addItem might be called for each item in the shopping cart,
           // or not at all.
-          _snaq.push(['addItem',
+          window._snaq.push(['addItem',
               orderId,                // order ID - required
               '1001',                 // SKU - required
               'Blue t-shirt',         // product name
@@ -110,7 +112,7 @@
               { products: { "launch_date$tm": new Date(2013,3,7) } } // context
               ]);
 
-          _snaq.push(['addItem',
+          window._snaq.push(['addItem',
               orderId,                // order ID - required
               '1002',                 // SKU - required
               'Red shoes',            // product name
@@ -122,7 +124,7 @@
 
           // trackTrans sends the transaction to Snowplow tracking servers.
           // Must be called last to commit the transaction.
-          _snaq.push(['trackTrans']);
+          window._snaq.push(['trackTrans']);
 
         }
     </script>
