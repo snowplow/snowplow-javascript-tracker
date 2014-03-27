@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker for Snowplow: init.js
+ * JavaScript tracker for Snowplow: tests/intern.js
  * 
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
  * 2012-2014 Snowplow Analytics Ltd. All rights reserved. 
@@ -32,8 +32,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-// Snowplow Asynchronous Queue
-window._snaq = window._snaq || [];
+define({
 
-var snowplow = require('./snowplow');
-window.Snowplow = window.Snowplow || new snowplow.Snowplow();
+// Non-functional test suites
+suites: ['tests/queue', 'tests/payload'],
+
+});

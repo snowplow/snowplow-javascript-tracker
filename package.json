@@ -1,17 +1,40 @@
 {
   "name": "snowplow-tracker",
-  "version": "0.14.1",
+  "version": "1.0.0",
   "devDependencies": {
     "grunt": "~0.4.2",
-    "intern": "~1.3.1",
+    "intern": "~1.4.0",
     "semver": "~2.2.1",
     "grunt-contrib-concat": "~0.3.0",
     "grunt-yui-compressor": "git://github.com/fblundun/grunt-yui-compressor.git#feature/issue-8",
     "grunt-invalidate-cloudfront": "~0.1.4",
-    "grunt-s3": "~0.2.0-alpha.3"
+    "grunt-s3": "~0.2.0-alpha.3",
+    "murmurhash": "0.0.2",
+    "browserify": "~3.28.1",
+    "grunt-browserify": "~1.3.0",
+    "jstimezonedetect": "~1.0.5",
+    "JSON": "~1.0.0",
+    "Base64": "~0.2.0",
+    "sha1": "git://github.com/pvorb/node-sha1.git#v1.0.0",
+    "grunt-lodash": "~0.3.0"
   },
+  "contributors": [
+    "Alex Dean",
+    "Simon Andersson",
+    "Anthon Pang",
+    "Fred Blundun"
+  ],
+  "description": "JavaScript tracker for Snowplow",
   "repository": {
     "type": "git",
     "url": "https://github.com/snowplow/snowplow-javascript-tracker.git"
-  }
+  },
+  "bugs": "https://github.com/snowplow/snowplow-javascript-tracker/issues",
+  "keywords": [
+    "tracking",
+    "web analytics",
+    "events",
+    "open source"
+  ],
+  "license": "Simplified BSD"
 }
