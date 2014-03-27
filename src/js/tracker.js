@@ -1153,16 +1153,6 @@
 			},
 
 			/**
-			 * Enable/disable user fingerprinting. User fingerprinting is enabled by default.
-			 * @param bool enable If false, turn off user fingerprinting
-			 */
-			enableUserFingerprint: function(enable) {
-				if (!enable) {
-					userFingerprint = '';
-				}
-			},
-
-			/**
 			 * Add click listener to a specific link element.
 			 * When clicked, Piwik will log the click automatically.
 			 *
