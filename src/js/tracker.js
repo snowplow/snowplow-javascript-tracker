@@ -204,7 +204,7 @@
 			ecommerceTransaction = ecommerceTransactionTemplate(),
 
 			outQueueManager = new requestQueue.OutQueueManager(namespace);
-console.log(configCookieNamePrefix);
+
 		/*
 		 * Initializes an empty ecommerce
 		 * transaction and line items
@@ -1533,7 +1533,7 @@ console.log(configCookieNamePrefix);
 					campaign_id: campaignId
 				};
 
-				logUnstructEvent('ad_click', helpers.deleteEmptyProperties(adClickJSON) ,true, context);
+				logUnstructEvent('ad_click', helpers.deleteEmptyProperties(adClickJSON), true, context);
 			},
 
 			/**
