@@ -3,6 +3,7 @@
 [ ![Build Status] [travis-image] ] [travis]
 [ ![Code Climate] [codeclimate-image] ] [codeclimate]
 [ ![Built with Grunt] [grunt-image] ] [grunt]
+[ ![Selenium Test Status][saucelabs-button-image]][saucelabs]
 
 ## Overview
 
@@ -37,6 +38,8 @@ Significant portions of the Snowplow JavaScript Tracker copyright 2010 Anthon Pa
 
 Licensed under the [Simplified BSD] [bsd] license.
 
+[ ![Selenium Test Status][saucelabs-matrix-image]][saucelabs]
+
 [snowplow]: http://www.keplarllp.com/blog/2012/02/introducing-snowplow-the-worlds-most-powerful-web-analytics-platform
 [piwik]: http://piwik.org/
 [piwikjs]: https://github.com/piwik/piwik/blob/master/js/piwik.js
@@ -56,3 +59,6 @@ Licensed under the [Simplified BSD] [bsd] license.
 [travis]: http://travis-ci.org/snowplow/snowplow-javascript-tracker
 [codeclimate-image]: https://codeclimate.com/github/snowplow/snowplow-javascript-tracker.png
 [codeclimate]: https://codeclimate.com/github/snowplow/snowplow-javascript-tracker      
+[saucelabs]: https://saucelabs.com/u/snowplow_js_tracker
+[saucelabs-button-image]: https://saucelabs.com/buildstatus/snowplow_js_tracker
+[saucelabs-matrix-image]: https://saucelabs.com/browser-matrix/snowplow_js_tracker.svg

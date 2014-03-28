@@ -38,7 +38,8 @@ define({
 	proxyUrl: 'http://localhost:9000/',
 
 	capabilities: {
-		'selenium-version': '2.39.0'
+		'selenium-version': '2.39.0',
+		'build': 'process.env.TRAVIS_JOB_ID'
 	},
 
 	environments: [
