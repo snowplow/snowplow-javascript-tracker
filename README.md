@@ -1,9 +1,9 @@
 # JavaScript web analytics for Snowplow
 
 [ ![Build Status] [travis-image] ] [travis]
+[ ![Selenium Test Status][saucelabs-button-image]][saucelabs]
 [ ![Code Climate] [codeclimate-image] ] [codeclimate]
 [ ![Built with Grunt] [grunt-image] ] [grunt]
-[ ![Selenium Test Status][saucelabs-button-image]][saucelabs]
 
 ## Overview
 
