@@ -2,7 +2,6 @@ Version 2.0.0 (2014-03-XX)
 --------------------------
 Moved fixUpUrl into its own file, called lib/proxies.js (#112)
 Fixed duplication of querystring parameter lookup (#111)
-Tried running Snowplow JS Tracker from PhoneGap (#107) (TODO)
 Added tests for helpers.js (#96)
 Added tests for detectors.js (#95)
 Replaced cookie.js with browser-cookie-lite (#88)
