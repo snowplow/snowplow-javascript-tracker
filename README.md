@@ -30,6 +30,10 @@ Make sure you have `node` and `npm` installed and in your `$PATH`.
     `aws.json` file with valid credentials.
 * Build the package (default task concatenates and minifies) `grunt`
 
+## Testing
+
+[ ![Selenium Test Status][saucelabs-matrix-image]][saucelabs]
+
 ## Copyright and license
 
 The Snowplow JavaScript Tracker is based on Anthon Pang's [`piwik.js`] [piwikjs], the JavaScript tracker for the open-source [Piwik] [piwik] project, and is distributed under the same license ([Simplified BSD] [bsd]).
@@ -37,8 +41,6 @@ The Snowplow JavaScript Tracker is based on Anthon Pang's [`piwik.js`] [piwikjs]
 Significant portions of the Snowplow JavaScript Tracker copyright 2010 Anthon Pang. Remainder copyright 2012-14 Snowplow Analytics Ltd.
 
 Licensed under the [Simplified BSD] [bsd] license.
-
-[ ![Selenium Test Status][saucelabs-matrix-image]][saucelabs]
 
 [snowplow]: http://www.keplarllp.com/blog/2012/02/introducing-snowplow-the-worlds-most-powerful-web-analytics-platform
 [piwik]: http://piwik.org/
