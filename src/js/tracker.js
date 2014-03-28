@@ -755,8 +755,7 @@
 				element_target: elementTarget,
 				target_url: targetUrl
 			},
-			true, context)
-
+			true, context);
 		}
 
 		/**

@@ -37,11 +37,6 @@
 	var
 		helpers = require('./helpers'),
 		object = typeof exports !== 'undefined' ? exports : this;
-		cacheIPs = {
-			'74.6.': true,
-			'87.24': true,
-			'98.13': true
-		};
 
 	/*
 	 * Test whether a string is an IP address

@@ -60,7 +60,7 @@
 			var namedTrackers = [];
 
 			if (!names || names.length === 0) {
-				namedTrackers = lodash.values(trackerDictionary);
+				namedTrackers = lodash.map(trackerDictionary);
 			} else {
 				for (var i = 0; i < names.length; i++) {
 					if (trackerDictionary.hasOwnProperty(names[i])) {
