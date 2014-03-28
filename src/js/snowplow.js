@@ -98,10 +98,7 @@
 				/* DOM Ready */
 				hasLoaded: false,
 				registeredOnLoadHandlers: []
-			},
-
-			/* Asynchronous tracker */
-			asyncTracker = null;
+			};
 
 		/************************************************************
 		 * Private methods
@@ -195,21 +192,10 @@
 		}
 
 		/************************************************************
-		 * Constructor
-		 ************************************************************/
-
-		// initialize the Snowplow singleton
-		helpers.addEventListener(windowAlias, 'beforeunload', beforeUnloadHandler, false);
-		addReadyListener();
-
-		// Now replace initialization array with queue manager object
-		return new queue.InQueueManager(tracker.Tracker, version, mutSnowplowState, asynchronousQueue);
-
-		/************************************************************
 		 * Public data and methods
 		 ************************************************************/
 
-		 return {
+		 windowAlias.Snowplow = {
 		 	/**
 		 	* Returns a Tracker object, configured with a
 		 	* CloudFront collector.
@@ -217,7 +203,9 @@
 		 	* @param string distSubdomain The subdomain on your CloudFront collector's distribution
 		 	*/
 		 	getTrackerCf: function (distSubdomain) {
-		 		return new tracker.Tracker(version, mutSnowplowState, {cf: distSubdomain});
+		 		var t = new tracker.Tracker('', version, mutSnowplowState, {});
+		 		t.setCollectorCf(distSubdomain);
+		 		return t;
 		 	},
 		 
 		 	/**
@@ -227,7 +215,9 @@
 		 	* @param string rawUrl The collector URL minus protocol and /i
 		 	*/
 		 	getTrackerUrl: function (rawUrl) {
-		 		return new tracker.Tracker(version, mutSnowplowState, {url: rawUrl});
+		 		var t = new tracker.Tracker('', version, mutSnowplowState, {});
+		 		t.setCollectorCf(rawUrl);
+		 		return t;
 		 	},
 		 
 		 	/**
@@ -236,9 +226,20 @@
 		 	* @return Tracker
 		 	*/
 		 	getAsyncTracker: function () {
-		 		return asyncTracker;
+		 		return new tracker.Tracker('', version, mutSnowplowState, {});
 		 	}
-		 }
+		 };
+
+		/************************************************************
+		 * Constructor
+		 ************************************************************/
+
+		// initialize the Snowplow singleton
+		helpers.addEventListener(windowAlias, 'beforeunload', beforeUnloadHandler, false);
+		addReadyListener();
+
+		// Now replace initialization array with queue manager object
+		return new queue.InQueueManager(tracker.Tracker, version, mutSnowplowState, asynchronousQueue);
 	}
 
 }());
