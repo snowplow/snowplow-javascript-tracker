@@ -40,13 +40,14 @@
 
 var snowplow = require('./snowplow'),
 	queueName,
-	queue;
+	queue,
+	windowAlias = window;
 
-if (window.GlobalSnowplowNamespace && window.GlobalSnowplowNamespace.length > 0) {
-	queueName = window.GlobalSnowplowNamespace.shift();
-	queue = window[queueName];
+if (windowAlias.GlobalSnowplowNamespace && windowAlias.GlobalSnowplowNamespace.length > 0) {
+	queueName = windowAlias.GlobalSnowplowNamespace.shift();
+	queue = windowAlias[queueName];
 	queue.q = new snowplow.Snowplow(queue.q);
 } else {
-	window._snaq = window._snaq || [];
-	window._snaq = new snowplow.Snowplow(window._snaq);
+	windowAlias._snaq = windowAlias._snaq || [];
+	windowAlias._snaq = new snowplow.Snowplow(windowAlias._snaq);
 }

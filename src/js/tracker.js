@@ -749,13 +749,14 @@
 		// TODO: this functionality is not yet fully implemented.
 		// See https://github.com/snowplow/snowplow/issues/75
 		function logLink(elementId, elementClasses, elementTarget, targetUrl, context) {
-			logUnstructEvent('link_click',{
+			var linkClickJson = {
 				element_id: elementId,
 				element_classes: elementClasses,
 				element_target: elementTarget,
 				target_url: targetUrl
-			},
-			true, context);
+			};
+
+			logUnstructEvent('link_click', helpers.deleteEmptyProperties(linkClickJson), true, context);
 		}
 
 		/**
@@ -1475,14 +1476,13 @@
 			 * @param object Custom context relating to the event
 			 */
 			trackImpression: function (bannerId, campaignId, advertiserId, userId, context) {
-				helpers.warn('Snowplow: trackImpression is deprecated. When version 1.1.0 is released, switch to trackAdImpression.');
+				helpers.warn('trackImpression is deprecated. When version 1.1.0 is released, switch to trackAdImpression.');
 				logImpression(bannerId, campaignId, advertiserId, userId, context);
 			},
 
 			// TODO: comments for ad tracking functions
 			trackAdImpression: function(impressionId, costIfCpm, bannerId, zoneId, advertiserId, costModel, campaignId, context) {
-				logUnstructEvent('ad_impression',
-				{
+				var adImpressionJson = {
 					impression_id: impressionId,
 					cost_if_cpm: costIfCpm,
 					banner_id: bannerId,
@@ -1490,13 +1490,13 @@
 					advertiser_id: advertiserId,
 					cost_model: costModel,
 					campaign_id: campaignId
-				},
-				true, context);
+				};
+
+				logUnstructEvent('ad_impression', helpers.deleteEmptyProperties(adImpressionJson), true, context);
 			},
 			
 			trackAdClick: function(clickId, costIfCpc, targetUrl, bannerId, zoneId, impressionId, advertiserId, costModel, campaignId, context) {
-				logUnstructEvent('ad_click',
-				{
+				var adClickJson = {
 					click_id: clickId,
 					cost_if_cpc: costIfCpc,
 					target_url: targetUrl,
@@ -1506,13 +1506,13 @@
 					advertiser_id: advertiserId,
 					cost_model: costModel,
 					campaign_id: campaignId
-				},
-				true, context);
+				};
+
+				logUnstructEvent('ad_click', helpers.deleteEmptyProperties(adClickJSON) ,true, context);
 			},
 
 			trackAdConversion: function(conversionId, costIfCpa, category, action, property, initialValue, advertiserId, costModel, campaignId, context) {
-				logUnstructEvent('ad_conversion',
-				{
+				var adConversionJson = {
 					conversion_id: conversionId,
 					cost_if_cpa: costIfCpa,
 					category: category,
@@ -1522,8 +1522,9 @@
 					advertiser_id: advertiserId,
 					cost_model: costModel,
 					campaign_id: campaignId					
-				},
-				true, context)
+				};
+
+				logUnstructEvent('ad_conversion', helpers.deleteEmptyProperties(adConversionJson), true, context);
 			}
 		}
 	}
