@@ -21,41 +21,17 @@
     <script type="text/javascript">
 
           ;(function(p,l,o,w,i,n,g) {
-          p.scriptRequestManager = p.scriptRequestManager || (function(a) {
-            var scriptQueue = [];
-            function enqueueScriptRequest(src) {
-              scriptQueue.push(src);
-              if (scriptQueue.length === 1) {
-                sendScriptRequest();
-              }
-            }
-            function sendScriptRequest() {
-              if (scriptQueue.length > 0) {
-                var newScript = l.createElement(o),
-                    initialScript = l.getElementsByTagName(o)[0];
-                newScript.async = 1;
-                newScript.onload = function() {
-                  scriptQueue.shift();
-                  sendScriptRequest();
-                }
-                newScript.onerror = function() {
-                  p['GlobalSnowplowNamespace'].shift();
-                  newScript.onload();
-                }
-                newScript.src = scriptQueue[0];
-                initialScript.parentNode.insertBefore(newScript, initialScript);
-              }
-            }
-            return {enqueueScriptRequest: enqueueScriptRequest}
-          })();
           p['GlobalSnowplowNamespace'] = p['GlobalSnowplowNamespace']||[];
           p['GlobalSnowplowNamespace'].push(i);
           p[i] = p[i] || function() {
             (p[i].q = p[i].q||[]).push(arguments);
           };
           p[i].q = p[i].q || [];
-          scriptRequestManager.enqueueScriptRequest(w, i);
-
+          n = l.createElement(o);
+          g = l.getElementsByTagName(o)[0];
+          n.async = 1;
+          n.src = w;
+          g.parentNode.insertBefore(n,g);
         }(window, document, 'script', '../../dist/snowplow.js', 'new_name_here'));
 
         window.new_name_here('newTracker', 'primaryTrackerNamespace', 'd3rkrsqld9gmqf.cloudfront.net', {
