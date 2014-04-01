@@ -1,7 +1,7 @@
 # JavaScript web analytics for Snowplow
 
 [ ![Build Status] [travis-image] ] [travis]
-[ ![Selenium Test Status][saucelabs-button-image]][saucelabs]
+[ ![Selenium Test Status] [saucelabs-button-image]][saucelabs]
 [ ![Code Climate] [codeclimate-image] ] [codeclimate]
 [ ![Built with Grunt] [grunt-image] ] [grunt]
 
@@ -15,7 +15,7 @@ With this tracker you can collect user event data (page views, e-commerce transa
 
 | Technical Docs              | Setup Guide           | Roadmap & Contributing               |         
 |-----------------------------|-----------------------|--------------------------------------|
-| ![i1] [techdocs-image]      | ![i2] [setup-image]   | ![i3] [roadmap-image]                |
+| [ ![i1] [techdocs-image] ] [tech-docs]      | [ ![i2] [setup-image] ] [setup]   | ![i3] [roadmap-image]                |
 | [Technical Docs] [tech-docs] | [Setup Guide] [setup] | _coming soon_                        |
 
 
