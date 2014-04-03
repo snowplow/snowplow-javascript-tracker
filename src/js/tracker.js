@@ -499,7 +499,7 @@
 
 			// Add event vendor field except for unstructured events whose JSON schema was not authored by Snowplow
 			if (snowplowSchema || (lodash.isUndefined(snowplowSchema))) {
-				sb.add('e_vn', eventVendor);
+				sb.add('evn', eventVendor);
 			}
 
 			// Adds with custom conditions
