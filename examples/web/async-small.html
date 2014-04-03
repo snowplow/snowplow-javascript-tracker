@@ -32,23 +32,22 @@
           n.async = 1;
           n.src = w;
           g.parentNode.insertBefore(n,g);
-        }(window, document, 'script', '../../dist/snowplow.js', 'new_name_here'));
+        }(window, document, 'script', '../../dist/snowplow.js', 'snowplow'));
 
-        window.new_name_here('newTracker', 'cf', 'd3rkrsqld9gmqf.cloudfront.net', { // Initialise a tracker
+        window.snowplow('newTracker', 'cf', 'd3rkrsqld9gmqf.cloudfront.net', { // Initialise a tracker
           encodeBase64: false, // Default is true
           appId: 'CFe23a', // Site ID can be anything you want. Set it if you're tracking more than one site in this account
-          platform: 'mob', 
-          cookieName: '_example_cookie_673907' // Cookie names should be unique to prevent mix-ups
+          platform: 'mob'
         });
 
-        window.new_name_here('setUserId', 'alex 123'); // Business-defined user ID
-        //window.new_name_here('setUserIdFromLocation', 'id'); // To test this, reload the page with ?id=xxx
-        //window.new_name_here('setUserIdFromCookie', '_sp_id.4209') // Test this using Firefox because Chrome doesn't allow local cookies.
-        window.new_name_here('setCustomUrl', '/overridden-url/'); // Override the page URL
-        window.new_name_here('enableActivityTracking', 10, 10); // Ping every 10 seconds after 10 seconds
-        window.new_name_here('enableLinkClickTracking', 'barred', true); // Track clicks on links whose class is not "barred"
-        // window.new_name_here('trackPageView', 'Async Test'); // Track the page view with custom title
-        window.new_name_here('trackPageView', null , { // Auto-set page title; add page context
+        window.snowplow('setUserId', 'alex 123'); // Business-defined user ID
+        //window.snowplow('setUserIdFromLocation', 'id'); // To test this, reload the page with ?id=xxx
+        //window.snowplow('setUserIdFromCookie', '_sp_id.4209') // Test this using Firefox because Chrome doesn't allow local cookies.
+        window.snowplow('setCustomUrl', '/overridden-url/'); // Override the page URL
+        window.snowplow('enableActivityTracking', 10, 10); // Ping every 10 seconds after 10 seconds
+        window.snowplow('enableLinkClickTracking', 'barred', true); // Track clicks on links whose class is not "barred"
+        // window.snowplow('trackPageView', 'Async Test'); // Track the page view with custom title
+        window.snowplow('trackPageView', null , { // Auto-set page title; add page context
           page: {
             page_type: 'test',
             last_updated: new Date(2014,1,26)
@@ -67,15 +66,15 @@
 
         function playMix() {
             alert("Playing a DJ mix");
-            window.new_name_here('trackStructEvent', 'Mixes', 'Play', 'MRC/fabric-0503-mix', '', '0.0');
+            window.snowplow('trackStructEvent', 'Mixes', 'Play', 'MRC/fabric-0503-mix', '', '0.0');
         }
         function addProduct() {
             alert("Adding a product to basket");
-            window.new_name_here('trackStructEvent', 'Checkout', 'Add', 'ASO01043', 'blue:xxl', '2.0', { user: { fb_uid: '123456 x' } } );      
+            window.snowplow('trackStructEvent', 'Checkout', 'Add', 'ASO01043', 'blue:xxl', '2.0', { user: { fb_uid: '123456 x' } } );      
         }
         function viewProduct() {
             alert("Viewing a product");
-            window.new_name_here('trackUnstructEvent', 'Viewed Product',
+            window.snowplow('trackUnstructEvent', 'Viewed Product',
                 {
                     product_id: 'ASO01043',
                     category: 'Dresses',
@@ -94,7 +93,7 @@
           var orderId = 'order-123';
 
           // addTrans sets up the transaction, should be called first.
-          window.new_name_here('addTrans',
+          window.snowplow('addTrans',
               orderId,                // order ID - required
               '',                     // affiliation or store name
               '8000',                 // total - required
@@ -108,7 +107,7 @@
 
           // addItem might be called for each item in the shopping cart,
           // or not at all.
-          window.new_name_here('addItem',
+          window.snowplow('addItem',
               orderId,                // order ID - required
               '1001',                 // SKU - required
               'Blue t-shirt',         // product name
@@ -119,7 +118,7 @@
               { products: { "launch_date$tm": new Date(2013,3,7) } } // context
               );
 
-          window.new_name_here('addItem',
+          window.snowplow('addItem',
               orderId,                // order ID - required
               '1002',                 // SKU - required
               'Red shoes',            // product name
@@ -131,7 +130,7 @@
 
           // trackTrans sends the transaction to Snowplow tracking servers.
           // Must be called last to commit the transaction.
-          window.new_name_here('trackTrans');
+          window.snowplow('trackTrans');
 
         }
     </script>
