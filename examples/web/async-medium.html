@@ -14,13 +14,13 @@
  -->
 <html>
 <head>
-    <title>Asynchronous website/webapp examples for snowplow.js</title>
+    <title>Medium asynchronous website/webapp examples for snowplow.js</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
     <!-- Snowplow starts plowing -->
     <script type="text/javascript">
 
-          ;(function(p,l,o,w,i,n,g) {
+        ;(function(p,l,o,w,i,n,g) {
           p['GlobalSnowplowNamespace'] = p['GlobalSnowplowNamespace']||[];
           p['GlobalSnowplowNamespace'].push(i);
           p[i] = p[i] || function() {
@@ -34,10 +34,19 @@
           g.parentNode.insertBefore(n,g);
         }(window, document, 'script', '../../dist/snowplow.js', 'new_name_here'));
 
-        window.new_name_here('newTracker', 'primaryTrackerNamespace', 'd3rkrsqld9gmqf.cloudfront.net', {
+        window.new_name_here('newTracker', 'cf', 'd3rkrsqld9gmqf.cloudfront.net', {
           encodeBase64: false,
           appId: 'CFe23a',
-          platform: 'mob'
+          platform: 'mob',
+          cookieName: '_cf_3489563' // Cookie names should be unique to prevent mix-ups
+        });
+
+        window.new_name_here('newTracker', 'uri', 'cc-endpoint.elasticbeanstalk.com', {
+          encodeBase64: true,
+          appId: 'CFe23a',
+          platform: 'mob',
+          userFingerprintSeed: 857463967, // Sets a custom seed for the "uri" tracker to generate the user fingerprint; the "cf" tracker will still use the default fingerprint
+          cookieName: '_uri_73457324'
         });
 
         window.new_name_here('setUserId', 'alex 123'); // Business-defined user ID
@@ -45,7 +54,8 @@
         //window.new_name_here('setUserIdFromCookie', '_sp_id.4209') // Test this using Firefox because Chrome doesn't allow local cookies.
         window.new_name_here('setCustomUrl', '/overridden-url/'); // Override the page URL
         window.new_name_here('enableActivityTracking', 10, 10); // Ping every 10 seconds after 10 seconds
-        window.new_name_here('enableLinkClickTracking', 'barred', true);
+        window.new_name_here('enableLinkClickTracking:cf', 'barred', true);
+        window.new_name_here('enableLinkClickTracking:uri', ['barred', 'inbound'], true);
         // window.new_name_here('trackPageView', 'Async Test'); // Track the page view with custom title
         window.new_name_here('trackPageView', null , { // Auto-set page title; add page context
           page: {
@@ -66,15 +76,21 @@
 
         function playMix() {
             alert("Playing a DJ mix");
+
+            // No tracker choice is specified, so both trackers will track the Play event
             window.new_name_here('trackStructEvent', 'Mixes', 'Play', 'MRC/fabric-0503-mix', '', '0.0');
         }
         function addProduct() {
             alert("Adding a product to basket");
-            window.new_name_here('trackStructEvent', 'Checkout', 'Add', 'ASO01043', 'blue:xxl', '2.0', { user: { fb_uid: '123456 x' } } );      
+
+            // Only the "cf" tracker will tracke the Checkout event
+            window.new_name_here('trackStructEvent:cf', 'Checkout', 'Add', 'ASO01043', 'blue:xxl', '2.0', { user: { fb_uid: '123456 x' } } );      
         }
         function viewProduct() {
             alert("Viewing a product");
-            window.new_name_here('trackUnstructEvent', 'Viewed Product',
+
+            // Only the "uri" tracker will track the Viewed Product event
+            window.new_name_here('trackUnstructEvent:uri', 'Viewed Product',
                 {
                     product_id: 'ASO01043',
                     category: 'Dresses',
@@ -92,8 +108,10 @@
 
           var orderId = 'order-123';
 
+          // Both trackers will track the transaction due to the ":cf;uri" suffix
+
           // addTrans sets up the transaction, should be called first.
-          window.new_name_here('addTrans',
+          window.new_name_here('addTrans:cf;uri',
               orderId,                // order ID - required
               '',                     // affiliation or store name
               '8000',                 // total - required
@@ -107,7 +125,7 @@
 
           // addItem might be called for each item in the shopping cart,
           // or not at all.
-          window.new_name_here('addItem',
+          window.new_name_here('addItem:cf;uri',
               orderId,                // order ID - required
               '1001',                 // SKU - required
               'Blue t-shirt',         // product name
@@ -118,7 +136,7 @@
               { products: { "launch_date$tm": new Date(2013,3,7) } } // context
               );
 
-          window.new_name_here('addItem',
+          window.new_name_here('addItem:cf;uri',
               orderId,                // order ID - required
               '1002',                 // SKU - required
               'Red shoes',            // product name
@@ -137,7 +155,8 @@
 </head>
 
 <body>
-    <h1>Asynchronous_examples_for_snowplow.js</h1>
+    <h1>Medium_asynchronous_examples_for_snowplow.js</h1>
+    <p>Two tracker namespaces are instantiated on this page.</p>
     <p>Press the buttons below to trigger individual tracking events:<br>
         <button type="button" onclick="playMix()">Play a mix</button><br>
         <button type="button" onclick="addProduct()">Add a product</button><br>
@@ -145,8 +164,11 @@
         <button type="button" onclick="addEcommerceTransaction()">Add an ecommerce transaction</button>
     </p>
     <p>Warning: if your browser's Do Not Track feature is enabled and respectDoNotTrack is not commented out, all tracking will be prevented.</p>
-    <a href=http://en.wikipedia.org/wiki/Main_Page id=legal class="link out">Link</a>
-    <a href=http://en.wikipedia.org/wiki/Main_Page id=illegal class="class barred">Ignored link</a>
+    <a href=http://en.wikipedia.org/wiki/Main_Page id=legal class="link out">Both trackers will track this link</a>
+    <br>
+    <a href=http://en.wikipedia.org/wiki/Main_Page id=semilegal class="class inbound">Only the cf tracker will track this link</a>
+    <br>
+    <a href=http://en.wikipedia.org/wiki/Main_Page id=illegal class="class barred">Neither tracker will track this link</a>
 
 </body>
 
