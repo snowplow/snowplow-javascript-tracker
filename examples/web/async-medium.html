@@ -33,9 +33,10 @@
           cookieName: '_cf_3489563' // Cookie names should be unique to prevent mix-ups
         });
 
-        window.new_name_here('newTracker', 'uri', 'cc-endpoint.elasticbeanstalk.com', {
+        // This second tracker namespace could have a different collector as its endpoint
+        window.new_name_here('newTracker', 'uri', 'd3rkrsqld9gmqf.cloudfront.net', {
           encodeBase64: true,
-          appId: 'CFe23a',
+          appId: '8D4920',
           platform: 'mob',
           userFingerprintSeed: 857463967, // Sets a custom seed for the "uri" tracker to generate the user fingerprint; the "cf" tracker will still use the default fingerprint
           cookieName: '_uri_73457324'
