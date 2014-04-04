@@ -110,8 +110,14 @@ module.exports = function(grunt) {
           'process': true
         },
         src: ['dist/bundle.js'],
-
         dest: 'dist/snowplow.js'
+      },
+      tag: {
+        options: {
+          banner: ';'
+        },
+        src: ['tags/tag.min.js'],
+        dest: 'tags/tag.min.js'
       }
     },
 
@@ -123,8 +129,19 @@ module.exports = function(grunt) {
         },
         files: [
           {
-          src: 'dist/snowplow.js',
-          dest: 'dist/sp.js'
+            src: 'dist/snowplow.js',
+            dest: 'dist/sp.js'
+          }
+        ]
+      },
+      tag: {
+        options: {
+          linebreak: 50
+        },
+        files: [
+          {
+            src: 'tags/tag.js',
+            dest: 'tags/tag.min.js'
           }
         ]
       }
@@ -226,9 +243,10 @@ module.exports = function(grunt) {
     });
   });
 
-  grunt.registerTask('default', 'Build lodash, Browserify, add banner, and minify', ['lodash', 'browserify:main', 'concat', 'min']);
-  grunt.registerTask('publish', 'Upload to S3 and invalidate Cloudfront (full semantic version only)', ['upload_setup', 'concat', 'min', 's3:not_pinned', 'invalidate_cloudfront:not_pinned']);
-  grunt.registerTask('publish-pinned', 'Upload to S3 and invalidate Cloudfront (full semantic version and semantic major version)', ['upload_setup', 'concat', 'min', 's3', 'invalidate_cloudfront']);
+  grunt.registerTask('default', 'Build lodash, Browserify, add banner, and minify', ['lodash', 'browserify:main', 'concat:dist', 'min:dist']);
+  grunt.registerTask('publish', 'Upload to S3 and invalidate Cloudfront (full semantic version only)', ['upload_setup', 'concat:dist', 'min:dist', 's3:not_pinned', 'invalidate_cloudfront:not_pinned']);
+  grunt.registerTask('publish-pinned', 'Upload to S3 and invalidate Cloudfront (full semantic version and semantic major version)', ['upload_setup', 'concat:dist', 'min:dist', 's3', 'invalidate_cloudfront']);
   grunt.registerTask('test', 'Intern tests', ['browserify:test', 'intern']);
   grunt.registerTask('travis', 'Intern tests for Travis CI',  ['lodash','browserify:test','intern']);
+  grunt.registerTask('tags', 'Minifiy the Snowplow invocation tag', ['min:tag', 'concat:tag']);
 }

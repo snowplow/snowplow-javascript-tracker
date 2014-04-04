@@ -21,6 +21,7 @@ node_modules
 lib_managed
 dist
 tests/pages/*.js
+tags/tag.min.js
 
 # creds for Grunt
 aws.json
