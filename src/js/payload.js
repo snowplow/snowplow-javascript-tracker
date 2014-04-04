@@ -147,7 +147,7 @@
 			function recurse(json) {
 				var translated = {};
 				for (var prop in json) {
-					var key = prop, value = json[prop];
+					var key = prop, value = json[prop], type;
 
 					// Special treatment...
 					if (json.hasOwnProperty(key)) {
