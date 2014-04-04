@@ -1,3 +1,7 @@
+Version 1.0.1 (2014-04-04)
+--------------------------
+Fixed lodash.js to work in the presence of AMD modules (#165)
+
 Version 1.0.0 (2014-03-27)
 --------------------------
 Added extra meta-data to package.json (#83)
