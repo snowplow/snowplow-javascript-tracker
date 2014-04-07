@@ -107,7 +107,7 @@
 		return navigatorAlias.cookieEnabled ? '1' : '0';
 	}
 
-	/*
+	/**
 	 * JS Implementation for browser fingerprint.
 	 * Does not require any external resources.
 	 * Based on https://github.com/carlo/jquery-browser-fingerprint

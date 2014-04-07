@@ -47,7 +47,7 @@
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
-	/*
+	/**
 	 * Snowplow Tracker class
 	 *
 	 * @param namespace The namespace of the tracker object
@@ -548,7 +548,7 @@
 			return ('https:' == documentAlias.location.protocol ? 'https' : 'http') + '://' + rawUrl + '/i';               
 		}
 
-		/*
+		/**
 		 * Log the page view / visit
 		 *
 		 * @param string customTitle The user-defined page title to attach to this page view
@@ -608,7 +608,7 @@
 			}
 		}
 
-		/*
+		/**
 		 * Log that a user is still viewing a given page
 		 * by sending a page ping.
 		 * Not part of the public API - only called from
@@ -736,7 +736,7 @@
 		// Next 2 log methods are not supported in
 		// Snowplow Enrichment process yet
 
-		/*
+		/**
 		 * Log the link or click with the server
 		 *
 		 * @param string elementId
@@ -796,7 +796,7 @@
 			return propertyName;
 		}
 
-		/*
+		/**
 		 * Check for pre-rendered web pages, and log the page view/link
 		 * according to the configuration and/or visibility
 		 *
