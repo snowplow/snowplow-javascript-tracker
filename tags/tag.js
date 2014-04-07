@@ -32,16 +32,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*
+/**
  * Use this function to load Snowplow
  *
- * @param p The window
- * @param l The document
- * @param o "script", the tag name of script elements
- * @param w string The source of the Snowplow script. Make sure you get the latest version.
- * @param i string The Snowplow namespace. The Snowplow user should set this.
- * @param n The new script (to be created inside the function)
- * @param g The first script on the page (to be found inside the function)
+ * @param object p The window
+ * @param object l The document
+ * @param string o "script", the tag name of script elements
+ * @param string w The source of the Snowplow script. Make sure you get the latest version.
+ * @param string i The Snowplow namespace. The Snowplow user should set this.
+ * @param undefined n The new script (to be created inside the function)
+ * @param undefined g The first script on the page (to be found inside the function)
  */
 ;(function(p,l,o,w,i,n,g) {
 	"p:nomunge, l:nomunge, o:nomunge, w:nomunge, i:nomunge, n:nomunge, g:nomunge";

@@ -51,10 +51,10 @@
 		var trackerDictionary = {},
 			usedCookieNames = {};
 
-		/*
+		/**
 		 * Get an array of trackers to which a function should be applied.
 		 *
-		 * @param names array List of namespaces to use. If empty, use all namespaces.
+		 * @param array names List of namespaces to use. If empty, use all namespaces.
 		 */
 		function getNamedTrackers(names) {
 			var namedTrackers = [];
@@ -78,12 +78,12 @@
 			return namedTrackers;
 		}
 
-		/*
+		/**
 		 * Legacy support for input of the form _snaq.push(['setCollectorCf', 'd34uzc5hjrimh8'])
 		 * 
-		 * @param f string Either 'setCollectorCf' or 'setCollectorUrl'
-		 * @param endpoint string
-		 * @param namespace string Optional tracker name
+		 * @param string f Either 'setCollectorCf' or 'setCollectorUrl'
+		 * @param string endpoint
+		 * @param string namespace Optional tracker name
 		 * 
 		 * TODO: remove this in 2.1.0
 		 */
@@ -102,11 +102,11 @@
 			trackerDictionary[name][f](endpoint);
 		}
 
-		/*
+		/**
 		 * Initiate a new tracker namespace
 		 *
-		 * @param namespace string
-		 * @param endpoint string Of the form d3rkrsqld9gmqf.cloudfront.net
+		 * @param string namespace
+		 * @param string endpoint Of the form d3rkrsqld9gmqf.cloudfront.net
 		 */
 		function createNewNamespace(namespace, endpoint, argmap) {
 			argmap = argmap || {};
@@ -119,10 +119,10 @@
 			trackerDictionary[namespace].setCollectorUrl(endpoint);
 		}
 
-		/*
+		/**
 		 * Output an array of the form ['functionName', [trackerName1, trackerName2, ...]]
 		 *
-		 * @param inputString String
+		 * @param string inputString
 		 */
 		function parseInputString(inputString) {
 			var separatedString = inputString.split(':'),
@@ -132,7 +132,7 @@
 			return [extractedFunction, extractedNames];
 		}
 
-		/*
+		/**
 		 * apply wrapper
 		 *
 		 * @param array parameterArray An array comprising either:

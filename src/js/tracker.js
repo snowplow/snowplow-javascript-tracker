@@ -1366,7 +1366,7 @@
 			 * @param string state Optional. State to associate with transaction.
 			 * @param string country Optional. Country to associate with transaction.
 			 * @param string currency Optional. Currency to associate with this transaction.
-			 * @param object context Option. Context relating to the event.
+			 * @param object context Optional. Context relating to the event.
 			 */
 			addTrans: function(orderId, affiliation, total, tax, shipping, city, state, country, currency, context) {
 				ecommerceTransaction.transaction = {
@@ -1393,7 +1393,7 @@
 			 * @param string price Required. Product price.
 			 * @param string quantity Required. Purchase quantity.
 			 * @param string currency Optional. Product price currency.
-			 * @param object context Option. Context relating to the event.
+			 * @param object context Optional. Context relating to the event.
 			 */
 			addItem: function(orderId, sku, name, category, price, quantity, currency, context) {
 				ecommerceTransaction.items.push({
