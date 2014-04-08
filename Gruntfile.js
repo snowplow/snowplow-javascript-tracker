@@ -136,7 +136,7 @@ module.exports = function(grunt) {
       },
       tag: {
         options: {
-          linebreak: 50
+          linebreak: 60
         },
         files: [
           {
