@@ -1,4 +1,4 @@
-Version 1.0.1 (2014-04-04)
+Version 1.0.1 (2014-04-09)
 --------------------------
 Fixed lodash.js to work in the presence of AMD modules (#165)
 Added missing variable declarations (#166)
