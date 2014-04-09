@@ -719,7 +719,7 @@
 			sb.add('se_pr', property);
 			sb.add('se_va', value);
 			sb.addJson('cx', 'co', context);
-			request = getRequest(sb, 'structEvent');
+			var request = getRequest(sb, 'structEvent');
 			sendRequest(request, configTrackerPause);
 		}
 
@@ -736,7 +736,7 @@
 			sb.add('ue_na', name);
 			sb.addJson('ue_px', 'ue_pr', properties);
 			sb.addJson('cx', 'co', context);
-			request = getRequest(sb, 'unstructEvent');
+			var request = getRequest(sb, 'unstructEvent');
 			sendRequest(request, configTrackerPause);
 		}
 
@@ -843,7 +843,7 @@
 			sb.add('ad_ad', advertiserId);
 			sb.add('ad_uid', userId);
 			sb.addJson('cx', 'co', context);
-			request = getRequest(sb, 'impression');
+			var request = getRequest(sb, 'impression');
 			sendRequest(request, configTrackerPause);
 		}
 
