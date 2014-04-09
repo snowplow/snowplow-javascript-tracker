@@ -37,7 +37,7 @@
 	var 
 		lodash = require('./lodash'),
 		helpers = require('./helpers'),
-		cookie = require('./cookie')
+		cookie = require('./cookie'),
 		murmurhash3_32_gc = require('murmurhash').v3,
 		tz = require('jstimezonedetect').jstz.determine(),
 
