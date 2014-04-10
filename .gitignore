@@ -18,7 +18,7 @@ results
 npm-debug.log
 node_modules
 
-lib_managed
+**/lodash.js
 dist
 tests/pages/*.js
 tags/tag.min.js

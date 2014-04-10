@@ -44,6 +44,7 @@
 
 		var	queueName = 'snowplowOutQueue_' + namespace,
 			executingQueue = false,
+			configCollectorUrl,
 			outQueue;
 
 		if (localStorageAccessible) {
@@ -63,8 +64,9 @@
 		 * Queue an image beacon for submission to the collector.
 		 * If we're not processing the queue, we'll start.
 		 */
-		function enqueueRequest(request, configCollectorUrl) {
-			outQueue.push([request, configCollectorUrl]);
+		function enqueueRequest(request, url) {
+			outQueue.push(request);
+			configCollectorUrl = url;
 			if (localStorageAccessible) {
 				localStorage.setItem(queueName, json2.stringify(outQueue));
 			}
@@ -94,11 +96,10 @@
 
 				if (outQueue[i] && outQueue.hasOwnProperty(i)) {
 
-					var nextRequest = outQueue[i][0],
-						collectorUrl = outQueue[i][1];
+					nextRequest = outQueue[i];
 
 					// Let's check that we have a Url to ping
-					if (!lodash.isString(collectorUrl)) {
+					if (!lodash.isString(configCollectorUrl)) {
 						throw "No Snowplow collector configured, cannot track";
 					}
 
@@ -122,7 +123,7 @@
 
 						image.onerror = function() {}
 
-						image.src = collectorUrl + nextRequest;
+						image.src = configCollectorUrl + nextRequest;
 
 					}(i));
 				}
