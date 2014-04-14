@@ -55,11 +55,14 @@
 		// Add the new Snowplow namespace to the global array so sp.js can find it
 		p['GlobalSnowplowNamespace'].push(i);
 	
-		// Create the asynchronous queue
+		// Create the Snowplow function
 		p[i] = function() {
 			(p[i].q = p[i].q || []).push(arguments);
 		};
 	
+		// Initialise the asynchronous queue
+		p[i].q = p[i].q || [];
+
 		// Create a new script element
 		n = l.createElement(o);
 	
