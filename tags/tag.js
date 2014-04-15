@@ -78,4 +78,4 @@
 		// Insert the Snowplow script before every other script so it executes as soon as possible
 		g.parentNode.insertBefore(n,g);
 	}
-} (window, document, 'script', '../../dist/snowplow.js', 'new_name_here'));
+} (window, document, 'script', '//d1fc8wv8zag5ca.cloudfront.net/2/sp.js', 'new_name_here'));
