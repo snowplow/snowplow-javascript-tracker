@@ -1533,7 +1533,7 @@
 					campaign_id: campaignId
 				};
 
-				logUnstructEvent('ad_click', helpers.deleteEmptyProperties(adClickJSON), true, context);
+				logUnstructEvent('ad_click', helpers.deleteEmptyProperties(adClickJson), true, context);
 			},
 
 			/**
