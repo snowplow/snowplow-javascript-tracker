@@ -1493,17 +1493,19 @@
 			 * @param object Custom context relating to the event
 			 */			
 			trackAdImpression: function(impressionId, costIfCpm, bannerId, zoneId, advertiserId, costModel, campaignId, context) {
-				var adImpressionJson = {
-					impression_id: impressionId,
-					cost_if_cpm: costIfCpm,
-					banner_id: bannerId,
-					zone_id: zoneId,
-					advertiser_id: advertiserId,
-					cost_model: costModel,
-					campaign_id: campaignId
-				};
+				trackCallback(function () {
+					var adImpressionJson = {
+						impression_id: impressionId,
+						cost_if_cpm: costIfCpm,
+						banner_id: bannerId,
+						zone_id: zoneId,
+						advertiser_id: advertiserId,
+						cost_model: costModel,
+						campaign_id: campaignId
+					};
 
-				logUnstructEvent('ad_impression', helpers.deleteEmptyProperties(adImpressionJson), true, context);
+					logUnstructEvent('ad_impression', helpers.deleteEmptyProperties(adImpressionJson), true, context);
+				});
 			},
 			
 			/**
