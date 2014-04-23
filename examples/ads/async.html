@@ -25,122 +25,135 @@
     <h1>Asynchronous ad tracking examples for snowplow.js</h1>
 
     <p>
-    <img src="images/banner-1.png" onclick="banner1()">
+    <img src="images/banner-1.png" id="banner1">
     Banner ID 23, zone ID 7, campaign ID 12, advertiser ID 201
     <!-- Snowplow starts plowing -->
     <script type="text/javascript">
 
-    // Randomly generate tracker namespace to prevent clashes
-    var s1 = Math.random().toString(36).substring(2);
+    (function(imageId){
 
-    ;(function(p,l,o,w,i,n,g){if(!p[i]){p.GlobalSnowplowNamespace=p.GlobalSnowplowNamespace||[];
-    p.GlobalSnowplowNamespace.push(i);p[i]=function(){(p[i].q=p[i].q||[]).push(arguments)
-    };p[i].q=p[i].q||[];n=l.createElement(o);g=l.getElementsByTagName(o)[0];n.async=1;
-    n.src=w;g.parentNode.insertBefore(n,g)}}(window,document,"script","//d1fc8wv8zag5ca.cloudfront.net/2/sp.js","adTracker"));    
+        // Randomly generate tracker namespace to prevent clashes
+        var s1 = Math.random().toString(36).substring(2);
 
-    window.adTracker('newTracker', s1, 'd3rkrsqld9gmqf.cloudfront.net', {
-        'encodeBase64': false
-    });
+        ;(function(p,l,o,w,i,n,g){if(!p[i]){p.GlobalSnowplowNamespace=p.GlobalSnowplowNamespace||[];
+        p.GlobalSnowplowNamespace.push(i);p[i]=function(){(p[i].q=p[i].q||[]).push(arguments)
+        };p[i].q=p[i].q||[];n=l.createElement(o);g=l.getElementsByTagName(o)[0];n.async=1;
+        n.src=w;g.parentNode.insertBefore(n,g)}}(window,document,"script","//d1fc8wv8zag5ca.cloudfront.net/2/sp.js","adTracker"));    
 
-    window.adTracker('trackAdImpression:' + s1, 
+        window.adTracker('newTracker', s1, 'd3rkrsqld9gmqf.cloudfront.net', {
+            'encodeBase64': false
+        });
 
-        '67965967893',      // impressionId
-        '',                 // costIfCpm - not applicable as the cost model for this ad is CPA
-        '23',               // bannerId
-        '7',                // zoneId
-        '201',              // advertiserId
-        'cpa',              // costModel - 'cpa', 'cpc', or 'cpm'
-        '12'                // campaignId
-    );
+        window.adTracker('trackAdImpression:' + s1, 
 
-    function banner1() {
-        window.adTracker('trackAdClick:' + s1, 
-
-            '12243253',                    // clickId
-            'http://www.example.com',      // targetUrl
-            '23',                          // bannerId
-            '7',                           // zoneId
-            '67965967893',                 // impressionId - the same as in trackAdImpression
-            '201',                         // advertiserId
-            'cpm',                         // costModel
-            '12'                           // campaignId
+            '67965967893',      // impressionId
+            '',                 // costIfCpm - not applicable as the cost model for this ad is CPA
+            '23',               // bannerId
+            '7',                // zoneId
+            '201',              // advertiserId
+            'cpa',              // costModel - 'cpa', 'cpc', or 'cpm'
+            '12'                // campaignId
         );
 
-        var button = document.createElement('button');
-        button.innerHTML = 'Click for an ad conversion';
-        document.body.appendChild(button);
-        button.onclick = function() {
+        function clickHandler() {
+            window.adTracker('trackAdClick:' + s1, 
 
-            window.adTracker('trackAdConversion:' + s1, 
-
-                '743560297',       // conversionId    
-                10,                // costIfCpa
-                'ecommerce',       // category
-                'purchase',        // action
-                '',                // property
-                99,                // initialValue - how much the conversion is initially worth
-                '201',             // advertiserId
-                'cpa',             // costModel
-                '12'               // campaignId
+                '12243253',                    // clickId
+                'http://www.example.com',      // targetUrl
+                '23',                          // bannerId
+                '7',                           // zoneId
+                '67965967893',                 // impressionId - the same as in trackAdImpression
+                '201',                         // advertiserId
+                'cpm',                         // costModel
+                '12'                           // campaignId
             );
 
-        }
-    }
+            var button = document.createElement('button');
+            button.innerHTML = 'Click for an ad conversion';
+            document.body.appendChild(button);
+            button.onclick = function() {
 
+                window.adTracker('trackAdConversion:' + s1, 
+
+                    '743560297',       // conversionId    
+                    10,                // costIfCpa
+                    'ecommerce',       // category
+                    'purchase',        // action
+                    '',                // property
+                    99,                // initialValue - how much the conversion is initially worth
+                    '201',             // advertiserId
+                    'cpa',             // costModel
+                    '12'               // campaignId
+                );
+
+            }
+        }
+
+        document.getElementById(imageId).addEventListener('click', clickHandler);
+
+    }('banner1'));
      </script>
     <!-- Snowplow stops plowing -->
     </p>
 
     <p>
-    <img src="images/banner-2.png" onclick="banner2()">
+    <img src="images/banner-2.png" id="banner2">
     Banner ID 127, no campaign or advertiser ID set
     <!-- Snowplow starts plowing -->
     <script type="text/javascript">
 
-    var s2 = Math.random().toString(36).substring(2);
+    (function(imageId){
+        var s1 = Math.random().toString(36).substring(2);
 
-    ;(function(p,l,o,w,i,n,g){if(!p[i]){p.GlobalSnowplowNamespace=p.GlobalSnowplowNamespace||[];
-    p.GlobalSnowplowNamespace.push(i);p[i]=function(){(p[i].q=p[i].q||[]).push(arguments)
-    };p[i].q=p[i].q||[];n=l.createElement(o);g=l.getElementsByTagName(o)[0];n.async=1;
-    n.src=w;g.parentNode.insertBefore(n,g)}}(window,document,"script","//d1fc8wv8zag5ca.cloudfront.net/2/sp.js","adTracker")); 
+        ;(function(p,l,o,w,i,n,g){if(!p[i]){p.GlobalSnowplowNamespace=p.GlobalSnowplowNamespace||[];
+        p.GlobalSnowplowNamespace.push(i);p[i]=function(){(p[i].q=p[i].q||[]).push(arguments)
+        };p[i].q=p[i].q||[];n=l.createElement(o);g=l.getElementsByTagName(o)[0];n.async=1;
+        n.src=w;g.parentNode.insertBefore(n,g)}}(window,document,"script","//d1fc8wv8zag5ca.cloudfront.net/2/sp.js","adTracker")); 
 
-    window.adTracker('newTracker', s2, 'd3rkrsqld9gmqf.cloudfront.net', {
-        'encodeBase64': false
-    });
+        window.adTracker('newTracker', s1, 'd3rkrsqld9gmqf.cloudfront.net', {
+            'encodeBase64': false
+        });
 
-    window.adTracker('trackAdImpression:' + s2, '17320923496', 6.5, '127', '', '', 'cpm');
+        window.adTracker('trackAdImpression:' + s1, '17320923496', 6.5, '127', '', '', 'cpm');
 
-    
-    function banner2() {
-        window.adTracker('trackAdClick:' + s2, '', 'http://www.example.com', '127', '', '17320923496', '', 'cpm');
-    }
+        
+        function clickHandler() {
+            window.adTracker('trackAdClick:' + s1, '', 'http://www.example.com', '127', '', '17320923496', '', 'cpm');
+        }
 
+        document.getElementById(imageId).addEventListener('click', clickHandler);
+
+    }('banner2'));
      </script>
     <!-- Snowplow stops plowing -->
     </p>
 
     <p>
-    <img src="images/banner-3.png" onclick="banner3()">
+    <img src="images/banner-3.png" id="banner3">
     Banner ID 56ea2819ffc7da75f7e, no campaign, advertiser or user ID set
     <!-- Snowplow starts plowing -->
     <script type="text/javascript">
 
-    var s3 = Math.random().toString(36).substring(2);
+    (function(imageId){
+        var s1 = Math.random().toString(36).substring(2);
 
-    ;(function(p,l,o,w,i,n,g){if(!p[i]){p.GlobalSnowplowNamespace=p.GlobalSnowplowNamespace||[];
-    p.GlobalSnowplowNamespace.push(i);p[i]=function(){(p[i].q=p[i].q||[]).push(arguments)
-    };p[i].q=p[i].q||[];n=l.createElement(o);g=l.getElementsByTagName(o)[0];n.async=1;
-    n.src=w;g.parentNode.insertBefore(n,g)}}(window,document,"script","//d1fc8wv8zag5ca.cloudfront.net/2/sp.js","adTracker")); 
-    
-    window.adTracker('newTracker', s3, 'd3rkrsqld9gmqf.cloudfront.net', {
-        'encodeBase64': false
-    });
+        ;(function(p,l,o,w,i,n,g){if(!p[i]){p.GlobalSnowplowNamespace=p.GlobalSnowplowNamespace||[];
+        p.GlobalSnowplowNamespace.push(i);p[i]=function(){(p[i].q=p[i].q||[]).push(arguments)
+        };p[i].q=p[i].q||[];n=l.createElement(o);g=l.getElementsByTagName(o)[0];n.async=1;
+        n.src=w;g.parentNode.insertBefore(n,g)}}(window,document,"script","//d1fc8wv8zag5ca.cloudfront.net/2/sp.js","adTracker")); 
+        
+        window.adTracker('newTracker', s1, 'd3rkrsqld9gmqf.cloudfront.net', {
+            'encodeBase64': false
+        });
 
-    window.adTracker('trackAdImpression:' + s3, '', '', '56ea2819ffc7da75f7e', '', '', 'cpc');
+        window.adTracker('trackAdImpression:' + s1, '', '', '56ea2819ffc7da75f7e', '', '', 'cpc');
 
-    function banner3() {
-        window.adTracker('trackAdClick:' + s3, 0.2, 'http://www.example.com', '127', 'cpc');
-    }
+        function clickHandler() {
+            window.adTracker('trackAdClick:' + s1, 0.2, 'http://www.example.com', '127', 'cpc');
+        }
+
+        document.getElementById(imageId).addEventListener('click', clickHandler);
+    }('banner3'));        
 
      </script>
     <!-- Snowplow stops plowing -->
