@@ -19,7 +19,7 @@
 
 <p>For each banner, viewing that banner fires an ad impression event and clicking it fires an ad click event.</p>
 
-<p>Click the first banner and the button that appears to fire an ad conversion event.</p>
+<p>Click the first banner and on the button that appears to fire an ad conversion event.</p>
 
 <body>
     <h1>Asynchronous ad tracking examples for snowplow.js</h1>
@@ -33,18 +33,18 @@
     (function(imageId){
 
         // Randomly generate tracker namespace to prevent clashes
-        var s1 = Math.random().toString(36).substring(2);
+        var rnd = Math.random().toString(36).substring(2);
 
         ;(function(p,l,o,w,i,n,g){if(!p[i]){p.GlobalSnowplowNamespace=p.GlobalSnowplowNamespace||[];
         p.GlobalSnowplowNamespace.push(i);p[i]=function(){(p[i].q=p[i].q||[]).push(arguments)
         };p[i].q=p[i].q||[];n=l.createElement(o);g=l.getElementsByTagName(o)[0];n.async=1;
         n.src=w;g.parentNode.insertBefore(n,g)}}(window,document,"script","//d1fc8wv8zag5ca.cloudfront.net/2/sp.js","adTracker"));    
 
-        window.adTracker('newTracker', s1, 'd3rkrsqld9gmqf.cloudfront.net', {
+        window.adTracker('newTracker', rnd, 'd3rkrsqld9gmqf.cloudfront.net', {
             'encodeBase64': false
         });
 
-        window.adTracker('trackAdImpression:' + s1, 
+        window.adTracker('trackAdImpression:' + rnd, 
 
             '67965967893',      // impressionId
             '',                 // costIfCpm - not applicable as the cost model for this ad is CPA
@@ -56,7 +56,7 @@
         );
 
         function clickHandler() {
-            window.adTracker('trackAdClick:' + s1, 
+            window.adTracker('trackAdClick:' + rnd, 
 
                 '12243253',                    // clickId
                 'http://www.example.com',      // targetUrl
@@ -73,7 +73,7 @@
             document.body.appendChild(button);
             button.onclick = function() {
 
-                window.adTracker('trackAdConversion:' + s1, 
+                window.adTracker('trackAdConversion:' + rnd, 
 
                     '743560297',       // conversionId    
                     10,                // costIfCpa
@@ -103,22 +103,22 @@
     <script type="text/javascript">
 
     (function(imageId){
-        var s1 = Math.random().toString(36).substring(2);
+        var rnd = Math.random().toString(36).substring(2);
 
         ;(function(p,l,o,w,i,n,g){if(!p[i]){p.GlobalSnowplowNamespace=p.GlobalSnowplowNamespace||[];
         p.GlobalSnowplowNamespace.push(i);p[i]=function(){(p[i].q=p[i].q||[]).push(arguments)
         };p[i].q=p[i].q||[];n=l.createElement(o);g=l.getElementsByTagName(o)[0];n.async=1;
         n.src=w;g.parentNode.insertBefore(n,g)}}(window,document,"script","//d1fc8wv8zag5ca.cloudfront.net/2/sp.js","adTracker")); 
 
-        window.adTracker('newTracker', s1, 'd3rkrsqld9gmqf.cloudfront.net', {
+        window.adTracker('newTracker', rnd, 'd3rkrsqld9gmqf.cloudfront.net', {
             'encodeBase64': false
         });
 
-        window.adTracker('trackAdImpression:' + s1, '17320923496', 6.5, '127', '', '', 'cpm');
+        window.adTracker('trackAdImpression:' + rnd, '17320923496', 6.5, '127', '', '', 'cpm');
 
         
         function clickHandler() {
-            window.adTracker('trackAdClick:' + s1, '', 'http://www.example.com', '127', '', '17320923496', '', 'cpm');
+            window.adTracker('trackAdClick:' + rnd, '', 'http://www.example.com', '127', '', '17320923496', '', 'cpm');
         }
 
         document.getElementById(imageId).addEventListener('click', clickHandler);
@@ -135,21 +135,21 @@
     <script type="text/javascript">
 
     (function(imageId){
-        var s1 = Math.random().toString(36).substring(2);
+        var rnd = Math.random().toString(36).substring(2);
 
         ;(function(p,l,o,w,i,n,g){if(!p[i]){p.GlobalSnowplowNamespace=p.GlobalSnowplowNamespace||[];
         p.GlobalSnowplowNamespace.push(i);p[i]=function(){(p[i].q=p[i].q||[]).push(arguments)
         };p[i].q=p[i].q||[];n=l.createElement(o);g=l.getElementsByTagName(o)[0];n.async=1;
         n.src=w;g.parentNode.insertBefore(n,g)}}(window,document,"script","//d1fc8wv8zag5ca.cloudfront.net/2/sp.js","adTracker")); 
         
-        window.adTracker('newTracker', s1, 'd3rkrsqld9gmqf.cloudfront.net', {
+        window.adTracker('newTracker', rnd, 'd3rkrsqld9gmqf.cloudfront.net', {
             'encodeBase64': false
         });
 
-        window.adTracker('trackAdImpression:' + s1, '', '', '56ea2819ffc7da75f7e', '', '', 'cpc');
+        window.adTracker('trackAdImpression:' + rnd, '', '', '56ea2819ffc7da75f7e', '', '', 'cpc');
 
         function clickHandler() {
-            window.adTracker('trackAdClick:' + s1, 0.2, 'http://www.example.com', '127', 'cpc');
+            window.adTracker('trackAdClick:' + rnd, 0.2, 'http://www.example.com', '127', 'cpc');
         }
 
         document.getElementById(imageId).addEventListener('click', clickHandler);
