@@ -94,6 +94,9 @@
 			// Request method is always GET for Snowplow
 			configRequestMethod = 'GET',
 
+			// Event vendor for all events except custom unstructured events
+			configDefaultVendor = 'com.snowplowanalytics',
+
 			// Platform defaults to web for this tracker
 			configPlatform = argmap.hasOwnProperty('platform') ? argmap.platform : 'web',
 
@@ -439,7 +442,7 @@
 		 * Takes in a string builder, adds in parameters to it
 		 * and then generates the request.
 		 */
-		function getRequest(sb, snowplowSchema) {
+		function getRequest(sb) {
 			var i,
 				now = new Date(),
 				nowTs = Math.round(now.getTime() / 1000),
@@ -459,8 +462,7 @@
 				id = loadDomainUserIdCookie(),
 				ses = getSnowplowCookieValue('ses'), // aka cookie.cookie(sesname)
 				currentUrl = configCustomUrl || locationHrefAlias,
-				featurePrefix,
-				eventVendor = 'com.snowplowanalytics';
+				featurePrefix;
 
 			if (configDoNotTrack && configWriteCookies) {
 				cookie.cookie(idname, '', -1, configCookiePath, configCookieDomain);
@@ -501,11 +503,6 @@
 			sb.add('tz', timezone);
 			sb.add('uid', businessUserId); // Business-defined user ID
 			sb.add('tna', namespace);
-
-			// Add event vendor field except for unstructured events whose JSON schema was not authored by Snowplow
-			if (snowplowSchema || (lodash.isUndefined(snowplowSchema))) {
-				sb.add('evn', eventVendor);
-			}
 
 			// Adds with custom conditions
 			if (configReferrerUrl.length) sb.add('refr', purify(configReferrerUrl));
@@ -568,6 +565,7 @@
 			var sb = payload.payloadBuilder(configEncodeBase64);
 			sb.add('e', 'pv'); // 'pv' for Page View
 			sb.add('page', pageTitle);
+			sb.add('evn', configDefaultVendor);
 			if (!lodash.isEmpty(context)) {
 				sb.addJson('cx', 'co', context);
 				sb.add('cv', configContextVendor);
@@ -633,6 +631,7 @@
 			sb.addRaw('pp_max', maxXOffset); // Global
 			sb.addRaw('pp_miy', minYOffset); // Global
 			sb.addRaw('pp_may', maxYOffset); // Global
+			sb.add('evn', configDefaultVendor);
 			if (!lodash.isEmpty(context)) {
 				sb.addJson('cx', 'co', context);
 				sb.add('cv', configContextVendor);
@@ -660,6 +659,7 @@
 			sb.add('se_la', label);
 			sb.add('se_pr', property);
 			sb.add('se_va', value);
+			sb.add('evn', configDefaultVendor);
 			if (!lodash.isEmpty(context)) {
 				sb.addJson('cx', 'co', context);
 				sb.add('cv', configContextVendor);
@@ -673,10 +673,10 @@
 		 *
 		 * @param string name The name of the event
 		 * @param object properties The properties of the event
-		 * @param snowplowSchema Whether the JSON schema is authored by Snowplow
+		 * @param string eventVendor The author of the event
 		 * @param object context Custom context relating to the event
 		 */
-		function logUnstructEvent(name, properties, snowplowSchema, context) {
+		function logUnstructEvent(name, properties, eventVendor, context) {
 			var sb = payload.payloadBuilder(configEncodeBase64);
 			sb.add('e', 'ue'); // 'ue' for Unstructured Event
 			sb.add('ue_na', name);
@@ -685,7 +685,8 @@
 				sb.addJson('cx', 'co', context);
 				sb.add('cv', configContextVendor);
 			}
-			var request = getRequest(sb, snowplowSchema);
+			sb.add('evn', eventVendor);
+			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
 		}
 
@@ -716,6 +717,7 @@
 			sb.add('tr_st', state);
 			sb.add('tr_co', country);
 			sb.add('tr_cu', currency);
+			sb.add('evn', configDefaultVendor);
 			if (!lodash.isEmpty(context)) {
 				sb.addJson('cx', 'co', context);
 				sb.add('cv', configContextVendor);
@@ -747,6 +749,7 @@
 			sb.add('ti_pr', price);
 			sb.add('ti_qu', quantity);
 			sb.add('ti_cu', currency);
+			sb.add('evn', configDefaultVendor);
 			if (!lodash.isEmpty(context)) {
 				sb.addJson('cx', 'co', context);
 				sb.add('cv', configContextVendor);
@@ -779,7 +782,7 @@
 				target_url: targetUrl
 			};
 
-			logUnstructEvent('link_click', helpers.deleteEmptyProperties(linkClickJson), true, context);
+			logUnstructEvent('link_click', helpers.deleteEmptyProperties(linkClickJson), configDefaultVendor, context);
 		}
 
 		/**
@@ -1364,10 +1367,11 @@
 			 *
 			 * @param string name The name of the event
 			 * @param object properties The properties of the event
+			 * @param string eventVendor The author of the event
 			 * @param object Custom context relating to the event
 			 */
-			trackUnstructEvent: function (name, properties, context) {
-				logUnstructEvent(name, properties, false, context);
+			trackUnstructEvent: function (name, properties, eventVendor, context) {
+				logUnstructEvent(name, properties, eventVendor, context);
 			},
 
 			/**
@@ -1520,7 +1524,7 @@
 						campaign_id: campaignId
 					};
 
-					logUnstructEvent('ad_impression', helpers.deleteEmptyProperties(adImpressionJson), true, context);
+					logUnstructEvent('ad_impression', helpers.deleteEmptyProperties(adImpressionJson), configDefaultVendor, context);
 				});
 			},
 			
@@ -1551,7 +1555,7 @@
 					campaign_id: campaignId
 				};
 
-				logUnstructEvent('ad_click', helpers.deleteEmptyProperties(adClickJson), true, context);
+				logUnstructEvent('ad_click', helpers.deleteEmptyProperties(adClickJson), configDefaultVendor, context);
 			},
 
 			/**
@@ -1581,7 +1585,7 @@
 					campaign_id: campaignId					
 				};
 
-				logUnstructEvent('ad_conversion', helpers.deleteEmptyProperties(adConversionJson), true, context);
+				logUnstructEvent('ad_conversion', helpers.deleteEmptyProperties(adConversionJson), configDefaultVendor, context);
 			}
 		}
 	}
