@@ -67,7 +67,8 @@
 	 * 6. respectDoNotTrack, false
 	 * 7. userFingerprint, true
 	 * 8. userFingerprintSeed, 123412414
-	 * 9. writeCookies, true
+	 * 9. pageUnloadTimer, 500
+	 * 10. writeCookies, true
 	 */
 	object.Tracker = function Tracker(namespace, version, mutSnowplowState, argmap) {
 
@@ -108,7 +109,7 @@
 			configTitle = documentAlias.title,
 
 			// Maximum delay to wait for web bug image to be fetched (in milliseconds)
-			configTrackerPause = 500,
+			configTrackerPause = argmap.hasOwnProperty('pageUnloadTimer') ? argmap.pageUnloadTimer : 500,
 
 			// Minimum visit time after initial page view (in milliseconds)
 			configMinimumVisitTime,
@@ -1013,7 +1014,6 @@
 				return loadDomainUserIdCookie();
 			},
 
-
 			/**
 			* Specify the app ID
 			*
@@ -1022,15 +1022,6 @@
 			setAppId: function (appId) {
 				helpers.warn('setAppId is deprecated. Instead add an "appId" field to the argmap argument of newTracker.');
 				configTrackerSiteId = appId;
-			},
-
-			/**
-			 * Set delay for link tracking (in milliseconds)
-			 *
-			 * @param int delay
-			 */
-			setLinkTrackingTimer: function (delay) {
-				configTrackerPause = delay;
 			},
 
 			/**
@@ -1467,7 +1458,7 @@
 			/**
 			 * Track an ad being served
 			 *
-			 * DEPRECATED: Use trackAdImpression() (scheduled for version 1.1.0)
+			 * DEPRECATED: Use trackAdImpression()
 			 *
 			 * @param string bannerId Identifier for the ad banner displayed
 			 * @param string campaignId (optional) Identifier for the campaign which the banner belongs to
