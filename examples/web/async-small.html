@@ -66,7 +66,7 @@
         }
         function viewProduct() {
             alert("Viewing a product");
-            window.snowplow('trackUnstructEvent', 'Viewed Product',
+            window.snowplow('trackUnstructEvent', 'com.example_company', 'Viewed Product',
                 {
                     product_id: 'ASO01043',
                     category: 'Dresses',
@@ -75,9 +75,7 @@
                     price: 49.95,
                     sizes: ['xs', 's', 'l', 'xl', 'xxl'],
                     available_since$dt: new Date(2013,3,7)
-                },
-                'com.example_company'
-            );
+                });
         }
 
         function addEcommerceTransaction() {

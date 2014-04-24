@@ -676,7 +676,7 @@
 		 * @param string eventVendor The author of the event
 		 * @param object context Custom context relating to the event
 		 */
-		function logUnstructEvent(name, properties, eventVendor, context) {
+		function logUnstructEvent(eventVendor, name, properties, context) {
 			var sb = payload.payloadBuilder(configEncodeBase64);
 			sb.add('e', 'ue'); // 'ue' for Unstructured Event
 			sb.add('ue_na', name);
@@ -1365,13 +1365,13 @@
 			/**
 			 * Track an unstructured event happening on this page.
 			 *
-			 * @param string name The name of the event
-			 * @param object properties The properties of the event
 			 * @param string eventVendor The author of the event
+			 * @param string name The name of the event
+			 * @param object properties The properties of the event			 
 			 * @param object Custom context relating to the event
 			 */
-			trackUnstructEvent: function (name, properties, eventVendor, context) {
-				logUnstructEvent(name, properties, eventVendor, context);
+			trackUnstructEvent: function (eventVendor, name, properties, context) {
+				logUnstructEvent(eventVendor, name, properties, context);
 			},
 
 			/**
@@ -1524,7 +1524,7 @@
 						campaign_id: campaignId
 					};
 
-					logUnstructEvent('ad_impression', helpers.deleteEmptyProperties(adImpressionJson), configDefaultVendor, context);
+					logUnstructEvent(configDefaultVendor, 'ad_impression', helpers.deleteEmptyProperties(adImpressionJson), context);
 				});
 			},
 			
@@ -1555,7 +1555,7 @@
 					campaign_id: campaignId
 				};
 
-				logUnstructEvent('ad_click', helpers.deleteEmptyProperties(adClickJson), configDefaultVendor, context);
+				logUnstructEvent(configDefaultVendor, 'ad_click', helpers.deleteEmptyProperties(adClickJson), context);
 			},
 
 			/**
@@ -1585,7 +1585,7 @@
 					campaign_id: campaignId					
 				};
 
-				logUnstructEvent('ad_conversion', helpers.deleteEmptyProperties(adConversionJson), configDefaultVendor, context);
+				logUnstructEvent(configDefaultVendor, 'ad_conversion', helpers.deleteEmptyProperties(adConversionJson), context);
 			}
 		}
 	}
