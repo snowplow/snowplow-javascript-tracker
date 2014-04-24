@@ -64,11 +64,12 @@
 	 * 3. cookieName, '_sp_'
 	 * 4. appId, ''
 	 * 5. platform, 'web'
-	 * 6. respectDoNotTrack, false
-	 * 7. userFingerprint, true
-	 * 8. userFingerprintSeed, 123412414
-	 * 9. pageUnloadTimer, 500
-	 * 10. writeCookies, true
+	 * 6. contextVendor, ''
+	 * 7. respectDoNotTrack, false
+	 * 8. userFingerprint, true
+	 * 9. userFingerprintSeed, 123412414
+	 * 10. pageUnloadTimer, 500
+	 * 11. writeCookies, true
 	 */
 	object.Tracker = function Tracker(namespace, version, mutSnowplowState, argmap) {
 
@@ -147,6 +148,9 @@
 
 			// Life of the session cookie (in milliseconds)
 			configSessionCookieTimeout = 1800, // 30 minutes
+
+			// Company which defined custom contexts
+			configContextVendor = argmap.hasOwnProperty('contextVendor') ? argmap.contextVendor : '',
 
 			// Enable Base64 encoding for unstructured events
 			configEncodeBase64 = argmap.hasOwnProperty('encodeBase64') ? argmap.encodeBase64 : true,
@@ -564,7 +568,10 @@
 			var sb = payload.payloadBuilder(configEncodeBase64);
 			sb.add('e', 'pv'); // 'pv' for Page View
 			sb.add('page', pageTitle);
-			sb.addJson('cx', 'co', context);
+			if (!lodash.isEmpty(context)) {
+				sb.addJson('cx', 'co', context);
+				sb.add('cv', configContextVendor);
+			}
 			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
 
@@ -626,7 +633,10 @@
 			sb.addRaw('pp_max', maxXOffset); // Global
 			sb.addRaw('pp_miy', minYOffset); // Global
 			sb.addRaw('pp_may', maxYOffset); // Global
-			sb.addJson('cx', 'co', context);
+			if (!lodash.isEmpty(context)) {
+				sb.addJson('cx', 'co', context);
+				sb.add('cv', configContextVendor);
+			}
 			resetMaxScrolls();
 			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
@@ -650,7 +660,10 @@
 			sb.add('se_la', label);
 			sb.add('se_pr', property);
 			sb.add('se_va', value);
-			sb.addJson('cx', 'co', context);
+			if (!lodash.isEmpty(context)) {
+				sb.addJson('cx', 'co', context);
+				sb.add('cv', configContextVendor);
+			}
 			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
 		}
@@ -668,7 +681,10 @@
 			sb.add('e', 'ue'); // 'ue' for Unstructured Event
 			sb.add('ue_na', name);
 			sb.addJson('ue_px', 'ue_pr', properties);
-			sb.addJson('cx', 'co', context);
+			if (!lodash.isEmpty(context)) {
+				sb.addJson('cx', 'co', context);
+				sb.add('cv', configContextVendor);
+			}
 			var request = getRequest(sb, snowplowSchema);
 			sendRequest(request, configTrackerPause);
 		}
@@ -700,7 +716,10 @@
 			sb.add('tr_st', state);
 			sb.add('tr_co', country);
 			sb.add('tr_cu', currency);
-			sb.addJson('cx', 'co', context);
+			if (!lodash.isEmpty(context)) {
+				sb.addJson('cx', 'co', context);
+				sb.add('cv', configContextVendor);
+			}
 			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
 		}
@@ -728,7 +747,10 @@
 			sb.add('ti_pr', price);
 			sb.add('ti_qu', quantity);
 			sb.add('ti_cu', currency);
-			sb.addJson('cx', 'co', context);
+			if (!lodash.isEmpty(context)) {
+				sb.addJson('cx', 'co', context);
+				sb.add('cv', configContextVendor);
+			}
 			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
 		}
@@ -780,7 +802,10 @@
 			sb.add('ad_ca', campaignId)
 			sb.add('ad_ad', advertiserId);
 			sb.add('ad_uid', userId);
-			sb.addJson('cx', 'co', context);
+			if (!lodash.isEmpty(context)) {
+				sb.addJson('cx', 'co', context);
+				sb.add('cv', configContextVendor);
+			}
 			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
 		}

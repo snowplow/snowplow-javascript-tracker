@@ -32,6 +32,7 @@ Added untracked files which should be ignored to .gitignore (#173)
 Removed ads/sync.html (#182)
 Updated ads/async.html (#183)
 Added pageUnloadTimer option to argmap (#171)
+Added custom context vendor configuration option (#180)
 
 Version 1.0.3 (2014-06-27)
 --------------------------
