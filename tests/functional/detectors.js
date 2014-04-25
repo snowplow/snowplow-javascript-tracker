@@ -38,17 +38,17 @@ define([
 	'intern/dojo/node!../../src/js/lib/helpers'
 ], function(registerSuite, assert, helpers) {
 
-    var 
-    	// Expected viewport dimensions vary based on browser
-    	expectedViewportWidths = [980, 1024],
-        expectedViewportHeights = [636, 644, 670, 673, 684, 695, 705, 706, 712],
+	var 
+		// Expected viewport dimensions vary based on browser
+		expectedViewportWidths = [980, 1024],
+		expectedViewportHeights = [636, 644, 670, 673, 684, 695, 705, 706, 712],
 
-        // User fingerprint varies based on browser features
-        // TODO: try to hash this off the useragent - 
-        // i.e. formal 1:1 relationship between viewport or signature and an individual browser
-        expectedSignatures = [
-        90940656, 3343029130, 1101697779, 3900377526, 987357563, 
-        2536308034, 1421522027, 4288521977, 3773734853, 2744319702, 710620838];
+		// User fingerprint varies based on browser features
+		// TODO: try to hash this off the useragent - 
+		// i.e. formal 1:1 relationship between viewport or signature and an individual browser
+		expectedSignatures = [
+		90940656, 3343029130, 1101697779, 3900377526, 987357563, 
+		2557409154, 705067259, 4288521977, 3773734853, 3166667154, 3339203264];
 
 	registerSuite({
 
