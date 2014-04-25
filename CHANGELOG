@@ -1,4 +1,4 @@
-Version 2.0.0 (2014-03-XX)
+Version 2.0.0 (2014-05-XX)
 --------------------------
 Moved fixUpUrl into its own file, called lib/proxies.js (#112)
 Fixed duplication of querystring parameter lookup (#111)
