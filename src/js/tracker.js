@@ -774,15 +774,15 @@
 		// TODO: rename to LinkClick
 		// TODO: this functionality is not yet fully implemented.
 		// See https://github.com/snowplow/snowplow/issues/75
-		function logLink(elementId, elementClasses, elementTarget, targetUrl, context) {
+		function logLink(targetUrl, elementId, elementClasses, elementTarget, context) {
 			var linkClickJson = {
+				target_url: targetUrl,				
 				element_id: elementId,
 				element_classes: elementClasses,
-				element_target: elementTarget,
-				target_url: targetUrl
+				element_target: elementTarget
 			};
 
-			logUnstructEvent('link_click', helpers.deleteEmptyProperties(linkClickJson), configDefaultVendor, context);
+			logUnstructEvent(configDefaultVendor, 'link_click', helpers.deleteEmptyProperties(linkClickJson), configDefaultVendor, context);
 		}
 
 		/**
@@ -899,7 +899,7 @@
 
 					// decodeUrl %xx
 					sourceHref = unescape(sourceHref);
-					logLink(elementId, elementClasses, elementTarget, sourceHref, context);
+					logLink(sourceHref, elementId, elementClasses, elementTarget, context);
 				}
 			}
 		}
@@ -1478,9 +1478,9 @@
 			 * @param object Custom context relating to the event
 			 */
 			// TODO: break this into trackLink(destUrl) and trackDownload(destUrl)
-			trackLinkClick: function(elementId, elementClasses, elementTarget, targetUrl, context) {
+			trackLinkClick: function(targetUrl, elementId, elementClasses, elementTarget, context) {
 				trackCallback(function () {
-					logLink(elementId, elementClasses, elementTarget, targetUrl, context);
+					logLink(targetUrl, elementId, elementClasses, elementTarget, context);
 				});
 			},
 
@@ -1504,23 +1504,24 @@
 			 * Track an ad being served
 			 *
 			 * @param string impressionId Identifier for a particular ad impression
-			 * @param number costIfCpm Cost if cost model is CPM
+			 * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'			 
+			 * @param number cost Cost
 			 * @param string bannerId Identifier for the ad banner displayed
 			 * @param string zoneId Identifier for the ad zone
 			 * @param string advertiserId Identifier for the advertiser
-			 * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'
 			 * @param string campaignId Identifier for the campaign which the banner belongs to
 			 * @param object Custom context relating to the event
 			 */			
-			trackAdImpression: function(impressionId, costIfCpm, bannerId, zoneId, advertiserId, costModel, campaignId, context) {
+			trackAdImpression: function(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, context) {
 				trackCallback(function () {
 					var adImpressionJson = {
 						impression_id: impressionId,
-						cost_if_cpm: costIfCpm,
+						cost_model: costModel,						
+						cost: cost,
 						banner_id: bannerId,
+						target_url: targetUrl,
 						zone_id: zoneId,
 						advertiser_id: advertiserId,
-						cost_model: costModel,
 						campaign_id: campaignId
 					};
 
@@ -1532,26 +1533,26 @@
 			 * Track an ad being clicked
 			 *
 			 * @param string clickId Identifier for the ad click
-			 * @param number costIfCpc Cost if cost model is CPC
+			 * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'			 
+			 * @param number cost Cost
 			 * @param string targetUrl (required) The link's target URL
 			 * @param string bannerId Identifier for the ad banner displayed
 			 * @param string zoneId Identifier for the ad zone
 			 * @param string impressionId Identifier for a particular ad impression
 			 * @param string advertiserId Identifier for the advertiser
-			 * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'
 			 * @param string campaignId Identifier for the campaign which the banner belongs to
 			 * @param object Custom context relating to the event
 			 */
-			trackAdClick: function(clickId, costIfCpc, targetUrl, bannerId, zoneId, impressionId, advertiserId, costModel, campaignId, context) {
+			trackAdClick: function(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, context) {
 				var adClickJson = {
+					target_url: targetUrl,					
 					click_id: clickId,
-					cost_if_cpc: costIfCpc,
-					target_url: targetUrl,
+					cost_model: costModel,					
+					cost: cost,
 					banner_id: bannerId,
 					zone_id: zoneId,
 					impression_id: impressionId,
 					advertiser_id: advertiserId,
-					cost_model: costModel,
 					campaign_id: campaignId
 				};
 
@@ -1562,7 +1563,7 @@
 			 * Track an ad conversion event
 			 *
 			 * @param string conversionId Identifier for the ad conversion event
-			 * @param number costIfCpa Cost if cost model is CPA
+			 * @param number cost Cost
 			 * @param string category The name you supply for the group of objects you want to track
 			 * @param string action A string that is uniquely paired with each category
 			 * @param string property Describes the object of the conversion or the action performed on it
@@ -1572,16 +1573,16 @@
 			 * @param string campaignId Identifier for the campaign which the banner belongs to
 			 * @param object Custom context relating to the event
 			 */
-			trackAdConversion: function(conversionId, costIfCpa, category, action, property, initialValue, advertiserId, costModel, campaignId, context) {
+			trackAdConversion: function(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, context) {
 				var adConversionJson = {
 					conversion_id: conversionId,
-					cost_if_cpa: costIfCpa,
+					cost_model: costModel,					
+					cost: cost,
 					category: category,
 					action: action,
 					property: property,
 					initial_value: initialValue,
 					advertiser_id: advertiserId,
-					cost_model: costModel,
 					campaign_id: campaignId					
 				};
 

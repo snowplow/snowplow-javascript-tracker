@@ -46,26 +46,27 @@
 
         window.adTracker('trackAdImpression:' + rnd, 
 
-            '67965967893',      // impressionId
-            '',                 // costIfCpm - not applicable as the cost model for this ad is CPA
-            '23',               // bannerId
-            '7',                // zoneId
-            '201',              // advertiserId
-            'cpa',              // costModel - 'cpa', 'cpc', or 'cpm'
-            '12'                // campaignId
+            '67965967893',            // impressionId
+            'cpa',                    // costModel - 'cpa', 'cpc', or 'cpm'            
+            10,                       // cost - requires costModel
+            'http://www.example.com', // targetUrl
+            '23',                     // bannerId
+            '7',                      // zoneId
+            '201',                    // advertiserId
+            '12'                      // campaignId
         );
 
         function clickHandler() {
             window.adTracker('trackAdClick:' + rnd, 
 
-                '12243253',                    // clickId
-                '',                            // costIfCpc - N/A
                 'http://www.example.com',      // targetUrl
+                '12243253',                    // clickId
+                'cpm',                         // costModel                
+                0.5,                           // cost
                 '23',                          // bannerId
                 '7',                           // zoneId
                 '67965967893',                 // impressionId - the same as in trackAdImpression
                 '201',                         // advertiserId
-                'cpm',                         // costModel
                 '12'                           // campaignId
             );
 
@@ -76,14 +77,14 @@
 
                 window.adTracker('trackAdConversion:' + rnd, 
 
-                    '743560297',       // conversionId    
-                    10,                // costIfCpa
+                    '743560297',       // conversionId
+                    'cpm',                         // costModel
+                    10,                // cost
                     'ecommerce',       // category
                     'purchase',        // action
                     '',                // property
                     99,                // initialValue - how much the conversion is initially worth
                     '201',             // advertiserId
-                    'cpa',             // costModel
                     '12'               // campaignId
                 );
 
@@ -115,11 +116,10 @@
             'encodeBase64': false
         });
 
-        window.adTracker('trackAdImpression:' + rnd, '17320923496', 6.5, '127', '', '', 'cpm');
-
+        window.adTracker('trackAdImpression:' + rnd, '17320923496', 'cpm', 6.5, 'http://www.example.com', '127', '', '');
         
         function clickHandler() {
-            window.adTracker('trackAdClick:' + rnd, '', 'http://www.example.com', '127', '', '17320923496', '', 'cpm');
+            window.adTracker('trackAdClick:' + rnd, 'http://www.example.com', '', 'cpm', 6.5, '127', '', '', '17320923496', '');
         }
 
         document.getElementById(imageId).addEventListener('click', clickHandler);
@@ -147,10 +147,10 @@
             'encodeBase64': false
         });
 
-        window.adTracker('trackAdImpression:' + rnd, '', '', '56ea2819ffc7da75f7e', '', '', 'cpc');
+        window.adTracker('trackAdImpression:' + rnd, '', 'cpc', '', 'http://www.acme.com', '56ea2819ffc7da75f7e', '', '');
 
         function clickHandler() {
-            window.adTracker('trackAdClick:' + rnd, 0.2, 'http://www.example.com', '127', 'cpc');
+            window.adTracker('trackAdClick:' + rnd, 'http://www.acme.com', '', 'cpc', 0.2, '56ea2819ffc7da75f7e');
         }
 
         document.getElementById(imageId).addEventListener('click', clickHandler);
