@@ -34,6 +34,7 @@ Updated ads/async.html (#183)
 Added pageUnloadTimer option to argmap (#171)
 Added event vendor as argument to trackUnstructEvent (#157)
 Added custom context vendor configuration option (#180)
+Removed type hints from unstructured events and custom contexts (#163)
 
 Version 1.0.3 (2014-06-27)
 --------------------------
