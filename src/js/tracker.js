@@ -776,10 +776,10 @@
 		// See https://github.com/snowplow/snowplow/issues/75
 		function logLink(targetUrl, elementId, elementClasses, elementTarget, context) {
 			var linkClickJson = {
-				target_url: targetUrl,				
-				element_id: elementId,
-				element_classes: elementClasses,
-				element_target: elementTarget
+				targetUrl: targetUrl,				
+				elementId: elementId,
+				elementClasses: elementClasses,
+				elementTarget: elementTarget
 			};
 
 			logUnstructEvent(configDefaultVendor, 'link_click', helpers.deleteEmptyProperties(linkClickJson), configDefaultVendor, context);
@@ -1515,14 +1515,14 @@
 			trackAdImpression: function(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, context) {
 				trackCallback(function () {
 					var adImpressionJson = {
-						impression_id: impressionId,
-						cost_model: costModel,						
+						impressionId: impressionId,
+						costModel: costModel,						
 						cost: cost,
-						banner_id: bannerId,
-						target_url: targetUrl,
-						zone_id: zoneId,
-						advertiser_id: advertiserId,
-						campaign_id: campaignId
+						bannerId: bannerId,
+						targetUrl: targetUrl,
+						zoneId: zoneId,
+						advertiserId: advertiserId,
+						campaignId: campaignId
 					};
 
 					logUnstructEvent(configDefaultVendor, 'ad_impression', helpers.deleteEmptyProperties(adImpressionJson), context);
@@ -1545,15 +1545,15 @@
 			 */
 			trackAdClick: function(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, context) {
 				var adClickJson = {
-					target_url: targetUrl,					
-					click_id: clickId,
-					cost_model: costModel,					
+					targetUrl: targetUrl,					
+					clickId: clickId,
+					costModel: costModel,					
 					cost: cost,
-					banner_id: bannerId,
-					zone_id: zoneId,
-					impression_id: impressionId,
-					advertiser_id: advertiserId,
-					campaign_id: campaignId
+					bannerId: bannerId,
+					zoneId: zoneId,
+					impressionId: impressionId,
+					advertiserId: advertiserId,
+					campaignId: campaignId
 				};
 
 				logUnstructEvent(configDefaultVendor, 'ad_click', helpers.deleteEmptyProperties(adClickJson), context);
@@ -1575,15 +1575,15 @@
 			 */
 			trackAdConversion: function(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, context) {
 				var adConversionJson = {
-					conversion_id: conversionId,
-					cost_model: costModel,					
+					conversionId: conversionId,
+					costModel: costModel,					
 					cost: cost,
 					category: category,
 					action: action,
 					property: property,
-					initial_value: initialValue,
-					advertiser_id: advertiserId,
-					campaign_id: campaignId					
+					initialValue: initialValue,
+					advertiserId: advertiserId,
+					campaignId: campaignId					
 				};
 
 				logUnstructEvent(configDefaultVendor, 'ad_conversion', helpers.deleteEmptyProperties(adConversionJson), context);
