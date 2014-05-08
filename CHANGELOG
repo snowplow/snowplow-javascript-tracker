@@ -35,6 +35,7 @@ Added pageUnloadTimer option to argmap (#171)
 Added event vendor as argument to trackUnstructEvent (#157)
 Added custom context vendor configuration option (#180)
 Removed type hints from unstructured events and custom contexts (#163)
+Added hardcoded header to custom context arrays (#199)
 
 Version 1.0.3 (2014-06-27)
 --------------------------

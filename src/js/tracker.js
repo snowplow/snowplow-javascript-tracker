@@ -98,10 +98,10 @@
 
 			// The header field attached to all custom context JSONs
 			configDefaultHeader = {
-			    "type": "us_contexts",
-			    "version": "1.0.0",
-			    "vendor": "com.snowplowanalytics"
-			  },
+				type: "us_contexts",
+				version: "1.0.0",
+				vendor: "com.snowplowanalytics"
+			},
 
 			// Platform defaults to web for this tracker
 			configPlatform = argmap.hasOwnProperty('platform') ? argmap.platform : 'web',
@@ -562,7 +562,7 @@
 		 * @return string collectorUrl The tracker URL with protocol
 		 */
 		function asCollectorUrl(rawUrl) {
-			return ('https:' == documentAlias.location.protocol ? 'https' : 'http') + '://' + rawUrl + '/i';               
+			return ('https:' == documentAlias.location.protocol ? 'https' : 'http') + '://' + rawUrl + '/i';
 		}
 
 		/**
@@ -1353,7 +1353,7 @@
 			 * @param object Custom context relating to the event
 			 */
 			trackStructEvent: function (category, action, label, property, value, context) {
-				logStructEvent(category, action, label, property, value, context);                   
+				logStructEvent(category, action, label, property, value, context);
 			},
 
 			/**
