@@ -57,8 +57,8 @@
               version: "1.1.0"
             },
             data: {
-              page_type: 'test',
-              last_updated: new Date(2014,1,26)
+              pageType: 'test',
+              lastUpdated: new Date(2014,1,26)
             }
           },
           {
@@ -68,7 +68,7 @@
               version: "2.0.0"
             },
             data: {
-              user_type: 'tester',
+              userType: 'tester',
             }
           }
         ]);
@@ -89,7 +89,7 @@
             alert("Adding a product to basket");
 
             // Only the "cf" tracker will tracke the Checkout event
-            window.new_name_here('trackStructEvent:cf', 'Checkout', 'Add', 'ASO01043', 'blue:xxl', '2.0', { user: { fb_uid: '123456 x' } } );      
+            window.new_name_here('trackStructEvent:cf', 'Checkout', 'Add', 'ASO01043', 'blue:xxl', '2.0', { user: { fbUid: '123456 x' } } );      
         }
         function viewProduct() {
             alert("Viewing a product");
@@ -97,13 +97,13 @@
             // Only the "uri" tracker will track the Viewed Product event
             window.new_name_here('com.acme_company', 'trackUnstructEvent:uri', 'Viewed Product',
                 {
-                    product_id: 'ASO01043',
+                    productId: 'ASO01043',
                     category: 'Dresses',
                     brand: 'ACME',
                     returning: true,
                     price: 49.95,
                     sizes: ['xs', 's', 'l', 'xl', 'xxl'],
-                    available_since$dt: new Date(2013,3,7)
+                    availableSince: new Date(2013,3,7)
                 });
         }
 
@@ -144,7 +144,7 @@
                   version: "1.0.0"
                 },
                 data: {
-                  "launch_date$tm": new Date(2013,3,7)
+                  "launchDate": new Date(2013,3,7)
                 }
               }]);
 
