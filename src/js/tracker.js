@@ -64,12 +64,11 @@
 	 * 3. cookieName, '_sp_'
 	 * 4. appId, ''
 	 * 5. platform, 'web'
-	 * 6. contextVendor, ''
-	 * 7. respectDoNotTrack, false
-	 * 8. userFingerprint, true
-	 * 9. userFingerprintSeed, 123412414
-	 * 10. pageUnloadTimer, 500
-	 * 11. writeCookies, true
+	 * 6. respectDoNotTrack, false
+	 * 7. userFingerprint, true
+	 * 8. userFingerprintSeed, 123412414
+	 * 9. pageUnloadTimer, 500
+	 * 10. writeCookies, true
 	 */
 	object.Tracker = function Tracker(namespace, version, mutSnowplowState, argmap) {
 
@@ -96,6 +95,13 @@
 
 			// Event vendor for all events except custom unstructured events
 			configDefaultVendor = 'com.snowplowanalytics',
+
+			// The header field attached to all custom context JSONs
+			configDefaultHeader = {
+			    "type": "us_contexts",
+			    "version": "1.0.0",
+			    "vendor": "com.snowplowanalytics"
+			  },
 
 			// Platform defaults to web for this tracker
 			configPlatform = argmap.hasOwnProperty('platform') ? argmap.platform : 'web',
@@ -151,9 +157,6 @@
 
 			// Life of the session cookie (in milliseconds)
 			configSessionCookieTimeout = 1800, // 30 minutes
-
-			// Company which defined custom contexts
-			configContextVendor = argmap.hasOwnProperty('contextVendor') ? argmap.contextVendor : '',
 
 			// Enable Base64 encoding for unstructured events
 			configEncodeBase64 = argmap.hasOwnProperty('encodeBase64') ? argmap.encodeBase64 : true,
@@ -212,6 +215,18 @@
 			ecommerceTransaction = ecommerceTransactionTemplate(),
 
 			outQueueManager = new requestQueue.OutQueueManager(namespace);
+
+		/*
+		 * Creates a JSON from the default header and a custom contexts array
+		 */
+		function completeContext(context) {
+			if (!lodash.isEmpty(context)) {
+				return {
+					header: configDefaultHeader,
+					data: context
+				};
+			}
+		}
 
 		/*
 		 * Initializes an empty ecommerce
@@ -566,10 +581,7 @@
 			sb.add('e', 'pv'); // 'pv' for Page View
 			sb.add('page', pageTitle);
 			sb.add('evn', configDefaultVendor);
-			if (!lodash.isEmpty(context)) {
-				sb.addJson('cx', 'co', context);
-				sb.add('cv', configContextVendor);
-			}
+			sb.addJson('cx', 'co', completeContext(context));
 			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
 
@@ -632,10 +644,7 @@
 			sb.addRaw('pp_miy', minYOffset); // Global
 			sb.addRaw('pp_may', maxYOffset); // Global
 			sb.add('evn', configDefaultVendor);
-			if (!lodash.isEmpty(context)) {
-				sb.addJson('cx', 'co', context);
-				sb.add('cv', configContextVendor);
-			}
+			sb.addJson('cx', 'co', completeContext(context));
 			resetMaxScrolls();
 			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
@@ -660,10 +669,7 @@
 			sb.add('se_pr', property);
 			sb.add('se_va', value);
 			sb.add('evn', configDefaultVendor);
-			if (!lodash.isEmpty(context)) {
-				sb.addJson('cx', 'co', context);
-				sb.add('cv', configContextVendor);
-			}
+			sb.addJson('cx', 'co', completeContext(context));
 			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
 		}
@@ -681,10 +687,7 @@
 			sb.add('e', 'ue'); // 'ue' for Unstructured Event
 			sb.add('ue_na', name);
 			sb.addJson('ue_px', 'ue_pr', properties);
-			if (!lodash.isEmpty(context)) {
-				sb.addJson('cx', 'co', context);
-				sb.add('cv', configContextVendor);
-			}
+			sb.addJson('cx', 'co', completeContext(context));
 			sb.add('evn', eventVendor);
 			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
@@ -718,10 +721,7 @@
 			sb.add('tr_co', country);
 			sb.add('tr_cu', currency);
 			sb.add('evn', configDefaultVendor);
-			if (!lodash.isEmpty(context)) {
-				sb.addJson('cx', 'co', context);
-				sb.add('cv', configContextVendor);
-			}
+			sb.addJson('cx', 'co', completeContext(context));
 			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
 		}
@@ -750,10 +750,7 @@
 			sb.add('ti_qu', quantity);
 			sb.add('ti_cu', currency);
 			sb.add('evn', configDefaultVendor);
-			if (!lodash.isEmpty(context)) {
-				sb.addJson('cx', 'co', context);
-				sb.add('cv', configContextVendor);
-			}
+			sb.addJson('cx', 'co', completeContext(context));
 			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
 		}
@@ -782,7 +779,7 @@
 				elementTarget: elementTarget
 			};
 
-			logUnstructEvent(configDefaultVendor, 'link_click', helpers.deleteEmptyProperties(linkClickJson), configDefaultVendor, context);
+			logUnstructEvent(configDefaultVendor, 'link_click', helpers.deleteEmptyProperties(linkClickJson), context);
 		}
 
 		/**
@@ -805,10 +802,7 @@
 			sb.add('ad_ca', campaignId)
 			sb.add('ad_ad', advertiserId);
 			sb.add('ad_uid', userId);
-			if (!lodash.isEmpty(context)) {
-				sb.addJson('cx', 'co', context);
-				sb.add('cv', configContextVendor);
-			}
+			sb.addJson('cx', 'co', completeContext(context));
 			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
 		}

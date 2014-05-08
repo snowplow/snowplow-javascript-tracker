@@ -31,7 +31,6 @@
           appId: 'CFe23a',
           platform: 'mob',
           cookieName: '_cf_3489563', // Cookie names should be unique to prevent mix-ups
-          contextVendor: 'com.acme_company'
         });
 
         // This second tracker namespace could have a different collector as its endpoint
@@ -40,7 +39,6 @@
           appId: '8D4920',
           userFingerprintSeed: 857463967, // Sets a custom seed for the "uri" tracker to generate the user fingerprint; the "cf" tracker will still use the default fingerprint
           cookieName: '_uri_73457324',
-          contextVendor: 'com.acme_company'
         });
 
         window.new_name_here('setUserId', 'alex 123'); // Business-defined user ID
@@ -51,16 +49,29 @@
         window.new_name_here('enableLinkClickTracking:cf', 'barred', true);
         window.new_name_here('enableLinkClickTracking:uri', ['barred', 'inbound'], true);
         // window.new_name_here('trackPageView', 'Async Test'); // Track the page view with custom title
-        window.new_name_here('trackPageView', null , { // Auto-set page title; add page context
-          page: {
-            page_type: 'test',
-            last_updated: new Date(2014,1,26)
+        window.new_name_here('trackPageView', null , [ // Auto-set page title; add page context
+          {
+            header: {
+              vendor: "com.example_company",
+              name: "page",
+              version: "1.1.0"
+            },
+            data: {
+              page_type: 'test',
+              last_updated: new Date(2014,1,26)
+            }
           },
-          user: {
-            user_type: 'tester',
-
+          {
+            header: {
+              vendor: "com.example_company",
+              name: "user",
+              version: "2.0.0"
+            },
+            data: {
+              user_type: 'tester',
+            }
           }
-        } );
+        ]);
 
     </script>
     <!-- Snowplow stops plowing -->
@@ -126,8 +137,16 @@
               '2000',                 // unit price - required
               '2',                    // quantity - required
               'JPY',                  // currency
-              { products: { "launch_date$tm": new Date(2013,3,7) } } // context
-              );
+              [{                      // context
+                header: {
+                  vendor: "com.example_company",
+                  name: "products",
+                  version: "1.0.0"
+                },
+                data: {
+                  "launch_date$tm": new Date(2013,3,7)
+                }
+              }]);
 
           window.new_name_here('addItem:cf;uri',
               orderId,                // order ID - required
