@@ -51,22 +51,14 @@
         // window.new_name_here('trackPageView', 'Async Test'); // Track the page view with custom title
         window.new_name_here('trackPageView', null , [ // Auto-set page title; add page context
           {
-            header: {
-              vendor: "com.example_company",
-              name: "page",
-              version: "1.1.0"
-            },
+            schema: "com.example_company/page/1.2.1",
             data: {
               pageType: 'test',
               lastUpdated: new Date(2014,1,26)
             }
           },
           {
-            header: {
-              vendor: "com.example_company",
-              name: "user",
-              version: "2.0.0"
-            },
+            schema: "com.example_company/user/2.0.0",
             data: {
               userType: 'tester',
             }
@@ -138,11 +130,7 @@
               '2',                    // quantity - required
               'JPY',                  // currency
               [{                      // context
-                header: {
-                  vendor: "com.example_company",
-                  name: "products",
-                  version: "1.0.0"
-                },
+                schema: "com.example_company/products/1.0.0",
                 data: {
                   "launchDate": new Date(2013,3,7)
                 }

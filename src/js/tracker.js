@@ -96,12 +96,8 @@
 			// Event vendor for all events except custom unstructured events
 			configDefaultVendor = 'com.snowplowanalytics',
 
-			// The header field attached to all custom context JSONs
-			configDefaultHeader = {
-				type: "us_contexts",
-				version: "1.0.0",
-				vendor: "com.snowplowanalytics"
-			},
+			// The schema against which custom context arrays should be validated
+			configContextSchema = "com.snowplowanalytics/contexts/1.0.0",
 
 			// Platform defaults to web for this tracker
 			configPlatform = argmap.hasOwnProperty('platform') ? argmap.platform : 'web',
@@ -222,7 +218,7 @@
 		function completeContext(context) {
 			if (!lodash.isEmpty(context)) {
 				return {
-					header: configDefaultHeader,
+					schema: configContextSchema,
 					data: context
 				};
 			}
