@@ -40,14 +40,14 @@
         // window.snowplow('trackPageView', 'Async Test'); // Track the page view with custom title
         window.snowplow('trackPageView', null , [ // Auto-set page title; add page context
           {
-            schema: "com.example_company/page/1.2.1",
+            schema: "com.example_company/page/json/1-2-1",
             data: {
               pageType: 'test',
               lastUpdated: new Date(2014,1,26)
             }
           },
           {
-            schema: "com.example_company/user/2.0.0",
+            schema: "com.example_company/user/json/2-0-0",
             data: {
               userType: 'tester',
             }
@@ -70,8 +70,9 @@
         }
         function viewProduct() {
             alert("Viewing a product");
-            window.snowplow('trackUnstructEvent', 'com.example_company', 'Viewed Product',
-                {
+            window.snowplow('trackUnstructEvent', {
+                schema: 'com.acme_company/viewed_product/json/5.0.0',
+                data: {
                     productId: 'ASO01043',
                     category: 'Dresses',
                     brand: 'ACME',
@@ -79,7 +80,8 @@
                     price: 49.95,
                     sizes: ['xs', 's', 'l', 'xl', 'xxl'],
                     availableSince: new Date(2013,3,7)
-                });
+              }
+            });
         }
 
         function addEcommerceTransaction() {
@@ -111,7 +113,7 @@
               '2',                    // quantity - required
               'JPY',                  // currency
               [{                      // context
-                schema: "com.example_company/products/1.0.0",
+                schema: "com.example_company/products/json/1-0-0",
                 data: {
                   "launchDate": new Date(2013,3,7)
                 }

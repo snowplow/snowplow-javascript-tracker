@@ -97,7 +97,10 @@
 			configDefaultVendor = 'com.snowplowanalytics',
 
 			// The schema against which custom context arrays should be validated
-			configContextSchema = "com.snowplowanalytics/contexts/1.0.0",
+			configContextSchema = 'com.snowplowanalytics/contexts/json/1-0-0',
+
+			// The schema against which unstructured event envelopes should be validated
+			configUnstructEventSchema = 'com.snowplowanalytics/unstruct_event/json/1-0-0',
 
 			// Platform defaults to web for this tracker
 			configPlatform = argmap.hasOwnProperty('platform') ? argmap.platform : 'web',
@@ -673,20 +676,23 @@
 		/**
 		 * Log an unstructured event happening on this page
 		 *
-		 * @param string name The name of the event
-		 * @param object properties The properties of the event
-		 * @param string eventVendor The author of the event
+		 * @param object eventJson Contains the properties and schema location for the event
 		 * @param object context Custom context relating to the event
 		 */
-		function logUnstructEvent(eventVendor, name, properties, context) {
-			var sb = payload.payloadBuilder(configEncodeBase64);
-			sb.add('e', 'ue'); // 'ue' for Unstructured Event
-			sb.add('ue_na', name);
-			sb.addJson('ue_px', 'ue_pr', properties);
-			sb.addJson('cx', 'co', completeContext(context));
-			sb.add('evn', eventVendor);
-			var request = getRequest(sb);
-			sendRequest(request, configTrackerPause);
+		function logUnstructEvent(eventJson, context) {
+			helpers.deleteEmptyProperties(eventJson.data);
+			if (!lodash.isEmpty(eventJson.data)) {
+				var envelope = {
+					schema: configUnstructEventSchema,
+					data: eventJson
+				},
+					sb = payload.payloadBuilder(configEncodeBase64);
+				sb.add('e', 'ue'); // 'ue' for Unstructured Event
+				sb.addJson('ue_px', 'ue_pr', envelope);
+				sb.addJson('cx', 'co', completeContext(context));
+				var request = getRequest(sb);
+				sendRequest(request, configTrackerPause);
+			}
 		}
 
 		/**
@@ -768,14 +774,17 @@
 		// TODO: this functionality is not yet fully implemented.
 		// See https://github.com/snowplow/snowplow/issues/75
 		function logLink(targetUrl, elementId, elementClasses, elementTarget, context) {
-			var linkClickJson = {
-				targetUrl: targetUrl,				
-				elementId: elementId,
-				elementClasses: elementClasses,
-				elementTarget: elementTarget
+			var eventJson = {
+				schema: configDefaultVendor + '/link_click/json/1-0-0',
+				data: {
+					targetUrl: targetUrl,				
+					elementId: elementId,
+					elementClasses: elementClasses,
+					elementTarget: elementTarget
+				},
 			};
 
-			logUnstructEvent(configDefaultVendor, 'link_click', helpers.deleteEmptyProperties(linkClickJson), context);
+			logUnstructEvent(eventJson, context);
 		}
 
 		/**
@@ -1355,13 +1364,11 @@
 			/**
 			 * Track an unstructured event happening on this page.
 			 *
-			 * @param string eventVendor The author of the event
-			 * @param string name The name of the event
-			 * @param object properties The properties of the event			 
-			 * @param object Custom context relating to the event
+			 * @param object eventJson Contains the properties and schema location for the event
+			 * @param object context Custom context relating to the event
 			 */
-			trackUnstructEvent: function (eventVendor, name, properties, context) {
-				logUnstructEvent(eventVendor, name, properties, context);
+			trackUnstructEvent: function (eventJson, context) {
+				logUnstructEvent(eventJson, context);
 			},
 
 			/**
@@ -1504,18 +1511,21 @@
 			 */			
 			trackAdImpression: function(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, context) {
 				trackCallback(function () {
-					var adImpressionJson = {
-						impressionId: impressionId,
-						costModel: costModel,						
-						cost: cost,
-						bannerId: bannerId,
-						targetUrl: targetUrl,
-						zoneId: zoneId,
-						advertiserId: advertiserId,
-						campaignId: campaignId
+					var eventJson = {
+						schema: configDefaultVendor + '/ad_impression/json/1-0-0',
+						data: {
+							impressionId: impressionId,
+							costModel: costModel,						
+							cost: cost,
+							bannerId: bannerId,
+							targetUrl: targetUrl,
+							zoneId: zoneId,
+							advertiserId: advertiserId,
+							campaignId: campaignId
+						}
 					};
 
-					logUnstructEvent(configDefaultVendor, 'ad_impression', helpers.deleteEmptyProperties(adImpressionJson), context);
+					logUnstructEvent(eventJson, context);
 				});
 			},
 			
@@ -1534,19 +1544,22 @@
 			 * @param object Custom context relating to the event
 			 */
 			trackAdClick: function(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, context) {
-				var adClickJson = {
-					targetUrl: targetUrl,					
-					clickId: clickId,
-					costModel: costModel,					
-					cost: cost,
-					bannerId: bannerId,
-					zoneId: zoneId,
-					impressionId: impressionId,
-					advertiserId: advertiserId,
-					campaignId: campaignId
+				var eventJson = {
+					schema: configDefaultVendor + '/ad_click/json/1-0-0',
+					data: {
+						targetUrl: targetUrl,					
+						clickId: clickId,
+						costModel: costModel,					
+						cost: cost,
+						bannerId: bannerId,
+						zoneId: zoneId,
+						impressionId: impressionId,
+						advertiserId: advertiserId,
+						campaignId: campaignId
+					}
 				};
 
-				logUnstructEvent(configDefaultVendor, 'ad_click', helpers.deleteEmptyProperties(adClickJson), context);
+				logUnstructEvent(eventJson, context);
 			},
 
 			/**
@@ -1564,19 +1577,22 @@
 			 * @param object Custom context relating to the event
 			 */
 			trackAdConversion: function(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, context) {
-				var adConversionJson = {
-					conversionId: conversionId,
-					costModel: costModel,					
-					cost: cost,
-					category: category,
-					action: action,
-					property: property,
-					initialValue: initialValue,
-					advertiserId: advertiserId,
-					campaignId: campaignId					
+				var eventJson = {
+					schema: configDefaultVendor + '/ad_conversion/json/1-0-0',
+					data: {
+						conversionId: conversionId,
+						costModel: costModel,					
+						cost: cost,
+						category: category,
+						action: action,
+						property: property,
+						initialValue: initialValue,
+						advertiserId: advertiserId,
+						campaignId: campaignId					
+					}
 				};
 
-				logUnstructEvent(configDefaultVendor, 'ad_conversion', helpers.deleteEmptyProperties(adConversionJson), context);
+				logUnstructEvent(eventJson, context);
 			}
 		}
 	}
