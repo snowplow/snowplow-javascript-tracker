@@ -579,7 +579,6 @@
 			var sb = payload.payloadBuilder(configEncodeBase64);
 			sb.add('e', 'pv'); // 'pv' for Page View
 			sb.add('page', pageTitle);
-			sb.add('evn', configDefaultVendor);
 			sb.addJson('cx', 'co', completeContext(context));
 			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
@@ -642,7 +641,6 @@
 			sb.addRaw('pp_max', maxXOffset); // Global
 			sb.addRaw('pp_miy', minYOffset); // Global
 			sb.addRaw('pp_may', maxYOffset); // Global
-			sb.add('evn', configDefaultVendor);
 			sb.addJson('cx', 'co', completeContext(context));
 			resetMaxScrolls();
 			var request = getRequest(sb);
@@ -667,7 +665,6 @@
 			sb.add('se_la', label);
 			sb.add('se_pr', property);
 			sb.add('se_va', value);
-			sb.add('evn', configDefaultVendor);
 			sb.addJson('cx', 'co', completeContext(context));
 			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
@@ -722,7 +719,6 @@
 			sb.add('tr_st', state);
 			sb.add('tr_co', country);
 			sb.add('tr_cu', currency);
-			sb.add('evn', configDefaultVendor);
 			sb.addJson('cx', 'co', completeContext(context));
 			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
@@ -751,7 +747,6 @@
 			sb.add('ti_pr', price);
 			sb.add('ti_qu', quantity);
 			sb.add('ti_cu', currency);
-			sb.add('evn', configDefaultVendor);
 			sb.addJson('cx', 'co', completeContext(context));
 			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
