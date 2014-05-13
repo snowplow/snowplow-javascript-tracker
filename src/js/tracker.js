@@ -97,10 +97,10 @@
 			configDefaultVendor = 'com.snowplowanalytics',
 
 			// The schema against which custom context arrays should be validated
-			configContextSchema = 'com.snowplowanalytics/contexts/json/1-0-0',
+			configContextSchema = 'com.snowplowanalytics/contexts/jsonschema/1-0-0',
 
 			// The schema against which unstructured event envelopes should be validated
-			configUnstructEventSchema = 'com.snowplowanalytics/unstruct_event/json/1-0-0',
+			configUnstructEventSchema = 'com.snowplowanalytics/unstruct_event/jsonschema/1-0-0',
 
 			// Platform defaults to web for this tracker
 			configPlatform = argmap.hasOwnProperty('platform') ? argmap.platform : 'web',
@@ -770,7 +770,7 @@
 		// See https://github.com/snowplow/snowplow/issues/75
 		function logLink(targetUrl, elementId, elementClasses, elementTarget, context) {
 			var eventJson = {
-				schema: configDefaultVendor + '/link_click/json/1-0-0',
+				schema: configDefaultVendor + '/link_click/jsonschema/1-0-0',
 				data: {
 					targetUrl: targetUrl,				
 					elementId: elementId,
@@ -1507,7 +1507,7 @@
 			trackAdImpression: function(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, context) {
 				trackCallback(function () {
 					var eventJson = {
-						schema: configDefaultVendor + '/ad_impression/json/1-0-0',
+						schema: configDefaultVendor + '/ad_impression/jsonschema/1-0-0',
 						data: {
 							impressionId: impressionId,
 							costModel: costModel,						
@@ -1540,7 +1540,7 @@
 			 */
 			trackAdClick: function(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, context) {
 				var eventJson = {
-					schema: configDefaultVendor + '/ad_click/json/1-0-0',
+					schema: configDefaultVendor + '/ad_click/jsonschema/1-0-0',
 					data: {
 						targetUrl: targetUrl,					
 						clickId: clickId,
@@ -1573,7 +1573,7 @@
 			 */
 			trackAdConversion: function(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, context) {
 				var eventJson = {
-					schema: configDefaultVendor + '/ad_conversion/json/1-0-0',
+					schema: configDefaultVendor + '/ad_conversion/jsonschema/1-0-0',
 					data: {
 						conversionId: conversionId,
 						costModel: costModel,					
