@@ -40,9 +40,9 @@
 		localStorageAccessible = require('./lib/detectors').localStorageAccessible(),
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
-	object.OutQueueManager = function(namespace) {
+	object.OutQueueManager = function(functionName, namespace) {
 
-		var	queueName = 'snowplowOutQueue_' + namespace,
+		var	queueName = ['snowplowOutQueue', functionName, namespace].join('_'),
 			executingQueue = false,
 			configCollectorUrl,
 			outQueue;

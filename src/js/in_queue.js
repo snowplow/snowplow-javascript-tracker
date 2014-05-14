@@ -46,7 +46,7 @@
 	 *   after the Tracker has been initialized and loaded
 	 ************************************************************/
 
-	object.InQueueManager = function(TrackerConstructor, version, mutSnowplowState, asyncQueue) {
+	object.InQueueManager = function(TrackerConstructor, version, mutSnowplowState, asyncQueue, functionName) {
 
 		var trackerDictionary = {},
 			usedCookieNames = {};
@@ -88,12 +88,12 @@
 		 * TODO: remove this in 2.1.0
 		 */
 		function legacyCreateNewNamespace(f, endpoint, namespace) {
-			helpers.warn(f + ' is deprecated.'); //TODO: more instructions for switching
+			helpers.warn(f + ' is deprecated. Set the collector when a new tracker instance using newTracker.');
 
 			var name;
 
 			if (lodash.isUndefined(namespace)) {
-				name = 'sp';    // TODO: make default names work properly
+				name = 'sp';
 			} else {
 				name = namespace;
 			}
@@ -115,7 +115,7 @@
 			} else {
 				usedCookieNames[argmap.cookieName] = true;
 			}
-			trackerDictionary[namespace] = new TrackerConstructor(namespace, version, mutSnowplowState, argmap);
+			trackerDictionary[namespace] = new TrackerConstructor(functionName, namespace, version, mutSnowplowState, argmap);
 			trackerDictionary[namespace].setCollectorUrl(endpoint);
 		}
 

@@ -82,7 +82,7 @@
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
-	object.Snowplow = function(asynchronousQueue) {
+	object.Snowplow = function(asynchronousQueue, functionName) {
 
 		var
 			documentAlias = document,
@@ -203,7 +203,7 @@
 		 	* @param string distSubdomain The subdomain on your CloudFront collector's distribution
 		 	*/
 		 	getTrackerCf: function (distSubdomain) {
-		 		var t = new tracker.Tracker('', version, mutSnowplowState, {});
+		 		var t = new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
 		 		t.setCollectorCf(distSubdomain);
 		 		return t;
 		 	},
@@ -215,7 +215,7 @@
 		 	* @param string rawUrl The collector URL minus protocol and /i
 		 	*/
 		 	getTrackerUrl: function (rawUrl) {
-		 		var t = new tracker.Tracker('', version, mutSnowplowState, {});
+		 		var t = new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
 		 		t.setCollectorCf(rawUrl);
 		 		return t;
 		 	},
@@ -226,7 +226,7 @@
 		 	* @return Tracker
 		 	*/
 		 	getAsyncTracker: function () {
-		 		return new tracker.Tracker('', version, mutSnowplowState, {});
+		 		return new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
 		 	}
 		 };
 
@@ -239,7 +239,7 @@
 		addReadyListener();
 
 		// Now replace initialization array with queue manager object
-		return new queue.InQueueManager(tracker.Tracker, version, mutSnowplowState, asynchronousQueue);
+		return new queue.InQueueManager(tracker.Tracker, version, mutSnowplowState, asynchronousQueue, functionName);
 	}
 
 }());

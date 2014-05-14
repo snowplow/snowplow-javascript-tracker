@@ -70,7 +70,7 @@
 	 * 9. pageUnloadTimer, 500
 	 * 10. writeCookies, true
 	 */
-	object.Tracker = function Tracker(namespace, version, mutSnowplowState, argmap) {
+	object.Tracker = function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
 
 		/************************************************************
 		 * Private members
@@ -213,7 +213,7 @@
 			// Will be committed, sent and emptied by a call to trackTrans.
 			ecommerceTransaction = ecommerceTransactionTemplate(),
 
-			outQueueManager = new requestQueue.OutQueueManager(namespace);
+			outQueueManager = new requestQueue.OutQueueManager(functionName, namespace);
 
 		/*
 		 * Creates a JSON from the default header and a custom contexts array
