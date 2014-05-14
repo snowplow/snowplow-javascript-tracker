@@ -36,7 +36,7 @@
         //window.snowplow('setUserIdFromCookie', '_sp_id.4209') // Test this using Firefox because Chrome doesn't allow local cookies.
         window.snowplow('setCustomUrl', '/overridden-url/'); // Override the page URL
         window.snowplow('enableActivityTracking', 10, 10); // Ping every 10 seconds after 10 seconds
-        window.snowplow('enableLinkClickTracking', 'barred', true); // Track clicks on links whose class is not "barred"
+        window.snowplow('enableLinkClickTracking', {blacklist: ['barred']}, true); // Track clicks on links whose class is not "barred"
         // window.snowplow('trackPageView', 'Async Test'); // Track the page view with custom title
         window.snowplow('trackPageView', null , [ // Auto-set page title; add page context
           {

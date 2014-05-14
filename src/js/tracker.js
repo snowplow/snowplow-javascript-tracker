@@ -945,48 +945,66 @@
 		}
 
 		/*
+		 * Check whether a list of classes contains any of the classes of a link element
+		 * Used to determine whether clicks on that link should be tracked
+		 */
+		function checkLink(linkElement, specifiedClasses) {
+			var linkClasses = lodash.map(linkElement.classList),
+				i,
+				j;
+
+			for (i = 0; i < linkClasses.length; i++) {
+				for (j = 0; j < specifiedClasses.length; j++) {
+					if (linkClasses[i] === specifiedClasses[j]) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		/*
 		 * Add click handlers to anchor and AREA elements, except those to be ignored
 		 */
-		function addClickListeners(pseudoClicks, excludedClasses, context) {
+		function addClickListeners(pseudoClicks, criterion, context) {
 			if (!linkTrackingInstalled) {
 				linkTrackingInstalled = true;
 
-				// iterate through anchor elements with href and AREA elements
+				var linkElements = documentAlias.links,
+					filter,
+					inclusive,
+					specifiedClasses,
+					i;
 
-				var i,
-					j,
-					k,
-					excluded,
-					linkElements = documentAlias.links,
-					classArray;
-
-				if (lodash.isUndefined(excludedClasses)) {
+				// If the criterion argument is not an object, add listeners to all links
+				if (lodash.isArray(criterion) || !lodash.isObject(criterion)) {
 					for (i = 0; i<linkElements.length; i++) {
-						addClickListener(linkElements[i], enable)
+						addClickListener(linkElements[i], pseudoClicks, context);
 					}
 					return;
 				}
 
-				if (lodash.isString(excludedClasses)) {
-					excludedClasses = [excludedClasses];
+				if (criterion.hasOwnProperty('filter')) {
+					filter = criterion.filter;
+				} else {
+
+					inclusive = (criterion.hasOwnProperty('whitelist'));
+					specifiedClasses = criterion.whitelist || criterion.blacklist;
+
+					// If the class list is a single string, convert it to an array
+					if (!lodash.isArray(specifiedClasses)) {
+						specifiedClasses = [specifiedClasses];
+					}
+
+					filter = function(link) {
+						return checkLink(link, specifiedClasses) === inclusive;
+					}					
+
 				}
 
-				// Iterate over link elements, each element's classes, and the excluded classes
-				if (linkElements) {
-					for (i = 0; i < linkElements.length; i++) {
-						excluded = false;
-						classArray = lodash.map(linkElements[i].classList);
-						for (j = 0; j < classArray.length; j++) {
-							for (k = 0 ; k < excludedClasses.length; k++) {
-								if (classArray[j] === excludedClasses[k]) {
-									excluded = true;
-									break;
-								}
-							}
-						}
-						if (!excluded) {
-							addClickListener(linkElements[i], pseudoClicks, context);
-						}
+				for (i = 0; i < linkElements.length; i++) {
+					if (filter(linkElements[i])) {
+						addClickListener(linkElements[i], pseudoClicks, context);
 					}
 				}
 			}
@@ -1191,17 +1209,17 @@
 			 *
 			 * @see https://bugs.webkit.org/show_bug.cgi?id=54783
 			 * 
-			 * @param array excluded CSS classes to exclude from tracking
+			 * @param object criterion Criterion by which it will be decided whether a link will be tracked
 			 * @param bool pseudoClicks If true, use pseudo click-handler (mousedown+mouseup)
 			 */
-			enableLinkClickTracking: function (excludedClasses, pseudoClicks, context) {
+			enableLinkClickTracking: function (criterion, pseudoClicks, context) {
 				if (mutSnowplowState.hasLoaded) {
 					// the load event has already fired, add the click listeners now
-					addClickListeners(pseudoClicks, excludedClasses, context);
+					addClickListeners(pseudoClicks, criterion, context);
 				} else {
 					// defer until page has loaded
 					mutSnowplowState.registeredOnLoadHandlers.push(function () {
-						addClickListeners(pseudoClicks, excludedClasses, context);
+						addClickListeners(pseudoClicks, criterion, context);
 					});
 				}
 			},

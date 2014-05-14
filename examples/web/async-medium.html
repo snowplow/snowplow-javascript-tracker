@@ -46,8 +46,12 @@
         //window.new_name_here('setUserIdFromCookie', '_sp_id.4209') // Test this using Firefox because Chrome doesn't allow local cookies.
         window.new_name_here('setCustomUrl', '/overridden-url/'); // Override the page URL
         window.new_name_here('enableActivityTracking', 10, 10); // Ping every 10 seconds after 10 seconds
-        window.new_name_here('enableLinkClickTracking:cf', 'barred', true);
-        window.new_name_here('enableLinkClickTracking:uri', ['barred', 'inbound'], true);
+        window.new_name_here('enableLinkClickTracking:cf', {whitelist: ['inbound', 'out']}, true); // Track clicks on links whose class is not "barred"
+        window.new_name_here('enableLinkClickTracking:uri', {
+          filter: function(link){
+            return link.id === 'legal';
+          }
+        }, true);
         // window.new_name_here('trackPageView', 'Async Test'); // Track the page view with custom title
         window.new_name_here('trackPageView', null , [ // Auto-set page title; add page context
           {
