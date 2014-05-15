@@ -178,8 +178,17 @@
 			// Visitor fingerprint
 			userFingerprint = (argmap.userFingerprint === false) ? '' : detectors.detectSignature(configUserFingerprintHashSeed),
 
-			// Guard against installing the link tracker more than once per Tracker instance
-			linkTrackingInstalled = false,
+			// Filter function used to determine whether clicks on a link should be tracked
+			linkTrackingFilter,
+
+			// Whether pseudo clicks are tracked
+			linkTrackingPseudoClicks,
+
+			// The context attached to link click events
+			linkTrackingContext,
+
+			// Unique ID for the tracker instance used to mark links which are being tracked
+			trackerId = functionName + '_' + namespace,
 
 			// Guard against installing the activity tracker more than once per Tracker instance
 			activityTrackingInstalled = false,
@@ -934,13 +943,30 @@
 		/*
 		 * Add click listener to a DOM element
 		 */
-		function addClickListener(element, pseudoClicks, context) {
-			if (pseudoClicks) {
+		function addClickListener(element) {
+			if (linkTrackingPseudoClicks) {
 				// for simplicity and performance, we ignore drag events
-				helpers.addEventListener(element, 'mouseup', getClickHandler(context), false);
-				helpers.addEventListener(element, 'mousedown', getClickHandler(context), false);
+				helpers.addEventListener(element, 'mouseup', getClickHandler(linkTrackingContext), false);
+				helpers.addEventListener(element, 'mousedown', getClickHandler(linkTrackingContext), false);
 			} else {
-				helpers.addEventListener(element, 'click', getClickHandler(context), false);
+				helpers.addEventListener(element, 'click', getClickHandler(linkTrackingContext), false);
+			}
+		}
+
+		/*
+		 * Add click handlers to anchor and AREA elements, except those to be ignored
+		 */
+		function addClickListeners() {
+
+			var linkElements = documentAlias.links,
+				i;
+
+			for (i = 0; i < linkElements.length; i++) {
+				// Add a listener to link elements which pass the filter and aren't already tracked
+				if (linkTrackingFilter(linkElements[i]) && !linkElements[i][trackerId]) {
+					addClickListener(linkElements[i]);
+					linkElements[i][trackerId] = true;
+				}
 			}
 		}
 
@@ -964,48 +990,38 @@
 		}
 
 		/*
-		 * Add click handlers to anchor and AREA elements, except those to be ignored
+		 * Configures link click tracking: how to filter which links will be tracked,
+		 * whether to use pseudo click tracking, and what context to attach to link_click events
 		 */
-		function addClickListeners(pseudoClicks, criterion, context) {
-			if (!linkTrackingInstalled) {
-				linkTrackingInstalled = true;
+		function configureLinkClickTracking(criterion, pseudoClicks, context) {
+			var specifiedClasses,
+				inclusive;
 
-				var linkElements = documentAlias.links,
-					filter,
-					inclusive,
-					specifiedClasses,
-					i;
+			linkTrackingContext = context;
+			linkTrackingPseudoClicks = pseudoClicks;
 
-				// If the criterion argument is not an object, add listeners to all links
-				if (lodash.isArray(criterion) || !lodash.isObject(criterion)) {
-					for (i = 0; i<linkElements.length; i++) {
-						addClickListener(linkElements[i], pseudoClicks, context);
-					}
-					return;
+			// If the criterion argument is not an object, add listeners to all links
+			if (lodash.isArray(criterion) || !lodash.isObject(criterion)) {
+				linkTrackingFilter = function (link) {
+					return true;
+				}
+				return;
+			}
+
+			if (criterion.hasOwnProperty('filter')) {
+				linkTrackingFilter = criterion.filter;
+			} else {
+
+				inclusive = (criterion.hasOwnProperty('whitelist'));
+				specifiedClasses = criterion.whitelist || criterion.blacklist;
+
+				// If the class list is a single string, convert it to an array
+				if (!lodash.isArray(specifiedClasses)) {
+					specifiedClasses = [specifiedClasses];
 				}
 
-				if (criterion.hasOwnProperty('filter')) {
-					filter = criterion.filter;
-				} else {
-
-					inclusive = (criterion.hasOwnProperty('whitelist'));
-					specifiedClasses = criterion.whitelist || criterion.blacklist;
-
-					// If the class list is a single string, convert it to an array
-					if (!lodash.isArray(specifiedClasses)) {
-						specifiedClasses = [specifiedClasses];
-					}
-
-					filter = function(link) {
-						return checkLink(link, specifiedClasses) === inclusive;
-					}					
-
-				}
-
-				for (i = 0; i < linkElements.length; i++) {
-					if (filter(linkElements[i])) {
-						addClickListener(linkElements[i], pseudoClicks, context);
-					}
+				linkTrackingFilter = function(link) {
+					return checkLink(link, specifiedClasses) === inclusive;
 				}
 			}
 		}
@@ -1215,13 +1231,23 @@
 			enableLinkClickTracking: function (criterion, pseudoClicks, context) {
 				if (mutSnowplowState.hasLoaded) {
 					// the load event has already fired, add the click listeners now
-					addClickListeners(pseudoClicks, criterion, context);
+					configureLinkClickTracking(criterion, pseudoClicks, context);
+					addClickListeners();
 				} else {
 					// defer until page has loaded
 					mutSnowplowState.registeredOnLoadHandlers.push(function () {
-						addClickListeners(pseudoClicks, criterion, context);
+						configureLinkClickTracking(criterion, pseudoClicks, context);
+						addClickListeners();
 					});
 				}
+			},
+
+			/**
+			 * Add click event listeners to links which have been added to the page since the
+			 * last time enableLinkClickTracking or refreshLinkClickTracking was used
+			 */
+			refreshLinkClickTracking: function () {
+				addClickListeners();
 			},
 
 			/**
