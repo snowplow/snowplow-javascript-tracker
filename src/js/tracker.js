@@ -93,8 +93,11 @@
 			// Request method is always GET for Snowplow
 			configRequestMethod = 'GET',
 
-			// Event vendor for all events except custom unstructured events
+			// Vendor for all JSONs except custom unstructured events and contexts
 			configDefaultVendor = 'com.snowplowanalytics',
+
+			// Initial segment for Snowplow's self-describing JSONs
+			configBaseSchemaPath = configDefaultVendor + 'iglu://',
 
 			// The schema against which custom context arrays should be validated
 			configContextSchema = 'com.snowplowanalytics/contexts/jsonschema/1-0-0',
@@ -779,7 +782,7 @@
 		// See https://github.com/snowplow/snowplow/issues/75
 		function logLink(targetUrl, elementId, elementClasses, elementTarget, context) {
 			var eventJson = {
-				schema: configDefaultVendor + '/link_click/jsonschema/1-0-0',
+				schema: configBaseSchemaPath + '/link_click/jsonschema/1-0-0',
 				data: {
 					targetUrl: targetUrl,				
 					elementId: elementId,
@@ -1551,7 +1554,7 @@
 			trackAdImpression: function(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, context) {
 				trackCallback(function () {
 					var eventJson = {
-						schema: configDefaultVendor + '/ad_impression/jsonschema/1-0-0',
+						schema: configBaseSchemaPath + '/ad_impression/jsonschema/1-0-0',
 						data: {
 							impressionId: impressionId,
 							costModel: costModel,						
@@ -1584,7 +1587,7 @@
 			 */
 			trackAdClick: function(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, context) {
 				var eventJson = {
-					schema: configDefaultVendor + '/ad_click/jsonschema/1-0-0',
+					schema: configBaseSchemaPath + '/ad_click/jsonschema/1-0-0',
 					data: {
 						targetUrl: targetUrl,					
 						clickId: clickId,
@@ -1617,7 +1620,7 @@
 			 */
 			trackAdConversion: function(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, context) {
 				var eventJson = {
-					schema: configDefaultVendor + '/ad_conversion/jsonschema/1-0-0',
+					schema: configBaseSchemaPath + '/ad_conversion/jsonschema/1-0-0',
 					data: {
 						conversionId: conversionId,
 						costModel: costModel,					
