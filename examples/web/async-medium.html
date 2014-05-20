@@ -81,12 +81,17 @@
             // No tracker choice is specified, so both trackers will track the Play event
             window.new_name_here('trackStructEvent', 'Mixes', 'Play', 'MRC/fabric-0503-mix', '', '0.0');
         }
+
         function addProduct() {
             alert("Adding a product to basket");
 
             // Only the "cf" tracker will tracke the Checkout event
-            window.new_name_here('trackStructEvent:cf', 'Checkout', 'Add', 'ASO01043', 'blue:xxl', '2.0', { user: { fbUid: '123456 x' } } );      
+            window.new_name_here('trackStructEvent:cf', 'Checkout', 'Add', 'ASO01043', 'blue:xxl', '2.0', [{
+              schema: 'iglu://com.acme_company/user/jsonschema/1-0-0',
+              data: { fbUid: '123456 x' }
+            }] );
         }
+
         function viewProduct() {
             alert("Viewing a product");
 

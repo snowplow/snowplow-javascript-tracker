@@ -64,10 +64,15 @@
             alert("Playing a DJ mix");
             window.snowplow('trackStructEvent', 'Mixes', 'Play', 'MRC/fabric-0503-mix', '', '0.0');
         }
+
         function addProduct() {
             alert("Adding a product to basket");
-            window.snowplow('trackStructEvent', 'Checkout', 'Add', 'ASO01043', 'blue:xxl', '2.0', { user: { fbUid: '123456 x' } } );      
+            window.new_name_here('trackStructEvent', 'Checkout', 'Add', 'ASO01043', 'blue:xxl', '2.0', [{
+              schema: 'iglu://com.acme_company/user/jsonschema/1-0-0',
+              data: { fbUid: '123456 x' }
+            }] );    
         }
+
         function viewProduct() {
             alert("Viewing a product");
             window.snowplow('trackUnstructEvent', {
