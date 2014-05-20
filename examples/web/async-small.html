@@ -67,10 +67,10 @@
 
         function addProduct() {
             alert("Adding a product to basket");
-            window.new_name_here('trackStructEvent', 'Checkout', 'Add', 'ASO01043', 'blue:xxl', '2.0', [{
+            window.snowplow('trackStructEvent', 'Checkout', 'Add', 'ASO01043', 'blue:xxl', '2.0', [{
               schema: 'iglu://com.acme_company/user/jsonschema/1-0-0',
               data: { fbUid: '123456 x' }
-            }] );    
+            }] );
         }
 
         function viewProduct() {
