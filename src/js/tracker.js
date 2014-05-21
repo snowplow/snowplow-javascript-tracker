@@ -93,17 +93,14 @@
 			// Request method is always GET for Snowplow
 			configRequestMethod = 'GET',
 
-			// Vendor for all JSONs except custom unstructured events and contexts
-			configDefaultVendor = 'com.snowplowanalytics',
-
-			// Initial segment for Snowplow's self-describing JSONs
-			configBaseSchemaPath = configDefaultVendor + 'iglu://',
+			// Initial segment of schema field for Snowplow's self-describing JSONs
+			configBaseSchemaPath = 'iglu://com.snowplowanalytics',
 
 			// The schema against which custom context arrays should be validated
-			configContextSchema = 'com.snowplowanalytics/contexts/jsonschema/1-0-0',
+			configContextSchema = configBaseSchemaPath + '/contexts/jsonschema/1-0-0',
 
 			// The schema against which unstructured event envelopes should be validated
-			configUnstructEventSchema = 'com.snowplowanalytics/unstruct_event/jsonschema/1-0-0',
+			configUnstructEventSchema = configBaseSchemaPath +  '/unstruct_event/jsonschema/1-0-0',
 
 			// Platform defaults to web for this tracker
 			configPlatform = argmap.hasOwnProperty('platform') ? argmap.platform : 'web',
