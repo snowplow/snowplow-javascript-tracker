@@ -41,7 +41,7 @@ define([
 	var output = 0,
 		writeCookies;
 
-	function mockTrackerConstructor (namespace, version, mutSnowplowState, argmap) {
+	function mockTrackerConstructor (functionName, namespace, version, mutSnowplowState, argmap) {
 		var configCollectorUrl,
 			configWriteCookies = argmap.hasOwnProperty('writeCookies') ? argmap.writeCookies : true,
 			attribute = 10;
@@ -73,7 +73,7 @@ define([
 		["increaseAttribute", 5],
 		["setOutputToAttribute"]
 	];
-	asyncQueue = new in_queue.InQueueManager(mockTrackerConstructor, 0, {}, asyncQueue);
+	asyncQueue = new in_queue.InQueueManager(mockTrackerConstructor, 0, {}, asyncQueue, 'snowplow');
 
 	registerSuite({
 		name: "InQueueManager test",
