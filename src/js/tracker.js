@@ -151,10 +151,10 @@
 			// Count sites which are pre-rendered
 			configCountPreRendered,
 
-			// Life of the visitor cookie (in milliseconds)
+			// Life of the visitor cookie (in seconds)
 			configVisitorCookieTimeout = 63072000, // 2 years
 
-			// Life of the session cookie (in milliseconds)
+			// Life of the session cookie (in seconds)
 			configSessionCookieTimeout = 1800, // 30 minutes
 
 			// Enable Base64 encoding for unstructured events
@@ -517,7 +517,7 @@
 			sb.addRaw('duid', _domainUserId); // Set to our local variable
 
 			// Encode all these
-			sb.add('p', configPlatform);		
+			sb.add('p', configPlatform);
 			sb.add('tv', version);
 			sb.add('fp', userFingerprint);
 			sb.add('aid', configTrackerSiteId);
@@ -1153,7 +1153,7 @@
 			 * @param int timeout
 			 */
 			setVisitorCookieTimeout: function (timeout) {
-				configVisitorCookieTimeout = timeout * 1000;
+				configVisitorCookieTimeout = timeout;
 			},
 
 			/**
@@ -1162,7 +1162,7 @@
 			 * @param int timeout
 			 */
 			setSessionCookieTimeout: function (timeout) {
-				configSessionCookieTimeout = timeout * 1000;
+				configSessionCookieTimeout = timeout;
 			},
 
 			/**
