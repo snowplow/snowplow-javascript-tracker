@@ -55,14 +55,14 @@
         // window.new_name_here('trackPageView', 'Async Test'); // Track the page view with custom title
         window.new_name_here('trackPageView', null , [ // Auto-set page title; add page context
           {
-            schema: "iglu://com.example_company/page/jsonschema/1-2-1",
+            schema: "iglu:com.example_company/page/jsonschema/1-2-1",
             data: {
               pageType: 'test',
               lastUpdated: new Date(2014,1,26)
             }
           },
           {
-            schema: "iglu://com.example_company/user/jsonschema/2-0-0",
+            schema: "iglu:com.example_company/user/jsonschema/2-0-0",
             data: {
               userType: 'tester',
             }
@@ -87,7 +87,7 @@
 
             // Only the "cf" tracker will tracke the Checkout event
             window.new_name_here('trackStructEvent:cf', 'Checkout', 'Add', 'ASO01043', 'blue:xxl', '2.0', [{
-              schema: 'iglu://com.acme_company/user/jsonschema/1-0-0',
+              schema: 'iglu:com.acme_company/user/jsonschema/1-0-0',
               data: { fbUid: '123456 x' }
             }] );
         }
@@ -97,7 +97,7 @@
 
             // Only the "uri" tracker will track the Viewed Product event
             window.new_name_here('trackUnstructEvent:uri', {
-                schema: 'iglu://com.acme_company/viewed_product/jsonschema/5-0-0',
+                schema: 'iglu:com.acme_company/viewed_product/jsonschema/5-0-0',
                 data: {
                     productId: 'ASO01043',
                     category: 'Dresses',
@@ -141,7 +141,7 @@
               '2',                    // quantity - required
               'JPY',                  // currency
               [{                      // context
-                schema: "iglu://com.example_company/products/jsonschema/1-0-0",
+                schema: "iglu:com.example_company/products/jsonschema/1-0-0",
                 data: {
                   "launchDate": new Date(2013,3,7)
                 }

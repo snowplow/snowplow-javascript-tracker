@@ -40,14 +40,14 @@
         // window.snowplow('trackPageView', 'Async Test'); // Track the page view with custom title
         window.snowplow('trackPageView', null , [ // Auto-set page title; add page context
           {
-            schema: "iglu://com.example_company/page/jsonschema/1-2-1",
+            schema: "iglu:com.example_company/page/jsonschema/1-2-1",
             data: {
               pageType: 'test',
               lastUpdated: new Date(2014,1,26)
             }
           },
           {
-            schema: "iglu://com.example_company/user/jsonschema/2-0-0",
+            schema: "iglu:com.example_company/user/jsonschema/2-0-0",
             data: {
               userType: 'tester',
             }
@@ -68,7 +68,7 @@
         function addProduct() {
             alert("Adding a product to basket");
             window.snowplow('trackStructEvent', 'Checkout', 'Add', 'ASO01043', 'blue:xxl', '2.0', [{
-              schema: 'iglu://com.acme_company/user/jsonschema/1-0-0',
+              schema: 'iglu:com.acme_company/user/jsonschema/1-0-0',
               data: { fbUid: '123456 x' }
             }] );
         }
@@ -76,7 +76,7 @@
         function viewProduct() {
             alert("Viewing a product");
             window.snowplow('trackUnstructEvent', {
-                schema: 'iglu://com.acme_company/viewed_product/jsonschema/5-0-0',
+                schema: 'iglu:com.acme_company/viewed_product/jsonschema/5-0-0',
                 data: {
                     productId: 'ASO01043',
                     category: 'Dresses',
@@ -118,7 +118,7 @@
               '2',                    // quantity - required
               'JPY',                  // currency
               [{                      // context
-                schema: "iglu://com.example_company/products/jsonschema/1-0-0",
+                schema: "iglu:com.example_company/products/jsonschema/1-0-0",
                 data: {
                   "launchDate": new Date(2013,3,7)
                 }

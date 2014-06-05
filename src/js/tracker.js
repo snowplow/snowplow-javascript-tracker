@@ -94,7 +94,7 @@
 			configRequestMethod = 'GET',
 
 			// Initial segment of schema field for Snowplow's self-describing JSONs
-			configBaseSchemaPath = 'iglu://com.snowplowanalytics.snowplow',
+			configBaseSchemaPath = 'iglu:com.snowplowanalytics.snowplow',
 
 			// The schema against which custom context arrays should be validated
 			configContextSchema = configBaseSchemaPath + '/contexts/jsonschema/1-0-0',
