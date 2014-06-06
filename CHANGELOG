@@ -1,4 +1,4 @@
-Version 1.0.2 (2014-04-xx)
+Version 1.0.2 (2014-06-xx)
 --------------------------
 Added guard to prevent document size field from being set as "NaNxNaN" (#220)
 
