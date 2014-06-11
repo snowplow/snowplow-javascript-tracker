@@ -155,6 +155,11 @@ module.exports = function(grunt) {
         gzip: true
       },
       not_pinned: {
+        options: {
+          headers: {
+            'Cache-Control': 'max-age=315360000'
+          }
+        },
         upload: [
           {
             src: 'dist/sp.js',
@@ -163,6 +168,11 @@ module.exports = function(grunt) {
         ]
       },
       pinned: {
+        options: {
+          headers: {
+            'Cache-Control': 'max-age=3600'
+          }
+        },
         upload: [
           {
             src: 'dist/sp.js',
