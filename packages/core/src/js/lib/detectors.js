@@ -155,7 +155,7 @@
 		var de = documentAlias.documentElement; // Alias
 		var w = Math.max(de.clientWidth, de.offsetWidth, de.scrollWidth);
 		var h = Math.max(de.clientHeight, de.offsetHeight, de.scrollHeight);
-		return w + 'x' + h;
+		return isNaN(w) || isNaN(h) ? '' : w + 'x' + h;
 	}
 
 	/*
