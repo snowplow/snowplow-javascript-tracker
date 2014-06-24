@@ -1,3 +1,9 @@
+Version 1.0.2 (2014-06-xx)
+--------------------------
+Added guard to prevent document size field from being set as "NaNxNaN" (#220)
+Fixed Grunt publish tasks to build sp.js as well as upload it to S3 (#224)
+Added cache control to Grunt upload for full semantic version (#225)
+
 Version 1.0.1 (2014-04-09)
 --------------------------
 Fixed lodash.js to work in the presence of AMD modules (#165)
