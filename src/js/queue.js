@@ -46,7 +46,7 @@
 
 	object.AsyncQueueProxy = function(asyncTracker, asyncQueue) {
 
-		/*
+		/**
 		 * apply wrapper
 		 *
 		 * @param array parameterArray An array comprising either:
