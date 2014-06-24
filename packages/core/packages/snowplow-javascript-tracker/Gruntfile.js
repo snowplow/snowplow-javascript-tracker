@@ -155,6 +155,11 @@ module.exports = function(grunt) {
         gzip: true
       },
       not_pinned: {
+        options: {
+          headers: {
+            'Cache-Control': 'max-age=315360000'
+          }
+        },
         upload: [
           {
             src: 'dist/sp.js',
@@ -163,6 +168,11 @@ module.exports = function(grunt) {
         ]
       },
       pinned: {
+        options: {
+          headers: {
+            'Cache-Control': 'max-age=3600'
+          }
+        },
         upload: [
           {
             src: 'dist/sp.js',
@@ -198,8 +208,8 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('default', 'Build lodash, Browserify, add banner, and minify', ['lodash', 'browserify', 'concat', 'min']);
-  grunt.registerTask('publish', 'Upload to S3 and invalidate Cloudfront (full semantic version only)', ['upload_setup', 'concat', 'min', 's3:not_pinned', 'invalidate_cloudfront:not_pinned']);
-  grunt.registerTask('publish-pinned', 'Upload to S3 and invalidate Cloudfront (full semantic version and semantic major version)', ['upload_setup', 'concat', 'min', 's3', 'invalidate_cloudfront']);
+  grunt.registerTask('publish', 'Upload to S3 and invalidate Cloudfront (full semantic version only)', ['upload_setup', 'lodash', 'browserify', 'concat', 'min', 's3:not_pinned', 'invalidate_cloudfront:not_pinned']);
+  grunt.registerTask('publish-pinned', 'Upload to S3 and invalidate Cloudfront (full semantic version and semantic major version)', ['upload_setup', 'lodash', 'browserify', 'concat', 'min', 's3', 'invalidate_cloudfront']);
   grunt.registerTask('travis', 'Intern tests for Travis CI',  ['lodash','intern']);
 
 }
