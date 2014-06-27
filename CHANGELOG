@@ -1,6 +1,6 @@
 Version 1.0.3 (2014-06-27)
 --------------------------
-Changed Base64 encoding function to prevent character encoding errors (#231)
+Changed Base64 encoding function to prevent character encoding errors, thanks @shermozle! (#231)
 
 Version 1.0.2 (2014-06-24)
 --------------------------
