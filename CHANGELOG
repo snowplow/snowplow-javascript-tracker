@@ -1,4 +1,4 @@
-Version 1.0.3 (2014-XX-XX)
+Version 1.0.3 (2014-06-27)
 --------------------------
 Changed Base64 encoding function to prevent character encoding errors (#231)
 
