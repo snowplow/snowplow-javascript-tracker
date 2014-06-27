@@ -37,9 +37,7 @@
 	var
 		lodash = require('./lib/lodash'),
 		json2 = require('JSON'),
-		Base64 = require('Base64'),
-		base64encode = Base64.btoa,
-		base64decode = Base64.atob,
+		base64 = require('./lib/base64'),
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
@@ -51,7 +49,7 @@
 	function base64urlencode(data) {
 	  if (!data) return data;
 
-	  var enc = base64encode(data);
+	  var enc = base64.base64encode(data);
 	  return enc.replace(/=/g, '')
 	            .replace(/\+/g, '-')
 	            .replace(/\//g, '_');
