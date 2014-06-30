@@ -143,6 +143,7 @@
 		function applyAsyncFunction() {
 			var i, f, parameterArray, inputString, parsedString, names, namedTrackers;
 
+			// Outer loop in case someone push'es in zarg of arrays
 			for (i = 0; i < arguments.length; i += 1) {
 				parameterArray = arguments[i];
 
@@ -165,9 +166,13 @@
 				namedTrackers = getNamedTrackers(names);
 
 				if (lodash.isString(f)) {
-					asyncTracker[f].apply(asyncTracker, parameterArray);
+					for (var j = 0; j < namedTrackers.length; j++) {
+						namedTrackers[j][f].apply(namedTrackers[j], parameterArray);
+					}
 				} else {
-					f.apply(asyncTracker, parameterArray);
+					for (var j = 0; j < namedTrackers.length; j++) {
+						f.apply(namedTrackers[j], parameterArray);
+					}
 				}
 			}
 		}
