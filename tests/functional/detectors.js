@@ -40,15 +40,25 @@ define([
 
 	var 
 		// Expected viewport dimensions vary based on browser
-		expectedViewportWidths = [980, 1024],
-		expectedViewportHeights = [636, 644, 670, 673, 684, 695, 705, 706, 712],
+		expectedViewportWidths = [980, 996, 1024],
+		expectedViewportHeights = [636, 644, 667, 670, 673, 684, 695, 705, 706, 712],
 
 		// User fingerprint varies based on browser features
 		// TODO: try to hash this off the useragent - 
 		// i.e. formal 1:1 relationship between viewport or signature and an individual browser
 		expectedSignatures = [
-		90940656, 3343029130, 1101697779, 3900377526, 987357563, 
-		2557409154, 705067259, 4288521977, 3773734853, 3166667154, 3339203264];
+			3343029130, // IE9 Windows
+			1101697779, // IE10
+			90940656,   // IE11
+			2557409154, // Firefox 27.0 Mac
+			686340443,  // Firefox 27.0 XP
+			3900377526, // Firefox 27.0 Linux
+			705067259,  // Chrome 32.0 Mac OS X
+			3985300704, // Chrome 32.0 Windows NT
+			3773734853, // Chrome 32.0 Linux
+			3339203264, // Safari 7.0 Mac
+			3166667154  // Safari 6.0.5 Mac
+		];
 
 	registerSuite({
 
@@ -92,7 +102,7 @@ define([
 				});
 		},
 
-		'Check whether cookies are enabled availability': function() {
+		'Check whether cookies are enabled': function() {
 
 			return this.remote
 				.get(require.toUrl('tests/pages/detectors.html'))
