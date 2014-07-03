@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker for Snowplow: cookie.js
+ * JavaScript tracker for Snowplow: tests/scripts/detectors.js
  * 
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
  * 2012-2014 Snowplow Analytics Ltd. All rights reserved. 
@@ -32,37 +32,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-;(function() {
+var detectors = require('../../src/js/lib/detectors.js');
 
-	var object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
-
-	/*
-	 * Get cookie value
-	 */
-	object.getCookie = function (cookieName) {
-		var cookiePattern = new RegExp('(^|;)[ ]*' + cookieName + '=([^;]*)'),
-				cookieMatch = cookiePattern.exec(document.cookie);
-
-		return cookieMatch ? decodeURIComponent(cookieMatch[2]) : 0;
-	}
-
-	/*
-	 * Set cookie value
-	 */
-	object.setCookie = function (cookieName, value, msToExpire, path, domain, secure) {
-		var expiryDate;
-
-		// relative time to expire in milliseconds
-		if (msToExpire) {
-			expiryDate = new Date();
-			expiryDate.setTime(expiryDate.getTime() + msToExpire);
-		}
-
-		document.cookie = cookieName + '=' + encodeURIComponent(value) +
-			(msToExpire ? ';expires=' + expiryDate.toGMTString() : '') +
-			';path=' + (path || '/') +
-			(domain ? ';domain=' + domain : '') +
-			(secure ? ';secure' : '');
-	}
-
-}());
+document.getElementById('detectViewport').innerHTML = detectors.detectViewport();
+document.getElementById('localStorageAccessible').innerHTML = detectors.localStorageAccessible();
+document.getElementById('hasSessionStorage').innerHTML = detectors.hasSessionStorage();
+document.getElementById('hasCookies').innerHTML = detectors.hasCookies();
+document.getElementById('detectTimezone').innerHTML = detectors.detectTimezone();
+document.getElementById('detectSignature').innerHTML = detectors.detectSignature();

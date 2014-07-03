@@ -34,16 +34,9 @@
 ;(function () {
 
 	var 
-		lodash = require('./lodash'),
+		lodash = require('../lib_managed/lodash'),
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
-
-	/*
-	 * UTF-8 encoding
-	 */
-	object.encodeUtf8 = function (argString) {
-		return unescape(decodeURIComponent(argString));
-	}
 
 	/**
 	 * Cleans up the page title
@@ -69,39 +62,6 @@
 			matches = e.exec(url);
 
 		return matches ? matches[1] : url;
-	}
-
-	/*
-	 * Fix-up URL when page rendered from search engine cache or translated page.
-	 * TODO: it would be nice to generalise this and/or move into the ETL phase.
-	 */
-	object.fixupUrl = function (hostName, href, referrer) {
-		/*
-		 * Extract parameter from URL
-		 */
-		function getParameter(url, name) {
-			// scheme : // [username [: password] @] hostname [: port] [/ [path] [? query] [# fragment]]
-			var e = new RegExp('^(?:https?|ftp)(?::/*(?:[^?]+)[?])([^#]+)'),
-				matches = e.exec(url),
-				f = new RegExp('(?:^|&)' + name + '=([^&]*)'),
-				result = matches ? f.exec(matches[1]) : 0;
-
-			return result ? decodeURIComponent(result[1]) : '';
-		}
-
-		if (hostName === 'translate.googleusercontent.com') {		// Google
-			if (referrer === '') {
-				referrer = href;
-			}
-			href = getParameter(href, 'u');
-			hostName = object.getHostName(href);
-		} else if (hostName === 'cc.bingj.com' ||					// Bing
-				hostName === 'webcache.googleusercontent.com' ||	// Google
-				hostName.slice(0, 5) === '74.6.') {					// Yahoo (via Inktomi 74.6.0.0/16)
-			href = document.links[0].href;
-			hostName = object.getHostName(href);
-		}
-		return [hostName, href, referrer];
 	}
 
 	/*
@@ -176,6 +136,29 @@
 			return null;
 		}
 		return decodeURIComponent(match[1].replace(/\+/g, ' '));
+	}
+
+	/*
+	 * Remove from an object every property whose value is
+	 * null, undefined, an empty string, or an empty array
+	 */
+	object.deleteEmptyProperties = function (collection) {
+		for (var i in collection) {
+			if (collection.hasOwnProperty(i) && (lodash.isUndefined(collection[i]) || 
+				lodash.isNull(collection[i]) || collection[i].length === 0)) {
+				delete collection[i];
+			}
+		}
+		return collection;
+	}
+
+	/*
+	 * Only log deprecation warnings if they won't cause an error
+	 */
+	object.warn = function(message) {
+		if (typeof console !== undefined) {
+			console.warn('Snowplow: ' + message);
+		}
 	}
 
 }());

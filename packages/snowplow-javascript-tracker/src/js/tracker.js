@@ -35,35 +35,42 @@
 ;(function() {
 
 	var
-		lodash = require('./lib/lodash'),
+		lodash = require('./lib_managed/lodash'),
 		helpers = require('./lib/helpers'),
-		cookie = require('./lib/cookie'),
+		proxies = require('./lib/proxies'),
+		cookie = require('browser-cookie-lite'),
 		detectors = require('./lib/detectors'),
 		payload = require('./payload'),
 		json2 = require('JSON'),
 		sha1 = require('sha1'),
+		requestQueue = require('./out_queue'),
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
-	/*
+	/**
 	 * Snowplow Tracker class
 	 *
+	 * @param namespace The namespace of the tracker object
+
 	 * @param version The current version of the JavaScript Tracker
 	 *
 	 * @param mutSnowplowState An object containing hasLoaded, registeredOnLoadHandlers, and expireDateTime
 	 * Passed in by reference in case they are altered by snowplow.js
 	 *
-	 * Takes an argmap as its sole parameter. Argmap supports:
+	 * @param argmap Optional dictionary of configuration options. Supported fields and their default values:
 	 *
-	 * 1. Empty             - to initialize an Async Tracker
-	 * 2. {cf: 'subdomain'} - to initialize a Sync Tracker with
-	 *                        a CloudFront-based collector 
-	 * 3. {url: 'rawurl'}   - to initialize a Sync Tracker with a
-	 *                        URL-based collector
-	 *
-	 * See also: Tracker.setCollectorUrl() and Tracker.setCollectorCf()
+	 * 1. encodeBase64, true
+	 * 2. cookieDomain, null
+	 * 3. cookieName, '_sp_'
+	 * 4. appId, ''
+	 * 5. platform, 'web'
+	 * 6. respectDoNotTrack, false
+	 * 7. userFingerprint, true
+	 * 8. userFingerprintSeed, 123412414
+	 * 9. pageUnloadTimer, 500
+	 * 10. writeCookies, true
 	 */
-	object.Tracker = function Tracker(version, mutSnowplowState, argmap) {
+	object.Tracker = function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
 
 		/************************************************************
 		 * Private members
@@ -76,22 +83,33 @@
 			navigatorAlias = navigator,
 
 			// Current URL and Referrer URL
-			locationArray = helpers.fixupUrl(documentAlias.domain, windowAlias.location.href, helpers.getReferrer()),
+			locationArray = proxies.fixupUrl(documentAlias.domain, windowAlias.location.href, helpers.getReferrer()),
 			domainAlias = helpers.fixupDomain(locationArray[0]),
 			locationHrefAlias = locationArray[1],
 			configReferrerUrl = locationArray[2],
 
+			argmap = argmap || {},
+
 			// Request method is always GET for Snowplow
 			configRequestMethod = 'GET',
 
+			// Initial segment of schema field for Snowplow's self-describing JSONs
+			configBaseSchemaPath = 'iglu:com.snowplowanalytics.snowplow',
+
+			// The schema against which custom context arrays should be validated
+			configContextSchema = configBaseSchemaPath + '/contexts/jsonschema/1-0-0',
+
+			// The schema against which unstructured event envelopes should be validated
+			configUnstructEventSchema = configBaseSchemaPath +  '/unstruct_event/jsonschema/1-0-0',
+
 			// Platform defaults to web for this tracker
-			configPlatform = 'web',
+			configPlatform = argmap.hasOwnProperty('platform') ? argmap.platform : 'web',
 
 			// Snowplow collector URL
-			configCollectorUrl = constructCollectorUrl(argmap),
+			configCollectorUrl,
 
 			// Site ID
-			configTrackerSiteId = '', // Updated for Snowplow
+			configTrackerSiteId = argmap.hasOwnProperty('appId') ? argmap.appId : '', // Updated for Snowplow
 
 			// Document URL
 			configCustomUrl,
@@ -99,23 +117,8 @@
 			// Document title
 			configTitle = documentAlias.title,
 
-			// Extensions to be treated as download links
-			configDownloadExtensions = '7z|aac|ar[cj]|as[fx]|avi|bin|csv|deb|dmg|doc|exe|flv|gif|gz|gzip|hqx|jar|jpe?g|js|mp(2|3|4|e?g)|mov(ie)?|ms[ip]|od[bfgpst]|og[gv]|pdf|phps|png|ppt|qtm?|ra[mr]?|rpm|sea|sit|tar|t?bz2?|tgz|torrent|txt|wav|wm[av]|wpd||xls|xml|z|zip',
-
-			// Hosts or alias(es) to not treat as outlinks
-			configHostsAlias = [domainAlias],
-
-			// HTML anchor element classes to not track
-			configIgnoreClasses = [],
-
-			// HTML anchor element classes to treat as downloads
-			configDownloadClasses = [],
-
-			// HTML anchor element classes to treat at outlinks
-			configLinkClasses = [],
-
 			// Maximum delay to wait for web bug image to be fetched (in milliseconds)
-			configTrackerPause = 500,
+			configTrackerPause = argmap.hasOwnProperty('pageUnloadTimer') ? argmap.pageUnloadTimer : 500,
 
 			// Minimum visit time after initial page view (in milliseconds)
 			configMinimumVisitTime,
@@ -123,40 +126,42 @@
 			// Recurring heart beat after initial ping (in milliseconds)
 			configHeartBeatTimer,
 
-			// Disallow hash tags in URL
+			// Disallow hash tags in URL. TODO: Should this be set to true by default?
 			configDiscardHashTag,
 
 			// First-party cookie name prefix
-			configCookieNamePrefix = '_sp_',
+			configCookieNamePrefix = argmap.hasOwnProperty('cookieName') ? argmap.cookieName : '_sp_',
 
 			// First-party cookie domain
 			// User agent defaults to origin hostname
-			configCookieDomain,
+			configCookieDomain = argmap.hasOwnProperty('cookieDomain') ? argmap.cookieDomain : null,
 
 			// First-party cookie path
 			// Default is user agent defined.
 			configCookiePath,
 
+			configWriteCookies = argmap.hasOwnProperty('writeCookies') ? argmap.writeCookies : true,
+
+			// Do Not Track browser feature
+			dnt = navigatorAlias.doNotTrack || navigatorAlias.msDoNotTrack,
+
 			// Do Not Track
-			configDoNotTrack,
+			configDoNotTrack = argmap.hasOwnProperty('respectDoNotTrack') ? argmap.respectDoNotTrack && (dnt === 'yes' || dnt === '1') : false,
 
 			// Count sites which are pre-rendered
 			configCountPreRendered,
 
-			// Life of the visitor cookie (in milliseconds)
-			configVisitorCookieTimeout = 63072000000, // 2 years
+			// Life of the visitor cookie (in seconds)
+			configVisitorCookieTimeout = 63072000, // 2 years
 
-			// Life of the session cookie (in milliseconds)
-			configSessionCookieTimeout = 1800000, // 30 minutes
-
-			// Life of the referral cookie (in milliseconds)
-			configReferralCookieTimeout = 15768000000, // 6 months
+			// Life of the session cookie (in seconds)
+			configSessionCookieTimeout = 1800, // 30 minutes
 
 			// Enable Base64 encoding for unstructured events
-			configEncodeBase64 = true,
+			configEncodeBase64 = argmap.hasOwnProperty('encodeBase64') ? argmap.encodeBase64 : true,
 
 			// Default hash seed for MurmurHash3 in detectors.detectSignature
-			configUserFingerprintHashSeed = 123412414,
+			configUserFingerprintHashSeed = argmap.hasOwnProperty('userFingerprintSeed') ? argmap.userFingerprintSeed : 123412414,
 
 			// Document character set
 			documentCharset = documentAlias.characterSet || documentAlias.charset,
@@ -171,10 +176,19 @@
 			timezone = detectors.detectTimezone(),
 
 			// Visitor fingerprint
-			userFingerprint = detectors.detectSignature(configUserFingerprintHashSeed),
+			userFingerprint = (argmap.userFingerprint === false) ? '' : detectors.detectSignature(configUserFingerprintHashSeed),
 
-			// Guard against installing the link tracker more than once per Tracker instance
-			linkTrackingInstalled = false,
+			// Filter function used to determine whether clicks on a link should be tracked
+			linkTrackingFilter,
+
+			// Whether pseudo clicks are tracked
+			linkTrackingPseudoClicks,
+
+			// The context attached to link click events
+			linkTrackingContext,
+
+			// Unique ID for the tracker instance used to mark links which are being tracked
+			trackerId = functionName + '_' + namespace,
 
 			// Guard against installing the activity tracker more than once per Tracker instance
 			activityTrackingInstalled = false,
@@ -206,23 +220,19 @@
 
 			// Ecommerce transaction data
 			// Will be committed, sent and emptied by a call to trackTrans.
-			ecommerceTransaction = ecommerceTransactionTemplate();
+			ecommerceTransaction = ecommerceTransactionTemplate(),
 
-		/**
-		 * Determines how to build our collector URL,
-		 * based on the argmap passed into the
-		 * Tracker's constructor.
-		 *
-		 * argmap is optional because we cannot know it
-		 * when constructing an AsyncTracker
+			outQueueManager = new requestQueue.OutQueueManager(functionName, namespace);
+
+		/*
+		 * Creates a JSON from the default header and a custom contexts array
 		 */
-		function constructCollectorUrl(argmap) {
-			if (typeof argmap === "undefined") {
-				return null; // JavaScript joys, changing an undefined into a null
-			} else if ('cf' in argmap) {
-				return collectorUrlFromCfDist(argmap.cf);
-			} else if ('url' in argmap) {
-				return asCollectorUrl(argmap.url);
+		function completeContext(context) {
+			if (!lodash.isEmpty(context)) {
+				return {
+					schema: configContextSchema,
+					data: context
+				};
 			}
 		}
 
@@ -289,69 +299,13 @@
 		}
 
 		/*
-		 * Is the host local? (i.e., not an outlink)
-		 *
-		 * This is a pretty flawed approach - assumes
-		 * a website only has one domain.
-		 *
-		 * TODO: I think we can blow this away for
-		 * Snowplow and handle the equivalent with a
-		 * whitelist of the site's domains. 
-		 * 
-		 */
-		function isSiteHostName(hostName) {
-			var i,
-				alias,
-				offset;
-
-			for (i = 0; i < configHostsAlias.length; i++) {
-
-				alias = helpers.fixupDomain(configHostsAlias[i].toLowerCase());
-
-				if (hostName === alias) {
-					return true;
-				}
-
-				if (alias.slice(0, 1) === '.') {
-					if (hostName === alias.slice(1)) {
-						return true;
-					}
-
-					offset = hostName.length - alias.length;
-					if ((offset > 0) && (hostName.slice(offset) === alias)) {
-						return true;
-					}
-				}
-			}
-			return false;
-		}
-
-		/*
-		 * Send image request to the Snowplow Collector using GET.
-		 * The Collector serves a transparent, single pixel (1x1) GIF
-		 */
-		function getImage(request) {
-
-			var image = new Image(1, 1);
-
-			// Let's chec that we have a Url to ping
-			if (configCollectorUrl === null) {
-				throw "No Snowplow collector configured, cannot track";
-			}
-
-			// Okay? Let's proceed.
-			image.onload = function () { };
-			image.src = configCollectorUrl + request;
-		}
-
-		/*
 		 * Send request
 		 */
 		function sendRequest(request, delay) {
 			var now = new Date();
 
 			if (!configDoNotTrack) {
-				getImage(request);
+				outQueueManager.enqueueRequest(request, configCollectorUrl);
 				mutSnowplowState.expireDateTime = now.getTime() + delay;
 			}
 		}
@@ -367,7 +321,7 @@
 		 * Cookie getter.
 		 */
 		function getSnowplowCookieValue(cookieName) {
-			return cookie.getCookie(getSnowplowCookieName(cookieName));
+			return cookie.cookie(getSnowplowCookieName(cookieName));
 		}
 
 		/*
@@ -447,7 +401,7 @@
 		 * or when there is a new visit or a new page view
 		 */
 		function setDomainUserIdCookie(_domainUserId, createTs, visitCount, nowTs, lastVisitTs) {
-			cookie.setCookie(getSnowplowCookieName('id'), _domainUserId + '.' + createTs + '.' + visitCount + '.' + nowTs + '.' + lastVisitTs, configVisitorCookieTimeout, configCookiePath, configCookieDomain);
+			cookie.cookie(getSnowplowCookieName('id'), _domainUserId + '.' + createTs + '.' + visitCount + '.' + nowTs + '.' + lastVisitTs, configVisitorCookieTimeout, configCookiePath, configCookieDomain);
 		}
 
 		/*
@@ -529,13 +483,13 @@
 				idname = getSnowplowCookieName('id'),
 				sesname = getSnowplowCookieName('ses'),
 				id = loadDomainUserIdCookie(),
-				ses = getSnowplowCookieValue('ses'), // aka cookie.getCookieValue(sesname)
+				ses = getSnowplowCookieValue('ses'), // aka cookie.cookie(sesname)
 				currentUrl = configCustomUrl || locationHrefAlias,
 				featurePrefix;
 
-			if (configDoNotTrack) {
-				cookie.setCookie(idname, '', -1, configCookiePath, configCookieDomain);
-				cookie.setCookie(sesname, '', -1, configCookiePath, configCookieDomain);
+			if (configDoNotTrack && configWriteCookies) {
+				cookie.cookie(idname, '', -1, configCookiePath, configCookieDomain);
+				cookie.cookie(sesname, '', -1, configCookiePath, configCookieDomain);
 				return '';
 			}
 
@@ -563,7 +517,7 @@
 			sb.addRaw('duid', _domainUserId); // Set to our local variable
 
 			// Encode all these
-			sb.add('p', configPlatform);		
+			sb.add('p', configPlatform);
 			sb.add('tv', version);
 			sb.add('fp', userFingerprint);
 			sb.add('aid', configTrackerSiteId);
@@ -571,6 +525,7 @@
 			sb.add('cs', documentCharset);
 			sb.add('tz', timezone);
 			sb.add('uid', businessUserId); // Business-defined user ID
+			sb.add('tna', namespace);
 
 			// Adds with custom conditions
 			if (configReferrerUrl.length) sb.add('refr', purify(configReferrerUrl));
@@ -588,9 +543,10 @@
 			var request = sb.build();
 
 			// Update cookies
-			setDomainUserIdCookie(_domainUserId, createTs, visitCount, nowTs, lastVisitTs);
-			cookie.setCookie(sesname, '*', configSessionCookieTimeout, configCookiePath, configCookieDomain);
-
+			if (configWriteCookies) {
+				setDomainUserIdCookie(_domainUserId, createTs, visitCount, nowTs, lastVisitTs);
+				cookie.cookie(sesname, '*', configSessionCookieTimeout, configCookiePath, configCookieDomain);
+			}
 			return request;
 		}
 
@@ -614,10 +570,10 @@
 		 * @return string collectorUrl The tracker URL with protocol
 		 */
 		function asCollectorUrl(rawUrl) {
-			return ('https:' == documentAlias.location.protocol ? 'https' : 'http') + '://' + rawUrl + '/i';               
+			return ('https:' == documentAlias.location.protocol ? 'https' : 'http') + '://' + rawUrl + '/i';
 		}
 
-		/*
+		/**
 		 * Log the page view / visit
 		 *
 		 * @param string customTitle The user-defined page title to attach to this page view
@@ -632,8 +588,8 @@
 			var sb = payload.payloadBuilder(configEncodeBase64);
 			sb.add('e', 'pv'); // 'pv' for Page View
 			sb.add('page', pageTitle);
-			sb.addJson('cx', 'co', context);
-			var request = getRequest(sb, 'pageView');
+			sb.addJson('cx', 'co', completeContext(context));
+			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
 
 			// Send ping (to log that user has stayed on page)
@@ -677,7 +633,7 @@
 			}
 		}
 
-		/*
+		/**
 		 * Log that a user is still viewing a given page
 		 * by sending a page ping.
 		 * Not part of the public API - only called from
@@ -694,9 +650,9 @@
 			sb.addRaw('pp_max', maxXOffset); // Global
 			sb.addRaw('pp_miy', minYOffset); // Global
 			sb.addRaw('pp_may', maxYOffset); // Global
-			sb.addJson('cx', 'co', context);
+			sb.addJson('cx', 'co', completeContext(context));
 			resetMaxScrolls();
-			var request = getRequest(sb, 'pagePing');
+			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
 		}
 
@@ -718,26 +674,31 @@
 			sb.add('se_la', label);
 			sb.add('se_pr', property);
 			sb.add('se_va', value);
-			sb.addJson('cx', 'co', context);
-			var request = getRequest(sb, 'structEvent');
+			sb.addJson('cx', 'co', completeContext(context));
+			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
 		}
 
 		/**
 		 * Log an unstructured event happening on this page
 		 *
-		 * @param string name The name of the event
-		 * @param object properties The properties of the event
+		 * @param object eventJson Contains the properties and schema location for the event
 		 * @param object context Custom context relating to the event
 		 */
-		function logUnstructEvent(name, properties, context) {
-			var sb = payload.payloadBuilder(configEncodeBase64);
-			sb.add('e', 'ue'); // 'ue' for Unstructured Event
-			sb.add('ue_na', name);
-			sb.addJson('ue_px', 'ue_pr', properties);
-			sb.addJson('cx', 'co', context);
-			var request = getRequest(sb, 'unstructEvent');
-			sendRequest(request, configTrackerPause);
+		function logUnstructEvent(eventJson, context) {
+			helpers.deleteEmptyProperties(eventJson.data);
+			if (!lodash.isEmpty(eventJson.data)) {
+				var envelope = {
+					schema: configUnstructEventSchema,
+					data: eventJson
+				},
+					sb = payload.payloadBuilder(configEncodeBase64);
+				sb.add('e', 'ue'); // 'ue' for Unstructured Event
+				sb.addJson('ue_px', 'ue_pr', envelope);
+				sb.addJson('cx', 'co', completeContext(context));
+				var request = getRequest(sb);
+				sendRequest(request, configTrackerPause);
+			}
 		}
 
 		/**
@@ -767,8 +728,8 @@
 			sb.add('tr_st', state);
 			sb.add('tr_co', country);
 			sb.add('tr_cu', currency);
-			sb.addJson('cx', 'co', context);
-			var request = getRequest(sb, 'transaction');
+			sb.addJson('cx', 'co', completeContext(context));
+			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
 		}
 
@@ -795,8 +756,8 @@
 			sb.add('ti_pr', price);
 			sb.add('ti_qu', quantity);
 			sb.add('ti_cu', currency);
-			sb.addJson('cx', 'co', context);
-			var request = getRequest(sb, 'transactionItem');
+			sb.addJson('cx', 'co', completeContext(context));
+			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
 		}
 
@@ -804,22 +765,30 @@
 		// Next 2 log methods are not supported in
 		// Snowplow Enrichment process yet
 
-		/*
+		/**
 		 * Log the link or click with the server
 		 *
-		 * @param string url The target URL
-		 * @param string linkType The type of link - link or download (see getLinkType() for details)
+		 * @param string elementId
+		 * @param array elementClasses
+		 * @param string elementTarget
+		 * @param string targetUrl
 		 * @param object context Custom context relating to the event
 		 */
 		// TODO: rename to LinkClick
 		// TODO: this functionality is not yet fully implemented.
 		// See https://github.com/snowplow/snowplow/issues/75
-		function logLink(url, linkType, context) {
-			var sb = payload.payloadBuilder(configEncodeBase64);
-			sb.add('e', linkType);
-			sb.add('t_url', purify(url));
-			var request = getRequest(sb, 'link');
-			sendRequest(request, configTrackerPause);
+		function logLink(targetUrl, elementId, elementClasses, elementTarget, context) {
+			var eventJson = {
+				schema: configBaseSchemaPath + '/link_click/jsonschema/1-0-0',
+				data: {
+					targetUrl: targetUrl,				
+					elementId: elementId,
+					elementClasses: elementClasses,
+					elementTarget: elementTarget
+				},
+			};
+
+			logUnstructEvent(eventJson, context);
 		}
 
 		/**
@@ -842,12 +811,10 @@
 			sb.add('ad_ca', campaignId)
 			sb.add('ad_ad', advertiserId);
 			sb.add('ad_uid', userId);
-			sb.addJson('cx', 'co', context);
-			var request = getRequest(sb, 'impression');
+			sb.addJson('cx', 'co', completeContext(context));
+			var request = getRequest(sb);
 			sendRequest(request, configTrackerPause);
 		}
-
-		// TODO: add in ad clicks and conversions
 
 		/*
 		 * Browser prefix
@@ -861,7 +828,7 @@
 			return propertyName;
 		}
 
-		/*
+		/**
 		 * Check for pre-rendered web pages, and log the page view/link
 		 * according to the configuration and/or visibility
 		 *
@@ -903,50 +870,15 @@
 		}
 
 		/*
-		 * Construct regular expression of classes
-		 */
-		function getClassesRegExp(configClasses, defaultClass) {
-			var i,
-				classesRegExp = '(^| )(piwik[_-]' + defaultClass;
-
-			if (configClasses) {
-				for (i = 0; i < configClasses.length; i++) {
-					classesRegExp += '|' + configClasses[i];
-				}
-			}
-			classesRegExp += ')( |$)';
-
-			return new RegExp(classesRegExp);
-		}
-
-		/*
-		 * Link or Download?
-		 */
-		// TODO: why is a download assumed to always be on the same host?
-		// TODO: why return 0 if can't detect it as a link or download?
-		function getLinkType(className, href, isInLink) {
-			// outlinks
-			if (!isInLink) {
-				return 'lnk';
-			}
-
-			// does class indicate whether it is an (explicit/forced) outlink or a download?
-			var downloadPattern = getClassesRegExp(configDownloadClasses, 'download'),
-				linkPattern = getClassesRegExp(configLinkClasses, 'link'),
-
-				// does file extension indicate that it is a download?
-				downloadExtensionsPattern = new RegExp('\\.(' + configDownloadExtensions + ')([?&#]|$)', 'i');
-
-			return linkPattern.test(className) ? 'lnk' : (downloadPattern.test(className) || downloadExtensionsPattern.test(href) ? 'dl' : 0);
-		}
-
-		/*
 		 * Process clicks
 		 */
-		function processClick(sourceElement) {
+		function processClick(sourceElement, context) {
+
 			var parentElement,
 				tag,
-				linkType;
+				elementId,
+				elementClasses,
+				elementTarget;
 
 			while ((parentElement = sourceElement.parentNode) !== null &&
 					!lodash.isUndefined(parentElement) && // buggy IE5.5
@@ -963,80 +895,133 @@
 
 				// Ignore script pseudo-protocol links
 				if (!scriptProtocol.test(sourceHref)) {
-					// Track outlinks and all downloads
-					linkType = getLinkType(sourceElement.className, sourceHref, isSiteHostName(sourceHostName));
-					if (linkType) {
-						// decodeUrl %xx
-						sourceHref = unescape(sourceHref);
-						logLink(sourceHref, linkType);
-					}
+
+					elementId = sourceElement.id;
+					elementClasses = lodash.map(sourceElement.classList);
+					elementTarget = sourceElement.target;
+
+					// decodeUrl %xx
+					sourceHref = unescape(sourceHref);
+					logLink(sourceHref, elementId, elementClasses, elementTarget, context);
 				}
 			}
 		}
 
 		/*
-		 * Handle click event
+		 * Return function to handle click event
 		 */
-		function clickHandler(evt) {
-			var button,
-				target;
+		function getClickHandler(context) {
+			return function(evt) {
+				var button,
+					target;
 
-			evt = evt || windowAlias.event;
-			button = evt.which || evt.button;
-			target = evt.target || evt.srcElement;
+				evt = evt || windowAlias.event;
+				button = evt.which || evt.button;
+				target = evt.target || evt.srcElement;
 
-			// Using evt.type (added in IE4), we avoid defining separate handlers for mouseup and mousedown.
-			if (evt.type === 'click') {
-				if (target) {
-					processClick(target);
-				}
-			} else if (evt.type === 'mousedown') {
-				if ((button === 1 || button === 2) && target) {
-					lastButton = button;
-					lastTarget = target;
-				} else {
+				// Using evt.type (added in IE4), we avoid defining separate handlers for mouseup and mousedown.
+				if (evt.type === 'click') {
+					if (target) {
+						processClick(target, context);
+					}
+				} else if (evt.type === 'mousedown') {
+					if ((button === 1 || button === 2) && target) {
+						lastButton = button;
+						lastTarget = target;
+					} else {
+						lastButton = lastTarget = null;
+					}
+				} else if (evt.type === 'mouseup') {
+					if (button === lastButton && target === lastTarget) {
+						processClick(target, context);
+					}
 					lastButton = lastTarget = null;
 				}
-			} else if (evt.type === 'mouseup') {
-				if (button === lastButton && target === lastTarget) {
-					processClick(target);
-				}
-				lastButton = lastTarget = null;
 			}
 		}
 
 		/*
 		 * Add click listener to a DOM element
 		 */
-		function addClickListener(element, enable) {
-			if (enable) {
+		function addClickListener(element) {
+			if (linkTrackingPseudoClicks) {
 				// for simplicity and performance, we ignore drag events
-				helpers.addEventListener(element, 'mouseup', clickHandler, false);
-				helpers.addEventListener(element, 'mousedown', clickHandler, false);
+				helpers.addEventListener(element, 'mouseup', getClickHandler(linkTrackingContext), false);
+				helpers.addEventListener(element, 'mousedown', getClickHandler(linkTrackingContext), false);
 			} else {
-				helpers.addEventListener(element, 'click', clickHandler, false);
+				helpers.addEventListener(element, 'click', getClickHandler(linkTrackingContext), false);
 			}
 		}
 
 		/*
 		 * Add click handlers to anchor and AREA elements, except those to be ignored
 		 */
-		function addClickListeners(enable) {
-			if (!linkTrackingInstalled) {
-				linkTrackingInstalled = true;
+		function addClickListeners() {
 
-				// iterate through anchor elements with href and AREA elements
+			var linkElements = documentAlias.links,
+				i;
 
-				var i,
-					ignorePattern = getClassesRegExp(configIgnoreClasses, 'ignore'),
-					linkElements = documentAlias.links;
+			for (i = 0; i < linkElements.length; i++) {
+				// Add a listener to link elements which pass the filter and aren't already tracked
+				if (linkTrackingFilter(linkElements[i]) && !linkElements[i][trackerId]) {
+					addClickListener(linkElements[i]);
+					linkElements[i][trackerId] = true;
+				}
+			}
+		}
 
-				if (linkElements) {
-					for (i = 0; i < linkElements.length; i++) {
-						if (!ignorePattern.test(linkElements[i].className)) {
-							addClickListener(linkElements[i], enable);
-						}
+		/*
+		 * Check whether a list of classes contains any of the classes of a link element
+		 * Used to determine whether clicks on that link should be tracked
+		 */
+		function checkLink(linkElement, specifiedClasses) {
+			var linkClasses = lodash.map(linkElement.classList),
+				i,
+				j;
+
+			for (i = 0; i < linkClasses.length; i++) {
+				for (j = 0; j < specifiedClasses.length; j++) {
+					if (linkClasses[i] === specifiedClasses[j]) {
+						return true;
 					}
+				}
+			}
+			return false;
+		}
+
+		/*
+		 * Configures link click tracking: how to filter which links will be tracked,
+		 * whether to use pseudo click tracking, and what context to attach to link_click events
+		 */
+		function configureLinkClickTracking(criterion, pseudoClicks, context) {
+			var specifiedClasses,
+				inclusive;
+
+			linkTrackingContext = context;
+			linkTrackingPseudoClicks = pseudoClicks;
+
+			// If the criterion argument is not an object, add listeners to all links
+			if (lodash.isArray(criterion) || !lodash.isObject(criterion)) {
+				linkTrackingFilter = function (link) {
+					return true;
+				}
+				return;
+			}
+
+			if (criterion.hasOwnProperty('filter')) {
+				linkTrackingFilter = criterion.filter;
+			} else {
+
+				inclusive = (criterion.hasOwnProperty('whitelist'));
+				specifiedClasses = criterion.whitelist || criterion.blacklist;
+
+				// If the class list is a single string, convert it to an array
+				if (!lodash.isArray(specifiedClasses)) {
+					specifiedClasses = [specifiedClasses];
+				}
+
+				linkTrackingFilter = function(link) {
+					return checkLink(link, specifiedClasses) === inclusive;
 				}
 			}
 		}
@@ -1086,58 +1071,13 @@
 			},
 
 			/**
-			 * Specify the app ID
-			 *
-			 * @param int|string appId
-			 */
+			* Specify the app ID
+			*
+			* @param int|string appId
+			*/
 			setAppId: function (appId) {
+				helpers.warn('setAppId is deprecated. Instead add an "appId" field to the argmap argument of newTracker.');
 				configTrackerSiteId = appId;
-			},
-
-			/**
-			 * Set delay for link tracking (in milliseconds)
-			 *
-			 * @param int delay
-			 */
-			setLinkTrackingTimer: function (delay) {
-				configTrackerPause = delay;
-			},
-
-			/**
-			 * Set list of file extensions to be recognized as downloads
-			 *
-			 * @param string extensions
-			 */
-			setDownloadExtensions: function (extensions) {
-				configDownloadExtensions = extensions;
-			},
-
-			/**
-			 * Specify additional file extensions to be recognized as downloads
-			 *
-			 * @param string extensions
-			 */
-			addDownloadExtensions: function (extensions) {
-				configDownloadExtensions += '|' + extensions;
-			},
-
-			/**
-			 * Set array of domains to be treated as local
-			 *
-			 * @param string|array hostsAlias
-			 */
-			setDomains: function (hostsAlias) {
-				configHostsAlias = lodash.isString(hostsAlias) ? [hostsAlias] : hostsAlias;
-				configHostsAlias.push(domainAlias);
-			},
-
-			/**
-			 * Set array of classes to be ignored if present in link
-			 *
-			 * @param string|array ignoreClasses
-			 */
-			setIgnoreClasses: function (ignoreClasses) {
-				configIgnoreClasses = lodash.isString(ignoreClasses) ? [ignoreClasses] : ignoreClasses;
 			},
 
 			/**
@@ -1168,24 +1108,6 @@
 			},
 
 			/**
-			 * Set array of classes to be treated as downloads
-			 *
-			 * @param string|array downloadClasses
-			 */
-			setDownloadClasses: function (downloadClasses) {
-				configDownloadClasses = lodash.isString(downloadClasses) ? [downloadClasses] : downloadClasses;
-			},
-
-			/**
-			 * Set array of classes to be treated as outlinks
-			 *
-			 * @param string|array linkClasses
-			 */
-			setLinkClasses: function (linkClasses) {
-				configLinkClasses = lodash.isString(linkClasses) ? [linkClasses] : linkClasses;
-			},
-
-			/**
 			 * Strip hash tag (or anchor) from URL
 			 *
 			 * @param bool enableFilter
@@ -1200,6 +1122,7 @@
 			 * @param string cookieNamePrefix
 			 */
 			setCookieNamePrefix: function (cookieNamePrefix) {
+				helpers.warn('setCookieNamePrefix is deprecated. Instead add a "cookieName" field to the argmap argument of newTracker.');
 				configCookieNamePrefix = cookieNamePrefix;
 			},
 
@@ -1209,7 +1132,7 @@
 			 * @param string domain
 			 */
 			setCookieDomain: function (domain) {
-
+				helpers.warn('setCookieDomain is deprecated. Instead add a "cookieDomain" field to the argmap argument of newTracker.');
 				configCookieDomain = helpers.fixupDomain(domain);
 				updateDomainHash();
 			},
@@ -1230,7 +1153,7 @@
 			 * @param int timeout
 			 */
 			setVisitorCookieTimeout: function (timeout) {
-				configVisitorCookieTimeout = timeout * 1000;
+				configVisitorCookieTimeout = timeout;
 			},
 
 			/**
@@ -1239,24 +1162,27 @@
 			 * @param int timeout
 			 */
 			setSessionCookieTimeout: function (timeout) {
-				configSessionCookieTimeout = timeout * 1000;
+				configSessionCookieTimeout = timeout;
 			},
 
 			/**
-			 * Set referral cookie timeout (in seconds)
-			 *
-			 * @param int timeout
-			 */
-			setReferralCookieTimeout: function (timeout) {
-				configReferralCookieTimeout = timeout * 1000;
-			},
-
-			/**
-			 * @param number seed The seed used for MurmurHash3
-			 */
+			* @param number seed The seed used for MurmurHash3
+			*/
 			setUserFingerprintSeed: function(seed) {
+				helpers.warn('setUserFingerprintSeed is deprecated. Instead add a "userFingerprintSeed" field to the argmap argument of newTracker.');
 				configUserFingerprintHashSeed = seed;
 				userFingerprint = detectors.detectSignature(configUserFingerprintHashSeed);
+			},
+
+			/**
+			* Enable/disable user fingerprinting. User fingerprinting is enabled by default.
+			* @param bool enable If false, turn off user fingerprinting
+			*/
+			enableUserFingerprint: function(enable) {
+			helpers.warn('enableUserFingerprintSeed is deprecated. Instead add a "userFingerprint" field to the argmap argument of newTracker.');
+				if (!enable) {
+					userFingerprint = '';
+				}
 			},
 
 			/**
@@ -1267,19 +1193,10 @@
 			 * @param bool enable If true and Do Not Track feature enabled, don't track. 
 			 */
 			respectDoNotTrack: function (enable) {
+				helpers.warn('This usage of respectDoNotTrack is deprecated. Instead add a "respectDoNotTrack" field to the argmap argument of newTracker.');
 				var dnt = navigatorAlias.doNotTrack || navigatorAlias.msDoNotTrack;
 
 				configDoNotTrack = enable && (dnt === 'yes' || dnt === '1');
-			},
-
-			/**
-			 * Enable/disable user fingerprinting. User fingerprinting is enabled by default.
-			 * @param bool enable If false, turn off user fingerprinting
-			 */
-			enableUserFingerprint: function(enable) {
-				if (!enable) {
-					userFingerprint = '';
-				}
 			},
 
 			/**
@@ -1289,8 +1206,8 @@
 			 * @param DOMElement element
 			 * @param bool enable If true, use pseudo click-handler (mousedown+mouseup)
 			 */
-			addListener: function (element, enable) {
-				addClickListener(element, enable);
+			addListener: function (element, pseudoClicks, context) {
+				addClickListener(element, pseudoClicks, context);
 			},
 
 			/**
@@ -1307,19 +1224,30 @@
 			 * be "_self", "_top", or "_parent").
 			 *
 			 * @see https://bugs.webkit.org/show_bug.cgi?id=54783
-			 *
-			 * @param bool enable If true, use pseudo click-handler (mousedown+mouseup)
+			 * 
+			 * @param object criterion Criterion by which it will be decided whether a link will be tracked
+			 * @param bool pseudoClicks If true, use pseudo click-handler (mousedown+mouseup)
 			 */
-			enableLinkTracking: function (enable) {
+			enableLinkClickTracking: function (criterion, pseudoClicks, context) {
 				if (mutSnowplowState.hasLoaded) {
 					// the load event has already fired, add the click listeners now
-					addClickListeners(enable);
+					configureLinkClickTracking(criterion, pseudoClicks, context);
+					addClickListeners();
 				} else {
 					// defer until page has loaded
 					mutSnowplowState.registeredOnLoadHandlers.push(function () {
-						addClickListeners(enable);
+						configureLinkClickTracking(criterion, pseudoClicks, context);
+						addClickListeners();
 					});
 				}
+			},
+
+			/**
+			 * Add click event listeners to links which have been added to the page since the
+			 * last time enableLinkClickTracking or refreshLinkClickTracking was used
+			 */
+			refreshLinkClickTracking: function () {
+				addClickListeners();
 			},
 
 			/**
@@ -1399,7 +1327,7 @@
 			 * @param string cookieName Name of the cookie whose value will be assigned to businessUserId
 			 */
 			 setUserIdFromCookie: function(cookieName) {
-			 	businessUserId = cookie.getCookie(cookieName);
+			 	businessUserId = cookie.cookie(cookieName);
 			 },
 
 			/**
@@ -1423,21 +1351,23 @@
 			},
 
 			/**
-			 * Specify the platform
-			 *
-			 * @param string platform Overrides the default tracking platform
-			 */
+			* Specify the platform
+			*
+			* @param string platform Overrides the default tracking platform
+			*/
 			setPlatform: function(platform) {
+				helpers.warn('setPlatform is deprecated. Instead add a "platform" field to the argmap argument of newTracker.');
 				configPlatform = platform;
 			},
 
 			/**
-			 *
-			 * Enable Base64 encoding for unstructured event payload
-			 *
-			 * @param boolean enabled A boolean value indicating if the Base64 encoding for unstructured events should be enabled or not
-			 */
+			*
+			* Enable Base64 encoding for unstructured event payload
+			*
+			* @param boolean enabled A boolean value indicating if the Base64 encoding for unstructured events should be enabled or not
+			*/
 			encodeBase64: function (enabled) {
+				helpers.warn('This usage of encodeBase64 is deprecated. Instead add an "encodeBase64" field to the argmap argument of newTracker.');
 				configEncodeBase64 = enabled;
 			},
 
@@ -1467,18 +1397,17 @@
 			 * @param object Custom context relating to the event
 			 */
 			trackStructEvent: function (category, action, label, property, value, context) {
-				logStructEvent(category, action, label, property, value, context);                   
+				logStructEvent(category, action, label, property, value, context);
 			},
 
 			/**
 			 * Track an unstructured event happening on this page.
 			 *
-			 * @param string name The name of the event
-			 * @param object properties The properties of the event
-			 * @param object Custom context relating to the event
+			 * @param object eventJson Contains the properties and schema location for the event
+			 * @param object context Custom context relating to the event
 			 */
-			trackUnstructEvent: function (name, properties, context) {
-				logUnstructEvent(name, properties, context);
+			trackUnstructEvent: function (eventJson, context) {
+				logUnstructEvent(eventJson, context);
 			},
 
 			/**
@@ -1493,7 +1422,7 @@
 			 * @param string state Optional. State to associate with transaction.
 			 * @param string country Optional. Country to associate with transaction.
 			 * @param string currency Optional. Currency to associate with this transaction.
-			 * @param object context Option. Context relating to the event.
+			 * @param object context Optional. Context relating to the event.
 			 */
 			addTrans: function(orderId, affiliation, total, tax, shipping, city, state, country, currency, context) {
 				ecommerceTransaction.transaction = {
@@ -1520,7 +1449,7 @@
 			 * @param string price Required. Product price.
 			 * @param string quantity Required. Purchase quantity.
 			 * @param string currency Optional. Product price currency.
-			 * @param object context Option. Context relating to the event.
+			 * @param object context Optional. Context relating to the event.
 			 */
 			addItem: function(orderId, sku, name, category, price, quantity, currency, context) {
 				ecommerceTransaction.items.push({
@@ -1578,21 +1507,23 @@
 			/**
 			 * Manually log a click from your own code
 			 *
-			 * @param string sourceUrl
-			 * @param string linkType
+			 * @param string elementId
+			 * @param array elementClasses
+			 * @param string elementTarget
+			 * @param string targetUrl
 			 * @param object Custom context relating to the event
 			 */
 			// TODO: break this into trackLink(destUrl) and trackDownload(destUrl)
-			trackLink: function (sourceUrl, linkType, context) {
+			trackLinkClick: function(targetUrl, elementId, elementClasses, elementTarget, context) {
 				trackCallback(function () {
-					logLink(sourceUrl, linkType, context);
+					logLink(targetUrl, elementId, elementClasses, elementTarget, context);
 				});
 			},
 
 			/**
 			 * Track an ad being served
 			 *
-			 * DEPRECATED: Use trackAdImpression() (scheduled for version 1.1.0)
+			 * DEPRECATED: Use trackAdImpression()
 			 *
 			 * @param string bannerId Identifier for the ad banner displayed
 			 * @param string campaignId (optional) Identifier for the campaign which the banner belongs to
@@ -1601,14 +1532,108 @@
 			 * @param object Custom context relating to the event
 			 */
 			trackImpression: function (bannerId, campaignId, advertiserId, userId, context) {
-				if (typeof console !== 'undefined') {
-					console.log("Snowplow: trackImpression is deprecated. When version 1.1.0 is released, switch to trackAdImpression.");
-				}
+				helpers.warn('trackImpression is deprecated. When version 1.1.0 is released, switch to trackAdImpression.');
 				logImpression(bannerId, campaignId, advertiserId, userId, context);
-			}
+			},
 
-			// TODO: add in ad clicks and conversions
-		};
+			/**
+			 * Track an ad being served
+			 *
+			 * @param string impressionId Identifier for a particular ad impression
+			 * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'			 
+			 * @param number cost Cost
+			 * @param string bannerId Identifier for the ad banner displayed
+			 * @param string zoneId Identifier for the ad zone
+			 * @param string advertiserId Identifier for the advertiser
+			 * @param string campaignId Identifier for the campaign which the banner belongs to
+			 * @param object Custom context relating to the event
+			 */			
+			trackAdImpression: function(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, context) {
+				trackCallback(function () {
+					var eventJson = {
+						schema: configBaseSchemaPath + '/ad_impression/jsonschema/1-0-0',
+						data: {
+							impressionId: impressionId,
+							costModel: costModel,						
+							cost: cost,
+							bannerId: bannerId,
+							targetUrl: targetUrl,
+							zoneId: zoneId,
+							advertiserId: advertiserId,
+							campaignId: campaignId
+						}
+					};
+
+					logUnstructEvent(eventJson, context);
+				});
+			},
+			
+			/**
+			 * Track an ad being clicked
+			 *
+			 * @param string clickId Identifier for the ad click
+			 * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'			 
+			 * @param number cost Cost
+			 * @param string targetUrl (required) The link's target URL
+			 * @param string bannerId Identifier for the ad banner displayed
+			 * @param string zoneId Identifier for the ad zone
+			 * @param string impressionId Identifier for a particular ad impression
+			 * @param string advertiserId Identifier for the advertiser
+			 * @param string campaignId Identifier for the campaign which the banner belongs to
+			 * @param object Custom context relating to the event
+			 */
+			trackAdClick: function(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, context) {
+				var eventJson = {
+					schema: configBaseSchemaPath + '/ad_click/jsonschema/1-0-0',
+					data: {
+						targetUrl: targetUrl,					
+						clickId: clickId,
+						costModel: costModel,					
+						cost: cost,
+						bannerId: bannerId,
+						zoneId: zoneId,
+						impressionId: impressionId,
+						advertiserId: advertiserId,
+						campaignId: campaignId
+					}
+				};
+
+				logUnstructEvent(eventJson, context);
+			},
+
+			/**
+			 * Track an ad conversion event
+			 *
+			 * @param string conversionId Identifier for the ad conversion event
+			 * @param number cost Cost
+			 * @param string category The name you supply for the group of objects you want to track
+			 * @param string action A string that is uniquely paired with each category
+			 * @param string property Describes the object of the conversion or the action performed on it
+			 * @param number initialValue Revenue attributable to the conversion at time of conversion
+			 * @param string advertiserId Identifier for the advertiser
+			 * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'
+			 * @param string campaignId Identifier for the campaign which the banner belongs to
+			 * @param object Custom context relating to the event
+			 */
+			trackAdConversion: function(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, context) {
+				var eventJson = {
+					schema: configBaseSchemaPath + '/ad_conversion/jsonschema/1-0-0',
+					data: {
+						conversionId: conversionId,
+						costModel: costModel,					
+						cost: cost,
+						category: category,
+						action: action,
+						property: property,
+						initialValue: initialValue,
+						advertiserId: advertiserId,
+						campaignId: campaignId					
+					}
+				};
+
+				logUnstructEvent(eventJson, context);
+			}
+		}
 	}
 
 }());

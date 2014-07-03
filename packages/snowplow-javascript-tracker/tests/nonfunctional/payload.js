@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker for Snowplow: tests/payload.js
+ * JavaScript tracker for Snowplow: tests/nonfunctional/payload.js
  * 
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
  * 2012-2014 Snowplow Analytics Ltd. All rights reserved. 
@@ -35,23 +35,29 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'intern/dojo/node!../src/js/payload.js'
+	'intern/dojo/node!../../src/js/payload.js'
 ], function (registerSuite, assert, payload) {
 
 	var 
-		sampleJson = {
-			page: {
-				page_type: 'test',
-				last_updated: new Date(2014,1,26)
-			},
-			user: {
-				user_type: 'tester'
-			}
-		},
+		sampleJson = [
+          {
+            schema: "iglu:com.example_company/page/jsonschema/1-2-1",
+            data: {
+              pageType: 'test',
+              lastUpdated: new Date(2014,1,26)
+            }
+          },
+          {
+            schema: "iglu:com.example_company/user/jsonschema/2-0-0",
+            data: {
+              userType: 'tester',
+            }
+          }
+        ]
 		expectedStrings = [
 		'?e=pv&page=Asynchronous%20website%2Fwebapp%20examples%20for%20snowplow.js',
-		'?co=%7B%22page%22%3A%7B%22page_type%22%3A%22test%22%2C%22last_updated%24tms%22%3A1393372800000%7D%2C%22user%22%3A%7B%22user_type%22%3A%22tester%22%7D%7D',
-		'?cx=eyJwYWdlIjp7InBhZ2VfdHlwZSI6InRlc3QiLCJsYXN0X3VwZGF0ZWQkdG1zIjoxMzkzMzcyODAwMDAwfSwidXNlciI6eyJ1c2VyX3R5cGUiOiJ0ZXN0ZXIifX0'
+		'?co=%5B%7B%22schema%22%3A%22iglu%3Acom.example_company%2Fpage%2Fjsonschema%2F1-2-1%22%2C%22data%22%3A%7B%22pageType%22%3A%22test%22%2C%22lastUpdated%22%3A%222014-02-26T00%3A00%3A00.000Z%22%7D%7D%2C%7B%22schema%22%3A%22iglu%3Acom.example_company%2Fuser%2Fjsonschema%2F2-0-0%22%2C%22data%22%3A%7B%22userType%22%3A%22tester%22%7D%7D%5D',
+		'?cx=W3sic2NoZW1hIjoiaWdsdTpjb20uZXhhbXBsZV9jb21wYW55L3BhZ2UvanNvbnNjaGVtYS8xLTItMSIsImRhdGEiOnsicGFnZVR5cGUiOiJ0ZXN0IiwibGFzdFVwZGF0ZWQiOiIyMDE0LTAyLTI2VDAwOjAwOjAwLjAwMFoifX0seyJzY2hlbWEiOiJpZ2x1OmNvbS5leGFtcGxlX2NvbXBhbnkvdXNlci9qc29uc2NoZW1hLzItMC0wIiwiZGF0YSI6eyJ1c2VyVHlwZSI6InRlc3RlciJ9fV0'
 		];
 
 	registerSuite({
@@ -71,7 +77,7 @@ define([
 		},
 
 		'Identify non-JSON': function() {
-			var nonJson = [1,2,3];
+			var nonJson = function(){};
 
 			assert.strictEqual(payload.isJson(nonJson), false, 'Non-JSON should be rejected');
 		},

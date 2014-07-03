@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker for Snowplow: tests/queue.js
+ * JavaScript tracker for Snowplow: tests/functional/helpers.js
  * 
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
  * 2012-2014 Snowplow Analytics Ltd. All rights reserved. 
@@ -35,37 +35,60 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'intern/dojo/node!../src/js/queue'
-], function(registerSuite, assert, queue) {
-
-	var MockTracker = function () {
-		var attribute = 10;
-		return {
-			increaseAttribute: function(n) {
-				attribute += n;
-			},
-			setAttribute: function(p) {
-				attribute = p;
-			},
-			getAttribute: function() {
-				return attribute;
-			}
-		}
-	};
-
-	var mockTracker = MockTracker(),
-		snaq = [['increaseAttribute', 5]];
-	snaq = new queue.AsyncQueueProxy(mockTracker, snaq);
+	'intern/dojo/node!../../src/js/lib/helpers'
+], function(registerSuite, assert, helpers) {
 
 	registerSuite({
-		name: 'queue test',
-		'Make a proxy': function() {
-			assert.equal(mockTracker.getAttribute(), 15, 'Function originally stored in snaq is executed when snaq becomes an AsyncQueueProxy');
+
+		name: 'Helpers test',
+
+		'Get page title': function() {
+
+			return this.remote
+				.get(require.toUrl('tests/pages/helpers.html'))
+				.waitForElementByCssSelector('body.loaded', 5000)
+				.elementById('title')
+				.text()
+				.then(function (text) {
+					assert.strictEqual(text, 'Helpers test page', 'Get the page title' );
+				});
 		},
 
-		'Add to snaq after conversion': function() {
-			snaq.push(['setAttribute', 7]);
-			assert.equal(mockTracker.getAttribute(), 7, 'Function added to snaq after it becomes an AsyncQueueProxy is executed');
+		'Get host name': function() {
+
+			return this.remote
+				.get(require.toUrl('tests/pages/helpers.html'))
+				.waitForElementByCssSelector('body.loaded', 5000)
+				.elementById('hostname')
+				.text()
+				.then(function (text){
+					assert.strictEqual(text, 'localhost', 'Get the host name');
+				});
+		},
+
+		'Get referrer from querystring': function() {
+
+			return this.remote
+				.get(require.toUrl('tests/pages/helpers.html') + '?name=value&referrer=previous#fragment')
+				.waitForElementByCssSelector('body.loaded', 5000)
+				.elementById('referrer')
+				.text()
+				.then(function (text){
+					assert.strictEqual(text, 'previous', 'Get the referrer from the querystring');
+				});
+		},
+
+		'Add event listener': function() {
+
+			return this.remote
+				.get(require.toUrl('tests/pages/helpers.html'))
+				.waitForElementByCssSelector('body.loaded', 5000)
+				.elementById('click')
+				.clickElement()
+				.text()
+				.then(function (text){
+					assert.strictEqual(text, 'clicked', 'Add a click event listener');
+				});
 		}
 	});
-});
+});	
