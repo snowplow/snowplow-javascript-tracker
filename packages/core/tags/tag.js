@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker for Snowplow: tests/intern.js
+ * JavaScript tracker for Snowplow: tag.js
  * 
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
  * 2012-2014 Snowplow Analytics Ltd. All rights reserved. 
@@ -32,43 +32,50 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-define({
+/**
+ * Use this function to load Snowplow
+ *
+ * @param object p The window
+ * @param object l The document
+ * @param string o "script", the tag name of script elements
+ * @param string w The source of the Snowplow script. Make sure you get the latest version.
+ * @param string i The Snowplow namespace. The Snowplow user should set this.
+ * @param undefined n The new script (to be created inside the function)
+ * @param undefined g The first script on the page (to be found inside the function)
+ */
+;(function(p,l,o,w,i,n,g) {
+	"p:nomunge, l:nomunge, o:nomunge, w:nomunge, i:nomunge, n:nomunge, g:nomunge";
 
-	proxyPort: 9000,
-	proxyUrl: 'http://localhost:9000/',
+	// Stop if the Snowplow namespace i already exists
+	if (!p[i]) { 
+	
+		// Initialise the 'GlobalSnowplowNamespace' array
+		p['GlobalSnowplowNamespace'] = p['GlobalSnowplowNamespace'] || [];
+	
+		// Add the new Snowplow namespace to the global array so sp.js can find it
+		p['GlobalSnowplowNamespace'].push(i);
+	
+		// Create the Snowplow function
+		p[i] = function() {
+			(p[i].q = p[i].q || []).push(arguments);
+		};
+	
+		// Initialise the asynchronous queue
+		p[i].q = p[i].q || [];
 
-	capabilities: {
-		'selenium-version': '2.39.0',
-		'build': 'process.env.TRAVIS_JOB_ID'
-	},
-
-	environments: [
-		{ browserName: 'internet explorer', version: '11', platform: 'Windows 8.1' },
-		{ browserName: 'internet explorer', version: '10', platform: 'Windows 8' },
-		{ browserName: 'internet explorer', version: '9', platform: 'Windows 7' },
-		{ browserName: 'firefox', version: '27', platform: [ 'OS X 10.6', 'Windows 7', 'Linux' ] },
-		{ browserName: 'chrome', version: '32', platform: [ 'OS X 10.6', 'Windows 7', 'Linux' ] },
-		{ browserName: 'safari', version: '6', platform: 'OS X 10.8' },
-		{ browserName: 'safari', version: '7', platform: 'OS X 10.9' }
-	],
-
-	maxConcurrency: 3,
-	useSauceConnect: true,
-
-	// Connection information for the remote WebDriver service.
-	webdriver: {
-		host: 'localhost',
-		port: 4444
-	},
-
-	// Configuration options for the module loader; any AMD configuration options supported by the Dojo loader can be
-	// used here
-	loader: {},
-
-	// Functional test suite(s) to run in each browser once non-functional tests are completed
-	functionalSuites: ['tests/functional/helpers','tests/functional/detectors'],
-
-	// A regular expression matching URLs to files that should not be included in code coverage analysis
-	excludeInstrumentation: /^tests\//
-
-});
+		// Create a new script element
+		n = l.createElement(o);
+	
+		// Get the first script on the page
+		g = l.getElementsByTagName(o)[0];
+	
+		// The new script should load asynchronously
+		n.async = 1;
+	
+		// Load Snowplow
+		n.src = w;
+	
+		// Insert the Snowplow script before every other script so it executes as soon as possible
+		g.parentNode.insertBefore(n,g);
+	}
+} (window, document, 'script', '//d1fc8wv8zag5ca.cloudfront.net/2/sp.js', 'new_name_here'));

@@ -75,20 +75,20 @@
 
 	// Load all our modules (at least until we fully modularize & remove grunt-concat)
 	var
-		tracker = require('./tracker'),
 		helpers = require('./lib/helpers'),
-		queue = require('./queue'),
+		queue = require('./in_queue'),
+		tracker = require('./tracker'),
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
-	object.Snowplow = function() {
+	object.Snowplow = function(asynchronousQueue, functionName) {
 
 		var
 			documentAlias = document,
 			windowAlias = window,
 
 			/* Tracker identifier with version */
-			version = 'js-1.0.3',
+			version = 'js-' + '<%= pkg.version %>', // Update banner.js too
 
 			/* Contains three variables that are shared with tracker.js and must be passed by reference */
 			mutSnowplowState = {
@@ -97,14 +97,12 @@
 				/* DOM Ready */
 				hasLoaded: false,
 				registeredOnLoadHandlers: []
-			},
-
-			/* Asynchronous tracker */
-			asyncTracker = null;
+			};
 
 		/************************************************************
 		 * Private methods
 		 ************************************************************/
+
 
 		/*
 		 * Handle beforeunload event
@@ -193,23 +191,10 @@
 		}
 
 		/************************************************************
-		 * Constructor
-		 ************************************************************/
-
-		// initialize the Snowplow singleton
-		helpers.addEventListener(windowAlias, 'beforeunload', beforeUnloadHandler, false);
-		addReadyListener();
-
-		asyncTracker = new tracker.Tracker(version, mutSnowplowState); // No argmap
-
-		// Now replace initialization array with proxy object
-		windowAlias._snaq = new queue.AsyncQueueProxy(asyncTracker, windowAlias._snaq);
-
-		/************************************************************
 		 * Public data and methods
 		 ************************************************************/
 
-		 return {
+		 windowAlias.Snowplow = {
 		 	/**
 		 	* Returns a Tracker object, configured with a
 		 	* CloudFront collector.
@@ -217,7 +202,9 @@
 		 	* @param string distSubdomain The subdomain on your CloudFront collector's distribution
 		 	*/
 		 	getTrackerCf: function (distSubdomain) {
-		 		return new tracker.Tracker(version, mutSnowplowState, {cf: distSubdomain});
+		 		var t = new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
+		 		t.setCollectorCf(distSubdomain);
+		 		return t;
 		 	},
 		 
 		 	/**
@@ -227,7 +214,9 @@
 		 	* @param string rawUrl The collector URL minus protocol and /i
 		 	*/
 		 	getTrackerUrl: function (rawUrl) {
-		 		return new tracker.Tracker(version, mutSnowplowState, {url: rawUrl});
+		 		var t = new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
+		 		t.setCollectorCf(rawUrl);
+		 		return t;
 		 	},
 		 
 		 	/**
@@ -236,9 +225,20 @@
 		 	* @return Tracker
 		 	*/
 		 	getAsyncTracker: function () {
-		 		return asyncTracker;
+		 		return new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
 		 	}
-		 }
+		 };
+
+		/************************************************************
+		 * Constructor
+		 ************************************************************/
+
+		// initialize the Snowplow singleton
+		helpers.addEventListener(windowAlias, 'beforeunload', beforeUnloadHandler, false);
+		addReadyListener();
+
+		// Now replace initialization array with queue manager object
+		return new queue.InQueueManager(tracker.Tracker, version, mutSnowplowState, asynchronousQueue, functionName);
 	}
 
 }());
