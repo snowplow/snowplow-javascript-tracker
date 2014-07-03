@@ -1,6 +1,7 @@
 # JavaScript web analytics for Snowplow
 
 [ ![Build Status] [travis-image] ] [travis]
+[ ![Selenium Test Status] [saucelabs-button-image]][saucelabs]
 [ ![Code Climate] [codeclimate-image] ] [codeclimate]
 [ ![Built with Grunt] [grunt-image] ] [grunt]
 
@@ -14,7 +15,7 @@ With this tracker you can collect user event data (page views, e-commerce transa
 
 | Technical Docs              | Setup Guide           | Roadmap & Contributing               |         
 |-----------------------------|-----------------------|--------------------------------------|
-| ![i1] [techdocs-image]      | ![i2] [setup-image]   | ![i3] [roadmap-image]                |
+| [ ![i1] [techdocs-image] ] [tech-docs]      | [ ![i2] [setup-image] ] [setup]   | ![i3] [roadmap-image]                |
 | [Technical Docs] [tech-docs] | [Setup Guide] [setup] | _coming soon_                        |
 
 
@@ -28,6 +29,10 @@ Make sure you have `node` and `npm` installed and in your `$PATH`.
   * If you just want to concat + minify you don't need to fill out the
     `aws.json` file with valid credentials.
 * Build the package (default task concatenates and minifies) `grunt`
+
+## Testing
+
+[ ![Selenium Test Status][saucelabs-matrix-image]][saucelabs]
 
 ## Copyright and license
 
@@ -55,4 +60,7 @@ Licensed under the [Simplified BSD] [bsd] license.
 [travis-image]: https://travis-ci.org/snowplow/snowplow-javascript-tracker.png?branch=master
 [travis]: http://travis-ci.org/snowplow/snowplow-javascript-tracker
 [codeclimate-image]: https://codeclimate.com/github/snowplow/snowplow-javascript-tracker.png
-[codeclimate]: https://codeclimate.com/github/github/snowplow/snowplow-javascript-tracker      
+[codeclimate]: https://codeclimate.com/github/snowplow/snowplow-javascript-tracker      
+[saucelabs]: https://saucelabs.com/u/snowplow_js_tracker
+[saucelabs-button-image]: https://saucelabs.com/buildstatus/snowplow_js_tracker
+[saucelabs-matrix-image]: https://saucelabs.com/browser-matrix/snowplow_js_tracker.svg

@@ -35,7 +35,7 @@
 ;(function() {
 
 	var
-		lodash = require('./lib/lodash'),
+		lodash = require('./lib_managed/lodash'),
 		json2 = require('JSON'),
 		base64 = require('./lib/base64'),
 
@@ -73,7 +73,8 @@
 	 * Is property a JSON?
 	 */
 	object.isJson = function (property) {
-		return (!lodash.isUndefined(property) && !lodash.isNull(property) && property.constructor === {}.constructor);
+		return (!lodash.isUndefined(property) && !lodash.isNull(property) && 
+			(property.constructor === {}.constructor || property.constructor === [].constructor));
 	}
 
 	/*
@@ -111,70 +112,6 @@
 			}
 		};
 
-		/*
-		 * Extract suffix from a property
-		 */
-		var getPropertySuffix = function (property) {
-			var e = new RegExp('\\$(.[^\\$]+)$'),
-			    matches = e.exec(property);
-
-			if (matches) return matches[1];
-		};
-
-		/*
-		 * Translates a value of an unstructured date property
-		 */
-		var translateDateValue = function (date, type) {
-		  switch (type) {
-		    case 'tms':
-		      return toTimestamp(date, true);
-		    case 'ts':
-		      return toTimestamp(date, false);
-		    case 'dt':
-		      return toDatestamp(date);
-		    default:
-		      return date;
-		  }
-		};
-
-		/*
-		 * Add type suffixes as needed to JSON properties
-		 */
-		var appendTypes = (function() {
-
-			function recurse(json) {
-				var translated = {};
-				for (var prop in json) {
-					var key = prop, value = json[prop], type;
-
-					// Special treatment...
-					if (json.hasOwnProperty(key)) {
-
-						// ... for JavaScript Dates
-						if (lodash.isDate(value)) {
-							type = getPropertySuffix(key);
-							if (!type) {
-								type = 'tms';
-								key += '$' + type;
-							}
-							value = translateDateValue(value, type);
-						}
-
-						// ... for JSON objects
-						if (object.isJson(value)) {
-							value = recurse(value);
-						}
-
-						// TODO: should think about Arrays of Dates too
-					}
-
-					translated[key] = value;
-				}
-				return translated;
-			}
-			return recurse;
-		})();
-
 		var add = function (key, value) {
 			addNvPair(key, value, true);
 		};
@@ -186,8 +123,7 @@
 		var addJson = function (keyIfEncoded, keyIfNotEncoded, json) {
 
 			if (object.isNonEmptyJson(json)) {
-				var typed = appendTypes(json);
-				var str = json2.stringify(typed);
+				var str = json2.stringify(json);
 
 				if (base64Encode) {
 					addRaw(keyIfEncoded, base64urlencode(str));

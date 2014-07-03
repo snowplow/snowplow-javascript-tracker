@@ -5,3 +5,7 @@ language: node_js
 before_script:
   - npm install -g grunt-cli
 script: grunt travis
+env:
+  global:
+  - secure: "Ort7jy0HpYi0EGfuRYGW4tawmVJzfUUNXhtJEOWR09FYL28XUyxvjUnpS1WZlD0/rBZiuDPBep1Tc81F88pSns4ZAg1lxlM/zheWrCKvYudeAia2g06OqOA1JfeVWX7TjemJ5s1lY66b5VQrDG1QLIO1RPjgWWea0MpSQzv00Ms="
+  - secure: "JFprkMXxrQZhRlYvJb+ZOr540QuzMU2jQtf39oPzg8uqcV5TDDWTuUZ6D3ogyNJnzH0mYDRzHZQEAqxkyjfndpIgN+a+dBM1l4WoKrTR9BpA3ZZD6zFEG7UrHBcvZgvopbY1wMPXbn4JL7J7SPPOjvvrjjIk/QIsTUYft/UOyXI="

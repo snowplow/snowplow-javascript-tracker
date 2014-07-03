@@ -35,11 +35,11 @@
 ;(function() {
 
 	var 
-		lodash = require('./lodash'),
+		lodash = require('../lib_managed/lodash'),
 		helpers = require('./helpers'),
-		cookie = require('./cookie'),
 		murmurhash3_32_gc = require('murmurhash').v3,
 		tz = require('jstimezonedetect').jstz.determine(),
+		cookie = require('browser-cookie-lite'),
 
 		object = typeof exports !== 'undefined' ? exports : this, // For eventual node.js environment support
 		
@@ -75,20 +75,39 @@
 	}
 
 	/*
+	 * Checks whether localStorage is accessible
+	 * sets and removes an item to handle private IOS5 browsing
+	 * (http://git.io/jFB2Xw)
+	 */
+	 object.localStorageAccessible = function() {
+	 	var mod = 'modernizr';
+	 	if (!object.hasLocalStorage()) {
+	 		return false;
+	 	}
+	 	try {
+	 		windowAlias.localStorage.setItem(mod, mod);
+	 		windowAlias.localStorage.removeItem(mod);
+	 		return true;
+	 	} catch(e) {
+	 		return false;
+	 	}
+	 }
+
+	/*
 	 * Does browser have cookies enabled (for this site)?
 	 */
 	object.hasCookies = function(testCookieName) {
 		var cookieName = testCookieName || 'testcookie';
 
 		if (lodash.isUndefined(navigatorAlias.cookieEnabled)) {
-			cookie.setCookie(cookieName, '1');
-			return cookie.getCookie(cookieName) === '1' ? '1' : '0';
+			cookie.cookie(cookieName, '1');
+			return cookie.cookie(cookieName) === '1' ? '1' : '0';
 		}
 
 		return navigatorAlias.cookieEnabled ? '1' : '0';
 	}
 
-	/*
+	/**
 	 * JS Implementation for browser fingerprint.
 	 * Does not require any external resources.
 	 * Based on https://github.com/carlo/jquery-browser-fingerprint
@@ -101,7 +120,7 @@
 			[ screenAlias.height, screenAlias.width, screenAlias.colorDepth ].join("x"),
 			( new Date() ).getTimezoneOffset(),
 			object.hasSessionStorage(),
-			object.hasLocalStorage(),
+			object.hasLocalStorage()
 		];
 
 		var plugins = [];
