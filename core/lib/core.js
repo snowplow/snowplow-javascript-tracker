@@ -34,10 +34,10 @@
 
 var payload = require('./payload.js');
 
-function trackerCore(base64) {
+module.exports = function trackerCore(base64) {
 
 	// Dictionary of key-value pairs which get added to every payload, e.g. tracker version
-	var state = {};
+	var environment = {};
 
 	/**
 	 * Set a persistent key-value pair to be added to every payload
@@ -45,17 +45,17 @@ function trackerCore(base64) {
 	 * @param string key Field name
 	 * @param string value Field value
 	 */
-	 function setState(key, value) {
-	 	state[key] = value;
+	 function setEnvironment(key, value) {
+	 	environment[key] = value;
 	 }
 
 	/**
-	 * Replace state with a new dictionary
+	 * Replace environment with a new dictionary
 	 *
-	 * @param object newState New dictionary
+	 * @param object newenvironment New dictionary
 	 */
-	function resetState(newState) {
-		state = payload.isJson(newState) ? newState : {};
+	function resetEnvironment(newenvironment) {
+		environment = payload.isJson(newenvironment) ? newenvironment : {};
 	}
 
 	function completeContexts(contexts) {
@@ -81,10 +81,11 @@ function trackerCore(base64) {
 			data: properties
 		};
 
+		sb.add('e', 'ue');
 		sb.addJson('ue_px', 'ue_pr', ueJson);
-		sb.addDict(state);
+		sb.addDict(environment);
 
-		return sb;
+		return sb.build();
 	}
 
 	/**
@@ -101,14 +102,14 @@ function trackerCore(base64) {
 		var sb = payload.payloadBuilder(base64);
 		sb.add('e', 'se'); // 'se' for Structured Event
 		sb.add('se_ca', category);
-		sb.add('se_ac', action)
+		sb.add('se_ac', action);
 		sb.add('se_la', label);
 		sb.add('se_pr', property);
 		sb.add('se_va', value);
 		
-		sb.addDict(state);
+		sb.addDict(environment);
 
-		return sb;
+		return sb.build();
 	}
 
 	/**
@@ -144,10 +145,10 @@ function trackerCore(base64) {
 		sb.add('url', pageUrl);
 		sb.add('page', pageTitle);
 		sb.add('refr', referrer);
-		sb.addDict(state);
+		sb.addDict(environment);
 		sb.addJson('cx', 'co', completeContexts(context));
 
-		return sb;
+		return sb.build();
 	}
 
 	/**
@@ -163,9 +164,9 @@ function trackerCore(base64) {
 		sb.add('url', pageUrl);
 		sb.add('page', pageTitle);
 		sb.add('refr', referrer);
-		sb.addDict(state);
+		sb.addDict(environment);
 
-		return sb;
+		return sb.build();
 	}
 
 	/**
@@ -185,18 +186,18 @@ function trackerCore(base64) {
 	function trackEcommerceTransaction(orderId, totalValue, affiliation, taxValue, shipping, city, state, country, currency, items, context) {
 		var sb = payload.payloadBuilder(base64);
 		sb.add('e', 'tr'); // 'tr' for Transaction
-		sb.add("tr_id", orderId)
-		sb.add("tr_tt", totalValue)
-		sb.add("tr_af", affiliation)
-		sb.add("tr_tx", taxValue)
-		sb.add("tr_sh", shipping)
-		sb.add("tr_ci", city)
-		sb.add("tr_st", state)
-		sb.add("tr_co", country)
-		sb.add("tr_cu", currency)
-		sb.addDict(state);
+		sb.add("tr_id", orderId);
+		sb.add("tr_tt", totalValue);
+		sb.add("tr_af", affiliation);
+		sb.add("tr_tx", taxValue);
+		sb.add("tr_sh", shipping);
+		sb.add("tr_ci", city);
+		sb.add("tr_st", state);
+		sb.add("tr_co", country);
+		sb.add("tr_cu", currency);
+		sb.addDict(environment);
 
-		return sb;
+		return sb.build();
 	}
 
 	/**
@@ -213,16 +214,16 @@ function trackerCore(base64) {
 	 */
 	function trackEcommerceTransactionItem(orderId, sku, price, quantity, name, category, currency, context) {
 		var sb = payload.payloadBuilder(base64)
-		sb.add("e", "ti") // 'tr' for Transaction Item
-		sb.add("ti_id", orderId)
-		sb.add("ti_sk", sku)
-		sb.add("ti_nm", name)
-		sb.add("ti_ca", category)
-		sb.add("ti_pr", price)
-		sb.add("ti_qu", quantity)
-		sb.add("ti_cu", currency)
+		sb.add("e", "ti"); // 'tr' for Transaction Item
+		sb.add("ti_id", orderId);
+		sb.add("ti_sk", sku);
+		sb.add("ti_nm", name);
+		sb.add("ti_ca", category);
+		sb.add("ti_pr", price);
+		sb.add("ti_qu", quantity);
+		sb.add("ti_cu", currency);
 
-		return sb;
+		return sb.build();
 	}
 
 
@@ -309,7 +310,7 @@ function trackerCore(base64) {
 			}
 		};
 
-		trackUnstructEvent(eventJson, context);
+		return trackUnstructEvent(eventJson, context);
 	}
 
 	/**
@@ -342,12 +343,12 @@ function trackerCore(base64) {
 			}
 		};
 
-		trackUnstructEvent(eventJson, context);
+		return trackUnstructEvent(eventJson, context);
 	}
 
 	return {
-		setState: setState,
-		resetState: resetState,
+		setEnvironment: setEnvironment,
+		resetEnvironment: resetEnvironment,
 		trackUnstructEvent: trackUnstructEvent,
 		trackStructEvent: trackStructEvent,
 		trackPageView: trackPageView,

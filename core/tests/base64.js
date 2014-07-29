@@ -39,7 +39,7 @@ define([
 ], function(registerSuite, assert, base64) {
 
 	registerSuite({
-		name: "base64 encoding test",
+		name: "Base 64 encoding test",
 		"Encode a string": function() {
 			assert.strictEqual(base64.base64encode('my_string'), 'bXlfc3RyaW5n', 'Base64-encode a string');
 		},

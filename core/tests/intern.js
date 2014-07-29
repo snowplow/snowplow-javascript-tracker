@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker for Snowplow: tests/intern.js
+ * JavaScript tracker core for Snowplow: tests/intern.js
  * 
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
  * 2012-2014 Snowplow Analytics Ltd. All rights reserved. 
@@ -66,7 +66,7 @@ define({
 	loader: {},
 
 	// Functional test suite(s) to run in each browser once non-functional tests are completed
-	functionalSuites: ['tests/functional/helpers','tests/functional/detectors'],
+	functionalSuites: [],
 
 	// A regular expression matching URLs to files that should not be included in code coverage analysis
 	excludeInstrumentation: /^tests\//

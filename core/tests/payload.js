@@ -84,16 +84,29 @@ define([
 		'Identify an empty JSON': function() {
 			var emptyJson = {};
 
-			assert.strictEqual(payload.isNonEmptyJson(emptyJson), false, 'Identify {} as empty')
+			assert.strictEqual(payload.isNonEmptyJson(emptyJson), false, '{} should be identified as empty')
 		},
 
 		'Build a payload': function () {
-
 			var sb = payload.payloadBuilder(false);
 			sb.add('e', 'pv');
 			sb.add('tv', 'js-2.0.0');
 
-			assert.deepEqual(sb.build(), {e: 'pv', tv: 'js-2.0.0'});
+			assert.deepEqual(sb.build(), {e: 'pv', tv: 'js-2.0.0'}, 'Individual name-value pairs should be added to the payload');
+		},
+
+		'Do not add undefined values to a payload': function () {
+			var sb = payload.payloadBuilder(false);
+			sb.add('e', undefined);
+
+			assert.deepEqual(sb.build(), {}, 'Undefined values should not be added to the payload');
+		},
+
+		'Do not add null values to a payload': function () {
+			var sb = payload.payloadBuilder(false);
+			sb.add('e', null);
+
+			assert.deepEqual(sb.build(), {}, 'Null values should not be added to the payload');
 		},
 
 		'Add a dictionary of name-value pairs to the payload': function () {
@@ -103,7 +116,7 @@ define([
 				'tv': 'js-2.0.0'
 			})
 
-			assert.deepEqual(sb.build(), {e: 'pv', tv: 'js-2.0.0'});
+			assert.deepEqual(sb.build(), {e: 'pv', tv: 'js-2.0.0'}, 'A dictionary of name-value pairs should be added to the payload');
 		},
 
 		'Add a JSON to the payload': function() {
