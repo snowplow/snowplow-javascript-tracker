@@ -1,0 +1,27 @@
+{
+  "name": "snowplow-core",
+  "version": "0.1.0",
+  "devDependencies": {
+    "JSON": "~1.0.0",    
+    "intern": "^2.0.1"
+  },
+  "contributors":  [
+    "Alex Dean",
+    "Simon Andersson",
+    "Anthon Pang",
+    "Fred Blundun"
+  ],
+  "description": "Snowplow tracker core",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snowplow/snowplow-javascript-tracker.git"
+  },
+  "bugs": "https://github.com/snowplow/snowplow-javascript-tracker/issues",
+  "keywords": [
+    "tracking",
+    "web analytics",
+    "events",
+    "open source"
+  ],
+  "license": "Simplified BSD"
+}
