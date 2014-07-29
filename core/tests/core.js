@@ -110,7 +110,7 @@ define([
 				data: {
 					name: 'Eric'
 				}
-			}
+			};
 			var expected = {
 				e: 'ue',
 				ue_pr: JSON.stringify({
@@ -134,7 +134,7 @@ define([
 					elementId: elementId,
 					elementClasses: elementClasses
 				}
-			}
+			};
 			var expected = {
 				e: 'ue',
 				ue_pr: JSON.stringify({
@@ -156,7 +156,7 @@ define([
 					name: name,
 					id: id
 				}
-			}
+			};
 			var expected = {
 				e: 'ue',
 				ue_pr: JSON.stringify({
@@ -165,8 +165,115 @@ define([
 				})
 			};
 
-			assert.deepEqual(tracker.trackScreenView(name, id), expected, 'An screen view should be tracked correctly');
-		}		
+			assert.deepEqual(tracker.trackScreenView(name, id), expected, 'A screen view should be tracked correctly');
+		},
+
+		"Track an ad impression": function() {
+			var impressionId = 'a0e8f8780ab3';
+			var costModel = 'cpc';
+			var cost = 0.5;
+			var targetUrl = 'http://adsite.com';
+			var bannerId = '123';
+			var zoneId = 'zone-14';
+			var advertiserId = 'ad-company';
+			var campaignId = 'campaign-7592';
+
+			var inputJson = {
+				schema: 'iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0',
+				data: {
+					impressionId: impressionId,
+					costModel: costModel,						
+					cost: cost,
+					targetUrl: targetUrl,
+					bannerId: bannerId,
+					zoneId: zoneId,
+					advertiserId: advertiserId,
+					campaignId: campaignId
+				}
+			};
+			var expected = {
+				e: 'ue',
+				ue_pr: JSON.stringify({
+					schema: unstructEventSchema,
+					data: inputJson
+				})
+			};
+
+			assert.deepEqual(tracker.trackAdImpression(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId), expected, 'An ad impression should be tracked correctly');
+		},
+
+		"Track an ad click": function() {
+			var targetUrl = 'http://adsite.com';
+			var clickId = 'click-321';
+			var costModel = 'cpc';
+			var cost = 0.5;
+			var bannerId = '123';
+			var zoneId = 'zone-14';
+			var impressionId = 'a0e8f8780ab3';
+			var advertiserId = 'ad-company';
+			var campaignId = 'campaign-7592';
+
+			var inputJson = {
+				schema: 'iglu:com.snowplowanalytics.snowplow/ad_click/jsonschema/1-0-0',
+				data: {
+					targetUrl: targetUrl,
+					clickId: clickId,
+					costModel: costModel,
+					cost: cost,
+					bannerId: bannerId,
+					zoneId: zoneId,
+					impressionId: impressionId,
+					advertiserId: advertiserId,
+					campaignId: campaignId
+				}
+			};
+			var expected = {
+				e: 'ue',
+				ue_pr: JSON.stringify({
+					schema: unstructEventSchema,
+					data: inputJson
+				})
+			};
+
+			assert.deepEqual(tracker.trackAdClick(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId), expected, 'An ad click should be tracked correctly');
+		},
+
+		"Track an ad conversion": function() {
+			var conversionId = 'conversion-59';
+			var costModel = 'cpc';
+			var cost = 0.5;
+			var category = 'cat';
+			var action = 'act';
+			var property = 'prop';
+			var initialValue = 7;
+			var advertiserId = 'ad-company';
+			var campaignId = 'campaign-7592';
+
+			var inputJson = {
+				schema: 'iglu:com.snowplowanalytics.snowplow/ad_conversion/jsonschema/1-0-0',
+				data: {
+					conversionId: conversionId,
+					costModel: costModel,					
+					cost: cost,
+					category: category,
+					action: action,
+					property: property,
+					initialValue: initialValue,
+					advertiserId: advertiserId,
+					campaignId: campaignId			
+				}
+			};
+			var expected = {
+				e: 'ue',
+				ue_pr: JSON.stringify({
+					schema: unstructEventSchema,
+					data: inputJson
+				})
+			};
+
+			assert.deepEqual(tracker.trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId), expected, 'An ad conversion should be tracked correctly');
+		}
+
 	});
 	
 });

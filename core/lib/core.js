@@ -280,8 +280,8 @@ module.exports = function trackerCore(base64) {
 				impressionId: impressionId,
 				costModel: costModel,						
 				cost: cost,
-				bannerId: bannerId,
 				targetUrl: targetUrl,
+				bannerId: bannerId,				
 				zoneId: zoneId,
 				advertiserId: advertiserId,
 				campaignId: campaignId
@@ -309,9 +309,9 @@ module.exports = function trackerCore(base64) {
 		var eventJson = {
 			schema: 'iglu:com.snowplowanalytics.snowplow/ad_click/jsonschema/1-0-0',
 			data: removeEmptyProperties({
-				targetUrl: targetUrl,					
+				targetUrl: targetUrl,
 				clickId: clickId,
-				costModel: costModel,					
+				costModel: costModel,
 				cost: cost,
 				bannerId: bannerId,
 				zoneId: zoneId,
