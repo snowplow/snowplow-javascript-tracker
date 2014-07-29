@@ -294,6 +294,33 @@ define([
 			};
 
 			assert.deepEqual(tracker.trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId), expected, 'An ad conversion should be tracked correctly');
+		},
+
+		"Add environment name-value pairs to the payload": function() {
+			var tracker = core(false);
+			var url = 'http://www.example.com';
+			var expected = {
+				e: 'pv',
+				url: url,
+				tna: 'cf',
+				tv: 'js-2.0.0'
+			};
+			tracker.setEnvironment('tna', 'cf');
+			tracker.setEnvironment('tv', 'js-2.0.0');
+			assert.deepEqual(tracker.trackPageView(url), expected, 'Environment name-value pairs should be set correctly');
+		},
+
+		"Reset environment name-value pairs": function() {
+			var tracker = core(false);
+			var url = 'http://www.example.com';
+			var expected = {
+				e: 'pv',
+				url: url,
+				tna: 'cf'
+			};
+			tracker.setEnvironment('tna', 'mistake');
+			tracker.resetEnvironment({'tna': 'cf'});
+			assert.deepEqual(tracker.trackPageView(url), expected, 'Environment name-value pairs should be reset correctly');
 		}
 
 	});
