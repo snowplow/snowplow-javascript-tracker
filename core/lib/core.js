@@ -52,10 +52,26 @@ module.exports = function trackerCore(base64) {
 	/**
 	 * Replace environment with a new dictionary
 	 *
-	 * @param object newenvironment New dictionary
+	 * @param object newEnvironment New dictionary
 	 */
-	function resetEnvironment(newenvironment) {
-		environment = payload.isJson(newenvironment) ? newenvironment : {};
+	function resetEnvironment(newEnvironment) {
+		environment = payload.isJson(newEnvironment) ? newEnvironment : {};
+	}
+
+	/**
+	 * Returns a copy of a JSON with undefined and null properties removed
+	 *
+	 * @param object eventJson JSON to clean
+	 * @return A cleaned copy of eventJson
+	 */
+	function removeEmptyProperties(eventJson) {
+		var ret = {};
+		for (var k in eventJson) {
+			if (eventJson[k] !== null && typeof eventJson[k] !== 'undefined') {
+				ret[k] = eventJson[k];
+			}
+		}
+		return ret;
 	}
 
 	function completeContexts(contexts) {
@@ -119,17 +135,12 @@ module.exports = function trackerCore(base64) {
 	 * @param string id The ID of the screen
 	 */
 	function trackScreenView(name, id, context) {
-		var innerJson = {
-			name: name
-		};
-
-		if (id) {
-			innerJson['id'] = id
-		}
-
 		return trackUnstructEvent({
-			schema: 'iglu:com.snowplowanalytics.snowplow/screen_view/1-0-0',
-			data: innerJson
+			schema: 'iglu:com.snowplowanalytics.snowplow/screen_view/jsonschema/1-0-0',
+			data: removeEmptyProperties({
+				name: name,
+				id: id
+			})
 		});
 	}
 
@@ -238,13 +249,13 @@ module.exports = function trackerCore(base64) {
 	 */
 	function trackLinkClick(targetUrl, elementId, elementClasses, elementTarget, context) {
 		var eventJson = {
-			schema: 'iglu:com.snowplowanalytics.snowplow/link_click/1-0-0',
-			data: {
+			schema: 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-0',
+			data: removeEmptyProperties({
 				targetUrl: targetUrl,
 				elementId: elementId,
 				elementClasses: elementClasses,
 				elementTarget: elementTarget
-			},
+			}),
 		};
 
 		return trackUnstructEvent(eventJson, context);
@@ -265,7 +276,7 @@ module.exports = function trackerCore(base64) {
 	function trackAdImpression(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, context) {
 		var eventJson = {
 			schema: 'iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0',
-			data: {
+			data: removeEmptyProperties({
 				impressionId: impressionId,
 				costModel: costModel,						
 				cost: cost,
@@ -274,7 +285,7 @@ module.exports = function trackerCore(base64) {
 				zoneId: zoneId,
 				advertiserId: advertiserId,
 				campaignId: campaignId
-			}
+			})
 		};
 
 		return trackUnstructEvent(eventJson, context);
@@ -297,7 +308,7 @@ module.exports = function trackerCore(base64) {
 	function trackAdClick(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, context) {
 		var eventJson = {
 			schema: 'iglu:com.snowplowanalytics.snowplow/ad_click/jsonschema/1-0-0',
-			data: {
+			data: removeEmptyProperties({
 				targetUrl: targetUrl,					
 				clickId: clickId,
 				costModel: costModel,					
@@ -307,7 +318,7 @@ module.exports = function trackerCore(base64) {
 				impressionId: impressionId,
 				advertiserId: advertiserId,
 				campaignId: campaignId
-			}
+			})
 		};
 
 		return trackUnstructEvent(eventJson, context);
@@ -330,7 +341,7 @@ module.exports = function trackerCore(base64) {
 	function trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, context) {
 		var eventJson = {
 			schema: 'iglu:com.snowplowanalytics.snowplow/ad_conversion/jsonschema/1-0-0',
-			data: {
+			data: removeEmptyProperties({
 				conversionId: conversionId,
 				costModel: costModel,					
 				cost: cost,
@@ -340,7 +351,7 @@ module.exports = function trackerCore(base64) {
 				initialValue: initialValue,
 				advertiserId: advertiserId,
 				campaignId: campaignId					
-			}
+			})
 		};
 
 		return trackUnstructEvent(eventJson, context);
@@ -355,6 +366,8 @@ module.exports = function trackerCore(base64) {
 		trackPagePing: trackPagePing,
 		trackEcommerceTransaction: trackEcommerceTransaction,
 		trackEcommerceTransactionItem: trackEcommerceTransactionItem,
+		trackScreenView: trackScreenView,
+		trackLinkClick: trackLinkClick,
 		trackAdImpression: trackAdImpression,
 		trackAdClick: trackAdClick,
 		trackAdConversion: trackAdConversion

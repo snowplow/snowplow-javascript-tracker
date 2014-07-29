@@ -39,6 +39,7 @@ define([
 	"intern/dojo/node!JSON"
 ], function(registerSuite, assert, core, JSON) {
 
+	var unstructEventSchema = 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0';
 	var tracker = core(false);
 
 	registerSuite({
@@ -113,13 +114,59 @@ define([
 			var expected = {
 				e: 'ue',
 				ue_pr: JSON.stringify({
-					schema: 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0',
+					schema: unstructEventSchema,
 					data: inputJson
 				})
 			};
 
 			assert.deepEqual(tracker.trackUnstructEvent(inputJson), expected, 'An unstructured event should be tracked correctly');
-		},		
+		},
+
+		"Track a link click": function() {
+			var targetUrl = 'http://www.example.com';
+			var elementId = 'first header';
+			var elementClasses = ['header'];
+
+			var inputJson = {
+				schema: 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-0',
+				data: {
+					targetUrl: targetUrl,
+					elementId: elementId,
+					elementClasses: elementClasses
+				}
+			}
+			var expected = {
+				e: 'ue',
+				ue_pr: JSON.stringify({
+					schema: unstructEventSchema,
+					data: inputJson
+				})
+			};
+
+			assert.deepEqual(tracker.trackLinkClick(targetUrl, elementId, elementClasses), expected, 'A link click should be tracked correctly');
+		},
+
+		"Track a screen view": function() {
+			var name = 'intro';
+			var id = '7398-4352-5345-1950'
+
+			var inputJson = {
+				schema: 'iglu:com.snowplowanalytics.snowplow/screen_view/jsonschema/1-0-0',
+				data: {
+					name: name,
+					id: id
+				}
+			}
+			var expected = {
+				e: 'ue',
+				ue_pr: JSON.stringify({
+					schema: unstructEventSchema,
+					data: inputJson
+				})
+			};
+
+			assert.deepEqual(tracker.trackScreenView(name, id), expected, 'An screen view should be tracked correctly');
+		}		
 	});
 	
 });
