@@ -45,8 +45,21 @@ module.exports = function trackerCore(base64, callback) {
 	 * @param string key Field name
 	 * @param string value Field value
 	 */
-	 function setEnvironment(key, value) {
+	 function addEnvironmentPair(key, value) {
 	 	environment[key] = value;
+	 }
+
+	/**
+	 * Merges a dictionary into environment
+	 *
+	 * @param object dict Dictionary to add 
+	 */
+	 function addEnvironmentDict(dict) {
+	 	for (var key in dict) {
+	 		if (dict.hasOwnProperty(key)) {
+	 			environment[key] = dict[key];
+	 		}
+	 	}
 	 }
 
 	/**
@@ -107,7 +120,7 @@ module.exports = function trackerCore(base64, callback) {
 		if (typeof callback === 'function') {
 			callback(payload);
 		}
-		
+
 		return payload;
 	}
 
@@ -389,7 +402,8 @@ module.exports = function trackerCore(base64, callback) {
 	}
 
 	return {
-		setEnvironment: setEnvironment,
+		addEnvironmentPair: addEnvironmentPair,
+		addEnvironmentDict: addEnvironmentDict,
 		resetEnvironment: resetEnvironment,
 		trackUnstructEvent: trackUnstructEvent,
 		trackStructEvent: trackStructEvent,

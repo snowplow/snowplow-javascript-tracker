@@ -296,7 +296,7 @@ define([
 			assert.deepEqual(tracker.trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId), expected, 'An ad conversion should be tracked correctly');
 		},
 
-		"Add environment name-value pairs to the payload": function() {
+		"Add individual environment name-value pairs to the payload": function() {
 			var tracker = core(false);
 			var url = 'http://www.example.com';
 			var expected = {
@@ -305,8 +305,27 @@ define([
 				tna: 'cf',
 				tv: 'js-2.0.0'
 			};
-			tracker.setEnvironment('tna', 'cf');
-			tracker.setEnvironment('tv', 'js-2.0.0');
+			tracker.addEnvironmentPair('tna', 'cf');
+			tracker.addEnvironmentPair('tv', 'js-2.0.0');
+			assert.deepEqual(tracker.trackPageView(url), expected, 'Environment name-value pairs should be set correctly');
+		},
+
+		"Add a dictionary of environment name-value pairs to the payload": function() {
+			var tracker = core(false);
+			var url = 'http://www.example.com';
+			var expected = {
+				e: 'pv',
+				url: url,
+				tv: 'js-2.0.0',
+				tna: 'cf',
+				aid: 'cf325'
+			};
+			tracker.addEnvironmentPair('tv', 'js-2.0.0');
+			tracker.addEnvironmentDict({
+				tna: 'cf',
+				aid: 'cf325'
+			});
+
 			assert.deepEqual(tracker.trackPageView(url), expected, 'Environment name-value pairs should be set correctly');
 		},
 
@@ -318,7 +337,7 @@ define([
 				url: url,
 				tna: 'cf'
 			};
-			tracker.setEnvironment('tna', 'mistake');
+			tracker.addEnvironmentPair('tna', 'mistake');
 			tracker.resetEnvironment({'tna': 'cf'});
 			assert.deepEqual(tracker.trackPageView(url), expected, 'Environment name-value pairs should be reset correctly');
 		},
