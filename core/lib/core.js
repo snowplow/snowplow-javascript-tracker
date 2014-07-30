@@ -34,7 +34,7 @@
 
 var payload = require('./payload.js');
 
-module.exports = function trackerCore(base64) {
+module.exports = function trackerCore(base64, callback) {
 
 	// Dictionary of key-value pairs which get added to every payload, e.g. tracker version
 	var environment = {};
@@ -90,10 +90,32 @@ module.exports = function trackerCore(base64) {
 	}
 
 	/**
+	 * Gets called by every trackXXX method
+	 * Adds context and environment name-value pairs to the payload
+	 * Applies the callback to the built payload 
+	 *
+	 * @param sb object Payload
+	 * @param array contexts Custom contexts relating to the event
+	 */
+	function track(sb, context) {
+		sb.addDict(environment);
+		if (context) {
+			sb.addJson('cx', 'co', completeContexts(context));			
+		}
+		
+		var payload = sb.build();
+		if (typeof callback === 'function') {
+			callback(payload);
+		}
+		
+		return payload;
+	}
+
+	/**
 	 * Log an unstructured event
 	 *
 	 * @param object eventJson Contains the properties and schema location for the event
-	 * @param object context Custom context relating to the event
+	 * @param array context Custom contexts relating to the event
 	 * @return object Payload
 	 */
 	function trackUnstructEvent(properties, context) {
@@ -105,10 +127,8 @@ module.exports = function trackerCore(base64) {
 
 		sb.add('e', 'ue');
 		sb.addJson('ue_px', 'ue_pr', ueJson);
-		sb.addDict(environment);
-		sb.addJson('cx', 'co', completeContexts(context));		
 
-		return sb.build();
+		return track(sb, context);
 	}
 
 	/**
@@ -119,7 +139,7 @@ module.exports = function trackerCore(base64) {
 	 * @param string label (optional) An optional string to provide additional dimensions to the event data
 	 * @param string property (optional) Describes the object or the action performed on it, e.g. quantity of item added to basket
 	 * @param int|float|string value (optional) An integer that you can use to provide numerical data about the user event
-	 * @param object Custom context relating to the event
+	 * @param array Custom contexts relating to the event
 	 * @return object Payload
 	 */
 	function trackStructEvent(category, action, label, property, value, context) {
@@ -130,10 +150,8 @@ module.exports = function trackerCore(base64) {
 		sb.add('se_la', label);
 		sb.add('se_pr', property);
 		sb.add('se_va', value);
-		sb.addDict(environment);
-		sb.addJson('cx', 'co', completeContexts(context));
 
-		return sb.build();
+		return track(sb, context);
 	}
 
 	/**
@@ -157,7 +175,7 @@ module.exports = function trackerCore(base64) {
 	 * Log the page view / visit
 	 *
 	 * @param string customTitle The user-defined page title to attach to this page view
-	 * @param object context Custom context relating to the event
+	 * @param array context Custom contexts relating to the event
 	 * @return object Payload
 	 */
 	function trackPageView(pageUrl, pageTitle, referrer, context) {
@@ -166,10 +184,8 @@ module.exports = function trackerCore(base64) {
 		sb.add('url', pageUrl);
 		sb.add('page', pageTitle);
 		sb.add('refr', referrer);
-		sb.addDict(environment);
-		sb.addJson('cx', 'co', completeContexts(context));
 
-		return sb.build();
+		return track(sb, context);
 	}
 
 	/**
@@ -177,7 +193,7 @@ module.exports = function trackerCore(base64) {
 	 * by sending a page ping.
 	 *
 	 * @param string pageTitle The page title to attach to this page ping
-	 * @param object context Custom context relating to the event
+	 * @param array context Custom contexts relating to the event
 	 * @return object Payload
 	 */
 	function trackPagePing(pageUrl, pageTitle, referrer, context) {
@@ -186,10 +202,8 @@ module.exports = function trackerCore(base64) {
 		sb.add('url', pageUrl);
 		sb.add('page', pageTitle);
 		sb.add('refr', referrer);
-		sb.addDict(environment);
-		sb.addJson('cx', 'co', completeContexts(context));
 
-		return sb.build();
+		return track(sb, context);
 	}
 
 	/**
@@ -204,7 +218,7 @@ module.exports = function trackerCore(base64) {
 	 * @param string state Optional. State to associate with transaction.
 	 * @param string country Optional. Country to associate with transaction.
 	 * @param string currency Optional. Currency to associate with this transaction.
-	 * @param object context Optional. Context relating to the event.
+	 * @param array context Optional. Context relating to the event.
 	 * @return object Payload
 	 */
 	function trackEcommerceTransaction(orderId, totalValue, affiliation, taxValue, shipping, city, state, country, currency, context) {
@@ -219,10 +233,8 @@ module.exports = function trackerCore(base64) {
 		sb.add("tr_st", state);
 		sb.add("tr_co", country);
 		sb.add("tr_cu", currency);
-		sb.addDict(environment);
-		sb.addJson('cx', 'co', completeContexts(context));
 
-		return sb.build();
+		return track(sb, context);
 	}
 
 	/**
@@ -235,7 +247,7 @@ module.exports = function trackerCore(base64) {
 	 * @param string price Required. Product price.
 	 * @param string quantity Required. Purchase quantity.
 	 * @param string currency Optional. Product price currency.
-	 * @param object context Optional. Context relating to the event.
+	 * @param array context Optional. Context relating to the event.
 	 * @return object Payload
 	 */
 	function trackEcommerceTransactionItem(orderId, sku, price, quantity, name, category, currency, context) {
@@ -248,10 +260,8 @@ module.exports = function trackerCore(base64) {
 		sb.add("ti_nm", name);
 		sb.add("ti_ca", category);
 		sb.add("ti_cu", currency);
-		sb.addDict(environment);
-		sb.addJson('cx', 'co', completeContexts(context));
 
-		return sb.build();
+		return track(sb, context);
 	}
 
 
@@ -262,7 +272,7 @@ module.exports = function trackerCore(base64) {
 	 * @param array elementClasses
 	 * @param string elementTarget
 	 * @param string targetUrl
-	 * @param object context Custom context relating to the event
+	 * @param array context Custom contexts relating to the event
 	 * @return object Payload
 	 */
 	function trackLinkClick(targetUrl, elementId, elementClasses, elementTarget, context) {
@@ -289,7 +299,7 @@ module.exports = function trackerCore(base64) {
 	 * @param string zoneId Identifier for the ad zone
 	 * @param string advertiserId Identifier for the advertiser
 	 * @param string campaignId Identifier for the campaign which the banner belongs to
-	 * @param object Custom context relating to the event
+	 * @param array Custom contexts relating to the event
 	 * @return object Payload
 	 */
 	function trackAdImpression(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, context) {
@@ -322,7 +332,7 @@ module.exports = function trackerCore(base64) {
 	 * @param string impressionId Identifier for a particular ad impression
 	 * @param string advertiserId Identifier for the advertiser
 	 * @param string campaignId Identifier for the campaign which the banner belongs to
-	 * @param object Custom context relating to the event
+	 * @param array Custom contexts relating to the event
 	 * @return object Payload
 	 */
 	function trackAdClick(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, context) {
@@ -356,7 +366,7 @@ module.exports = function trackerCore(base64) {
 	 * @param string advertiserId Identifier for the advertiser
 	 * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'
 	 * @param string campaignId Identifier for the campaign which the banner belongs to
-	 * @param object Custom context relating to the event
+	 * @param array Custom contexts relating to the event
 	 * @return object Payload
 	 */
 	function trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, context) {
