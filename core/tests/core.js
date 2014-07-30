@@ -339,6 +339,7 @@ define([
 			};
 			tracker.addEnvironmentPair('tna', 'mistake');
 			tracker.resetEnvironment({'tna': 'cf'});
+
 			assert.deepEqual(tracker.trackPageView(url), expected, 'Environment name-value pairs should be reset correctly');
 		},
 
@@ -352,7 +353,6 @@ define([
 				e: 'pv',
 				url: url,
 			};
-
 			tracker.trackPageView(url);
 
 			assert.deepEqual(callbackTarget, expected, 'The callback should be executed correctly');

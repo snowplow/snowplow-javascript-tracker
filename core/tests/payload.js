@@ -38,26 +38,30 @@ define([
 	'intern/dojo/node!../lib/payload.js'
 ], function (registerSuite, assert, payload) {
 
-	var 
-		sampleJson = [
-          {
-            schema: "iglu:com.example_company/page/jsonschema/1-2-1",
-            data: {
-              pageType: 'test',
-              lastUpdated: new Date(2014,1,26)
-            }
-          },
-          {
-            schema: "iglu:com.example_company/user/jsonschema/2-0-0",
-            data: {
-              userType: 'tester',
-            }
-          }
+
+	var sampleJson = {
+		schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0',
+		data: [
+			{
+				schema: "iglu:com.example_company/page/jsonschema/1-2-1",
+				data: {
+					pageType: 'test',
+					lastUpdated: new Date(2014,1,26)
+				}
+			},
+			{
+            	schema: "iglu:com.example_company/user/jsonschema/2-0-0",
+				data: {
+					userType: 'tester',
+				}
+			}
         ]
-		expectedPayloads = [
-		{co:'[{"schema":"iglu:com.example_company/page/jsonschema/1-2-1","data":{"pageType":"test","lastUpdated":"2014-02-26T00:00:00.000Z"}},{"schema":"iglu:com.example_company/user/jsonschema/2-0-0","data":{"userType":"tester"}}]'},
-		{cx: 'W3sic2NoZW1hIjoiaWdsdTpjb20uZXhhbXBsZV9jb21wYW55L3BhZ2UvanNvbnNjaGVtYS8xLTItMSIsImRhdGEiOnsicGFnZVR5cGUiOiJ0ZXN0IiwibGFzdFVwZGF0ZWQiOiIyMDE0LTAyLTI2VDAwOjAwOjAwLjAwMFoifX0seyJzY2hlbWEiOiJpZ2x1OmNvbS5leGFtcGxlX2NvbXBhbnkvdXNlci9qc29uc2NoZW1hLzItMC0wIiwiZGF0YSI6eyJ1c2VyVHlwZSI6InRlc3RlciJ9fV0'}
-		];
+    };
+
+	var expectedPayloads = [
+		{co: '{"schema":"iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0","data":[{"schema":"iglu:com.example_company/page/jsonschema/1-2-1","data":{"pageType":"test","lastUpdated":"2014-02-26T00:00:00.000Z"}},{"schema":"iglu:com.example_company/user/jsonschema/2-0-0","data":{"userType":"tester"}}]}'},
+		{cx: 'eyJzY2hlbWEiOiJpZ2x1OmNvbS5zbm93cGxvd2FuYWx5dGljcy5zbm93cGxvdy9jb250ZXh0cy9qc29uc2NoZW1hLzEtMC0wIiwiZGF0YSI6W3sic2NoZW1hIjoiaWdsdTpjb20uZXhhbXBsZV9jb21wYW55L3BhZ2UvanNvbnNjaGVtYS8xLTItMSIsImRhdGEiOnsicGFnZVR5cGUiOiJ0ZXN0IiwibGFzdFVwZGF0ZWQiOiIyMDE0LTAyLTI2VDAwOjAwOjAwLjAwMFoifX0seyJzY2hlbWEiOiJpZ2x1OmNvbS5leGFtcGxlX2NvbXBhbnkvdXNlci9qc29uc2NoZW1hLzItMC0wIiwiZGF0YSI6eyJ1c2VyVHlwZSI6InRlc3RlciJ9fV19'}
+	];
 
 	registerSuite({
 
