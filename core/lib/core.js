@@ -234,12 +234,12 @@ module.exports = function trackerCore(base64, callback) {
 	 * @param array context Optional. Context relating to the event.
 	 * @return object Payload
 	 */
-	function trackEcommerceTransaction(orderId, totalValue, affiliation, taxValue, shipping, city, state, country, currency, context) {
+	function trackEcommerceTransaction(orderId, affiliation, totalValue, taxValue, shipping, city, state, country, currency, context) {
 		var sb = payload.payloadBuilder(base64);
 		sb.add('e', 'tr'); // 'tr' for Transaction
 		sb.add("tr_id", orderId);
-		sb.add("tr_tt", totalValue);
 		sb.add("tr_af", affiliation);
+		sb.add("tr_tt", totalValue);
 		sb.add("tr_tx", taxValue);
 		sb.add("tr_sh", shipping);
 		sb.add("tr_ci", city);
@@ -263,15 +263,15 @@ module.exports = function trackerCore(base64, callback) {
 	 * @param array context Optional. Context relating to the event.
 	 * @return object Payload
 	 */
-	function trackEcommerceTransactionItem(orderId, sku, price, quantity, name, category, currency, context) {
+	function trackEcommerceTransactionItem(orderId, sku, name, category, price, quantity, currency, context) {
 		var sb = payload.payloadBuilder(base64)
 		sb.add("e", "ti"); // 'tr' for Transaction Item
 		sb.add("ti_id", orderId);
 		sb.add("ti_sk", sku);
-		sb.add("ti_pr", price);
-		sb.add("ti_qu", quantity);
 		sb.add("ti_nm", name);
 		sb.add("ti_ca", category);
+		sb.add("ti_pr", price);
+		sb.add("ti_qu", quantity);
 		sb.add("ti_cu", currency);
 
 		return track(sb, context);

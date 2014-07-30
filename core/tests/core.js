@@ -91,9 +91,9 @@ define([
 			var currency = 'USD';
 			var expected = {
 				e: 'tr',
+				tr_id: orderId,
 				tr_tt: totalValue,
 				tr_tx: taxValue,
-				tr_id: orderId,
 				tr_sh: shipping,
 				tr_ci: city,
 				tr_st: state,
@@ -101,7 +101,7 @@ define([
 				tr_cu: currency
 			};
 
-			assert.deepEqual(tracker.trackEcommerceTransaction(orderId, totalValue, null, taxValue, shipping, city, state, country, currency), expected, 'A transaction event should be tracked correctly');
+			assert.deepEqual(tracker.trackEcommerceTransaction(orderId,  null, totalValue, taxValue, shipping, city, state, country, currency), expected, 'A transaction event should be tracked correctly');
 		},
 
 		"Track an ecommerce transaction item event": function() {
@@ -116,14 +116,14 @@ define([
 				e: 'ti',
 				ti_id: orderId,
 				ti_sk: sku,
-				ti_pr: price,
-				ti_qu: quantity,
 				ti_nm: name,
 				ti_ca: category,
+				ti_pr: price,
+				ti_qu: quantity,
 				ti_cu: currency
 			};
 
-			assert.deepEqual(tracker.trackEcommerceTransactionItem(orderId, sku, price, quantity, name, category, currency), expected, 'A transaction item event should be tracked correctly');
+			assert.deepEqual(tracker.trackEcommerceTransactionItem(orderId, sku, name, category, price, quantity, currency), expected, 'A transaction item event should be tracked correctly');
 		},
 
 		"Track an unstructured event": function() {
