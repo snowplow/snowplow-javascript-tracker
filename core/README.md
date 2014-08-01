@@ -19,10 +19,10 @@ var core = require('snowplow-tracker-core');
 var coreInstance = core(false);
 
 // Add this name-value pair to all payloads
-coreInstance.addEnvironmentPair('dtm', new Date().getTime());
+coreInstance.addPayloadPair('dtm', new Date().getTime());
 
 // Add each name-value pair in this dictionary to all payloads
-coreInstance.addEnvironmentDict({
+coreInstance.addPayloadDict({
 	'p': 'web',      // platform
 	'tv': 'js-3.0.0' // tracker version
 });
@@ -43,7 +43,7 @@ console.log(pageViewPayload);
 */
 
 // Stop automatically adding tv, p, and dtm to the payload
-coreInstance.resetEnvironment();
+coreInstance.resetPayloadPairs();
 
 // Track an unstructured event
 var unstructEventPayload = coreInstance.trackUnstructEvent({
