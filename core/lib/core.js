@@ -37,7 +37,7 @@ var payload = require('./payload.js');
 module.exports = function trackerCore(base64, callback) {
 
 	// Dictionary of key-value pairs which get added to every payload, e.g. tracker version
-	var environment = {};
+	var payloadPairs = {};
 
 	/**
 	 * Set a persistent key-value pair to be added to every payload
@@ -45,30 +45,30 @@ module.exports = function trackerCore(base64, callback) {
 	 * @param string key Field name
 	 * @param string value Field value
 	 */
-	 function addEnvironmentPair(key, value) {
-	 	environment[key] = value;
+	 function addPayloadPair(key, value) {
+	 	payloadPairs[key] = value;
 	 }
 
 	/**
-	 * Merges a dictionary into environment
+	 * Merges a dictionary into payloadPairs
 	 *
 	 * @param object dict Dictionary to add 
 	 */
-	 function addEnvironmentDict(dict) {
+	 function addPayloadDict(dict) {
 	 	for (var key in dict) {
 	 		if (dict.hasOwnProperty(key)) {
-	 			environment[key] = dict[key];
+	 			payloadPairs[key] = dict[key];
 	 		}
 	 	}
 	 }
 
 	/**
-	 * Replace environment with a new dictionary
+	 * Replace payloadPairs with a new dictionary
 	 *
-	 * @param object newEnvironment New dictionary
+	 * @param object dict New dictionary
 	 */
-	function resetEnvironment(newEnvironment) {
-		environment = payload.isJson(newEnvironment) ? newEnvironment : {};
+	function resetPayloadPairs(dict) {
+		payloadPairs = payload.isJson(dict) ? dict : {};
 	}
 
 	/**
@@ -104,14 +104,14 @@ module.exports = function trackerCore(base64, callback) {
 
 	/**
 	 * Gets called by every trackXXX method
-	 * Adds context and environment name-value pairs to the payload
+	 * Adds context and payloadPairs name-value pairs to the payload
 	 * Applies the callback to the built payload 
 	 *
 	 * @param sb object Payload
 	 * @param array contexts Custom contexts relating to the event
 	 */
 	function track(sb, context) {
-		sb.addDict(environment);
+		sb.addDict(payloadPairs);
 		if (context) {
 			sb.addJson('cx', 'co', completeContexts(context));			
 		}
@@ -402,9 +402,9 @@ module.exports = function trackerCore(base64, callback) {
 	}
 
 	return {
-		addEnvironmentPair: addEnvironmentPair,
-		addEnvironmentDict: addEnvironmentDict,
-		resetEnvironment: resetEnvironment,
+		addPayloadPair: addPayloadPair,
+		addPayloadDict: addPayloadDict,
+		resetPayloadPairs: resetPayloadPairs,
 		trackUnstructEvent: trackUnstructEvent,
 		trackStructEvent: trackStructEvent,
 		trackPageView: trackPageView,

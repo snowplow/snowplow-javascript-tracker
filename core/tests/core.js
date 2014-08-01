@@ -296,7 +296,7 @@ define([
 			assert.deepEqual(tracker.trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId), expected, 'An ad conversion should be tracked correctly');
 		},
 
-		"Add individual environment name-value pairs to the payload": function() {
+		"Add individual name-value pairs to the payload": function() {
 			var tracker = core(false);
 			var url = 'http://www.example.com';
 			var expected = {
@@ -305,12 +305,12 @@ define([
 				tna: 'cf',
 				tv: 'js-2.0.0'
 			};
-			tracker.addEnvironmentPair('tna', 'cf');
-			tracker.addEnvironmentPair('tv', 'js-2.0.0');
-			assert.deepEqual(tracker.trackPageView(url), expected, 'Environment name-value pairs should be set correctly');
+			tracker.addPayloadPair('tna', 'cf');
+			tracker.addPayloadPair('tv', 'js-2.0.0');
+			assert.deepEqual(tracker.trackPageView(url), expected, 'Payload name-value pairs should be set correctly');
 		},
 
-		"Add a dictionary of environment name-value pairs to the payload": function() {
+		"Add a dictionary of name-value pairs to the payload": function() {
 			var tracker = core(false);
 			var url = 'http://www.example.com';
 			var expected = {
@@ -320,16 +320,16 @@ define([
 				tna: 'cf',
 				aid: 'cf325'
 			};
-			tracker.addEnvironmentPair('tv', 'js-2.0.0');
-			tracker.addEnvironmentDict({
+			tracker.addPayloadPair('tv', 'js-2.0.0');
+			tracker.addPayloadDict({
 				tna: 'cf',
 				aid: 'cf325'
 			});
 
-			assert.deepEqual(tracker.trackPageView(url), expected, 'Environment name-value pairs should be set correctly');
+			assert.deepEqual(tracker.trackPageView(url), expected, 'Payload name-value pairs should be set correctly');
 		},
 
-		"Reset environment name-value pairs": function() {
+		"Reset payload name-value pairs": function() {
 			var tracker = core(false);
 			var url = 'http://www.example.com';
 			var expected = {
@@ -337,10 +337,10 @@ define([
 				url: url,
 				tna: 'cf'
 			};
-			tracker.addEnvironmentPair('tna', 'mistake');
-			tracker.resetEnvironment({'tna': 'cf'});
+			tracker.addPayloadPair('tna', 'mistake');
+			tracker.resetPayloadPairs({'tna': 'cf'});
 
-			assert.deepEqual(tracker.trackPageView(url), expected, 'Environment name-value pairs should be reset correctly');
+			assert.deepEqual(tracker.trackPageView(url), expected, 'Payload name-value pairs should be reset correctly');
 		},
 
 		"Execute a callback": function() {
