@@ -1,4 +1,4 @@
-# snowplow-core
+# snowplow-tracker-core
 
 Core module to be used by all Snowplow JavaScript trackers.
 
@@ -13,7 +13,7 @@ npm install intern --save-dev
 ## Example
 
 ```js
-var core = require('snowplow-core');
+var core = require('snowplow-tracker-core');
 
 // Create an instance with base 64 encoding set to false
 var coreInstance = core(false);

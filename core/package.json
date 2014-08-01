@@ -1,5 +1,5 @@
 {
-  "name": "snowplow-core",
+  "name": "snowplow-tracker-core",
   "version": "0.1.0",
   "devDependencies": {
     "JSON": "~1.0.0",    
