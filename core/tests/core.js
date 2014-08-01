@@ -18,14 +18,14 @@ define([
 	"intern/chai!assert",
 	"intern/dojo/node!../lib/core.js",
 	"intern/dojo/node!JSON"
-], function(registerSuite, assert, core, JSON) {
+], function (registerSuite, assert, core, JSON) {
 
 	var unstructEventSchema = 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0';
 	var tracker = core(false);
 
 	registerSuite({
 		name: "Tracking events",
-		"Track a page view": function() {
+		"Track a page view": function () {
 			var url = 'http://www.example.com';
 			var page = 'title page';
 			var expected = {
@@ -36,7 +36,7 @@ define([
 			assert.deepEqual(tracker.trackPageView(url, page), expected, 'A page view should be tracked correctly');
 		},
 
-		"Track a page ping": function() {
+		"Track a page ping": function () {
 			var url = 'http://www.example.com';
 			var referer = 'http://www.google.com';
 			var expected = {
@@ -48,7 +48,7 @@ define([
 			assert.deepEqual(tracker.trackPagePing(url, null, referer), expected, 'A page ping should be tracked correctly');
 		},
 
-		"Track a structured event": function() {
+		"Track a structured event": function () {
 			var expected = {
 				e: 'se',
 				se_ca: 'cat',
@@ -61,7 +61,7 @@ define([
 			assert.deepEqual(tracker.trackStructEvent('cat', 'act', 'lab', 'prop', 'val'), expected, 'A structured event should be tracked correctly');
 		},
 
-		"Track an ecommerce transaction event": function() {
+		"Track an ecommerce transaction event": function () {
 			var orderId = 'ak0008';
 			var totalValue = 50;
 			var taxValue = 6;
@@ -85,7 +85,7 @@ define([
 			assert.deepEqual(tracker.trackEcommerceTransaction(orderId,  null, totalValue, taxValue, shipping, city, state, country, currency), expected, 'A transaction event should be tracked correctly');
 		},
 
-		"Track an ecommerce transaction item event": function() {
+		"Track an ecommerce transaction item event": function () {
 			var orderId = 'ak0008';
 			var sku = '4q345';
 			var price = 17;
@@ -107,7 +107,7 @@ define([
 			assert.deepEqual(tracker.trackEcommerceTransactionItem(orderId, sku, name, category, price, quantity, currency), expected, 'A transaction item event should be tracked correctly');
 		},
 
-		"Track an unstructured event": function() {
+		"Track an unstructured event": function () {
 			var inputJson = {
 				schema: 'iglu:com.acme/user/jsonschema/1-0-1',
 				data: {
@@ -125,7 +125,7 @@ define([
 			assert.deepEqual(tracker.trackUnstructEvent(inputJson), expected, 'An unstructured event should be tracked correctly');
 		},
 
-		"Track a link click": function() {
+		"Track a link click": function () {
 			var targetUrl = 'http://www.example.com';
 			var elementId = 'first header';
 			var elementClasses = ['header'];
@@ -149,9 +149,9 @@ define([
 			assert.deepEqual(tracker.trackLinkClick(targetUrl, elementId, elementClasses), expected, 'A link click should be tracked correctly');
 		},
 
-		"Track a screen view": function() {
+		"Track a screen view": function () {
 			var name = 'intro';
-			var id = '7398-4352-5345-1950'
+			var id = '7398-4352-5345-1950';
 
 			var inputJson = {
 				schema: 'iglu:com.snowplowanalytics.snowplow/screen_view/jsonschema/1-0-0',
@@ -171,7 +171,7 @@ define([
 			assert.deepEqual(tracker.trackScreenView(name, id), expected, 'A screen view should be tracked correctly');
 		},
 
-		"Track an ad impression": function() {
+		"Track an ad impression": function () {
 			var impressionId = 'a0e8f8780ab3';
 			var costModel = 'cpc';
 			var cost = 0.5;
@@ -205,7 +205,7 @@ define([
 			assert.deepEqual(tracker.trackAdImpression(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId), expected, 'An ad impression should be tracked correctly');
 		},
 
-		"Track an ad click": function() {
+		"Track an ad click": function () {
 			var targetUrl = 'http://adsite.com';
 			var clickId = 'click-321';
 			var costModel = 'cpc';
@@ -241,7 +241,7 @@ define([
 			assert.deepEqual(tracker.trackAdClick(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId), expected, 'An ad click should be tracked correctly');
 		},
 
-		"Track an ad conversion": function() {
+		"Track an ad conversion": function () {
 			var conversionId = 'conversion-59';
 			var costModel = 'cpc';
 			var cost = 0.5;
@@ -277,7 +277,7 @@ define([
 			assert.deepEqual(tracker.trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId), expected, 'An ad conversion should be tracked correctly');
 		},
 
-		"Track a page view with custom context": function() {
+		"Track a page view with custom context": function () {
 			var url = 'http://www.example.com';
 			var page = 'title page';
 			var inputContext = [{
@@ -301,7 +301,7 @@ define([
 			assert.deepEqual(tracker.trackPageView(url, page, null, inputContext), expected, 'A custom context should be attached correctly');
 		},
 
-		"Add individual name-value pairs to the payload": function() {
+		"Add individual name-value pairs to the payload": function () {
 			var tracker = core(false);
 			var url = 'http://www.example.com';
 			var expected = {
@@ -315,7 +315,7 @@ define([
 			assert.deepEqual(tracker.trackPageView(url), expected, 'Payload name-value pairs should be set correctly');
 		},
 
-		"Add a dictionary of name-value pairs to the payload": function() {
+		"Add a dictionary of name-value pairs to the payload": function () {
 			var tracker = core(false);
 			var url = 'http://www.example.com';
 			var expected = {
@@ -334,7 +334,7 @@ define([
 			assert.deepEqual(tracker.trackPageView(url), expected, 'Payload name-value pairs should be set correctly');
 		},
 
-		"Reset payload name-value pairs": function() {
+		"Reset payload name-value pairs": function () {
 			var tracker = core(false);
 			var url = 'http://www.example.com';
 			var expected = {
@@ -348,9 +348,9 @@ define([
 			assert.deepEqual(tracker.trackPageView(url), expected, 'Payload name-value pairs should be reset correctly');
 		},
 
-		"Execute a callback": function() {
+		"Execute a callback": function () {
 			var callbackTarget;
-			var tracker = core(false, function(payload) {
+			var tracker = core(false, function (payload) {
 				callbackTarget = payload;
 			});
 			var url = 'http://www.example.com';

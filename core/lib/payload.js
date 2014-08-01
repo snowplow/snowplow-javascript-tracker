@@ -19,7 +19,7 @@
 		json2 = require('JSON'),
 		base64 = require('./base64'),
 
-		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
+		object = typeof exports !== 'undefined' ? exports : this;
 
 	/*
 	 * Bas64 encode data with URL and Filename Safe Alphabet (base64url)
@@ -33,7 +33,7 @@
 		return enc.replace(/=/g, '')
 	            .replace(/\+/g, '-')
 	            .replace(/\//g, '_');
-	};
+	}
 
 	/*
 	 * Is property a JSON?
@@ -41,7 +41,7 @@
 	object.isJson = function (property) {
 		return (typeof property !== 'undefined' && property !== null && 
 			(property.constructor === {}.constructor || property.constructor === [].constructor));
-	}
+	};
 
 	/*
 	 * Is property a non-empty JSON?
@@ -101,7 +101,7 @@
 			add: add,
 			addDict: addDict,
 			addJson: addJson,
-			build: function() {
+			build: function () {
 				return dict;
 			}
 		};

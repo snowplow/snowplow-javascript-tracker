@@ -27,17 +27,17 @@ define([
 				schema: "iglu:com.example_company/page/jsonschema/1-2-1",
 				data: {
 					pageType: 'test',
-					lastUpdated: new Date(2014,1,26)
+					lastUpdated: new Date(2014, 1, 26)
 				}
 			},
 			{
-            	schema: "iglu:com.example_company/user/jsonschema/2-0-0",
+				schema: "iglu:com.example_company/user/jsonschema/2-0-0",
 				data: {
-					userType: 'tester',
+					userType: 'tester'
 				}
 			}
-        ]
-    };
+		]
+	};
 
 	var expectedPayloads = [
 		{co: '{"schema":"iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0","data":[{"schema":"iglu:com.example_company/page/jsonschema/1-2-1","data":{"pageType":"test","lastUpdated":"2014-02-26T00:00:00.000Z"}},{"schema":"iglu:com.example_company/user/jsonschema/2-0-0","data":{"userType":"tester"}}]}'},
@@ -48,7 +48,7 @@ define([
 
 		name: 'Payload test',
 
-		'Identify a JSON': function() {
+		'Identify a JSON': function () {
 			var json = {
 				'name': 'john',
 				'properties': {
@@ -60,13 +60,13 @@ define([
 			assert.strictEqual(payload.isJson(json), true, 'JSON should be identified');
 		},
 
-		'Identify a non-JSON': function() {
-			var nonJson = function(){};
+		'Identify a non-JSON': function () {
+			var nonJson = function () {};
 
 			assert.strictEqual(payload.isJson(nonJson), false, 'Non-JSON should be rejected');
 		},
 
-		'Identify an empty JSON': function() {
+		'Identify an empty JSON': function () {
 			var emptyJson = {};
 
 			assert.strictEqual(payload.isNonEmptyJson(emptyJson), false, '{} should be identified as empty')
@@ -104,14 +104,14 @@ define([
 			assert.deepEqual(sb.build(), {e: 'pv', tv: 'js-2.0.0'}, 'A dictionary of name-value pairs should be added to the payload');
 		},
 
-		'Add a JSON to the payload': function() {
+		'Add a JSON to the payload': function () {
 			var sb = payload.payloadBuilder(false);
 			sb.addJson('cx', 'co', sampleJson);
 
 			assert.deepEqual(sb.build(), expectedPayloads[0], 'JSON should be added correctly');
 		},
 
-		'Add a base 64 encoded JSON to the payload': function() {
+		'Add a base 64 encoded JSON to the payload': function () {
 			var sb = payload.payloadBuilder(true);
 			sb.addJson('cx', 'co', sampleJson);
 

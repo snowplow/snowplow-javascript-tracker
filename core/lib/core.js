@@ -40,22 +40,22 @@ module.exports = function trackerCore(base64, callback) {
 	 * @param string key Field name
 	 * @param string value Field value
 	 */
-	 function addPayloadPair(key, value) {
-	 	payloadPairs[key] = value;
-	 }
+	function addPayloadPair(key, value) {
+		payloadPairs[key] = value;
+	}
 
 	/**
 	 * Merges a dictionary into payloadPairs
 	 *
 	 * @param object dict Dictionary to add 
 	 */
-	 function addPayloadDict(dict) {
-	 	for (var key in dict) {
-	 		if (dict.hasOwnProperty(key)) {
-	 			payloadPairs[key] = dict[key];
-	 		}
-	 	}
-	 }
+	function addPayloadDict(dict) {
+		for (var key in dict) {
+			if (dict.hasOwnProperty(key)) {
+				payloadPairs[key] = dict[key];
+			}
+		}
+	}
 
 	/**
 	 * Replace payloadPairs with a new dictionary
