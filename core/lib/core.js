@@ -17,8 +17,22 @@ var payload = require('./payload.js');
 
 module.exports = function trackerCore(base64, callback) {
 
+	// base 64 encoding should default to true
+	if (typeof base64 === 'undefined') {
+		base64 = true;
+	}
+
 	// Dictionary of key-value pairs which get added to every payload, e.g. tracker version
 	var payloadPairs = {};
+
+	/**
+	 * Turn base 64 encoding on or off
+	 *
+	 * @param boolean encode key Field name
+	 */
+	function setBase64Encoding(encode) {
+		base64 = encode;
+	}
 
 	/**
 	 * Set a persistent key-value pair to be added to every payload
@@ -77,7 +91,7 @@ module.exports = function trackerCore(base64, callback) {
 	function completeContexts(contexts) {
 		if (contexts && contexts.length) {
 			return {
-				schema: 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0',
+				schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0',
 				data: contexts
 			};
 		}
@@ -215,7 +229,8 @@ module.exports = function trackerCore(base64, callback) {
 	 * @param array context Optional. Context relating to the event.
 	 * @return object Payload
 	 */
-	function trackEcommerceTransaction(orderId, affiliation, totalValue, taxValue, shipping, city, state, country, currency, context) {
+	function trackEcommerceTransaction(orderId, affiliation, totalValue, taxValue, shipping, city,
+	 state, country, currency, context) {
 		var sb = payload.payloadBuilder(base64);
 		sb.add('e', 'tr'); // 'tr' for Transaction
 		sb.add("tr_id", orderId);
@@ -383,6 +398,7 @@ module.exports = function trackerCore(base64, callback) {
 	}
 
 	return {
+		setBase64Encoding: setBase64Encoding,
 		addPayloadPair: addPayloadPair,
 		addPayloadDict: addPayloadDict,
 		resetPayloadPairs: resetPayloadPairs,

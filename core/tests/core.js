@@ -277,6 +277,30 @@ define([
 			assert.deepEqual(tracker.trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId), expected, 'An ad conversion should be tracked correctly');
 		},
 
+		"Track a page view with custom context": function() {
+			var url = 'http://www.example.com';
+			var page = 'title page';
+			var inputContext = [{
+				schema: 'iglu:com.acme/user/jsonschema/1-0-0',
+				data: {
+					userType: 'tester',
+					userName: 'Jon'
+				}
+			}]
+			var expected = {
+				e: 'pv',
+				url: url,
+				page: page,
+				co: JSON.stringify({
+					schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0',
+					data: inputContext
+				})
+			};
+			console.log(expected)
+			console.log(tracker.trackPageView(url, page, null, inputContext))
+			assert.deepEqual(tracker.trackPageView(url, page, null, inputContext), expected, 'A custom context should be attached correctly');
+		},
+
 		"Add individual name-value pairs to the payload": function() {
 			var tracker = core(false);
 			var url = 'http://www.example.com';

@@ -1,4 +1,4 @@
-# snowplow-tracker-core
+# Snowplow Tracker Core
 
 Core module to be used by all Snowplow JavaScript trackers.
 
@@ -15,7 +15,7 @@ npm install intern --save-dev
 ```js
 var core = require('snowplow-tracker-core');
 
-// Create an instance with base 64 encoding set to false
+// Create an instance with base 64 encoding set to false (it defaults to true)
 var coreInstance = core(false);
 
 // Add this name-value pair to all payloads
@@ -81,6 +81,15 @@ var coreInstance = core(true, console.log);
 ```
 
 The above example would base 64 encode all unstructured events and custom contexts and would log each payload to the console.
+
+Use the `setBase64Encoding` method to turn base 64 encoding on or off after initializing a core instance:
+
+```js
+var core = require('snowplow-tracker-core');
+
+var coreInstance = core(); // Base 64 encoding on by default
+
+coreInstance.setBase64Encoding(false); // Base 64 encoding is now off
 
 ## Copyright and license
 
