@@ -8,7 +8,6 @@
   "contributors":  [
     "Alex Dean",
     "Simon Andersson",
-    "Anthon Pang",
     "Fred Blundun"
   ],
   "description": "Snowplow tracker core",

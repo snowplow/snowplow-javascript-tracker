@@ -81,3 +81,18 @@ var coreInstance = core(true, console.log);
 ```
 
 The above example would base 64 encode all unstructured events and custom contexts and would log each payload to the console.
+
+## Copyright and license
+
+The Snowplow Tracker Core is copyright 2014 Snowplow Analytics Ltd.
+
+Licensed under the [Apache License, Version 2.0][apache-license] (the "License");
+you may not use this software except in compliance with the License.
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+[apache-license]: http://www.apache.org/licenses/LICENSE-2.0
