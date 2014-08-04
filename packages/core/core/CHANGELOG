@@ -1,6 +1,6 @@
 Version 0.2.0 (2014-08-xx)
 --------------------------
-Added timestamp parameter to tracker methods (#240) (TODO)
+Added timestamp parameter to tracker methods (#240)
 Added dependendencies field to package.json (#239)
 Added npm button to README (#238)
 Updated README (#237) (TODO)

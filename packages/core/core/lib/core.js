@@ -104,9 +104,11 @@ module.exports = function trackerCore(base64, callback) {
 	 *
 	 * @param sb object Payload
 	 * @param array contexts Custom contexts relating to the event
+	 * @param number tstamp Timestamp of the event
 	 */
-	function track(sb, context) {
+	function track(sb, context, tstamp) {
 		sb.addDict(payloadPairs);
+		sb.add('dtm', tstamp);
 		if (context) {
 			sb.addJson('cx', 'co', completeContexts(context));			
 		}
@@ -124,9 +126,10 @@ module.exports = function trackerCore(base64, callback) {
 	 *
 	 * @param object eventJson Contains the properties and schema location for the event
 	 * @param array context Custom contexts relating to the event
+	 * @param number tstamp Timestamp of the event	 
 	 * @return object Payload
 	 */
-	function trackUnstructEvent(properties, context) {
+	function trackUnstructEvent(properties, context, tstamp) {
 		var sb = payload.payloadBuilder(base64);
 		var ueJson = {
 			schema: 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0',
@@ -136,7 +139,7 @@ module.exports = function trackerCore(base64, callback) {
 		sb.add('e', 'ue');
 		sb.addJson('ue_px', 'ue_pr', ueJson);
 
-		return track(sb, context);
+		return track(sb, context, tstamp);
 	}
 
 	/**
@@ -148,9 +151,10 @@ module.exports = function trackerCore(base64, callback) {
 	 * @param string property (optional) Describes the object or the action performed on it, e.g. quantity of item added to basket
 	 * @param int|float|string value (optional) An integer that you can use to provide numerical data about the user event
 	 * @param array Custom contexts relating to the event
+	 * @param number tstamp Timestamp of the event
 	 * @return object Payload
 	 */
-	function trackStructEvent(category, action, label, property, value, context) {
+	function trackStructEvent(category, action, label, property, value, context, tstamp) {
 		var sb = payload.payloadBuilder(base64);
 		sb.add('e', 'se'); // 'se' for Structured Event
 		sb.add('se_ca', category);
@@ -159,7 +163,7 @@ module.exports = function trackerCore(base64, callback) {
 		sb.add('se_pr', property);
 		sb.add('se_va', value);
 
-		return track(sb, context);
+		return track(sb, context, tstamp);
 	}
 
 	/**
@@ -167,16 +171,17 @@ module.exports = function trackerCore(base64, callback) {
 	 *
 	 * @param string name The name of the screen
 	 * @param string id The ID of the screen
+	 * @param number tstamp Timestamp of the event
 	 * @return object Payload
 	 */
-	function trackScreenView(name, id, context) {
+	function trackScreenView(name, id, context, tstamp) {
 		return trackUnstructEvent({
 			schema: 'iglu:com.snowplowanalytics.snowplow/screen_view/jsonschema/1-0-0',
 			data: removeEmptyProperties({
 				name: name,
 				id: id
 			})
-		});
+		}, context, tstamp);
 	}
 
 	/**
@@ -184,16 +189,17 @@ module.exports = function trackerCore(base64, callback) {
 	 *
 	 * @param string customTitle The user-defined page title to attach to this page view
 	 * @param array context Custom contexts relating to the event
+	 * @param number tstamp Timestamp of the event
 	 * @return object Payload
 	 */
-	function trackPageView(pageUrl, pageTitle, referrer, context) {
+	function trackPageView(pageUrl, pageTitle, referrer, context, tstamp) {
 		var sb = payload.payloadBuilder(base64);
 		sb.add('e', 'pv'); // 'pv' for Page View
 		sb.add('url', pageUrl);
 		sb.add('page', pageTitle);
 		sb.add('refr', referrer);
 
-		return track(sb, context);
+		return track(sb, context, tstamp);
 	}
 
 	/**
@@ -202,16 +208,17 @@ module.exports = function trackerCore(base64, callback) {
 	 *
 	 * @param string pageTitle The page title to attach to this page ping
 	 * @param array context Custom contexts relating to the event
+	 * @param number tstamp Timestamp of the event
 	 * @return object Payload
 	 */
-	function trackPagePing(pageUrl, pageTitle, referrer, context) {
+	function trackPagePing(pageUrl, pageTitle, referrer, context, tstamp) {
 		var sb = payload.payloadBuilder(base64);
 		sb.add('e', 'pp'); // 'pv' for Page View
 		sb.add('url', pageUrl);
 		sb.add('page', pageTitle);
 		sb.add('refr', referrer);
 
-		return track(sb, context);
+		return track(sb, context, tstamp);
 	}
 
 	/**
@@ -227,10 +234,11 @@ module.exports = function trackerCore(base64, callback) {
 	 * @param string country Optional. Country to associate with transaction.
 	 * @param string currency Optional. Currency to associate with this transaction.
 	 * @param array context Optional. Context relating to the event.
+	 * @param number tstamp Optional. Timestamp of the event
 	 * @return object Payload
 	 */
 	function trackEcommerceTransaction(orderId, affiliation, totalValue, taxValue, shipping, city,
-	 state, country, currency, context) {
+	 state, country, currency, context, tstamp) {
 		var sb = payload.payloadBuilder(base64);
 		sb.add('e', 'tr'); // 'tr' for Transaction
 		sb.add("tr_id", orderId);
@@ -243,7 +251,7 @@ module.exports = function trackerCore(base64, callback) {
 		sb.add("tr_co", country);
 		sb.add("tr_cu", currency);
 
-		return track(sb, context);
+		return track(sb, context, tstamp);
 	}
 
 	/**
@@ -257,9 +265,10 @@ module.exports = function trackerCore(base64, callback) {
 	 * @param string quantity Required. Purchase quantity.
 	 * @param string currency Optional. Product price currency.
 	 * @param array context Optional. Context relating to the event.
+	 * @param number tstamp Optional. Timestamp of the event
 	 * @return object Payload
 	 */
-	function trackEcommerceTransactionItem(orderId, sku, name, category, price, quantity, currency, context) {
+	function trackEcommerceTransactionItem(orderId, sku, name, category, price, quantity, currency, context, tstamp) {
 		var sb = payload.payloadBuilder(base64)
 		sb.add("e", "ti"); // 'tr' for Transaction Item
 		sb.add("ti_id", orderId);
@@ -270,7 +279,7 @@ module.exports = function trackerCore(base64, callback) {
 		sb.add("ti_qu", quantity);
 		sb.add("ti_cu", currency);
 
-		return track(sb, context);
+		return track(sb, context, tstamp);
 	}
 
 
@@ -282,9 +291,10 @@ module.exports = function trackerCore(base64, callback) {
 	 * @param string elementTarget
 	 * @param string targetUrl
 	 * @param array context Custom contexts relating to the event
+	 * @param number tstamp Timestamp of the event
 	 * @return object Payload
 	 */
-	function trackLinkClick(targetUrl, elementId, elementClasses, elementTarget, context) {
+	function trackLinkClick(targetUrl, elementId, elementClasses, elementTarget, context, tstamp) {
 		var eventJson = {
 			schema: 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-0',
 			data: removeEmptyProperties({
@@ -295,7 +305,7 @@ module.exports = function trackerCore(base64, callback) {
 			}),
 		};
 
-		return trackUnstructEvent(eventJson, context);
+		return trackUnstructEvent(eventJson, context, tstamp);
 	}
 
 	/**
@@ -309,9 +319,10 @@ module.exports = function trackerCore(base64, callback) {
 	 * @param string advertiserId Identifier for the advertiser
 	 * @param string campaignId Identifier for the campaign which the banner belongs to
 	 * @param array Custom contexts relating to the event
+	 * @param number tstamp Timestamp of the event
 	 * @return object Payload
 	 */
-	function trackAdImpression(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, context) {
+	function trackAdImpression(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, context, tstamp) {
 		var eventJson = {
 			schema: 'iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0',
 			data: removeEmptyProperties({
@@ -326,7 +337,7 @@ module.exports = function trackerCore(base64, callback) {
 			})
 		};
 
-		return trackUnstructEvent(eventJson, context);
+		return trackUnstructEvent(eventJson, context, tstamp);
 	}
 
 	/**
@@ -342,9 +353,10 @@ module.exports = function trackerCore(base64, callback) {
 	 * @param string advertiserId Identifier for the advertiser
 	 * @param string campaignId Identifier for the campaign which the banner belongs to
 	 * @param array Custom contexts relating to the event
+	 * @param number tstamp Timestamp of the event
 	 * @return object Payload
 	 */
-	function trackAdClick(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, context) {
+	function trackAdClick(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, context, tstamp) {
 		var eventJson = {
 			schema: 'iglu:com.snowplowanalytics.snowplow/ad_click/jsonschema/1-0-0',
 			data: removeEmptyProperties({
@@ -360,7 +372,7 @@ module.exports = function trackerCore(base64, callback) {
 			})
 		};
 
-		return trackUnstructEvent(eventJson, context);
+		return trackUnstructEvent(eventJson, context, tstamp);
 	}
 
 	/**
@@ -376,9 +388,10 @@ module.exports = function trackerCore(base64, callback) {
 	 * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'
 	 * @param string campaignId Identifier for the campaign which the banner belongs to
 	 * @param array Custom contexts relating to the event
+	 * @param number tstamp Timestamp of the event
 	 * @return object Payload
 	 */
-	function trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, context) {
+	function trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, context, tstamp) {
 		var eventJson = {
 			schema: 'iglu:com.snowplowanalytics.snowplow/ad_conversion/jsonschema/1-0-0',
 			data: removeEmptyProperties({
@@ -394,7 +407,7 @@ module.exports = function trackerCore(base64, callback) {
 			})
 		};
 
-		return trackUnstructEvent(eventJson, context);
+		return trackUnstructEvent(eventJson, context, tstamp);
 	}
 
 	return {
