@@ -286,7 +286,7 @@ define([
 					userType: 'tester',
 					userName: 'Jon'
 				}
-			}]
+			}];
 			var expected = {
 				e: 'pv',
 				url: url,
@@ -296,9 +296,22 @@ define([
 					data: inputContext
 				})
 			};
-			console.log(expected)
-			console.log(tracker.trackPageView(url, page, null, inputContext))
+
 			assert.deepEqual(tracker.trackPageView(url, page, null, inputContext), expected, 'A custom context should be attached correctly');
+		},
+
+		"Track a page view with a timestamp": function () {
+			var url = 'http://www.example.com';
+			var page = 'title page';
+			var tstamp = new Date().getTime();
+			var expected = {
+				e: 'pv',
+				url: url,
+				page: page,
+				dtm: tstamp
+			};
+
+			assert.deepEqual(tracker.trackPageView(url, page, null, null, tstamp), expected, 'A timestamp should be attached correctly');
 		},
 
 		"Add individual name-value pairs to the payload": function () {
