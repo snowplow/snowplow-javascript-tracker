@@ -1,4 +1,4 @@
-# Snowplow Tracker Core
+# Snowplow JavaScript Tracker Core [![npm version][npm-image]][npm-url]
 
 Core module to be used by all Snowplow JavaScript trackers.
 
@@ -90,10 +90,11 @@ var core = require('snowplow-tracker-core');
 var coreInstance = core(); // Base 64 encoding on by default
 
 coreInstance.setBase64Encoding(false); // Base 64 encoding is now off
+```
 
 ## Copyright and license
 
-The Snowplow Tracker Core is copyright 2014 Snowplow Analytics Ltd.
+The Snowplow JavaScript Tracker Core is copyright 2014 Snowplow Analytics Ltd.
 
 Licensed under the [Apache License, Version 2.0][apache-license] (the "License");
 you may not use this software except in compliance with the License.
@@ -105,3 +106,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 [apache-license]: http://www.apache.org/licenses/LICENSE-2.0
+
+[npm-url]: http://badge.fury.io/js/snowplow-tracker-core
+[npm-image]: https://badge.fury.io/js/snowplow-tracker-core.svg
