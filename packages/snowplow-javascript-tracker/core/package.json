@@ -2,10 +2,9 @@
   "name": "snowplow-tracker-core",
   "version": "0.1.0",
   "devDependencies": {
-    "JSON": "~1.0.0",    
     "intern": "^2.0.1"
   },
-  "contributors":  [
+  "contributors": [
     "Alex Dean",
     "Simon Andersson",
     "Fred Blundun"
@@ -22,5 +21,8 @@
     "events",
     "open source"
   ],
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "dependencies": {
+    "JSON": "^1.0.0"
+  }
 }
