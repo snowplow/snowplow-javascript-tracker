@@ -26,6 +26,16 @@ module.exports = function trackerCore(base64, callback) {
 	var payloadPairs = {};
 
 	/**
+	 * Set a persistent key-value pair to be added to every payload
+	 *
+	 * @param string key Field name
+	 * @param string value Field value
+	 */
+	function addPayloadPair(key, value) {
+		payloadPairs[key] = value;
+	}
+
+	/**
 	 * Returns a copy of a JSON with undefined and null properties removed
 	 *
 	 * @param object eventJson JSON to clean
@@ -112,15 +122,8 @@ module.exports = function trackerCore(base64, callback) {
 			base64 = encode;
 		},
 
-		/**
-		 * Set a persistent key-value pair to be added to every payload
-		 *
-		 * @param string key Field name
-		 * @param string value Field value
-		 */
-		addPayloadPair: function (key, value) {
-			payloadPairs[key] = value;
-		},
+		addPayloadPair: addPayloadPair,
+		
 		/**
 		 * Merges a dictionary into payloadPairs
 		 *
@@ -143,8 +146,73 @@ module.exports = function trackerCore(base64, callback) {
 			payloadPairs = payload.isJson(dict) ? dict : {};
 		},
 
+		/**
+		 * Set the platform
+		 *
+		 * @param string value
+		 */
+		setPlatform: function (value) {
+			addPayloadPair('p', value);
+		},
+
+		/**
+		 * Set the user ID
+		 *
+		 * @param string userId
+		 */
+		setUserId: function (userId) {
+			addPayloadPair('uid', userId);
+		},
+
+		/**
+		 * Set the screen resolution
+		 *
+		 * @param number width
+		 * @param number height
+		 */
+		setScreenResolution: function (width, height) {
+			addPayloadPair('res', width + 'x' + height);
+		},
+
+		/**
+		 * Set the viewport dimensions
+		 *
+		 * @param number width
+		 * @param number height
+		 */
+		setViewport: function (width, height) {
+			addPayloadPair('vp', width + 'x' + height);
+		},
+
+		/**
+		 * Set the color depth
+		 *
+		 * @param number depth
+		 */
+		setColorDepth: function (depth) {
+			addPayloadPair('cd', depth);
+		},
+
+		/**
+		 * Set the timezone
+		 *
+		 * @param string timezone
+		 */
+		setTimezone: function (timezone) {
+			addPayloadPair('tz', timezone);
+		},
+
+		/**
+		 * Set the language
+		 *
+		 * @param string lang
+		 */
+		setLang: function (lang) {
+			addPayloadPair('lang', lang);
+		},
+
 		trackUnstructEvent: trackUnstructEvent,
-		
+
 		/**
 		 * Log the page view / visit
 		 *
@@ -235,7 +303,6 @@ module.exports = function trackerCore(base64, callback) {
 
 			return track(sb, context, tstamp);
 		},
-
 
 		/**
 		 * Track an ecommerce transaction item

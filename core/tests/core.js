@@ -374,7 +374,32 @@ define([
 			tracker.trackPageView(url);
 
 			assert.deepEqual(callbackTarget, expected, 'The callback should be executed correctly');
-		}
+		},
+
+		"Use setter methods": function () {
+			var tracker = core(false);
+			tracker.setPlatform('web');
+			tracker.setUserId('jacob');
+			tracker.setScreenResolution(400, 200);
+			tracker.setViewport(500, 800);
+			tracker.setColorDepth(24);
+			tracker.setTimezone('Europe London');
+			var url = 'http://www.example.com';
+			var page = 'title page';
+			var expected = {
+				e: 'pv',
+				url: url,
+				page: page,
+				p: 'web',
+				uid: 'jacob',
+				res: '400x200',
+				vp: '500x800',
+				cd: 24,
+				tz: 'Europe London'
+			};
+
+			assert.deepEqual(tracker.trackPageView(url, page), expected, 'setXXX methods should work correctly');
+		},		
 
 	});
 	
