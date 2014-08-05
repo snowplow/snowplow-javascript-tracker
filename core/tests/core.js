@@ -24,6 +24,8 @@ define([
 	var tracker = core(false);
 
 	function compare(result, expected, message) {
+		assert.ok(result['eid'], 'A UUID should be attached to all events');
+		delete result['eid'];
 		assert.ok(result['dtm'], 'A timestamp should be attached to all events');
 		delete result['dtm'];
 		assert.deepEqual(result, expected, message);
