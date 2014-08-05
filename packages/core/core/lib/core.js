@@ -14,6 +14,7 @@
  */
 
 var payload = require('./payload.js');
+var uuid = require('uuid');
 
 module.exports = function trackerCore(base64, callback) {
 
@@ -77,6 +78,7 @@ module.exports = function trackerCore(base64, callback) {
 	 */
 	function track(sb, context, tstamp) {
 		sb.addDict(payloadPairs);
+		sb.add('eid', uuid.v4());
 		sb.add('dtm', tstamp || new Date().getTime());
 		if (context) {
 			sb.addJson('cx', 'co', completeContexts(context));			
