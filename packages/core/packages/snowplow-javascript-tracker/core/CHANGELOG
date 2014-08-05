@@ -1,5 +1,6 @@
 Version 0.2.0 (2014-08-xx)
 --------------------------
+Added UUID to payload (#244)
 Added automatic timestamp generation (#243)
 Added setter methods (#242)
 Added timestamp parameter to tracker methods (#240)
