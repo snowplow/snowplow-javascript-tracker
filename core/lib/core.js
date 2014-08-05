@@ -77,7 +77,7 @@ module.exports = function trackerCore(base64, callback) {
 	 */
 	function track(sb, context, tstamp) {
 		sb.addDict(payloadPairs);
-		sb.add('dtm', tstamp);
+		sb.add('dtm', tstamp || new Date().getTime());
 		if (context) {
 			sb.addJson('cx', 'co', completeContexts(context));			
 		}

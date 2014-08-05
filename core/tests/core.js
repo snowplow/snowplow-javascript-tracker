@@ -23,6 +23,12 @@ define([
 	var unstructEventSchema = 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0';
 	var tracker = core(false);
 
+	function compare(result, expected, message) {
+		assert.ok(result['dtm'], 'A timestamp should be attached to all events');
+		delete result['dtm'];
+		assert.deepEqual(result, expected, message);
+	}
+
 	registerSuite({
 		name: "Tracking events",
 		"Track a page view": function () {
@@ -33,7 +39,7 @@ define([
 				url: url,
 				page: page
 			};
-			assert.deepEqual(tracker.trackPageView(url, page), expected, 'A page view should be tracked correctly');
+			compare(tracker.trackPageView(url, page), expected, 'A page view should be tracked correctly');
 		},
 
 		"Track a page ping": function () {
@@ -45,7 +51,7 @@ define([
 				refr: referer
 			};
 
-			assert.deepEqual(tracker.trackPagePing(url, null, referer), expected, 'A page ping should be tracked correctly');
+			compare(tracker.trackPagePing(url, null, referer), expected, 'A page ping should be tracked correctly');
 		},
 
 		"Track a structured event": function () {
@@ -58,7 +64,7 @@ define([
 				se_va: 'val'
 			};
 
-			assert.deepEqual(tracker.trackStructEvent('cat', 'act', 'lab', 'prop', 'val'), expected, 'A structured event should be tracked correctly');
+			compare(tracker.trackStructEvent('cat', 'act', 'lab', 'prop', 'val'), expected, 'A structured event should be tracked correctly');
 		},
 
 		"Track an ecommerce transaction event": function () {
@@ -82,7 +88,7 @@ define([
 				tr_cu: currency
 			};
 
-			assert.deepEqual(tracker.trackEcommerceTransaction(orderId,  null, totalValue, taxValue, shipping, city, state, country, currency), expected, 'A transaction event should be tracked correctly');
+			compare(tracker.trackEcommerceTransaction(orderId,  null, totalValue, taxValue, shipping, city, state, country, currency), expected, 'A transaction event should be tracked correctly');
 		},
 
 		"Track an ecommerce transaction item event": function () {
@@ -104,7 +110,7 @@ define([
 				ti_cu: currency
 			};
 
-			assert.deepEqual(tracker.trackEcommerceTransactionItem(orderId, sku, name, category, price, quantity, currency), expected, 'A transaction item event should be tracked correctly');
+			compare(tracker.trackEcommerceTransactionItem(orderId, sku, name, category, price, quantity, currency), expected, 'A transaction item event should be tracked correctly');
 		},
 
 		"Track an unstructured event": function () {
@@ -122,7 +128,7 @@ define([
 				})
 			};
 
-			assert.deepEqual(tracker.trackUnstructEvent(inputJson), expected, 'An unstructured event should be tracked correctly');
+			compare(tracker.trackUnstructEvent(inputJson), expected, 'An unstructured event should be tracked correctly');
 		},
 
 		"Track a link click": function () {
@@ -146,7 +152,7 @@ define([
 				})
 			};
 
-			assert.deepEqual(tracker.trackLinkClick(targetUrl, elementId, elementClasses), expected, 'A link click should be tracked correctly');
+			compare(tracker.trackLinkClick(targetUrl, elementId, elementClasses), expected, 'A link click should be tracked correctly');
 		},
 
 		"Track a screen view": function () {
@@ -168,7 +174,7 @@ define([
 				})
 			};
 
-			assert.deepEqual(tracker.trackScreenView(name, id), expected, 'A screen view should be tracked correctly');
+			compare(tracker.trackScreenView(name, id), expected, 'A screen view should be tracked correctly');
 		},
 
 		"Track an ad impression": function () {
@@ -202,7 +208,7 @@ define([
 				})
 			};
 
-			assert.deepEqual(tracker.trackAdImpression(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId), expected, 'An ad impression should be tracked correctly');
+			compare(tracker.trackAdImpression(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId), expected, 'An ad impression should be tracked correctly');
 		},
 
 		"Track an ad click": function () {
@@ -238,7 +244,7 @@ define([
 				})
 			};
 
-			assert.deepEqual(tracker.trackAdClick(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId), expected, 'An ad click should be tracked correctly');
+			compare(tracker.trackAdClick(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId), expected, 'An ad click should be tracked correctly');
 		},
 
 		"Track an ad conversion": function () {
@@ -274,7 +280,7 @@ define([
 				})
 			};
 
-			assert.deepEqual(tracker.trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId), expected, 'An ad conversion should be tracked correctly');
+			compare(tracker.trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId), expected, 'An ad conversion should be tracked correctly');
 		},
 
 		"Track a page view with custom context": function () {
@@ -296,22 +302,13 @@ define([
 					data: inputContext
 				})
 			};
-
-			assert.deepEqual(tracker.trackPageView(url, page, null, inputContext), expected, 'A custom context should be attached correctly');
+			compare(tracker.trackPageView(url, page, null, inputContext), expected, 'A custom context should be attached correctly');
 		},
 
 		"Track a page view with a timestamp": function () {
-			var url = 'http://www.example.com';
-			var page = 'title page';
-			var tstamp = new Date().getTime();
-			var expected = {
-				e: 'pv',
-				url: url,
-				page: page,
-				dtm: tstamp
-			};
+			var tstamp = 1000000000000;
 
-			assert.deepEqual(tracker.trackPageView(url, page, null, null, tstamp), expected, 'A timestamp should be attached correctly');
+			assert.strictEqual(tracker.trackPageView('http://www.example.com', null, null, null, tstamp)['dtm'], tstamp, 'A timestamp should be attached correctly');
 		},
 
 		"Add individual name-value pairs to the payload": function () {
@@ -325,7 +322,8 @@ define([
 			};
 			tracker.addPayloadPair('tna', 'cf');
 			tracker.addPayloadPair('tv', 'js-2.0.0');
-			assert.deepEqual(tracker.trackPageView(url), expected, 'Payload name-value pairs should be set correctly');
+
+			compare(tracker.trackPageView(url), expected, 'Payload name-value pairs should be set correctly');
 		},
 
 		"Add a dictionary of name-value pairs to the payload": function () {
@@ -344,7 +342,7 @@ define([
 				aid: 'cf325'
 			});
 
-			assert.deepEqual(tracker.trackPageView(url), expected, 'Payload name-value pairs should be set correctly');
+			compare(tracker.trackPageView(url), expected, 'Payload name-value pairs should be set correctly');
 		},
 
 		"Reset payload name-value pairs": function () {
@@ -358,7 +356,7 @@ define([
 			tracker.addPayloadPair('tna', 'mistake');
 			tracker.resetPayloadPairs({'tna': 'cf'});
 
-			assert.deepEqual(tracker.trackPageView(url), expected, 'Payload name-value pairs should be reset correctly');
+			compare(tracker.trackPageView(url), expected, 'Payload name-value pairs should be reset correctly');
 		},
 
 		"Execute a callback": function () {
@@ -373,7 +371,7 @@ define([
 			};
 			tracker.trackPageView(url);
 
-			assert.deepEqual(callbackTarget, expected, 'The callback should be executed correctly');
+			compare(callbackTarget, expected, 'The callback should be executed correctly');
 		},
 
 		"Use setter methods": function () {
@@ -398,7 +396,7 @@ define([
 				tz: 'Europe London'
 			};
 
-			assert.deepEqual(tracker.trackPageView(url, page), expected, 'setXXX methods should work correctly');
+			compare(tracker.trackPageView(url, page), expected, 'setXXX methods should work correctly');
 		},		
 
 	});
