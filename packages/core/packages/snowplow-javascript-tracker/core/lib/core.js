@@ -16,7 +16,14 @@
 var payload = require('./payload.js');
 var uuid = require('uuid');
 
-module.exports = function trackerCore(base64, callback) {
+/**
+ * Create a tracker core object
+ *
+ * @param boolean base64 Whether to base 64 encode contexts and unstructured event JSONs
+ * @param callback function Function applied to every payload dictionary object
+ * @return object Tracker core
+ */
+function trackerCore(base64, callback) {
 
 	// base 64 encoding should default to true
 	if (typeof base64 === 'undefined') {
@@ -480,3 +487,5 @@ module.exports = function trackerCore(base64, callback) {
 		}
 	};
 }
+
+module.exports = trackerCore;
