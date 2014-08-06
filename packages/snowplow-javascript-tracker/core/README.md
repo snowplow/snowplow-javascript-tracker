@@ -6,8 +6,8 @@ Core module to be used by all Snowplow JavaScript trackers.
 
 With npm:
 
-```
-npm install intern --save-dev
+```bash
+npm install snowplow-tracker-core
 ```
 
 ## Example
@@ -27,6 +27,11 @@ coreInstance.addPayloadDict({
 	'tv': 'js-3.0.0' // tracker version
 });
 
+// Add name-value pairs to all payloads using convenience methods
+coreInstance.setUserId('user-321');
+coreInstance.setColorDepth(24);
+coreInstance.setViewport(600, 400);
+
 // Track a page view with URL and title
 var pageViewPayload = coreInstance.trackPageView('http://www.example.com', 'landing page');
 
@@ -38,7 +43,10 @@ console.log(pageViewPayload);
 	'dtm': 1406879959702,
 	'e': 'pv',
 	'url': 'http://www.example.com',
-	'page': 'landing page'
+	'page': 'landing page',
+	'uid': 'user-321',
+	'cd': 24,
+	'vp': 600x400
 }
 */
 
