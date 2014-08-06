@@ -156,6 +156,33 @@ function trackerCore(base64, callback) {
 		},
 
 		/**
+		 * Set the tracker version
+		 *
+		 * @param string version
+		 */
+		setTrackerVersion: function (version) {
+			addPayloadPair('tv', version)
+		},
+
+		/**
+		 * Set the tracker namespace
+		 *
+		 * @param string name
+		 */
+		setTrackerNamespace: function (name) {
+			addPayloadPair('tna', name);
+		},
+
+		/**
+		 * Set the application ID
+		 *
+		 * @param string appId
+		 */
+		setAppId: function (appId) {
+			addPayloadPair('aid', appId)
+		},
+
+		/**
 		 * Set the platform
 		 *
 		 * @param string value
@@ -218,6 +245,15 @@ function trackerCore(base64, callback) {
 		 */
 		setLang: function (lang) {
 			addPayloadPair('lang', lang);
+		},
+
+		/**
+		 * Set the IP address
+		 *
+		 * @param string appId
+		 */
+		setIpAddress: function (ip) {
+			addPayloadPair('ip', ip)
 		},
 
 		trackUnstructEvent: trackUnstructEvent,
