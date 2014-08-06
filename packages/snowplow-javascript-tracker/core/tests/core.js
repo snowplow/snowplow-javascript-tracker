@@ -378,24 +378,32 @@ define([
 
 		"Use setter methods": function () {
 			var tracker = core(false);
+			tracker.setTrackerVersion('js-3.0.0');
+			tracker.setTrackerNamespace('cf1');
+			tracker.setAppId('my-app');
 			tracker.setPlatform('web');
 			tracker.setUserId('jacob');
 			tracker.setScreenResolution(400, 200);
 			tracker.setViewport(500, 800);
 			tracker.setColorDepth(24);
 			tracker.setTimezone('Europe London');
+			tracker.setIpAddress('37.151.33.154');
 			var url = 'http://www.example.com';
 			var page = 'title page';
 			var expected = {
 				e: 'pv',
 				url: url,
 				page: page,
+				tna: 'cf1',
+				tv: 'js-3.0.0',
+				aid: 'my-app',
 				p: 'web',
 				uid: 'jacob',
 				res: '400x200',
 				vp: '500x800',
 				cd: 24,
-				tz: 'Europe London'
+				tz: 'Europe London',
+				ip: '37.151.33.154'
 			};
 
 			compare(tracker.trackPageView(url, page), expected, 'setXXX methods should work correctly');
