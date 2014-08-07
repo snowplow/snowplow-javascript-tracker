@@ -1,4 +1,4 @@
-Version 0.2.0 (2014-08-xx)
+Version 0.2.0 (2014-08-07)
 --------------------------
 Added UUID to payload (#244)
 Added automatic timestamp generation (#243)
