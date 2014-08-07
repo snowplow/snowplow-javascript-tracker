@@ -49,12 +49,12 @@ define([
 		expectedSignatures = [
 			3343029130, // IE9 Windows
 			1101697779, // IE10
-			90940656,   // IE11
+			154466408,  // IE11
 			2557409154, // Firefox 27.0 Mac
-			686340443,  // Firefox 27.0 XP
+			1076144906, // Firefox 27.0 XP
 			3900377526, // Firefox 27.0 Linux
 			705067259,  // Chrome 32.0 Mac OS X
-			3985300704, // Chrome 32.0 Windows NT
+			4229530558, // Chrome 32.0 Windows NT
 			3773734853, // Chrome 32.0 Linux
 			3339203264, // Safari 7.0 Mac
 			3166667154  // Safari 6.0.5 Mac
