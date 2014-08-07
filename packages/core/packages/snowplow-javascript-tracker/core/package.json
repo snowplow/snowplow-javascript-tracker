@@ -10,7 +10,7 @@
     "Simon Andersson",
     "Fred Blundun"
   ],
-  "description": "Snowplow tracker core",
+  "description": "Core functionality for the Snowplow JavaScript trackers (browser JavaScript; Node.js; Segment.io server-side)",
   "repository": {
     "type": "git",
     "url": "https://github.com/snowplow/snowplow-javascript-tracker.git"
