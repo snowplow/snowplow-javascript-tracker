@@ -18,16 +18,18 @@ var core = require('snowplow-tracker-core');
 // Create an instance with base 64 encoding set to false (it defaults to true)
 var coreInstance = core(false);
 
-// Add this name-value pair to all payloads
-coreInstance.addPayloadPair('dtm', new Date().getTime());
+// Add a name-value pair to all payloads
+coreInstance.addPayloadPair('vid', 2);
 
-// Add each name-value pair in this dictionary to all payloads
+// Add each name-value pair in a dictionary to all payloads
 coreInstance.addPayloadDict({
-	'p': 'web',      // platform
-	'tv': 'js-3.0.0' // tracker version
+	'ds': '1160x620',
+	'fp': 4070134789
 });
 
 // Add name-value pairs to all payloads using convenience methods
+coreInstance.setTrackerVersion('js-3.0.0');
+coreInstance.setPlatform('web');
 coreInstance.setUserId('user-321');
 coreInstance.setColorDepth(24);
 coreInstance.setViewport(600, 400);
@@ -38,15 +40,19 @@ var pageViewPayload = coreInstance.trackPageView('http://www.example.com', 'land
 console.log(pageViewPayload);
 /*
 {
-	'tv': 'js-2.0.0',
-	'p': 'web',
-	'dtm': 1406879959702,
 	'e': 'pv',
 	'url': 'http://www.example.com',
 	'page': 'landing page',
 	'uid': 'user-321',
+	'vd': 2,
+	'ds': '1160x620',	
+	'fp': 4070134789
+	'tv': 'js-3.0.0',
+	'p': 'web',
 	'cd': 24,
-	'vp': 600x400
+	'vp': '600x400',
+	'dtm': 1406879959702,                          // timestamp
+	'eid': '0718a85a-45dc-4f71-a949-27870442ed7d'  // UUID
 }
 */
 
@@ -75,7 +81,9 @@ console.log(unstructEventPayload);
 				'elementId': 'bannerLink'
 			}
 		}
-	}
+	},
+	'dtm': 1406879973439,
+	'eid': '956c6670-cbf6-460b-9f96-143e0320fdf6'
 }
 */
 ```
@@ -100,6 +108,10 @@ var coreInstance = core(); // Base 64 encoding on by default
 coreInstance.setBase64Encoding(false); // Base 64 encoding is now off
 ```
 
+## Documentation
+
+For more information on the Snowplow JavaScript Tracker Core's API, view its [wiki page][wiki].
+
 ## Copyright and license
 
 The Snowplow JavaScript Tracker Core is copyright 2014 Snowplow Analytics Ltd.
@@ -117,3 +129,4 @@ limitations under the License.
 
 [npm-url]: http://badge.fury.io/js/snowplow-tracker-core
 [npm-image]: https://badge.fury.io/js/snowplow-tracker-core.svg
+[wiki]: https://github.com/snowplow/snowplow/wiki/Javascript-Tracker-Core
