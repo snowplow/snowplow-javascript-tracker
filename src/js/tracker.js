@@ -75,7 +75,6 @@
 		/************************************************************
 		 * Private members
 		 ************************************************************/
-
 		var
 			// Aliases
 			documentAlias = document,
@@ -165,6 +164,10 @@
 
 			// Document character set
 			documentCharset = documentAlias.characterSet || documentAlias.charset,
+
+			// This forces the tracker to be HTTPS even if the page is not secure
+			forceSecureTracker = argmap.hasOwnProperty('forceSecureTracker') ? (argmap.forceSecureTracker === true) : false,
+
 
 			// Browser language (or Windows language for IE). Imperfect but CloudFront doesn't log the Accept-Language header
 			browserLanguage = navigatorAlias.userLanguage || navigatorAlias.language,
@@ -570,7 +573,10 @@
 		 * @return string collectorUrl The tracker URL with protocol
 		 */
 		function asCollectorUrl(rawUrl) {
-			return ('https:' == documentAlias.location.protocol ? 'https' : 'http') + '://' + rawUrl + '/i';
+			if(forceSecureTracker)
+				return ('https' + '://' + rawUrl + '/i');
+			else
+				return ('https:' == documentAlias.location.protocol ? 'https' : 'http') + '://' + rawUrl + '/i';
 		}
 
 		/**
