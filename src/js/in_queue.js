@@ -141,15 +141,22 @@
 		 *      [ functionObject, optional_parameters ]
 		 */
 		function applyAsyncFunction() {
-			var i, f, parameterArray, inputString, parsedString, names, namedTrackers;
+			var i, f, parameterArray, input, parsedString, names, namedTrackers;
 
 			// Outer loop in case someone push'es in zarg of arrays
 			for (i = 0; i < arguments.length; i += 1) {
 				parameterArray = arguments[i];
 
 				// Arguments is not an array, so we turn it into one
-				inputString = Array.prototype.shift.call(parameterArray);
-				parsedString = parseInputString(inputString);
+				input = Array.prototype.shift.call(parameterArray);
+
+				// Custom callback rather than tracker method
+				if (lodash.isFunction(input)) {
+					input.apply(this, parameterArray);
+					continue;
+				}
+
+				parsedString = parseInputString(input);
 				f = parsedString[0];
 				names = parsedString[1];
 
