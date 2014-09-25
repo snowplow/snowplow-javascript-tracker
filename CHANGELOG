@@ -23,6 +23,7 @@ Clarified scope of localStorage (#122) (TODO)
 Added addTo- and removeFrom- Basket events (#97) (TODO)
 Added further Intern unit tests (#76) (TODO)
 Added social tracking features (#12) (TODO)
+Improved efficiency of enableLinkClickTracking (#254)
 
 Version 2.0.2 (2014-10-20)
 --------------------------

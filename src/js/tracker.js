@@ -977,19 +977,14 @@
 		}
 
 		/*
-		 * Check whether a list of classes contains any of the classes of a link element
+		 * Check whether a set of classes contains any of the classes of a link element
 		 * Used to determine whether clicks on that link should be tracked
 		 */
 		function checkLink(linkElement, specifiedClasses) {
-			var linkClasses = lodash.map(linkElement.classList),
-				i,
-				j;
-
-			for (i = 0; i < linkClasses.length; i++) {
-				for (j = 0; j < specifiedClasses.length; j++) {
-					if (linkClasses[i] === specifiedClasses[j]) {
-						return true;
-					}
+			var linkClasses = lodash.map(linkElement.classList);
+			for (var i=0; i<linkClasses.length; i++) {
+				if (specifiedClasses[linkClasses[i]]) {
+					return true;
 				}
 			}
 			return false;
@@ -1001,7 +996,9 @@
 		 */
 		function configureLinkClickTracking(criterion, pseudoClicks, context) {
 			var specifiedClasses,
-				inclusive;
+				inclusive,
+				specifiedClassesSet,
+				i;
 
 			linkTrackingContext = context;
 			linkTrackingPseudoClicks = pseudoClicks;
@@ -1026,8 +1023,14 @@
 					specifiedClasses = [specifiedClasses];
 				}
 
+				// Convert the array of classes to an object of the form {class1: true, class2: true, ...}
+				specifiedClassesSet = {};
+				for (i=0; i<specifiedClasses.length; i++) {
+					specifiedClassesSet[specifiedClasses[i]] = true;
+				}
+
 				linkTrackingFilter = function(link) {
-					return checkLink(link, specifiedClasses) === inclusive;
+					return checkLink(link, specifiedClassesSet) === inclusive;
 				}
 			}
 		}
