@@ -797,31 +797,6 @@
 			logUnstructEvent(eventJson, context);
 		}
 
-		/**
-		 * Log an ad impression
-		 *
-		 * @param string bannerId Identifier for the ad banner displayed
-		 * @param string campaignId (optional) Identifier for the campaign which the banner belongs to
-		 * @param string advertiserId (optional) Identifier for the advertiser which the campaign belongs to
-		 * @param string userId (optional) Ad server identifier for the viewer of the banner
-		 * @param object context Custom context relating to the event
-		 */
-		// TODO: rename to logAdImpression and deprecate logImpression
-		// TODO: should add impressionId as well.
-		// TODO: should add in zoneId (aka placementId, slotId?) as well
-		// TODO: change ad_ to ai_?
-		function logImpression(bannerId, campaignId, advertiserId, userId, context) {
-			var sb = payload.payloadBuilder(configEncodeBase64);
-			sb.add('e', 'ad'); // 'ad' for AD impression
-			sb.add('ad_ba', bannerId);
-			sb.add('ad_ca', campaignId)
-			sb.add('ad_ad', advertiserId);
-			sb.add('ad_uid', userId);
-			sb.addJson('cx', 'co', completeContext(context));
-			var request = getRequest(sb);
-			sendRequest(request, configTrackerPause);
-		}
-
 		/*
 		 * Browser prefix
 		 */
@@ -1527,22 +1502,6 @@
 				trackCallback(function () {
 					logLink(targetUrl, elementId, elementClasses, elementTarget, context);
 				});
-			},
-
-			/**
-			 * Track an ad being served
-			 *
-			 * DEPRECATED: Use trackAdImpression()
-			 *
-			 * @param string bannerId Identifier for the ad banner displayed
-			 * @param string campaignId (optional) Identifier for the campaign which the banner belongs to
-			 * @param string advertiserId (optional) Identifier for the advertiser which the campaign belongs to
-			 * @param string userId (optional) Ad server identifier for the viewer of the banner
-			 * @param object Custom context relating to the event
-			 */
-			trackImpression: function (bannerId, campaignId, advertiserId, userId, context) {
-				helpers.warn('trackImpression is deprecated. When version 1.1.0 is released, switch to trackAdImpression.');
-				logImpression(bannerId, campaignId, advertiserId, userId, context);
 			},
 
 			/**
