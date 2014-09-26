@@ -139,20 +139,6 @@
 	}
 
 	/*
-	 * Remove from an object every property whose value is
-	 * null, undefined, an empty string, or an empty array
-	 */
-	object.deleteEmptyProperties = function (collection) {
-		for (var i in collection) {
-			if (collection.hasOwnProperty(i) && (lodash.isUndefined(collection[i]) || 
-				lodash.isNull(collection[i]) || collection[i].length === 0)) {
-				delete collection[i];
-			}
-		}
-		return collection;
-	}
-
-	/*
 	 * Only log deprecation warnings if they won't cause an error
 	 */
 	object.warn = function(message) {

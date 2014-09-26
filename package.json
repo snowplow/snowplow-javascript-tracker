@@ -16,7 +16,8 @@
     "JSON": "~1.0.0",
     "sha1": "git://github.com/pvorb/node-sha1.git#v1.0.0",
     "grunt-lodash": "~0.3.0",
-    "browser-cookie-lite": "~0.3.1"
+    "browser-cookie-lite": "~0.3.1",
+    "snowplow-tracker-core": "0.3.0"
   },
   "contributors": [
     "Alex Dean",

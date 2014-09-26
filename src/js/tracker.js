@@ -44,6 +44,7 @@
 		json2 = require('JSON'),
 		sha1 = require('sha1'),
 		requestQueue = require('./out_queue'),
+		coreConstructor = require('snowplow-tracker-core'),
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
@@ -76,6 +77,12 @@
 		 * Private members
 		 ************************************************************/
 		var
+			// Tracker core
+			core = coreConstructor(true, function(payload) {
+				addBrowserData(payload);
+				sendRequest(payload);
+			}),
+
 			// Aliases
 			documentAlias = document,
 			windowAlias = window,
@@ -156,9 +163,6 @@
 			// Life of the session cookie (in seconds)
 			configSessionCookieTimeout = 1800, // 30 minutes
 
-			// Enable Base64 encoding for unstructured events
-			configEncodeBase64 = argmap.hasOwnProperty('encodeBase64') ? argmap.encodeBase64 : true,
-
 			// Default hash seed for MurmurHash3 in detectors.detectSignature
 			configUserFingerprintHashSeed = argmap.hasOwnProperty('userFingerprintSeed') ? argmap.userFingerprintSeed : 123412414,
 
@@ -227,15 +231,26 @@
 
 			outQueueManager = new requestQueue.OutQueueManager(functionName, namespace);
 
-		/*
-		 * Creates a JSON from the default header and a custom contexts array
-		 */
-		function completeContext(context) {
-			if (!lodash.isEmpty(context)) {
-				return {
-					schema: configContextSchema,
-					data: context
-				};
+		// Enable base 64 encoding for unstructured events and custom contexts
+		core.setBase64Encoding(argmap.hasOwnProperty('encodeBase64') ? argmap.encodeBase64 : true);
+
+		// Set up unchanging name-value pairs
+		core.setTrackerVersion(version);
+		core.setTrackerNamespace(namespace);
+		core.setAppId(configTrackerSiteId);
+		core.setPlatform(configPlatform);
+		core.setTimezone(detectors.detectTimezone());
+		core.addPayloadPair('lang', browserLanguage);
+		core.addPayloadPair('cs', documentCharset);
+
+		// Browser features. Cookies, color depth and resolution don't get prepended with f_ (because they're not optional features)
+		for (var i in browserFeatures) {
+			if (Object.prototype.hasOwnProperty.call(browserFeatures, i)) {
+				if (i === 'res' || i === 'cd' || i === 'cookie') {
+					core.addPayloadPair(i, browserFeatures[i]);
+				} else {
+					core.addPayloadPair('f_', browserFeatures[i]);
+				}
 			}
 		}
 
@@ -302,13 +317,32 @@
 		}
 
 		/*
+		 * Convert a dictionary to a querystring
+		 */
+		function getQuerystring(request) {
+			var querystring = '?',
+				firstPair = true;
+			for (var key in request) {
+				if (request.hasOwnProperty(key)) {
+					if (!firstPair) {
+						querystring += '&';
+					} else {
+						firstPair = false;
+					}
+					querystring += encodeURIComponent(key) + '=' + encodeURIComponent(request[key]);
+				}
+			}
+			return querystring;
+		}
+
+		/*
 		 * Send request
 		 */
 		function sendRequest(request, delay) {
 			var now = new Date();
 
 			if (!configDoNotTrack) {
-				outQueueManager.enqueueRequest(request, configCollectorUrl);
+				outQueueManager.enqueueRequest(getQuerystring(request.build()), configCollectorUrl);
 				mutSnowplowState.expireDateTime = now.getTime() + delay;
 			}
 		}
@@ -450,60 +484,31 @@
 		}
 
 		/*
-		 * Get the current timestamp:
-		 * milliseconds since epoch.
-		 */
-		function getTimestamp() {
-			var now = new Date(),
-				nowTs = now.getTime();
-
-			return nowTs;
-		}
-
-		/*
-		 * Attaches all the common web fields to the request
+		 * Attaches common web fields to every request
 		 * (resolution, url, referrer, etc.)
 		 * Also sets the required cookies.
-		 *
-		 * Takes in a string builder, adds in parameters to it
-		 * and then generates the request.
 		 */
-		function getRequest(sb) {
-			var i,
-				now = new Date(),
-				nowTs = Math.round(now.getTime() / 1000),
-				newVisitor,
-				_domainUserId, // Don't shadow the global
-				visitCount,
-				createTs,
-				currentVisitTs,
-				lastVisitTs,
-				referralTs,
-				referralUrl,
-				referralUrlMaxLength = 1024,
-				currentReferrerHostName,
-				originalReferrerHostName,
-				idname = getSnowplowCookieName('id'),
+		function addBrowserData(sb) {
+			var nowTs = Math.round(new Date().getTime() / 1000),
 				sesname = getSnowplowCookieName('ses'),
-				id = loadDomainUserIdCookie(),
 				ses = getSnowplowCookieValue('ses'), // aka cookie.cookie(sesname)
-				currentUrl = configCustomUrl || locationHrefAlias,
-				featurePrefix;
+				id = loadDomainUserIdCookie(),
+				newVisitor = id[0],
+				_domainUserId = id[1], // We could use the global (domainUserId) but this is better etiquette
+				createTs = id[2],
+				visitCount = id[3],
+				currentVisitTs = id[4],
+				lastVisitTs = id[5],
+				featurePrefix,
+				i;
 
 			if (configDoNotTrack && configWriteCookies) {
 				cookie.cookie(idname, '', -1, configCookiePath, configCookieDomain);
 				cookie.cookie(sesname, '', -1, configCookiePath, configCookieDomain);
-				return '';
+				return;
 			}
 
-			newVisitor = id[0];
-			_domainUserId = id[1]; // We could use the global (domainUserId) but this is better etiquette
-			createTs = id[2];
-			visitCount = id[3];
-			currentVisitTs = id[4];
-			lastVisitTs = id[5];
-
-			// New session
+			// New session?
 			if (!ses) {
 				// New session (aka new visit)
 				visitCount++;
@@ -511,46 +516,28 @@
 				lastVisitTs = currentVisitTs;
 			}
 
-			// Build out the rest of the request - first add fields we can safely skip encoding
-			sb.addRaw('dtm', getTimestamp());
-			sb.addRaw('tid', String(Math.random()).slice(2, 8));
-			sb.addRaw('vp', detectors.detectViewport());
-			sb.addRaw('ds', detectors.detectDocumentSize());
-			sb.addRaw('vid', visitCount);
-			sb.addRaw('duid', _domainUserId); // Set to our local variable
-
-			// Encode all these
-			sb.add('p', configPlatform);
-			sb.add('tv', version);
+			// Build out the rest of the request
+			sb.add('vp', detectors.detectViewport());
+			sb.add('ds', detectors.detectDocumentSize());
+			sb.add('vid', visitCount);
+			sb.add('duid', _domainUserId); // Set to our local variable
 			sb.add('fp', userFingerprint);
-			sb.add('aid', configTrackerSiteId);
-			sb.add('lang', browserLanguage);
-			sb.add('cs', documentCharset);
-			sb.add('tz', timezone);
-			sb.add('uid', businessUserId); // Business-defined user ID
-			sb.add('tna', namespace);
+			sb.add('uid', businessUserId);
 
 			// Adds with custom conditions
-			if (configReferrerUrl.length) sb.add('refr', purify(configReferrerUrl));
-
-			// Browser features. Cookies, color depth and resolution don't get prepended with f_ (because they're not optional features)
-			for (i in browserFeatures) {
-				if (Object.prototype.hasOwnProperty.call(browserFeatures, i)) {
-					featurePrefix = (i === 'res' || i === 'cd' || i === 'cookie') ? '' : 'f_';
-					sb.addRaw(featurePrefix + i, browserFeatures[i]);
-				}
+			if (configReferrerUrl.length) {
+				sb.add('refr', purify(configReferrerUrl));
 			}
 
 			// Add the page URL last as it may take us over the IE limit (and we don't always need it)
-			sb.add('url', purify(currentUrl));
-			var request = sb.build();
+			sb.add('url', purify(configCustomUrl || locationHrefAlias));
+
 
 			// Update cookies
 			if (configWriteCookies) {
 				setDomainUserIdCookie(_domainUserId, createTs, visitCount, nowTs, lastVisitTs);
 				cookie.cookie(sesname, '*', configSessionCookieTimeout, configCookiePath, configCookieDomain);
 			}
-			return request;
 		}
 
 		/**
@@ -591,12 +578,7 @@
 			var pageTitle = helpers.fixupTitle(customTitle || configTitle);
 
 			// Log page view
-			var sb = payload.payloadBuilder(configEncodeBase64);
-			sb.add('e', 'pv'); // 'pv' for Page View
-			sb.add('page', pageTitle);
-			sb.addJson('cx', 'co', completeContext(context));
-			var request = getRequest(sb);
-			sendRequest(request, configTrackerPause);
+			core.trackPageView(purify(configCustomUrl || locationHrefAlias), pageTitle, purify(configReferrerUrl), context);
 
 			// Send ping (to log that user has stayed on page)
 			var now = new Date();
@@ -649,40 +631,9 @@
 		 * @param object context Custom context relating to the event
 		 */
 		function logPagePing(pageTitle, context) {
-			var sb = payload.payloadBuilder(configEncodeBase64);
-			sb.add('e', 'pp'); // 'pp' for Page Ping
-			sb.add('page', pageTitle);
-			sb.addRaw('pp_mix', minXOffset); // Global
-			sb.addRaw('pp_max', maxXOffset); // Global
-			sb.addRaw('pp_miy', minYOffset); // Global
-			sb.addRaw('pp_may', maxYOffset); // Global
-			sb.addJson('cx', 'co', completeContext(context));
 			resetMaxScrolls();
-			var request = getRequest(sb);
-			sendRequest(request, configTrackerPause);
-		}
-
-		/**
-		 * Log a structured event happening on this page
-		 *
-		 * @param string category The name you supply for the group of objects you want to track
-		 * @param string action A string that is uniquely paired with each category, and commonly used to define the type of user interaction for the web object
-		 * @param string label (optional) An optional string to provide additional dimensions to the event data
-		 * @param string property (optional) Describes the object or the action performed on it, e.g. quantity of item added to basket
-		 * @param numeric value (optional) An integer or floating point number to provide numerical data about the user event
-		 * @param object context Custom context relating to the event
-		 */
-		function logStructEvent(category, action, label, property, value, context) {
-			var sb = payload.payloadBuilder(configEncodeBase64);
-			sb.add('e', 'se'); // 'se' for Structured Event
-			sb.add('se_ca', category);
-			sb.add('se_ac', action)
-			sb.add('se_la', label);
-			sb.add('se_pr', property);
-			sb.add('se_va', value);
-			sb.addJson('cx', 'co', completeContext(context));
-			var request = getRequest(sb);
-			sendRequest(request, configTrackerPause);
+			core.trackPagePing(purify(configCustomUrl || locationHrefAlias), pageTitle, purify(configReferrerUrl),
+				minXOffset, maxXOffset, minYOffset, maxYOffset, context);
 		}
 
 		/**
@@ -692,19 +643,7 @@
 		 * @param object context Custom context relating to the event
 		 */
 		function logUnstructEvent(eventJson, context) {
-			helpers.deleteEmptyProperties(eventJson.data);
-			if (!lodash.isEmpty(eventJson.data)) {
-				var envelope = {
-					schema: configUnstructEventSchema,
-					data: eventJson
-				},
-					sb = payload.payloadBuilder(configEncodeBase64);
-				sb.add('e', 'ue'); // 'ue' for Unstructured Event
-				sb.addJson('ue_px', 'ue_pr', envelope);
-				sb.addJson('cx', 'co', completeContext(context));
-				var request = getRequest(sb);
-				sendRequest(request, configTrackerPause);
-			}
+			core.trackUnstructEvent(eventJson, context);
 		}
 
 		/**
@@ -721,22 +660,8 @@
 	 	 * @param string currency The currency the total/tax/shipping are expressed in
 		 * @param object context Custom context relating to the event
 		 */
-		// TODO: add params to comment
 		function logTransaction(orderId, affiliation, total, tax, shipping, city, state, country, currency, context) {
-			var sb = payload.payloadBuilder(configEncodeBase64);
-			sb.add('e', 'tr'); // 'tr' for TRansaction
-			sb.add('tr_id', orderId);
-			sb.add('tr_af', affiliation);
-			sb.add('tr_tt', total);
-			sb.add('tr_tx', tax);
-			sb.add('tr_sh', shipping);
-			sb.add('tr_ci', city);
-			sb.add('tr_st', state);
-			sb.add('tr_co', country);
-			sb.add('tr_cu', currency);
-			sb.addJson('cx', 'co', completeContext(context));
-			var request = getRequest(sb);
-			sendRequest(request, configTrackerPause);
+			core.trackEcommerceTransaction(orderId, affiliation, total, tax, shipping, city, state, country, currency, context);
 		}
 
 		/**
@@ -751,50 +676,8 @@
 		 * @param string currency The currency the price is expressed in
 		 * @param object context Custom context relating to the event
 		 */
-		// TODO: add params to comment
 		function logTransactionItem(orderId, sku, name, category, price, quantity, currency, context) {
-			var sb = payload.payloadBuilder(configEncodeBase64);
-			sb.add('e', 'ti'); // 'ti' for Transaction Item
-			sb.add('ti_id', orderId);
-			sb.add('ti_sk', sku);
-			sb.add('ti_na', name);
-			sb.add('ti_ca', category);
-			sb.add('ti_pr', price);
-			sb.add('ti_qu', quantity);
-			sb.add('ti_cu', currency);
-			sb.addJson('cx', 'co', completeContext(context));
-			var request = getRequest(sb);
-			sendRequest(request, configTrackerPause);
-		}
-
-		// ---------------------------------------
-		// Next 2 log methods are not supported in
-		// Snowplow Enrichment process yet
-
-		/**
-		 * Log the link or click with the server
-		 *
-		 * @param string elementId
-		 * @param array elementClasses
-		 * @param string elementTarget
-		 * @param string targetUrl
-		 * @param object context Custom context relating to the event
-		 */
-		// TODO: rename to LinkClick
-		// TODO: this functionality is not yet fully implemented.
-		// See https://github.com/snowplow/snowplow/issues/75
-		function logLink(targetUrl, elementId, elementClasses, elementTarget, context) {
-			var eventJson = {
-				schema: configBaseSchemaPath + '/link_click/jsonschema/1-0-0',
-				data: {
-					targetUrl: targetUrl,				
-					elementId: elementId,
-					elementClasses: elementClasses,
-					elementTarget: elementTarget
-				},
-			};
-
-			logUnstructEvent(eventJson, context);
+			core.trackEcommerceTransactionItem(orderId, sku, name, category, price, quantity, currency, context);
 		}
 
 		/*
@@ -883,7 +766,7 @@
 
 					// decodeUrl %xx
 					sourceHref = unescape(sourceHref);
-					logLink(sourceHref, elementId, elementClasses, elementTarget, context);
+					core.trackLinkClick(sourceHref, elementId, elementClasses, elementTarget, context);
 				}
 			}
 		}
@@ -1061,7 +944,7 @@
 			*/
 			setAppId: function (appId) {
 				helpers.warn('setAppId is deprecated. Instead add an "appId" field to the argmap argument of newTracker.');
-				configTrackerSiteId = appId;
+				core.setAppId(appId);
 			},
 
 			/**
@@ -1341,7 +1224,7 @@
 			*/
 			setPlatform: function(platform) {
 				helpers.warn('setPlatform is deprecated. Instead add a "platform" field to the argmap argument of newTracker.');
-				configPlatform = platform;
+				core.setPlatform(platform);
 			},
 
 			/**
@@ -1352,7 +1235,7 @@
 			*/
 			encodeBase64: function (enabled) {
 				helpers.warn('This usage of encodeBase64 is deprecated. Instead add an "encodeBase64" field to the argmap argument of newTracker.');
-				configEncodeBase64 = enabled;
+				core.setBase64Encoding(enabled);
 			},
 
 			/**
@@ -1381,7 +1264,7 @@
 			 * @param object Custom context relating to the event
 			 */
 			trackStructEvent: function (category, action, label, property, value, context) {
-				logStructEvent(category, action, label, property, value, context);
+				core.trackStructEvent(category, action, label, property, value, context);
 			},
 
 			/**
@@ -1391,7 +1274,7 @@
 			 * @param object context Custom context relating to the event
 			 */
 			trackUnstructEvent: function (eventJson, context) {
-				logUnstructEvent(eventJson, context);
+				core.trackUnstructEvent(eventJson, context);
 			},
 
 			/**
@@ -1484,10 +1367,6 @@
 				ecommerceTransaction = ecommerceTransactionTemplate();
 			},
 
-			// ---------------------------------------
-			// Next 2 track events not supported in
-			// Snowplow Enrichment process yet
-
 			/**
 			 * Manually log a click from your own code
 			 *
@@ -1500,7 +1379,7 @@
 			// TODO: break this into trackLink(destUrl) and trackDownload(destUrl)
 			trackLinkClick: function(targetUrl, elementId, elementClasses, elementTarget, context) {
 				trackCallback(function () {
-					logLink(targetUrl, elementId, elementClasses, elementTarget, context);
+					core.trackLinkClick(targetUrl, elementId, elementClasses, elementTarget, context);
 				});
 			},
 
@@ -1518,21 +1397,7 @@
 			 */			
 			trackAdImpression: function(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, context) {
 				trackCallback(function () {
-					var eventJson = {
-						schema: configBaseSchemaPath + '/ad_impression/jsonschema/1-0-0',
-						data: {
-							impressionId: impressionId,
-							costModel: costModel,						
-							cost: cost,
-							bannerId: bannerId,
-							targetUrl: targetUrl,
-							zoneId: zoneId,
-							advertiserId: advertiserId,
-							campaignId: campaignId
-						}
-					};
-
-					logUnstructEvent(eventJson, context);
+					core.trackAdImpression(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, context);
 				});
 			},
 			
@@ -1551,22 +1416,7 @@
 			 * @param object Custom context relating to the event
 			 */
 			trackAdClick: function(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, context) {
-				var eventJson = {
-					schema: configBaseSchemaPath + '/ad_click/jsonschema/1-0-0',
-					data: {
-						targetUrl: targetUrl,					
-						clickId: clickId,
-						costModel: costModel,					
-						cost: cost,
-						bannerId: bannerId,
-						zoneId: zoneId,
-						impressionId: impressionId,
-						advertiserId: advertiserId,
-						campaignId: campaignId
-					}
-				};
-
-				logUnstructEvent(eventJson, context);
+				core.trackAdClick(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, context);
 			},
 
 			/**
@@ -1584,22 +1434,7 @@
 			 * @param object Custom context relating to the event
 			 */
 			trackAdConversion: function(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, context) {
-				var eventJson = {
-					schema: configBaseSchemaPath + '/ad_conversion/jsonschema/1-0-0',
-					data: {
-						conversionId: conversionId,
-						costModel: costModel,					
-						cost: cost,
-						category: category,
-						action: action,
-						property: property,
-						initialValue: initialValue,
-						advertiserId: advertiserId,
-						campaignId: campaignId					
-					}
-				};
-
-				logUnstructEvent(eventJson, context);
+				core.trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, context);
 			}
 		}
 	}
