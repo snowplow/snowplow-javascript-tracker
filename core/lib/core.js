@@ -528,6 +528,31 @@ function trackerCore(base64, callback) {
 			};
 
 			return trackUnstructEvent(eventJson, context, tstamp);
+		},
+
+		/**
+		 * Track a social event
+		 *
+		 * @param string action Social action performed
+		 * @param string network Social network
+		 * @param string target Object of the social action e.g. the video liked, the tweet retweeted
+		 * @param string pagepath the URL of the page where the action occurred
+		 * @param array Custom contexts relating to the event
+		 * @param number tstamp Timestamp of the event
+		 * @return object Payload
+		 */
+		trackSocialInteraction: function (action, network, target, pagepath, context, tstamp) {
+			var eventJson = {
+				schema: 'iglu:com.snowplowanalytics.snowplow/social_interaction/jsonschema/1-0-0',
+				data: removeEmptyProperties({
+					action: action,
+					network: network,
+					target: target,
+					pagepath: pagepath
+				})
+			};
+
+			return trackUnstructEvent(eventJson, context, tstamp);
 		}
 	};
 }
