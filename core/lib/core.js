@@ -82,6 +82,7 @@ function trackerCore(base64, callback) {
 	 * @param sb object Payload
 	 * @param array contexts Custom contexts relating to the event
 	 * @param number tstamp Timestamp of the event
+	 * @return object Payload after the callback is applied
 	 */
 	function track(sb, context, tstamp) {
 		sb.addDict(payloadPairs);
@@ -91,12 +92,11 @@ function trackerCore(base64, callback) {
 			sb.addJson('cx', 'co', completeContexts(context));			
 		}
 		
-		var payload = sb.build();
 		if (typeof callback === 'function') {
-			callback(payload);
+			callback(sb);
 		}
 
-		return payload;
+		return sb;
 	}
 
 	/**

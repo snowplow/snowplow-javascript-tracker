@@ -24,6 +24,7 @@ define([
 	var tracker = core(false);
 
 	function compare(result, expected, message) {
+		result = result.build();
 		assert.ok(result['eid'], 'A UUID should be attached to all events');
 		delete result['eid'];
 		assert.ok(result['dtm'], 'A timestamp should be attached to all events');
@@ -310,7 +311,7 @@ define([
 		"Track a page view with a timestamp": function () {
 			var tstamp = 1000000000000;
 
-			assert.strictEqual(tracker.trackPageView('http://www.example.com', null, null, null, tstamp)['dtm'], tstamp, 'A timestamp should be attached correctly');
+			assert.strictEqual(tracker.trackPageView('http://www.example.com', null, null, null, tstamp).build()['dtm'], tstamp, 'A timestamp should be attached correctly');
 		},
 
 		"Add individual name-value pairs to the payload": function () {
