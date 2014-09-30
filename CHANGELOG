@@ -19,7 +19,7 @@ Replaced "Getting started" with Vagrant-using "Contributing quickstart" (#169) (
 Added async-large.html (#162) (TODO)
 Improved F rating for tracker.js in CodeClimate (#150) (TODO)
 Clarified scope of localStorage (#122) (TODO)
-Added addTo- and removeFrom- Basket events (#97) (TODO)
+Added trackAddToCart and trackRemoveFromCart events (#97)
 Added further Intern unit tests (#76) (TODO)
 Added social tracking features (#12)
 Improved efficiency of enableLinkClickTracking (#254)

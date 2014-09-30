@@ -1447,6 +1447,40 @@
 			 */
 			trackSocialInteraction: function(action, network, target, context) {
 				core.trackSocialInteraction(action, network, target, purify(configCustomUrl || locationHrefAlias), context);
+			},
+
+			/**
+			 * Track an add-to-cart event
+			 *
+			 * @param string sku Required. Item's SKU code.
+			 * @param string name Optional. Product name.
+			 * @param string category Optional. Product category.
+			 * @param string price Required. Product price.
+			 * @param string quantity Required. Quantity added.
+			 * @param string currency Optional. Product price currency.
+			 * @param array context Optional. Context relating to the event.
+			 * @param number tstamp Optional. Timestamp of the event
+			 * @return object Payload
+			 */
+			trackAddToCart: function(sku, name, category, price, quantity, currency, context) {
+				core.trackAddToCart(sku, name, category, price, quantity, currency);
+			},
+
+			/**
+			 * Track a remove-from-cart event
+			 *
+			 * @param string sku Required. Item's SKU code.
+			 * @param string name Optional. Product name.
+			 * @param string category Optional. Product category.
+			 * @param string price Required. Product price.
+			 * @param string quantity Required. Quantity removed.
+			 * @param string currency Optional. Product price currency.
+			 * @param array context Optional. Context relating to the event.
+			 * @param number tstamp Optional. Timestamp of the event
+			 * @return object Payload
+			 */
+			trackRemoveFromCart: function(sku, name, category, price, quantity, currency, context) {
+				core.trackRemoveFromCart(sku, name, category, price, quantity, currency);
 			}
 		}
 	}
