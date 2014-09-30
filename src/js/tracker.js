@@ -258,7 +258,10 @@
 		 * transaction and line items
 		 */
 		function ecommerceTransactionTemplate() {
-			return { transaction: {}, items: [] }
+			return {
+				transaction: {},
+				items: []
+			};
 		}
 
 		/*
@@ -390,10 +393,9 @@
 		 */
 		function getPageOffsets() {
 			var iebody = (documentAlias.compatMode && documentAlias.compatMode != "BackCompat") ?
-			               documentAlias.documentElement :
-			               documentAlias.body;
-			return [iebody.scrollLeft || windowAlias.pageXOffset,
-			       iebody.scrollTop || windowAlias.pageYOffset];
+				documentAlias.documentElement :
+				documentAlias.body;
+			return [iebody.scrollLeft || windowAlias.pageXOffset, iebody.scrollTop || windowAlias.pageYOffset];
 		}
 
 		/*
@@ -559,10 +561,10 @@
 		 * @return string collectorUrl The tracker URL with protocol
 		 */
 		function asCollectorUrl(rawUrl) {
-			if(forceSecureTracker)
+			if (forceSecureTracker)
 				return ('https' + '://' + rawUrl + '/i');
 			else
-				return ('https:' == documentAlias.location.protocol ? 'https' : 'http') + '://' + rawUrl + '/i';
+				return ('https:' === documentAlias.location.protocol ? 'https' : 'http') + '://' + rawUrl + '/i';
 		}
 
 		/**
@@ -648,15 +650,15 @@
 		/**
 		 * Log ecommerce transaction metadata
 		 *
-		 * @param string orderId 
-		 * @param string affiliation 
-		 * @param string total 
-		 * @param string tax 
-	 	 * @param string shipping 
+		 * @param string orderId
+		 * @param string affiliation
+		 * @param string total
+		 * @param string tax
+		 * @param string shipping
 		 * @param string city 
-	 	 * @param string state 
-	 	 * @param string country 
-	 	 * @param string currency The currency the total/tax/shipping are expressed in
+		 * @param string state
+		 * @param string country
+		 * @param string currency The currency the total/tax/shipping are expressed in
 		 * @param object context Custom context relating to the event
 		 */
 		function logTransaction(orderId, affiliation, total, tax, shipping, city, state, country, currency, context) {
@@ -1124,10 +1126,7 @@
 			 * @param int heartBeatDelay Seconds to wait between pings
 			 */
 			enableActivityTracking: function (minimumVisitLength, heartBeatDelay) {
-				
-				var now = new Date();
-
-				configMinimumVisitTime = now.getTime() + minimumVisitLength * 1000;
+				configMinimumVisitTime = new Date().getTime() + minimumVisitLength * 1000;
 				configHeartBeatTimer = heartBeatDelay * 1000;
 			},
 
@@ -1174,27 +1173,27 @@
 			 * 
 			 * @param string queryName Name of a querystring name-value pair
 			 */
-			 setUserIdFromLocation: function(querystringField) {
-			 	businessUserId = helpers.fromQuerystring(querystringField, locationHrefAlias);
-			 },
+			setUserIdFromLocation: function(querystringField) {
+				businessUserId = helpers.fromQuerystring(querystringField, locationHrefAlias);
+			},
 
 			/**
 			 * Set the business-defined user ID for this user using the referrer querystring.
 			 * 
 			 * @param string queryName Name of a querystring name-value pair
 			 */
-			 setUserIdFromReferrer: function(querystringField) {
-			 	businessUserId = helpers.fromQuerystring(querystringField, configReferrerUrl);
-			 },
+			setUserIdFromReferrer: function(querystringField) {
+				businessUserId = helpers.fromQuerystring(querystringField, configReferrerUrl);
+			},
 
 			/**
 			 * Set the business-defined user ID for this user to the value of a cookie.
 			 * 
 			 * @param string cookieName Name of the cookie whose value will be assigned to businessUserId
 			 */
-			 setUserIdFromCookie: function(cookieName) {
-			 	businessUserId = cookie.cookie(cookieName);
-			 },
+			setUserIdFromCookie: function(cookieName) {
+				businessUserId = cookie.cookie(cookieName);
+			},
 
 			/**
 			 * Configure this tracker to log to a CloudFront collector. 

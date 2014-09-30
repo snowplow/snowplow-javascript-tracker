@@ -194,40 +194,41 @@
 		 * Public data and methods
 		 ************************************************************/
 
-		 windowAlias.Snowplow = {
-		 	/**
-		 	* Returns a Tracker object, configured with a
-		 	* CloudFront collector.
-		 	*
-		 	* @param string distSubdomain The subdomain on your CloudFront collector's distribution
-		 	*/
-		 	getTrackerCf: function (distSubdomain) {
-		 		var t = new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
-		 		t.setCollectorCf(distSubdomain);
-		 		return t;
-		 	},
-		 
-		 	/**
-		 	* Returns a Tracker object, configured with the
-		 	* URL to the collector to use.
-		 	*
-		 	* @param string rawUrl The collector URL minus protocol and /i
-		 	*/
-		 	getTrackerUrl: function (rawUrl) {
-		 		var t = new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
-		 		t.setCollectorCf(rawUrl);
-		 		return t;
-		 	},
-		 
-		 	/**
-		 	* Get internal asynchronous tracker object
-		 	*
-		 	* @return Tracker
-		 	*/
-		 	getAsyncTracker: function () {
-		 		return new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
-		 	}
-		 };
+		windowAlias.Snowplow = {
+
+			/**
+			 * Returns a Tracker object, configured with a
+			 * CloudFront collector.
+			 *
+			 * @param string distSubdomain The subdomain on your CloudFront collector's distribution
+			 */
+			getTrackerCf: function (distSubdomain) {
+				var t = new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
+				t.setCollectorCf(distSubdomain);
+				return t;
+			},
+
+			/**
+			 * Returns a Tracker object, configured with the
+			 * URL to the collector to use.
+			 *
+			 * @param string rawUrl The collector URL minus protocol and /i
+			 */
+			getTrackerUrl: function (rawUrl) {
+				var t = new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
+				t.setCollectorCf(rawUrl);
+				return t;
+			},
+
+			/**
+			 * Get internal asynchronous tracker object
+			 *
+			 * @return Tracker
+			 */
+			getAsyncTracker: function () {
+				return new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
+			}
+		};
 
 		/************************************************************
 		 * Constructor
