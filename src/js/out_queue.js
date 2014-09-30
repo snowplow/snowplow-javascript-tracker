@@ -40,8 +40,7 @@
 		localStorageAccessible = require('./lib/detectors').localStorageAccessible(),
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
-	object.OutQueueManager = function(functionName, namespace) {
-
+	object.OutQueueManager = function (functionName, namespace) {
 		var	queueName = ['snowplowOutQueue', functionName, namespace].join('_'),
 			executingQueue = false,
 			configCollectorUrl,
@@ -64,7 +63,7 @@
 		 * Queue an image beacon for submission to the collector.
 		 * If we're not processing the queue, we'll start.
 		 */
-		function enqueueRequest(request, url) {
+		function enqueueRequest (request, url) {
 			outQueue.push(request);
 			configCollectorUrl = url;
 			if (localStorageAccessible) {
@@ -80,65 +79,40 @@
 		 * Run through the queue of image beacons, sending them one at a time.
 		 * Stops processing when we run out of queued requests, or we get an error.
 		 */
-		function executeQueue() {
+		function executeQueue () {
 			if (outQueue.length < 1) {
 				executingQueue = false;
 				return;
 			}
 
-			var nextRequest,
-				collectorUrl,
-				i;
+			// Let's check that we have a Url to ping
+			if (!lodash.isString(configCollectorUrl)) {
+				throw "No Snowplow collector configured, cannot track";
+			}
 
 			executingQueue = true;
 
-			for (i in outQueue) {
+			var nextRequest = outQueue[0];
+			var image = new Image(1, 1);
 
-				if (outQueue[i] && outQueue.hasOwnProperty(i)) {
-
-					nextRequest = outQueue[i];
-
-					// Let's check that we have a Url to ping
-					if (!lodash.isString(configCollectorUrl)) {
-						throw "No Snowplow collector configured, cannot track";
-					}
-
-					/*
-					 * Send image request to the Snowplow Collector using GET.
-					 * The Collector serves a transparent, single pixel (1x1) GIF
-					 * Use IIFE to close over i because i may change between setting image.onload and the image loading.
-					 */
-					(function(queueIndex) {
-						var image = new Image(1,1);
-
-						image.onload = function() {
-
-							// We succeeded, let's remove this request from the queue
-							delete outQueue[queueIndex];
-							if (localStorageAccessible) {
-								localStorage.setItem(queueName, json2.stringify(outQueue));
-							}
-							executeQueue();
-						}
-
-						image.onerror = function() {}
-
-						image.src = configCollectorUrl + nextRequest;
-
-					}(i));
+			image.onload = function () {
+				outQueue.shift();
+				if (localStorageAccessible) {
+					localStorage.setItem(queueName, json2.stringify(outQueue));
 				}
+				executeQueue();
 			}
 
-			executingQueue = false;
-
-			// If every request has been sent, set the queue to []
-			if (lodash.compact(outQueue).length === 0) {
-				outQueue = [];
+			image.onerror = function () {
+				executingQueue = false;
 			}
+
+			image.src = configCollectorUrl + nextRequest;
 		}
 
-		return  {
+		return {
 			enqueueRequest: enqueueRequest
-		}
+		};
 	}
+
 }());

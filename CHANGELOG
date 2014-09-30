@@ -1,7 +1,7 @@
 Version 2.1.0 (2014-xx-xx)
 --------------------------
 Added automated form submission tracking (#252) (TODO)
-Stopped outbound queue from triggering multiple times per event (#251) (TODO)
+Stopped outbound queue from triggering multiple times per event (#251)
 Changed default configCookiePath to "/" (#250)
 Added RUM / web performance context using HTML5 Web Performance API (#248) (TODO)
 Added ability to execute a custom callback once sp.js is loaded (#246)
