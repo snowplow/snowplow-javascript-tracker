@@ -161,7 +161,7 @@ function trackerCore(base64, callback) {
 		 * @param string version
 		 */
 		setTrackerVersion: function (version) {
-			addPayloadPair('tv', version)
+			addPayloadPair('tv', version);
 		},
 
 		/**
@@ -179,7 +179,7 @@ function trackerCore(base64, callback) {
 		 * @param string appId
 		 */
 		setAppId: function (appId) {
-			addPayloadPair('aid', appId)
+			addPayloadPair('aid', appId);
 		},
 
 		/**
@@ -253,7 +253,7 @@ function trackerCore(base64, callback) {
 		 * @param string appId
 		 */
 		setIpAddress: function (ip) {
-			addPayloadPair('ip', ip)
+			addPayloadPair('ip', ip);
 		},
 
 		trackUnstructEvent: trackUnstructEvent,
@@ -290,7 +290,7 @@ function trackerCore(base64, callback) {
 		 */
 		trackPagePing: function (pageUrl, pageTitle, referrer, minXOffset, maxXOffset, minYOffset, maxYOffset, context, tstamp) {
 			var sb = payload.payloadBuilder(base64);
-			sb.add('e', 'pp'); // 'pv' for Page View
+			sb.add('e', 'pp'); // 'pp' for Page Ping
 			sb.add('url', pageUrl);
 			sb.add('page', pageTitle);
 			sb.add('refr', referrer);
@@ -372,7 +372,7 @@ function trackerCore(base64, callback) {
 		 * @return object Payload
 		 */
 		trackEcommerceTransactionItem: function (orderId, sku, name, category, price, quantity, currency, context, tstamp) {
-			var sb = payload.payloadBuilder(base64)
+			var sb = payload.payloadBuilder(base64);
 			sb.add("e", "ti"); // 'tr' for Transaction Item
 			sb.add("ti_id", orderId);
 			sb.add("ti_sk", sku);
