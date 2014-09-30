@@ -553,6 +553,60 @@ function trackerCore(base64, callback) {
 			};
 
 			return trackUnstructEvent(eventJson, context, tstamp);
+		},
+
+		/**
+		 * Track an add-to-cart event
+		 *
+		 * @param string sku Required. Item's SKU code.
+		 * @param string name Optional. Product name.
+		 * @param string category Optional. Product category.
+		 * @param string price Required. Product price.
+		 * @param string quantity Required. Quantity added.
+		 * @param string currency Optional. Product price currency.
+		 * @param array context Optional. Context relating to the event.
+		 * @param number tstamp Optional. Timestamp of the event
+		 * @return object Payload
+		 */
+		trackAddToCart: function (sku, name, category, price, quantity, currency, context, tstamp) {
+			return trackUnstructEvent({
+				schema: 'iglu:com.snowplowanalytics.snowplow/add_to_cart/jsonschema/1-0-0',
+				data: removeEmptyProperties({
+					ti_sku: sku,
+					ti_name: name,
+					ti_category: category,
+					ti_price: price,
+					ti_quantity: quantity,
+					ti_currency: currency
+				})
+			}, context, tstamp);
+		},
+
+		/**
+		 * Track a remove-from-cart event
+		 *
+		 * @param string sku Required. Item's SKU code.
+		 * @param string name Optional. Product name.
+		 * @param string category Optional. Product category.
+		 * @param string price Required. Product price.
+		 * @param string quantity Required. Quantity removed.
+		 * @param string currency Optional. Product price currency.
+		 * @param array context Optional. Context relating to the event.
+		 * @param number tstamp Optional. Timestamp of the event
+		 * @return object Payload
+		 */
+		trackRemoveFromCart: function (sku, name, category, price, quantity, currency, context, tstamp) {
+			return trackUnstructEvent({
+				schema: 'iglu:com.snowplowanalytics.snowplow/remove_from_cart/jsonschema/1-0-0',
+				data: removeEmptyProperties({
+					ti_sku: sku,
+					ti_name: name,
+					ti_category: category,
+					ti_price: price,
+					ti_quantity: quantity,
+					ti_currency: currency
+				})
+			}, context, tstamp);
 		}
 	};
 }

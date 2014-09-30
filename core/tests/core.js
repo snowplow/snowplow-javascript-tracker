@@ -317,6 +317,69 @@ define([
 			compare(tracker.trackSocialInteraction(action, network, target, pagepath), expected);
 		},
 
+
+		"Track an add-to-cart event": function () {
+			var sku = '4q345';
+			var price = 17;
+			var quantity = 2;
+			var name = 'red shoes';
+			var category = 'clothing';
+			var currency = 'USD';
+
+			var inputJson = {
+				schema: 'iglu:com.snowplowanalytics.snowplow/add_to_cart/jsonschema/1-0-0',
+				data: {
+					ti_sku: sku,
+					ti_name: name,
+					ti_category: category,
+					ti_price: price,
+					ti_quantity: quantity,
+					ti_currency: currency
+				}
+			};
+
+			var expected = {
+				e: 'ue',
+				ue_pr: JSON.stringify({
+					schema: unstructEventSchema,
+					data: inputJson
+				})
+			};
+
+			compare(tracker.trackAddToCart(sku, name, category, price, quantity, currency), expected);
+		},
+
+		"Track a remove-from-cart event": function () {
+			var sku = '4q345';
+			var price = 17;
+			var quantity = 2;
+			var name = 'red shoes';
+			var category = 'clothing';
+			var currency = 'USD';
+
+			var inputJson = {
+				schema: 'iglu:com.snowplowanalytics.snowplow/remove_from_cart/jsonschema/1-0-0',
+				data: {
+					ti_sku: sku,
+					ti_name: name,
+					ti_category: category,
+					ti_price: price,
+					ti_quantity: quantity,
+					ti_currency: currency
+				}
+			};
+
+			var expected = {
+				e: 'ue',
+				ue_pr: JSON.stringify({
+					schema: unstructEventSchema,
+					data: inputJson
+				})
+			};
+
+			compare(tracker.trackRemoveFromCart(sku, name, category, price, quantity, currency), expected);
+		},
+
 		"Track a page view with custom context": function () {
 			var url = 'http://www.example.com';
 			var page = 'title page';
