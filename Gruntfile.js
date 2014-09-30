@@ -153,7 +153,6 @@ module.exports = function(grunt) {
           runType: 'client',
           config: 'tests/intern.js',
           suites: [
-            'tests/nonfunctional/payload.js',
             'tests/nonfunctional/in_queue.js',
             'tests/nonfunctional/proxies.js'
             ]
