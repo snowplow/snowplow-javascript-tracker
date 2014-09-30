@@ -1435,6 +1435,18 @@
 			 */
 			trackAdConversion: function(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, context) {
 				core.trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, context);
+			},
+
+			/**
+			 * Track a social interaction event
+			 *
+			 * @param string action (required) Social action performed
+			 * @param string network (required) Social network
+			 * @param string target Object of the social action e.g. the video liked, the tweet retweeted
+			 * @param object Custom context relating to the event
+			 */
+			trackSocialInteraction: function(action, network, target, context) {
+				core.trackSocialInteraction(action, network, target, purify(configCustomUrl || locationHrefAlias), context);
 			}
 		}
 	}
