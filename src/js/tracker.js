@@ -320,12 +320,15 @@
 
 		/*
 		 * Convert a dictionary to a querystring
+		 * The context field is the last in the querystring
 		 */
 		function getQuerystring(request) {
 			var querystring = '?',
+				lowPriorityKeys = {'co': true, 'cx': true},
 				firstPair = true;
+
 			for (var key in request) {
-				if (request.hasOwnProperty(key)) {
+				if (request.hasOwnProperty(key) && !(lowPriorityKeys.hasOwnProperty(key))) {
 					if (!firstPair) {
 						querystring += '&';
 					} else {
@@ -334,6 +337,13 @@
 					querystring += encodeURIComponent(key) + '=' + encodeURIComponent(request[key]);
 				}
 			}
+
+			for (var contextKey in lowPriorityKeys) {
+				if (request.hasOwnProperty(contextKey)  && lowPriorityKeys.hasOwnProperty(contextKey)) {
+					querystring += '&' + contextKey + '=' + request[contextKey];
+				}
+			}
+
 			return querystring;
 		}
 
