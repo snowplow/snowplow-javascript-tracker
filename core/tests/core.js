@@ -290,6 +290,33 @@ define([
 			compare(tracker.trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId), expected, 'An ad conversion should be tracked correctly');
 		},
 
+		"Track a social interaction": function () {
+			var action = 'like';
+			var network = 'facebook';
+			var target = 'status-0000345345';
+			var pagepath = 'http://www.mypage.com';
+
+			var inputJson = {
+				schema: 'iglu:com.snowplowanalytics.snowplow/social_interaction/jsonschema/1-0-0',
+				data: {
+					action: action,
+					network: network,
+					target: target,
+					pagepath: pagepath
+				}
+			};
+
+			var expected = {
+				e: 'ue',
+				ue_pr: JSON.stringify({
+					schema: unstructEventSchema,
+					data: inputJson
+				})
+			};
+
+			compare(tracker.trackSocialInteraction(action, network, target, pagepath), expected);
+		},
+
 		"Track a page view with custom context": function () {
 			var url = 'http://www.example.com';
 			var page = 'title page';
