@@ -51,10 +51,14 @@ define([
 			var expected = {
 				e: 'pp',
 				url: url,
-				refr: referer
+				refr: referer,
+				pp_mix: 1,
+				pp_max: 2,
+				pp_miy: 3,
+				pp_may: 4
 			};
 
-			compare(tracker.trackPagePing(url, null, referer), expected, 'A page ping should be tracked correctly');
+			compare(tracker.trackPagePing(url, null, referer, 1, 2, 3, 4), expected, 'A page ping should be tracked correctly');
 		},
 
 		"Track a structured event": function () {

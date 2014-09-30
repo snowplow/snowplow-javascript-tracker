@@ -280,16 +280,24 @@ function trackerCore(base64, callback) {
 		 * by sending a page ping.
 		 *
 		 * @param string pageTitle The page title to attach to this page ping
+		 * @param minxoffset Minimum page x offset seen in the last ping period
+		 * @param maxXOffset Maximum page x offset seen in the last ping period
+		 * @param minYOffset Minimum page y offset seen in the last ping period
+		 * @param maxYOffset Maximum page y offset seen in the last ping period
 		 * @param array context Custom contexts relating to the event
 		 * @param number tstamp Timestamp of the event
 		 * @return object Payload
 		 */
-		trackPagePing: function (pageUrl, pageTitle, referrer, context, tstamp) {
+		trackPagePing: function (pageUrl, pageTitle, referrer, minXOffset, maxXOffset, minYOffset, maxYOffset, context, tstamp) {
 			var sb = payload.payloadBuilder(base64);
 			sb.add('e', 'pp'); // 'pv' for Page View
 			sb.add('url', pageUrl);
 			sb.add('page', pageTitle);
 			sb.add('refr', referrer);
+			sb.add('pp_mix', minXOffset);
+			sb.add('pp_max', maxXOffset);
+			sb.add('pp_miy', minYOffset);
+			sb.add('pp_may', maxYOffset);
 
 			return track(sb, context, tstamp);
 		},
