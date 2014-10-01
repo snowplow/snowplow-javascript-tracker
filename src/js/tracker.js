@@ -228,7 +228,15 @@
 			// Will be committed, sent and emptied by a call to trackTrans.
 			ecommerceTransaction = ecommerceTransactionTemplate(),
 
+			// Element types relevant to form tracking
+			formTrackingNodeNames = {
+				'INPUT': true,
+				'TEXTAREA': true,
+				'SELECT': true
+			},
+
 			outQueueManager = new requestQueue.OutQueueManager(functionName, namespace);
+
 
 		// Enable base 64 encoding for unstructured events and custom contexts
 		core.setBase64Encoding(argmap.hasOwnProperty('encodeBase64') ? argmap.encodeBase64 : true);
@@ -904,6 +912,93 @@
 			}
 		}
 
+		/*
+		 * Get an identifier for a form, input, textarea, or select element
+		 */
+		function getFormElementName(elt) {
+			return elt.name || elt.id || elt.type || elt.nodeName;
+		}
+
+		/*
+		 * Identifies the parent form in which an element is contained
+		 */
+		function getParentFormName(elt) {
+			while (elt && elt.nodeName.toUpperCase() !== 'HTML' && elt.nodeName.toUpperCase() !== 'FORM') {
+				elt = elt.parentNode;
+			}
+			if (elt.nodeName.toUpperCase() === 'FORM') {
+				return getFormElementName(elt);
+			}
+		}
+
+		/*
+		 * Returns a list of the input, textarea, and select elements inside a form along with their values
+		 */
+		function getInnerFormElements(elt) {
+			return lodash.map(lodash.filter(elt.children, function (child) {
+
+				// Only include mutable inner elements
+				return formTrackingNodeNames[child.nodeName.toUpperCase()] && child.type !== 'submit';
+			}), function (child) {
+				var elementJson = {
+					name: getFormElementName(child),
+					value: child.value,
+					nodeName: child.nodeName,
+				};
+				if (child.type && child.nodeName.toUpperCase() === 'INPUT') {
+					elementJson.type = child.type;
+				}
+				return elementJson;
+			});
+		}
+
+		/*
+		 * Return function to handle form field change event
+		 */
+		function getFormChangeListener(context) {
+			return function (e) {
+				var elt = e.target;
+				var type = elt.nodeName.toUpperCase() === 'INPUT' ? elt.type : null;
+				core.trackFormChange(getParentFormName(elt), getFormElementName(elt), elt.nodeName, type, lodash.map(elt.classList), elt.value, context);
+			};
+		}
+
+		/*
+		 * Return function to handle form submission event
+		 */
+		function getFormSubmissionListener(context) {
+			return function (e) {
+				var elt = e.target;
+				var innerElements = getInnerFormElements(elt);
+				core.trackFormSubmission(getFormElementName(elt), lodash.map(elt.classList), innerElements, context);
+			};
+		}
+
+		/*
+		 * Add submission event listeners to all form elements
+		 * Add value change event listeners to all mutable inner form elements
+		 */
+		function addFormListeners (context) {
+			var innerElementTags = ['textarea', 'input', 'select'];
+			var trackingMarker = trackerId + 'form';
+
+			lodash.map(innerElementTags, function (tagname) {
+				lodash.map(document.getElementsByTagName(tagname), function (innerElement) {
+					if (!innerElement[trackingMarker]) {
+						helpers.addEventListener(innerElement, 'change', getFormChangeListener(context), false);
+						innerElement[trackingMarker] = true;
+					}
+				});
+			});
+
+			lodash.map(document.getElementsByTagName('form'), function (form) {
+				if (!form[trackingMarker]) {
+					helpers.addEventListener(form, 'submit', getFormSubmissionListener(context));
+					form[trackingMarker] = true;
+				}
+			});
+		}
+
 		/************************************************************
 		 * Constructor
 		 ************************************************************/
@@ -1138,6 +1233,23 @@
 			enableActivityTracking: function (minimumVisitLength, heartBeatDelay) {
 				configMinimumVisitTime = new Date().getTime() + minimumVisitLength * 1000;
 				configHeartBeatTimer = heartBeatDelay * 1000;
+			},
+
+			/**
+			 * Enables automatic form tracking.
+			 * An event will be fired when a form field is changed or a form submitted.
+			 * This can be called multiple times: only forms not already tracked will be tracked.
+			 *
+			 * @param array context Context for all form tracking events
+			 */
+			enableFormTracking: function (context) {
+				if (mutSnowplowState.hasLoaded) {
+					addFormListeners(context);
+				} else {
+					mutSnowplowState.registeredOnLoadHandlers.push(function () {
+						addFormListeners(context);
+					});
+				}
 			},
 
 			/**
