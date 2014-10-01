@@ -47,12 +47,14 @@ function trackerCore(base64, callback) {
 	 * Returns a copy of a JSON with undefined and null properties removed
 	 *
 	 * @param object eventJson JSON to clean
+	 * @param object exemptFields Set of fields which should not be removed even if empty
 	 * @return object A cleaned copy of eventJson
 	 */
-	function removeEmptyProperties(eventJson) {
+	function removeEmptyProperties(eventJson, exemptFields) {
 		var ret = {};
+		exemptFields = exemptFields || {};
 		for (var k in eventJson) {
-			if (eventJson[k] !== null && typeof eventJson[k] !== 'undefined') {
+			if (exemptFields[k] || (eventJson[k] !== null && typeof eventJson[k] !== 'undefined')) {
 				ret[k] = eventJson[k];
 			}
 		}
@@ -605,6 +607,50 @@ function trackerCore(base64, callback) {
 					ti_price: price,
 					ti_quantity: quantity,
 					ti_currency: currency
+				})
+			}, context, tstamp);
+		},
+
+		/**
+		 * @param string formId The parent form ID
+		 * @param string elementId ID of the changed element
+		 * @param string nodeName "INPUT", "TEXTAREA", or "SELECT"
+		 * @param string type Type of the changed element if its type is "INPUT"
+		 * @param array elementClasses List of classes of the changed element
+		 * @param string value The new value of the changed element
+		 * @param array context Optional. Context relating to the event.
+		 * @param number tstamp Optional. Timestamp of the event
+		 * @return object Payload
+		 */
+		trackFormChange: function(formId, elementId, nodeName, type, elementClasses, value, context, tstamp) {
+			return trackUnstructEvent({
+				schema: 'iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0',
+				data: removeEmptyProperties({
+					formId: formId,
+					elementId: elementId,
+					nodeName: nodeName,
+					type: type,
+					elementClasses: elementClasses,
+					value: value
+				}, {'value': true})
+			}, context, tstamp);
+		},
+
+		/**
+		 * @param string formId ID of the form
+		 * @param array formClasses Classes of the form
+		 * @param array elements Mutable elements within the form
+		 * @param array context Optional. Context relating to the event.
+		 * @param number tstamp Optional. Timestamp of the event
+		 * @return object Payload
+		 */
+		trackFormSubmission: function(formId, formClasses, elements, context, tstamp) {
+			return trackUnstructEvent({
+				schema: 'iglu:com.snowplowanalytics.snowplow/submit_form/jsonschema/1-0-0',
+				data: removeEmptyProperties({
+					formId: formId,
+					formClasses: formClasses,
+					elements: elements
 				})
 			}, context, tstamp);
 		}
