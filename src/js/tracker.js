@@ -589,12 +589,21 @@
 		 * Log the page view / visit
 		 *
 		 * @param string customTitle The user-defined page title to attach to this page view
+		 * @param bool performanceTracking Whether to create a custom context with performance.timing data
 		 * @param object context Custom context relating to the event
 		 */
-		function logPageView(customTitle, context) {
+		function logPageView(customTitle, performanceTracking, context) {
 
 			// Fixup page title. We'll pass this to logPagePing too.
 			var pageTitle = helpers.fixupTitle(customTitle || configTitle);
+
+			if (performanceTracking && windowAlias.performance && windowAlias.performance.timing) {
+				context = context || [];
+				context.push({
+					schema: 'iglu:org.w3/PerformanceTiming/jsonschema/1-0-0',
+					data: windowAlias.performance.timing
+				});
+			}
 
 			// Log page view
 			core.trackPageView(purify(configCustomUrl || locationHrefAlias), pageTitle, purify(configReferrerUrl), context);
@@ -1351,7 +1360,7 @@
 			*
 			* Enable Base64 encoding for unstructured event payload
 			*
-			* @param boolean enabled A boolean value indicating if the Base64 encoding for unstructured events should be enabled or not
+			* @param bool enabled A boolean value indicating if the Base64 encoding for unstructured events should be enabled or not
 			*/
 			encodeBase64: function (enabled) {
 				helpers.warn('This usage of encodeBase64 is deprecated. Instead add an "encodeBase64" field to the argmap argument of newTracker.');
@@ -1362,11 +1371,13 @@
 			 * Log visit to this page
 			 *
 			 * @param string customTitle
+			 * @param bool performanceTracking Whether to create a custom context with performance.timing data
 			 * @param object Custom context relating to the event
 			 */
-			trackPageView: function (customTitle, context) {
+			trackPageView: function (customTitle, performanceTracking, context) {
+				console.log(window.performance.timing.domContentLoadedEventEnd- window.performance.timing.navigationStart);
 				trackCallback(function () {
-					logPageView(customTitle, context);
+					logPageView(customTitle, performanceTracking, context);
 				});
 			},
 

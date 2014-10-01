@@ -38,7 +38,7 @@
         window.snowplow('enableActivityTracking', 10, 10); // Ping every 10 seconds after 10 seconds
         window.snowplow('enableLinkClickTracking', {blacklist: ['barred']}, true); // Track clicks on links whose class is not "barred"
         // window.snowplow('trackPageView', 'Async Test'); // Track the page view with custom title
-        window.snowplow('trackPageView', null , [ // Auto-set page title; add page context
+        window.snowplow('trackPageView', null , true, [ // Auto-set page title; add page context
           {
             schema: "iglu:com.example_company/page/jsonschema/1-2-1",
             data: {
