@@ -190,6 +190,9 @@
 			// Whether pseudo clicks are tracked
 			linkTrackingPseudoClicks,
 
+			// Whether to track the  innerHTML of clicked links
+			linkTrackingContent,
+
 			// The context attached to link click events
 			linkTrackingContext,
 
@@ -773,7 +776,8 @@
 				tag,
 				elementId,
 				elementClasses,
-				elementTarget;
+				elementTarget,
+				elementContent;
 
 			while ((parentElement = sourceElement.parentNode) !== null &&
 					!lodash.isUndefined(parentElement) && // buggy IE5.5
@@ -794,10 +798,11 @@
 					elementId = sourceElement.id;
 					elementClasses = lodash.map(sourceElement.classList);
 					elementTarget = sourceElement.target;
+					elementContent = linkTrackingContent ? sourceElement.innerHTML : null;
 
 					// decodeUrl %xx
 					sourceHref = unescape(sourceHref);
-					core.trackLinkClick(sourceHref, elementId, elementClasses, elementTarget, context);
+					core.trackLinkClick(sourceHref, elementId, elementClasses, elementTarget, elementContent, context);
 				}
 			}
 		}
@@ -883,12 +888,13 @@
 		 * Configures link click tracking: how to filter which links will be tracked,
 		 * whether to use pseudo click tracking, and what context to attach to link_click events
 		 */
-		function configureLinkClickTracking(criterion, pseudoClicks, context) {
+		function configureLinkClickTracking(criterion, pseudoClicks, trackContent, context) {
 			var specifiedClasses,
 				inclusive,
 				specifiedClassesSet,
 				i;
 
+			linkTrackingContent = trackContent;
 			linkTrackingContext = context;
 			linkTrackingPseudoClicks = pseudoClicks;
 
@@ -1212,16 +1218,18 @@
 			 * 
 			 * @param object criterion Criterion by which it will be decided whether a link will be tracked
 			 * @param bool pseudoClicks If true, use pseudo click-handler (mousedown+mouseup)
+			 * @param bool trackContent Whether to track the innerHTML of the link element
+			 * @param array context Context for all link click events
 			 */
-			enableLinkClickTracking: function (criterion, pseudoClicks, context) {
+			enableLinkClickTracking: function (criterion, pseudoClicks, trackContent, context) {
 				if (mutSnowplowState.hasLoaded) {
 					// the load event has already fired, add the click listeners now
-					configureLinkClickTracking(criterion, pseudoClicks, context);
+					configureLinkClickTracking(criterion, pseudoClicks, trackContent, context);
 					addClickListeners();
 				} else {
 					// defer until page has loaded
 					mutSnowplowState.registeredOnLoadHandlers.push(function () {
-						configureLinkClickTracking(criterion, pseudoClicks, context);
+						configureLinkClickTracking(criterion, pseudoClicks, trackContent, context);
 						addClickListeners();
 					});
 				}
