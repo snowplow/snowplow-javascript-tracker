@@ -142,13 +142,15 @@ define([
 			var targetUrl = 'http://www.example.com';
 			var elementId = 'first header';
 			var elementClasses = ['header'];
+			var elementContent = 'link';
 
 			var inputJson = {
 				schema: 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-0',
 				data: {
 					targetUrl: targetUrl,
 					elementId: elementId,
-					elementClasses: elementClasses
+					elementClasses: elementClasses,
+					elementContent: elementContent
 				}
 			};
 			var expected = {
@@ -159,7 +161,7 @@ define([
 				})
 			};
 
-			compare(tracker.trackLinkClick(targetUrl, elementId, elementClasses), expected, 'A link click should be tracked correctly');
+			compare(tracker.trackLinkClick(targetUrl, elementId, elementClasses, null, elementContent), expected, 'A link click should be tracked correctly');
 		},
 
 		"Track a screen view": function () {

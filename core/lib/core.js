@@ -408,22 +408,24 @@ function trackerCore(base64, callback) {
 		/**
 		 * Log the link or click with the server
 		 *
+		 * @param string targetUrl
 		 * @param string elementId
 		 * @param array elementClasses
 		 * @param string elementTarget
-		 * @param string targetUrl
+		 * @param string elementContent innerHTML of the link
 		 * @param array context Custom contexts relating to the event
 		 * @param number tstamp Timestamp of the event
 		 * @return object Payload
 		 */
-		trackLinkClick:  function (targetUrl, elementId, elementClasses, elementTarget, context, tstamp) {
+		trackLinkClick:  function (targetUrl, elementId, elementClasses, elementTarget, elementContent, context, tstamp) {
 			var eventJson = {
 				schema: 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-0',
 				data: removeEmptyProperties({
 					targetUrl: targetUrl,
 					elementId: elementId,
 					elementClasses: elementClasses,
-					elementTarget: elementTarget
+					elementTarget: elementTarget,
+					elementContent: elementContent
 				}),
 			};
 
@@ -612,6 +614,8 @@ function trackerCore(base64, callback) {
 		},
 
 		/**
+		 * Track the value of a form field changing
+		 *
 		 * @param string formId The parent form ID
 		 * @param string elementId ID of the changed element
 		 * @param string nodeName "INPUT", "TEXTAREA", or "SELECT"
@@ -637,6 +641,8 @@ function trackerCore(base64, callback) {
 		},
 
 		/**
+		 * Track a form submission event
+		 *
 		 * @param string formId ID of the form
 		 * @param array formClasses Classes of the form
 		 * @param array elements Mutable elements within the form
