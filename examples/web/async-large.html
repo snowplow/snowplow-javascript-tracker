@@ -37,6 +37,7 @@
         window.snowplow_1('setCustomUrl', '/overridden-url/'); // Override the page URL
         window.snowplow_1('enableActivityTracking', 10, 10); // Ping every 10 seconds after 10 seconds
         window.snowplow_1('enableLinkClickTracking', {blacklist: ['barred']}, true); // Track clicks on links whose class is not "barred"
+        window.snowplow_1('enableFormTracking'); // Track changes to form fields and form submissions
         // window.snowplow_1('trackPageView', 'Async Test'); // Track the page view with custom title
         window.snowplow_1('trackPageView', null , false, [ // Auto-set page title; add page context
           {
@@ -164,7 +165,41 @@
           // trackTrans sends the transaction to Snowplow tracking servers.
           // Must be called last to commit the transaction.
           window.snowplow_1('trackTrans');
+        }
 
+        function addToCart () {
+          alert('adding some items to the cart');
+          window.snowplow_1('trackAddToCart',
+            'Blue hat',     // SKU - required
+            'clothing',     // category
+            500,            // price - required
+            2,              // quantity added - required
+            'GBP'           // currency
+          );
+        }
+
+        function removeFromCart () {
+          alert('removing an item from the cart');
+          window.snowplow_1('trackRemoveFromCart', '1008', 'Blue hat', 'clothing', '500', '1', 'GBP');
+        }
+
+        function likeVideo () {
+          alert('tracking a social interaction')
+          window.snowplow_1('trackSocialInteraction',
+            'like',          // action - required
+            'facebook',      // network - required
+            'video-003254'   // target of action
+          );
+        }
+
+        function searchSite () {
+          alert('Searching the site');
+          window.snowplow_1('trackSiteSearch',
+            ['event', 'analytics'],            // search terms - required
+            ['books', 'safe search'],          // search filters
+            15,                                // number of results returned
+            10                                 // number of results displayed on page
+          );
         }
     </script>
 </head>
@@ -176,12 +211,27 @@
         <button type="button" onclick="playMix()">Play a mix</button><br>
         <button type="button" onclick="addProduct()">Add a product</button><br>
         <button type="button" onclick="viewProduct()">View a product</button><br>
-        <button type="button" onclick="addEcommerceTransaction()">Add an ecommerce transaction</button>
+        <button type="button" onclick="addEcommerceTransaction()">Add an ecommerce transaction</button><br>
+        <button type="button" onclick="addToCart()">Add item to cart</button><br>
+        <button type="button" onclick="removeFromCart()">Remove item from cart</button><br>
+        <button type="button" onclick="likeVideo()">Like a video</button><br>
+        <button type="button" onclick="searchSite()">Search the site</button>
     </p>
     <p>Warning: if your browser's Do Not Track feature is enabled and respectDoNotTrack is not commented out, all tracking will be prevented.</p>
     <a href=http://en.wikipedia.org/wiki/Main_Page id=legal target="_blank" class="link out">Link</a>
     <br>
-    <a href=http://en.wikipedia.org/wiki/Main_Page id=illegal class="class barred">Ignored link</a>
+    <a href=http://en.wikipedia.org/wiki/Main_Page id=illegal class="class barred">Link ignored by one user</a>
+<br><br>
+    <div>
+    <form id="signup">
+      <fieldset>
+        <input name="gender" type="radio" value="Male"></input>Male<br>
+        <input name="gender" type="radio" value="female"></input>Female<br>
+        <input name="name" type="text" placeholder="Name"></input><br>
+        <textarea name="other" placeholder="Other information"></textarea>
+      </fieldset>
+    </form>
+    </div>
 
 </body>
 
