@@ -207,6 +207,7 @@
 <body>
     <h1>Large_asynchronous_examples_for_snowplow.js</h1>
     <h2>This shows how two users can simultaneously use Snowplow on the same page without any clash</h2>
+    <p>Warning: if your browser's Do Not Track feature is enabled and respectDoNotTrack is not commented out, all tracking will be prevented.</p>
     <p>Press the buttons below to trigger individual tracking events:<br>
         <button type="button" onclick="playMix()">Play a mix</button><br>
         <button type="button" onclick="addProduct()">Add a product</button><br>
@@ -217,21 +218,31 @@
         <button type="button" onclick="likeVideo()">Like a video</button><br>
         <button type="button" onclick="searchSite()">Search the site</button>
     </p>
-    <p>Warning: if your browser's Do Not Track feature is enabled and respectDoNotTrack is not commented out, all tracking will be prevented.</p>
-    <a href=http://en.wikipedia.org/wiki/Main_Page id=legal target="_blank" class="link out">Link</a>
-    <br>
-    <a href=http://en.wikipedia.org/wiki/Main_Page id=illegal class="class barred">Link ignored by one user</a>
-<br><br>
-    <div>
-    <form id="signup">
-      <fieldset>
-        <input name="gender" type="radio" value="Male"></input>Male<br>
-        <input name="gender" type="radio" value="female"></input>Female<br>
-        <input name="name" type="text" placeholder="Name"></input><br>
-        <textarea name="other" placeholder="Other information"></textarea>
-      </fieldset>
-    </form>
-    </div>
+    <p>
+      Middle click the links to trigger link click tracking:<br>
+      <a href=http://en.wikipedia.org/wiki/Main_Page id=legal target="_blank" class="link out">Link</a>
+      <br>
+      <a href=http://en.wikipedia.org/wiki/Main_Page id=illegal class="class barred">Link ignored by one user</a>
+    </p>
+
+    <p>
+      Fill in the form fields and click the button to trigger form tracking:
+      <form id="signup" onsubmit="return false">
+        <fieldset>
+          <input name="gender" type="radio" value="Male"></input>Male<br>
+          <input name="gender" type="radio" value="Female"></input>Female<br>
+          <select name="color">
+            <option>Red</option>
+            <option>Green</option>
+            <option>Mauve</option>
+          </select><br>
+          <input name="name" type="text" placeholder="Name"></input><br>
+          <textarea name="other" placeholder="Other information"></textarea><br>
+          <input type="checkbox" name="email" value="on">Add me to the mailing list
+        </fieldset>
+        <input type="submit" value="Submit"></input>
+      </form>
+    </p>
 
 </body>
 
