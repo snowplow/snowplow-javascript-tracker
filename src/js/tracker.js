@@ -231,12 +231,8 @@
 			// Will be committed, sent and emptied by a call to trackTrans.
 			ecommerceTransaction = ecommerceTransactionTemplate(),
 
-			// Element types relevant to form tracking
-			formTrackingNodeNames = {
-				'INPUT': true,
-				'TEXTAREA': true,
-				'SELECT': true
-			},
+			// Tag names of mutable elements inside a form
+			innerElementTags = ['textarea', 'input', 'select'],
 
 			outQueueManager = new requestQueue.OutQueueManager(functionName, namespace);
 
@@ -934,7 +930,12 @@
 		 * Get an identifier for a form, input, textarea, or select element
 		 */
 		function getFormElementName(elt) {
-			return elt.name || elt.id || elt.type || elt.nodeName;
+			return elt[lodash.find(['name', 'id', 'type', 'nodeName'], function (propName) {
+
+				 // If elt has a child whose name is "id", that element will be returned
+				 // instead of the actual id of elt unless we ensure that a string is returned
+				return typeof elt[propName] === 'string';
+			})];
 		}
 
 		/*
@@ -953,21 +954,29 @@
 		 * Returns a list of the input, textarea, and select elements inside a form along with their values
 		 */
 		function getInnerFormElements(elt) {
-			return lodash.map(lodash.filter(elt.children, function (child) {
+			var innerElements = [];
+			var formElements = lodash.map(innerElementTags, function (tagname) {
+				lodash.map(elt.getElementsByTagName(tagname), function (child) {
+					if (child.type === 'submit') {
+						return;
+					}
+					var elementJson = {
+						name: getFormElementName(child),
+						value: child.value,
+						nodeName: child.nodeName,
+					};
+					if (child.type && child.nodeName.toUpperCase() === 'INPUT') {
+						elementJson.type = child.type;
+					}
 
-				// Only include mutable inner elements
-				return formTrackingNodeNames[child.nodeName.toUpperCase()] && child.type !== 'submit';
-			}), function (child) {
-				var elementJson = {
-					name: getFormElementName(child),
-					value: child.value,
-					nodeName: child.nodeName,
-				};
-				if (child.type && child.nodeName.toUpperCase() === 'INPUT') {
-					elementJson.type = child.type;
-				}
-				return elementJson;
+					if ((child.type === 'checkbox' || child.type === 'radio') && !child.checked) {
+						elementJson.value = null;
+					}
+					innerElements.push(elementJson);
+				});
 			});
+
+			return innerElements;
 		}
 
 		/*
@@ -977,7 +986,8 @@
 			return function (e) {
 				var elt = e.target;
 				var type = elt.nodeName.toUpperCase() === 'INPUT' ? elt.type : null;
-				core.trackFormChange(getParentFormName(elt), getFormElementName(elt), elt.nodeName, type, lodash.map(elt.classList), elt.value, context);
+				var value = (elt.type === 'checkbox' && !elt.checked) ? null : elt.value;
+				core.trackFormChange(getParentFormName(elt), getFormElementName(elt), elt.nodeName, type, lodash.map(elt.classList), value, context);
 			};
 		}
 
@@ -997,7 +1007,6 @@
 		 * Add value change event listeners to all mutable inner form elements
 		 */
 		function addFormListeners (context) {
-			var innerElementTags = ['textarea', 'input', 'select'];
 			var trackingMarker = trackerId + 'form';
 
 			lodash.map(innerElementTags, function (tagname) {
