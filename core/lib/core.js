@@ -659,6 +659,29 @@ function trackerCore(base64, callback) {
 					elements: elements
 				})
 			}, context, tstamp);
+		},
+
+		/**
+		 * Track an internal search event
+		 *
+		 * @param array terms Search terms
+		 * @param array filters Search filters
+		 * @param totalResults Number of results
+		 * @param pageResults Number of results displayed on page
+		 * @param array context Optional. Context relating to the event.
+		 * @param number tstamp Optional. Timestamp of the event
+		 * @return object Payload
+		 */
+		trackSiteSearch: function(terms, filters, totalResults, pageResults, context, tstamp) {
+			return trackUnstructEvent({
+				schema: 'iglu:com.snowplowanalytics.snowplow/site_search/jsonschema/1-0-0',
+				data: removeEmptyProperties({
+					terms: terms,
+					filters: filters,
+					totalResults: totalResults,
+					pageResults: pageResults
+				})
+			}, context, tstamp);
 		}
 	};
 }
