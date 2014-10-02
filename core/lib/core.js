@@ -419,7 +419,7 @@ function trackerCore(base64, callback) {
 		 */
 		trackLinkClick:  function (targetUrl, elementId, elementClasses, elementTarget, elementContent, context, tstamp) {
 			var eventJson = {
-				schema: 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-0',
+				schema: 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1',
 				data: removeEmptyProperties({
 					targetUrl: targetUrl,
 					elementId: elementId,
