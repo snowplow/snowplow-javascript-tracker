@@ -597,12 +597,15 @@
 			// Fixup page title. We'll pass this to logPagePing too.
 			var pageTitle = helpers.fixupTitle(customTitle || configTitle);
 
-			if (performanceTracking && windowAlias.performance && windowAlias.performance.timing) {
-				context = context || [];
-				context.push({
-					schema: 'iglu:org.w3/PerformanceTiming/jsonschema/1-0-0',
-					data: windowAlias.performance.timing
-				});
+			if (performanceTracking) {
+				var performance = windowAlias.performance || windowAlias.mozPerformance || windowAlias.msPerformance || windowAlias.webkitPerformance;
+				if (performance) {
+					context = context || [];
+					context.push({
+						schema: 'iglu:org.w3/PerformanceTiming/jsonschema/1-0-0',
+						data: performance.timing
+					});
+				}
 			}
 
 			// Log page view
@@ -1375,7 +1378,6 @@
 			 * @param object Custom context relating to the event
 			 */
 			trackPageView: function (customTitle, performanceTracking, context) {
-				console.log(window.performance.timing.domContentLoadedEventEnd- window.performance.timing.navigationStart);
 				trackCallback(function () {
 					logPageView(customTitle, performanceTracking, context);
 				});
