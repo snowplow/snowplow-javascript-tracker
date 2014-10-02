@@ -1600,8 +1600,6 @@
 			 * @param string quantity Required. Quantity added.
 			 * @param string currency Optional. Product price currency.
 			 * @param array context Optional. Context relating to the event.
-			 * @param number tstamp Optional. Timestamp of the event
-			 * @return object Payload
 			 */
 			trackAddToCart: function(sku, name, category, price, quantity, currency, context) {
 				core.trackAddToCart(sku, name, category, price, quantity, currency);
@@ -1617,11 +1615,22 @@
 			 * @param string quantity Required. Quantity removed.
 			 * @param string currency Optional. Product price currency.
 			 * @param array context Optional. Context relating to the event.
-			 * @param number tstamp Optional. Timestamp of the event
-			 * @return object Payload
 			 */
 			trackRemoveFromCart: function(sku, name, category, price, quantity, currency, context) {
 				core.trackRemoveFromCart(sku, name, category, price, quantity, currency);
+			},
+
+			/**
+			 * Track an internal search event
+			 *
+			 * @param array terms Search terms
+			 * @param array filters Search filters
+			 * @param totalResults Number of results
+			 * @param pageResults Number of results displayed on page
+			 * @param array context Optional. Context relating to the event.
+			 */
+			trackSiteSearch: function(terms, filters, totalResults, pageResults, context) {
+				core.trackSiteSearch(terms, filters, totalResults, pageResults, context);
 			}
 		}
 	}
