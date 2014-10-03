@@ -79,7 +79,7 @@
 			// Tracker core
 			core = coreConstructor(true, function(payload) {
 				addBrowserData(payload);
-				sendRequest(payload);
+				sendRequest(payload, configTrackerPause);
 			}),
 
 			// Aliases
@@ -234,7 +234,8 @@
 			// Tag names of mutable elements inside a form
 			innerElementTags = ['textarea', 'input', 'select'],
 
-			outQueueManager = new requestQueue.OutQueueManager(functionName, namespace);
+			// Manager for local storage queue
+			outQueueManager = new requestQueue.OutQueueManager(functionName, namespace, mutSnowplowState);
 
 
 		// Enable base 64 encoding for unstructured events and custom contexts

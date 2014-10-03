@@ -40,7 +40,7 @@
 		localStorageAccessible = require('./lib/detectors').localStorageAccessible(),
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
-	object.OutQueueManager = function (functionName, namespace) {
+	object.OutQueueManager = function (functionName, namespace, mutSnowplowState) {
 		var	queueName = ['snowplowOutQueue', functionName, namespace].join('_'),
 			executingQueue = false,
 			configCollectorUrl,
@@ -58,6 +58,9 @@
 		if (typeof outQueue === 'undefined' || outQueue == null) {
 			outQueue = [];
 		}
+
+		// Used by pageUnloadGuard
+		mutSnowplowState.outQueues.push(outQueue);
 
 		/*
 		 * Queue an image beacon for submission to the collector.

@@ -75,6 +75,7 @@
 
 	// Load all our modules (at least until we fully modularize & remove grunt-concat)
 	var
+		lodash = require('./lib_managed/lodash'),
 		helpers = require('./lib/helpers'),
 		queue = require('./in_queue'),
 		tracker = require('./tracker'),
@@ -90,8 +91,13 @@
 			/* Tracker identifier with version */
 			version = 'js-' + '<%= pkg.version %>', // Update banner.js too
 
-			/* Contains three variables that are shared with tracker.js and must be passed by reference */
+			/* Contains four variables that are shared with tracker.js and must be passed by reference */
 			mutSnowplowState = {
+
+				/* List of request queues - one per Tracker instance */
+				outQueues: [],
+
+				/* Time at which to stop blocking excecution */
 				expireDateTime: null,
 
 				/* DOM Ready */
@@ -123,6 +129,11 @@
 				//     while (Date.now() < mutSnowplowState.expireDateTime) { }
 				do {
 					now = new Date();
+					if (lodash.filter(mutSnowplowState.outQueues, function (queue) {
+						return queue.length > 0;
+					}).length === 0) {
+						break;
+					}
 				} while (now.getTime() < mutSnowplowState.expireDateTime);
 			}
 		}
