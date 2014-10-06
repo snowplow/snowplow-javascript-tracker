@@ -1525,10 +1525,11 @@
 			 * @param array elementClasses
 			 * @param string elementTarget
 			 * @param string targetUrl
+			 * @param string elementContent innerHTML of the element
 			 * @param object Custom context relating to the event
 			 */
 			// TODO: break this into trackLink(destUrl) and trackDownload(destUrl)
-			trackLinkClick: function(targetUrl, elementId, elementClasses, elementTarget, context) {
+			trackLinkClick: function(targetUrl, elementId, elementClasses, elementTarget, elementContent, context) {
 				trackCallback(function () {
 					core.trackLinkClick(targetUrl, elementId, elementClasses, elementTarget, context);
 				});
