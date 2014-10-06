@@ -1,3 +1,7 @@
+Version 2.0.1 (2014-08-xx)
+-------------------------
+Made error logging compatible with Internet Explorer (#264)
+
 Version 2.0.0 (2014-07-03)
 --------------------------
 Moved fixUpUrl into its own file, called lib/proxies.js (#112)
