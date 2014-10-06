@@ -40,8 +40,8 @@ define([
 
 	var 
 		// Expected viewport dimensions vary based on browser
-		expectedViewportWidths = [980, 996, 1024],
-		expectedViewportHeights = [636, 644, 667, 670, 673, 684, 695, 705, 706, 712],
+		expectedViewportWidths = [980, 1024, 1280],
+		expectedViewportHeights = [636, 644, 667, 670, 673, 684, 695, 702, 705, 706, 712],
 
 		// User fingerprint varies based on browser features
 		// TODO: try to hash this off the useragent - 
@@ -49,15 +49,15 @@ define([
 		expectedSignatures = [
 			3343029130, // IE9 Windows
 			1101697779, // IE10
-			154466408,  // IE11
-			2557409154, // Firefox 27.0 Mac
-			1076144906, // Firefox 27.0 XP
+			3875211103,  // IE11
+			2265977041, // Firefox 27.0 Mac
+			972065378, // Firefox 27.0 XP
 			3900377526, // Firefox 27.0 Linux
-			705067259,  // Chrome 32.0 Mac OS X
-			4229530558, // Chrome 32.0 Windows NT
+			3528351619,  // Chrome 32.0 Mac OS X
+			2660492875, // Chrome 32.0 Windows NT
 			3773734853, // Chrome 32.0 Linux
-			3339203264, // Safari 7.0 Mac
-			3166667154  // Safari 6.0.5 Mac
+			3882113908, // Safari 7.0 Mac
+			2336697549  // Safari 6.0.5 Mac
 		];
 
 	registerSuite({
