@@ -296,15 +296,13 @@ define([
 			var action = 'like';
 			var network = 'facebook';
 			var target = 'status-0000345345';
-			var pagepath = 'http://www.mypage.com';
 
 			var inputJson = {
 				schema: 'iglu:com.snowplowanalytics.snowplow/social_interaction/jsonschema/1-0-0',
 				data: {
 					action: action,
 					network: network,
-					target: target,
-					pagepath: pagepath
+					target: target
 				}
 			};
 
@@ -316,7 +314,7 @@ define([
 				})
 			};
 
-			compare(tracker.trackSocialInteraction(action, network, target, pagepath), expected);
+			compare(tracker.trackSocialInteraction(action, network, target), expected);
 		},
 
 
