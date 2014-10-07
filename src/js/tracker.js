@@ -1430,7 +1430,7 @@
 			 * @param object Custom context relating to the event
 			 */
 			trackSocialInteraction: function(action, network, target, context) {
-				core.trackSocialInteraction(action, network, target, purify(configCustomUrl || locationHrefAlias), context);
+				core.trackSocialInteraction(action, network, target, context);
 			},
 
 			/**
