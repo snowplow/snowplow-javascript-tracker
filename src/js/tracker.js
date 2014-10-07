@@ -35,7 +35,6 @@
 ;(function() {
 
 	var
-		lodash = require('./lib_managed/lodash'),
 		helpers = require('./lib/helpers'),
 		proxies = require('./lib/proxies'),
 		cookie = require('browser-cookie-lite'),
@@ -99,15 +98,6 @@
 
 			// Request method is always GET for Snowplow
 			configRequestMethod = 'GET',
-
-			// Initial segment of schema field for Snowplow's self-describing JSONs
-			configBaseSchemaPath = 'iglu:com.snowplowanalytics.snowplow',
-
-			// The schema against which custom context arrays should be validated
-			configContextSchema = configBaseSchemaPath + '/contexts/jsonschema/1-0-0',
-
-			// The schema against which unstructured event envelopes should be validated
-			configUnstructEventSchema = configBaseSchemaPath +  '/unstruct_event/jsonschema/1-0-0',
 
 			// Platform defaults to web for this tracker
 			configPlatform = argmap.hasOwnProperty('platform') ? argmap.platform : 'web',
@@ -180,9 +170,6 @@
 			// Browser features via client-side data collection
 			browserFeatures = detectors.detectBrowserFeatures(getSnowplowCookieName('testcookie')),
 
-			// Visitor timezone
-			timezone = detectors.detectTimezone(),
-
 			// Visitor fingerprint
 			userFingerprint = (argmap.userFingerprint === false) ? '' : detectors.detectSignature(configUserFingerprintHashSeed),
 
@@ -245,7 +232,7 @@
 				if (i === 'res' || i === 'cd' || i === 'cookie') {
 					core.addPayloadPair(i, browserFeatures[i]);
 				} else {
-					core.addPayloadPair('f_', browserFeatures[i]);
+					core.addPayloadPair('f_' + i, browserFeatures[i]);
 				}
 			}
 		}
@@ -498,17 +485,15 @@
 		 */
 		function addBrowserData(sb) {
 			var nowTs = Math.round(new Date().getTime() / 1000),
+				idname = getSnowplowCookieName('id'),
 				sesname = getSnowplowCookieName('ses'),
 				ses = getSnowplowCookieValue('ses'), // aka cookie.cookie(sesname)
 				id = loadDomainUserIdCookie(),
-				newVisitor = id[0],
 				_domainUserId = id[1], // We could use the global (domainUserId) but this is better etiquette
 				createTs = id[2],
 				visitCount = id[3],
 				currentVisitTs = id[4],
-				lastVisitTs = id[5],
-				featurePrefix,
-				i;
+				lastVisitTs = id[5];
 
 			if (configDoNotTrack && configWriteCookies) {
 				cookie.cookie(idname, '', -1, configCookiePath, configCookieDomain);
@@ -654,16 +639,6 @@
 			resetMaxScrolls();
 			core.trackPagePing(purify(configCustomUrl || locationHrefAlias), pageTitle, purify(configReferrerUrl),
 				minXOffset, maxXOffset, minYOffset, maxYOffset, context);
-		}
-
-		/**
-		 * Log an unstructured event happening on this page
-		 *
-		 * @param object eventJson Contains the properties and schema location for the event
-		 * @param object context Custom context relating to the event
-		 */
-		function logUnstructEvent(eventJson, context) {
-			core.trackUnstructEvent(eventJson, context);
 		}
 
 		/**
@@ -1264,7 +1239,7 @@
 			// TODO: break this into trackLink(destUrl) and trackDownload(destUrl)
 			trackLinkClick: function(targetUrl, elementId, elementClasses, elementTarget, elementContent, context) {
 				trackCallback(function () {
-					core.trackLinkClick(targetUrl, elementId, elementClasses, elementTarget, context);
+					core.trackLinkClick(targetUrl, elementId, elementClasses, elementTarget, elementContent, context);
 				});
 			},
 
@@ -1346,7 +1321,7 @@
 			 * @param array context Optional. Context relating to the event.
 			 */
 			trackAddToCart: function(sku, name, category, price, quantity, currency, context) {
-				core.trackAddToCart(sku, name, category, price, quantity, currency);
+				core.trackAddToCart(sku, name, category, price, quantity, currency, context);
 			},
 
 			/**
@@ -1361,7 +1336,7 @@
 			 * @param array context Optional. Context relating to the event.
 			 */
 			trackRemoveFromCart: function(sku, name, category, price, quantity, currency, context) {
-				core.trackRemoveFromCart(sku, name, category, price, quantity, currency);
+				core.trackRemoveFromCart(sku, name, category, price, quantity, currency, context);
 			},
 
 			/**
@@ -1376,7 +1351,7 @@
 			trackSiteSearch: function(terms, filters, totalResults, pageResults, context) {
 				core.trackSiteSearch(terms, filters, totalResults, pageResults, context);
 			}
-		}
-	}
+		};
+	};
 
 }());
