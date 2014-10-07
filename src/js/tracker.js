@@ -43,6 +43,7 @@
 		json2 = require('JSON'),
 		sha1 = require('sha1'),
 		links = require('./links'),
+		forms = require('./forms'),
 		requestQueue = require('./out_queue'),
 		coreConstructor = require('snowplow-tracker-core'),
 
@@ -216,11 +217,11 @@
 			// Will be committed, sent and emptied by a call to trackTrans.
 			ecommerceTransaction = ecommerceTransactionTemplate(),
 
-			// Tag names of mutable elements inside a form
-			innerElementTags = ['textarea', 'input', 'select'],
-
 			// Manager for automatic link click tracking
 			linkTrackingManager = links.getLinkTrackingManager(core, trackerId),
+
+			// Manager for automatic form tracking
+			formTrackingManager = forms.getFormTrackingManager(core, trackerId),
 
 			// Manager for local storage queue
 			outQueueManager = new requestQueue.OutQueueManager(functionName, namespace, mutSnowplowState);
@@ -1105,10 +1106,10 @@
 			 */
 			enableFormTracking: function (context) {
 				if (mutSnowplowState.hasLoaded) {
-					addFormListeners(context);
+					formTrackingManager.addFormListeners(context);
 				} else {
 					mutSnowplowState.registeredOnLoadHandlers.push(function () {
-						addFormListeners(context);
+						formTrackingManager.addFormListeners(context);
 					});
 				}
 			},
