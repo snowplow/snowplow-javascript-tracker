@@ -574,12 +574,12 @@ function trackerCore(base64, callback) {
 			return trackUnstructEvent({
 				schema: 'iglu:com.snowplowanalytics.snowplow/add_to_cart/jsonschema/1-0-0',
 				data: removeEmptyProperties({
-					ti_sku: sku,
-					ti_name: name,
-					ti_category: category,
-					ti_price: price,
-					ti_quantity: quantity,
-					ti_currency: currency
+					sku: sku,
+					name: name,
+					category: category,
+					price: price,
+					quantity: quantity,
+					currency: currency
 				})
 			}, context, tstamp);
 		},
@@ -601,12 +601,12 @@ function trackerCore(base64, callback) {
 			return trackUnstructEvent({
 				schema: 'iglu:com.snowplowanalytics.snowplow/remove_from_cart/jsonschema/1-0-0',
 				data: removeEmptyProperties({
-					ti_sku: sku,
-					ti_name: name,
-					ti_category: category,
-					ti_price: price,
-					ti_quantity: quantity,
-					ti_currency: currency
+					sku: sku,
+					name: name,
+					category: category,
+					price: price,
+					quantity: quantity,
+					currency: currency
 				})
 			}, context, tstamp);
 		},
