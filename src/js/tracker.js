@@ -42,6 +42,7 @@
 		detectors = require('./lib/detectors'),
 		json2 = require('JSON'),
 		sha1 = require('sha1'),
+		links = require('./links'),
 		requestQueue = require('./out_queue'),
 		coreConstructor = require('snowplow-tracker-core'),
 
@@ -184,18 +185,6 @@
 			// Visitor fingerprint
 			userFingerprint = (argmap.userFingerprint === false) ? '' : detectors.detectSignature(configUserFingerprintHashSeed),
 
-			// Filter function used to determine whether clicks on a link should be tracked
-			linkTrackingFilter,
-
-			// Whether pseudo clicks are tracked
-			linkTrackingPseudoClicks,
-
-			// Whether to track the  innerHTML of clicked links
-			linkTrackingContent,
-
-			// The context attached to link click events
-			linkTrackingContext,
-
 			// Unique ID for the tracker instance used to mark links which are being tracked
 			trackerId = functionName + '_' + namespace,
 
@@ -210,10 +199,6 @@
 			maxXOffset,
 			minYOffset,
 			maxYOffset,
-
-			// Internal state of the pseudo click handler
-			lastButton,
-			lastTarget,
 
 			// Hash function
 			hash = sha1,
@@ -233,6 +218,9 @@
 
 			// Tag names of mutable elements inside a form
 			innerElementTags = ['textarea', 'input', 'select'],
+
+			// Manager for automatic link click tracking
+			linkTrackingManager = links.getLinkTrackingManager(core, trackerId),
 
 			// Manager for local storage queue
 			outQueueManager = new requestQueue.OutQueueManager(functionName, namespace, mutSnowplowState);
@@ -765,169 +753,6 @@
 		}
 
 		/*
-		 * Process clicks
-		 */
-		function processClick(sourceElement, context) {
-
-			var parentElement,
-				tag,
-				elementId,
-				elementClasses,
-				elementTarget,
-				elementContent;
-
-			while ((parentElement = sourceElement.parentNode) !== null &&
-					!lodash.isUndefined(parentElement) && // buggy IE5.5
-					((tag = sourceElement.tagName.toUpperCase()) !== 'A' && tag !== 'AREA')) {
-				sourceElement = parentElement;
-			}
-
-			if (!lodash.isUndefined(sourceElement.href)) {
-				// browsers, such as Safari, don't downcase hostname and href
-				var originalSourceHostName = sourceElement.hostname || helpers.getHostName(sourceElement.href),
-					sourceHostName = originalSourceHostName.toLowerCase(),
-					sourceHref = sourceElement.href.replace(originalSourceHostName, sourceHostName),
-					scriptProtocol = new RegExp('^(javascript|vbscript|jscript|mocha|livescript|ecmascript|mailto):', 'i');
-
-				// Ignore script pseudo-protocol links
-				if (!scriptProtocol.test(sourceHref)) {
-
-					elementId = sourceElement.id;
-					elementClasses = lodash.map(sourceElement.classList);
-					elementTarget = sourceElement.target;
-					elementContent = linkTrackingContent ? sourceElement.innerHTML : null;
-
-					// decodeUrl %xx
-					sourceHref = unescape(sourceHref);
-					core.trackLinkClick(sourceHref, elementId, elementClasses, elementTarget, elementContent, context);
-				}
-			}
-		}
-
-		/*
-		 * Return function to handle click event
-		 */
-		function getClickHandler(context) {
-			return function(evt) {
-				var button,
-					target;
-
-				evt = evt || windowAlias.event;
-				button = evt.which || evt.button;
-				target = evt.target || evt.srcElement;
-
-				// Using evt.type (added in IE4), we avoid defining separate handlers for mouseup and mousedown.
-				if (evt.type === 'click') {
-					if (target) {
-						processClick(target, context);
-					}
-				} else if (evt.type === 'mousedown') {
-					if ((button === 1 || button === 2) && target) {
-						lastButton = button;
-						lastTarget = target;
-					} else {
-						lastButton = lastTarget = null;
-					}
-				} else if (evt.type === 'mouseup') {
-					if (button === lastButton && target === lastTarget) {
-						processClick(target, context);
-					}
-					lastButton = lastTarget = null;
-				}
-			}
-		}
-
-		/*
-		 * Add click listener to a DOM element
-		 */
-		function addClickListener(element) {
-			if (linkTrackingPseudoClicks) {
-				// for simplicity and performance, we ignore drag events
-				helpers.addEventListener(element, 'mouseup', getClickHandler(linkTrackingContext), false);
-				helpers.addEventListener(element, 'mousedown', getClickHandler(linkTrackingContext), false);
-			} else {
-				helpers.addEventListener(element, 'click', getClickHandler(linkTrackingContext), false);
-			}
-		}
-
-		/*
-		 * Add click handlers to anchor and AREA elements, except those to be ignored
-		 */
-		function addClickListeners() {
-
-			var linkElements = documentAlias.links,
-				i;
-
-			for (i = 0; i < linkElements.length; i++) {
-				// Add a listener to link elements which pass the filter and aren't already tracked
-				if (linkTrackingFilter(linkElements[i]) && !linkElements[i][trackerId]) {
-					addClickListener(linkElements[i]);
-					linkElements[i][trackerId] = true;
-				}
-			}
-		}
-
-		/*
-		 * Check whether a set of classes contains any of the classes of a link element
-		 * Used to determine whether clicks on that link should be tracked
-		 */
-		function checkLink(linkElement, specifiedClasses) {
-			var linkClasses = lodash.map(linkElement.classList);
-			for (var i=0; i<linkClasses.length; i++) {
-				if (specifiedClasses[linkClasses[i]]) {
-					return true;
-				}
-			}
-			return false;
-		}
-
-		/*
-		 * Configures link click tracking: how to filter which links will be tracked,
-		 * whether to use pseudo click tracking, and what context to attach to link_click events
-		 */
-		function configureLinkClickTracking(criterion, pseudoClicks, trackContent, context) {
-			var specifiedClasses,
-				inclusive,
-				specifiedClassesSet,
-				i;
-
-			linkTrackingContent = trackContent;
-			linkTrackingContext = context;
-			linkTrackingPseudoClicks = pseudoClicks;
-
-			// If the criterion argument is not an object, add listeners to all links
-			if (lodash.isArray(criterion) || !lodash.isObject(criterion)) {
-				linkTrackingFilter = function (link) {
-					return true;
-				}
-				return;
-			}
-
-			if (criterion.hasOwnProperty('filter')) {
-				linkTrackingFilter = criterion.filter;
-			} else {
-
-				inclusive = (criterion.hasOwnProperty('whitelist'));
-				specifiedClasses = criterion.whitelist || criterion.blacklist;
-
-				// If the class list is a single string, convert it to an array
-				if (!lodash.isArray(specifiedClasses)) {
-					specifiedClasses = [specifiedClasses];
-				}
-
-				// Convert the array of classes to an object of the form {class1: true, class2: true, ...}
-				specifiedClassesSet = {};
-				for (i=0; i<specifiedClasses.length; i++) {
-					specifiedClassesSet[specifiedClasses[i]] = true;
-				}
-
-				linkTrackingFilter = function(link) {
-					return checkLink(link, specifiedClassesSet) === inclusive;
-				}
-			}
-		}
-
-		/*
 		 * Get an identifier for a form, input, textarea, or select element
 		 */
 		function getFormElementName(elt) {
@@ -1234,13 +1059,13 @@
 			enableLinkClickTracking: function (criterion, pseudoClicks, trackContent, context) {
 				if (mutSnowplowState.hasLoaded) {
 					// the load event has already fired, add the click listeners now
-					configureLinkClickTracking(criterion, pseudoClicks, trackContent, context);
-					addClickListeners();
+					linkTrackingManager.configureLinkClickTracking(criterion, pseudoClicks, trackContent, context);
+					linkTrackingManager.addClickListeners();
 				} else {
 					// defer until page has loaded
 					mutSnowplowState.registeredOnLoadHandlers.push(function () {
-						configureLinkClickTracking(criterion, pseudoClicks, trackContent, context);
-						addClickListeners();
+						linkTrackingManager.configureLinkClickTracking(criterion, pseudoClicks, trackContent, context);
+						linkTrackingManager.addClickListeners();
 					});
 				}
 			},
@@ -1250,7 +1075,13 @@
 			 * last time enableLinkClickTracking or refreshLinkClickTracking was used
 			 */
 			refreshLinkClickTracking: function () {
-				addClickListeners();
+				if (mutSnowplowState.hasLoaded) {
+					linkTrackingManager.addClickListeners();
+				} else {
+					mutSnowplowState.registeredOnLoadHandlers.push(function () {
+						linkTrackingManager.addClickListeners();
+					});
+				}
 			},
 
 			/**

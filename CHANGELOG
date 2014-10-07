@@ -26,6 +26,7 @@ Improved efficiency of enableLinkClickTracking (#254)
 Integrated the Tracker Core (#255)
 Removed deprecated trackImpression method (#256)
 Added forceSecureTracker boolean option to the argmap, thanks @kujo4pmZ! (#247)
+Moved link click tracking into its own file (#266)
 
 Version 2.0.2 (2014-10-20)
 --------------------------
