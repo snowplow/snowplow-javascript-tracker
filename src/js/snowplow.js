@@ -251,6 +251,6 @@
 
 		// Now replace initialization array with queue manager object
 		return new queue.InQueueManager(tracker.Tracker, version, mutSnowplowState, asynchronousQueue, functionName);
-	}
+	};
 
 }());

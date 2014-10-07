@@ -77,7 +77,7 @@ object.getFormTrackingManager = function (core, trackerId) {
 	 */
 	function getInnerFormElements(elt) {
 		var innerElements = [];
-		var formElements = lodash.map(innerElementTags, function (tagname) {
+		lodash.map(innerElementTags, function (tagname) {
 			lodash.map(elt.getElementsByTagName(tagname), function (child) {
 				if (child.type === 'submit') {
 					return;
@@ -150,4 +150,4 @@ object.getFormTrackingManager = function (core, trackerId) {
 			});
 		}
 	};
-}
+};

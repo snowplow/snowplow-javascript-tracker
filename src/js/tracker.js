@@ -69,7 +69,8 @@
 	 * 7. userFingerprint, true
 	 * 8. userFingerprintSeed, 123412414
 	 * 9. pageUnloadTimer, 500
-	 * 10. writeCookies, true
+	 * 10. forceSecureTracker, false
+	 * 11. writeCookies, true
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
 

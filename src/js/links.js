@@ -185,7 +185,7 @@ object.getLinkTrackingManager = function (core, trackerId) {
 			if (lodash.isArray(criterion) || !lodash.isObject(criterion)) {
 				linkTrackingFilter = function (link) {
 					return true;
-				}
+				};
 				return;
 			}
 
@@ -209,7 +209,7 @@ object.getLinkTrackingManager = function (core, trackerId) {
 
 				linkTrackingFilter = function(link) {
 					return checkLink(link, specifiedClassesSet) === inclusive;
-				}
+				};
 			}
 		},
 
@@ -230,4 +230,4 @@ object.getLinkTrackingManager = function (core, trackerId) {
 			}
 		}
 	};
-}
+};

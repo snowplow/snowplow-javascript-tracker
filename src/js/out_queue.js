@@ -55,7 +55,7 @@
 		}
 
 		// Initialize to and empty array if we didn't get anything out of localStorage
-		if (typeof outQueue === 'undefined' || outQueue == null) {
+		if (!outQueue) {
 			outQueue = [];
 		}
 
@@ -104,11 +104,11 @@
 					localStorage.setItem(queueName, json2.stringify(outQueue));
 				}
 				executeQueue();
-			}
+			};
 
 			image.onerror = function () {
 				executingQueue = false;
-			}
+			};
 
 			image.src = configCollectorUrl + nextRequest;
 		}
@@ -116,6 +116,6 @@
 		return {
 			enqueueRequest: enqueueRequest
 		};
-	}
+	};
 
 }());
