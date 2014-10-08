@@ -196,7 +196,10 @@
           alert('Searching the site');
           window.snowplow_1('trackSiteSearch',
             ['event', 'analytics'],            // search terms - required
-            ['books', 'safe search'],          // search filters
+            {                                  // search filters
+              category: 'books',
+              safeSearch: true
+            },
             15,                                // number of results returned
             10                                 // number of results displayed on page
           );

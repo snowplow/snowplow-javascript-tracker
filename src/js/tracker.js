@@ -1316,13 +1316,13 @@
 			 * @param string sku Required. Item's SKU code.
 			 * @param string name Optional. Product name.
 			 * @param string category Optional. Product category.
-			 * @param string price Required. Product price.
+			 * @param string unitPrice Optional. Product price.
 			 * @param string quantity Required. Quantity added.
 			 * @param string currency Optional. Product price currency.
 			 * @param array context Optional. Context relating to the event.
 			 */
-			trackAddToCart: function(sku, name, category, price, quantity, currency, context) {
-				core.trackAddToCart(sku, name, category, price, quantity, currency, context);
+			trackAddToCart: function(sku, name, category, unitPrice, quantity, currency, context) {
+				core.trackAddToCart(sku, name, category, unitPrice, quantity, currency, context);
 			},
 
 			/**
@@ -1331,22 +1331,22 @@
 			 * @param string sku Required. Item's SKU code.
 			 * @param string name Optional. Product name.
 			 * @param string category Optional. Product category.
-			 * @param string price Required. Product price.
+			 * @param string unitPrice Optional. Product price.
 			 * @param string quantity Required. Quantity removed.
 			 * @param string currency Optional. Product price currency.
 			 * @param array context Optional. Context relating to the event.
 			 */
-			trackRemoveFromCart: function(sku, name, category, price, quantity, currency, context) {
-				core.trackRemoveFromCart(sku, name, category, price, quantity, currency, context);
+			trackRemoveFromCart: function(sku, name, category, unitPrice, quantity, currency, context) {
+				core.trackRemoveFromCart(sku, name, category, unitPrice, quantity, currency, context);
 			},
 
 			/**
 			 * Track an internal search event
 			 *
 			 * @param array terms Search terms
-			 * @param array filters Search filters
-			 * @param totalResults Number of results
-			 * @param pageResults Number of results displayed on page
+			 * @param object filters Search filters
+			 * @param number totalResults Number of results
+			 * @param number pageResults Number of results displayed on page
 			 * @param array context Optional. Context relating to the event.
 			 */
 			trackSiteSearch: function(terms, filters, totalResults, pageResults, context) {
