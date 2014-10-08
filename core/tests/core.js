@@ -320,7 +320,7 @@ define([
 
 		"Track an add-to-cart event": function () {
 			var sku = '4q345';
-			var price = 17;
+			var unitPrice = 17;
 			var quantity = 2;
 			var name = 'red shoes';
 			var category = 'clothing';
@@ -332,7 +332,7 @@ define([
 					sku: sku,
 					name: name,
 					category: category,
-					price: price,
+					unitPrice: unitPrice,
 					quantity: quantity,
 					currency: currency
 				}
@@ -346,12 +346,12 @@ define([
 				})
 			};
 
-			compare(tracker.trackAddToCart(sku, name, category, price, quantity, currency), expected);
+			compare(tracker.trackAddToCart(sku, name, category, unitPrice, quantity, currency), expected);
 		},
 
 		"Track a remove-from-cart event": function () {
 			var sku = '4q345';
-			var price = 17;
+			var unitPrice = 17;
 			var quantity = 2;
 			var name = 'red shoes';
 			var category = 'clothing';
@@ -363,7 +363,7 @@ define([
 					sku: sku,
 					name: name,
 					category: category,
-					price: price,
+					unitPrice: unitPrice,
 					quantity: quantity,
 					currency: currency
 				}
@@ -377,7 +377,7 @@ define([
 				})
 			};
 
-			compare(tracker.trackRemoveFromCart(sku, name, category, price, quantity, currency), expected);
+			compare(tracker.trackRemoveFromCart(sku, name, category, unitPrice, quantity, currency), expected);
 		},
 
 		"Track a form change event": function () {
@@ -443,7 +443,10 @@ define([
 
 		"Track a site seach event": function () {
 			var terms = ["javascript", "development"];
-			var filters = ["books"];
+			var filters = {
+				"safeSearch": true,
+				"category": "books"
+			};
 			var totalResults = 35;
 			var pageResults = 10;
 
