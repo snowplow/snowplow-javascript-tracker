@@ -682,6 +682,6 @@ function trackerCore(base64, callback) {
 			}, context, tstamp);
 		}
 	};
-}
+};
 
 module.exports = trackerCore;

@@ -69,7 +69,7 @@ define([
 		'Identify an empty JSON': function () {
 			var emptyJson = {};
 
-			assert.strictEqual(payload.isNonEmptyJson(emptyJson), false, '{} should be identified as empty')
+			assert.strictEqual(payload.isNonEmptyJson(emptyJson), false, '{} should be identified as empty');
 		},
 
 		'Build a payload': function () {
