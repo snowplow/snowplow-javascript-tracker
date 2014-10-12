@@ -1,7 +1,7 @@
-Version 2.0.1 (2014-08-xx)
--------------------------
+Version 2.0.1 (2014-10-12)
+--------------------------
 Made error logging compatible with Internet Explorer (#264)
-Fixed SauceLabs red status (fixes #235)
+Fixed SauceLabs red status (#235)
 
 Version 2.0.0 (2014-07-03)
 --------------------------
