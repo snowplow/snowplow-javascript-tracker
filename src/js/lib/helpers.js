@@ -156,7 +156,7 @@
 	 * Only log deprecation warnings if they won't cause an error
 	 */
 	object.warn = function(message) {
-		if (typeof console !== undefined) {
+		if (typeof console !== 'undefined') {
 			console.warn('Snowplow: ' + message);
 		}
 	}
