@@ -1,3 +1,8 @@
+Version 2.0.1 (2014-10-12)
+--------------------------
+Made error logging compatible with Internet Explorer (#264)
+Fixed SauceLabs red status (#235)
+
 Version 2.0.0 (2014-07-03)
 --------------------------
 Moved fixUpUrl into its own file, called lib/proxies.js (#112)
