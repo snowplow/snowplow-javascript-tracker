@@ -61,6 +61,6 @@ Licensed under the [Simplified BSD] [bsd] license.
 [travis]: http://travis-ci.org/snowplow/snowplow-javascript-tracker
 [codeclimate-image]: https://codeclimate.com/github/snowplow/snowplow-javascript-tracker.png
 [codeclimate]: https://codeclimate.com/github/snowplow/snowplow-javascript-tracker      
-[saucelabs]: https://saucelabs.com/u/snowplow_js_tracker
-[saucelabs-button-image]: https://saucelabs.com/buildstatus/snowplow_js_tracker
-[saucelabs-matrix-image]: https://saucelabs.com/browser-matrix/snowplow_js_tracker.svg
+[saucelabs]: https://saucelabs.com/u/snowplow
+[saucelabs-button-image]: https://saucelabs.com/buildstatus/snowplow
+[saucelabs-matrix-image]: https://saucelabs.com/browser-matrix/snowplow.svg
