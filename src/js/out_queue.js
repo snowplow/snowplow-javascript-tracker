@@ -83,6 +83,12 @@
 		 * Stops processing when we run out of queued requests, or we get an error.
 		 */
 		function executeQueue () {
+
+			// Failsafe in case there is some way for a bad value like "null" to end up in the outQueue
+			while (outQueue.length && typeof outQueue[0] !== 'string') {
+				outQueue.shift();
+			}
+
 			if (outQueue.length < 1) {
 				executingQueue = false;
 				return;
