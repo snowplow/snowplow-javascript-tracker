@@ -1,3 +1,7 @@
+Version 2.0.2 (2014-xx-xx)
+--------------------------
+Changed default configCookiePath to "/" (#250)
+
 Version 2.0.1 (2014-10-12)
 --------------------------
 Made error logging compatible with Internet Explorer (#264)
