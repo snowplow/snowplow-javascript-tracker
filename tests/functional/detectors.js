@@ -56,7 +56,7 @@ define([
 			3528351619,  // Chrome 32.0 Mac OS X
 			2660492875, // Chrome 32.0 Windows NT
 			3773734853, // Chrome 32.0 Linux
-			3882113908, // Safari 7.0 Mac
+			4114284508, // Safari 7.0 Mac
 			2336697549  // Safari 6.0.5 Mac
 		];
 

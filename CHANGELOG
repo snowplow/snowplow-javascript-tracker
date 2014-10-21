@@ -23,6 +23,7 @@ Removed deprecated trackImpression method (#256)
 Added forceSecureTracker boolean option to the argmap, thanks @kujo4pmZ! (#247)
 Moved link click tracking into its own file (#266)
 Made IP address regex more strict (#267)
+Updated expected browser fingerprints in functional detectors test (#275)
 
 Version 2.0.2 (2014-10-20)
 --------------------------
