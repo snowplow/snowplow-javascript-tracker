@@ -47,12 +47,14 @@ function trackerCore(base64, callback) {
 	 * Returns a copy of a JSON with undefined and null properties removed
 	 *
 	 * @param object eventJson JSON to clean
+	 * @param object exemptFields Set of fields which should not be removed even if empty
 	 * @return object A cleaned copy of eventJson
 	 */
-	function removeEmptyProperties(eventJson) {
+	function removeEmptyProperties(eventJson, exemptFields) {
 		var ret = {};
+		exemptFields = exemptFields || {};
 		for (var k in eventJson) {
-			if (eventJson[k] !== null && typeof eventJson[k] !== 'undefined') {
+			if (exemptFields[k] || (eventJson[k] !== null && typeof eventJson[k] !== 'undefined')) {
 				ret[k] = eventJson[k];
 			}
 		}
@@ -82,6 +84,7 @@ function trackerCore(base64, callback) {
 	 * @param sb object Payload
 	 * @param array contexts Custom contexts relating to the event
 	 * @param number tstamp Timestamp of the event
+	 * @return object Payload after the callback is applied
 	 */
 	function track(sb, context, tstamp) {
 		sb.addDict(payloadPairs);
@@ -91,12 +94,11 @@ function trackerCore(base64, callback) {
 			sb.addJson('cx', 'co', completeContexts(context));			
 		}
 		
-		var payload = sb.build();
 		if (typeof callback === 'function') {
-			callback(payload);
+			callback(sb);
 		}
 
-		return payload;
+		return sb;
 	}
 
 	/**
@@ -161,7 +163,7 @@ function trackerCore(base64, callback) {
 		 * @param string version
 		 */
 		setTrackerVersion: function (version) {
-			addPayloadPair('tv', version)
+			addPayloadPair('tv', version);
 		},
 
 		/**
@@ -179,7 +181,7 @@ function trackerCore(base64, callback) {
 		 * @param string appId
 		 */
 		setAppId: function (appId) {
-			addPayloadPair('aid', appId)
+			addPayloadPair('aid', appId);
 		},
 
 		/**
@@ -253,7 +255,7 @@ function trackerCore(base64, callback) {
 		 * @param string appId
 		 */
 		setIpAddress: function (ip) {
-			addPayloadPair('ip', ip)
+			addPayloadPair('ip', ip);
 		},
 
 		trackUnstructEvent: trackUnstructEvent,
@@ -280,16 +282,24 @@ function trackerCore(base64, callback) {
 		 * by sending a page ping.
 		 *
 		 * @param string pageTitle The page title to attach to this page ping
+		 * @param minxoffset Minimum page x offset seen in the last ping period
+		 * @param maxXOffset Maximum page x offset seen in the last ping period
+		 * @param minYOffset Minimum page y offset seen in the last ping period
+		 * @param maxYOffset Maximum page y offset seen in the last ping period
 		 * @param array context Custom contexts relating to the event
 		 * @param number tstamp Timestamp of the event
 		 * @return object Payload
 		 */
-		trackPagePing: function (pageUrl, pageTitle, referrer, context, tstamp) {
+		trackPagePing: function (pageUrl, pageTitle, referrer, minXOffset, maxXOffset, minYOffset, maxYOffset, context, tstamp) {
 			var sb = payload.payloadBuilder(base64);
-			sb.add('e', 'pp'); // 'pv' for Page View
+			sb.add('e', 'pp'); // 'pp' for Page Ping
 			sb.add('url', pageUrl);
 			sb.add('page', pageTitle);
 			sb.add('refr', referrer);
+			sb.add('pp_mix', minXOffset);
+			sb.add('pp_max', maxXOffset);
+			sb.add('pp_miy', minYOffset);
+			sb.add('pp_may', maxYOffset);
 
 			return track(sb, context, tstamp);
 		},
@@ -364,7 +374,7 @@ function trackerCore(base64, callback) {
 		 * @return object Payload
 		 */
 		trackEcommerceTransactionItem: function (orderId, sku, name, category, price, quantity, currency, context, tstamp) {
-			var sb = payload.payloadBuilder(base64)
+			var sb = payload.payloadBuilder(base64);
 			sb.add("e", "ti"); // 'tr' for Transaction Item
 			sb.add("ti_id", orderId);
 			sb.add("ti_sk", sku);
@@ -398,22 +408,24 @@ function trackerCore(base64, callback) {
 		/**
 		 * Log the link or click with the server
 		 *
+		 * @param string targetUrl
 		 * @param string elementId
 		 * @param array elementClasses
 		 * @param string elementTarget
-		 * @param string targetUrl
+		 * @param string elementContent innerHTML of the link
 		 * @param array context Custom contexts relating to the event
 		 * @param number tstamp Timestamp of the event
 		 * @return object Payload
 		 */
-		trackLinkClick:  function (targetUrl, elementId, elementClasses, elementTarget, context, tstamp) {
+		trackLinkClick:  function (targetUrl, elementId, elementClasses, elementTarget, elementContent, context, tstamp) {
 			var eventJson = {
-				schema: 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-0',
+				schema: 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1',
 				data: removeEmptyProperties({
 					targetUrl: targetUrl,
 					elementId: elementId,
 					elementClasses: elementClasses,
-					elementTarget: elementTarget
+					elementTarget: elementTarget,
+					elementContent: elementContent
 				}),
 			};
 
@@ -520,8 +532,156 @@ function trackerCore(base64, callback) {
 			};
 
 			return trackUnstructEvent(eventJson, context, tstamp);
+		},
+
+		/**
+		 * Track a social event
+		 *
+		 * @param string action Social action performed
+		 * @param string network Social network
+		 * @param string target Object of the social action e.g. the video liked, the tweet retweeted
+		 * @param array Custom contexts relating to the event
+		 * @param number tstamp Timestamp of the event
+		 * @return object Payload
+		 */
+		trackSocialInteraction: function (action, network, target, context, tstamp) {
+			var eventJson = {
+				schema: 'iglu:com.snowplowanalytics.snowplow/social_interaction/jsonschema/1-0-0',
+				data: removeEmptyProperties({
+					action: action,
+					network: network,
+					target: target
+				})
+			};
+
+			return trackUnstructEvent(eventJson, context, tstamp);
+		},
+
+		/**
+		 * Track an add-to-cart event
+		 *
+		 * @param string sku Required. Item's SKU code.
+		 * @param string name Optional. Product name.
+		 * @param string category Optional. Product category.
+		 * @param string unitPrice Optional. Product price.
+		 * @param string quantity Required. Quantity added.
+		 * @param string currency Optional. Product price currency.
+		 * @param array context Optional. Context relating to the event.
+		 * @param number tstamp Optional. Timestamp of the event
+		 * @return object Payload
+		 */
+		trackAddToCart: function (sku, name, category, unitPrice, quantity, currency, context, tstamp) {
+			return trackUnstructEvent({
+				schema: 'iglu:com.snowplowanalytics.snowplow/add_to_cart/jsonschema/1-0-0',
+				data: removeEmptyProperties({
+					sku: sku,
+					name: name,
+					category: category,
+					unitPrice: unitPrice,
+					quantity: quantity,
+					currency: currency
+				})
+			}, context, tstamp);
+		},
+
+		/**
+		 * Track a remove-from-cart event
+		 *
+		 * @param string sku Required. Item's SKU code.
+		 * @param string name Optional. Product name.
+		 * @param string category Optional. Product category.
+		 * @param string unitPrice Optional. Product price.
+		 * @param string quantity Required. Quantity removed.
+		 * @param string currency Optional. Product price currency.
+		 * @param array context Optional. Context relating to the event.
+		 * @param number tstamp Optional. Timestamp of the event
+		 * @return object Payload
+		 */
+		trackRemoveFromCart: function (sku, name, category, unitPrice, quantity, currency, context, tstamp) {
+			return trackUnstructEvent({
+				schema: 'iglu:com.snowplowanalytics.snowplow/remove_from_cart/jsonschema/1-0-0',
+				data: removeEmptyProperties({
+					sku: sku,
+					name: name,
+					category: category,
+					unitPrice: unitPrice,
+					quantity: quantity,
+					currency: currency
+				})
+			}, context, tstamp);
+		},
+
+		/**
+		 * Track the value of a form field changing
+		 *
+		 * @param string formId The parent form ID
+		 * @param string elementId ID of the changed element
+		 * @param string nodeName "INPUT", "TEXTAREA", or "SELECT"
+		 * @param string type Type of the changed element if its type is "INPUT"
+		 * @param array elementClasses List of classes of the changed element
+		 * @param string value The new value of the changed element
+		 * @param array context Optional. Context relating to the event.
+		 * @param number tstamp Optional. Timestamp of the event
+		 * @return object Payload
+		 */
+		trackFormChange: function(formId, elementId, nodeName, type, elementClasses, value, context, tstamp) {
+			return trackUnstructEvent({
+				schema: 'iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0',
+				data: removeEmptyProperties({
+					formId: formId,
+					elementId: elementId,
+					nodeName: nodeName,
+					type: type,
+					elementClasses: elementClasses,
+					value: value
+				}, {'value': true})
+			}, context, tstamp);
+		},
+
+		/**
+		 * Track a form submission event
+		 *
+		 * @param string formId ID of the form
+		 * @param array formClasses Classes of the form
+		 * @param array elements Mutable elements within the form
+		 * @param array context Optional. Context relating to the event.
+		 * @param number tstamp Optional. Timestamp of the event
+		 * @return object Payload
+		 */
+		trackFormSubmission: function(formId, formClasses, elements, context, tstamp) {
+			return trackUnstructEvent({
+				schema: 'iglu:com.snowplowanalytics.snowplow/submit_form/jsonschema/1-0-0',
+				data: removeEmptyProperties({
+					formId: formId,
+					formClasses: formClasses,
+					elements: elements
+				})
+			}, context, tstamp);
+		},
+
+		/**
+		 * Track an internal search event
+		 *
+		 * @param array terms Search terms
+		 * @param object filters Search filters
+		 * @param totalResults Number of results
+		 * @param pageResults Number of results displayed on page
+		 * @param array context Optional. Context relating to the event.
+		 * @param number tstamp Optional. Timestamp of the event
+		 * @return object Payload
+		 */
+		trackSiteSearch: function(terms, filters, totalResults, pageResults, context, tstamp) {
+			return trackUnstructEvent({
+				schema: 'iglu:com.snowplowanalytics.snowplow/site_search/jsonschema/1-0-0',
+				data: removeEmptyProperties({
+					terms: terms,
+					filters: filters,
+					totalResults: totalResults,
+					pageResults: pageResults
+				})
+			}, context, tstamp);
 		}
 	};
-}
+};
 
 module.exports = trackerCore;
