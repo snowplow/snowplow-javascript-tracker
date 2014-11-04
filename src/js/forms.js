@@ -54,9 +54,9 @@ object.getFormTrackingManager = function (core, trackerId) {
 	function getFormElementName(elt) {
 		return elt[lodash.find(['name', 'id', 'type', 'nodeName'], function (propName) {
 
-			 // If elt has a child whose name is "id", that element will be returned
-			 // instead of the actual id of elt unless we ensure that a string is returned
-			return typeof elt[propName] === 'string';
+			// If elt has a child whose name is "id", that element will be returned
+			// instead of the actual id of elt unless we ensure that a string is returned
+			return elt[propName] && typeof elt[propName] === 'string';
 		})];
 	}
 
