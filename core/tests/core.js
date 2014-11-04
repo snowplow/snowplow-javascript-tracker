@@ -24,6 +24,7 @@ define([
 	var tracker = core(false);
 
 	function compare(result, expected, message) {
+		result = result.build();
 		assert.ok(result['eid'], 'A UUID should be attached to all events');
 		delete result['eid'];
 		assert.ok(result['dtm'], 'A timestamp should be attached to all events');
@@ -50,10 +51,14 @@ define([
 			var expected = {
 				e: 'pp',
 				url: url,
-				refr: referer
+				refr: referer,
+				pp_mix: 1,
+				pp_max: 2,
+				pp_miy: 3,
+				pp_may: 4
 			};
 
-			compare(tracker.trackPagePing(url, null, referer), expected, 'A page ping should be tracked correctly');
+			compare(tracker.trackPagePing(url, null, referer, 1, 2, 3, 4), expected, 'A page ping should be tracked correctly');
 		},
 
 		"Track a structured event": function () {
@@ -137,13 +142,15 @@ define([
 			var targetUrl = 'http://www.example.com';
 			var elementId = 'first header';
 			var elementClasses = ['header'];
+			var elementContent = 'link';
 
 			var inputJson = {
-				schema: 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-0',
+				schema: 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1',
 				data: {
 					targetUrl: targetUrl,
 					elementId: elementId,
-					elementClasses: elementClasses
+					elementClasses: elementClasses,
+					elementContent: elementContent
 				}
 			};
 			var expected = {
@@ -154,7 +161,7 @@ define([
 				})
 			};
 
-			compare(tracker.trackLinkClick(targetUrl, elementId, elementClasses), expected, 'A link click should be tracked correctly');
+			compare(tracker.trackLinkClick(targetUrl, elementId, elementClasses, null, elementContent), expected, 'A link click should be tracked correctly');
 		},
 
 		"Track a screen view": function () {
@@ -285,6 +292,185 @@ define([
 			compare(tracker.trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId), expected, 'An ad conversion should be tracked correctly');
 		},
 
+		"Track a social interaction": function () {
+			var action = 'like';
+			var network = 'facebook';
+			var target = 'status-0000345345';
+
+			var inputJson = {
+				schema: 'iglu:com.snowplowanalytics.snowplow/social_interaction/jsonschema/1-0-0',
+				data: {
+					action: action,
+					network: network,
+					target: target
+				}
+			};
+
+			var expected = {
+				e: 'ue',
+				ue_pr: JSON.stringify({
+					schema: unstructEventSchema,
+					data: inputJson
+				})
+			};
+
+			compare(tracker.trackSocialInteraction(action, network, target), expected);
+		},
+
+
+		"Track an add-to-cart event": function () {
+			var sku = '4q345';
+			var unitPrice = 17;
+			var quantity = 2;
+			var name = 'red shoes';
+			var category = 'clothing';
+			var currency = 'USD';
+
+			var inputJson = {
+				schema: 'iglu:com.snowplowanalytics.snowplow/add_to_cart/jsonschema/1-0-0',
+				data: {
+					sku: sku,
+					name: name,
+					category: category,
+					unitPrice: unitPrice,
+					quantity: quantity,
+					currency: currency
+				}
+			};
+
+			var expected = {
+				e: 'ue',
+				ue_pr: JSON.stringify({
+					schema: unstructEventSchema,
+					data: inputJson
+				})
+			};
+
+			compare(tracker.trackAddToCart(sku, name, category, unitPrice, quantity, currency), expected);
+		},
+
+		"Track a remove-from-cart event": function () {
+			var sku = '4q345';
+			var unitPrice = 17;
+			var quantity = 2;
+			var name = 'red shoes';
+			var category = 'clothing';
+			var currency = 'USD';
+
+			var inputJson = {
+				schema: 'iglu:com.snowplowanalytics.snowplow/remove_from_cart/jsonschema/1-0-0',
+				data: {
+					sku: sku,
+					name: name,
+					category: category,
+					unitPrice: unitPrice,
+					quantity: quantity,
+					currency: currency
+				}
+			};
+
+			var expected = {
+				e: 'ue',
+				ue_pr: JSON.stringify({
+					schema: unstructEventSchema,
+					data: inputJson
+				})
+			};
+
+			compare(tracker.trackRemoveFromCart(sku, name, category, unitPrice, quantity, currency), expected);
+		},
+
+		"Track a form change event": function () {
+			var formId = "parent";
+			var elementId = "child";
+			var nodeName = "INPUT";
+			var type = "text";
+			var elementClasses = ["important"];
+			var value = "male";
+
+			var inputJson = {
+				schema: 'iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0',
+				data: {
+					formId: formId,
+					elementId: elementId,
+					nodeName: nodeName,
+					type: type,
+					elementClasses: elementClasses,
+					value: value
+				}
+			};
+
+			var expected = {
+				e: 'ue',
+				ue_pr: JSON.stringify({
+					schema: unstructEventSchema,
+					data: inputJson
+				})
+			};
+
+			compare(tracker.trackFormChange(formId, elementId, nodeName, type, elementClasses, value), expected);
+		},
+
+		"Track a form submission event": function () {
+			var formId = "parent";
+			var formClasses = ["formclass"];
+			var elements = [{
+				name: "gender",
+				value: "male",
+				nodeName: "INPUT",
+				type: "text"
+			}];
+
+			var inputJson = {
+				schema: 'iglu:com.snowplowanalytics.snowplow/submit_form/jsonschema/1-0-0',
+				data: {
+					formId: formId,
+					formClasses: formClasses,
+					elements: elements
+				}
+			};
+
+			var expected = {
+				e: 'ue',
+				ue_pr: JSON.stringify({
+					schema: unstructEventSchema,
+					data: inputJson
+				})
+			};
+
+			compare(tracker.trackFormSubmission(formId, formClasses, elements), expected);
+		},
+
+		"Track a site seach event": function () {
+			var terms = ["javascript", "development"];
+			var filters = {
+				"safeSearch": true,
+				"category": "books"
+			};
+			var totalResults = 35;
+			var pageResults = 10;
+
+			var inputJson = {
+				schema: 'iglu:com.snowplowanalytics.snowplow/site_search/jsonschema/1-0-0',
+				data: {
+					terms: terms,
+					filters: filters,
+					totalResults: totalResults,
+					pageResults: pageResults
+				}
+			};
+
+			var expected = {
+				e: 'ue',
+				ue_pr: JSON.stringify({
+					schema: unstructEventSchema,
+					data: inputJson
+				})
+			};
+
+			compare(tracker.trackSiteSearch(terms, filters, totalResults, pageResults), expected);
+		},
+
 		"Track a page view with custom context": function () {
 			var url = 'http://www.example.com';
 			var page = 'title page';
@@ -310,7 +496,7 @@ define([
 		"Track a page view with a timestamp": function () {
 			var tstamp = 1000000000000;
 
-			assert.strictEqual(tracker.trackPageView('http://www.example.com', null, null, null, tstamp)['dtm'], tstamp, 'A timestamp should be attached correctly');
+			assert.strictEqual(tracker.trackPageView('http://www.example.com', null, null, null, tstamp).build()['dtm'], tstamp, 'A timestamp should be attached correctly');
 		},
 
 		"Add individual name-value pairs to the payload": function () {
