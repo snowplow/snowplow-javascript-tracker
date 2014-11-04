@@ -69,7 +69,7 @@ define([
 		'Identify an empty JSON': function () {
 			var emptyJson = {};
 
-			assert.strictEqual(payload.isNonEmptyJson(emptyJson), false, '{} should be identified as empty')
+			assert.strictEqual(payload.isNonEmptyJson(emptyJson), false, '{} should be identified as empty');
 		},
 
 		'Build a payload': function () {
@@ -99,7 +99,7 @@ define([
 			sb.addDict({
 				'e': 'pv',
 				'tv': 'js-2.0.0'
-			})
+			});
 
 			assert.deepEqual(sb.build(), {e: 'pv', tv: 'js-2.0.0'}, 'A dictionary of name-value pairs should be added to the payload');
 		},
