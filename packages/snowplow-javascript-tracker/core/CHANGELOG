@@ -1,3 +1,13 @@
+Version 0.3.0 (2014-11-04)
+--------------------------
+Applied callback to the Payload for an event rather than the event dictionary (#259)
+Added page scroll parameters to trackPagePing (#257)
+Added social tracking (#258)
+Added trackAddToCart and trackRemoveFromCart methods (#260)
+Added trackFormChange and trackFormSubmission methods (#261)
+Added trackSiteSearch method (#263)
+Added content field to trackLinkClick (#262)
+
 Version 0.2.0 (2014-08-07)
 --------------------------
 Added UUID to payload (#244)

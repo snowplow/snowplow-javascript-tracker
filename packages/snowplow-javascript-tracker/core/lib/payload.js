@@ -27,12 +27,12 @@
 	 * See: http://tools.ietf.org/html/rfc4648#page-7
 	 */
 	function base64urlencode(data) {
-		if (!data) return data;
+		if (!data) {
+			return data;
+		}
 
 		var enc = base64.base64encode(data);
-		return enc.replace(/=/g, '')
-	            .replace(/\+/g, '-')
-	            .replace(/\//g, '_');
+		return enc.replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 	}
 
 	/*
@@ -73,7 +73,7 @@
 		
 		var add = function (key, value) {
 			if (value !== undefined && value !== null && value !== '') {
-				dict[key] = value
+				dict[key] = value;
 			}
 		};
 
@@ -83,7 +83,7 @@
 					add(key, dict[key]);
 				}
 			}
-		}
+		};
 
 		var addJson = function (keyIfEncoded, keyIfNotEncoded, json) {
 
@@ -105,6 +105,6 @@
 				return dict;
 			}
 		};
-	}
+	};
 
 }());
