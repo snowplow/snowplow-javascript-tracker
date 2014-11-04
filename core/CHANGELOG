@@ -1,4 +1,4 @@
-Version 0.3.0 (2014-xx-xx)
+Version 0.3.0 (2014-11-03)
 --------------------------
 Applied callback to the Payload for an event rather than the event dictionary (#259)
 Added page scroll parameters to trackPagePing (#257)
