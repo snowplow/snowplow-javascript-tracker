@@ -24,7 +24,7 @@
         ;(function(p,l,o,w,i,n,g){if(!p[i]){p.GlobalSnowplowNamespace=p.GlobalSnowplowNamespace||[];
         p.GlobalSnowplowNamespace.push(i);p[i]=function(){(p[i].q=p[i].q||[]).push(arguments)
         };p[i].q=p[i].q||[];n=l.createElement(o);g=l.getElementsByTagName(o)[0];n.async=1;
-        n.src=w;g.parentNode.insertBefore(n,g)}}(window,document,"script","//d1fc8wv8zag5ca.cloudfront.net/2.0.2/sp.js","new_name_here"));
+        n.src=w;g.parentNode.insertBefore(n,g)}}(window,document,"script","//d1fc8wv8zag5ca.cloudfront.net/2.1.0/sp.js","new_name_here"));
 
         window.new_name_here('newTracker', 'cf', 'd3rkrsqld9gmqf.cloudfront.net', {
           encodeBase64: false,
@@ -46,14 +46,14 @@
         //window.new_name_here('setUserIdFromCookie', '_sp_id.4209') // Test this using Firefox because Chrome doesn't allow local cookies.
         window.new_name_here('setCustomUrl', '/overridden-url/'); // Override the page URL
         window.new_name_here('enableActivityTracking', 10, 10); // Ping every 10 seconds after 10 seconds
-        window.new_name_here('enableLinkClickTracking:cf', {whitelist: ['inbound', 'out']}, true); // Track clicks on links whose class is not "barred"
+        window.new_name_here('enableLinkClickTracking:cf', {whitelist: ['inbound', 'out']}, true, true); // Track clicks on links whose class is not "barred"
         window.new_name_here('enableLinkClickTracking:uri', {
           filter: function(link){
             return link.id === 'legal';
           }
         }, true);
         // window.new_name_here('trackPageView', 'Async Test'); // Track the page view with custom title
-        window.new_name_here('trackPageView', null , [ // Auto-set page title; add page context
+        window.new_name_here('trackPageView', null, true, [ // Auto-set page title; add page context
           {
             schema: "iglu:com.example_company/page/jsonschema/1-2-1",
             data: {

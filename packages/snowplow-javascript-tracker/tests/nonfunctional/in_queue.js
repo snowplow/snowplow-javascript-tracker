@@ -106,5 +106,11 @@ define([
 			asyncQueue.push(["logConfigWriteCookies:sp"]);
 			assert.strictEqual(writeCookies, false, "The second tracker has not been assigned a unique cookie namespace, so cannot create cookies");
 		},
+
+		"Execute a user-defined custom callback": function () {
+			var callbackExecuted = false;
+			asyncQueue.push([function () { callbackExecuted = true; }]);
+			assert.isTrue(callbackExecuted);
+		}
 	});
 });
