@@ -55,7 +55,7 @@
 		}
 
 		// Initialize to and empty array if we didn't get anything out of localStorage
-		if (!outQueue) {
+		if (!lodash.isArray(outQueue)) {
 			outQueue = [];
 		}
 
