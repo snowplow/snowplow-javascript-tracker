@@ -82,7 +82,7 @@ module.exports = function(grunt) {
         dest: 'src/js/lib_managed/lodash.js',
         options: {
           exports: 'node',
-          include: 'isArray, isFunction, isString, isObject, isDate, isUndefined, isNull, map, compact, isEmpty',
+          include: 'isArray, isFunction, isString, isObject, isDate, isUndefined, isNull, map, filter, find, compact, isEmpty, clone',
           flags: ['debug']
         }
       }
@@ -91,7 +91,7 @@ module.exports = function(grunt) {
     browserify: {
       main: {
         files: {
-          'dist/bundle.js': ['src/js/init.js']
+          'deploy/bundle.js': ['src/js/init.js']
         }
       },
       test: {
@@ -103,14 +103,14 @@ module.exports = function(grunt) {
     },
 
     concat: {
-      dist: {
+      deploy: {
         options: {
           'report': 'gzip',
           'banner': '<%= banner %>',
           'process': true
         },
-        src: ['dist/bundle.js'],
-        dest: 'dist/snowplow.js'
+        src: ['deploy/bundle.js'],
+        dest: 'deploy/snowplow.js'
       },
       tag: {
         options: {
@@ -122,15 +122,15 @@ module.exports = function(grunt) {
     },
 
     min: {
-      dist: {
+      deploy: {
         options: {
           linebreak: 1000,
           report: 'gzip'
         },
         files: [
           {
-            src: 'dist/snowplow.js',
-            dest: 'dist/sp.js'
+            src: 'deploy/snowplow.js',
+            dest: 'deploy/sp.js'
           }
         ]
       },
@@ -153,7 +153,6 @@ module.exports = function(grunt) {
           runType: 'client',
           config: 'tests/intern.js',
           suites: [
-            'tests/nonfunctional/payload.js',
             'tests/nonfunctional/in_queue.js',
             'tests/nonfunctional/proxies.js'
             ]
@@ -172,7 +171,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-yui-compressor');
   grunt.loadNpmTasks('grunt-s3');
-  grunt.loadNpmTasks('grunt-invalidate-cloudfront');
+  grunt.loadNpmTasks('grunt-cloudfront-clear');
   grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('intern');
   grunt.loadNpmTasks('grunt-lodash');
@@ -198,7 +197,7 @@ module.exports = function(grunt) {
         },
         upload: [
           {
-            src: 'dist/sp.js',
+            src: 'deploy/sp.js',
             dest: '<%= pkg.version %>/sp.js'
           }
         ]
@@ -211,41 +210,32 @@ module.exports = function(grunt) {
         },
         upload: [
           {
-            src: 'dist/sp.js',
+            src: 'deploy/sp.js',
             dest: '<%= pkg.pinnedVersion %>/sp.js'
           }        
         ]
       },  
     });
 
-    grunt.config('invalidate_cloudfront', {
-      options: {
-        key: '<%= aws.key %>',
-        secret: '<%= aws.secret %>',
-        distribution: '<%= aws.distribution %>'
+    grunt.config('cloudfront_clear', {
+      pinned: {
+        resourcePaths: ['<%= pkg.pinnedVersion %>/sp.js'],
+        secret_key: '<%= aws.secret %>',
+        access_key: '<%= aws.key %>',
+        dist: '<%= aws.distribution %>'
       },
       not_pinned: {
-        files: [
-          {
-            src: ['<%= pkg.version %>/sp.js'],
-            dest: ''
-          }
-        ]
-      },
-      pinned: {
-        files: [
-          {
-            src: ['<%= pkg.pinnedVersion %>/sp.js'],
-            dest: ''
-          }
-        ]
+        resourcePaths: ['<%= pkg.version %>/sp.js'],
+        secret_key: '<%= aws.secret %>',
+        access_key: '<%= aws.key %>',
+        dist: '<%= aws.distribution %>'
       }
     });
   });
 
-  grunt.registerTask('default', 'Build lodash, Browserify, add banner, and minify', ['lodash', 'browserify:main', 'concat:dist', 'min:dist']);
-  grunt.registerTask('publish', 'Upload to S3 and invalidate Cloudfront (full semantic version only)', ['upload_setup', 'lodash', 'browserify:main', 'concat:dist', 'min:dist', 's3:not_pinned', 'invalidate_cloudfront:not_pinned']);
-  grunt.registerTask('publish-pinned', 'Upload to S3 and invalidate Cloudfront (full semantic version and semantic major version)', ['upload_setup', 'lodash', 'browserify:main', 'concat:dist', 'min:dist', 's3', 'invalidate_cloudfront']);
+  grunt.registerTask('default', 'Build lodash, Browserify, add banner, and minify', ['lodash', 'browserify:main', 'concat:deploy', 'min:deploy']);
+  grunt.registerTask('publish', 'Upload to S3 and invalidate Cloudfront (full semantic version only)', ['upload_setup', 'lodash', 'browserify:main', 'concat:deploy', 'min:deploy', 's3:not_pinned', 'cloudfront_clear:not_pinned']);
+  grunt.registerTask('publish-pinned', 'Upload to S3 and invalidate Cloudfront (full semantic version and semantic major version)', ['upload_setup', 'lodash', 'browserify:main', 'concat:deploy', 'min:deploy', 's3', 'cloudfront_clear']);
   grunt.registerTask('test', 'Intern tests', ['browserify:test', 'intern']);
   grunt.registerTask('travis', 'Intern tests for Travis CI',  ['lodash','browserify:test','intern']);
   grunt.registerTask('tags', 'Minifiy the Snowplow invocation tag', ['min:tag', 'concat:tag']);

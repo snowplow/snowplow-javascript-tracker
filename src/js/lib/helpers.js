@@ -51,7 +51,7 @@
 			}
 		}
 		return title;
-	}
+	};
 
 	/*
 	 * Extract hostname from URL
@@ -62,7 +62,7 @@
 			matches = e.exec(url);
 
 		return matches ? matches[1] : url;
-	}
+	};
 
 	/*
 	 * Fix-up domain
@@ -79,7 +79,7 @@
 			domain = domain.slice(1);
 		}
 		return domain;
-	}
+	};
 
 	/*
 	 * Get page referrer
@@ -111,7 +111,7 @@
 			referrer = document.referrer;
 		}
 		return referrer;
-	}
+	};
 
 	/*
 	 * Cross-browser helper function to add event handler
@@ -125,32 +125,18 @@
 			return element.attachEvent('on' + eventType, eventHandler);
 		}
 		element['on' + eventType] = eventHandler;
-	}
+	};
 
 	/*
 	 * Return value from name-value pair in querystring 
 	 */
 	object.fromQuerystring = function (field, url) {
-		var match = RegExp('^[^#]*[?&]' + field + '=([^&#]*)').exec(url);
+		var match = new RegExp('^[^#]*[?&]' + field + '=([^&#]*)').exec(url);
 		if (!match) {
 			return null;
 		}
 		return decodeURIComponent(match[1].replace(/\+/g, ' '));
-	}
-
-	/*
-	 * Remove from an object every property whose value is
-	 * null, undefined, an empty string, or an empty array
-	 */
-	object.deleteEmptyProperties = function (collection) {
-		for (var i in collection) {
-			if (collection.hasOwnProperty(i) && (lodash.isUndefined(collection[i]) || 
-				lodash.isNull(collection[i]) || collection[i].length === 0)) {
-				delete collection[i];
-			}
-		}
-		return collection;
-	}
+	};
 
 	/*
 	 * Only log deprecation warnings if they won't cause an error
@@ -159,6 +145,6 @@
 		if (typeof console !== 'undefined') {
 			console.warn('Snowplow: ' + message);
 		}
-	}
+	};
 
 }());

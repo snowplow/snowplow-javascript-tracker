@@ -42,7 +42,7 @@
 	 * Test whether a string is an IP address
 	 */
 	function isIpAddress(string) {
-		var IPRegExp = new RegExp('^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$');
+		var IPRegExp = new RegExp('^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$');
 		return IPRegExp.test(string);
 	}
 
@@ -96,6 +96,6 @@
 			hostName = helpers.getHostName(href);
 		}
 		return [hostName, href, referrer];
-	}
+	};
 
 }());

@@ -21,14 +21,21 @@ With this tracker you can collect user event data (page views, e-commerce transa
 
 ## Developers
 
-### Getting started
-Make sure you have `node` and `npm` installed and in your `$PATH`.
-* Install npm deps: `npm install`
-* Install `grunt-cli`:  `(sudo) npm install -g grunt-cli`
-* Set up an `./aws.json` file using the example `./aws.sample.json`
-  * If you just want to concat + minify you don't need to fill out the
-    `aws.json` file with valid credentials.
-* Build the package (default task concatenates and minifies) `grunt`
+### Contributing quickstart
+
+```
+git clone --recursive https://github.com/snowplow/dev-environment.git && cd dev-environment
+vagrant up && vagrant ssh
+ansible-playbook /vagrant/ansible-playbooks/snowplow-javascript-tracker.yml --inventory-file=/home/vagrant/ansible_hosts --connection=local
+cd /vagrant
+git clone https://github.com/snowplow/snowplow-javascript-tracker.git
+cd snowplow-javascript-tracker
+sudo npm install
+```
+
+Set up an `./aws.json` file using the example `./aws.sample.json`. If you just want to concat + minify without uploading then you don't need to fill out the `aws.json` file with valid credentials.
+
+Build the package (default task concatenates and minifies) using `grunt`.
 
 ## Testing
 

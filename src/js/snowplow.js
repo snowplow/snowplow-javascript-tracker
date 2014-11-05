@@ -75,6 +75,7 @@
 
 	// Load all our modules (at least until we fully modularize & remove grunt-concat)
 	var
+		lodash = require('./lib_managed/lodash'),
 		helpers = require('./lib/helpers'),
 		queue = require('./in_queue'),
 		tracker = require('./tracker'),
@@ -90,8 +91,13 @@
 			/* Tracker identifier with version */
 			version = 'js-' + '<%= pkg.version %>', // Update banner.js too
 
-			/* Contains three variables that are shared with tracker.js and must be passed by reference */
+			/* Contains four variables that are shared with tracker.js and must be passed by reference */
 			mutSnowplowState = {
+
+				/* List of request queues - one per Tracker instance */
+				outQueues: [],
+
+				/* Time at which to stop blocking excecution */
 				expireDateTime: null,
 
 				/* DOM Ready */
@@ -123,6 +129,11 @@
 				//     while (Date.now() < mutSnowplowState.expireDateTime) { }
 				do {
 					now = new Date();
+					if (lodash.filter(mutSnowplowState.outQueues, function (queue) {
+						return queue.length > 0;
+					}).length === 0) {
+						break;
+					}
 				} while (now.getTime() < mutSnowplowState.expireDateTime);
 			}
 		}
@@ -194,40 +205,41 @@
 		 * Public data and methods
 		 ************************************************************/
 
-		 windowAlias.Snowplow = {
-		 	/**
-		 	* Returns a Tracker object, configured with a
-		 	* CloudFront collector.
-		 	*
-		 	* @param string distSubdomain The subdomain on your CloudFront collector's distribution
-		 	*/
-		 	getTrackerCf: function (distSubdomain) {
-		 		var t = new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
-		 		t.setCollectorCf(distSubdomain);
-		 		return t;
-		 	},
-		 
-		 	/**
-		 	* Returns a Tracker object, configured with the
-		 	* URL to the collector to use.
-		 	*
-		 	* @param string rawUrl The collector URL minus protocol and /i
-		 	*/
-		 	getTrackerUrl: function (rawUrl) {
-		 		var t = new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
-		 		t.setCollectorCf(rawUrl);
-		 		return t;
-		 	},
-		 
-		 	/**
-		 	* Get internal asynchronous tracker object
-		 	*
-		 	* @return Tracker
-		 	*/
-		 	getAsyncTracker: function () {
-		 		return new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
-		 	}
-		 };
+		windowAlias.Snowplow = {
+
+			/**
+			 * Returns a Tracker object, configured with a
+			 * CloudFront collector.
+			 *
+			 * @param string distSubdomain The subdomain on your CloudFront collector's distribution
+			 */
+			getTrackerCf: function (distSubdomain) {
+				var t = new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
+				t.setCollectorCf(distSubdomain);
+				return t;
+			},
+
+			/**
+			 * Returns a Tracker object, configured with the
+			 * URL to the collector to use.
+			 *
+			 * @param string rawUrl The collector URL minus protocol and /i
+			 */
+			getTrackerUrl: function (rawUrl) {
+				var t = new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
+				t.setCollectorCf(rawUrl);
+				return t;
+			},
+
+			/**
+			 * Get internal asynchronous tracker object
+			 *
+			 * @return Tracker
+			 */
+			getAsyncTracker: function () {
+				return new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
+			}
+		};
 
 		/************************************************************
 		 * Constructor
@@ -239,6 +251,6 @@
 
 		// Now replace initialization array with queue manager object
 		return new queue.InQueueManager(tracker.Tracker, version, mutSnowplowState, asynchronousQueue, functionName);
-	}
+	};
 
 }());
