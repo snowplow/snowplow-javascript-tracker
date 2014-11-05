@@ -141,15 +141,22 @@
 		 *      [ functionObject, optional_parameters ]
 		 */
 		function applyAsyncFunction() {
-			var i, f, parameterArray, inputString, parsedString, names, namedTrackers;
+			var i, j, f, parameterArray, input, parsedString, names, namedTrackers;
 
 			// Outer loop in case someone push'es in zarg of arrays
 			for (i = 0; i < arguments.length; i += 1) {
 				parameterArray = arguments[i];
 
 				// Arguments is not an array, so we turn it into one
-				inputString = Array.prototype.shift.call(parameterArray);
-				parsedString = parseInputString(inputString);
+				input = Array.prototype.shift.call(parameterArray);
+
+				// Custom callback rather than tracker method
+				if (lodash.isFunction(input)) {
+					input.apply(this, parameterArray);
+					continue;
+				}
+
+				parsedString = parseInputString(input);
 				f = parsedString[0];
 				names = parsedString[1];
 
@@ -166,11 +173,11 @@
 				namedTrackers = getNamedTrackers(names);
 
 				if (lodash.isString(f)) {
-					for (var j = 0; j < namedTrackers.length; j++) {
+					for (j = 0; j < namedTrackers.length; j++) {
 						namedTrackers[j][f].apply(namedTrackers[j], parameterArray);
 					}
 				} else {
-					for (var j = 0; j < namedTrackers.length; j++) {
+					for (j = 0; j < namedTrackers.length; j++) {
 						f.apply(namedTrackers[j], parameterArray);
 					}
 				}
@@ -185,6 +192,6 @@
 		return {
 			push: applyAsyncFunction
 		};
-	}
+	};
 
 }());

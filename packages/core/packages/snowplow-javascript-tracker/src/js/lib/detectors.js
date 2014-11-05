@@ -36,7 +36,6 @@
 
 	var 
 		lodash = require('../lib_managed/lodash'),
-		helpers = require('./helpers'),
 		murmurhash3_32_gc = require('murmurhash').v3,
 		tz = require('jstimezonedetect').jstz.determine(),
 		cookie = require('browser-cookie-lite'),
@@ -59,7 +58,7 @@
 		} catch (e) {
 			return true; // SecurityError when referencing it means it exists
 		}
-	}
+	};
 
 	/*
 	 * Checks whether localStorage is available, in a way that
@@ -72,26 +71,26 @@
 		} catch (e) {
 			return true; // SecurityError when referencing it means it exists
 		}
-	}
+	};
 
 	/*
 	 * Checks whether localStorage is accessible
 	 * sets and removes an item to handle private IOS5 browsing
 	 * (http://git.io/jFB2Xw)
 	 */
-	 object.localStorageAccessible = function() {
-	 	var mod = 'modernizr';
-	 	if (!object.hasLocalStorage()) {
-	 		return false;
-	 	}
-	 	try {
-	 		windowAlias.localStorage.setItem(mod, mod);
-	 		windowAlias.localStorage.removeItem(mod);
-	 		return true;
-	 	} catch(e) {
-	 		return false;
-	 	}
-	 }
+	object.localStorageAccessible = function() {
+		var mod = 'modernizr';
+		if (!object.hasLocalStorage()) {
+			return false;
+		}
+		try {
+			windowAlias.localStorage.setItem(mod, mod);
+			windowAlias.localStorage.removeItem(mod);
+			return true;
+		} catch(e) {
+			return false;
+		}
+	 };
 
 	/*
 	 * Does browser have cookies enabled (for this site)?
@@ -105,7 +104,7 @@
 		}
 
 		return navigatorAlias.cookieEnabled ? '1' : '0';
-	}
+	};
 
 	/**
 	 * JS Implementation for browser fingerprint.
@@ -137,15 +136,14 @@
 			}
 		}
 		return murmurhash3_32_gc(fingerprint.join("###") + "###" + plugins.sort().join(";"), hashSeed);
-	}
+	};
 
 	/*
 	 * Returns visitor timezone
 	 */
 	object.detectTimezone = function() {
-		//var tz = require('jstimezonedetect').determine(); // For the online version TODO: fix this
-	    return (typeof (tz) === 'undefined') ? '' : tz.name();
-	}
+		return (typeof (tz) === 'undefined') ? '' : tz.name();
+	};
 
 	/**
 	 * Gets the current viewport.
@@ -161,7 +159,7 @@
 			e = documentAlias.documentElement || documentAlias.body;
 		}
 		return e[a+'Width'] + 'x' + e[a+'Height'];
-	}
+	};
 
 	/**
 	 * Gets the dimensions of the current
@@ -175,7 +173,7 @@
 		var w = Math.max(de.clientWidth, de.offsetWidth, de.scrollWidth);
 		var h = Math.max(de.clientHeight, de.offsetHeight, de.scrollHeight);
 		return isNaN(w) || isNaN(h) ? '' : w + 'x' + h;
-	}
+	};
 
 	/*
 	 * Returns browser features (plugins, resolution, cookies)
@@ -232,6 +230,6 @@
 		features.cookie = object.hasCookies(testCookieName);
 
 		return features;
-	}
+	};
 
 }());
