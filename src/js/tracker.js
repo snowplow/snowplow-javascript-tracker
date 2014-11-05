@@ -35,6 +35,7 @@
 ;(function() {
 
 	var
+		lodash = require('./lib_managed/lodash'),
 		helpers = require('./lib/helpers'),
 		proxies = require('./lib/proxies'),
 		cookie = require('browser-cookie-lite'),
@@ -575,10 +576,18 @@
 			if (performanceTracking) {
 				var performance = windowAlias.performance || windowAlias.mozPerformance || windowAlias.msPerformance || windowAlias.webkitPerformance;
 				if (performance) {
+					var performanceTiming = performance.timing;
+
+					// Add the Chrome firstPaintTime to the performance if it exists
+					if (window.chrome && window.chrome.loadTimes && typeof window.chrome.loadTimes().firstPaintTime === 'number') {
+						performanceTiming = lodash.clone(performanceTiming);
+						performanceTiming.chromeFirstPaint = window.chrome.loadTimes().firstPaintTime * 1000;
+					}
+
 					context = context || [];
 					context.push({
 						schema: 'iglu:org.w3/PerformanceTiming/jsonschema/1-0-0',
-						data: performance.timing
+						data: performanceTiming
 					});
 				}
 			}
