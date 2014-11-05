@@ -1,4 +1,4 @@
-Version 2.1.0 (2014-xx-xx)
+Version 2.1.0 (2014-11-05)
 --------------------------
 Added automated form submission tracking (#252)
 Stopped outbound queue from triggering multiple times per event (#251)
@@ -24,6 +24,7 @@ Added forceSecureTracker boolean option to the argmap, thanks @kujo4pmZ! (#247)
 Moved link click tracking into its own file (#266)
 Made IP address regex more strict (#267)
 Updated expected browser fingerprints in functional detectors test (#275)
+Added check to ensure outQueue is an array, thanks @kevinsimper! (#277)
 
 Version 2.0.2 (2014-10-20)
 --------------------------
