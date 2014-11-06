@@ -581,7 +581,7 @@
 					// Add the Chrome firstPaintTime to the performance if it exists
 					if (window.chrome && window.chrome.loadTimes && typeof window.chrome.loadTimes().firstPaintTime === 'number') {
 						performanceTiming = lodash.clone(performanceTiming);
-						performanceTiming.chromeFirstPaint = window.chrome.loadTimes().firstPaintTime * 1000;
+						performanceTiming.chromeFirstPaint = Math.round(window.chrome.loadTimes().firstPaintTime * 1000);
 					}
 
 					context = context || [];
