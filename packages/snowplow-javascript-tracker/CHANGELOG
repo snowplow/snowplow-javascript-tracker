@@ -1,4 +1,4 @@
-Version 2.1.2 (2014-11-11)
+Version 2.1.2 (2014-11-15)
 --------------------------
 Removed requestEnd field from PerformanceTiming context (#285)
 
