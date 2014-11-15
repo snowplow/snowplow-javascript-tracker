@@ -1,3 +1,7 @@
+Version 2.1.2 (2014-11-11)
+--------------------------
+Removed requestEnd field from PerformanceTiming context (#285)
+
 Version 2.1.1 (2014-11-06)
 --------------------------
 Rounded chromeFirstPaint field to an integer (#282)

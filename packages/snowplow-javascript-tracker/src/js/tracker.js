@@ -576,11 +576,13 @@
 			if (performanceTracking) {
 				var performance = windowAlias.performance || windowAlias.mozPerformance || windowAlias.msPerformance || windowAlias.webkitPerformance;
 				if (performance) {
-					var performanceTiming = performance.timing;
+					var performanceTiming = lodash.clone(performance.timing);
+
+					// Old Chrome versions add an unwanted requestEnd field
+					delete performanceTiming.requestEnd;
 
 					// Add the Chrome firstPaintTime to the performance if it exists
 					if (window.chrome && window.chrome.loadTimes && typeof window.chrome.loadTimes().firstPaintTime === 'number') {
-						performanceTiming = lodash.clone(performanceTiming);
 						performanceTiming.chromeFirstPaint = Math.round(window.chrome.loadTimes().firstPaintTime * 1000);
 					}
 
