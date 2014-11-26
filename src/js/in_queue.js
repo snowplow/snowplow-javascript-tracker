@@ -175,14 +175,8 @@
 
 				namedTrackers = getNamedTrackers(names);
 
-				if (lodash.isString(f)) {
-					for (j = 0; j < namedTrackers.length; j++) {
-						namedTrackers[j][f].apply(namedTrackers[j], parameterArray);
-					}
-				} else {
-					for (j = 0; j < namedTrackers.length; j++) {
-						f.apply(namedTrackers[j], parameterArray);
-					}
+				for (j = 0; j < namedTrackers.length; j++) {
+					namedTrackers[j][f].apply(namedTrackers[j], parameterArray);
 				}
 			}
 		}
