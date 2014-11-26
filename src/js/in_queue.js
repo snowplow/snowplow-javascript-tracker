@@ -150,9 +150,12 @@
 				// Arguments is not an array, so we turn it into one
 				input = Array.prototype.shift.call(parameterArray);
 
-				// Custom callback rather than tracker method
+				// Custom callback rather than tracker method, called for each named tracker
 				if (lodash.isFunction(input)) {
-					input.apply(this, parameterArray);
+					var allNamedTrackers = getNamedTrackers()
+					for (j = 0; j < allNamedTrackers.length; j++) {
+						input.apply(allNamedTrackers[j], parameterArray);
+					}
 					continue;
 				}
 
