@@ -68,7 +68,7 @@ function trackerCore(base64, callback) {
 	 * @return object Outer JSON
 	 */
 	function completeContexts(contexts) {
-		if (contexts && contexts.length) {
+		if (contexts) {
 			return {
 				schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-1',
 				data: contexts
