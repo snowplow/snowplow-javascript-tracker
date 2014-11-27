@@ -70,7 +70,7 @@ function trackerCore(base64, callback) {
 	function completeContexts(contexts) {
 		if (contexts && contexts.length) {
 			return {
-				schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0',
+				schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-1',
 				data: contexts
 			};
 		}
