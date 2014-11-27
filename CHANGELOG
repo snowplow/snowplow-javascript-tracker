@@ -1,3 +1,13 @@
+Version 2.2.0 (2014-11-xx)
+--------------------------
+Ensured all page offsets are integers (#291) (TODO)
+Added public method to get duid (#289) (TODO)
+Added public method to get user fingerprint (#288) (TODO)
+Added bundle.js to deploy/.gitignore (#281) (TODO)
+Started using grunt-cloudfront for cache invalidation (#276) (TODO)
+Added ability to disable use of localStorage (#181) (TODO)
+Added ability to disable cookies (#140) (TODO)
+
 Version 2.1.2 (2014-11-15)
 --------------------------
 Removed requestEnd field from PerformanceTiming context (#285)
