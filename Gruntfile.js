@@ -171,7 +171,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-yui-compressor');
   grunt.loadNpmTasks('grunt-s3');
-  grunt.loadNpmTasks('grunt-cloudfront-clear');
+  grunt.loadNpmTasks('grunt-cloudfront');
   grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('intern');
   grunt.loadNpmTasks('grunt-lodash');
@@ -217,18 +217,30 @@ module.exports = function(grunt) {
       },  
     });
 
-    grunt.config('cloudfront_clear', {
-      pinned: {
-        resourcePaths: ['<%= pkg.pinnedVersion %>/sp.js'],
-        secret_key: '<%= aws.secret %>',
-        access_key: '<%= aws.key %>',
-        dist: '<%= aws.distribution %>'
+    grunt.config('cloudfront', {
+      options: {
+        region: 'eu-east-1',
+        distributionId: '<%= aws.distribution %>',
+        listInvalidations: true,
+        listDistributions: true,
+        credentials: {
+          accessKeyId: '<%= aws.key %>',
+          secretAccessKey: '<%= aws.secret %>'
+        }
       },
       not_pinned: {
-        resourcePaths: ['<%= pkg.version %>/sp.js'],
-        secret_key: '<%= aws.secret %>',
-        access_key: '<%= aws.key %>',
-        dist: '<%= aws.distribution %>'
+        CallerReference: Date.now().toString(),
+        Paths: {
+          Quantity: 1,
+          Items: ['/<%= pkg.version %>/sp.js']
+        }
+      },
+      pinned: {
+        CallerReference: Date.now().toString(),
+        Paths: {
+          Quantity: 1,
+          Items: ['/<%= pkg.pinnedVersion %>/sp.js']
+        }
       }
     });
   });

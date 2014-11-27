@@ -4,7 +4,7 @@ Ensured all page offsets are integers (#291)
 Added public method to get duid (#289) (TODO)
 Added public method to get user fingerprint (#288) (TODO)
 Added bundle.js to deploy/.gitignore (#281)
-Started using grunt-cloudfront for cache invalidation (#276) (TODO)
+Started using grunt-cloudfront for cache invalidation (#276)
 Added ability to disable use of localStorage (#181)
 Added ability to disable cookies (#140) (TODO)
 
