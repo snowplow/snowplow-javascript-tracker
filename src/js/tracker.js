@@ -71,7 +71,8 @@
 	 * 8. userFingerprintSeed, 123412414
 	 * 9. pageUnloadTimer, 500
 	 * 10. forceSecureTracker, false
-	 * 11. writeCookies, true
+	 * 11. useLocalStorage, true
+	 * 12. writeCookies, true
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
 
@@ -165,6 +166,8 @@
 			// This forces the tracker to be HTTPS even if the page is not secure
 			forceSecureTracker = argmap.hasOwnProperty('forceSecureTracker') ? (argmap.forceSecureTracker === true) : false,
 
+			// Whether to use localStorage to store events between sessions while offline
+			useLocalStorage = argmap.hasOwnProperty('useLocalStorage') ? argmap.useLocalStorage : true,
 
 			// Browser language (or Windows language for IE). Imperfect but CloudFront doesn't log the Accept-Language header
 			browserLanguage = navigatorAlias.userLanguage || navigatorAlias.language,
@@ -213,7 +216,7 @@
 			formTrackingManager = forms.getFormTrackingManager(core, trackerId),
 
 			// Manager for local storage queue
-			outQueueManager = new requestQueue.OutQueueManager(functionName, namespace, mutSnowplowState);
+			outQueueManager = new requestQueue.OutQueueManager(functionName, namespace, mutSnowplowState, useLocalStorage);
 
 
 		// Enable base 64 encoding for unstructured events and custom contexts
