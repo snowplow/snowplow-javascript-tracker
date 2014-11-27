@@ -650,7 +650,7 @@
 		function logPagePing(pageTitle, context) {
 			resetMaxScrolls();
 			core.trackPagePing(purify(configCustomUrl || locationHrefAlias), pageTitle, purify(configReferrerUrl),
-				minXOffset, maxXOffset, minYOffset, maxYOffset, context);
+				Math.round(minXOffset), Math.round(maxXOffset), Math.round(minYOffset), Math.round(maxYOffset), context);
 		}
 
 		/**

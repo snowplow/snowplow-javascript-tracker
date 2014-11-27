@@ -1,6 +1,6 @@
 Version 2.2.0 (2014-11-xx)
 --------------------------
-Ensured all page offsets are integers (#291) (TODO)
+Ensured all page offsets are integers (#291)
 Added public method to get duid (#289) (TODO)
 Added public method to get user fingerprint (#288) (TODO)
 Added bundle.js to deploy/.gitignore (#281)
