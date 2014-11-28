@@ -796,6 +796,15 @@
 			},
 
 			/**
+			 * Get the user fingerprint
+			 *
+			 * @return string The user fingerprint
+			 */
+			getUserFingerprint: function () {
+				return userFingerprint;
+			},
+
+			/**
 			* Specify the app ID
 			*
 			* @param int|string appId
