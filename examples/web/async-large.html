@@ -55,6 +55,11 @@
           }
         ]);
 
+        // Callback executed once the tracker loads which logs the user fingerprint
+        window.snowplow_1(function () {
+          console.log(this.cf.getUserFingerprint());
+        });
+
     </script>
     <!-- Snowplow stops plowing -->
 
