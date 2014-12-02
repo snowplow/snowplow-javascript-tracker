@@ -333,7 +333,7 @@
 
 			for (var contextKey in lowPriorityKeys) {
 				if (request.hasOwnProperty(contextKey)  && lowPriorityKeys.hasOwnProperty(contextKey)) {
-					querystring += '&' + contextKey + '=' + request[contextKey];
+					querystring += '&' + contextKey + '=' + encodeURIComponent(request[contextKey]);
 				}
 			}
 

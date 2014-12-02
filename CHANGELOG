@@ -8,6 +8,7 @@ Added bundle.js to deploy/.gitignore (#281)
 Started using grunt-cloudfront for cache invalidation (#276)
 Added ability to disable use of localStorage (#181)
 Added ability to disable cookies (#140)
+URL encoded custom contexts if base 64 encoding is disabled (#299)
 
 Version 2.1.2 (2014-11-15)
 --------------------------
