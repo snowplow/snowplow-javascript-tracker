@@ -1,6 +1,6 @@
 {
   "name": "snowplow-tracker",
-  "version": "2.2.0-M1",
+  "version": "2.2.0-M2",
   "devDependencies": {
     "JSON": "~1.0.0",
     "browser-cookie-lite": "~0.3.1",
