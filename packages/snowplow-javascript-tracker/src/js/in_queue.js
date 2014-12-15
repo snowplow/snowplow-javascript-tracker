@@ -150,9 +150,9 @@
 				// Arguments is not an array, so we turn it into one
 				input = Array.prototype.shift.call(parameterArray);
 
-				// Custom callback rather than tracker method
+				// Custom callback rather than tracker method, called with trackerDictionary as the context
 				if (lodash.isFunction(input)) {
-					input.apply(this, parameterArray);
+					input.apply(trackerDictionary, parameterArray);
 					continue;
 				}
 
@@ -172,14 +172,8 @@
 
 				namedTrackers = getNamedTrackers(names);
 
-				if (lodash.isString(f)) {
-					for (j = 0; j < namedTrackers.length; j++) {
-						namedTrackers[j][f].apply(namedTrackers[j], parameterArray);
-					}
-				} else {
-					for (j = 0; j < namedTrackers.length; j++) {
-						f.apply(namedTrackers[j], parameterArray);
-					}
+				for (j = 0; j < namedTrackers.length; j++) {
+					namedTrackers[j][f].apply(namedTrackers[j], parameterArray);
 				}
 			}
 		}

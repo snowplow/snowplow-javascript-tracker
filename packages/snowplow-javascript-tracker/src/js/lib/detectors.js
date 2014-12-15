@@ -175,10 +175,14 @@
 		return isNaN(w) || isNaN(h) ? '' : w + 'x' + h;
 	};
 
-	/*
+	/**
 	 * Returns browser features (plugins, resolution, cookies)
+	 *
+	 * @param boolean useCookies Whether to test for cookies
+	 * @param string testCookieName Name to use for the test cookie
+	 * @return Object containing browser features
 	 */
-	object.detectBrowserFeatures = function(testCookieName) {
+	object.detectBrowserFeatures = function(useCookies, testCookieName) {
 		var i,
 			mimeType,
 			pluginMap = {
@@ -227,7 +231,9 @@
 		// Other browser features
 		features.res = screenAlias.width + 'x' + screenAlias.height;
 		features.cd = screenAlias.colorDepth;
-		features.cookie = object.hasCookies(testCookieName);
+		if (useCookies) {
+			features.cookie = object.hasCookies(testCookieName);
+		}
 
 		return features;
 	};
