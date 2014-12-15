@@ -1,4 +1,4 @@
-Version 2.2.0 (2014-12-xx)
+Version 2.2.0 (2014-12-15)
 --------------------------
 Made trackerDictionary object available in onload callbacks, thanks @murphybob! (#294)
 Ensured all page offsets are integers (#291)
