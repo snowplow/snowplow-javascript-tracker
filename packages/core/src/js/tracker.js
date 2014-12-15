@@ -71,7 +71,9 @@
 	 * 8. userFingerprintSeed, 123412414
 	 * 9. pageUnloadTimer, 500
 	 * 10. forceSecureTracker, false
-	 * 11. writeCookies, true
+	 * 11. useLocalStorage, true
+	 * 12. useCookies, true
+	 * 13. writeCookies, true
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
 
@@ -165,12 +167,17 @@
 			// This forces the tracker to be HTTPS even if the page is not secure
 			forceSecureTracker = argmap.hasOwnProperty('forceSecureTracker') ? (argmap.forceSecureTracker === true) : false,
 
+			// Whether to use localStorage to store events between sessions while offline
+			useLocalStorage = argmap.hasOwnProperty('useLocalStorage') ? argmap.useLocalStorage : true,
+
+			// Whether to use cookies
+			configUseCookies = argmap.hasOwnProperty('useCookies') ? argmap.useCookies : true,
 
 			// Browser language (or Windows language for IE). Imperfect but CloudFront doesn't log the Accept-Language header
 			browserLanguage = navigatorAlias.userLanguage || navigatorAlias.language,
 
 			// Browser features via client-side data collection
-			browserFeatures = detectors.detectBrowserFeatures(getSnowplowCookieName('testcookie')),
+			browserFeatures = detectors.detectBrowserFeatures(configUseCookies, getSnowplowCookieName('testcookie')),
 
 			// Visitor fingerprint
 			userFingerprint = (argmap.userFingerprint === false) ? '' : detectors.detectSignature(configUserFingerprintHashSeed),
@@ -213,7 +220,7 @@
 			formTrackingManager = forms.getFormTrackingManager(core, trackerId),
 
 			// Manager for local storage queue
-			outQueueManager = new requestQueue.OutQueueManager(functionName, namespace, mutSnowplowState);
+			outQueueManager = new requestQueue.OutQueueManager(functionName, namespace, mutSnowplowState, useLocalStorage);
 
 
 		// Enable base 64 encoding for unstructured events and custom contexts
@@ -326,7 +333,7 @@
 
 			for (var contextKey in lowPriorityKeys) {
 				if (request.hasOwnProperty(contextKey)  && lowPriorityKeys.hasOwnProperty(contextKey)) {
-					querystring += '&' + contextKey + '=' + request[contextKey];
+					querystring += '&' + contextKey + '=' + encodeURIComponent(request[contextKey]);
 				}
 			}
 
@@ -442,6 +449,9 @@
 		 * Load visitor ID cookie
 		 */
 		function loadDomainUserIdCookie() {
+			if (!configUseCookies) {
+				return [];
+			}
 			var now = new Date(),
 				nowTs = Math.round(now.getTime() / 1000),
 				id = getSnowplowCookieValue('id'),
@@ -497,14 +507,14 @@
 				currentVisitTs = id[4],
 				lastVisitTs = id[5];
 
-			if (configDoNotTrack && configWriteCookies) {
+			if (configDoNotTrack && configUseCookies && configWriteCookies) {
 				cookie.cookie(idname, '', -1, configCookiePath, configCookieDomain);
 				cookie.cookie(sesname, '', -1, configCookiePath, configCookieDomain);
 				return;
 			}
 
 			// New session?
-			if (!ses) {
+			if (!ses && configUseCookies) {
 				// New session (aka new visit)
 				visitCount++;
 				// Update the last visit timestamp
@@ -529,7 +539,7 @@
 
 
 			// Update cookies
-			if (configWriteCookies) {
+			if (configUseCookies && configWriteCookies) {
 				setDomainUserIdCookie(_domainUserId, createTs, visitCount, nowTs, lastVisitTs);
 				cookie.cookie(sesname, '*', configSessionCookieTimeout, configCookiePath, configCookieDomain);
 			}
@@ -650,7 +660,7 @@
 		function logPagePing(pageTitle, context) {
 			resetMaxScrolls();
 			core.trackPagePing(purify(configCustomUrl || locationHrefAlias), pageTitle, purify(configReferrerUrl),
-				minXOffset, maxXOffset, minYOffset, maxYOffset, context);
+				Math.round(minXOffset), Math.round(maxXOffset), Math.round(minYOffset), Math.round(maxYOffset), context);
 		}
 
 		/**
@@ -783,6 +793,15 @@
 			 */
 			getDomainUserInfo: function () {
 				return loadDomainUserIdCookie();
+			},
+
+			/**
+			 * Get the user fingerprint
+			 *
+			 * @return string The user fingerprint
+			 */
+			getUserFingerprint: function () {
+				return userFingerprint;
 			},
 
 			/**

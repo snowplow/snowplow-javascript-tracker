@@ -40,13 +40,24 @@
 		localStorageAccessible = require('./lib/detectors').localStorageAccessible(),
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
-	object.OutQueueManager = function (functionName, namespace, mutSnowplowState) {
+	/**
+	 * Object handling sending events to a collector.
+	 * Instantiated once per tracker instance.
+	 *
+	 * @param string functionName The Snowplow function name (used to generate the localStorage key)
+	 * @param string namespace The tracker instance's namespace (used to generate the localStorage key)
+	 * @param object mutSnowplowState Gives the pageUnloadGuard a reference to the outbound queue
+	 *                                so it can unload the page when all queues are empty
+	 * @param useLocalStorage Whether to use localStorage at all
+	 * @return object OutQueueManager instance
+	 */
+	object.OutQueueManager = function (functionName, namespace, mutSnowplowState, useLocalStorage) {
 		var	queueName = ['snowplowOutQueue', functionName, namespace].join('_'),
 			executingQueue = false,
 			configCollectorUrl,
 			outQueue;
 
-		if (localStorageAccessible) {
+		if (localStorageAccessible && useLocalStorage) {
 			// Catch any JSON parse errors that might be thrown
 			try {
 				outQueue = json2.parse(localStorage.getItem(queueName));
@@ -69,7 +80,7 @@
 		function enqueueRequest (request, url) {
 			outQueue.push(request);
 			configCollectorUrl = url;
-			if (localStorageAccessible) {
+			if (localStorageAccessible && useLocalStorage) {
 				localStorage.setItem(queueName, json2.stringify(outQueue));
 			}
 
@@ -106,7 +117,7 @@
 
 			image.onload = function () {
 				outQueue.shift();
-				if (localStorageAccessible) {
+				if (localStorageAccessible && useLocalStorage) {
 					localStorage.setItem(queueName, json2.stringify(outQueue));
 				}
 				executeQueue();
