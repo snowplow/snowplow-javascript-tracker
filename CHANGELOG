@@ -1,3 +1,15 @@
+Version 2.2.0 (2014-12-15)
+--------------------------
+Made trackerDictionary object available in onload callbacks, thanks @murphybob! (#294)
+Ensured all page offsets are integers (#291)
+Added public method to get duid (#289)
+Added public method to get user fingerprint (#288)
+Added bundle.js to deploy/.gitignore (#281)
+Started using grunt-cloudfront for cache invalidation (#276)
+Added ability to disable use of localStorage (#181)
+Added ability to disable cookies (#140)
+URL encoded custom contexts if base 64 encoding is disabled (#299)
+
 Version 2.1.2 (2014-11-15)
 --------------------------
 Removed requestEnd field from PerformanceTiming context (#285)
