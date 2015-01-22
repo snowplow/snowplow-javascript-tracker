@@ -1,3 +1,10 @@
+Version 2.2.1 (2015-xx-xx)
+--------------------------
+Fixed QuotaExceededError bug with localStorage in Safari (#308)
+Stopped sending empty PerformanceTiming context (#306)
+Prevented accidental publication of snowplow-tracker to npm (#300)
+Added missing tid ticket to CHANGELOG under 2.1.0 (#302)
+
 Version 2.2.0 (2014-12-15)
 --------------------------
 Made trackerDictionary object available in onload callbacks, thanks @murphybob! (#294)
