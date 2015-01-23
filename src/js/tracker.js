@@ -596,7 +596,10 @@
 						performanceTiming.chromeFirstPaint = Math.round(window.chrome.loadTimes().firstPaintTime * 1000);
 					}
 
-					context = context || [];
+					// Avoid individual tracker instances mutating the shared context array
+					// See https://github.com/snowplow/snowplow-javascript-tracker/issues/309
+					context = context ? lodash.clone(context) : [];
+
 					context.push({
 						schema: 'iglu:org.w3/PerformanceTiming/jsonschema/1-0-0',
 						data: performanceTiming

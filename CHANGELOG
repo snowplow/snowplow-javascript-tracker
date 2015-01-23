@@ -2,6 +2,7 @@ Version 2.2.1 (2015-xx-xx)
 --------------------------
 Fixed QuotaExceededError bug with localStorage in Safari (#308)
 Stopped sending empty PerformanceTiming context (#306)
+Prevented PerformanceTiming context being sent multiple times (#309)
 Prevented accidental publication of snowplow-tracker to npm (#300)
 Added missing tid ticket to CHANGELOG under 2.1.0 (#302)
 
