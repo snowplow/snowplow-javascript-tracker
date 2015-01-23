@@ -41,7 +41,7 @@ define([
 	var 
 		// Expected viewport dimensions vary based on browser
 		expectedViewportWidths = [980, 1016, 1024, 1280],
-		expectedViewportHeights = [636, 642, 644, 667, 670, 673, 684, 686, 695, 702, 705, 706, 707, 712],
+		expectedViewportHeights = [636, 642, 644, 660, 667, 670, 673, 684, 686, 695, 702, 705, 706, 707, 712],
 
 		// User fingerprint varies based on browser features
 		// TODO: try to hash this off the useragent - 
