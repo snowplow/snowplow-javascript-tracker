@@ -591,7 +591,10 @@
 					// performance.timing so we cannot copy them using lodash.clone
 					var performanceTiming = {};
 					for (var field in performance.timing) {
-						performanceTiming[field] = performance.timing[field];
+						// Don't copy the toJSON method
+						if (!lodash.isFunction(performance.timing[field])) {
+							performanceTiming[field] = performance.timing[field];
+						}
 					}
 
 					// Old Chrome versions add an unwanted requestEnd field
