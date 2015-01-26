@@ -586,7 +586,13 @@
 			if (performanceTracking) {
 				var performance = windowAlias.performance || windowAlias.mozPerformance || windowAlias.msPerformance || windowAlias.webkitPerformance;
 				if (performance) {
-					var performanceTiming = lodash.clone(performance.timing);
+
+					// On Safari, the fields we are interested in are on the prototype chain of
+					// performance.timing so we cannot copy them using lodash.clone
+					var performanceTiming = {};
+					for (var field in performance.timing) {
+						performanceTiming[field] = performance.timing[field];
+					}
 
 					// Old Chrome versions add an unwanted requestEnd field
 					delete performanceTiming.requestEnd;
