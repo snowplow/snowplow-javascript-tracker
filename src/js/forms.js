@@ -138,66 +138,6 @@ object.getFormTrackingManager = function (core, trackerId) {
 		};
 	}
 
-	/**
-	 * Check whether an element has at least one class from a given list
-	 */
-	function checkClass(elt, classList) {
-		var classes = lodash.map(elt.classList),
-			i;
-
-		for (i = 0; i < classes.length; i++) {
-			if (classList[classes[i]]) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/*
-	 * Convert a criterion object to a filter function
-	 *
-	 * @param object criterion Either {whitelist: [array of allowable strings]}
-	 *                             or {blacklist: [array of allowable strings]}
-	 *                             or {filter: function (elt) {return whether to track the element}}
-	 * @param boolean byClass Whether to whitelist/blacklist based on an element's classes (for forms)
-	 *                        or name attribute (for fields)
-	 */
-	function getFilter(criterion, byClass) {
-
-		// If the criterion argument is not an object, add listeners to all elements
-		if (lodash.isArray(criterion) || !lodash.isObject(criterion)) {
-			return function (elt) {
-				return true;
-			};
-		}
-
-		if (criterion.hasOwnProperty('filter')) {
-			return criterion.filter;
-		} else {
-			var inclusive = criterion.hasOwnProperty('whitelist');
-			var specifiedClasses = criterion.whitelist || criterion.blacklist;
-			if (!lodash.isArray(specifiedClasses)) {
-				specifiedClasses = [specifiedClasses];
-			}
-
-			// Convert the array of classes to an object of the form {class1: true, class2: true, ...}
-			var specifiedClassesSet = {};
-			for (var i=0; i<specifiedClasses.length; i++) {
-				specifiedClassesSet[specifiedClasses[i]] = true;
-			}
-
-			if (byClass) {
-				return function (elt) {
-					return checkClass(elt, specifiedClassesSet) === inclusive;
-				};
-			} else {
-				return function (elt) {
-					return elt.name in specifiedClassesSet === inclusive;
-				};
-			}
-		}
-	}
-
 	return {
 
 		/*
@@ -205,8 +145,8 @@ object.getFormTrackingManager = function (core, trackerId) {
 		 */
 		configureFormTracking: function (config, context) {
 			if (config) {
-				formFilter = getFilter(config.forms, true);
-				fieldFilter = getFilter(config.fields, false);
+				formFilter = helpers.getFilter(config.forms, true);
+				fieldFilter = helpers.getFilter(config.fields, false);
 			}
 		},
 
