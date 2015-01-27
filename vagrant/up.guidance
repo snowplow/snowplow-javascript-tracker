@@ -1,0 +1,4 @@
+To get started:
+vagrant ssh
+cd /vagrant
+sudo npm install
