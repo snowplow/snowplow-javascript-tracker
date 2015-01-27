@@ -37,7 +37,14 @@
         window.snowplow_1('setCustomUrl', '/overridden-url/'); // Override the page URL
         window.snowplow_1('enableActivityTracking', 10, 10); // Ping every 10 seconds after 10 seconds
         window.snowplow_1('enableLinkClickTracking', {blacklist: ['barred']}, true); // Track clicks on links whose class is not "barred"
-        window.snowplow_1('enableFormTracking'); // Track changes to form fields and form submissions
+        window.snowplow_1('enableFormTracking', {
+          forms: {
+            whitelist: ['formclass']
+          },
+          fields: {
+            blacklist: ['comments']
+          }
+        }); // Track changes to form fields and form submissions
         // window.snowplow_1('trackPageView', 'Async Test'); // Track the page view with custom title
         window.snowplow_1('trackPageView', null , false, [ // Auto-set page title; add page context
           {
@@ -235,7 +242,7 @@
 
     <p>
       Fill in the form fields and click the button to trigger form tracking:
-      <form id="signup" onsubmit="return false">
+      <form id="signup" onsubmit="return false" class="formclass">
         <fieldset>
           <input name="gender" type="radio" value="Male"></input>Male<br>
           <input name="gender" type="radio" value="Female"></input>Female<br>
@@ -246,6 +253,7 @@
           </select><br>
           <input name="name" type="text" placeholder="Name"></input><br>
           <textarea name="other" placeholder="Other information"></textarea><br>
+          <textarea name="comments" placeholder="Comments"></textarea><br>
           <input type="checkbox" name="email" value="on">Add me to the mailing list
         </fieldset>
         <input type="submit" value="Submit"></input>

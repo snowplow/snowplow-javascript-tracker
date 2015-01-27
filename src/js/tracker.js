@@ -1021,13 +1021,17 @@
 			 * An event will be fired when a form field is changed or a form submitted.
 			 * This can be called multiple times: only forms not already tracked will be tracked.
 			 *
+			 * @param object config Configuration object determining which forms and fields to track.
+			 *                      Has two properties: "forms" and "fields"
 			 * @param array context Context for all form tracking events
 			 */
-			enableFormTracking: function (context) {
+			enableFormTracking: function (config, context) {
 				if (mutSnowplowState.hasLoaded) {
+					formTrackingManager.configureFormTracking(config);
 					formTrackingManager.addFormListeners(context);
 				} else {
 					mutSnowplowState.registeredOnLoadHandlers.push(function () {
+						formTrackingManager.configureFormTracking(config);
 						formTrackingManager.addFormListeners(context);
 					});
 				}

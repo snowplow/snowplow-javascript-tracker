@@ -48,6 +48,15 @@ object.getFormTrackingManager = function (core, trackerId) {
 	// Tag names of mutable elements inside a form
 	var innerElementTags = ['textarea', 'input', 'select'];
 
+	// Used to mark elements with event listeners
+	var trackingMarker = trackerId + 'form';
+
+	// Filter to determine which forms should be tracked
+	var formFilter = function (e) {return true;}
+
+	// Filter to determine which form fields should be tracked
+	var fieldFilter = function (e) {return true;}
+
 	/*
 	 * Get an identifier for a form, input, textarea, or select element
 	 */
@@ -77,8 +86,13 @@ object.getFormTrackingManager = function (core, trackerId) {
 	 */
 	function getInnerFormElements(elt) {
 		var innerElements = [];
-		lodash.map(innerElementTags, function (tagname) {
-			lodash.map(elt.getElementsByTagName(tagname), function (child) {
+		lodash.forEach(innerElementTags, function (tagname) {
+
+			var trackedChildren = lodash.filter(elt.getElementsByTagName(tagname), function (child) {
+				return child.hasOwnProperty(trackingMarker);
+			});
+
+			lodash.forEach(trackedChildren, function (child) {
 				if (child.type === 'submit') {
 					return;
 				}
@@ -124,26 +138,95 @@ object.getFormTrackingManager = function (core, trackerId) {
 		};
 	}
 
+	/**
+	 * Check whether an element has at least one class from a given list
+	 */
+	function checkClass(elt, classList) {
+		var classes = lodash.map(elt.classList),
+			i;
+
+		for (i = 0; i < classes.length; i++) {
+			if (classList[classes[i]]) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/*
+	 * Convert a criterion object to a filter function
+	 *
+	 * @param object criterion Either {whitelist: [array of allowable strings]}
+	 *                             or {blacklist: [array of allowable strings]}
+	 *                             or {filter: function (elt) {return whether to track the element}}
+	 * @param boolean byClass Whether to whitelist/blacklist based on an element's classes (for forms)
+	 *                        or name attribute (for fields)
+	 */
+	function getFilter(criterion, byClass) {
+
+		// If the criterion argument is not an object, add listeners to all elements
+		if (lodash.isArray(criterion) || !lodash.isObject(criterion)) {
+			return function (elt) {
+				return true;
+			};
+		}
+
+		if (criterion.hasOwnProperty('filter')) {
+			return criterion.filter;
+		} else {
+			var inclusive = criterion.hasOwnProperty('whitelist');
+			var specifiedClasses = criterion.whitelist || criterion.blacklist;
+			if (!lodash.isArray(specifiedClasses)) {
+				specifiedClasses = [specifiedClasses];
+			}
+
+			// Convert the array of classes to an object of the form {class1: true, class2: true, ...}
+			var specifiedClassesSet = {};
+			for (var i=0; i<specifiedClasses.length; i++) {
+				specifiedClassesSet[specifiedClasses[i]] = true;
+			}
+
+			if (byClass) {
+				return function (elt) {
+					return checkClass(elt, specifiedClassesSet) === inclusive;
+				};
+			} else {
+				return function (elt) {
+					return elt.name in specifiedClassesSet === inclusive;
+				};
+			}
+		}
+	}
+
 	return {
+
+		/*
+		 * Configures form tracking: which forms and fields will be tracked, and the context to attach
+		 */
+		configureFormTracking: function (config, context) {
+			if (config) {
+				formFilter = getFilter(config.forms, true);
+				fieldFilter = getFilter(config.fields, false);
+			}
+		},
 
 		/*
 		 * Add submission event listeners to all form elements
 		 * Add value change event listeners to all mutable inner form elements
 		 */
 		addFormListeners: function (context) {
-			var trackingMarker = trackerId + 'form';
+			lodash.forEach(document.getElementsByTagName('form'), function (form) {
+				if (formFilter(form) && !form[trackingMarker]) {
 
-			lodash.map(innerElementTags, function (tagname) {
-				lodash.map(document.getElementsByTagName(tagname), function (innerElement) {
-					if (!innerElement[trackingMarker]) {
-						helpers.addEventListener(innerElement, 'change', getFormChangeListener(context), false);
-						innerElement[trackingMarker] = true;
-					}
-				});
-			});
+					lodash.forEach(innerElementTags, function (tagname) {
+						lodash.forEach(form.getElementsByTagName(tagname), function (innerElement) {
+							if (fieldFilter(innerElement) && !innerElement[trackingMarker]) {
+								helpers.addEventListener(innerElement, 'change', getFormChangeListener(context), false);
+								innerElement[trackingMarker] = true;
+							}
+						});
+					});
 
-			lodash.map(document.getElementsByTagName('form'), function (form) {
-				if (!form[trackingMarker]) {
 					helpers.addEventListener(form, 'submit', getFormSubmissionListener(context));
 					form[trackingMarker] = true;
 				}
