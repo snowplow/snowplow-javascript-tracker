@@ -1,6 +1,6 @@
 {
   "name": "snowplow-tracker",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "devDependencies": {
     "JSON": "~1.0.0",
     "browser-cookie-lite": "~0.3.1",
@@ -14,6 +14,7 @@
     "grunt-yui-compressor": "git://github.com/fblundun/grunt-yui-compressor.git#feature/issue-8",
     "intern": "~1.5.0",
     "jstimezonedetect": "~1.0.5",
+    "lodash-cli": "^2.4.2",
     "murmurhash": "0.0.2",
     "semver": "~2.2.1",
     "sha1": "git://github.com/pvorb/node-sha1.git#v1.0.0",
@@ -37,5 +38,6 @@
     "events",
     "open source"
   ],
-  "license": "Simplified BSD"
+  "license": "Simplified BSD",
+  "private": true
 }

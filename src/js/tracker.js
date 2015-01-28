@@ -586,7 +586,16 @@
 			if (performanceTracking) {
 				var performance = windowAlias.performance || windowAlias.mozPerformance || windowAlias.msPerformance || windowAlias.webkitPerformance;
 				if (performance) {
-					var performanceTiming = lodash.clone(performance.timing);
+
+					// On Safari, the fields we are interested in are on the prototype chain of
+					// performance.timing so we cannot copy them using lodash.clone
+					var performanceTiming = {};
+					for (var field in performance.timing) {
+						// Don't copy the toJSON method
+						if (!lodash.isFunction(performance.timing[field])) {
+							performanceTiming[field] = performance.timing[field];
+						}
+					}
 
 					// Old Chrome versions add an unwanted requestEnd field
 					delete performanceTiming.requestEnd;
@@ -596,7 +605,10 @@
 						performanceTiming.chromeFirstPaint = Math.round(window.chrome.loadTimes().firstPaintTime * 1000);
 					}
 
-					context = context || [];
+					// Avoid individual tracker instances mutating the shared context array
+					// See https://github.com/snowplow/snowplow-javascript-tracker/issues/309
+					context = context ? lodash.clone(context) : [];
+
 					context.push({
 						schema: 'iglu:org.w3/PerformanceTiming/jsonschema/1-0-0',
 						data: performanceTiming
