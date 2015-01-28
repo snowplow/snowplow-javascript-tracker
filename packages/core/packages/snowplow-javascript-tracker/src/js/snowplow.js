@@ -227,7 +227,7 @@
 			 */
 			getTrackerUrl: function (rawUrl) {
 				var t = new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
-				t.setCollectorCf(rawUrl);
+				t.setCollectorUrl(rawUrl);
 				return t;
 			},
 
