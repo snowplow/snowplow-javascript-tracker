@@ -1,4 +1,4 @@
-Version 2.2.1 (2015-xx-xx)
+Version 2.2.1 (2015-01-28)
 --------------------------
 Fixed QuotaExceededError bug with localStorage in Safari (#308)
 Stopped sending empty PerformanceTiming context (#306)
