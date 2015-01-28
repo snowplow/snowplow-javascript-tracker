@@ -37,7 +37,7 @@
 	var
 		json2 = require('JSON'),
 		lodash = require('./lib_managed/lodash'),
-		localStorageAccessible = require('./lib/detectors').localStorageAccessible(),
+		localStorageAccessible = require('./lib/detectors').localStorageAccessible,
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
 	/**
@@ -57,7 +57,7 @@
 			configCollectorUrl,
 			outQueue;
 
-		if (localStorageAccessible && useLocalStorage) {
+		if (localStorageAccessible() && useLocalStorage) {
 			// Catch any JSON parse errors that might be thrown
 			try {
 				outQueue = json2.parse(localStorage.getItem(queueName));
@@ -80,7 +80,7 @@
 		function enqueueRequest (request, url) {
 			outQueue.push(request);
 			configCollectorUrl = url;
-			if (localStorageAccessible && useLocalStorage) {
+			if (localStorageAccessible() && useLocalStorage) {
 				localStorage.setItem(queueName, json2.stringify(outQueue));
 			}
 
@@ -117,7 +117,7 @@
 
 			image.onload = function () {
 				outQueue.shift();
-				if (localStorageAccessible && useLocalStorage) {
+				if (localStorageAccessible() && useLocalStorage) {
 					localStorage.setItem(queueName, json2.stringify(outQueue));
 				}
 				executeQueue();

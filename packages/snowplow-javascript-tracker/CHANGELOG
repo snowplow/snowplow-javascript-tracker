@@ -1,3 +1,13 @@
+Version 2.2.1 (2015-01-28)
+--------------------------
+Fixed QuotaExceededError bug with localStorage in Safari (#308)
+Stopped sending empty PerformanceTiming context (#306)
+Prevented PerformanceTiming context being sent multiple times (#309)
+Stopped automatically setting Cloudfront URL in synchronous tracker, thanks @vassilevsky! (#311)
+Fixed lodash-cli version at 2.4.2 (#314)
+Prevented accidental publication of snowplow-tracker to npm (#300)
+Added missing tid ticket to CHANGELOG under 2.1.0 (#302)
+
 Version 2.2.0 (2014-12-15)
 --------------------------
 Made trackerDictionary object available in onload callbacks, thanks @murphybob! (#294)
@@ -30,6 +40,7 @@ Renamed /dist to /deploy (#216)
 Moved context querystring to end of JS-generated beacons (#204)
 Added guard to wait until outbound queue is empty before unloading (#202)
 Added event_id generation (#190)
+Stopped sending tid (#218)
 Added content field to link click events (#187)
 Replaced "Getting started" with Vagrant-using "Contributing quickstart" (#169)
 Added async-large.html (#162)
