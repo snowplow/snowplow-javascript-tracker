@@ -572,16 +572,44 @@
 		}
 
 		/**
+		 * Creates a context containing the values of the cookies set by GA
+		 *
+		 * @return object GA cookies context
+		 */
+		function getGaCookiesContext () {
+			var gaCookieData = {};
+			lodash.forEach(['__utma', '__utmb', '__utmc', '__utmv', '__utmz', '_ga'], function (cookieType) {
+				var value = cookie.cookie(cookieType);
+				if (value) {
+					gaCookieData[cookieType] = value;
+				}
+			});
+			return {
+				schema: 'iglu:com.google.analytics/cookies/jsonschema/1-0-0',
+				data: gaCookieData
+			};
+		}
+
+		/**
 		 * Log the page view / visit
 		 *
 		 * @param string customTitle The user-defined page title to attach to this page view
 		 * @param bool performanceTracking Whether to create a custom context with performance.timing data
+		 * @param bool gaCookies Whether to add a custom context containing GA cookie data
 		 * @param object context Custom context relating to the event
 		 */
-		function logPageView(customTitle, performanceTracking, context) {
+		function logPageView(customTitle, performanceTracking, gaCookies, context) {
 
 			// Fixup page title. We'll pass this to logPagePing too.
 			var pageTitle = helpers.fixupTitle(customTitle || configTitle);
+
+			// Avoid individual tracker instances mutating the shared context array
+			// See https://github.com/snowplow/snowplow-javascript-tracker/issues/309
+			context = context ? lodash.clone(context) : [];
+
+			if (gaCookies) {
+				context.push(getGaCookiesContext());
+			}
 
 			if (performanceTracking) {
 				var performance = windowAlias.performance || windowAlias.mozPerformance || windowAlias.msPerformance || windowAlias.webkitPerformance;
@@ -604,10 +632,6 @@
 					if (window.chrome && window.chrome.loadTimes && typeof window.chrome.loadTimes().firstPaintTime === 'number') {
 						performanceTiming.chromeFirstPaint = Math.round(window.chrome.loadTimes().firstPaintTime * 1000);
 					}
-
-					// Avoid individual tracker instances mutating the shared context array
-					// See https://github.com/snowplow/snowplow-javascript-tracker/issues/309
-					context = context ? lodash.clone(context) : [];
 
 					context.push({
 						schema: 'iglu:org.w3/PerformanceTiming/jsonschema/1-0-0',
@@ -1148,11 +1172,12 @@
 			 *
 			 * @param string customTitle
 			 * @param bool performanceTracking Whether to create a custom context with performance.timing data
+			 * @param bool gaCookies Whether to add a custom context containing GA cookie data
 			 * @param object Custom context relating to the event
 			 */
-			trackPageView: function (customTitle, performanceTracking, context) {
+			trackPageView: function (customTitle, performanceTracking, gaCookies, context) {
 				trackCallback(function () {
-					logPageView(customTitle, performanceTracking, context);
+					logPageView(customTitle, performanceTracking, gaCookies, context);
 				});
 			},
 
