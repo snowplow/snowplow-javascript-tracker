@@ -21,4 +21,9 @@ Vagrant.configure("2") do |config|
     push.script = "vagrant/push/publish-tracker.bash"
   end
 
+  # Requires Vagrant 1.7.0+
+  config.push.define "push-core", strategy: "local-exec" do |push|
+    push.script = "vagrant/push/publish-core.bash"
+  end
+
 end
