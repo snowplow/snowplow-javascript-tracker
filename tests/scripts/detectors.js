@@ -35,8 +35,10 @@
 var detectors = require('../../src/js/lib/detectors.js');
 
 document.getElementById('detectViewport').innerHTML = detectors.detectViewport();
+document.getElementById('detectDocumentDimensions').innerHTML = detectors.detectDocumentSize();
 document.getElementById('localStorageAccessible').innerHTML = detectors.localStorageAccessible();
 document.getElementById('hasSessionStorage').innerHTML = detectors.hasSessionStorage();
 document.getElementById('hasCookies').innerHTML = detectors.hasCookies();
 document.getElementById('detectTimezone').innerHTML = detectors.detectTimezone();
 document.getElementById('detectSignature').innerHTML = detectors.detectSignature();
+document.getElementById('detectBrowserFeatures').innerHTML = JSON.stringify(detectors.detectBrowserFeatures(), undefined, 2);
