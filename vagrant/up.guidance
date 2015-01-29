@@ -2,3 +2,5 @@ To get started:
 vagrant ssh
 cd /vagrant
 sudo npm install
+cd core
+sudo npm install
