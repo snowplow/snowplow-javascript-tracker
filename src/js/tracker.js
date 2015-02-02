@@ -76,6 +76,7 @@
 	 * 13. writeCookies, true
 	 * 14. contexts, {}
 	 * 15. post, false
+	 * 16. bufferSize, 1
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
 
@@ -222,7 +223,7 @@
 			formTrackingManager = forms.getFormTrackingManager(core, trackerId),
 
 			// Manager for local storage queue
-			outQueueManager = new requestQueue.OutQueueManager(functionName, namespace, mutSnowplowState, useLocalStorage, argmap.post),
+			outQueueManager = new requestQueue.OutQueueManager(functionName, namespace, mutSnowplowState, useLocalStorage, argmap.post, argmap.bufferSize),
 
 			// Set of contexts to be added to every event
 			autoContexts = argmap.contexts || {},
@@ -1158,6 +1159,14 @@
 			encodeBase64: function (enabled) {
 				helpers.warn('This usage of encodeBase64 is deprecated. Instead add an "encodeBase64" field to the argmap argument of newTracker.');
 				core.setBase64Encoding(enabled);
+			},
+
+			/**
+			 * Send all events in the outQueue
+			 * Use only when sending POSTs with a bufferSize of at least 2
+			 */
+			flushBuffer: function () {
+				outQueueManager.executeQueue();
 			},
 
 			/**

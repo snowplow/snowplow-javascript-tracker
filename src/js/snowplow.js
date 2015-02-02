@@ -96,6 +96,7 @@
 
 				/* List of request queues - one per Tracker instance */
 				outQueues: [],
+				bufferFlushers: [],
 
 				/* Time at which to stop blocking excecution */
 				expireDateTime: null,
@@ -119,6 +120,11 @@
 		 */
 		function beforeUnloadHandler() {
 			var now;
+
+			// Flush all POST queues
+			lodash.forEach(mutSnowplowState.bufferFlushers, function (flusher) {
+				flusher();
+			})
 
 			/*
 			 * Delay/pause (blocks UI)

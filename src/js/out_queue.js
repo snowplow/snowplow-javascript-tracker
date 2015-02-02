@@ -50,9 +50,11 @@
 	 *                                so it can unload the page when all queues are empty
 	 * @param boolean useLocalStorage Whether to use localStorage at all
 	 * @param boolean usePost Whether to send events by POST or GET
+	 * @param int bufferSize How many events to batch in localStorage before sending them all.
+	 *                       Only applies when sending POST requests and when localStorage is available.
 	 * @return object OutQueueManager instance
 	 */
-	object.OutQueueManager = function (functionName, namespace, mutSnowplowState, useLocalStorage, usePost) {
+	object.OutQueueManager = function (functionName, namespace, mutSnowplowState, useLocalStorage, usePost, bufferSize) {
 		var	queueName,
 			executingQueue = false,
 			configCollectorUrl,
@@ -61,6 +63,8 @@
 
 		// Fall back to GET for browsers which don't support POST (e.g. IE 6)
 		usePost = window.XMLHttpRequest && usePost;
+
+		bufferSize = (localStorageAccessible() && useLocalStorage && bufferSize) || 1;
 
 		// Different queue names for GET and POST since they are stored differently
 		queueName = ['snowplowOutQueue', functionName, namespace, usePost].join('_');
@@ -80,6 +84,10 @@
 
 		// Used by pageUnloadGuard
 		mutSnowplowState.outQueues.push(outQueue);
+
+		if (usePost) {
+			mutSnowplowState.bufferFlushers.push(executeQueue);
+		}
 
 		/*
 		 * Convert a dictionary to a querystring
@@ -121,7 +129,7 @@
 				localStorage.setItem(queueName, json2.stringify(outQueue));
 			}
 
-			if (!executingQueue) {
+			if (!executingQueue && outQueue.length >= bufferSize) {
 				executeQueue();
 			}
 		}
@@ -210,7 +218,8 @@
 		}
 
 		return {
-			enqueueRequest: enqueueRequest
+			enqueueRequest: enqueueRequest,
+			executeQueue: executeQueue
 		};
 	};
 
