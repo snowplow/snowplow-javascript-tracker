@@ -225,6 +225,9 @@
 			// Manager for local storage queue
 			outQueueManager = new requestQueue.OutQueueManager(functionName, namespace, mutSnowplowState, useLocalStorage, argmap.post, argmap.bufferSize),
 
+			// Flag to prevent the geolocation context being added multiple times
+			geolocationContextAdded = false,
+
 			// Set of contexts to be added to every event
 			autoContexts = argmap.contexts || {},
 
@@ -237,6 +240,10 @@
 
 		if (autoContexts.gaCookies) {
 			commonContexts.push(getGaCookiesContext());
+		}
+
+		if (autoContexts.geolocation) {
+			enableGeolocationContext();
 		}
 
 		// Enable base 64 encoding for unstructured events and custom contexts
@@ -600,6 +607,32 @@
 					schema: 'iglu:org.w3/PerformanceTiming/jsonschema/1-0-0',
 					data: performanceTiming
 				};
+			}
+		}
+
+		/**
+		 * Attempts to create a context using the geolocation API and add it to commonContexts
+		 */
+		function enableGeolocationContext() {
+			if (!geolocationContextAdded && navigatorAlias.geolocation && navigatorAlias.geolocation.getCurrentPosition) {
+				geolocationContextAdded = true;
+				navigator.geolocation.getCurrentPosition(function (position) {
+					var coords = position.coords;
+					var geolocationContext = {
+						schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
+						data: {
+							latitude: coords.latitude,
+							longitude: coords.longitude,
+							latitudeLongitudeAccuracy: coords.accuracy,
+							altitude: coords.altitude,
+							altitudeAccuracy: coords.altitudeAccuracy,
+							bearing: coords.heading,
+							speed: coords.speed,
+							timestamp: position.timestamp
+						}
+					};
+					commonContexts.push(geolocationContext);
+				});
 			}
 		}
 
@@ -1168,6 +1201,11 @@
 			flushBuffer: function () {
 				outQueueManager.executeQueue();
 			},
+
+			/**
+			 * Add the geolocation context to all events
+			 */
+			enableGeolocationContext: enableGeolocationContext,
 
 			/**
 			 * Log visit to this page
