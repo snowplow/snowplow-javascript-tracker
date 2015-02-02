@@ -31,6 +31,9 @@
           appId: 'CFe23a',
           platform: 'mob',
           cookieName: '_cf_3489563', // Cookie names should be unique to prevent mix-ups
+          contexts: {
+            performanceTiming: true
+          }
         });
 
         // This second tracker namespace could have a different collector as its endpoint
@@ -53,7 +56,7 @@
           }
         }, true);
         // window.new_name_here('trackPageView', 'Async Test'); // Track the page view with custom title
-        window.new_name_here('trackPageView', null, true, [ // Auto-set page title; add page context
+        window.new_name_here('trackPageView', null, [ // Auto-set page title; add page context
           {
             schema: "iglu:com.example_company/page/jsonschema/1-2-1",
             data: {

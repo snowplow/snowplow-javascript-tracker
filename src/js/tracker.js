@@ -74,6 +74,7 @@
 	 * 11. useLocalStorage, true
 	 * 12. useCookies, true
 	 * 13. writeCookies, true
+	 * 14. contexts, {}
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
 
@@ -220,8 +221,21 @@
 			formTrackingManager = forms.getFormTrackingManager(core, trackerId),
 
 			// Manager for local storage queue
-			outQueueManager = new requestQueue.OutQueueManager(functionName, namespace, mutSnowplowState, useLocalStorage);
+			outQueueManager = new requestQueue.OutQueueManager(functionName, namespace, mutSnowplowState, useLocalStorage),
 
+			// Set of contexts to be added to every event
+			autoContexts = argmap.contexts || {},
+
+			// Context to be added to every event
+			commonContexts = [];
+
+		if (autoContexts.performanceTiming) {
+			commonContexts.push(getPerformanceTimingContext());
+		}
+
+		if (autoContexts.gaCookies) {
+			commonContexts.push(getGaCookiesContext());
+		}
 
 		// Enable base 64 encoding for unstructured events and custom contexts
 		core.setBase64Encoding(argmap.hasOwnProperty('encodeBase64') ? argmap.encodeBase64 : true);
@@ -572,11 +586,56 @@
 		}
 
 		/**
+		 * Add common contexts to every event
+		 * TODO: move this functionality into the core
+		 *
+		 * @param array userContexts List of user-defined contexts
+		 * @return userContexts combined with commonContexts
+		 */
+		function addCommonContexts(userContexts) {
+			return commonContexts.concat(userContexts || []);
+		}
+
+		/**
+		 * Creates a context from the window.performance.timing object
+		 *
+		 * @return object PerformanceTiming context
+		 */
+		function getPerformanceTimingContext() {
+			var performance = windowAlias.performance || windowAlias.mozPerformance || windowAlias.msPerformance || windowAlias.webkitPerformance;
+			if (performance) {
+
+				// On Safari, the fields we are interested in are on the prototype chain of
+				// performance.timing so we cannot copy them using lodash.clone
+				var performanceTiming = {};
+				for (var field in performance.timing) {
+					// Don't copy the toJSON method
+					if (!lodash.isFunction(performance.timing[field])) {
+						performanceTiming[field] = performance.timing[field];
+					}
+				}
+
+				// Old Chrome versions add an unwanted requestEnd field
+				delete performanceTiming.requestEnd;
+
+				// Add the Chrome firstPaintTime to the performance if it exists
+				if (windowAlias.chrome && windowAlias.chrome.loadTimes && typeof windowAlias.chrome.loadTimes().firstPaintTime === 'number') {
+					performanceTiming.chromeFirstPaint = Math.round(windowAlias.chrome.loadTimes().firstPaintTime * 1000);
+				}
+
+				return {
+					schema: 'iglu:org.w3/PerformanceTiming/jsonschema/1-0-0',
+					data: performanceTiming
+				};
+			}
+		}
+
+		/**
 		 * Creates a context containing the values of the cookies set by GA
 		 *
 		 * @return object GA cookies context
 		 */
-		function getGaCookiesContext () {
+		function getGaCookiesContext() {
 			var gaCookieData = {};
 			lodash.forEach(['__utma', '__utmb', '__utmc', '__utmv', '__utmz', '_ga'], function (cookieType) {
 				var value = cookie.cookie(cookieType);
@@ -594,54 +653,15 @@
 		 * Log the page view / visit
 		 *
 		 * @param string customTitle The user-defined page title to attach to this page view
-		 * @param bool performanceTracking Whether to create a custom context with performance.timing data
-		 * @param bool gaCookies Whether to add a custom context containing GA cookie data
 		 * @param object context Custom context relating to the event
 		 */
-		function logPageView(customTitle, performanceTracking, gaCookies, context) {
+		function logPageView(customTitle, context) {
 
 			// Fixup page title. We'll pass this to logPagePing too.
 			var pageTitle = helpers.fixupTitle(customTitle || configTitle);
 
-			// Avoid individual tracker instances mutating the shared context array
-			// See https://github.com/snowplow/snowplow-javascript-tracker/issues/309
-			context = context ? lodash.clone(context) : [];
-
-			if (gaCookies) {
-				context.push(getGaCookiesContext());
-			}
-
-			if (performanceTracking) {
-				var performance = windowAlias.performance || windowAlias.mozPerformance || windowAlias.msPerformance || windowAlias.webkitPerformance;
-				if (performance) {
-
-					// On Safari, the fields we are interested in are on the prototype chain of
-					// performance.timing so we cannot copy them using lodash.clone
-					var performanceTiming = {};
-					for (var field in performance.timing) {
-						// Don't copy the toJSON method
-						if (!lodash.isFunction(performance.timing[field])) {
-							performanceTiming[field] = performance.timing[field];
-						}
-					}
-
-					// Old Chrome versions add an unwanted requestEnd field
-					delete performanceTiming.requestEnd;
-
-					// Add the Chrome firstPaintTime to the performance if it exists
-					if (window.chrome && window.chrome.loadTimes && typeof window.chrome.loadTimes().firstPaintTime === 'number') {
-						performanceTiming.chromeFirstPaint = Math.round(window.chrome.loadTimes().firstPaintTime * 1000);
-					}
-
-					context.push({
-						schema: 'iglu:org.w3/PerformanceTiming/jsonschema/1-0-0',
-						data: performanceTiming
-					});
-				}
-			}
-
 			// Log page view
-			core.trackPageView(purify(configCustomUrl || locationHrefAlias), pageTitle, purify(configReferrerUrl), context);
+			core.trackPageView(purify(configCustomUrl || locationHrefAlias), pageTitle, purify(configReferrerUrl), addCommonContexts(context));
 
 			// Send ping (to log that user has stayed on page)
 			var now = new Date();
@@ -695,7 +715,8 @@
 		 */
 		function logPagePing(pageTitle, context) {
 			core.trackPagePing(purify(configCustomUrl || locationHrefAlias), pageTitle, purify(configReferrerUrl),
-				Math.round(minXOffset), Math.round(maxXOffset), Math.round(minYOffset), Math.round(maxYOffset), context);
+				Math.round(minXOffset), Math.round(maxXOffset), Math.round(minYOffset), Math.round(maxYOffset),
+				addCommonContexts(context));
 			resetMaxScrolls();
 		}
 
@@ -714,7 +735,7 @@
 		 * @param object context Custom context relating to the event
 		 */
 		function logTransaction(orderId, affiliation, total, tax, shipping, city, state, country, currency, context) {
-			core.trackEcommerceTransaction(orderId, affiliation, total, tax, shipping, city, state, country, currency, context);
+			core.trackEcommerceTransaction(orderId, affiliation, total, tax, shipping, city, state, country, currency, addCommonContexts(context));
 		}
 
 		/**
@@ -730,7 +751,7 @@
 		 * @param object context Custom context relating to the event
 		 */
 		function logTransactionItem(orderId, sku, name, category, price, quantity, currency, context) {
-			core.trackEcommerceTransactionItem(orderId, sku, name, category, price, quantity, currency, context);
+			core.trackEcommerceTransactionItem(orderId, sku, name, category, price, quantity, currency, addCommonContexts(context));
 		}
 
 		/*
@@ -1171,13 +1192,11 @@
 			 * Log visit to this page
 			 *
 			 * @param string customTitle
-			 * @param bool performanceTracking Whether to create a custom context with performance.timing data
-			 * @param bool gaCookies Whether to add a custom context containing GA cookie data
 			 * @param object Custom context relating to the event
 			 */
-			trackPageView: function (customTitle, performanceTracking, gaCookies, context) {
+			trackPageView: function (customTitle, context) {
 				trackCallback(function () {
-					logPageView(customTitle, performanceTracking, gaCookies, context);
+					logPageView(customTitle, context);
 				});
 			},
 
@@ -1195,7 +1214,7 @@
 			 * @param object Custom context relating to the event
 			 */
 			trackStructEvent: function (category, action, label, property, value, context) {
-				core.trackStructEvent(category, action, label, property, value, context);
+				core.trackStructEvent(category, action, label, property, value, addCommonContexts(context));
 			},
 
 			/**
@@ -1205,7 +1224,7 @@
 			 * @param object context Custom context relating to the event
 			 */
 			trackUnstructEvent: function (eventJson, context) {
-				core.trackUnstructEvent(eventJson, context);
+				core.trackUnstructEvent(eventJson, addCommonContexts(context));
 			},
 
 			/**
@@ -1311,7 +1330,7 @@
 			// TODO: break this into trackLink(destUrl) and trackDownload(destUrl)
 			trackLinkClick: function(targetUrl, elementId, elementClasses, elementTarget, elementContent, context) {
 				trackCallback(function () {
-					core.trackLinkClick(targetUrl, elementId, elementClasses, elementTarget, elementContent, context);
+					core.trackLinkClick(targetUrl, elementId, elementClasses, elementTarget, elementContent, addCommonContexts(context));
 				});
 			},
 
@@ -1329,7 +1348,7 @@
 			 */			
 			trackAdImpression: function(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, context) {
 				trackCallback(function () {
-					core.trackAdImpression(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, context);
+					core.trackAdImpression(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, addCommonContexts(context));
 				});
 			},
 			
@@ -1348,7 +1367,7 @@
 			 * @param object Custom context relating to the event
 			 */
 			trackAdClick: function(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, context) {
-				core.trackAdClick(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, context);
+				core.trackAdClick(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, addCommonContexts(context));
 			},
 
 			/**
@@ -1366,7 +1385,7 @@
 			 * @param object Custom context relating to the event
 			 */
 			trackAdConversion: function(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, context) {
-				core.trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, context);
+				core.trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, addCommonContexts(context));
 			},
 
 			/**
@@ -1378,7 +1397,7 @@
 			 * @param object Custom context relating to the event
 			 */
 			trackSocialInteraction: function(action, network, target, context) {
-				core.trackSocialInteraction(action, network, target, context);
+				core.trackSocialInteraction(action, network, target, addCommonContexts(context));
 			},
 
 			/**
@@ -1393,7 +1412,7 @@
 			 * @param array context Optional. Context relating to the event.
 			 */
 			trackAddToCart: function(sku, name, category, unitPrice, quantity, currency, context) {
-				core.trackAddToCart(sku, name, category, unitPrice, quantity, currency, context);
+				core.trackAddToCart(sku, name, category, unitPrice, quantity, currency, addCommonContexts(context));
 			},
 
 			/**
@@ -1408,7 +1427,7 @@
 			 * @param array context Optional. Context relating to the event.
 			 */
 			trackRemoveFromCart: function(sku, name, category, unitPrice, quantity, currency, context) {
-				core.trackRemoveFromCart(sku, name, category, unitPrice, quantity, currency, context);
+				core.trackRemoveFromCart(sku, name, category, unitPrice, quantity, currency, addCommonContexts(context));
 			},
 
 			/**
@@ -1421,7 +1440,7 @@
 			 * @param array context Optional. Context relating to the event.
 			 */
 			trackSiteSearch: function(terms, filters, totalResults, pageResults, context) {
-				core.trackSiteSearch(terms, filters, totalResults, pageResults, context);
+				core.trackSiteSearch(terms, filters, totalResults, pageResults, addCommonContexts(context));
 			}
 		};
 	};

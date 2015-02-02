@@ -28,7 +28,10 @@
         window.snowplow_1('newTracker', 'cf', 'd3rkrsqld9gmqf.cloudfront.net', { // Initialise a tracker
           encodeBase64: false, // Default is true
           appId: 'CFe23a', // Site ID can be anything you want. Set it if you're tracking more than one site in this account
-          platform: 'mob'
+          platform: 'mob',
+          contexts: {
+            performanceTiming: true
+          }
         });
 
         window.snowplow_1('setUserId', 'alex 123'); // Business-defined user ID
@@ -46,7 +49,7 @@
           }
         }); // Track changes to form fields and form submissions
         // window.snowplow_1('trackPageView', 'Async Test'); // Track the page view with custom title
-        window.snowplow_1('trackPageView', null , false, [ // Auto-set page title; add page context
+        window.snowplow_1('trackPageView', null, [ // Auto-set page title; add page context
           {
             schema: "iglu:com.example_company/page/jsonschema/1-2-1",
             data: {
@@ -82,7 +85,11 @@
         window.snowplow_2('newTracker', 'cf', 'd3rkrsqld9gmqf.cloudfront.net', { // Initialise a tracker
           encodeBase64: false, // Default is true
           appId: 'CFe23a', // Site ID can be anything you want. Set it if you're tracking more than one site in this account
-          platform: 'mob'
+          platform: 'mob',
+          contexts: {
+            performanceTiming: true,
+            gaCookies: true
+          }
         });
 
         window.snowplow_2('setUserId', 'alex 123'); // Business-defined user ID
@@ -92,7 +99,7 @@
         window.snowplow_2('enableActivityTracking', 10, 10); // Ping every 10 seconds after 10 seconds
         window.snowplow_2('enableLinkClickTracking', null, true); // Track clicks on all links
         // window.snowplow_1('trackPageView', 'Async Test'); // Track the page view with custom title
-        window.snowplow_2('trackPageView', null , true);
+        window.snowplow_2('trackPageView', null);
 
     </script>
     <!-- Snowplow stops plowing -->
