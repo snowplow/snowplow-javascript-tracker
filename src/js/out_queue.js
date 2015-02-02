@@ -157,8 +157,15 @@
 				xhr.open('POST', configCollectorUrl, true);
 				xhr.withCredentials = true;
 
+				// Time out POST requests after 5 seconds
+				var xhrTimeout = setTimeout(function () {
+					xhr.abort();
+					executingQueue = false;
+				}, 5000);
+
 				xhr.onreadystatechange = function () {
 					if (xhr.readyState === 4 && xhr.status === 200) {
+						clearTimeout(xhrTimeout);
 						outQueue.shift();
 						if (localStorageAccessible() && useLocalStorage) {
 							localStorage.setItem(queueName, json2.stringify(outQueue));
