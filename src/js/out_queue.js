@@ -163,13 +163,18 @@
 					executingQueue = false;
 				}, 5000);
 
+				// Keep track of number of events to delete from queue
+				var eventCount = outQueue.length;
+
 				xhr.onreadystatechange = function () {
 					if (xhr.readyState === 4 && xhr.status === 200) {
-						clearTimeout(xhrTimeout);
-						outQueue.shift();
+						for (var deleteCount = 0; deleteCount < eventCount; deleteCount++) {
+							outQueue.shift();
+						}
 						if (localStorageAccessible() && useLocalStorage) {
 							localStorage.setItem(queueName, json2.stringify(outQueue));
 						}
+						clearTimeout(xhrTimeout);
 						executeQueue();
 					} else if (xhr.readyState === 4 && xhr.status === 404) {
 						executingQueue = false;
