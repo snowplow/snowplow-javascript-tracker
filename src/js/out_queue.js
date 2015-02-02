@@ -48,14 +48,22 @@
 	 * @param string namespace The tracker instance's namespace (used to generate the localStorage key)
 	 * @param object mutSnowplowState Gives the pageUnloadGuard a reference to the outbound queue
 	 *                                so it can unload the page when all queues are empty
-	 * @param useLocalStorage Whether to use localStorage at all
+	 * @param boolean useLocalStorage Whether to use localStorage at all
+	 * @param boolean usePost Whether to send events by POST or GET
 	 * @return object OutQueueManager instance
 	 */
-	object.OutQueueManager = function (functionName, namespace, mutSnowplowState, useLocalStorage) {
-		var	queueName = ['snowplowOutQueue', functionName, namespace].join('_'),
+	object.OutQueueManager = function (functionName, namespace, mutSnowplowState, useLocalStorage, usePost) {
+		var	queueName,
 			executingQueue = false,
 			configCollectorUrl,
+			path = usePost ? '/com.snowplowanalytics.snowplow/tp2' : '/i',
 			outQueue;
+
+		// Fall back to GET for browsers which don't support POST (e.g. IE 6)
+		usePost = window.XMLHttpRequest && usePost;
+
+		// Different queue names for GET and POST since they are stored differently
+		queueName = ['snowplowOutQueue', functionName, namespace, usePost].join('_');
 
 		if (localStorageAccessible() && useLocalStorage) {
 			// Catch any JSON parse errors that might be thrown
@@ -74,12 +82,41 @@
 		mutSnowplowState.outQueues.push(outQueue);
 
 		/*
+		 * Convert a dictionary to a querystring
+		 * The context field is the last in the querystring
+		 */
+		function getQuerystring(request) {
+			var querystring = '?',
+				lowPriorityKeys = {'co': true, 'cx': true},
+				firstPair = true;
+
+			for (var key in request) {
+				if (request.hasOwnProperty(key) && !(lowPriorityKeys.hasOwnProperty(key))) {
+					if (!firstPair) {
+						querystring += '&';
+					} else {
+						firstPair = false;
+					}
+					querystring += encodeURIComponent(key) + '=' + encodeURIComponent(request[key]);
+				}
+			}
+
+			for (var contextKey in lowPriorityKeys) {
+				if (request.hasOwnProperty(contextKey)  && lowPriorityKeys.hasOwnProperty(contextKey)) {
+					querystring += '&' + contextKey + '=' + encodeURIComponent(request[contextKey]);
+				}
+			}
+
+			return querystring;
+		}
+
+		/*
 		 * Queue an image beacon for submission to the collector.
 		 * If we're not processing the queue, we'll start.
 		 */
 		function enqueueRequest (request, url) {
-			outQueue.push(request);
-			configCollectorUrl = url;
+			outQueue.push(usePost ? request : getQuerystring(request));
+			configCollectorUrl = url + path;
 			if (localStorageAccessible() && useLocalStorage) {
 				localStorage.setItem(queueName, json2.stringify(outQueue));
 			}
@@ -96,7 +133,7 @@
 		function executeQueue () {
 
 			// Failsafe in case there is some way for a bad value like "null" to end up in the outQueue
-			while (outQueue.length && typeof outQueue[0] !== 'string') {
+			while (outQueue.length && typeof outQueue[0] !== 'string' && typeof outQueue[0] !== 'object') {
 				outQueue.shift();
 			}
 
@@ -113,21 +150,51 @@
 			executingQueue = true;
 
 			var nextRequest = outQueue[0];
-			var image = new Image(1, 1);
 
-			image.onload = function () {
-				outQueue.shift();
-				if (localStorageAccessible() && useLocalStorage) {
-					localStorage.setItem(queueName, json2.stringify(outQueue));
-				}
-				executeQueue();
-			};
+			if (usePost) {
 
-			image.onerror = function () {
-				executingQueue = false;
-			};
+				var xhr = new XMLHttpRequest();
+				xhr.open('POST', configCollectorUrl, true);
+				xhr.withCredentials = true;
 
-			image.src = configCollectorUrl + nextRequest;
+				xhr.onreadystatechange = function () {
+					if (xhr.readyState === 4 && xhr.status === 200) {
+						outQueue.shift();
+						if (localStorageAccessible() && useLocalStorage) {
+							localStorage.setItem(queueName, json2.stringify(outQueue));
+						}
+						executeQueue();
+					} else if (xhr.readyState === 4 && xhr.status === 404) {
+						executingQueue = false;
+					}
+				};
+
+				xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+				var batchRequest = {
+					schema: 'iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-2',
+					data: outQueue
+				};
+				xhr.send(json2.stringify(batchRequest));
+
+			} else {
+
+				var image = new Image(1, 1);
+
+				image.onload = function () {
+					outQueue.shift();
+					if (localStorageAccessible() && useLocalStorage) {
+						localStorage.setItem(queueName, json2.stringify(outQueue));
+					}
+					executeQueue();
+				};
+
+				image.onerror = function () {
+					executingQueue = false;
+				};
+
+				image.src = configCollectorUrl + nextRequest;
+			}
+
 		}
 
 		return {

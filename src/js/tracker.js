@@ -75,6 +75,7 @@
 	 * 12. useCookies, true
 	 * 13. writeCookies, true
 	 * 14. contexts, {}
+	 * 15. post, false
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
 
@@ -221,7 +222,7 @@
 			formTrackingManager = forms.getFormTrackingManager(core, trackerId),
 
 			// Manager for local storage queue
-			outQueueManager = new requestQueue.OutQueueManager(functionName, namespace, mutSnowplowState, useLocalStorage),
+			outQueueManager = new requestQueue.OutQueueManager(functionName, namespace, mutSnowplowState, useLocalStorage, argmap.post),
 
 			// Set of contexts to be added to every event
 			autoContexts = argmap.contexts || {},
@@ -326,42 +327,13 @@
 		}
 
 		/*
-		 * Convert a dictionary to a querystring
-		 * The context field is the last in the querystring
-		 */
-		function getQuerystring(request) {
-			var querystring = '?',
-				lowPriorityKeys = {'co': true, 'cx': true},
-				firstPair = true;
-
-			for (var key in request) {
-				if (request.hasOwnProperty(key) && !(lowPriorityKeys.hasOwnProperty(key))) {
-					if (!firstPair) {
-						querystring += '&';
-					} else {
-						firstPair = false;
-					}
-					querystring += encodeURIComponent(key) + '=' + encodeURIComponent(request[key]);
-				}
-			}
-
-			for (var contextKey in lowPriorityKeys) {
-				if (request.hasOwnProperty(contextKey)  && lowPriorityKeys.hasOwnProperty(contextKey)) {
-					querystring += '&' + contextKey + '=' + encodeURIComponent(request[contextKey]);
-				}
-			}
-
-			return querystring;
-		}
-
-		/*
 		 * Send request
 		 */
 		function sendRequest(request, delay) {
 			var now = new Date();
 
 			if (!configDoNotTrack) {
-				outQueueManager.enqueueRequest(getQuerystring(request.build()), configCollectorUrl);
+				outQueueManager.enqueueRequest(request.build(), configCollectorUrl);
 				mutSnowplowState.expireDateTime = now.getTime() + delay;
 			}
 		}
@@ -580,9 +552,9 @@
 		 */
 		function asCollectorUrl(rawUrl) {
 			if (forceSecureTracker)
-				return ('https' + '://' + rawUrl + '/i');
+				return ('https' + '://' + rawUrl);
 			else
-				return ('https:' === documentAlias.location.protocol ? 'https' : 'http') + '://' + rawUrl + '/i';
+				return ('https:' === documentAlias.location.protocol ? 'https' : 'http') + '://' + rawUrl;
 		}
 
 		/**
