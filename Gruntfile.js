@@ -91,7 +91,7 @@ module.exports = function(grunt) {
     browserify: {
       main: {
         files: {
-          'deploy/bundle.js': ['src/js/init.js']
+          'dist/bundle.js': ['src/js/init.js']
         }
       },
       test: {
@@ -109,8 +109,8 @@ module.exports = function(grunt) {
           'banner': '<%= banner %>',
           'process': true
         },
-        src: ['deploy/bundle.js'],
-        dest: 'deploy/snowplow.js'
+        src: ['dist/bundle.js'],
+        dest: 'dist/snowplow.js'
       },
       tag: {
         options: {
@@ -129,8 +129,8 @@ module.exports = function(grunt) {
         },
         files: [
           {
-            src: 'deploy/snowplow.js',
-            dest: 'deploy/sp.js'
+            src: 'dist/snowplow.js',
+            dest: 'dist/sp.js'
           }
         ]
       },
@@ -197,7 +197,7 @@ module.exports = function(grunt) {
         },
         upload: [
           {
-            src: 'deploy/sp.js',
+            src: 'dist/sp.js',
             dest: '<%= pkg.version %>/sp.js'
           }
         ]
@@ -210,7 +210,7 @@ module.exports = function(grunt) {
         },
         upload: [
           {
-            src: 'deploy/sp.js',
+            src: 'dist/sp.js',
             dest: '<%= pkg.pinnedVersion %>/sp.js'
           }        
         ]
