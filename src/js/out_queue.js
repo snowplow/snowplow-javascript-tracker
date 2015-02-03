@@ -64,7 +64,7 @@
 		// Fall back to GET for browsers which don't support POST (e.g. IE 6)
 		usePost = window.XMLHttpRequest && usePost;
 
-		bufferSize = (localStorageAccessible() && useLocalStorage && bufferSize) || 1;
+		bufferSize = (localStorageAccessible() && useLocalStorage && usePost && bufferSize) || 1;
 
 		// Different queue names for GET and POST since they are stored differently
 		queueName = ['snowplowOutQueue', functionName, namespace, usePost].join('_');
