@@ -67,7 +67,7 @@
 		bufferSize = (localStorageAccessible() && useLocalStorage && usePost && bufferSize) || 1;
 
 		// Different queue names for GET and POST since they are stored differently
-		queueName = ['snowplowOutQueue', functionName, namespace, usePost].join('_');
+		queueName = ['snowplowOutQueue', functionName, namespace, usePost ? 'post' : 'get'].join('_');
 
 		if (localStorageAccessible() && useLocalStorage) {
 			// Catch any JSON parse errors that might be thrown
@@ -194,7 +194,9 @@
 					schema: 'iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-2',
 					data: outQueue
 				};
-				xhr.send(json2.stringify(batchRequest));
+				if (outQueue.length > 0) {
+					xhr.send(json2.stringify(batchRequest));
+				}
 
 			} else {
 
