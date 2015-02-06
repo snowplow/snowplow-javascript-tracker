@@ -97,7 +97,8 @@ module.exports = function(grunt) {
       test: {
         files: {
           'tests/pages/helpers.js': ['tests/scripts/helpers.js'],
-          'tests/pages/detectors.js': ['tests/scripts/detectors.js']
+          'tests/pages/detectors.js': ['tests/scripts/detectors.js'],
+          'tests/pages/snowplow.js': ['src/js/init.js']
         }
       }
     },
