@@ -43,7 +43,7 @@ function get_core_version {
 
 	# Extract the version from package.json using Node and save it in a file named "VERSION"
 	vagrant ssh -c "cd /vagrant/core && node -e \"var fs=require('fs');fs.readFile('./package.json', 'utf8', function(e,d){console.log(JSON.parse(d)['version'])});\" > VERSION" \
-	  || die "Failed to get extract version information from package.json"
+	  || die "Failed to extract version information from package.json"
 	file_version=`cat core/VERSION`
 	expected_tag="core-$file_version"
 	tag_version=`git describe --abbrev=0 --tags`

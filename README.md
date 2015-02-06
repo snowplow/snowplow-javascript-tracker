@@ -31,6 +31,8 @@ Assuming git, [Vagrant] [vagrant-install] and [VirtualBox] [virtualbox-install] 
  host$ vagrant up && vagrant ssh
 guest$ cd /vagrant
 guest$ sudo npm install
+guest$ cd core
+guest$ sudo npm install
 ```
 
 Set up an `./aws.json` file using the example `./aws.sample.json`. If you just want to concat + minify without uploading then you don't need to fill out the `aws.json` file with valid credentials.
