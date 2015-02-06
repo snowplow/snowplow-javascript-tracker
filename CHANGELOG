@@ -1,3 +1,19 @@
+Version 2.3.0 (2015-xx-xx)
+-------------------------
+Added suport for sending events via POST (#168)
+Removed dependency on fblundun fork of grunt-yui-compressor (#172)
+Added support for batching events (#186)
+Started sending PerformanceTiming context with all events (#317)
+Added ability to send geolocation context with all events (#191)
+Added ability to send context containing all GA cookies with all events (#253)
+Added integration tests (#154)
+Added functional tests for document size detection and browser features (#270)
+Added ability to whitelist or blacklist specific forms and specific form fields (#287)
+Added dedicated Vagrant setup (#312)
+Added Vagrant "push core" to build and publish Tracker Core (#315)
+Added Vagrant "push tracker" to build and deploy JavaScript Tracker (#313)
+Renamed deploy to dist (#319)
+
 Version 2.2.2 (2015-03-03)
 --------------------------
 Corrected time at which minimum and maximum scroll offsets are reset (#325)
