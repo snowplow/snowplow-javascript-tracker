@@ -45,7 +45,7 @@ define([
 			return this.remote
 				.get(require.toUrl('tests/pages/integration.html'))
 				.waitForElementByCssSelector('body.loaded', 5000)
-				.sleep(1000);
+				.sleep(2000);
 		}
 	});
 });
