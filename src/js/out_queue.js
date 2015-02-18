@@ -119,11 +119,21 @@
 		}
 
 		/*
+		 * Convert numeric fields to strings to match payload_data schema
+		 */
+		function getBody(request) {
+			return lodash.mapValues(request, function (v) {
+				return v.toString();
+			});
+		}
+
+		/*
 		 * Queue an image beacon for submission to the collector.
 		 * If we're not processing the queue, we'll start.
 		 */
 		function enqueueRequest (request, url) {
-			outQueue.push(usePost ? request : getQuerystring(request));
+
+			outQueue.push(usePost ? getBody(request) : getQuerystring(request));
 			configCollectorUrl = url + path;
 			if (localStorageAccessible() && useLocalStorage) {
 				localStorage.setItem(queueName, json2.stringify(outQueue));
