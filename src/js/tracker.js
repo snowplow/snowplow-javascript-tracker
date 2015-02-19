@@ -432,6 +432,18 @@
 		}
 
 		/*
+		 * Prevents offsets from being decimal or NaN
+		 * See https://github.com/snowplow/snowplow-javascript-tracker/issues/324
+		 * TODO: the NaN check should be moved into the core
+		 */
+		function cleanOffset(offset) {
+			var rounded = Math.round(offset);
+			if (!isNaN(rounded)) {
+				return rounded;
+			}
+		}
+
+		/*
 		 * Sets the Visitor ID cookie: either the first time loadDomainUserIdCookie is called
 		 * or when there is a new visit or a new page view
 		 */
@@ -720,8 +732,14 @@
 		 * @param object context Custom context relating to the event
 		 */
 		function logPagePing(pageTitle, context) {
-			core.trackPagePing(purify(configCustomUrl || locationHrefAlias), pageTitle, purify(configReferrerUrl),
-				Math.round(minXOffset), Math.round(maxXOffset), Math.round(minYOffset), Math.round(maxYOffset),
+			core.trackPagePing(
+				purify(configCustomUrl || locationHrefAlias),
+				pageTitle,
+				purify(configReferrerUrl),
+				cleanOffset(minXOffset),
+				cleanOffset(maxXOffset),
+				cleanOffset(minYOffset),
+				cleanOffset(maxYOffset),
 				addCommonContexts(context));
 			resetMaxScrolls();
 		}
