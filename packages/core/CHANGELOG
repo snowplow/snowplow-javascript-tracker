@@ -1,3 +1,7 @@
+Version 2.2.2 (2015-03-03)
+--------------------------
+Corrected time at which minimum and maximum scroll offsets are reset (#325)
+
 Version 2.2.1 (2015-01-28)
 --------------------------
 Fixed QuotaExceededError bug with localStorage in Safari (#308)
