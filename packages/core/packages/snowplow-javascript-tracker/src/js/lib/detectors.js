@@ -169,9 +169,11 @@
 	 * - http://andylangton.co.uk/articles/javascript/get-viewport-size-javascript/
 	 */
 	object.detectDocumentSize = function() {
-		var de = documentAlias.documentElement; // Alias
+		var de = documentAlias.documentElement, // Alias
+			be = documentAlias.body;
 		var w = Math.max(de.clientWidth, de.offsetWidth, de.scrollWidth);
-		var h = Math.max(de.clientHeight, de.offsetHeight, de.scrollHeight);
+		var h = Math.max(de.clientHeight, de.offsetHeight, de.scrollHeight,
+		                 be.offsetHeight, be.scrollHeight);
 		return isNaN(w) || isNaN(h) ? '' : w + 'x' + h;
 	};
 

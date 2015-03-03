@@ -172,45 +172,10 @@ object.getLinkTrackingManager = function (core, trackerId) {
 		 * whether to use pseudo click tracking, and what context to attach to link_click events
 		 */
 		configureLinkClickTracking: function (criterion, pseudoClicks, trackContent, context) {
-			var specifiedClasses,
-				inclusive,
-				specifiedClassesSet,
-				i;
-
 			linkTrackingContent = trackContent;
 			linkTrackingContext = context;
 			linkTrackingPseudoClicks = pseudoClicks;
-
-			// If the criterion argument is not an object, add listeners to all links
-			if (lodash.isArray(criterion) || !lodash.isObject(criterion)) {
-				linkTrackingFilter = function (link) {
-					return true;
-				};
-				return;
-			}
-
-			if (criterion.hasOwnProperty('filter')) {
-				linkTrackingFilter = criterion.filter;
-			} else {
-
-				inclusive = (criterion.hasOwnProperty('whitelist'));
-				specifiedClasses = criterion.whitelist || criterion.blacklist;
-
-				// If the class list is a single string, convert it to an array
-				if (!lodash.isArray(specifiedClasses)) {
-					specifiedClasses = [specifiedClasses];
-				}
-
-				// Convert the array of classes to an object of the form {class1: true, class2: true, ...}
-				specifiedClassesSet = {};
-				for (i=0; i<specifiedClasses.length; i++) {
-					specifiedClassesSet[specifiedClasses[i]] = true;
-				}
-
-				linkTrackingFilter = function(link) {
-					return checkLink(link, specifiedClassesSet) === inclusive;
-				};
-			}
+			linkTrackingFilter = helpers.getFilter(criterion, true);
 		},
 
 		/*
