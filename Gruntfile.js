@@ -82,7 +82,7 @@ module.exports = function(grunt) {
         dest: 'src/js/lib_managed/lodash.js',
         options: {
           exports: 'node',
-          include: 'isArray, isFunction, isString, isObject, isDate, isUndefined, isNull, map, filter, find, compact, isEmpty, clone',
+          include: 'isArray, isFunction, isString, isObject, isDate, isUndefined, isNull, map, mapValues, forEach, filter, find, compact, isEmpty, clone',
           flags: ['debug']
         }
       }
@@ -91,13 +91,14 @@ module.exports = function(grunt) {
     browserify: {
       main: {
         files: {
-          'deploy/bundle.js': ['src/js/init.js']
+          'dist/bundle.js': ['src/js/init.js']
         }
       },
       test: {
         files: {
           'tests/pages/helpers.js': ['tests/scripts/helpers.js'],
-          'tests/pages/detectors.js': ['tests/scripts/detectors.js']
+          'tests/pages/detectors.js': ['tests/scripts/detectors.js'],
+          'tests/pages/snowplow.js': ['src/js/init.js']
         }
       }
     },
@@ -109,8 +110,8 @@ module.exports = function(grunt) {
           'banner': '<%= banner %>',
           'process': true
         },
-        src: ['deploy/bundle.js'],
-        dest: 'deploy/snowplow.js'
+        src: ['dist/bundle.js'],
+        dest: 'dist/snowplow.js'
       },
       tag: {
         options: {
@@ -129,8 +130,8 @@ module.exports = function(grunt) {
         },
         files: [
           {
-            src: 'deploy/snowplow.js',
-            dest: 'deploy/sp.js'
+            src: 'dist/snowplow.js',
+            dest: 'dist/sp.js'
           }
         ]
       },
@@ -197,7 +198,7 @@ module.exports = function(grunt) {
         },
         upload: [
           {
-            src: 'deploy/sp.js',
+            src: 'dist/sp.js',
             dest: '<%= pkg.version %>/sp.js'
           }
         ]
@@ -210,7 +211,7 @@ module.exports = function(grunt) {
         },
         upload: [
           {
-            src: 'deploy/sp.js',
+            src: 'dist/sp.js',
             dest: '<%= pkg.pinnedVersion %>/sp.js'
           }        
         ]

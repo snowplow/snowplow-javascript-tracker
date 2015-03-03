@@ -23,14 +23,16 @@ With this tracker you can collect user event data (page views, e-commerce transa
 
 ### Contributing quickstart
 
+Assuming git, [Vagrant] [vagrant-install] and [VirtualBox] [virtualbox-install] installed:
+
 ```
-git clone --recursive https://github.com/snowplow/dev-environment.git && cd dev-environment
-vagrant up && vagrant ssh
-ansible-playbook /vagrant/ansible-playbooks/snowplow-javascript-tracker.yml --inventory-file=/home/vagrant/ansible_hosts --connection=local
-cd /vagrant
-git clone https://github.com/snowplow/snowplow-javascript-tracker.git
-cd snowplow-javascript-tracker
-sudo npm install
+ host$ git clone https://github.com/snowplow/snowplow-javascript-tracker.git
+ host$ cd snowplow-javascript-tracker
+ host$ vagrant up && vagrant ssh
+guest$ cd /vagrant
+guest$ sudo npm install
+guest$ cd core
+guest$ sudo npm install
 ```
 
 Set up an `./aws.json` file using the example `./aws.sample.json`. If you just want to concat + minify without uploading then you don't need to fill out the `aws.json` file with valid credentials.
@@ -49,7 +51,11 @@ Significant portions of the Snowplow JavaScript Tracker copyright 2010 Anthon Pa
 
 Licensed under the [Simplified BSD] [bsd] license.
 
-[snowplow]: http://www.keplarllp.com/blog/2012/02/introducing-snowplow-the-worlds-most-powerful-web-analytics-platform
+[snowplow]: http://snowplowanalytics.com/
+
+[vagrant-install]: http://docs.vagrantup.com/v2/installation/index.html
+[virtualbox-install]: https://www.virtualbox.org/wiki/Downloads
+
 [piwik]: http://piwik.org/
 [piwikjs]: https://github.com/piwik/piwik/blob/master/js/piwik.js
 [piwikphp]: https://github.com/piwik/piwik/blob/master/piwik.php

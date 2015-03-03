@@ -78,6 +78,19 @@ define([
 				});
 		},
 
+		'Detect document size': function () {
+			return this.remote
+				.get(require.toUrl('tests/pages/detectors.html'))
+				.waitForElementByCssSelector('body.loaded', 5000)
+				.elementById('detectDocumentDimensions')
+				.text()
+				.then(function (text) {
+					var dimensions = text.split('x');
+					assert.include(expectedViewportWidths, parseInt(dimensions[0]), 'Document width is valid');
+					assert.include(expectedViewportHeights, parseInt(dimensions[1]), 'Document height is valid');
+				});
+		},
+
 		'Check localStorage availability': function() {
 
 			return this.remote
@@ -135,6 +148,21 @@ define([
 				.text()
 				.then(function (text) {
 					assert.include(expectedSignatures, parseInt(text), 'Create a user fingerprint based on browser features');
+				});
+		},
+
+		'Browser features': function() {
+
+			return this.remote
+				.get(require.toUrl('tests/pages/detectors.html'))
+				.waitForElementByCssSelector('body.loaded', 5000)
+				.elementById('detectBrowserFeatures')
+				.text()
+				.then(function (text) {
+					var features = JSON.parse(text);
+					// The only features which are the same for all tested browsers
+					assert.equal('1', features.java, 'Detect Java');
+					assert.equal(24, features.cd, 'Detect color depth');
 				});
 		}
 	});
