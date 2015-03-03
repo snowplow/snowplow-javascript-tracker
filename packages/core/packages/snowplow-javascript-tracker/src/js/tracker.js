@@ -670,9 +670,9 @@
 		 * @param object context Custom context relating to the event
 		 */
 		function logPagePing(pageTitle, context) {
-			resetMaxScrolls();
 			core.trackPagePing(purify(configCustomUrl || locationHrefAlias), pageTitle, purify(configReferrerUrl),
 				Math.round(minXOffset), Math.round(maxXOffset), Math.round(minYOffset), Math.round(maxYOffset), context);
+			resetMaxScrolls();
 		}
 
 		/**
