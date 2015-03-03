@@ -1229,9 +1229,15 @@
 			 * Log visit to this page
 			 *
 			 * @param string customTitle
+			 * @param boolean DEPRECATED performanceTiming
 			 * @param object Custom context relating to the event
 			 */
-			trackPageView: function (customTitle, context) {
+			trackPageView: function (customTitle, performanceTiming, context) {
+				if (performanceTiming !== true && performanceTiming !== false) {
+					context = context || performanceTiming;
+				} else {
+					helpers.warn('The performanceTiming argument to trackPageView is deprecated. Instead use the "contexts" field in the argmap argument of newTracker.');
+				}
 				trackCallback(function () {
 					logPageView(customTitle, context);
 				});
