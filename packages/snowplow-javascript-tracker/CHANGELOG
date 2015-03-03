@@ -1,6 +1,6 @@
 Version 2.3.0 (2015-03-03)
 -------------------------
-Added suport for sending events via POST (#168)
+Added support for sending events via POST (#168)
 Removed dependency on fblundun fork of grunt-yui-compressor (#172)
 Added support for batching events (#186)
 Started sending PerformanceTiming context with all events (#317)
