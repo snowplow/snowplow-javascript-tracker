@@ -19,9 +19,12 @@ npm-debug.log
 node_modules
 
 **/lodash.js
-dist
 tests/pages/*.js
 tags/tag.min.js
 
 # creds for Grunt
 aws.json
+
+# Vagrant
+.vagrant
+VERSION
