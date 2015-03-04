@@ -29,6 +29,7 @@
           encodeBase64: false, // Default is true
           appId: 'CFe23a', // Site ID can be anything you want. Set it if you're tracking more than one site in this account
           platform: 'mob',
+          crossDomainLinker: function (link) {return link.id === 'legal'}, // Add duid and timestamp to the link with id "legal"
           contexts: {
             performanceTiming: true
           }
@@ -243,7 +244,8 @@
     </p>
     <p>
       Middle click the links to trigger link click tracking:<br>
-      <a href=http://en.wikipedia.org/wiki/Main_Page id=legal target="_blank" class="link out">Link</a>
+      <!-- crossDomain functionality correctly alters a link with a multiple question marks and a fragment -->
+      <a href=http://en.wikipedia.org/wiki/Main_Page?a=b?c#fragment id=legal target="_blank" class="link out">Link</a>
       <br>
       <a href=http://en.wikipedia.org/wiki/Main_Page id=illegal class="class barred">Link ignored by one user</a>
     </p>

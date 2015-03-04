@@ -77,6 +77,7 @@
 	 * 14. contexts, {}
 	 * 15. post, false
 	 * 16. bufferSize, 1
+	 * 17. crossDomainLinker, false
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
 
@@ -265,6 +266,41 @@
 					core.addPayloadPair(i, browserFeatures[i]);
 				} else {
 					core.addPayloadPair('f_' + i, browserFeatures[i]);
+				}
+			}
+		}
+
+		/**
+		 * Decorate the querystring of a single link
+		 *
+		 * @param event e The event targeting the link
+		 */
+		function linkDecorationHandler(e) {
+			var duid = loadDomainUserIdCookie()[1];
+			var tstamp = new Date().getTime();
+			var initialQsParams = '_sp=' + duid + '.' + tstamp;
+			var elt = e.target;
+			if (elt.href) {
+				elt.href = helpers.decorateQuerystring(elt.href, '_sp', duid + '.' + tstamp);
+			}
+		}
+
+		/**
+		 * Enable querystring decoration for links pasing a filter
+		 * Whenever such a link is clicked on or navigated to via the keyboard,
+		 * add "_sp={{duid}}.{{timestamp}}" to its querystring
+		 *
+		 * @param function crossDomainLinker Function used to determine which links to decorate
+		 */
+		function decorateLinks(crossDomainLinker) {
+			for (var i=0; i<document.links.length; i++) {
+				var elt = document.links[i];
+				if (!elt.spDecorationEnabled && crossDomainLinker(elt)) {
+					helpers.addEventListener(elt, 'click', linkDecorationHandler);
+					helpers.addEventListener(elt, 'mousedown', linkDecorationHandler);
+
+					// Don't add event listeners more than once
+					elt.spDecorationEnabled = true;
 				}
 			}
 		}
@@ -841,6 +877,9 @@
 		 */
 		updateDomainHash();
 
+		if (argmap.crossDomainLinker) {
+			decorateLinks(argmap.crossDomainLinker);
+		}
 
 		/************************************************************
 		 * Public data and methods
@@ -1012,6 +1051,15 @@
 				var dnt = navigatorAlias.doNotTrack || navigatorAlias.msDoNotTrack;
 
 				configDoNotTrack = enable && (dnt === 'yes' || dnt === '1');
+			},
+
+			/**
+			 * Enable querystring decoration for links pasing a filter
+			 *
+			 * @param function crossDomainLinker Function used to determine which links to decorate
+			 */
+			crossDomainLinker: function (crossDomainLinkerCriterion) {
+				decorateLinks(crossDomainLinkerCriterion);
 			},
 
 			/**
