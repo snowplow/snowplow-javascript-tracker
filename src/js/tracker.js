@@ -1484,6 +1484,27 @@
 			 */
 			trackSiteSearch: function(terms, filters, totalResults, pageResults, context) {
 				core.trackSiteSearch(terms, filters, totalResults, pageResults, addCommonContexts(context));
+			},
+
+			/**
+			 * Track a timing event (such as the time taken for a resource to load)
+			 *
+			 * @param string category Required.
+			 * @param string variable Required.
+			 * @param number timing Required.
+			 * @param string label Optional.
+			 * @param array context Optional. Context relating to the event.
+			 */
+			trackTiming: function (category, variable, timing, label, context) {
+				core.trackUnstructEvent({
+					schema: 'iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0',
+					data: {
+						category: category,
+						variable: variable,
+						timing: timing,
+						label: label
+					}
+				}, addCommonContexts(context))
 			}
 		};
 	};
