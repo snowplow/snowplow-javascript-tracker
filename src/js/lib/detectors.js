@@ -170,10 +170,12 @@
 	 */
 	object.detectDocumentSize = function() {
 		var de = documentAlias.documentElement, // Alias
-			be = documentAlias.body;
+			be = documentAlias.body,
+
+			// document.body may not have rendered, so check whether be.offsetHeight is null
+			bodyHeight = be ? Math.max(be.offsetHeight, be.scrollHeight) : 0;
 		var w = Math.max(de.clientWidth, de.offsetWidth, de.scrollWidth);
-		var h = Math.max(de.clientHeight, de.offsetHeight, de.scrollHeight,
-		                 be.offsetHeight, be.scrollHeight);
+		var h = Math.max(de.clientHeight, de.offsetHeight, de.scrollHeight, bodyHeight);
 		return isNaN(w) || isNaN(h) ? '' : w + 'x' + h;
 	};
 
