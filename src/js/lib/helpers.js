@@ -81,10 +81,16 @@
 		return domain;
 	};
 
-	/*
-	 * Get page referrer
+	/**
+	 * Get page referrer. In the case of a single-page app,
+	 * if the URL changes without the page reloading, pass
+	 * in the old URL. It will be returned unless overriden
+	 * by a "refer(r)er" parameter in the querystring.
+	 *
+	 * @param string oldLocation Optional.
+	 * @return string The referrer
 	 */
-	object.getReferrer = function () {
+	object.getReferrer = function (oldLocation) {
 
 		var referrer = '';
 		
@@ -94,6 +100,11 @@
 		// Short-circuit
 		if (fromQs) {
 			return fromQs;
+		}
+
+		// In the case of a single-page app, return the old URL
+		if (oldLocation) {
+			return oldLocation;
 		}
 
 		try {

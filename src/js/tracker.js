@@ -102,6 +102,8 @@
 			locationHrefAlias = locationArray[1],
 			configReferrerUrl = locationArray[2],
 
+			customReferrer,
+
 			argmap = argmap || {},
 
 			// Request method is always GET for Snowplow
@@ -271,6 +273,23 @@
 		}
 
 		/**
+		 * Recalculate the domain, URL, and referrer
+		 */
+		function refreshUrl() {
+			locationArray = proxies.fixupUrl(documentAlias.domain, windowAlias.location.href, helpers.getReferrer());
+
+			// If this is a single-page app and the page URL has changed, then:
+			//   - if the new URL's querystring contains a "refer(r)er" parameter, use it as the referrer
+			//   - otherwise use the old URL as the referer
+			if (locationArray[1] !== locationHrefAlias) {
+				configReferrerUrl = helpers.getReferrer(locationHrefAlias);
+			}
+
+			domainAlias = helpers.fixupDomain(locationArray[0]);
+			locationHrefAlias = locationArray[1];
+		}
+
+		/**
 		 * Decorate the querystring of a single link
 		 *
 		 * @param event e The event targeting the link
@@ -400,6 +419,7 @@
 		 * Update domain hash
 		 */
 		function updateDomainHash() {
+			refreshUrl();
 			domainHash = hash((configCookieDomain || domainAlias) + (configCookiePath || '/')).slice(0, 4); // 4 hexits = 16 bits
 		}
 
@@ -571,10 +591,9 @@
 			sb.add('fp', userFingerprint);
 			sb.add('uid', businessUserId);
 
-			// Adds with custom conditions
-			if (configReferrerUrl.length) {
-				sb.add('refr', purify(configReferrerUrl));
-			}
+			refreshUrl();
+
+			sb.add('refr', purify(customReferrer || configReferrerUrl));
 
 			// Add the page URL last as it may take us over the IE limit (and we don't always need it)
 			sb.add('url', purify(configCustomUrl || locationHrefAlias));
@@ -714,8 +733,10 @@
 			// Fixup page title. We'll pass this to logPagePing too.
 			var pageTitle = helpers.fixupTitle(customTitle || configTitle);
 
+			refreshUrl();
+
 			// Log page view
-			core.trackPageView(purify(configCustomUrl || locationHrefAlias), pageTitle, purify(configReferrerUrl), addCommonContexts(context));
+			core.trackPageView(purify(configCustomUrl || locationHrefAlias), pageTitle, purify(customReferrer || configReferrerUrl), addCommonContexts(context));
 
 			// Send ping (to log that user has stayed on page)
 			var now = new Date();
@@ -768,10 +789,11 @@
 		 * @param object context Custom context relating to the event
 		 */
 		function logPagePing(pageTitle, context) {
+			refreshUrl();
 			core.trackPagePing(
 				purify(configCustomUrl || locationHrefAlias),
 				pageTitle,
-				purify(configReferrerUrl),
+				purify(customReferrer || configReferrerUrl),
 				cleanOffset(minXOffset),
 				cleanOffset(maxXOffset),
 				cleanOffset(minYOffset),
@@ -940,7 +962,7 @@
 			 * @param string url
 			 */
 			setReferrerUrl: function (url) {
-				configReferrerUrl = url;
+				customReferrer = url;
 			},
 
 			/**
@@ -949,6 +971,7 @@
 			 * @param string url
 			 */
 			setCustomUrl: function (url) {
+				refreshUrl();
 				configCustomUrl = resolveRelativeReference(locationHrefAlias, url);
 			},
 
@@ -1198,6 +1221,7 @@
 			 * @param string queryName Name of a querystring name-value pair
 			 */
 			setUserIdFromLocation: function(querystringField) {
+				refreshUrl();
 				businessUserId = helpers.fromQuerystring(querystringField, locationHrefAlias);
 			},
 
@@ -1207,6 +1231,7 @@
 			 * @param string queryName Name of a querystring name-value pair
 			 */
 			setUserIdFromReferrer: function(querystringField) {
+				refreshUrl();
 				businessUserId = helpers.fromQuerystring(querystringField, configReferrerUrl);
 			},
 
