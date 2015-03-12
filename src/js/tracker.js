@@ -237,10 +237,6 @@
 			// Context to be added to every event
 			commonContexts = [];
 
-		if (autoContexts.performanceTiming) {
-			commonContexts.push(getPerformanceTimingContext());
-		}
-
 		if (autoContexts.gaCookies) {
 			commonContexts.push(getGaCookiesContext());
 		}
@@ -640,7 +636,11 @@
 		 * @return userContexts combined with commonContexts
 		 */
 		function addCommonContexts(userContexts) {
-			return commonContexts.concat(userContexts || []);
+			var combinedContexts = commonContexts.concat(userContexts || []);
+			if (autoContexts.performanceTiming) {
+				combinedContexts.push(getPerformanceTimingContext());
+			}
+			return combinedContexts;
 		}
 
 		/**
