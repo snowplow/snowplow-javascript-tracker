@@ -220,10 +220,10 @@
 			ecommerceTransaction = ecommerceTransactionTemplate(),
 
 			// Manager for automatic link click tracking
-			linkTrackingManager = links.getLinkTrackingManager(core, trackerId),
+			linkTrackingManager = links.getLinkTrackingManager(core, trackerId, addCommonContexts),
 
 			// Manager for automatic form tracking
-			formTrackingManager = forms.getFormTrackingManager(core, trackerId),
+			formTrackingManager = forms.getFormTrackingManager(core, trackerId, addCommonContexts),
 
 			// Manager for local storage queue
 			outQueueManager = new requestQueue.OutQueueManager(functionName, namespace, mutSnowplowState, useLocalStorage, argmap.post, argmap.bufferSize),
