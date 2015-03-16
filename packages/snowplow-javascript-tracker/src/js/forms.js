@@ -41,9 +41,10 @@ var lodash = require('./lib_managed/lodash'),
  *
  * @param object core The tracker core
  * @param string trackerId Unique identifier for the tracker instance, used to mark tracked elements
+ * @param function contextAdder Function to add common contexts like PerformanceTiming to all events
  * @return object formTrackingManager instance
  */
-object.getFormTrackingManager = function (core, trackerId) {
+object.getFormTrackingManager = function (core, trackerId, contextAdder) {
 
 	// Tag names of mutable elements inside a form
 	var innerElementTags = ['textarea', 'input', 'select'];
@@ -123,7 +124,7 @@ object.getFormTrackingManager = function (core, trackerId) {
 			var elt = e.target;
 			var type = elt.nodeName.toUpperCase() === 'INPUT' ? elt.type : null;
 			var value = (elt.type === 'checkbox' && !elt.checked) ? null : elt.value;
-			core.trackFormChange(getParentFormName(elt), getFormElementName(elt), elt.nodeName, type, lodash.map(elt.classList), value, context);
+			core.trackFormChange(getParentFormName(elt), getFormElementName(elt), elt.nodeName, type, lodash.map(elt.classList), value, contextAdder(context));
 		};
 	}
 
@@ -134,7 +135,7 @@ object.getFormTrackingManager = function (core, trackerId) {
 		return function (e) {
 			var elt = e.target;
 			var innerElements = getInnerFormElements(elt);
-			core.trackFormSubmission(getFormElementName(elt), lodash.map(elt.classList), innerElements, context);
+			core.trackFormSubmission(getFormElementName(elt), lodash.map(elt.classList), innerElements, contextAdder(context));
 		};
 	}
 

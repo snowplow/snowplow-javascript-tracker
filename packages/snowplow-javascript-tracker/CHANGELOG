@@ -1,3 +1,14 @@
+Version 2.4.0 (2015-03-16)
+--------------------------
+Added ability to modify links allowing cross-domain tracking (#109)
+Added timing event (#320)
+Increased safety of document size detection (#334)
+Started randomly generating ngrok subdomain in integration tests (#333)
+Fixed Vagrant setup to use latest Peru version (#336)
+Stopped caching page URL and referrer URL (#337)
+Stopped caching PerformanceTiming context (#339)
+Added common contexts to link_click, change_form, and submit_form events (#340)
+
 Version 2.3.0 (2015-03-03)
 -------------------------
 Added support for sending events via POST (#168)
