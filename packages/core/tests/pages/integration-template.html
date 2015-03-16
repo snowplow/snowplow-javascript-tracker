@@ -18,7 +18,10 @@
 		};p[i].q=p[i].q||[];n=l.createElement(o);g=l.getElementsByTagName(o)[0];n.async=1;
 		n.src=w;g.parentNode.insertBefore(n,g)}}(window,document,"script","./snowplow.js","snowplow"));
 
-		window.snowplow('newTracker', 'cf', 'snowplow.ngrok.com', {
+		// Taken from a random environment variable
+		var subdomain = '<%= subdomain %>';
+
+		window.snowplow('newTracker', 'cf', subdomain + '.ngrok.com', {
 			encodeBase64: true,
 			appId: 'CFe23a',
 			platform: 'mob'

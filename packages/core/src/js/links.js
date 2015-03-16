@@ -41,9 +41,10 @@ var lodash = require('./lib_managed/lodash'),
  *
  * @param object core The tracker core
  * @param string trackerId Unique identifier for the tracker instance, used to mark tracked links
+ * @param function contextAdder Function to add common contexts like PerformanceTiming to all events
  * @return object linkTrackingManager instance
  */
-object.getLinkTrackingManager = function (core, trackerId) {
+object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 
 	// Filter function used to determine whether clicks on a link should be tracked
 	var linkTrackingFilter,
@@ -96,7 +97,7 @@ object.getLinkTrackingManager = function (core, trackerId) {
 
 				// decodeUrl %xx
 				sourceHref = unescape(sourceHref);
-				core.trackLinkClick(sourceHref, elementId, elementClasses, elementTarget, elementContent, context);
+				core.trackLinkClick(sourceHref, elementId, elementClasses, elementTarget, elementContent, contextAdder(context));
 			}
 		}
 	}

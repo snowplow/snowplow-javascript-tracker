@@ -81,10 +81,16 @@
 		return domain;
 	};
 
-	/*
-	 * Get page referrer
+	/**
+	 * Get page referrer. In the case of a single-page app,
+	 * if the URL changes without the page reloading, pass
+	 * in the old URL. It will be returned unless overriden
+	 * by a "refer(r)er" parameter in the querystring.
+	 *
+	 * @param string oldLocation Optional.
+	 * @return string The referrer
 	 */
-	object.getReferrer = function () {
+	object.getReferrer = function (oldLocation) {
 
 		var referrer = '';
 		
@@ -94,6 +100,11 @@
 		// Short-circuit
 		if (fromQs) {
 			return fromQs;
+		}
+
+		// In the case of a single-page app, return the old URL
+		if (oldLocation) {
+			return oldLocation;
 		}
 
 		try {
@@ -205,6 +216,42 @@
 				};
 			}
 		}
+	}
+
+	/**
+	 * Add a name-value pair to the querystring of a URL
+	 *
+	 * @param string url URL to decorate
+	 * @param string name Name of the querystring pair
+	 * @param string value Value of the querystring pair
+	 */
+	object.decorateQuerystring = function (url, name, value) {
+		var initialQsParams = name + '=' + value;
+		var hashSplit = url.split('#');
+		var qsSplit = hashSplit[0].split('?');
+		var beforeQuerystring = qsSplit.shift();
+		// Necessary because a querystring may contain multiple question marks
+		var querystring = qsSplit.join('?');
+		if (!querystring) {
+			querystring = initialQsParams;
+		} else {
+			// Whether this is the first time the link has been decorated
+			var initialDecoration = true;
+			var qsFields = querystring.split('&');
+			for (var i=0; i<qsFields.length; i++) {
+				if (qsFields[i].substr(0, name.length + 1) === name + '=') {
+					initialDecoration = false;
+					qsFields[i] = initialQsParams;
+					querystring = qsFields.join('&');
+					break;
+				}
+			}
+			if (initialDecoration) {
+				querystring = initialQsParams + '&' + querystring;
+			}
+		}
+		hashSplit[0] = beforeQuerystring + '?' + querystring;
+		return hashSplit.join('#');
 	}
 
 }());

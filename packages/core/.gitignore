@@ -20,6 +20,7 @@ node_modules
 
 **/lodash.js
 tests/pages/*.js
+tests/pages/integration.html
 tags/tag.min.js
 
 # creds for Grunt
