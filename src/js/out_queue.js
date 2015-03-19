@@ -186,7 +186,7 @@
 				var eventCount = outQueue.length;
 
 				xhr.onreadystatechange = function () {
-					if (xhr.readyState === 4 && xhr.status === 200) {
+					if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status < 400) {
 						for (var deleteCount = 0; deleteCount < eventCount; deleteCount++) {
 							outQueue.shift();
 						}
