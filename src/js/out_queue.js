@@ -195,7 +195,7 @@
 						}
 						clearTimeout(xhrTimeout);
 						executeQueue();
-					} else if (xhr.readyState === 4 && xhr.status === 404) {
+					} else if (xhr.readyState === 4 && xhr.status >= 400) {
 						executingQueue = false;
 					}
 				};
