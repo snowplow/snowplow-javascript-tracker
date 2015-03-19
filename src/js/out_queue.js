@@ -86,8 +86,12 @@
 		// Used by pageUnloadGuard
 		mutSnowplowState.outQueues.push(outQueue);
 
-		if (usePost) {
-			mutSnowplowState.bufferFlushers.push(executeQueue);
+		if (usePost && bufferSize > 1) {
+			mutSnowplowState.bufferFlushers.push(function () {
+				if (!executingQueue) {
+					executeQueue();
+				}
+			});
 		}
 
 		/*
