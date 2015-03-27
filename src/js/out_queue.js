@@ -53,9 +53,10 @@
 	 * @param boolean usePost Whether to send events by POST or GET
 	 * @param int bufferSize How many events to batch in localStorage before sending them all.
 	 *                       Only applies when sending POST requests and when localStorage is available.
+	 * @param int maxPostBytes Maximum combined size in bytes of the event JSONs in a POST request
 	 * @return object OutQueueManager instance
 	 */
-	object.OutQueueManager = function (functionName, namespace, mutSnowplowState, useLocalStorage, usePost, bufferSize) {
+	object.OutQueueManager = function (functionName, namespace, mutSnowplowState, useLocalStorage, usePost, bufferSize, maxPostBytes) {
 		var	queueName,
 			executingQueue = false,
 			configCollectorUrl,
@@ -69,11 +70,12 @@
 		bufferSize = (localStorageAccessible() && useLocalStorage && usePost && bufferSize) || 1;
 
 		// Different queue names for GET and POST since they are stored differently
-		queueName = ['snowplowOutQueue', functionName, namespace, usePost ? 'post' : 'get'].join('_');
+		queueName = ['snowplowOutQueue', functionName, namespace, usePost ? 'post2' : 'get'].join('_');
 
 		if (useLocalStorage) {
-			// Catch any JSON parse errors that might be thrown
+			// Catch any JSON parse errors or localStorage that might be thrown
 			try {
+				// TODO: backward compatibility with the old version of the queue for POST requests
 				outQueue = json2.parse(localStorage.getItem(queueName));
 			}
 			catch(e) {}
@@ -128,9 +130,41 @@
 		 * Convert numeric fields to strings to match payload_data schema
 		 */
 		function getBody(request) {
-			return lodash.mapValues(request, function (v) {
+			var cleanedRequest = lodash.mapValues(request, function (v) {
 				return v.toString();
 			});
+			return {
+				evt: cleanedRequest,
+				bytes: getUTF8Length(json2.stringify(cleanedRequest))
+			};
+		}
+
+		/**
+		 * Count the number of bytes a string will occupy when UTF-8 encoded
+		 * Taken from http://stackoverflow.com/questions/2848462/count-bytes-in-textarea-using-javascript/
+		 *
+		 * @param string s
+		 * @return number Length of s in bytes when UTF-8 encoded
+		 */
+		function getUTF8Length(s) {
+			var len = 0;
+			for (var i = 0; i < s.length; i++) {
+				var code = s.charCodeAt(i);
+				if (code <= 0x7f) {
+					len += 1;
+				} else if (code <= 0x7ff) {
+					len += 2;
+				} else if (code >= 0xd800 && code <= 0xdfff) {
+					// Surrogate pair: These take 4 bytes in UTF-8 and 2 chars in UCS-2
+					// (Assume next char is the other [valid] half and just skip it)
+					len += 4; i++;
+				} else if (code < 0xffff) {
+					len += 3;
+				} else {
+					len += 4;
+				}
+			}
+			return len;
 		}
 
 		/*
@@ -139,7 +173,17 @@
 		 */
 		function enqueueRequest (request, url) {
 
-			outQueue.push(usePost ? getBody(request) : getQuerystring(request));
+			if (usePost) {
+				var body = getBody(request);
+				if (body.bytes >= maxPostBytes) {
+					helpers.warn("Event of size " + body.bytes + " is too long - the maximum size is " + maxPostBytes);
+					return;
+				} else {
+					outQueue.push(body);
+				}
+			} else {
+				outQueue.push(getQuerystring(request));
+			}
 			configCollectorUrl = url + path;
 			var savedToLocalStorage = false;
 			if (useLocalStorage) {
@@ -188,12 +232,26 @@
 					executingQueue = false;
 				}, 5000);
 
+				function chooseHowManyToExecute(q) {
+					var numberToSend = 0;
+					var byteCount = 0;
+					while (numberToSend < q.length) {
+						byteCount += q[numberToSend].bytes;
+						if (byteCount >= maxPostBytes) {
+							break;
+						} else {
+							numberToSend += 1;
+						}
+					}
+					return numberToSend;
+				}
+
 				// Keep track of number of events to delete from queue
-				var eventCount = outQueue.length;
+				var numberToSend = chooseHowManyToExecute(outQueue);
 
 				xhr.onreadystatechange = function () {
 					if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status < 400) {
-						for (var deleteCount = 0; deleteCount < eventCount; deleteCount++) {
+						for (var deleteCount = 0; deleteCount < numberToSend; deleteCount++) {
 							outQueue.shift();
 						}
 						if (useLocalStorage) {
@@ -208,11 +266,14 @@
 				};
 
 				xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+				var batch = lodash.map(outQueue.slice(0, numberToSend), function (x) {
+					return x.evt;
+				});
 				var batchRequest = {
 					schema: 'iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-2',
-					data: outQueue
+					data: batch
 				};
-				if (outQueue.length > 0) {
+				if (batch.length > 0) {
 					xhr.send(json2.stringify(batchRequest));
 				}
 

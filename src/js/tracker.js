@@ -78,6 +78,7 @@
 	 * 15. post, false
 	 * 16. bufferSize, 1
 	 * 17. crossDomainLinker, false
+	 * 18. maxPostBytes, 40000
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
 
@@ -226,7 +227,14 @@
 			formTrackingManager = forms.getFormTrackingManager(core, trackerId, addCommonContexts),
 
 			// Manager for local storage queue
-			outQueueManager = new requestQueue.OutQueueManager(functionName, namespace, mutSnowplowState, useLocalStorage, argmap.post, argmap.bufferSize),
+			outQueueManager = new requestQueue.OutQueueManager(
+				functionName,
+				namespace,
+				mutSnowplowState,
+				useLocalStorage,
+				argmap.post,
+				argmap.bufferSize,
+				argmap.maxPostBytes || 40000),
 
 			// Flag to prevent the geolocation context being added multiple times
 			geolocationContextAdded = false,
