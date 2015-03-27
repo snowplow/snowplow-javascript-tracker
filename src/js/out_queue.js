@@ -38,6 +38,7 @@
 		json2 = require('JSON'),
 		lodash = require('./lib_managed/lodash'),
 		localStorageAccessible = require('./lib/detectors').localStorageAccessible,
+		helpers = require('./lib/helpers'),
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
 	/**
@@ -70,7 +71,7 @@
 		// Different queue names for GET and POST since they are stored differently
 		queueName = ['snowplowOutQueue', functionName, namespace, usePost ? 'post' : 'get'].join('_');
 
-		if (localStorageAccessible() && useLocalStorage) {
+		if (useLocalStorage) {
 			// Catch any JSON parse errors that might be thrown
 			try {
 				outQueue = json2.parse(localStorage.getItem(queueName));
@@ -140,11 +141,12 @@
 
 			outQueue.push(usePost ? getBody(request) : getQuerystring(request));
 			configCollectorUrl = url + path;
-			if (localStorageAccessible() && useLocalStorage) {
-				localStorage.setItem(queueName, json2.stringify(outQueue));
+			var savedToLocalStorage = false;
+			if (useLocalStorage) {
+				savedToLocalStorage = helpers.attemptWriteLocalStorage(queueName, json2.stringify(outQueue));
 			}
 
-			if (!executingQueue && outQueue.length >= bufferSize) {
+			if (!executingQueue && (!savedToLocalStorage || outQueue.length >= bufferSize)) {
 				executeQueue();
 			}
 		}
@@ -194,8 +196,8 @@
 						for (var deleteCount = 0; deleteCount < eventCount; deleteCount++) {
 							outQueue.shift();
 						}
-						if (localStorageAccessible() && useLocalStorage) {
-							localStorage.setItem(queueName, json2.stringify(outQueue));
+						if (useLocalStorage) {
+							helpers.attemptWriteLocalStorage(queueName, json2.stringify(outQueue));
 						}
 						clearTimeout(xhrTimeout);
 						executeQueue();
@@ -220,8 +222,8 @@
 
 				image.onload = function () {
 					outQueue.shift();
-					if (localStorageAccessible() && useLocalStorage) {
-						localStorage.setItem(queueName, json2.stringify(outQueue));
+					if (useLocalStorage) {
+						helpers.attemptWriteLocalStorage(queueName, json2.stringify(outQueue));
 					}
 					executeQueue();
 				};

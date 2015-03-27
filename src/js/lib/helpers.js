@@ -252,6 +252,35 @@
 		}
 		hashSplit[0] = beforeQuerystring + '?' + querystring;
 		return hashSplit.join('#');
-	}
+	};
+
+	/**
+	 * Attempt to get a value from localStorage
+	 *
+	 * @param string key
+	 * @return string The value obtained from localStorage, or
+	 *                undefined if localStorage is inaccessible
+	 */
+	object.attemptGetLocalStorage = function (key) {
+		try {
+			return localStorage.getItem(key);
+		} catch(e) {}
+	};
+
+	/**
+	 * Attempt to write a value to localStorage
+	 *
+	 * @param string key
+	 * @param string value
+	 * @return boolean Whether the operation succeeded
+	 */
+	object.attemptWriteLocalStorage = function (key, value) {
+		try {
+			localStorage.setItem(key, value);
+			return true;
+		} catch(e) {
+			return false;
+		}
+	};
 
 }());
