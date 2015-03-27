@@ -1,3 +1,11 @@
+Version 2.4.1 (2015-03-27)
+--------------------------
+Counted any 2xx or 3xx collector response to a POST request as successful (#343)
+Counted any 4xx or 5xx collector response to a POST request as failed (#344)
+Prevented the localStorage event buffer from being flushed more than once simultaneously (#345)
+Cancelled the XMLHttpRequest timeout callback when the request fails (#348)
+Stopped adding null PerformanceTiming context (#354)
+
 Version 2.4.0 (2015-03-16)
 --------------------------
 Added ability to modify links allowing cross-domain tracking (#109)

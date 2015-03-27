@@ -86,8 +86,12 @@
 		// Used by pageUnloadGuard
 		mutSnowplowState.outQueues.push(outQueue);
 
-		if (usePost) {
-			mutSnowplowState.bufferFlushers.push(executeQueue);
+		if (usePost && bufferSize > 1) {
+			mutSnowplowState.bufferFlushers.push(function () {
+				if (!executingQueue) {
+					executeQueue();
+				}
+			});
 		}
 
 		/*
@@ -186,7 +190,7 @@
 				var eventCount = outQueue.length;
 
 				xhr.onreadystatechange = function () {
-					if (xhr.readyState === 4 && xhr.status === 200) {
+					if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status < 400) {
 						for (var deleteCount = 0; deleteCount < eventCount; deleteCount++) {
 							outQueue.shift();
 						}
@@ -195,7 +199,8 @@
 						}
 						clearTimeout(xhrTimeout);
 						executeQueue();
-					} else if (xhr.readyState === 4 && xhr.status === 404) {
+					} else if (xhr.readyState === 4 && xhr.status >= 400) {
+						clearTimeout(xhrTimeout);
 						executingQueue = false;
 					}
 				};
