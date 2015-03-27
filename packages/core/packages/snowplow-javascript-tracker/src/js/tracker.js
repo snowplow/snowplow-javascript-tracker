@@ -638,7 +638,10 @@
 		function addCommonContexts(userContexts) {
 			var combinedContexts = commonContexts.concat(userContexts || []);
 			if (autoContexts.performanceTiming) {
-				combinedContexts.push(getPerformanceTimingContext());
+				var performanceTimingContext = getPerformanceTimingContext();
+				if (performanceTimingContext) {
+					combinedContexts.push(performanceTimingContext);
+				}
 			}
 			return combinedContexts;
 		}
