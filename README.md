@@ -4,6 +4,7 @@
 [ ![Selenium Test Status] [saucelabs-button-image]][saucelabs]
 [ ![Code Climate] [codeclimate-image] ] [codeclimate]
 [ ![Built with Grunt] [grunt-image] ] [grunt]
+[ ![License] [license-image] ] [bsd]
 
 ## Overview
 
@@ -77,3 +78,4 @@ Licensed under the [Simplified BSD] [bsd] license.
 [saucelabs]: https://saucelabs.com/u/snowplow
 [saucelabs-button-image]: https://saucelabs.com/buildstatus/snowplow
 [saucelabs-matrix-image]: https://saucelabs.com/browser-matrix/snowplow.svg
+[license-image]: http://img.shields.io/badge/license-simplified--bsd-blue.svg?style=flat
