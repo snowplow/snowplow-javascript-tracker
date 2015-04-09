@@ -502,6 +502,13 @@
 		}
 
 		/*
+		 * Sets or renews the session cookie
+		 */
+		function setSessionCookie() {
+			cookie.cookie(getSnowplowCookieName('ses'), '*', configSessionCookieTimeout, configCookiePath, configCookieDomain);
+		}
+
+		/*
 		 * Sets the Visitor ID cookie: either the first time loadDomainUserIdCookie is called
 		 * or when there is a new visit or a new page view
 		 */
@@ -528,13 +535,14 @@
 			domainUserId = createNewDomainUserId();
 			if (configUseCookies && configWriteCookies) {
 				var nowTs = Math.round(new Date().getTime() / 1000);
-				setDomainUserIdCookie(domainUserId, nowTs, 0, nowTs, '');
+				setDomainUserIdCookie(domainUserId, nowTs, 0, nowTs, nowTs);
 			}
 		}
 
 		/*
 		 * Try to load the domainUserId from the cookie
 		 * If this fails, generate a new one
+		 * If there is no session cookie, set one and increment the visit count
 		 */
 		function initializeDomainUserId() {
 			var idCookieValue;
@@ -545,6 +553,15 @@
 				domainUserId = idCookieValue.split('.')[0];
 			} else {
 				generateNewDomainUserId();
+			}
+			if (configUseCookies && configWriteCookies) {
+				if (!getSnowplowCookieValue('ses')) {
+					var idCookie = loadDomainUserIdCookie();
+					idCookie[3] ++;
+					idCookie.shift();
+					setDomainUserIdCookie.apply(null, idCookie);
+				}
+				setSessionCookie();
 			}
 		}
 
@@ -633,7 +650,7 @@
 			// Update cookies
 			if (configUseCookies && configWriteCookies) {
 				setDomainUserIdCookie(_domainUserId, createTs, visitCount, nowTs, lastVisitTs);
-				cookie.cookie(sesname, '*', configSessionCookieTimeout, configCookiePath, configCookieDomain);
+				setSessionCookie();
 			}
 		}
 
