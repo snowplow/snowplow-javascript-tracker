@@ -299,11 +299,10 @@
 		 * @param event e The event targeting the link
 		 */
 		function linkDecorationHandler(e) {
-			var duid = loadDomainUserIdCookie()[1];
 			var tstamp = new Date().getTime();
-			var initialQsParams = '_sp=' + duid + '.' + tstamp;
+			var initialQsParams = '_sp=' + domainUserId + '.' + tstamp;
 			if (this.href) {
-				this.href = helpers.decorateQuerystring(this.href, '_sp', duid + '.' + tstamp);
+				this.href = helpers.decorateQuerystring(this.href, '_sp', domainUserId + '.' + tstamp);
 			}
 		}
 
@@ -510,6 +509,45 @@
 			cookie.cookie(getSnowplowCookieName('id'), _domainUserId + '.' + createTs + '.' + visitCount + '.' + nowTs + '.' + lastVisitTs, configVisitorCookieTimeout, configCookiePath, configCookieDomain);
 		}
 
+		/**
+		 * Generate a pseudo-unique ID to fingerprint this user
+		 * Note: this isn't a RFC4122-compliant UUID
+		 */
+		function createNewDomainUserId() {
+			return hash(
+				(navigatorAlias.userAgent || '') +
+					(navigatorAlias.platform || '') +
+					json2.stringify(browserFeatures) + Math.round(new Date().getTime() / 1000)
+			).slice(0, 16); // 16 hexits = 64 bits
+		}
+
+		/*
+		 * Generate a new domainUserId and write it to a cookie
+		 */
+		function generateNewDomainUserId() {
+			domainUserId = createNewDomainUserId();
+			if (configUseCookies && configWriteCookies) {
+				var nowTs = Math.round(new Date().getTime() / 1000);
+				setDomainUserIdCookie(domainUserId, nowTs, 0, nowTs, '');
+			}
+		}
+
+		/*
+		 * Try to load the domainUserId from the cookie
+		 * If this fails, generate a new one
+		 */
+		function initializeDomainUserId() {
+			var idCookieValue;
+			if (configUseCookies) {
+				idCookieValue = getSnowplowCookieValue('id');
+			}
+			if (idCookieValue) {
+				domainUserId = idCookieValue.split('.')[0];
+			} else {
+				generateNewDomainUserId();
+			}
+		}
+
 		/*
 		 * Load visitor ID cookie
 		 */
@@ -527,15 +565,6 @@
 				// New visitor set to 0 now
 				tmpContainer.unshift('0');
 			} else {
-				// Domain - generate a pseudo-unique ID to fingerprint this user;
-				// Note: this isn't a RFC4122-compliant UUID
-				if (!domainUserId) {
-					domainUserId = hash(
-						(navigatorAlias.userAgent || '') +
-							(navigatorAlias.platform || '') +
-							json2.stringify(browserFeatures) + nowTs
-					).slice(0, 16); // 16 hexits = 64 bits
-				}
 
 				tmpContainer = [
 					// New visitor
@@ -600,7 +629,6 @@
 
 			// Add the page URL last as it may take us over the IE limit (and we don't always need it)
 			sb.add('url', purify(configCustomUrl || locationHrefAlias));
-
 
 			// Update cookies
 			if (configUseCookies && configWriteCookies) {
@@ -908,6 +936,8 @@
 		 * Initialize tracker
 		 */
 		updateDomainHash();
+
+		initializeDomainUserId();
 
 		if (argmap.crossDomainLinker) {
 			decorateLinks(argmap.crossDomainLinker);
