@@ -302,9 +302,8 @@
 			var duid = loadDomainUserIdCookie()[1];
 			var tstamp = new Date().getTime();
 			var initialQsParams = '_sp=' + duid + '.' + tstamp;
-			var elt = e.target;
-			if (elt.href) {
-				elt.href = helpers.decorateQuerystring(elt.href, '_sp', duid + '.' + tstamp);
+			if (this.href) {
+				this.href = helpers.decorateQuerystring(this.href, '_sp', duid + '.' + tstamp);
 			}
 		}
 
@@ -319,8 +318,8 @@
 			for (var i=0; i<document.links.length; i++) {
 				var elt = document.links[i];
 				if (!elt.spDecorationEnabled && crossDomainLinker(elt)) {
-					helpers.addEventListener(elt, 'click', linkDecorationHandler);
-					helpers.addEventListener(elt, 'mousedown', linkDecorationHandler);
+					helpers.addEventListener(elt, 'click', linkDecorationHandler, true);
+					helpers.addEventListener(elt, 'mousedown', linkDecorationHandler, true);
 
 					// Don't add event listeners more than once
 					elt.spDecorationEnabled = true;
