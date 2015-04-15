@@ -1,3 +1,11 @@
+Version 2.4.3 (2015-04-15)
+--------------------------
+Added License button to README (#357)
+Set the ID cookie as soon as the tracker loads (#358)
+Updated the session count as soon as the tracker loads (#361)
+Made single events exceeding the maximum POST request size attempt to fire exactly once (#359)
+Fixed querystring decoration for links with inner elements (#360)
+
 Version 2.4.2 (2015-04-07)
 --------------------------
 Set a maximum size for POST requests (#353)
