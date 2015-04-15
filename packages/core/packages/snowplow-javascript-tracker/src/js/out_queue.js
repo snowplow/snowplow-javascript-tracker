@@ -173,10 +173,13 @@
 		 */
 		function enqueueRequest (request, url) {
 
+			configCollectorUrl = url + path;
 			if (usePost) {
 				var body = getBody(request);
 				if (body.bytes >= maxPostBytes) {
 					helpers.warn("Event of size " + body.bytes + " is too long - the maximum size is " + maxPostBytes);
+					var xhr = initializeXMLHttpRequest(configCollectorUrl);
+					xhr.send(encloseInPayloadDataEnvelope([body.evt]));
 					return;
 				} else {
 					outQueue.push(body);
@@ -184,7 +187,6 @@
 			} else {
 				outQueue.push(getQuerystring(request));
 			}
-			configCollectorUrl = url + path;
 			var savedToLocalStorage = false;
 			if (useLocalStorage) {
 				savedToLocalStorage = helpers.attemptWriteLocalStorage(queueName, json2.stringify(outQueue));
@@ -222,9 +224,7 @@
 
 			if (usePost) {
 
-				var xhr = new XMLHttpRequest();
-				xhr.open('POST', configCollectorUrl, true);
-				xhr.withCredentials = true;
+				var xhr = initializeXMLHttpRequest(configCollectorUrl);
 
 				// Time out POST requests after 5 seconds
 				var xhrTimeout = setTimeout(function () {
@@ -265,16 +265,11 @@
 					}
 				};
 
-				xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
 				var batch = lodash.map(outQueue.slice(0, numberToSend), function (x) {
 					return x.evt;
 				});
-				var batchRequest = {
-					schema: 'iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-2',
-					data: batch
-				};
 				if (batch.length > 0) {
-					xhr.send(json2.stringify(batchRequest));
+					xhr.send(encloseInPayloadDataEnvelope(batch));
 				}
 
 			} else {
@@ -295,7 +290,33 @@
 
 				image.src = configCollectorUrl + nextRequest;
 			}
+		}
 
+		/**
+		 * Open an XMLHttpRequest for a given endpoint with the correct credentials and header
+		 *
+		 * @param string url The destination URL
+		 * @return object The XMLHttpRequest
+		 */
+		function initializeXMLHttpRequest(url) {
+			var xhr = new XMLHttpRequest();
+			xhr.open('POST', url, true);
+			xhr.withCredentials = true;
+			xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+			return xhr;
+		}
+
+		/**
+		 * Enclose an array of events in a self-describing payload_data JSON string
+		 *
+		 * @param array events Batch of events
+		 * @return string payload_data self-describing JSON
+		 */
+		function encloseInPayloadDataEnvelope(events) {
+			return json2.stringify({
+				schema: 'iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-2',
+				data: events
+			});
 		}
 
 		return {
