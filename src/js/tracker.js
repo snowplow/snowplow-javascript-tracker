@@ -174,6 +174,8 @@
 			// This forces the tracker to be HTTPS even if the page is not secure
 			forceSecureTracker = argmap.hasOwnProperty('forceSecureTracker') ? (argmap.forceSecureTracker === true) : false,
 
+			forceUnsecureTracker = !forceSecureTracker && argmap.hasOwnProperty('forceUnsecureTracker') ? (argmap.forceUnsecureTracker === true) : false,
+
 			// Whether to use localStorage to store events between sessions while offline
 			useLocalStorage = argmap.hasOwnProperty('useLocalStorage') ? argmap.useLocalStorage : true,
 
@@ -674,10 +676,13 @@
 		 * @return string collectorUrl The tracker URL with protocol
 		 */
 		function asCollectorUrl(rawUrl) {
-			if (forceSecureTracker)
+			if (forceSecureTracker) {
 				return ('https' + '://' + rawUrl);
-			else
-				return ('https:' === documentAlias.location.protocol ? 'https' : 'http') + '://' + rawUrl;
+			}
+			if (forceUnsecureTracker) {
+				return ('http' + '://' + rawUrl);
+			}
+			return ('https:' === documentAlias.location.protocol ? 'https' : 'http') + '://' + rawUrl;
 		}
 
 		/**
