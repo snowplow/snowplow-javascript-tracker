@@ -37,6 +37,7 @@
 	var
 		lodash = require('./lib_managed/lodash'),
 		helpers = require('./lib/helpers'),
+		uuid = require('uuid'),
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
@@ -48,7 +49,9 @@
 
 	object.InQueueManager = function(TrackerConstructor, version, mutSnowplowState, asyncQueue, functionName) {
 
-		var trackerDictionary = {},
+		// Page view ID should be shared between all tracker instances
+		var pageViewId = uuid.v4(),
+			trackerDictionary = {},
 			usedCookieNames = {};
 
 		/**
@@ -115,7 +118,7 @@
 			} else {
 				usedCookieNames[argmap.cookieName] = true;
 			}
-			trackerDictionary[namespace] = new TrackerConstructor(functionName, namespace, version, mutSnowplowState, argmap);
+			trackerDictionary[namespace] = new TrackerConstructor(functionName, namespace, version, pageViewId, mutSnowplowState, argmap);
 			trackerDictionary[namespace].setCollectorUrl(endpoint);
 		}
 

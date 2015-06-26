@@ -19,7 +19,8 @@
     "murmurhash": "0.0.2",
     "semver": "~2.2.1",
     "sha1": "git://github.com/pvorb/node-sha1.git#v1.0.0",
-    "snowplow-tracker-core": "0.3.0"
+    "snowplow-tracker-core": "0.3.0",
+    "uuid": "^2.0.1"
   },
   "contributors": [
     "Alex Dean",

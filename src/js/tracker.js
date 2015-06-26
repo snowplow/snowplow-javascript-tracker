@@ -56,6 +56,8 @@
 
 	 * @param version The current version of the JavaScript Tracker
 	 *
+	 * @param pageViewId ID for the current page view, to be attached to all events in the web_page context
+	 *
 	 * @param mutSnowplowState An object containing hasLoaded, registeredOnLoadHandlers, and expireDateTime
 	 * Passed in by reference in case they are altered by snowplow.js
 	 *
@@ -80,7 +82,7 @@
 	 * 17. crossDomainLinker, false
 	 * 18. maxPostBytes, 40000
 	 */
-	object.Tracker = function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
+	object.Tracker = function Tracker(functionName, namespace, version, pageViewId, mutSnowplowState, argmap) {
 
 		/************************************************************
 		 * Private members
@@ -244,6 +246,10 @@
 
 			// Context to be added to every event
 			commonContexts = [];
+
+		if (autoContexts.webPage) {
+			commonContexts.push(getWebPageContext());
+		}
 
 		if (autoContexts.gaCookies) {
 			commonContexts.push(getGaCookiesContext());
@@ -696,6 +702,20 @@
 				}
 			}
 			return combinedContexts;
+		}
+
+		/**
+		 * Put together a web page context with a unique UUID for the page view
+		 *
+		 * @return object web_page context
+		 */
+		function getWebPageContext() {
+			return {
+				schema: 'iglu:com.snowplowanalytics.snowplow/web_page/jsonschema/1-0-0',
+				data: {
+					id: pageViewId
+				}
+			};
 		}
 
 		/**

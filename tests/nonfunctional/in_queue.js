@@ -41,7 +41,7 @@ define([
 	var output = 0,
 		writeCookies;
 
-	function mockTrackerConstructor (functionName, namespace, version, mutSnowplowState, argmap) {
+	function mockTrackerConstructor (functionName, namespace, version, sessionId, mutSnowplowState, argmap) {
 		var configCollectorUrl,
 			configWriteCookies = argmap.hasOwnProperty('writeCookies') ? argmap.writeCookies : true,
 			attribute = 10;
