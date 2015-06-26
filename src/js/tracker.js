@@ -46,6 +46,7 @@
 		forms = require('./forms'),
 		requestQueue = require('./out_queue'),
 		coreConstructor = require('snowplow-tracker-core'),
+		uuid = require('uuid'),
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
@@ -214,6 +215,9 @@
 
 			// Domain unique user ID
 			domainUserId,
+
+			// ID for the current session
+			memorizedSessionId,
 
 			// Business-defined unique user ID
 			businessUserId,
@@ -518,8 +522,13 @@
 		 * Sets the Visitor ID cookie: either the first time loadDomainUserIdCookie is called
 		 * or when there is a new visit or a new page view
 		 */
-		function setDomainUserIdCookie(_domainUserId, createTs, visitCount, nowTs, lastVisitTs) {
-			cookie.cookie(getSnowplowCookieName('id'), _domainUserId + '.' + createTs + '.' + visitCount + '.' + nowTs + '.' + lastVisitTs, configVisitorCookieTimeout, configCookiePath, configCookieDomain);
+		function setDomainUserIdCookie(_domainUserId, createTs, visitCount, nowTs, lastVisitTs, sessionId) {
+			cookie.cookie(
+				getSnowplowCookieName('id'),
+				_domainUserId + '.' + createTs + '.' + visitCount + '.' + nowTs + '.' + lastVisitTs + '.' + sessionId,
+				configVisitorCookieTimeout,
+				configCookiePath,
+				configCookieDomain);
 		}
 
 		/**
@@ -535,39 +544,40 @@
 		}
 
 		/*
-		 * Generate a new domainUserId and write it to a cookie
+		 * Load the domain user ID and the session ID
+		 * Set the cookies (if cookies are enabled)
 		 */
-		function generateNewDomainUserId() {
-			domainUserId = createNewDomainUserId();
-			if (configUseCookies && configWriteCookies) {
-				var nowTs = Math.round(new Date().getTime() / 1000);
-				setDomainUserIdCookie(domainUserId, nowTs, 0, nowTs, nowTs);
-			}
-		}
+		function initializeIdsAndCookies() {
+			var sesCookieSet = configUseCookies && !!getSnowplowCookieValue('ses');
+			var idCookieComponents = loadDomainUserIdCookie();
 
-		/*
-		 * Try to load the domainUserId from the cookie
-		 * If this fails, generate a new one
-		 * If there is no session cookie, set one and increment the visit count
-		 */
-		function initializeDomainUserId() {
-			var idCookieValue;
-			if (configUseCookies) {
-				idCookieValue = getSnowplowCookieValue('id');
-			}
-			if (idCookieValue) {
-				domainUserId = idCookieValue.split('.')[0];
+			if (idCookieComponents[1]) {
+				domainUserId = idCookieComponents[1];
 			} else {
-				generateNewDomainUserId();
+				domainUserId = createNewDomainUserId();
+				idCookieComponents[1] = domainUserId;
 			}
-			if (configUseCookies && configWriteCookies) {
-				if (!getSnowplowCookieValue('ses')) {
-					var idCookie = loadDomainUserIdCookie();
-					idCookie[3] ++;
-					idCookie.shift();
-					setDomainUserIdCookie.apply(null, idCookie);
-				}
+
+			memorizedSessionId = idCookieComponents[6];
+
+			if (!sesCookieSet) {
+
+				// Increment the session ID
+				idCookieComponents[3] ++;
+
+				// Create a new sessionId
+				memorizedSessionId = uuid.v4();
+				idCookieComponents[6] = memorizedSessionId;
+				// Set lastVisitTs to currentVisitTs
+				idCookieComponents[5] = idCookieComponents[4];
+			}
+
+			if (configWriteCookies) {
 				setSessionCookie();
+				// Update currentVisitTs
+				idCookieComponents[4] = Math.round(new Date().getTime() / 1000);
+				idCookieComponents.shift();
+				setDomainUserIdCookie.apply(null, idCookieComponents);
 			}
 		}
 
@@ -604,6 +614,11 @@
 					''
 				];
 			}
+
+			if (!tmpContainer[6]) {
+				tmpContainer[6] = uuid.v4();
+			}
+
 			return tmpContainer;
 		}
 
@@ -618,16 +633,22 @@
 				sesname = getSnowplowCookieName('ses'),
 				ses = getSnowplowCookieValue('ses'), // aka cookie.cookie(sesname)
 				id = loadDomainUserIdCookie(),
+				cookiesDisabled = id[0],
 				_domainUserId = id[1], // We could use the global (domainUserId) but this is better etiquette
 				createTs = id[2],
 				visitCount = id[3],
 				currentVisitTs = id[4],
-				lastVisitTs = id[5];
+				lastVisitTs = id[5],
+				sessionIdFromCookie = id[6];
 
 			if (configDoNotTrack && configUseCookies && configWriteCookies) {
 				cookie.cookie(idname, '', -1, configCookiePath, configCookieDomain);
 				cookie.cookie(sesname, '', -1, configCookiePath, configCookieDomain);
 				return;
+			}
+
+			if (cookiesDisabled === '0') {
+				memorizedSessionId = sessionIdFromCookie;
 			}
 
 			// New session?
@@ -642,6 +663,7 @@
 			sb.add('vp', detectors.detectViewport());
 			sb.add('ds', detectors.detectDocumentSize());
 			sb.add('vid', visitCount);
+			sb.add('sid', memorizedSessionId);
 			sb.add('duid', _domainUserId); // Set to our local variable
 			sb.add('fp', userFingerprint);
 			sb.add('uid', businessUserId);
@@ -655,7 +677,7 @@
 
 			// Update cookies
 			if (configUseCookies && configWriteCookies) {
-				setDomainUserIdCookie(_domainUserId, createTs, visitCount, nowTs, lastVisitTs);
+				setDomainUserIdCookie(_domainUserId, createTs, visitCount, nowTs, lastVisitTs, memorizedSessionId);
 				setSessionCookie();
 			}
 		}
@@ -989,7 +1011,7 @@
 		 */
 		updateDomainHash();
 
-		initializeDomainUserId();
+		initializeIdsAndCookies();
 
 		if (argmap.crossDomainLinker) {
 			decorateLinks(argmap.crossDomainLinker);
