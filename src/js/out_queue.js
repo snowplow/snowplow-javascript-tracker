@@ -221,7 +221,9 @@
 					executeQueue();
 				};
 
-				image.onerror = function () {
+				image.onerror = function (error) {
+					console.log('Error loading snowplow pixel', error);
+
 					executingQueue = false;
 				};
 
