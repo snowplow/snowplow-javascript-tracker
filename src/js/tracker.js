@@ -82,6 +82,7 @@
 	 * 16. bufferSize, 1
 	 * 17. crossDomainLinker, false
 	 * 18. maxPostBytes, 40000
+	 * 19. sessionCookieTimeout, 1800
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, pageViewId, mutSnowplowState, argmap) {
 
@@ -166,7 +167,7 @@
 			configVisitorCookieTimeout = 63072000, // 2 years
 
 			// Life of the session cookie (in seconds)
-			configSessionCookieTimeout = 1800, // 30 minutes
+			configSessionCookieTimeout = argmap.hasOwnProperty('sessionCookieTimeout') ? argmap.sessionCookieTimeout : 1800, // 30 minutes
 
 			// Default hash seed for MurmurHash3 in detectors.detectSignature
 			configUserFingerprintHashSeed = argmap.hasOwnProperty('userFingerprintSeed') ? argmap.userFingerprintSeed : 123412414,
