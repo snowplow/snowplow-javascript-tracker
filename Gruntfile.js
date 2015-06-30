@@ -259,6 +259,7 @@ module.exports = function(grunt) {
   grunt.registerTask('default', 'Build lodash, Browserify, add banner, and minify', ['lodash', 'browserify:main', 'concat:deploy', 'min:deploy']);
   grunt.registerTask('publish', 'Upload to S3 and invalidate Cloudfront (full semantic version only)', ['upload_setup', 'lodash', 'browserify:main', 'concat:deploy', 'min:deploy', 's3:not_pinned', 'cloudfront:not_pinned']);
   grunt.registerTask('publish-pinned', 'Upload to S3 and invalidate Cloudfront (full semantic version and semantic major version)', ['upload_setup', 'lodash', 'browserify:main', 'concat:deploy', 'min:deploy', 's3', 'cloudfront']);
+  grunt.registerTask('quick', 'Build snowplow.js, skipping building lodash and minifying', ['browserify:main', 'concat:deploy']);
   grunt.registerTask('test', 'Intern tests', ['browserify:test', 'intern']);
   grunt.registerTask('travis', 'Intern tests for Travis CI',  ['lodash','concat:test', 'browserify:test','intern']);
   grunt.registerTask('tags', 'Minifiy the Snowplow invocation tag', ['min:tag', 'concat:tag']);
