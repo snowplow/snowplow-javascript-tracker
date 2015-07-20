@@ -76,13 +76,12 @@
 	 * 10. forceSecureTracker, false
 	 * 11. useLocalStorage, true
 	 * 12. useCookies, true
-	 * 13. writeCookies, true
+	 * 13. sessionCookieTimeout, 1800
 	 * 14. contexts, {}
 	 * 15. post, false
 	 * 16. bufferSize, 1
 	 * 17. crossDomainLinker, false
 	 * 18. maxPostBytes, 40000
-	 * 19. sessionCookieTimeout, 1800
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, pageViewId, mutSnowplowState, argmap) {
 
@@ -151,8 +150,6 @@
 			// First-party cookie path
 			// Default is user agent defined.
 			configCookiePath = '/',
-
-			configWriteCookies = argmap.hasOwnProperty('writeCookies') ? argmap.writeCookies : true,
 
 			// Do Not Track browser feature
 			dnt = navigatorAlias.doNotTrack || navigatorAlias.msDoNotTrack,
@@ -579,13 +576,11 @@
 				idCookieComponents[5] = idCookieComponents[4];
 			}
 
-			if (configWriteCookies) {
-				setSessionCookie();
-				// Update currentVisitTs
-				idCookieComponents[4] = Math.round(new Date().getTime() / 1000);
-				idCookieComponents.shift();
-				setDomainUserIdCookie.apply(null, idCookieComponents);
-			}
+			setSessionCookie();
+			// Update currentVisitTs
+			idCookieComponents[4] = Math.round(new Date().getTime() / 1000);
+			idCookieComponents.shift();
+			setDomainUserIdCookie.apply(null, idCookieComponents);
 		}
 
 		/*
@@ -648,7 +643,7 @@
 				lastVisitTs = id[5],
 				sessionIdFromCookie = id[6];
 
-			if (configDoNotTrack && configUseCookies && configWriteCookies) {
+			if (configDoNotTrack && configUseCookies) {
 				cookie.cookie(idname, '', -1, configCookiePath, configCookieDomain);
 				cookie.cookie(sesname, '', -1, configCookiePath, configCookieDomain);
 				return;
@@ -695,7 +690,7 @@
 			sb.add('url', purify(configCustomUrl || locationHrefAlias));
 
 			// Update cookies
-			if (configUseCookies && configWriteCookies) {
+			if (configUseCookies) {
 				setDomainUserIdCookie(_domainUserId, createTs, memorizedVisitCount, nowTs, lastVisitTs, memorizedSessionId);
 				setSessionCookie();
 			}

@@ -38,12 +38,10 @@ define([
 	"intern/dojo/node!../../src/js/in_queue"
 ], function(registerSuite, assert, in_queue) {
 
-	var output = 0,
-		writeCookies;
+	var output = 0;
 
 	function mockTrackerConstructor (functionName, namespace, version, sessionId, mutSnowplowState, argmap) {
 		var configCollectorUrl,
-			configWriteCookies = argmap.hasOwnProperty('writeCookies') ? argmap.writeCookies : true,
 			attribute = 10;
 
 		return {
@@ -61,9 +59,6 @@ define([
 			},
 			addAttributeToOutput: function() {
 				output += attribute;
-			},
-			logConfigWriteCookies: function() {
-				writeCookies = configWriteCookies;
 			}
 		}
 	};
@@ -98,13 +93,6 @@ define([
 			asyncQueue.push(["setAttribute:sp", 3]);
 			asyncQueue.push(["addAttributeToOutput:firstTracker;sp"]);
 			assert.equal(output, 29, "Set the attributes of the two trackers individually, then add both to output");
-		},
-
-		"writeCookies properties have been correctly assigned": function() {
-			asyncQueue.push(["logConfigWriteCookies:firstTracker"]);
-			assert.strictEqual(writeCookies, true, "The first tracker is configured to create cookies");
-			asyncQueue.push(["logConfigWriteCookies:sp"]);
-			assert.strictEqual(writeCookies, false, "The second tracker has not been assigned a unique cookie namespace, so cannot create cookies");
 		},
 
 		"Execute a user-defined custom callback": function () {

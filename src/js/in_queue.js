@@ -51,8 +51,7 @@
 
 		// Page view ID should be shared between all tracker instances
 		var pageViewId = uuid.v4(),
-			trackerDictionary = {},
-			usedCookieNames = {};
+			trackerDictionary = {}
 
 		/**
 		 * Get an array of trackers to which a function should be applied.
@@ -113,11 +112,6 @@
 		 */
 		function createNewNamespace(namespace, endpoint, argmap) {
 			argmap = argmap || {};
-			if ((!argmap.writeCookies) && (argmap.cookieName in usedCookieNames)) {
-				argmap.writeCookies = false;
-			} else {
-				usedCookieNames[argmap.cookieName] = true;
-			}
 			trackerDictionary[namespace] = new TrackerConstructor(functionName, namespace, version, pageViewId, mutSnowplowState, argmap);
 			trackerDictionary[namespace].setCollectorUrl(endpoint);
 		}
