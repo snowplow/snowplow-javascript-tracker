@@ -49,15 +49,15 @@ define([
 		expectedSignatures = [
 			3343029130, // IE9 Windows
 			1101697779, // IE10
-			3875211103, // IE11
+			2209912060, // IE11
 			2265977041, // Firefox 27.0 Mac
-			972065378,  // Firefox 27.0 XP
-			2134038987, // Firefox 27.0 Linux
+			1268007327,  // Firefox 27.0 XP
+			438083159,  // Firefox 27.0 Linux
 			3528351619, // Chrome 32.0 Mac OS X
-			2660492875, // Chrome 32.0 Windows NT
-			3418805134, // Chrome 32.0 Linux
-			4114284508, // Safari 7.0 Mac
-			2336697549  // Safari 6.0.5 Mac
+			2180938465, // Chrome 32.0 Windows NT
+			3829122699, // Chrome 32.0 Linux
+			513142108, // Safari 7.0 Mac
+			2651260973  // Safari 6.0.5 Mac
 		];
 
 	registerSuite({
