@@ -314,7 +314,7 @@
 		 */
 		function encloseInPayloadDataEnvelope(events) {
 			return json2.stringify({
-				schema: 'iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-2',
+				schema: 'iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-3',
 				data: events
 			});
 		}

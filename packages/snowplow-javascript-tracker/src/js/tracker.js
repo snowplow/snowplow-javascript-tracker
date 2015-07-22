@@ -46,6 +46,7 @@
 		forms = require('./forms'),
 		requestQueue = require('./out_queue'),
 		coreConstructor = require('snowplow-tracker-core'),
+		uuid = require('uuid'),
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
@@ -55,6 +56,8 @@
 	 * @param namespace The namespace of the tracker object
 
 	 * @param version The current version of the JavaScript Tracker
+	 *
+	 * @param pageViewId ID for the current page view, to be attached to all events in the web_page context
 	 *
 	 * @param mutSnowplowState An object containing hasLoaded, registeredOnLoadHandlers, and expireDateTime
 	 * Passed in by reference in case they are altered by snowplow.js
@@ -73,14 +76,14 @@
 	 * 10. forceSecureTracker, false
 	 * 11. useLocalStorage, true
 	 * 12. useCookies, true
-	 * 13. writeCookies, true
+	 * 13. sessionCookieTimeout, 1800
 	 * 14. contexts, {}
 	 * 15. post, false
 	 * 16. bufferSize, 1
 	 * 17. crossDomainLinker, false
 	 * 18. maxPostBytes, 40000
 	 */
-	object.Tracker = function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
+	object.Tracker = function Tracker(functionName, namespace, version, pageViewId, mutSnowplowState, argmap) {
 
 		/************************************************************
 		 * Private members
@@ -148,8 +151,6 @@
 			// Default is user agent defined.
 			configCookiePath = '/',
 
-			configWriteCookies = argmap.hasOwnProperty('writeCookies') ? argmap.writeCookies : true,
-
 			// Do Not Track browser feature
 			dnt = navigatorAlias.doNotTrack || navigatorAlias.msDoNotTrack,
 
@@ -163,7 +164,7 @@
 			configVisitorCookieTimeout = 63072000, // 2 years
 
 			// Life of the session cookie (in seconds)
-			configSessionCookieTimeout = 1800, // 30 minutes
+			configSessionCookieTimeout = argmap.hasOwnProperty('sessionCookieTimeout') ? argmap.sessionCookieTimeout : 1800, // 30 minutes
 
 			// Default hash seed for MurmurHash3 in detectors.detectSignature
 			configUserFingerprintHashSeed = argmap.hasOwnProperty('userFingerprintSeed') ? argmap.userFingerprintSeed : 123412414,
@@ -198,6 +199,9 @@
 			// Last activity timestamp
 			lastActivityTime,
 
+			// The last time an event was fired on the page - used to invalidate session if cookies are disabled
+			lastEventTime = new Date().getTime(),
+
 			// How are we scrolling?
 			minXOffset,
 			maxXOffset,
@@ -212,6 +216,12 @@
 
 			// Domain unique user ID
 			domainUserId,
+
+			// ID for the current session
+			memorizedSessionId,
+
+			// Index for the current session - kept in memory in case cookies are disabled
+			memorizedVisitCount = 1,
 
 			// Business-defined unique user ID
 			businessUserId,
@@ -244,6 +254,10 @@
 
 			// Context to be added to every event
 			commonContexts = [];
+
+		if (autoContexts.webPage) {
+			commonContexts.push(getWebPageContext());
+		}
 
 		if (autoContexts.gaCookies) {
 			commonContexts.push(getGaCookiesContext());
@@ -512,8 +526,13 @@
 		 * Sets the Visitor ID cookie: either the first time loadDomainUserIdCookie is called
 		 * or when there is a new visit or a new page view
 		 */
-		function setDomainUserIdCookie(_domainUserId, createTs, visitCount, nowTs, lastVisitTs) {
-			cookie.cookie(getSnowplowCookieName('id'), _domainUserId + '.' + createTs + '.' + visitCount + '.' + nowTs + '.' + lastVisitTs, configVisitorCookieTimeout, configCookiePath, configCookieDomain);
+		function setDomainUserIdCookie(_domainUserId, createTs, visitCount, nowTs, lastVisitTs, sessionId) {
+			cookie.cookie(
+				getSnowplowCookieName('id'),
+				_domainUserId + '.' + createTs + '.' + visitCount + '.' + nowTs + '.' + lastVisitTs + '.' + sessionId,
+				configVisitorCookieTimeout,
+				configCookiePath,
+				configCookieDomain);
 		}
 
 		/**
@@ -529,40 +548,39 @@
 		}
 
 		/*
-		 * Generate a new domainUserId and write it to a cookie
+		 * Load the domain user ID and the session ID
+		 * Set the cookies (if cookies are enabled)
 		 */
-		function generateNewDomainUserId() {
-			domainUserId = createNewDomainUserId();
-			if (configUseCookies && configWriteCookies) {
-				var nowTs = Math.round(new Date().getTime() / 1000);
-				setDomainUserIdCookie(domainUserId, nowTs, 0, nowTs, nowTs);
-			}
-		}
+		function initializeIdsAndCookies() {
+			var sesCookieSet = configUseCookies && !!getSnowplowCookieValue('ses');
+			var idCookieComponents = loadDomainUserIdCookie();
 
-		/*
-		 * Try to load the domainUserId from the cookie
-		 * If this fails, generate a new one
-		 * If there is no session cookie, set one and increment the visit count
-		 */
-		function initializeDomainUserId() {
-			var idCookieValue;
-			if (configUseCookies) {
-				idCookieValue = getSnowplowCookieValue('id');
-			}
-			if (idCookieValue) {
-				domainUserId = idCookieValue.split('.')[0];
+			if (idCookieComponents[1]) {
+				domainUserId = idCookieComponents[1];
 			} else {
-				generateNewDomainUserId();
+				domainUserId = createNewDomainUserId();
+				idCookieComponents[1] = domainUserId;
 			}
-			if (configUseCookies && configWriteCookies) {
-				if (!getSnowplowCookieValue('ses')) {
-					var idCookie = loadDomainUserIdCookie();
-					idCookie[3] ++;
-					idCookie.shift();
-					setDomainUserIdCookie.apply(null, idCookie);
-				}
-				setSessionCookie();
+
+			memorizedSessionId = idCookieComponents[6];
+
+			if (!sesCookieSet) {
+
+				// Increment the session ID
+				idCookieComponents[3] ++;
+
+				// Create a new sessionId
+				memorizedSessionId = uuid.v4();
+				idCookieComponents[6] = memorizedSessionId;
+				// Set lastVisitTs to currentVisitTs
+				idCookieComponents[5] = idCookieComponents[4];
 			}
+
+			setSessionCookie();
+			// Update currentVisitTs
+			idCookieComponents[4] = Math.round(new Date().getTime() / 1000);
+			idCookieComponents.shift();
+			setDomainUserIdCookie.apply(null, idCookieComponents);
 		}
 
 		/*
@@ -598,6 +616,11 @@
 					''
 				];
 			}
+
+			if (!tmpContainer[6]) {
+				tmpContainer[6] = uuid.v4();
+			}
+
 			return tmpContainer;
 		}
 
@@ -612,30 +635,49 @@
 				sesname = getSnowplowCookieName('ses'),
 				ses = getSnowplowCookieValue('ses'), // aka cookie.cookie(sesname)
 				id = loadDomainUserIdCookie(),
+				cookiesDisabled = id[0],
 				_domainUserId = id[1], // We could use the global (domainUserId) but this is better etiquette
 				createTs = id[2],
 				visitCount = id[3],
 				currentVisitTs = id[4],
-				lastVisitTs = id[5];
+				lastVisitTs = id[5],
+				sessionIdFromCookie = id[6];
 
-			if (configDoNotTrack && configUseCookies && configWriteCookies) {
+			if (configDoNotTrack && configUseCookies) {
 				cookie.cookie(idname, '', -1, configCookiePath, configCookieDomain);
 				cookie.cookie(sesname, '', -1, configCookiePath, configCookieDomain);
 				return;
 			}
 
-			// New session?
-			if (!ses && configUseCookies) {
-				// New session (aka new visit)
-				visitCount++;
-				// Update the last visit timestamp
-				lastVisitTs = currentVisitTs;
+			// If cookies are enabled, base visit count and session ID on the cookies
+			if (cookiesDisabled === '0') {
+				memorizedSessionId = sessionIdFromCookie;
+
+				// New session?
+				if (!ses && configUseCookies) {
+					// New session (aka new visit)
+					visitCount++;
+					// Update the last visit timestamp
+					lastVisitTs = currentVisitTs;
+					// Regenerate the session ID
+					memorizedSessionId = uuid.v4();
+				}
+
+				memorizedVisitCount = visitCount;
+
+			// Otherwise, a new session starts if configSessionCookieTimeout seconds have passed since the last event
+			} else {
+				if ((new Date().getTime() - lastEventTime) > configSessionCookieTimeout * 1000) {
+					memorizedSessionId = uuid.v4();
+					memorizedVisitCount++;
+				}
 			}
 
 			// Build out the rest of the request
 			sb.add('vp', detectors.detectViewport());
 			sb.add('ds', detectors.detectDocumentSize());
-			sb.add('vid', visitCount);
+			sb.add('vid', memorizedVisitCount);
+			sb.add('sid', memorizedSessionId);
 			sb.add('duid', _domainUserId); // Set to our local variable
 			sb.add('fp', userFingerprint);
 			sb.add('uid', businessUserId);
@@ -648,10 +690,12 @@
 			sb.add('url', purify(configCustomUrl || locationHrefAlias));
 
 			// Update cookies
-			if (configUseCookies && configWriteCookies) {
-				setDomainUserIdCookie(_domainUserId, createTs, visitCount, nowTs, lastVisitTs);
+			if (configUseCookies) {
+				setDomainUserIdCookie(_domainUserId, createTs, memorizedVisitCount, nowTs, lastVisitTs, memorizedSessionId);
 				setSessionCookie();
 			}
+
+			lastEventTime = new Date().getTime();
 		}
 
 		/**
@@ -696,6 +740,20 @@
 				}
 			}
 			return combinedContexts;
+		}
+
+		/**
+		 * Put together a web page context with a unique UUID for the page view
+		 *
+		 * @return object web_page context
+		 */
+		function getWebPageContext() {
+			return {
+				schema: 'iglu:com.snowplowanalytics.snowplow/web_page/jsonschema/1-0-0',
+				data: {
+					id: pageViewId
+				}
+			};
 		}
 
 		/**
@@ -778,12 +836,23 @@
 		}
 
 		/**
+		 * Combine an array of unchanging contexts with the result of a context-creating function
+		 *
+		 * @param object staticContexts Array of custom contexts
+		 * @param object contextCallback Function returning an array of contexts
+		 */
+		function finalizeContexts(staticContexts, contextCallback) {
+			return (staticContexts || []).concat(contextCallback ? contextCallback() : []);
+		}
+
+		/**
 		 * Log the page view / visit
 		 *
 		 * @param string customTitle The user-defined page title to attach to this page view
 		 * @param object context Custom context relating to the event
+		 * @param object contextCallback Function returning an array of contexts
 		 */
-		function logPageView(customTitle, context) {
+		function logPageView(customTitle, context, contextCallback) {
 
 			// Fixup page title. We'll pass this to logPagePing too.
 			var pageTitle = helpers.fixupTitle(customTitle || configTitle);
@@ -791,7 +860,11 @@
 			refreshUrl();
 
 			// Log page view
-			core.trackPageView(purify(configCustomUrl || locationHrefAlias), pageTitle, purify(customReferrer || configReferrerUrl), addCommonContexts(context));
+			core.trackPageView(
+				purify(configCustomUrl || locationHrefAlias),
+				pageTitle,
+				purify(customReferrer || configReferrerUrl),
+				addCommonContexts(finalizeContexts(context, contextCallback)));
 
 			// Send ping (to log that user has stayed on page)
 			var now = new Date();
@@ -827,7 +900,7 @@
 					if ((lastActivityTime + configHeartBeatTimer) > now.getTime()) {
 						// Send ping if minimum visit time has elapsed
 						if (configMinimumVisitTime < now.getTime()) {
-							logPagePing(pageTitle, context); // Grab the min/max globals
+							logPagePing(pageTitle, finalizeContexts(context, contextCallback)); // Grab the min/max globals
 						}
 					}
 				}, configHeartBeatTimer);
@@ -954,7 +1027,7 @@
 		 */
 		updateDomainHash();
 
-		initializeDomainUserId();
+		initializeIdsAndCookies();
 
 		if (argmap.crossDomainLinker) {
 			decorateLinks(argmap.crossDomainLinker);
@@ -1359,17 +1432,12 @@
 			 * Log visit to this page
 			 *
 			 * @param string customTitle
-			 * @param boolean DEPRECATED performanceTiming
 			 * @param object Custom context relating to the event
+			 * @param object contextCallback Function returning an array of contexts
 			 */
-			trackPageView: function (customTitle, performanceTiming, context) {
-				if (performanceTiming !== true && performanceTiming !== false) {
-					context = context || performanceTiming;
-				} else {
-					helpers.warn('The performanceTiming argument to trackPageView is deprecated. Instead use the "contexts" field in the argmap argument of newTracker.');
-				}
+			trackPageView: function (customTitle, context, contextCallback) {
 				trackCallback(function () {
-					logPageView(customTitle, context);
+					logPageView(customTitle, context, contextCallback);
 				});
 			},
 
