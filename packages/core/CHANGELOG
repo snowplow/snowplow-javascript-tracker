@@ -1,3 +1,16 @@
+Version 2.5.0 (2015-07-22)
+--------------------------
+Generated a unique session ID for each new session (#347)
+Added a page view UUID (#369)
+Maintained visit count when cookies are disabled (#388)
+Bumped payload_data schema to 1-0-3 (#385)
+Added Grunt task to build the tracker skipping the lodash and minification tasks (#382)
+Added ability to configure the session cookie timeout in the argmap (#383)
+Removed deprecated performanceTiming argument to trackPageView (#375)
+Added ability to pass a context-generating function to trackPageView (#372)
+Removed configWriteCookies setting (#390)
+Updated browser feature detection tests (#378)
+
 Version 2.4.3 (2015-04-15)
 --------------------------
 Added License button to README (#357)
