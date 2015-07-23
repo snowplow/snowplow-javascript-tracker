@@ -232,7 +232,8 @@
 <body>
     <h1>Large_asynchronous_examples_for_snowplow.js</h1>
     <h2>This shows how two users can simultaneously use Snowplow on the same page without any clash</h2>
-    <p>Warning: if your browser's Do Not Track feature is enabled and respectDoNotTrack is not commented out, all tracking will be prevented.</p>
+    <p>Warning: if your browser's Do Not Track feature is enabled and respectDoNotTrack is enabled, all tracking will be prevented.</p>
+    <p>If you are viewing the page using a file URL, you must edit the script URL in the Snowplow tag to include an http scheme. Otherwise a file scheme will be inferred and the page will attempt to load sp.js from the local filesystem..</p>
     <p>Press the buttons below to trigger individual tracking events:<br>
         <button type="button" onclick="playMix()">Play a mix</button><br>
         <button type="button" onclick="addProduct()">Add a product</button><br>
