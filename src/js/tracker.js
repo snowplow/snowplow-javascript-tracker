@@ -126,7 +126,10 @@
 			configCustomUrl,
 
 			// Document title
-			configTitle = documentAlias.title,
+			lastDocumentTitle = documentAlias.title,
+
+			// Custom title
+			lastConfigTitle,
 
 			// Maximum delay to wait for web bug image to be fetched (in milliseconds)
 			configTrackerPause = argmap.hasOwnProperty('pageUnloadTimer') ? argmap.pageUnloadTimer : 500,
@@ -854,10 +857,14 @@
 		 */
 		function logPageView(customTitle, context, contextCallback) {
 
-			// Fixup page title. We'll pass this to logPagePing too.
-			var pageTitle = helpers.fixupTitle(customTitle || configTitle);
-
 			refreshUrl();
+
+			// So we know what document.title was at the time of trackPageView
+			lastDocumentTitle = documentAlias.title;
+			lastConfigTitle = customTitle;
+
+			// Fixup page title
+			var pageTitle = helpers.fixupTitle(lastConfigTitle || lastDocumentTitle);
 
 			// Log page view
 			core.trackPageView(
@@ -900,7 +907,7 @@
 					if ((lastActivityTime + configHeartBeatTimer) > now.getTime()) {
 						// Send ping if minimum visit time has elapsed
 						if (configMinimumVisitTime < now.getTime()) {
-							logPagePing(pageTitle, finalizeContexts(context, contextCallback)); // Grab the min/max globals
+							logPagePing(finalizeContexts(context, contextCallback)); // Grab the min/max globals
 						}
 					}
 				}, configHeartBeatTimer);
@@ -913,14 +920,18 @@
 		 * Not part of the public API - only called from
 		 * logPageView() above.
 		 *
-		 * @param string pageTitle The page title to attach to this page ping
 		 * @param object context Custom context relating to the event
 		 */
-		function logPagePing(pageTitle, context) {
+		function logPagePing(context) {
 			refreshUrl();
+			newDocumentTitle = documentAlias.title;
+			if (newDocumentTitle !== lastDocumentTitle) {
+				lastDocumentTitle = newDocumentTitle;
+				lastConfigTitle = null;
+			}
 			core.trackPagePing(
 				purify(configCustomUrl || locationHrefAlias),
-				pageTitle,
+				helpers.fixupTitle(lastConfigTitle || lastDocumentTitle),
 				purify(customReferrer || configReferrerUrl),
 				cleanOffset(minXOffset),
 				cleanOffset(maxXOffset),
@@ -1111,7 +1122,9 @@
 			 * @param string title
 			 */
 			setDocumentTitle: function (title) {
-				configTitle = title;
+				// So we know what document.title was at the time of trackPageView
+				lastDocumentTitle = documentAlias.title;
+				lastConfigTitle = title;
 			},
 
 			/**
