@@ -1005,7 +1005,7 @@
 					prefix = prefixes[i];
 
 					// does this browser support the page visibility API?
-					if (Object.prototype.hasOwnProperty.call(documentAlias, prefixPropertyName(prefix, 'hidden'))) {
+					if (documentAlias[prefixPropertyName(prefix, 'hidden')]) {
 						// if pre-rendered, then defer callback until page visibility changes
 						if (documentAlias[prefixPropertyName(prefix, 'visibilityState')] === 'prerender') {
 							isPreRendered = true;
