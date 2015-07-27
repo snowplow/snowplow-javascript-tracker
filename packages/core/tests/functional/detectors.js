@@ -56,8 +56,8 @@ define([
 			3528351619, // Chrome 32.0 Mac OS X
 			2180938465, // Chrome 32.0 Windows NT
 			3829122699, // Chrome 32.0 Linux
-			513142108, // Safari 7.0 Mac
-			2651260973  // Safari 6.0.5 Mac
+			2694331068, // Safari 7.0 Mac
+			2336697549  // Safari 6.0.5 Mac
 		];
 
 	registerSuite({
