@@ -1,3 +1,9 @@
+Version 2.5.1 (2015-xx-xx)
+--------------------------
+Fixed prerender detection (#391)
+Made page title tracking dynamic (#392)
+Added warning about using a file URL to example pages (#397)
+
 Version 2.5.0 (2015-07-22)
 --------------------------
 Generated a unique session ID for each new session (#347)
