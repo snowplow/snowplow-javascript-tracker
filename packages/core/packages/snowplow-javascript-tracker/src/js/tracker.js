@@ -579,11 +579,13 @@
 				idCookieComponents[5] = idCookieComponents[4];
 			}
 
-			setSessionCookie();
-			// Update currentVisitTs
-			idCookieComponents[4] = Math.round(new Date().getTime() / 1000);
-			idCookieComponents.shift();
-			setDomainUserIdCookie.apply(null, idCookieComponents);
+			if (configUseCookies) {
+				setSessionCookie();
+				// Update currentVisitTs
+				idCookieComponents[4] = Math.round(new Date().getTime() / 1000);
+				idCookieComponents.shift();
+				setDomainUserIdCookie.apply(null, idCookieComponents);
+			}
 		}
 
 		/*
