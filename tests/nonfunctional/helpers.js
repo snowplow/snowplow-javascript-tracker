@@ -105,7 +105,7 @@ define([
 			var element = {
 				className: '   the  quick   brown_fox-jumps/over\nthe\t\tlazy   dog  '
 			};
-			var expected = ['the', 'quick', 'brown_fox-jumps/over', 'the', 'lazy', 'dog']
+			var expected = ['the', 'quick', 'brown_fox-jumps/over', 'the', 'lazy', 'dog'];
 			var actual = helpers.getCssClasses(element);
 			assert.deepEqual(actual, expected);
 		},

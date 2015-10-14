@@ -162,7 +162,7 @@
 	 * List the classes of a DOM element without using elt.classList (for compatibility with IE 9)
 	 */
 	object.getCssClasses = function (elt) {
-		return elt.className.replace(/^\s+|\s+$/g,'').split(/\s+/);
+		return elt.className.match(/\S+/g);
 	};
 
 	/*
