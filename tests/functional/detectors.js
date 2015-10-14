@@ -51,11 +51,11 @@ define([
 			1101697779, // IE10
 			2209912060, // IE11
 			1268007327,  // Firefox 27.0 XP
-			2805686079,  // Firefox 27.0 Linux
+			1873889954,  // Firefox 27.0 Linux
 			2180938465, // Chrome 32.0 Windows NT
-			1198971565, // Chrome 32.0 Linux
-			3934840736, // Safari 7.0.6 Mac
-			2651260973  // Safari 6.2.7 Mac
+			2184238358, // Chrome 32.0 Linux
+			1749770073, // Safari 7.1.7 Mac
+			1244201874  // Safari 6.2.7 Mac
 		];
 
 	registerSuite({
