@@ -158,11 +158,18 @@
 		}
 	};
 
+	/**
+	 * List the classes of a DOM element without using elt.classList (for compatibility with IE 9)
+	 */
+	object.getCssClasses = function (elt) {
+		return elt.className.match(/\S+/g);
+	};
+
 	/*
 	 * Check whether an element has at least one class from a given list
 	 */
 	function checkClass(elt, classList) {
-		var classes = lodash.map(elt.classList),
+		var classes = object.getCssClasses(elt),
 			i;
 
 		for (i = 0; i < classes.length; i++) {
