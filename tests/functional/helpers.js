@@ -46,9 +46,10 @@ define([
 
 			return this.remote
 				.get(require.toUrl('tests/pages/helpers.html'))
-				.waitForElementByCssSelector('body.loaded', 5000)
-				.elementById('title')
-				.text()
+				.setFindTimeout(5000)
+				.findByCssSelector('body.loaded')
+				.findById('title')
+				.getVisibleText()
 				.then(function (text) {
 					assert.strictEqual(text, 'Helpers test page', 'Get the page title' );
 				});
@@ -58,9 +59,10 @@ define([
 
 			return this.remote
 				.get(require.toUrl('tests/pages/helpers.html'))
-				.waitForElementByCssSelector('body.loaded', 5000)
-				.elementById('hostname')
-				.text()
+				.setFindTimeout(5000)
+				.findByCssSelector('body.loaded')
+				.findById('hostname')
+				.getVisibleText()
 				.then(function (text){
 					assert.strictEqual(text, 'localhost', 'Get the host name');
 				});
@@ -70,9 +72,10 @@ define([
 
 			return this.remote
 				.get(require.toUrl('tests/pages/helpers.html') + '?name=value&referrer=previous#fragment')
-				.waitForElementByCssSelector('body.loaded', 5000)
-				.elementById('referrer')
-				.text()
+				.setFindTimeout(5000)
+				.findByCssSelector('body.loaded')
+				.findById('referrer')
+				.getVisibleText()
 				.then(function (text){
 					assert.strictEqual(text, 'previous', 'Get the referrer from the querystring');
 				});
@@ -82,10 +85,11 @@ define([
 
 			return this.remote
 				.get(require.toUrl('tests/pages/helpers.html'))
-				.waitForElementByCssSelector('body.loaded', 5000)
-				.elementById('click')
-				.clickElement()
-				.text()
+				.setFindTimeout(5000)
+				.findByCssSelector('body.loaded')
+				.findById('click')
+				.click()
+				.getVisibleText()
 				.then(function (text){
 					assert.strictEqual(text, 'clicked', 'Add a click event listener');
 				});
