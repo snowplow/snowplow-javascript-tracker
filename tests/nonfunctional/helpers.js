@@ -98,4 +98,16 @@ define([
 			assert.equal(actual, expected);
 		},
 	});
+
+	registerSuite({
+		name: "getCssClasses test",
+		"Tokenize a DOM element's className field": function () {
+			var element = {
+				className: '   the  quick   brown_fox-jumps/over\nthe\t\tlazy   dog  '
+			};
+			var expected = ['the', 'quick', 'brown_fox-jumps/over', 'the', 'lazy', 'dog'];
+			var actual = helpers.getCssClasses(element);
+			assert.deepEqual(actual, expected);
+		},
+	});
 });

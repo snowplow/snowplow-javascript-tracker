@@ -91,7 +91,7 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 			if (!scriptProtocol.test(sourceHref)) {
 
 				elementId = sourceElement.id;
-				elementClasses = lodash.map(sourceElement.classList);
+				elementClasses = helpers.getCssClasses(sourceElement);
 				elementTarget = sourceElement.target;
 				elementContent = linkTrackingContent ? sourceElement.innerHTML : null;
 
@@ -155,7 +155,7 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 	 * Used to determine whether clicks on that link should be tracked
 	 */
 	function checkLink(linkElement, specifiedClasses) {
-		var linkClasses = lodash.map(linkElement.classList),
+		var linkClasses = helpers.getCssClasses(linkElement),
 			i;
 
 		for (i = 0; i < linkClasses.length; i++) {
