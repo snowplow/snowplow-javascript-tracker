@@ -29,3 +29,6 @@ aws.json
 # Vagrant
 .vagrant
 VERSION
+
+# IDEs
+.idea
