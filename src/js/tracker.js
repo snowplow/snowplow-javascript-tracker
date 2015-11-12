@@ -229,6 +229,9 @@
 			// Business-defined unique user ID
 			businessUserId,
 
+            // User's session ID
+            sessionId,
+
 			// Ecommerce transaction data
 			// Will be committed, sent and emptied by a call to trackTrans.
 			ecommerceTransaction = ecommerceTransactionTemplate(),
@@ -686,6 +689,7 @@
 			sb.add('duid', _domainUserId); // Set to our local variable
 			sb.add('fp', userFingerprint);
 			sb.add('uid', businessUserId);
+            sb.add('sid', sessionId);
 
 			refreshUrl();
 
@@ -1089,7 +1093,18 @@
 				return userFingerprint;
 			},
 
-			/**
+            /**
+             * Get the current session ID (as set previously
+             * with setSessionId()).
+             *
+             * @return string session ID
+             */
+            getSessionId: function () {
+                return sessionId;
+            },
+
+
+            /**
 			* Specify the app ID
 			*
 			* @param int|string appId
@@ -1419,7 +1434,16 @@
 				core.setPlatform(platform);
 			},
 
-			/**
+            /**
+             * Set the session ID for this user.
+             *
+             * @param string sessionId The users session ID
+             */
+            setSessionId: function(sessionId) {
+                sessionId = sessionId;
+            },
+
+            /**
 			*
 			* Enable Base64 encoding for unstructured event payload
 			*
