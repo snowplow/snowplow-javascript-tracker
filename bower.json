@@ -1,0 +1,12 @@
+{
+  "name": "snowplow-tracker",
+  "version": "2.5.3",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:ThomsonReuters-IPS/snowplow-javascript-tracker.git"
+  },
+  "license": "Simplified BSD",
+  "main":[
+    "dist/sp.js"
+  ]
+}
