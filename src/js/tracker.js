@@ -155,7 +155,7 @@
 			configCookiePath = '/',
 
 			// Do Not Track browser feature
-			dnt = navigatorAlias.doNotTrack || navigatorAlias.msDoNotTrack,
+			dnt = navigatorAlias.doNotTrack || navigatorAlias.msDoNotTrack || windowAlias.doNotTrack,
 
 			// Do Not Track
 			configDoNotTrack = argmap.hasOwnProperty('respectDoNotTrack') ? argmap.respectDoNotTrack && (dnt === 'yes' || dnt === '1') : false,
