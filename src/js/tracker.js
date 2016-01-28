@@ -630,6 +630,44 @@
 		}
 
 		/*
+		 * Update session id, create if required
+		 */
+		function updateSessionId() {
+			// If cookies are enabled, base visit count and session ID on the cookies
+			if (cookiesDisabled === '0') {
+				memorizedSessionId = sessionIdFromCookie;
+
+				// New session?
+				if (!ses && configUseCookies) {
+					// New session (aka new visit)
+					visitCount++;
+					// Update the last visit timestamp
+					lastVisitTs = currentVisitTs;
+					// Regenerate the session ID
+					memorizedSessionId = uuid.v4();
+				}
+
+				memorizedVisitCount = visitCount;
+
+			// Otherwise, a new session starts if configSessionCookieTimeout seconds have passed since the last event
+			} else {
+				if ((new Date().getTime() - lastEventTime) > configSessionCookieTimeout * 1000) {
+					memorizedSessionId = uuid.v4();
+					memorizedVisitCount++;
+				}
+			}
+		}
+
+		/*
+		 * Get the current session id
+		 */
+		function getInternalSessionId() {
+			updateSessionId();
+
+			return memorizedSessionId;
+		}
+
+		/*
 		 * Attaches common web fields to every request
 		 * (resolution, url, referrer, etc.)
 		 * Also sets the required cookies.
@@ -654,29 +692,8 @@
 				return;
 			}
 
-			// If cookies are enabled, base visit count and session ID on the cookies
-			if (cookiesDisabled === '0') {
-				memorizedSessionId = sessionIdFromCookie;
-
-				// New session?
-				if (!ses && configUseCookies) {
-					// New session (aka new visit)
-					visitCount++;
-					// Update the last visit timestamp
-					lastVisitTs = currentVisitTs;
-					// Regenerate the session ID
-					memorizedSessionId = uuid.v4();
-				}
-
-				memorizedVisitCount = visitCount;
-
-			// Otherwise, a new session starts if configSessionCookieTimeout seconds have passed since the last event
-			} else {
-				if ((new Date().getTime() - lastEventTime) > configSessionCookieTimeout * 1000) {
-					memorizedSessionId = uuid.v4();
-					memorizedVisitCount++;
-				}
-			}
+			// update session id
+			updateSessionId();
 
 			// Build out the rest of the request
 			sb.add('vp', detectors.detectViewport());
@@ -1051,6 +1068,14 @@
 		 ************************************************************/
 
 		return {
+			/**
+			 * Get the current session id
+			 *
+			 * @return string 
+			 */
+			 getSessionId: function() {
+			 	return getInternalSessionId();
+			 }
 
 			/**
 			 * Get the current user ID (as set previously
