@@ -7182,29 +7182,15 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 		}
 
 		/*
-		 * Attaches common web fields to every request
-		 * (resolution, url, referrer, etc.)
-		 * Also sets the required cookies.
+		 * Update session id, create if required
 		 */
-		function addBrowserData(sb) {
-			var nowTs = Math.round(new Date().getTime() / 1000),
-				idname = getSnowplowCookieName('id'),
-				sesname = getSnowplowCookieName('ses'),
-				ses = getSnowplowCookieValue('ses'), // aka cookie.cookie(sesname)
+		function updateSessionId() {
+			var ses = getSnowplowCookieValue('ses'), // aka cookie.cookie(sesname)
 				id = loadDomainUserIdCookie(),
 				cookiesDisabled = id[0],
-				_domainUserId = id[1], // We could use the global (domainUserId) but this is better etiquette
-				createTs = id[2],
-				visitCount = id[3],
 				currentVisitTs = id[4],
 				lastVisitTs = id[5],
 				sessionIdFromCookie = id[6];
-
-			if (configDoNotTrack && configUseCookies) {
-				cookie.cookie(idname, '', -1, configCookiePath, configCookieDomain);
-				cookie.cookie(sesname, '', -1, configCookiePath, configCookieDomain);
-				return;
-			}
 
 			// If cookies are enabled, base visit count and session ID on the cookies
 			if (cookiesDisabled === '0') {
@@ -7229,6 +7215,42 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 					memorizedVisitCount++;
 				}
 			}
+
+			return lastVisitTs;
+		}
+
+		/*
+		 * Get the current session id
+		 */
+		function getInternalSessionId() {
+			updateSessionId();
+
+			return memorizedSessionId;
+		}
+
+		/*
+		 * Attaches common web fields to every request
+		 * (resolution, url, referrer, etc.)
+		 * Also sets the required cookies.
+		 */
+		function addBrowserData(sb) {
+			var nowTs = Math.round(new Date().getTime() / 1000),
+				idname = getSnowplowCookieName('id'),
+				sesname = getSnowplowCookieName('ses'),
+				id = loadDomainUserIdCookie(),
+				_domainUserId = id[1], // We could use the global (domainUserId) but this is better etiquette
+				createTs = id[2],
+				visitCount = id[3],
+				lastVisitTs = id[5];
+
+			if (configDoNotTrack && configUseCookies) {
+				cookie.cookie(idname, '', -1, configCookiePath, configCookieDomain);
+				cookie.cookie(sesname, '', -1, configCookiePath, configCookieDomain);
+				return;
+			}
+
+			// update session id
+			lastVisitTs = updateSessionId();
 
 			// Build out the rest of the request
 			sb.add('vp', detectors.detectViewport());
@@ -7603,6 +7625,14 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 		 ************************************************************/
 
 		return {
+			/**
+			 * Get the current session id
+			 *
+			 * @return string 
+			 */
+			 getSessionId: function() {
+			 	return getInternalSessionId();
+			 },
 
 			/**
 			 * Get the current user ID (as set previously
