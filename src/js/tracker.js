@@ -633,6 +633,13 @@
 		 * Update session id, create if required
 		 */
 		function updateSessionId() {
+			var ses = getSnowplowCookieValue('ses'), // aka cookie.cookie(sesname)
+				id = loadDomainUserIdCookie(),
+				cookiesDisabled = id[0],
+				currentVisitTs = id[4],
+				lastVisitTs = id[5],
+				sessionIdFromCookie = id[6];
+
 			// If cookies are enabled, base visit count and session ID on the cookies
 			if (cookiesDisabled === '0') {
 				memorizedSessionId = sessionIdFromCookie;
@@ -656,6 +663,8 @@
 					memorizedVisitCount++;
 				}
 			}
+
+			return lastVisitTs;
 		}
 
 		/*
@@ -676,15 +685,11 @@
 			var nowTs = Math.round(new Date().getTime() / 1000),
 				idname = getSnowplowCookieName('id'),
 				sesname = getSnowplowCookieName('ses'),
-				ses = getSnowplowCookieValue('ses'), // aka cookie.cookie(sesname)
 				id = loadDomainUserIdCookie(),
-				cookiesDisabled = id[0],
 				_domainUserId = id[1], // We could use the global (domainUserId) but this is better etiquette
 				createTs = id[2],
 				visitCount = id[3],
-				currentVisitTs = id[4],
-				lastVisitTs = id[5],
-				sessionIdFromCookie = id[6];
+				lastVisitTs = id[5];
 
 			if (configDoNotTrack && configUseCookies) {
 				cookie.cookie(idname, '', -1, configCookiePath, configCookieDomain);
@@ -693,7 +698,7 @@
 			}
 
 			// update session id
-			updateSessionId();
+			lastVisitTs = updateSessionId();
 
 			// Build out the rest of the request
 			sb.add('vp', detectors.detectViewport());
@@ -1075,7 +1080,7 @@
 			 */
 			 getSessionId: function() {
 			 	return getInternalSessionId();
-			 }
+			 },
 
 			/**
 			 * Get the current user ID (as set previously
