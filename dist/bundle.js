@@ -7188,6 +7188,7 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 			var ses = getSnowplowCookieValue('ses'), // aka cookie.cookie(sesname)
 				id = loadDomainUserIdCookie(),
 				cookiesDisabled = id[0],
+				visitCount = id[3],
 				currentVisitTs = id[4],
 				lastVisitTs = id[5],
 				sessionIdFromCookie = id[6];
@@ -7240,7 +7241,6 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 				id = loadDomainUserIdCookie(),
 				_domainUserId = id[1], // We could use the global (domainUserId) but this is better etiquette
 				createTs = id[2],
-				visitCount = id[3],
 				lastVisitTs = id[5];
 
 			if (configDoNotTrack && configUseCookies) {
