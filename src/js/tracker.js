@@ -82,6 +82,7 @@
 	 * 16. bufferSize, 1
 	 * 17. crossDomainLinker, false
 	 * 18. maxPostBytes, 40000
+	 * 19. discoverRootDomain, false
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, pageViewId, mutSnowplowState, argmap) {
 
@@ -257,6 +258,10 @@
 
 			// Context to be added to every event
 			commonContexts = [];
+
+		if (argmap.hasOwnProperty('discoverRootDomain') && argmap.discoverRootDomain) {
+			configCookieDomain = helpers.findRootDomain();
+		}
 
 		if (autoContexts.webPage) {
 			commonContexts.push(getWebPageContext());
