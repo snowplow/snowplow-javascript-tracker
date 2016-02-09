@@ -738,12 +738,46 @@
 		 */
 		function addCommonContexts(userContexts) {
 			var combinedContexts = commonContexts.concat(userContexts || []);
+
+			// Add PerformanceTiming Context
 			if (autoContexts.performanceTiming) {
 				var performanceTimingContext = getPerformanceTimingContext();
 				if (performanceTimingContext) {
 					combinedContexts.push(performanceTimingContext);
 				}
 			}
+
+			// Add Optimizely Contexts
+			if (window['optimizely']) {
+
+				if (autoContexts.optimizelyExperiments) {
+					combinedContexts = combinedContexts.concat(getOptimizelyExperimentContexts());
+				}
+
+				if (autoContexts.optimizelyStates) {
+					combinedContexts = combinedContexts.concat(getOptimizelyStateContexts());
+				}
+
+				if (autoContexts.optimizelyVariations) {
+					combinedContexts = combinedContexts.concat(getOptimizelyVariationContexts());
+				}
+
+				if (autoContexts.optimizelyVisitor) {
+					var optimizelyVisitorContext = getOptimizelyVisitorContext();
+					if (optimizelyVisitorContext) {
+						combinedContexts.push(optimizelyVisitorContext);
+					}
+				}
+
+				if (autoContexts.optimizelyAudiences) {
+					combinedContexts = combinedContexts.concat(getOptimizelyAudienceContexts());
+				}
+
+				if (autoContexts.optimizelyDimensions) {
+					combinedContexts = combinedContexts.concat(getOptimizelyDimensionContexts());
+				}
+			}
+
 			return combinedContexts;
 		}
 
@@ -793,6 +827,187 @@
 					data: performanceTiming
 				};
 			}
+		}
+
+		/**
+		 * Creates a context from the window['optimizely'].data.experiments object
+		 *
+		 * @return array Experiment contexts
+		 */
+		function getOptimizelyExperimentContexts() {
+			var experiments = window['optimizely'].data.experiments;
+			if (experiments) {
+				var contexts = [];
+
+				for (var key in experiments) {
+					var context = {};
+					context['id'] = key;
+					var e = experiments[key];
+					if (e.hasOwnProperty('code')) context['code'] = e.code; 
+					if (e.hasOwnProperty('manual')) context['manual'] = e.manual;
+					if (e.hasOwnProperty('conditional')) context['conditional'] = e.conditional;
+					if (e.hasOwnProperty('name')) context['name'] = e.name;
+					if (e.hasOwnProperty('variation_ids')) context['variationIds'] = e.variation_ids;
+
+					contexts.push({
+						schema: 'iglu:com.optimizely/experiment/jsonschema/1-0-0',
+						data: context
+					});
+				}
+				return contexts;
+			}
+			return [];
+		}
+
+		/**
+		 * Creates a context from the window['optimizely'].data.state object
+		 *
+		 * @return array State contexts
+		 */
+		function getOptimizelyStateContexts() {
+			var experimentIds = [];
+			var experiments = window['optimizely'].data.experiments;
+			if (experiments) {
+				for (var key in experiments) {
+					experimentIds.push(key);
+				}
+			}
+
+			var state = window['optimizely'].data.state;
+			if (state) {
+				var contexts = [];
+				var activeExperiments = state.hasOwnProperty('activeExperiments') ? state.activeExperiments : [];
+
+				for (var i = 0; i < experimentIds.length; i++) {
+					var experimentId = experimentIds[i];
+					var context = {};
+					context['experimentId'] = experimentId;
+					context['isActive'] = helpers.isValueInArray(experimentIds[i], activeExperiments);
+					var variationMap = state.hasOwnProperty('variationMap') ? state.variationMap : {};
+					if (variationMap.hasOwnProperty(experimentId)) context['variationIndex'] = variationMap[experimentId];
+					var variationIdsMap = state.hasOwnProperty('variationIdsMap') ? state.variationIdsMap : {};
+					if (variationIdsMap.hasOwnProperty(experimentId) && variationIdsMap[experimentId].length === 1) context['variationId'] = variationIdsMap[experimentId][0];
+					var variationNamesMap = state.hasOwnProperty('variationNamesMap') ? state.variationNamesMap : {};
+					if (variationNamesMap.hasOwnProperty(experimentId)) context['variationName'] = variationNamesMap[experimentId];
+
+					contexts.push({
+						schema: 'iglu:com.optimizely/state/jsonschema/1-0-0',
+						data: context
+					});
+				}
+				return contexts;
+			}
+			return [];
+		}
+
+		/**
+		 * Creates a context from the window['optimizely'].data.variations object
+		 *
+		 * @return array Variation contexts
+		 */
+		function getOptimizelyVariationContexts() {
+			var variations = window['optimizely'].data.variations;
+			if (variations) {
+				var contexts = [];
+
+				for (var key in variations) {
+					var context = {};
+					context['id'] = key;
+					var variation = variations[key];
+					if (variation.hasOwnProperty('name')) context['name'] = variation.name;
+					if (variation.hasOwnProperty('code')) context['code'] = variation.code;
+
+					contexts.push({
+						schema: 'iglu:com.optimizely/variation/jsonschema/1-0-0',
+						data: context
+					});
+				}
+				return contexts;
+			}
+			return [];
+		}
+
+		/**
+		 * Creates a context from the window['optimizely'].data.visitor object
+		 *
+		 * @return object Visitor context
+		 */
+		function getOptimizelyVisitorContext() {
+			var visitor = window['optimizely'].data.visitor;
+			if (visitor) {
+				var context = {};
+				if (visitor.hasOwnProperty('browser')) context['browser'] = visitor.browser;
+				if (visitor.hasOwnProperty('browserVersion')) context['browserVersion'] = visitor.browserVersion;
+				if (visitor.hasOwnProperty('device')) context['device'] = visitor.device;
+				if (visitor.hasOwnProperty('deviceType')) context['deviceType'] = visitor.deviceType;
+				if (visitor.hasOwnProperty('ip')) context['ip'] = visitor.ip;
+				var platform = visitor.hasOwnProperty('platform') && visitor.platform ? visitor.platform : {};
+				if (platform.hasOwnProperty('id')) context['platformId'] = platform.id;
+				if (platform.hasOwnProperty('version')) context['platformVersion'] = platform.version;
+				var location = visitor.hasOwnProperty('location') && visitor.location ? visitor.location : {};
+				if (location.hasOwnProperty('city')) context['locationCity'] = location.city;
+				if (location.hasOwnProperty('region')) context['locationRegion'] = location.region;
+				if (location.hasOwnProperty('country')) context['locationCountry'] = location.country;
+				if (visitor.hasOwnProperty('mobile')) context['mobile'] = visitor.mobile;
+				if (visitor.hasOwnProperty('mobileId')) context['mobileId'] = visitor.mobileId;
+				if (visitor.hasOwnProperty('referrer')) context['referrer'] = visitor.referrer;
+				if (visitor.hasOwnProperty('os')) context['os'] = visitor.os;
+
+				return {
+					schema: 'iglu:com.optimizely/visitor/jsonschema/1-0-0',
+					data: context
+				};
+			}
+		}
+
+		/**
+		 * Creates a context from the window['optimizely'].data.visitor.audiences object
+		 *
+		 * @return array VisitorAudience contexts
+		 */
+		function getOptimizelyAudienceContexts() {
+			var audienceIds = window['optimizely'].data.visitor.audiences;
+			if (audienceIds) {
+				var contexts = [];
+
+				for (var key in audienceIds) {
+					var context = {};
+					context['id'] = key;
+					context['isMember'] = audienceIds[key]; 
+
+					contexts.push({
+						schema: 'iglu:com.optimizely/visitor_audience/jsonschema/1-0-0',
+						data: context
+					});
+				}
+				return contexts;
+			}
+			return [];
+		}
+
+		/**
+		 * Creates a context from the window['optimizely'].data.visitor.dimensions object
+		 *
+		 * @return array VisitorDimension contexts
+		 */
+		function getOptimizelyDimensionContexts() {
+			var dimensionIds = window['optimizely'].data.visitor.dimensions;
+			if (dimensionIds) {
+				var contexts = [];
+
+				for (var key in dimensionIds) {
+					var context = {};
+					context['id'] = key;
+					context['value'] = dimensionIds[key]; 
+
+					contexts.push({
+						schema: 'iglu:com.optimizely/visitor_dimension/jsonschema/1-0-0',
+						data: context
+					});
+				}
+				return contexts;
+			}
+			return [];
 		}
 
 		/**

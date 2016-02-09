@@ -323,6 +323,22 @@
 	};
 
 	/**
+	 * Checks whether a value is present within an array
+	 *
+	 * @param val The value to check for
+	 * @param array The array to check within
+	 * @return boolean Whether it exists
+	 */
+	object.isValueInArray = function (val, array) {
+		for (var i = 0; i < array.length; i++) {
+			if (array[i] === val) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Deletes an arbitrary cookie by setting the expiration date to the past
 	 *
 	 * @param cookieName The name of the cookie to delete
