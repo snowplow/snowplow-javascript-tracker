@@ -1184,6 +1184,7 @@
 			 * @param int timeout
 			 */
 			setSessionCookieTimeout: function (timeout) {
+				helpers.warn('setSessionCookieTimeout is deprecated. Instead add a "sessionCookieTimeout" field to the argmap argument of newTracker.')
 				configSessionCookieTimeout = timeout;
 			},
 
