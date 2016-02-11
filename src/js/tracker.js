@@ -74,15 +74,16 @@
 	 * 8. userFingerprintSeed, 123412414
 	 * 9. pageUnloadTimer, 500
 	 * 10. forceSecureTracker, false
-	 * 11. useLocalStorage, true
-	 * 12. useCookies, true
-	 * 13. sessionCookieTimeout, 1800
-	 * 14. contexts, {}
-	 * 15. post, false
-	 * 16. bufferSize, 1
-	 * 17. crossDomainLinker, false
-	 * 18. maxPostBytes, 40000
-	 * 19. discoverRootDomain, false
+	 * 11. forceUnsecureTracker, false
+	 * 12. useLocalStorage, true
+	 * 13. useCookies, true
+	 * 14. sessionCookieTimeout, 1800
+	 * 15. contexts, {}
+	 * 16. post, false
+	 * 17. bufferSize, 1
+	 * 18. crossDomainLinker, false
+	 * 19. maxPostBytes, 40000
+	 * 20. discoverRootDomain, false
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, pageViewId, mutSnowplowState, argmap) {
 
@@ -178,6 +179,9 @@
 
 			// This forces the tracker to be HTTPS even if the page is not secure
 			forceSecureTracker = argmap.hasOwnProperty('forceSecureTracker') ? (argmap.forceSecureTracker === true) : false,
+
+			// This forces the tracker to be HTTP even if the page is secure
+			forceUnsecureTracker = !forceSecureTracker && argmap.hasOwnProperty('forceUnsecureTracker') ? (argmap.forceUnsecureTracker === true) : false,
 
 			// Whether to use localStorage to store events between sessions while offline
 			useLocalStorage = argmap.hasOwnProperty('useLocalStorage') ? argmap.useLocalStorage : true,
@@ -723,10 +727,13 @@
 		 * @return string collectorUrl The tracker URL with protocol
 		 */
 		function asCollectorUrl(rawUrl) {
-			if (forceSecureTracker)
+			if (forceSecureTracker) {
 				return ('https' + '://' + rawUrl);
-			else
-				return ('https:' === documentAlias.location.protocol ? 'https' : 'http') + '://' + rawUrl;
+			} 
+			if (forceUnsecureTracker) {
+				return ('http' + '://' + rawUrl);
+			} 
+			return ('https:' === documentAlias.location.protocol ? 'https' : 'http') + '://' + rawUrl;
 		}
 
 		/**
