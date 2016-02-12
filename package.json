@@ -6,7 +6,6 @@
     "browser-cookie-lite": "~0.3.1",
     "grunt": "~0.4.2",
     "grunt-browserify": "~4.0.1",
-    "grunt-cloudfront": "^0.2.0",
     "grunt-contrib-concat": "~0.3.0",
     "grunt-lodash": "~0.3.0",
     "grunt-aws": "~0.6.1",

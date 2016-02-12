@@ -182,7 +182,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-yui-compressor');
   grunt.loadNpmTasks('grunt-aws');
-  grunt.loadNpmTasks('grunt-cloudfront');
   grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('intern');
   grunt.loadNpmTasks('grunt-lodash');
@@ -232,27 +231,22 @@ module.exports = function(grunt) {
 
     grunt.config('cloudfront', {
       options: {
-        region: 'eu-east-1',
-        distributionId: '<%= aws.distribution %>',
-        listInvalidations: true,
-        listDistributions: true,
-        credentials: {
-          accessKeyId: '<%= aws.key %>',
-          secretAccessKey: '<%= aws.secret %>'
-        }
+        accessKeyId: '<%= aws.key %>',
+        secretAccessKey: '<%= aws.secret %>',
+        distributionId: '<%= aws.distribution %>'
       },
       not_pinned: {
-        CallerReference: Date.now().toString(),
-        Paths: {
-          Quantity: 1,
-          Items: ['/<%= pkg.version %>/sp.js']
+        options: {
+          invalidations: [
+            '/<%= pkg.version %>/sp.js'
+          ]
         }
       },
       pinned: {
-        CallerReference: Date.now().toString(),
-        Paths: {
-          Quantity: 1,
-          Items: ['/<%= pkg.pinnedVersion %>/sp.js']
+        options: {
+          invalidations: [
+            '/<%= pkg.pinnedVersion %>/sp.js'
+          ]
         }
       }
     });
