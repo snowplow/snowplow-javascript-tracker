@@ -785,6 +785,14 @@
 				}
 			}
 
+			// Add Augur Context
+			if (autoContexts.augurIdentityLite) {
+				var augurIdentityLiteContext = getAugurIdentityLiteContext();
+				if (augurIdentityLiteContext) {
+					combinedContexts.push(augurIdentityLiteContext);
+				}
+			}
+
 			return combinedContexts;
 		}
 
@@ -1015,6 +1023,39 @@
 				return contexts;
 			}
 			return [];
+		}
+
+		/**
+		 * Creates a context from the window['augur'] object
+		 *
+		 * @return object The IdentityLite context
+		 */
+		function getAugurIdentityLiteContext() {
+			var augur = window['augur'];
+			if (augur) {
+				var context = { consumer: {}, device: {} };
+				var consumer = augur.hasOwnProperty('consumer') ? augur.consumer : {};
+				if (consumer.hasOwnProperty('UID')) context['consumer']['UUID'] = consumer.UID;
+				var device = augur.hasOwnProperty('device') ? augur.device : {};
+				if (device.hasOwnProperty('ID')) context['device']['ID'] = device.ID;
+				if (device.hasOwnProperty('isBot')) context['device']['isBot'] = device.isBot;
+				if (device.hasOwnProperty('isProxied')) context['device']['isProxied'] = device.isProxied;
+				if (device.hasOwnProperty('isTor')) context['device']['isTor'] = device.isTor;
+
+				// isIncognito can be found in two places
+				if (device.hasOwnProperty('isIncognito')) context['device']['isIncognito'] = device.isIncognito;
+				if (!context.device.hasOwnProperty('isIncognito')) {
+					var fingerprint = device.hasOwnProperty('fingerprint') ? device.fingerprint : {};
+					if (fingerprint.hasOwnProperty('browserHasIncognitoEnabled')) {
+						context['device']['isIncognito'] = fingerprint.browserHasIncognitoEnabled;
+					}
+				}
+
+				return {
+					schema: 'iglu:io.augur.snowplow/identity_lite/jsonschema/1-0-0',
+					data: context
+				};
+			}
 		}
 
 		/**
