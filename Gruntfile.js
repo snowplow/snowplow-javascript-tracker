@@ -181,7 +181,7 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-yui-compressor');
-  grunt.loadNpmTasks('grunt-s3');
+  grunt.loadNpmTasks('grunt-aws');
   grunt.loadNpmTasks('grunt-cloudfront');
   grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('intern');
@@ -194,38 +194,40 @@ module.exports = function(grunt) {
 
     grunt.config('s3', {
       options: {
-        key: '<%= aws.key %>',
-        secret: '<%= aws.secret %>',
+        accessKeyId: '<%= aws.key %>',
+        secretAccessKey: '<%= aws.secret %>',
         bucket: '<%= aws.bucket %>',
         access: 'public-read',
-        gzip: true
+        region: 'eu-west-1',
+        gzip: true,
+        cache: false
       },
       not_pinned: {
         options: {
           headers: {
-            'Cache-Control': 'max-age=315360000'
+            CacheControl: "max-age=315360000"
           }
         },
-        upload: [
+        files: [
           {
-            src: 'dist/sp.js',
-            dest: '<%= pkg.version %>/sp.js'
+            src: ["dist/sp.js"],
+            dest: "<%= pkg.version %>/sp.js"
           }
         ]
       },
       pinned: {
         options: {
           headers: {
-            'Cache-Control': 'max-age=3600'
+            CacheControl: "max-age=3600"
           }
         },
-        upload: [
+        files: [
           {
-            src: 'dist/sp.js',
-            dest: '<%= pkg.pinnedVersion %>/sp.js'
-          }        
+            src: ["dist/sp.js"],
+            dest: "<%= pkg.pinnedVersion %>/sp.js"
+          }
         ]
-      },  
+      }
     });
 
     grunt.config('cloudfront', {
