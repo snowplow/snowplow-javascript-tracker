@@ -1982,6 +1982,20 @@
 						label: label
 					}
 				}, addCommonContexts(context))
+			},
+
+			/**
+			 * Track a GA Enhanced Ecommerce Action
+			 *
+			 * @param string action
+			 */
+			trackEnhancedEcommerceAction: function (action) {
+				core.trackUnstructEvent({
+					schema: 'iglu:com.google.analytics.enhanced-ecommerce/action/jsonschema/1-0-0',
+					data: {
+						action: action
+					}
+				}, addCommonContexts(context));
 			}
 		};
 	};
