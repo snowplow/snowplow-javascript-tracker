@@ -2028,6 +2028,36 @@
 						currency: currency
 					}
 				}, addCommonContexts(context));
+			},
+
+			/**
+			 * Track a GA Enhanced Ecommerce Impression Data
+			 *
+			 * @param string id
+			 * @param string name
+			 * @param string list
+			 * @param string brand
+			 * @param string category
+			 * @param string variant
+			 * @param integer position
+			 * @param number price
+			 * @param string currency
+			 */
+			trackEnhancedEcommerceImpressionFieldObject: function (id, name, list, brand, category, variant, position, price, currency) {
+				core.trackUnstructEvent({
+					schema: 'iglu:com.google.analytics.enhanced-ecommerce/impressionFieldObject/jsonschema/1-0-0',
+					data: {
+						id: id,
+						name: name,
+						list: list,
+						brand: brand,
+						category: category,
+						variant: variant,
+						position: position,
+						price: price,
+						currency: currency
+					}
+				}, addCommonContexts(context));
 			}
 		};
 	};
