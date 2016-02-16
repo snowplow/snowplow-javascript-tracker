@@ -2058,6 +2058,40 @@
 						currency: currency
 					}
 				}, addCommonContexts(context));
+			},
+
+			/**
+			 * Track a GA Enhanced Ecommerce Product Data
+			 *
+			 * @param string id
+			 * @param string name
+			 * @param string list
+			 * @param string brand
+			 * @param string category
+			 * @param string variant
+			 * @param number price
+			 * @param integer quantity
+			 * @param string coupon
+			 * @param integer position
+			 * @param string currency
+			 */
+			trackEnhancedEcommerceProductFieldObject: function (id, name, list, brand, category, variant, price, quantity, coupon, position, currency) {
+				core.trackUnstructEvent({
+					schema: 'iglu:com.google.analytics.enhanced-ecommerce/productFieldObject/jsonschema/1-0-0',
+					data: {
+						id: id,
+						name: name,
+						list: list,
+						brand: brand,
+						category: category,
+						variant: variant,
+						price: price,
+						quantity: quantity,
+						coupon: coupon,
+						position: position,
+						currency: currency
+					}
+				}, addCommonContexts(context));
 			}
 		};
 	};
