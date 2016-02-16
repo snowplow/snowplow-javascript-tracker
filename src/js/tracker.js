@@ -2092,6 +2092,28 @@
 						currency: currency
 					}
 				}, addCommonContexts(context));
+			},
+
+			/**
+			 * Track a GA Enhanced Ecommerce Promo Data
+			 *
+			 * @param string id
+			 * @param string name
+			 * @param string creative
+			 * @param string position
+			 * @param string currency
+			 */
+			trackEnhancedEcommercePromoFieldObject: function (id, name, creative, position, currency) {
+				core.trackUnstructEvent({
+					schema: 'iglu:com.google.analytics.enhanced-ecommerce/promoFieldObject/jsonschema/1-0-0',
+					data: {
+						id: id,
+						name: name,
+						creative: creative,
+						position: position,
+						currency: currency
+					}
+				}, addCommonContexts(context));
 			}
 		};
 	};
