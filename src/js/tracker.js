@@ -1996,6 +1996,38 @@
 						action: action
 					}
 				}, addCommonContexts(context));
+			},
+
+			/**
+			 * Track a GA Enhanced Ecommerce Action Data
+			 *
+			 * @param string id
+			 * @param string affiliation
+			 * @param number revenue
+			 * @param number tax
+			 * @param number shipping
+			 * @param string coupon
+			 * @param string list
+			 * @param integer step
+			 * @param string option
+			 * @param currency option
+			 */
+			trackEnhancedEcommerceActionFieldObject: function (id, affiliation, revenue, tax, shipping, coupon, list, step, option, currency) {
+				core.trackUnstructEvent({
+					schema: 'iglu:com.google.analytics.enhanced-ecommerce/actionFieldObject/jsonschema/1-0-0',
+					data: {
+						id: id,
+						affiliation: affiliation,
+						revenue: revenue,
+						tax: tax,
+						shipping: shipping,
+						coupon: coupon,
+						list: list,
+						step: step,
+						option: option,
+						currency: currency
+					}
+				}, addCommonContexts(context));
 			}
 		};
 	};
