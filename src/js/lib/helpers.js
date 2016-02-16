@@ -365,4 +365,28 @@
 		return cookieNames;
 	};
 
+	/**
+	 * Parses an object and returns either the
+	 * integer or undefined.
+	 *
+	 * @param obj The object to parse
+	 * @return the result of the parse operation
+	 */
+	object.parseInt = function (obj) {
+		var result = parseInt(obj);
+		return isNaN(result) ? undefined : result;
+	}
+
+	/**
+	 * Parses an object and returns either the
+	 * number or undefined.
+	 *
+	 * @param obj The object to parse
+	 * @return the result of the parse operation
+	 */
+	object.parseFloat = function (obj) {
+		var result = parseFloat(obj);
+		return isNaN(result) ? undefined : result;
+	}
+
 }());

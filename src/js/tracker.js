@@ -261,7 +261,10 @@
 			autoContexts = argmap.contexts || {},
 
 			// Context to be added to every event
-			commonContexts = [];
+			commonContexts = [],
+
+			// Enhanced Ecommerce Contexts to be added on every `trackEnhancedEcommerceAction` call
+			enhancedEcommerceContexts = [];
 
 		if (argmap.hasOwnProperty('discoverRootDomain') && argmap.discoverRootDomain) {
 			configCookieDomain = helpers.findRootDomain();
@@ -2010,21 +2013,26 @@
 			},
 
 			/**
-			 * Track a GA Enhanced Ecommerce Action
+			 * Track a GA Enhanced Ecommerce Action with all stored
+			 * Enhanced Ecommerce contexts
 			 *
 			 * @param string action
+			 * @param array context Optional. Context relating to the event.
 			 */
-			trackEnhancedEcommerceAction: function (action) {
+			trackEnhancedEcommerceAction: function (action, context) {
+				var combinedEnhancedEcommerceContexts = enhancedEcommerceContexts.concat(context || []);
+				enhancedEcommerceContexts.length = 0;
+
 				core.trackUnstructEvent({
 					schema: 'iglu:com.google.analytics.enhanced-ecommerce/action/jsonschema/1-0-0',
 					data: {
 						action: action
 					}
-				}, addCommonContexts(context));
+				}, addCommonContexts(combinedEnhancedEcommerceContexts));
 			},
 
 			/**
-			 * Track a GA Enhanced Ecommerce Action Data
+			 * Adds a GA Enhanced Ecommerce Action Context
 			 *
 			 * @param string id
 			 * @param string affiliation
@@ -2035,28 +2043,28 @@
 			 * @param string list
 			 * @param integer step
 			 * @param string option
-			 * @param currency option
+			 * @param string currency
 			 */
-			trackEnhancedEcommerceActionFieldObject: function (id, affiliation, revenue, tax, shipping, coupon, list, step, option, currency) {
-				core.trackUnstructEvent({
+			addEnhancedEcommerceActionContext: function (id, affiliation, revenue, tax, shipping, coupon, list, step, option, currency) {
+				enhancedEcommerceContexts.push({
 					schema: 'iglu:com.google.analytics.enhanced-ecommerce/actionFieldObject/jsonschema/1-0-0',
 					data: {
 						id: id,
 						affiliation: affiliation,
-						revenue: revenue,
-						tax: tax,
-						shipping: shipping,
+						revenue: helpers.parseFloat(revenue),
+						tax: helpers.parseFloat(tax),
+						shipping: helpers.parseFloat(shipping),
 						coupon: coupon,
 						list: list,
-						step: step,
+						step: helpers.parseInt(step),
 						option: option,
 						currency: currency
 					}
-				}, addCommonContexts(context));
+				});
 			},
 
 			/**
-			 * Track a GA Enhanced Ecommerce Impression Data
+			 * Adds a GA Enhanced Ecommerce Impression Context
 			 *
 			 * @param string id
 			 * @param string name
@@ -2068,8 +2076,8 @@
 			 * @param number price
 			 * @param string currency
 			 */
-			trackEnhancedEcommerceImpressionFieldObject: function (id, name, list, brand, category, variant, position, price, currency) {
-				core.trackUnstructEvent({
+			addEnhancedEcommerceImpressionContext: function (id, name, list, brand, category, variant, position, price, currency) {
+				enhancedEcommerceContexts.push({
 					schema: 'iglu:com.google.analytics.enhanced-ecommerce/impressionFieldObject/jsonschema/1-0-0',
 					data: {
 						id: id,
@@ -2078,15 +2086,15 @@
 						brand: brand,
 						category: category,
 						variant: variant,
-						position: position,
-						price: price,
+						position: helpers.parseInt(position),
+						price: helpers.parseFloat(price),
 						currency: currency
 					}
-				}, addCommonContexts(context));
+				});
 			},
 
 			/**
-			 * Track a GA Enhanced Ecommerce Product Data
+			 * Adds a GA Enhanced Ecommerce Product Context
 			 *
 			 * @param string id
 			 * @param string name
@@ -2100,8 +2108,8 @@
 			 * @param integer position
 			 * @param string currency
 			 */
-			trackEnhancedEcommerceProductFieldObject: function (id, name, list, brand, category, variant, price, quantity, coupon, position, currency) {
-				core.trackUnstructEvent({
+			addEnhancedEcommerceProductContext: function (id, name, list, brand, category, variant, price, quantity, coupon, position, currency) {
+				enhancedEcommerceContexts.push({
 					schema: 'iglu:com.google.analytics.enhanced-ecommerce/productFieldObject/jsonschema/1-0-0',
 					data: {
 						id: id,
@@ -2110,17 +2118,17 @@
 						brand: brand,
 						category: category,
 						variant: variant,
-						price: price,
-						quantity: quantity,
+						price: helpers.parseFloat(price),
+						quantity: helpers.parseInt(quantity),
 						coupon: coupon,
-						position: position,
+						position: helpers.parseInt(position),
 						currency: currency
 					}
-				}, addCommonContexts(context));
+				});
 			},
 
 			/**
-			 * Track a GA Enhanced Ecommerce Promo Data
+			 * Adds a GA Enhanced Ecommerce Promo Context
 			 *
 			 * @param string id
 			 * @param string name
@@ -2128,8 +2136,8 @@
 			 * @param string position
 			 * @param string currency
 			 */
-			trackEnhancedEcommercePromoFieldObject: function (id, name, creative, position, currency) {
-				core.trackUnstructEvent({
+			addEnhancedEcommercePromoContext: function (id, name, creative, position, currency) {
+				enhancedEcommerceContexts.push({
 					schema: 'iglu:com.google.analytics.enhanced-ecommerce/promoFieldObject/jsonschema/1-0-0',
 					data: {
 						id: id,
@@ -2138,7 +2146,7 @@
 						position: position,
 						currency: currency
 					}
-				}, addCommonContexts(context));
+				});
 			}
 		};
 	};

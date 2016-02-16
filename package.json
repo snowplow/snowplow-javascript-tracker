@@ -24,7 +24,8 @@
     "Alex Dean",
     "Simon Andersson",
     "Anthon Pang",
-    "Fred Blundun"
+    "Fred Blundun",
+    "Joshua Beemster"
   ],
   "description": "JavaScript tracker for Snowplow",
   "repository": {

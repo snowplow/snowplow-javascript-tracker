@@ -117,7 +117,7 @@
 				trackerDictionary[namespace] = new TrackerConstructor(functionName, namespace, version, pageViewId, mutSnowplowState, argmap);
 				trackerDictionary[namespace].setCollectorUrl(endpoint);
 			} else {
-				helpers.warn('Tracker namespace ' + namespace + ' already exists.')
+				helpers.warn('Tracker namespace ' + namespace + ' already exists.');
 			}
 		}
 
