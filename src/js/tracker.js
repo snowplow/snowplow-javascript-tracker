@@ -758,15 +758,24 @@
 			if (window['optimizely']) {
 
 				if (autoContexts.optimizelyExperiments) {
-					combinedContexts = combinedContexts.concat(getOptimizelyExperimentContexts());
+					var experimentContexts = getOptimizelyExperimentContexts();
+					for (var i = 0; i < experimentContexts.length; i++) {
+						combinedContexts.push(experimentContexts[i]);
+					}
 				}
 
 				if (autoContexts.optimizelyStates) {
-					combinedContexts = combinedContexts.concat(getOptimizelyStateContexts());
+					var stateContexts = getOptimizelyStateContexts();
+					for (var i = 0; i < stateContexts.length; i++) {
+						combinedContexts.push(stateContexts[i]);
+					}
 				}
 
 				if (autoContexts.optimizelyVariations) {
-					combinedContexts = combinedContexts.concat(getOptimizelyVariationContexts());
+					var variationContexts = getOptimizelyVariationContexts();
+					for (var i = 0; i < variationContexts.length; i++) {
+						combinedContexts.push(variationContexts[i]);
+					}
 				}
 
 				if (autoContexts.optimizelyVisitor) {
@@ -777,11 +786,17 @@
 				}
 
 				if (autoContexts.optimizelyAudiences) {
-					combinedContexts = combinedContexts.concat(getOptimizelyAudienceContexts());
+					var audienceContexts = getOptimizelyAudienceContexts();
+					for (var i = 0; i < audienceContexts.length; i++) {
+						combinedContexts.push(audienceContexts[i]);
+					}
 				}
 
 				if (autoContexts.optimizelyDimensions) {
-					combinedContexts = combinedContexts.concat(getOptimizelyDimensionContexts());
+					var dimensionContexts = getOptimizelyDimensionContexts();
+					for (var i = 0; i < dimensionContexts.length; i++) {
+						combinedContexts.push(dimensionContexts[i]);
+					}
 				}
 			}
 
@@ -860,19 +875,21 @@
 				var contexts = [];
 
 				for (var key in experiments) {
-					var context = {};
-					context['id'] = key;
-					var e = experiments[key];
-					if (e.hasOwnProperty('code')) context['code'] = e.code; 
-					if (e.hasOwnProperty('manual')) context['manual'] = e.manual;
-					if (e.hasOwnProperty('conditional')) context['conditional'] = e.conditional;
-					if (e.hasOwnProperty('name')) context['name'] = e.name;
-					if (e.hasOwnProperty('variation_ids')) context['variationIds'] = e.variation_ids;
+					if (experiments.hasOwnProperty(key)) {
+						var context = {};
+						context['id'] = key;
+						var experiment = experiments[key];
+						context['code'] = experiment.code; 
+						context['manual'] = experiment.manual;
+						context['conditional'] = experiment.conditional;
+						context['name'] = experiment.name;
+						context['variationIds'] = experiment.variation_ids;
 
-					contexts.push({
-						schema: 'iglu:com.optimizely/experiment/jsonschema/1-0-0',
-						data: context
-					});
+						contexts.push({
+							schema: 'iglu:com.optimizely/experiment/jsonschema/1-0-0',
+							data: context
+						});
+					}
 				}
 				return contexts;
 			}
@@ -889,26 +906,30 @@
 			var experiments = window['optimizely'].data.experiments;
 			if (experiments) {
 				for (var key in experiments) {
-					experimentIds.push(key);
+					if (experiments.hasOwnProperty(key)) {
+						experimentIds.push(key);
+					}
 				}
 			}
 
 			var state = window['optimizely'].data.state;
 			if (state) {
 				var contexts = [];
-				var activeExperiments = state.hasOwnProperty('activeExperiments') ? state.activeExperiments : [];
+				var activeExperiments = state.activeExperiments || [];
 
 				for (var i = 0; i < experimentIds.length; i++) {
 					var experimentId = experimentIds[i];
 					var context = {};
 					context['experimentId'] = experimentId;
 					context['isActive'] = helpers.isValueInArray(experimentIds[i], activeExperiments);
-					var variationMap = state.hasOwnProperty('variationMap') ? state.variationMap : {};
-					if (variationMap.hasOwnProperty(experimentId)) context['variationIndex'] = variationMap[experimentId];
-					var variationIdsMap = state.hasOwnProperty('variationIdsMap') ? state.variationIdsMap : {};
-					if (variationIdsMap.hasOwnProperty(experimentId) && variationIdsMap[experimentId].length === 1) context['variationId'] = variationIdsMap[experimentId][0];
-					var variationNamesMap = state.hasOwnProperty('variationNamesMap') ? state.variationNamesMap : {};
-					if (variationNamesMap.hasOwnProperty(experimentId)) context['variationName'] = variationNamesMap[experimentId];
+					var variationMap = state.variationMap || {};
+					context['variationIndex'] = variationMap[experimentId];
+					var variationNamesMap = state.variationNamesMap || {};
+					context['variationName'] = variationNamesMap[experimentId];
+					var variationIdsMap = state.variationIdsMap || {};
+					if (variationIdsMap[experimentId] && variationIdsMap[experimentId].length === 1) {
+						context['variationId'] = variationIdsMap[experimentId][0];
+					}
 
 					contexts.push({
 						schema: 'iglu:com.optimizely/state/jsonschema/1-0-0',
@@ -931,16 +952,18 @@
 				var contexts = [];
 
 				for (var key in variations) {
-					var context = {};
-					context['id'] = key;
-					var variation = variations[key];
-					if (variation.hasOwnProperty('name')) context['name'] = variation.name;
-					if (variation.hasOwnProperty('code')) context['code'] = variation.code;
+					if (variations.hasOwnProperty(key)) {
+						var context = {};
+						context['id'] = key;
+						var variation = variations[key];
+						context['name'] = variation.name;
+						context['code'] = variation.code;
 
-					contexts.push({
-						schema: 'iglu:com.optimizely/variation/jsonschema/1-0-0',
-						data: context
-					});
+						contexts.push({
+							schema: 'iglu:com.optimizely/variation/jsonschema/1-0-0',
+							data: context
+						});
+					}
 				}
 				return contexts;
 			}
@@ -956,22 +979,22 @@
 			var visitor = window['optimizely'].data.visitor;
 			if (visitor) {
 				var context = {};
-				if (visitor.hasOwnProperty('browser')) context['browser'] = visitor.browser;
-				if (visitor.hasOwnProperty('browserVersion')) context['browserVersion'] = visitor.browserVersion;
-				if (visitor.hasOwnProperty('device')) context['device'] = visitor.device;
-				if (visitor.hasOwnProperty('deviceType')) context['deviceType'] = visitor.deviceType;
-				if (visitor.hasOwnProperty('ip')) context['ip'] = visitor.ip;
-				var platform = visitor.hasOwnProperty('platform') && visitor.platform ? visitor.platform : {};
-				if (platform.hasOwnProperty('id')) context['platformId'] = platform.id;
-				if (platform.hasOwnProperty('version')) context['platformVersion'] = platform.version;
-				var location = visitor.hasOwnProperty('location') && visitor.location ? visitor.location : {};
-				if (location.hasOwnProperty('city')) context['locationCity'] = location.city;
-				if (location.hasOwnProperty('region')) context['locationRegion'] = location.region;
-				if (location.hasOwnProperty('country')) context['locationCountry'] = location.country;
-				if (visitor.hasOwnProperty('mobile')) context['mobile'] = visitor.mobile;
-				if (visitor.hasOwnProperty('mobileId')) context['mobileId'] = visitor.mobileId;
-				if (visitor.hasOwnProperty('referrer')) context['referrer'] = visitor.referrer;
-				if (visitor.hasOwnProperty('os')) context['os'] = visitor.os;
+				context['browser'] = visitor.browser;
+				context['browserVersion'] = visitor.browserVersion;
+				context['device'] = visitor.device;
+				context['deviceType'] = visitor.deviceType;
+				context['ip'] = visitor.ip;
+				var platform = visitor.platform || {};
+				context['platformId'] = platform.id;
+				context['platformVersion'] = platform.version;
+				var location = visitor.location || {};
+				context['locationCity'] = location.city;
+				context['locationRegion'] = location.region;
+				context['locationCountry'] = location.country;
+				context['mobile'] = visitor.mobile;
+				context['mobileId'] = visitor.mobileId;
+				context['referrer'] = visitor.referrer;
+				context['os'] = visitor.os;
 
 				return {
 					schema: 'iglu:com.optimizely/visitor/jsonschema/1-0-0',
@@ -991,14 +1014,16 @@
 				var contexts = [];
 
 				for (var key in audienceIds) {
-					var context = {};
-					context['id'] = key;
-					context['isMember'] = audienceIds[key]; 
+					if (audienceIds.hasOwnProperty(key)) {
+						var context = {};
+						context['id'] = key;
+						context['isMember'] = audienceIds[key]; 
 
-					contexts.push({
-						schema: 'iglu:com.optimizely/visitor_audience/jsonschema/1-0-0',
-						data: context
-					});
+						contexts.push({
+							schema: 'iglu:com.optimizely/visitor_audience/jsonschema/1-0-0',
+							data: context
+						});
+					}
 				}
 				return contexts;
 			}
@@ -1016,14 +1041,16 @@
 				var contexts = [];
 
 				for (var key in dimensionIds) {
-					var context = {};
-					context['id'] = key;
-					context['value'] = dimensionIds[key]; 
+					if (dimensionIds.hasOwnProperty(key)) {
+						var context = {};
+						context['id'] = key;
+						context['value'] = dimensionIds[key]; 
 
-					contexts.push({
-						schema: 'iglu:com.optimizely/visitor_dimension/jsonschema/1-0-0',
-						data: context
-					});
+						contexts.push({
+							schema: 'iglu:com.optimizely/visitor_dimension/jsonschema/1-0-0',
+							data: context
+						});
+					}
 				}
 				return contexts;
 			}
@@ -1039,22 +1066,15 @@
 			var augur = window['augur'];
 			if (augur) {
 				var context = { consumer: {}, device: {} };
-				var consumer = augur.hasOwnProperty('consumer') ? augur.consumer : {};
-				if (consumer.hasOwnProperty('UID')) context['consumer']['UUID'] = consumer.UID;
-				var device = augur.hasOwnProperty('device') ? augur.device : {};
-				if (device.hasOwnProperty('ID')) context['device']['ID'] = device.ID;
-				if (device.hasOwnProperty('isBot')) context['device']['isBot'] = device.isBot;
-				if (device.hasOwnProperty('isProxied')) context['device']['isProxied'] = device.isProxied;
-				if (device.hasOwnProperty('isTor')) context['device']['isTor'] = device.isTor;
-
-				// isIncognito can be found in two places
-				if (device.hasOwnProperty('isIncognito')) context['device']['isIncognito'] = device.isIncognito;
-				if (!context.device.hasOwnProperty('isIncognito')) {
-					var fingerprint = device.hasOwnProperty('fingerprint') ? device.fingerprint : {};
-					if (fingerprint.hasOwnProperty('browserHasIncognitoEnabled')) {
-						context['device']['isIncognito'] = fingerprint.browserHasIncognitoEnabled;
-					}
-				}
+				var consumer = augur.consumer || {};
+				context['consumer']['UUID'] = consumer.UID;
+				var device = augur.device || {};
+				context['device']['ID'] = device.ID;
+				context['device']['isBot'] = device.isBot;
+				context['device']['isProxied'] = device.isProxied;
+				context['device']['isTor'] = device.isTor;
+				var fingerprint = device.fingerprint || {};
+				context['device']['isIncognito'] = fingerprint.browserHasIncognitoEnabled;
 
 				return {
 					schema: 'iglu:io.augur.snowplow/identity_lite/jsonschema/1-0-0',
