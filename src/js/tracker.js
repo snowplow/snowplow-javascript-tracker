@@ -816,6 +816,12 @@
 		 * @return object PerformanceTiming context
 		 */
 		function getPerformanceTimingContext() {
+			var allowedKeys = [
+				'navigationStart', 'redirectStart', 'redirectEnd', 'fetchStart', 'domainLookupStart', 'domainLookupEnd', 'connectStart', 
+				'secureConnectionStart', 'connectEnd', 'requestStart', 'responseStart', 'responseEnd', 'unloadEventStart', 'unloadEventEnd',
+				'domLoading', 'domInteractive', 'domContentLoadedEventStart', 'domContentLoadedEventEnd', 'domComplete', 'loadEventStart', 
+				'loadEventEnd', 'msFirstPaint', 'chromeFirstPaint', 'requestEnd', 'proxyStart', 'proxyEnd'
+			];
 			var performance = windowAlias.performance || windowAlias.mozPerformance || windowAlias.msPerformance || windowAlias.webkitPerformance;
 			if (performance) {
 
@@ -823,8 +829,7 @@
 				// performance.timing so we cannot copy them using lodash.clone
 				var performanceTiming = {};
 				for (var field in performance.timing) {
-					// Don't copy the toJSON method
-					if (!lodash.isFunction(performance.timing[field])) {
+					if (helpers.isValueInArray(field, allowedKeys)) {
 						performanceTiming[field] = performance.timing[field];
 					}
 				}
