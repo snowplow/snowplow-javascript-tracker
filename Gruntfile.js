@@ -197,7 +197,7 @@ module.exports = function(grunt) {
         secretAccessKey: '<%= aws.secret %>',
         bucket: '<%= aws.bucket %>',
         access: 'public-read',
-        region: 'eu-west-1',
+        region: '<%= aws.region %>',
         gzip: true,
         cache: false
       },
@@ -210,7 +210,7 @@ module.exports = function(grunt) {
         files: [
           {
             src: ["dist/sp.js"],
-            dest: "<%= pkg.version %>/sp.js"
+            dest: "<%= aws.uploadPath %>"
           }
         ]
       },
@@ -223,7 +223,7 @@ module.exports = function(grunt) {
         files: [
           {
             src: ["dist/sp.js"],
-            dest: "<%= pkg.pinnedVersion %>/sp.js"
+            dest: "<%= aws.uploadPath %>"
           }
         ]
       }
@@ -238,14 +238,14 @@ module.exports = function(grunt) {
       not_pinned: {
         options: {
           invalidations: [
-            '/<%= pkg.version %>/sp.js'
+            '/<%= aws.uploadPath %>'
           ]
         }
       },
       pinned: {
         options: {
           invalidations: [
-            '/<%= pkg.pinnedVersion %>/sp.js'
+            '/<%= aws.uploadPath %>'
           ]
         }
       }
