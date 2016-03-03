@@ -112,8 +112,13 @@
 		 */
 		function createNewNamespace(namespace, endpoint, argmap) {
 			argmap = argmap || {};
-			trackerDictionary[namespace] = new TrackerConstructor(functionName, namespace, version, pageViewId, mutSnowplowState, argmap);
-			trackerDictionary[namespace].setCollectorUrl(endpoint);
+
+			if (!trackerDictionary.hasOwnProperty(namespace)) {
+				trackerDictionary[namespace] = new TrackerConstructor(functionName, namespace, version, pageViewId, mutSnowplowState, argmap);
+				trackerDictionary[namespace].setCollectorUrl(endpoint);
+			} else {
+				helpers.warn('Tracker namespace ' + namespace + ' already exists.');
+			}
 		}
 
 		/**
