@@ -74,14 +74,16 @@
 	 * 8. userFingerprintSeed, 123412414
 	 * 9. pageUnloadTimer, 500
 	 * 10. forceSecureTracker, false
-	 * 11. useLocalStorage, true
-	 * 12. useCookies, true
-	 * 13. sessionCookieTimeout, 1800
-	 * 14. contexts, {}
-	 * 15. post, false
-	 * 16. bufferSize, 1
-	 * 17. crossDomainLinker, false
-	 * 18. maxPostBytes, 40000
+	 * 11. forceUnsecureTracker, false
+	 * 12. useLocalStorage, true
+	 * 13. useCookies, true
+	 * 14. sessionCookieTimeout, 1800
+	 * 15. contexts, {}
+	 * 16. post, false
+	 * 17. bufferSize, 1
+	 * 18. crossDomainLinker, false
+	 * 19. maxPostBytes, 40000
+	 * 20. discoverRootDomain, false
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, pageViewId, mutSnowplowState, argmap) {
 
@@ -155,7 +157,7 @@
 			configCookiePath = '/',
 
 			// Do Not Track browser feature
-			dnt = navigatorAlias.doNotTrack || navigatorAlias.msDoNotTrack,
+			dnt = navigatorAlias.doNotTrack || navigatorAlias.msDoNotTrack || windowAlias.doNotTrack,
 
 			// Do Not Track
 			configDoNotTrack = argmap.hasOwnProperty('respectDoNotTrack') ? argmap.respectDoNotTrack && (dnt === 'yes' || dnt === '1') : false,
@@ -177,6 +179,9 @@
 
 			// This forces the tracker to be HTTPS even if the page is not secure
 			forceSecureTracker = argmap.hasOwnProperty('forceSecureTracker') ? (argmap.forceSecureTracker === true) : false,
+
+			// This forces the tracker to be HTTP even if the page is secure
+			forceUnsecureTracker = !forceSecureTracker && argmap.hasOwnProperty('forceUnsecureTracker') ? (argmap.forceUnsecureTracker === true) : false,
 
 			// Whether to use localStorage to store events between sessions while offline
 			useLocalStorage = argmap.hasOwnProperty('useLocalStorage') ? argmap.useLocalStorage : true,
@@ -256,7 +261,14 @@
 			autoContexts = argmap.contexts || {},
 
 			// Context to be added to every event
-			commonContexts = [];
+			commonContexts = [],
+
+			// Enhanced Ecommerce Contexts to be added on every `trackEnhancedEcommerceAction` call
+			enhancedEcommerceContexts = [];
+
+		if (argmap.hasOwnProperty('discoverRootDomain') && argmap.discoverRootDomain) {
+			configCookieDomain = helpers.findRootDomain();
+		}
 
 		if (autoContexts.webPage) {
 			commonContexts.push(getWebPageContext());
@@ -540,14 +552,9 @@
 
 		/**
 		 * Generate a pseudo-unique ID to fingerprint this user
-		 * Note: this isn't a RFC4122-compliant UUID
 		 */
 		function createNewDomainUserId() {
-			return hash(
-				(navigatorAlias.userAgent || '') +
-					(navigatorAlias.platform || '') +
-					json2.stringify(browserFeatures) + Math.round(new Date().getTime() / 1000)
-			).slice(0, 16); // 16 hexits = 64 bits
+			return uuid.v4();
 		}
 
 		/*
@@ -723,10 +730,13 @@
 		 * @return string collectorUrl The tracker URL with protocol
 		 */
 		function asCollectorUrl(rawUrl) {
-			if (forceSecureTracker)
+			if (forceSecureTracker) {
 				return ('https' + '://' + rawUrl);
-			else
-				return ('https:' === documentAlias.location.protocol ? 'https' : 'http') + '://' + rawUrl;
+			} 
+			if (forceUnsecureTracker) {
+				return ('http' + '://' + rawUrl);
+			} 
+			return ('https:' === documentAlias.location.protocol ? 'https' : 'http') + '://' + rawUrl;
 		}
 
 		/**
@@ -738,12 +748,69 @@
 		 */
 		function addCommonContexts(userContexts) {
 			var combinedContexts = commonContexts.concat(userContexts || []);
+
+			// Add PerformanceTiming Context
 			if (autoContexts.performanceTiming) {
 				var performanceTimingContext = getPerformanceTimingContext();
 				if (performanceTimingContext) {
 					combinedContexts.push(performanceTimingContext);
 				}
 			}
+
+			// Add Optimizely Contexts
+			if (window['optimizely']) {
+
+				if (autoContexts.optimizelyExperiments) {
+					var experimentContexts = getOptimizelyExperimentContexts();
+					for (var i = 0; i < experimentContexts.length; i++) {
+						combinedContexts.push(experimentContexts[i]);
+					}
+				}
+
+				if (autoContexts.optimizelyStates) {
+					var stateContexts = getOptimizelyStateContexts();
+					for (var i = 0; i < stateContexts.length; i++) {
+						combinedContexts.push(stateContexts[i]);
+					}
+				}
+
+				if (autoContexts.optimizelyVariations) {
+					var variationContexts = getOptimizelyVariationContexts();
+					for (var i = 0; i < variationContexts.length; i++) {
+						combinedContexts.push(variationContexts[i]);
+					}
+				}
+
+				if (autoContexts.optimizelyVisitor) {
+					var optimizelyVisitorContext = getOptimizelyVisitorContext();
+					if (optimizelyVisitorContext) {
+						combinedContexts.push(optimizelyVisitorContext);
+					}
+				}
+
+				if (autoContexts.optimizelyAudiences) {
+					var audienceContexts = getOptimizelyAudienceContexts();
+					for (var i = 0; i < audienceContexts.length; i++) {
+						combinedContexts.push(audienceContexts[i]);
+					}
+				}
+
+				if (autoContexts.optimizelyDimensions) {
+					var dimensionContexts = getOptimizelyDimensionContexts();
+					for (var i = 0; i < dimensionContexts.length; i++) {
+						combinedContexts.push(dimensionContexts[i]);
+					}
+				}
+			}
+
+			// Add Augur Context
+			if (autoContexts.augurIdentityLite) {
+				var augurIdentityLiteContext = getAugurIdentityLiteContext();
+				if (augurIdentityLiteContext) {
+					combinedContexts.push(augurIdentityLiteContext);
+				}
+			}
+
 			return combinedContexts;
 		}
 
@@ -767,6 +834,12 @@
 		 * @return object PerformanceTiming context
 		 */
 		function getPerformanceTimingContext() {
+			var allowedKeys = [
+				'navigationStart', 'redirectStart', 'redirectEnd', 'fetchStart', 'domainLookupStart', 'domainLookupEnd', 'connectStart', 
+				'secureConnectionStart', 'connectEnd', 'requestStart', 'responseStart', 'responseEnd', 'unloadEventStart', 'unloadEventEnd',
+				'domLoading', 'domInteractive', 'domContentLoadedEventStart', 'domContentLoadedEventEnd', 'domComplete', 'loadEventStart', 
+				'loadEventEnd', 'msFirstPaint', 'chromeFirstPaint', 'requestEnd', 'proxyStart', 'proxyEnd'
+			];
 			var performance = windowAlias.performance || windowAlias.mozPerformance || windowAlias.msPerformance || windowAlias.webkitPerformance;
 			if (performance) {
 
@@ -774,8 +847,7 @@
 				// performance.timing so we cannot copy them using lodash.clone
 				var performanceTiming = {};
 				for (var field in performance.timing) {
-					// Don't copy the toJSON method
-					if (!lodash.isFunction(performance.timing[field])) {
+					if (helpers.isValueInArray(field, allowedKeys)) {
 						performanceTiming[field] = performance.timing[field];
 					}
 				}
@@ -791,6 +863,225 @@
 				return {
 					schema: 'iglu:org.w3/PerformanceTiming/jsonschema/1-0-0',
 					data: performanceTiming
+				};
+			}
+		}
+
+		/**
+		 * Creates a context from the window['optimizely'].data.experiments object
+		 *
+		 * @return array Experiment contexts
+		 */
+		function getOptimizelyExperimentContexts() {
+			var experiments = window['optimizely'].data.experiments;
+			if (experiments) {
+				var contexts = [];
+
+				for (var key in experiments) {
+					if (experiments.hasOwnProperty(key)) {
+						var context = {};
+						context['id'] = key;
+						var experiment = experiments[key];
+						context['code'] = experiment.code; 
+						context['manual'] = experiment.manual;
+						context['conditional'] = experiment.conditional;
+						context['name'] = experiment.name;
+						context['variationIds'] = experiment.variation_ids;
+
+						contexts.push({
+							schema: 'iglu:com.optimizely/experiment/jsonschema/1-0-0',
+							data: context
+						});
+					}
+				}
+				return contexts;
+			}
+			return [];
+		}
+
+		/**
+		 * Creates a context from the window['optimizely'].data.state object
+		 *
+		 * @return array State contexts
+		 */
+		function getOptimizelyStateContexts() {
+			var experimentIds = [];
+			var experiments = window['optimizely'].data.experiments;
+			if (experiments) {
+				for (var key in experiments) {
+					if (experiments.hasOwnProperty(key)) {
+						experimentIds.push(key);
+					}
+				}
+			}
+
+			var state = window['optimizely'].data.state;
+			if (state) {
+				var contexts = [];
+				var activeExperiments = state.activeExperiments || [];
+
+				for (var i = 0; i < experimentIds.length; i++) {
+					var experimentId = experimentIds[i];
+					var context = {};
+					context['experimentId'] = experimentId;
+					context['isActive'] = helpers.isValueInArray(experimentIds[i], activeExperiments);
+					var variationMap = state.variationMap || {};
+					context['variationIndex'] = variationMap[experimentId];
+					var variationNamesMap = state.variationNamesMap || {};
+					context['variationName'] = variationNamesMap[experimentId];
+					var variationIdsMap = state.variationIdsMap || {};
+					if (variationIdsMap[experimentId] && variationIdsMap[experimentId].length === 1) {
+						context['variationId'] = variationIdsMap[experimentId][0];
+					}
+
+					contexts.push({
+						schema: 'iglu:com.optimizely/state/jsonschema/1-0-0',
+						data: context
+					});
+				}
+				return contexts;
+			}
+			return [];
+		}
+
+		/**
+		 * Creates a context from the window['optimizely'].data.variations object
+		 *
+		 * @return array Variation contexts
+		 */
+		function getOptimizelyVariationContexts() {
+			var variations = window['optimizely'].data.variations;
+			if (variations) {
+				var contexts = [];
+
+				for (var key in variations) {
+					if (variations.hasOwnProperty(key)) {
+						var context = {};
+						context['id'] = key;
+						var variation = variations[key];
+						context['name'] = variation.name;
+						context['code'] = variation.code;
+
+						contexts.push({
+							schema: 'iglu:com.optimizely/variation/jsonschema/1-0-0',
+							data: context
+						});
+					}
+				}
+				return contexts;
+			}
+			return [];
+		}
+
+		/**
+		 * Creates a context from the window['optimizely'].data.visitor object
+		 *
+		 * @return object Visitor context
+		 */
+		function getOptimizelyVisitorContext() {
+			var visitor = window['optimizely'].data.visitor;
+			if (visitor) {
+				var context = {};
+				context['browser'] = visitor.browser;
+				context['browserVersion'] = visitor.browserVersion;
+				context['device'] = visitor.device;
+				context['deviceType'] = visitor.deviceType;
+				context['ip'] = visitor.ip;
+				var platform = visitor.platform || {};
+				context['platformId'] = platform.id;
+				context['platformVersion'] = platform.version;
+				var location = visitor.location || {};
+				context['locationCity'] = location.city;
+				context['locationRegion'] = location.region;
+				context['locationCountry'] = location.country;
+				context['mobile'] = visitor.mobile;
+				context['mobileId'] = visitor.mobileId;
+				context['referrer'] = visitor.referrer;
+				context['os'] = visitor.os;
+
+				return {
+					schema: 'iglu:com.optimizely/visitor/jsonschema/1-0-0',
+					data: context
+				};
+			}
+		}
+
+		/**
+		 * Creates a context from the window['optimizely'].data.visitor.audiences object
+		 *
+		 * @return array VisitorAudience contexts
+		 */
+		function getOptimizelyAudienceContexts() {
+			var audienceIds = window['optimizely'].data.visitor.audiences;
+			if (audienceIds) {
+				var contexts = [];
+
+				for (var key in audienceIds) {
+					if (audienceIds.hasOwnProperty(key)) {
+						var context = {};
+						context['id'] = key;
+						context['isMember'] = audienceIds[key]; 
+
+						contexts.push({
+							schema: 'iglu:com.optimizely/visitor_audience/jsonschema/1-0-0',
+							data: context
+						});
+					}
+				}
+				return contexts;
+			}
+			return [];
+		}
+
+		/**
+		 * Creates a context from the window['optimizely'].data.visitor.dimensions object
+		 *
+		 * @return array VisitorDimension contexts
+		 */
+		function getOptimizelyDimensionContexts() {
+			var dimensionIds = window['optimizely'].data.visitor.dimensions;
+			if (dimensionIds) {
+				var contexts = [];
+
+				for (var key in dimensionIds) {
+					if (dimensionIds.hasOwnProperty(key)) {
+						var context = {};
+						context['id'] = key;
+						context['value'] = dimensionIds[key]; 
+
+						contexts.push({
+							schema: 'iglu:com.optimizely/visitor_dimension/jsonschema/1-0-0',
+							data: context
+						});
+					}
+				}
+				return contexts;
+			}
+			return [];
+		}
+
+		/**
+		 * Creates a context from the window['augur'] object
+		 *
+		 * @return object The IdentityLite context
+		 */
+		function getAugurIdentityLiteContext() {
+			var augur = window['augur'];
+			if (augur) {
+				var context = { consumer: {}, device: {} };
+				var consumer = augur.consumer || {};
+				context['consumer']['UUID'] = consumer.UID;
+				var device = augur.device || {};
+				context['device']['ID'] = device.ID;
+				context['device']['isBot'] = device.isBot;
+				context['device']['isProxied'] = device.isProxied;
+				context['device']['isTor'] = device.isTor;
+				var fingerprint = device.fingerprint || {};
+				context['device']['isIncognito'] = fingerprint.browserHasIncognitoEnabled;
+
+				return {
+					schema: 'iglu:io.augur.snowplow/identity_lite/jsonschema/1-0-0',
+					data: context
 				};
 			}
 		}
@@ -1184,6 +1475,7 @@
 			 * @param int timeout
 			 */
 			setSessionCookieTimeout: function (timeout) {
+				helpers.warn('setSessionCookieTimeout is deprecated. Instead add a "sessionCookieTimeout" field to the argmap argument of newTracker.')
 				configSessionCookieTimeout = timeout;
 			},
 
@@ -1718,6 +2010,143 @@
 						label: label
 					}
 				}, addCommonContexts(context))
+			},
+
+			/**
+			 * Track a GA Enhanced Ecommerce Action with all stored
+			 * Enhanced Ecommerce contexts
+			 *
+			 * @param string action
+			 * @param array context Optional. Context relating to the event.
+			 */
+			trackEnhancedEcommerceAction: function (action, context) {
+				var combinedEnhancedEcommerceContexts = enhancedEcommerceContexts.concat(context || []);
+				enhancedEcommerceContexts.length = 0;
+
+				core.trackUnstructEvent({
+					schema: 'iglu:com.google.analytics.enhanced-ecommerce/action/jsonschema/1-0-0',
+					data: {
+						action: action
+					}
+				}, addCommonContexts(combinedEnhancedEcommerceContexts));
+			},
+
+			/**
+			 * Adds a GA Enhanced Ecommerce Action Context
+			 *
+			 * @param string id
+			 * @param string affiliation
+			 * @param number revenue
+			 * @param number tax
+			 * @param number shipping
+			 * @param string coupon
+			 * @param string list
+			 * @param integer step
+			 * @param string option
+			 * @param string currency
+			 */
+			addEnhancedEcommerceActionContext: function (id, affiliation, revenue, tax, shipping, coupon, list, step, option, currency) {
+				enhancedEcommerceContexts.push({
+					schema: 'iglu:com.google.analytics.enhanced-ecommerce/actionFieldObject/jsonschema/1-0-0',
+					data: {
+						id: id,
+						affiliation: affiliation,
+						revenue: helpers.parseFloat(revenue),
+						tax: helpers.parseFloat(tax),
+						shipping: helpers.parseFloat(shipping),
+						coupon: coupon,
+						list: list,
+						step: helpers.parseInt(step),
+						option: option,
+						currency: currency
+					}
+				});
+			},
+
+			/**
+			 * Adds a GA Enhanced Ecommerce Impression Context
+			 *
+			 * @param string id
+			 * @param string name
+			 * @param string list
+			 * @param string brand
+			 * @param string category
+			 * @param string variant
+			 * @param integer position
+			 * @param number price
+			 * @param string currency
+			 */
+			addEnhancedEcommerceImpressionContext: function (id, name, list, brand, category, variant, position, price, currency) {
+				enhancedEcommerceContexts.push({
+					schema: 'iglu:com.google.analytics.enhanced-ecommerce/impressionFieldObject/jsonschema/1-0-0',
+					data: {
+						id: id,
+						name: name,
+						list: list,
+						brand: brand,
+						category: category,
+						variant: variant,
+						position: helpers.parseInt(position),
+						price: helpers.parseFloat(price),
+						currency: currency
+					}
+				});
+			},
+
+			/**
+			 * Adds a GA Enhanced Ecommerce Product Context
+			 *
+			 * @param string id
+			 * @param string name
+			 * @param string list
+			 * @param string brand
+			 * @param string category
+			 * @param string variant
+			 * @param number price
+			 * @param integer quantity
+			 * @param string coupon
+			 * @param integer position
+			 * @param string currency
+			 */
+			addEnhancedEcommerceProductContext: function (id, name, list, brand, category, variant, price, quantity, coupon, position, currency) {
+				enhancedEcommerceContexts.push({
+					schema: 'iglu:com.google.analytics.enhanced-ecommerce/productFieldObject/jsonschema/1-0-0',
+					data: {
+						id: id,
+						name: name,
+						list: list,
+						brand: brand,
+						category: category,
+						variant: variant,
+						price: helpers.parseFloat(price),
+						quantity: helpers.parseInt(quantity),
+						coupon: coupon,
+						position: helpers.parseInt(position),
+						currency: currency
+					}
+				});
+			},
+
+			/**
+			 * Adds a GA Enhanced Ecommerce Promo Context
+			 *
+			 * @param string id
+			 * @param string name
+			 * @param string creative
+			 * @param string position
+			 * @param string currency
+			 */
+			addEnhancedEcommercePromoContext: function (id, name, creative, position, currency) {
+				enhancedEcommerceContexts.push({
+					schema: 'iglu:com.google.analytics.enhanced-ecommerce/promoFieldObject/jsonschema/1-0-0',
+					data: {
+						id: id,
+						name: name,
+						creative: creative,
+						position: position,
+						currency: currency
+					}
+				});
 			}
 		};
 	};

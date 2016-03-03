@@ -181,8 +181,7 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-yui-compressor');
-  grunt.loadNpmTasks('grunt-s3');
-  grunt.loadNpmTasks('grunt-cloudfront');
+  grunt.loadNpmTasks('grunt-aws');
   grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('intern');
   grunt.loadNpmTasks('grunt-lodash');
@@ -194,63 +193,60 @@ module.exports = function(grunt) {
 
     grunt.config('s3', {
       options: {
-        key: '<%= aws.key %>',
-        secret: '<%= aws.secret %>',
+        accessKeyId: '<%= aws.key %>',
+        secretAccessKey: '<%= aws.secret %>',
         bucket: '<%= aws.bucket %>',
         access: 'public-read',
-        gzip: true
+        region: '<%= aws.region %>',
+        gzip: true,
+        cache: false
       },
       not_pinned: {
         options: {
           headers: {
-            'Cache-Control': 'max-age=315360000'
+            CacheControl: "max-age=315360000"
           }
         },
-        upload: [
+        files: [
           {
-            src: 'dist/sp.js',
-            dest: '<%= pkg.version %>/sp.js'
+            src: ["dist/sp.js"],
+            dest: "<%= aws.uploadPath %>"
           }
         ]
       },
       pinned: {
         options: {
           headers: {
-            'Cache-Control': 'max-age=3600'
+            CacheControl: "max-age=3600"
           }
         },
-        upload: [
+        files: [
           {
-            src: 'dist/sp.js',
-            dest: '<%= pkg.pinnedVersion %>/sp.js'
-          }        
+            src: ["dist/sp.js"],
+            dest: "<%= aws.uploadPath %>"
+          }
         ]
-      },  
+      }
     });
 
     grunt.config('cloudfront', {
       options: {
-        region: 'eu-east-1',
-        distributionId: '<%= aws.distribution %>',
-        listInvalidations: true,
-        listDistributions: true,
-        credentials: {
-          accessKeyId: '<%= aws.key %>',
-          secretAccessKey: '<%= aws.secret %>'
-        }
+        accessKeyId: '<%= aws.key %>',
+        secretAccessKey: '<%= aws.secret %>',
+        distributionId: '<%= aws.distribution %>'
       },
       not_pinned: {
-        CallerReference: Date.now().toString(),
-        Paths: {
-          Quantity: 1,
-          Items: ['/<%= pkg.version %>/sp.js']
+        options: {
+          invalidations: [
+            '/<%= aws.uploadPath %>'
+          ]
         }
       },
       pinned: {
-        CallerReference: Date.now().toString(),
-        Paths: {
-          Quantity: 1,
-          Items: ['/<%= pkg.pinnedVersion %>/sp.js']
+        options: {
+          invalidations: [
+            '/<%= aws.uploadPath %>'
+          ]
         }
       }
     });
