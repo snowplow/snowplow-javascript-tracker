@@ -1,3 +1,8 @@
+Version 2.6.1 (2016-xx-xx)
+--------------------------
+Prevent CSS class listing from failing for elements with no CSS classes (#473)
+Explicitly set suites field in Intern config (#475)
+
 Version 2.6.0 (2016-03-03)
 --------------------------
 Bumped ngrok version used in CI to 2.x (#460)
