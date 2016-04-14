@@ -65,6 +65,8 @@ define({
 	// used here
 	loaderOptions: {},
 
+	suites: [],
+
 	// Functional test suite(s) to run in each browser once non-functional tests are completed
 	functionalSuites: ['tests/integration/setup', 'tests/integration/integration', 'tests/functional/helpers','tests/functional/detectors'],
 
