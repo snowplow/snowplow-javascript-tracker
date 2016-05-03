@@ -1,5 +1,5 @@
 {
-  "name": "snowplow-tracker",
+  "name": "snowplow-tracker-mint-branch",
   "version": "2.6.2",
   "devDependencies": {
     "JSON": "~1.0.0",
