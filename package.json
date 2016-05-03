@@ -1,5 +1,5 @@
 {
-  "name": "snowplow-tracker",
+  "name": "snowplow-tracker-mint-branch",
   "version": "2.8.2",
   "dependencies": {
     "browser-cookie-lite": "0.3.1",
