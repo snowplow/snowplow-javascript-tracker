@@ -554,7 +554,7 @@
 		 * Generate a pseudo-unique ID to fingerprint this user
 		 */
 		function createNewDomainUserId() {
-			return configTrackerSiteId + "." + uuid.v4();;
+			return configTrackerSiteId + "--" + uuid.v4();
 		}
 
 		/*
