@@ -127,12 +127,13 @@
 		{
 			for(var i = 0; i < navigatorAlias.plugins.length; i++)
 			{
-				var mt = [];
-				for(var j = 0; j < navigatorAlias.plugins[i].length; j++)
-				{
-					mt.push([navigatorAlias.plugins[i][j].type, navigatorAlias.plugins[i][j].suffixes]);
+				if (navigatorAlias.plugins[i]) {
+					var mt = [];
+					for(var j = 0; j < navigatorAlias.plugins[i].length; j++) {
+						mt.push([navigatorAlias.plugins[i][j].type, navigatorAlias.plugins[i][j].suffixes]);
+					}
+					plugins.push([navigatorAlias.plugins[i].name + "::" + navigatorAlias.plugins[i].description, mt.join("~")]);
 				}
-				plugins.push([navigatorAlias.plugins[i].name + "::" + navigatorAlias.plugins[i].description, mt.join("~")]);
 			}
 		}
 		return murmurhash3_32_gc(fingerprint.join("###") + "###" + plugins.sort().join(";"), hashSeed);
