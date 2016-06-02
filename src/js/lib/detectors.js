@@ -221,7 +221,8 @@
 
 		// Safari and Opera
 		// IE6/IE7 navigator.javaEnabled can't be aliased, so test directly
-		if (typeof navigatorAlias.javaEnabled !== 'unknown' &&
+		if (navigatorAlias.constructor === window.Navigator &&
+				typeof navigatorAlias.javaEnabled !== 'unknown' &&
 				!lodash.isUndefined(navigatorAlias.javaEnabled) &&
 				navigatorAlias.javaEnabled()) {
 			features.java = '1';
