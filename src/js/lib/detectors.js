@@ -159,7 +159,13 @@
 			a = 'client';
 			e = documentAlias.documentElement || documentAlias.body;
 		}
-		return e[a+'Width'] + 'x' + e[a+'Height'];
+		var width = e[a+'Width'];
+		var height = e[a+'Height'];
+		if (width >= 0 && height >= 0) {
+			return width + 'x' + height;
+		} else {
+			return null;
+		}
 	};
 
 	/**
