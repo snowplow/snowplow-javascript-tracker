@@ -1,4 +1,4 @@
-Version 2.6.1 (2016-xx-xx)
+Version 2.6.1 (2016-04-14)
 --------------------------
 Prevent CSS class listing from failing for elements with no CSS classes (#473)
 Explicitly set suites field in Intern config (#475)
