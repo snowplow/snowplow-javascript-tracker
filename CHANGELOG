@@ -1,3 +1,12 @@
+Version 2.6.2 (2016-xx-xx)
+--------------------------
+Add date for release 2.6.1 to CHANGELOG (#495)
+Don't send invalid viewport dimensions (#488)
+Check whether elements of navigator.plugins array are undefined (#492)
+Only call navigator.javaEnabled on instances of Navigator (#491)
+Stop using String.startsWith (#493)
+Ensure page view ID is passed to synchronous tracker (#485)
+
 Version 2.6.1 (2016-04-14)
 --------------------------
 Prevent CSS class listing from failing for elements with no CSS classes (#473)
