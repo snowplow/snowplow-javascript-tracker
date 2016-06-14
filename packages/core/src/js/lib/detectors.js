@@ -127,12 +127,13 @@
 		{
 			for(var i = 0; i < navigatorAlias.plugins.length; i++)
 			{
-				var mt = [];
-				for(var j = 0; j < navigatorAlias.plugins[i].length; j++)
-				{
-					mt.push([navigatorAlias.plugins[i][j].type, navigatorAlias.plugins[i][j].suffixes]);
+				if (navigatorAlias.plugins[i]) {
+					var mt = [];
+					for(var j = 0; j < navigatorAlias.plugins[i].length; j++) {
+						mt.push([navigatorAlias.plugins[i][j].type, navigatorAlias.plugins[i][j].suffixes]);
+					}
+					plugins.push([navigatorAlias.plugins[i].name + "::" + navigatorAlias.plugins[i].description, mt.join("~")]);
 				}
-				plugins.push([navigatorAlias.plugins[i].name + "::" + navigatorAlias.plugins[i].description, mt.join("~")]);
 			}
 		}
 		return murmurhash3_32_gc(fingerprint.join("###") + "###" + plugins.sort().join(";"), hashSeed);
@@ -158,7 +159,13 @@
 			a = 'client';
 			e = documentAlias.documentElement || documentAlias.body;
 		}
-		return e[a+'Width'] + 'x' + e[a+'Height'];
+		var width = e[a+'Width'];
+		var height = e[a+'Height'];
+		if (width >= 0 && height >= 0) {
+			return width + 'x' + height;
+		} else {
+			return null;
+		}
 	};
 
 	/**
@@ -221,7 +228,8 @@
 
 		// Safari and Opera
 		// IE6/IE7 navigator.javaEnabled can't be aliased, so test directly
-		if (typeof navigatorAlias.javaEnabled !== 'unknown' &&
+		if (navigatorAlias.constructor === window.Navigator &&
+				typeof navigatorAlias.javaEnabled !== 'unknown' &&
 				!lodash.isUndefined(navigatorAlias.javaEnabled) &&
 				navigatorAlias.javaEnabled()) {
 			features.java = '1';
