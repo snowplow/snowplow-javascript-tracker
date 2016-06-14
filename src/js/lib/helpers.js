@@ -358,7 +358,7 @@
 		var cookies = document.cookie.split("; ");
 		var cookieNames = [];
 		for (var i = 0; i < cookies.length; i++) {
-			if (cookies[i].startsWith(cookiePrefix)) {
+			if (cookies[i].substring(0, cookiePrefix.length) === cookiePrefix) {
 				cookieNames.push(cookies[i]);
 			}
 		}
