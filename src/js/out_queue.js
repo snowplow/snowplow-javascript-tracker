@@ -289,9 +289,27 @@
 					executingQueue = false;
 				};
 
-				image.src = configCollectorUrl + nextRequest.replace('?', '?stm=' + new Date().getTime() + '&');
+				image.src = configCollectorUrl + dwFilterRequest(nextRequest).replace('?', '?stm=' + new Date().getTime() + '&');
 			}
 		}
+
+    // Filter the query string payload to try and get it shorter. Currently,
+    // the payload is way too long and this is causing failures
+    // https://github.com/snowplow/snowplow/wiki/Technical-architecture#technical-limitations
+    var queryUrlRe = /((refr|url)=http[^&]*%2Fquery%(23|3F)query%3D)[^&]*/g
+
+    function dwFilterRequest (req) {
+      var newRequest = req;
+      if (queryUrlRe.test(newRequest)) {
+        newRequest = newRequest.replace(queryUrlRe, function (match, base) {
+          return  [base, '(filtered)'].join('');
+        });
+        if (newRequest.length > 2000) {
+          newRequest = newRequest.replace(/ue_px=[^&]*/, ['ue_pr=', encodeURIComponent(json2.stringify({filtered: true, length: newRequest.length}))].join(''));
+        }
+      }
+      return newRequest;
+    }
 
 		/**
 		 * Open an XMLHttpRequest for a given endpoint with the correct credentials and header
