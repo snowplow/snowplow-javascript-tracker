@@ -23,6 +23,7 @@
     "lodash-cli": "3.10.1",
     "semver": "2.2.1"
   },
+  "main": "src/js/snowplow.js",
   "contributors": [
     "Alex Dean",
     "Simon Andersson",
@@ -33,9 +34,8 @@
   "description": "JavaScript tracker for Snowplow",
   "repository": {
     "type": "git",
-    "url": "https://github.com/snowplow/snowplow-javascript-tracker.git"
+    "url": "https://github.com/liveintent-berlin/snowplow-javascript-tracker.git"
   },
-  "bugs": "https://github.com/snowplow/snowplow-javascript-tracker/issues",
   "keywords": [
     "tracking",
     "web analytics",
@@ -43,5 +43,5 @@
     "open source"
   ],
   "license": "Simplified BSD",
-  "private": true
+  "private": false
 }
