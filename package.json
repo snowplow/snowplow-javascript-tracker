@@ -1,6 +1,6 @@
 {
   "name": "snowplow-tracker-mint-branch",
-  "version": "2.6.2",
+  "version": "2.6.2-LI-MINT",
   "devDependencies": {
     "JSON": "~1.0.0",
     "browser-cookie-lite": "~0.3.1",
@@ -20,6 +20,7 @@
     "snowplow-tracker-core": "0.3.0",
     "uuid": "^2.0.1"
   },
+  "main": "src/js/snowplow.js",
   "contributors": [
     "Alex Dean",
     "Simon Andersson",
@@ -30,9 +31,8 @@
   "description": "JavaScript tracker for Snowplow",
   "repository": {
     "type": "git",
-    "url": "https://github.com/snowplow/snowplow-javascript-tracker.git"
+    "url": "https://github.com/liveintent-berlin/snowplow-javascript-tracker.git"
   },
-  "bugs": "https://github.com/snowplow/snowplow-javascript-tracker/issues",
   "keywords": [
     "tracking",
     "web analytics",
@@ -40,5 +40,5 @@
     "open source"
   ],
   "license": "Simplified BSD",
-  "private": true
+  "private": false
 }
