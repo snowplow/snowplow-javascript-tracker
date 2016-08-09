@@ -1,34 +1,34 @@
 /*
  * JavaScript tracker for Snowplow: tracker.js
- * 
- * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
- * 2012-2014 Snowplow Analytics Ltd. All rights reserved. 
- * 
- * Redistribution and use in source and binary forms, with or without 
- * modification, are permitted provided that the following conditions are 
- * met: 
  *
- * * Redistributions of source code must retain the above copyright 
- *   notice, this list of conditions and the following disclaimer. 
+ * Significant portions copyright 2010 Anthon Pang. Remainder copyright
+ * 2012-2014 Snowplow Analytics Ltd. All rights reserved.
  *
- * * Redistributions in binary form must reproduce the above copyright 
- *   notice, this list of conditions and the following disclaimer in the 
- *   documentation and/or other materials provided with the distribution. 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
  *
  * * Neither the name of Anthon Pang nor Snowplow Analytics Ltd nor the
  *   names of their contributors may be used to endorse or promote products
- *   derived from this software without specific prior written permission. 
+ *   derived from this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
@@ -82,6 +82,7 @@
 	 * 16. bufferSize, 1
 	 * 17. crossDomainLinker, false
 	 * 18. maxPostBytes, 40000
+	 * 19. CookieLifetime, 63072000
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, pageViewId, mutSnowplowState, argmap) {
 
@@ -164,7 +165,7 @@
 			configCountPreRendered,
 
 			// Life of the visitor cookie (in seconds)
-			configVisitorCookieTimeout = 63072000, // 2 years
+			configVisitorCookieTimeout = argmap.hasOwnProperty('cookieLifetime') ? argmap.cookieLifetime : 63072000, // 2 years
 
 			// Life of the session cookie (in seconds)
 			configSessionCookieTimeout = argmap.hasOwnProperty('sessionCookieTimeout') ? argmap.sessionCookieTimeout : 1800, // 30 minutes
@@ -475,11 +476,11 @@
 		 */
 		function resetMaxScrolls() {
 			var offsets = getPageOffsets();
-			
+
 			var x = offsets[0];
 			minXOffset = x;
 			maxXOffset = x;
-			
+
 			var y = offsets[1];
 			minYOffset = y;
 			maxYOffset = y;
@@ -490,7 +491,7 @@
 		 */
 		function updateMaxScrolls() {
 			var offsets = getPageOffsets();
-			
+
 			var x = offsets[0];
 			if (x < minXOffset) {
 				minXOffset = x;
@@ -503,7 +504,7 @@
 				minYOffset = y;
 			} else if (y > maxYOffset) {
 				maxYOffset = y;
-			}	
+			}
 		}
 
 		/*
@@ -951,7 +952,7 @@
 		 * @param string total
 		 * @param string tax
 		 * @param string shipping
-		 * @param string city 
+		 * @param string city
 		 * @param string state
 		 * @param string country
 		 * @param string currency The currency the total/tax/shipping are expressed in
@@ -981,7 +982,7 @@
 		 * Browser prefix
 		 */
 		function prefixPropertyName(prefix, propertyName) {
-			
+
 			if (prefix !== '') {
 				return prefix + propertyName.charAt(0).toUpperCase() + propertyName.slice(1);
 			}
@@ -1212,7 +1213,7 @@
 			 * where tracking is:
 			 * 1) Sending events to a collector
 			 * 2) Setting first-party cookies
-			 * @param bool enable If true and Do Not Track feature enabled, don't track. 
+			 * @param bool enable If true and Do Not Track feature enabled, don't track.
 			 */
 			respectDoNotTrack: function (enable) {
 				helpers.warn('This usage of respectDoNotTrack is deprecated. Instead add a "respectDoNotTrack" field to the argmap argument of newTracker.');
@@ -1255,7 +1256,7 @@
 			 * be "_self", "_top", or "_parent").
 			 *
 			 * @see https://bugs.webkit.org/show_bug.cgi?id=54783
-			 * 
+			 *
 			 * @param object criterion Criterion by which it will be decided whether a link will be tracked
 			 * @param bool pseudoClicks If true, use pseudo click-handler (mousedown+mouseup)
 			 * @param bool trackContent Whether to track the innerHTML of the link element
@@ -1362,7 +1363,7 @@
 
 			/**
 			 * Set the business-defined user ID for this user using the location querystring.
-			 * 
+			 *
 			 * @param string queryName Name of a querystring name-value pair
 			 */
 			setUserIdFromLocation: function(querystringField) {
@@ -1372,7 +1373,7 @@
 
 			/**
 			 * Set the business-defined user ID for this user using the referrer querystring.
-			 * 
+			 *
 			 * @param string queryName Name of a querystring name-value pair
 			 */
 			setUserIdFromReferrer: function(querystringField) {
@@ -1382,7 +1383,7 @@
 
 			/**
 			 * Set the business-defined user ID for this user to the value of a cookie.
-			 * 
+			 *
 			 * @param string cookieName Name of the cookie whose value will be assigned to businessUserId
 			 */
 			setUserIdFromCookie: function(cookieName) {
@@ -1390,7 +1391,7 @@
 			},
 
 			/**
-			 * Configure this tracker to log to a CloudFront collector. 
+			 * Configure this tracker to log to a CloudFront collector.
 			 *
 			 * @param string distSubdomain The subdomain on your CloudFront collector's distribution
 			 */
@@ -1402,7 +1403,7 @@
 			 *
 			 * Specify the Snowplow collector URL. No need to include HTTP
 			 * or HTTPS - we will add this.
-			 * 
+			 *
 			 * @param string rawUrl The collector URL minus protocol and /i
 			 */
 			setCollectorUrl: function (rawUrl) {
@@ -1594,25 +1595,25 @@
 			 * Track an ad being served
 			 *
 			 * @param string impressionId Identifier for a particular ad impression
-			 * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'			 
+			 * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'
 			 * @param number cost Cost
 			 * @param string bannerId Identifier for the ad banner displayed
 			 * @param string zoneId Identifier for the ad zone
 			 * @param string advertiserId Identifier for the advertiser
 			 * @param string campaignId Identifier for the campaign which the banner belongs to
 			 * @param object Custom context relating to the event
-			 */			
+			 */
 			trackAdImpression: function(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, context) {
 				trackCallback(function () {
 					core.trackAdImpression(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, addCommonContexts(context));
 				});
 			},
-			
+
 			/**
 			 * Track an ad being clicked
 			 *
 			 * @param string clickId Identifier for the ad click
-			 * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'			 
+			 * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'
 			 * @param number cost Cost
 			 * @param string targetUrl (required) The link's target URL
 			 * @param string bannerId Identifier for the ad banner displayed
