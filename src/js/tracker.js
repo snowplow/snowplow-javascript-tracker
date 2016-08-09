@@ -82,7 +82,7 @@
 	 * 16. bufferSize, 1
 	 * 17. crossDomainLinker, false
 	 * 18. maxPostBytes, 40000
-	 * 19. CookieLifetime, 63072000
+	 * 19. cookieLifetime, 63072000
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, pageViewId, mutSnowplowState, argmap) {
 
