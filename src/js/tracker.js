@@ -1102,7 +1102,7 @@
 		function getParrableContext() {
 			var parrable = window['_hawk'];
 			if (parrable) {
-				var context = { encryptedID: null, optout: null};
+				var context = { encryptedId: null, optout: null};
 				context['encryptedId'] =  parrable.browserid;
 				context['optout'] =  parrable.browserid;	
 				return {
