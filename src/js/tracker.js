@@ -1103,8 +1103,8 @@
 			var parrable = window['_hawk'];
 			if (parrable) {
 				var context = { encryptedID: null, optout: null};
-				context['encryptedID'] =  parrable.browserid;
-				context['optout'] =  parrable.browserid		
+				context['encryptedId'] =  parrable.browserid;
+				context['optout'] =  parrable.browserid;	
 				return {
 					schema: 'iglu:com.parrable/encrypted_payload/jsonschema/1-0-0',
 					data: context
