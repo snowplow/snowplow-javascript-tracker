@@ -1104,7 +1104,8 @@
 			if (parrable) {
 				var context = { encryptedId: null, optout: null};
 				context['encryptedId'] =  parrable.browserid;
-				context['optout'] =  parrable.optout;	
+				var regex = new RegExp('(?:^|;)\\s?' + "_parrable_hawk_optout".replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1') + '=(.*?)(?:;|$)', 'i'), match = document.cookie.match(regex);
+				parrable['optout'] = (match && decodeURIComponent(match[1])) ? match && decodeURIComponent(match[1]) : "false";
 				return {
 					schema: 'iglu:com.parrable/encrypted_payload/jsonschema/1-0-0',
 					data: context
