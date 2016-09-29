@@ -1,7 +1,7 @@
 /*
  * JavaScript tracker core for Snowplow: tests/integration.js
  * 
- * Copyright (c) 2014 Snowplow Analytics Ltd. All rights reserved.
+ * Copyright (c) 2014-2016 Snowplow Analytics Ltd. All rights reserved.
  *
  * This program is licensed to you under the Apache License Version 2.0,
  * and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -16,12 +16,12 @@
 define([
 	"intern!object",
 	"intern/chai!assert",
-	"intern/dojo/node!../lib/core.js",
+	"intern/dojo/node!../../lib/core.js",
 	"intern/dojo/node!JSON"
 ], function (registerSuite, assert, core, JSON) {
 
 	var unstructEventSchema = 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0';
-	var tracker = core(false);
+	var tracker = core.trackerCore(false);
 
 	function compare(result, expected, message) {
 		result = result.build();
@@ -34,6 +34,7 @@ define([
 
 	registerSuite({
 		name: "Tracking events",
+
 		"Track a page view": function () {
 			var url = 'http://www.example.com';
 			var page = 'title page';
@@ -52,10 +53,10 @@ define([
 				e: 'pp',
 				url: url,
 				refr: referer,
-				pp_mix: 1,
-				pp_max: 2,
-				pp_miy: 3,
-				pp_may: 4
+				pp_mix: '1',
+				pp_max: '2',
+				pp_miy: '3',
+				pp_may: '4'
 			};
 
 			compare(tracker.trackPagePing(url, null, referer, 1, 2, 3, 4), expected, 'A page ping should be tracked correctly');
@@ -496,11 +497,11 @@ define([
 		"Track a page view with a timestamp": function () {
 			var tstamp = 1000000000000;
 
-			assert.strictEqual(tracker.trackPageView('http://www.example.com', null, null, null, tstamp).build()['dtm'], tstamp, 'A timestamp should be attached correctly');
+			assert.strictEqual(tracker.trackPageView('http://www.example.com', null, null, null, tstamp).build()['dtm'], '1000000000000', 'A timestamp should be attached correctly');
 		},
 
 		"Add individual name-value pairs to the payload": function () {
-			var tracker = core(false);
+			var tracker = core.trackerCore(false);
 			var url = 'http://www.example.com';
 			var expected = {
 				e: 'pv',
@@ -515,7 +516,7 @@ define([
 		},
 
 		"Add a dictionary of name-value pairs to the payload": function () {
-			var tracker = core(false);
+			var tracker = core.trackerCore(false);
 			var url = 'http://www.example.com';
 			var expected = {
 				e: 'pv',
@@ -534,7 +535,7 @@ define([
 		},
 
 		"Reset payload name-value pairs": function () {
-			var tracker = core(false);
+			var tracker = core.trackerCore(false);
 			var url = 'http://www.example.com';
 			var expected = {
 				e: 'pv',
@@ -549,13 +550,13 @@ define([
 
 		"Execute a callback": function () {
 			var callbackTarget;
-			var tracker = core(false, function (payload) {
+			var tracker = core.trackerCore(false, function (payload) {
 				callbackTarget = payload;
 			});
 			var url = 'http://www.example.com';
 			var expected = {
 				e: 'pv',
-				url: url,
+				url: url
 			};
 			tracker.trackPageView(url);
 
@@ -563,7 +564,7 @@ define([
 		},
 
 		"Use setter methods": function () {
-			var tracker = core(false);
+			var tracker = core.trackerCore(false);
 			tracker.setTrackerVersion('js-3.0.0');
 			tracker.setTrackerNamespace('cf1');
 			tracker.setAppId('my-app');
@@ -593,7 +594,7 @@ define([
 			};
 
 			compare(tracker.trackPageView(url, page), expected, 'setXXX methods should work correctly');
-		},		
+		}
 
 	});
 	
