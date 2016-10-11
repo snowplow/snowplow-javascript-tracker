@@ -1,6 +1,6 @@
 {
   "name": "snowplow-tracker",
-  "version": "2.7.0-rc1",
+  "version": "2.7.0",
   "devDependencies": {
     "JSON": "1.0.0",
     "browser-cookie-lite": "0.3.1",
@@ -17,7 +17,7 @@
     "murmurhash": "0.0.2",
     "semver": "2.2.1",
     "sha1": "git://github.com/pvorb/node-sha1.git#v1.0.0",
-    "snowplow-tracker-core": "0.4.0",
+    "snowplow-tracker-core": "0.5.0",
     "uuid": "2.0.3"
   },
   "contributors": [
