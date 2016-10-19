@@ -158,22 +158,37 @@ module.exports = function(grunt) {
     },
 
     intern: {
+      // Common
+      options: {
+        config: 'tests/intern.js'
+      },
+
       nonfunctional: {
         options: {
           runType: 'client',
-          config: 'tests/intern.js',
           suites: [
             'tests/nonfunctional/helpers.js',
             'tests/nonfunctional/in_queue.js',
             'tests/nonfunctional/proxies.js'
-            ]
+          ]
         }
       },
       functional: {
         options: {
           runType: 'runner',
-          config: 'tests/intern.js',
-          functionalSuites: ['tests/functional/helpers.js']
+          functionalSuites: [
+            'tests/functional/detectors.js',
+            'tests/functional/helpers.js'
+          ]
+        }
+      },
+      integration: {
+        options: {
+          runType: 'runner',
+          functionalSuites: [
+            'tests/integration/setup.js',       // required prior to integration.js
+            'tests/integration/integration.js' 	// request_recorder and ngrok need to be running
+          ]
         }
       }
     }
@@ -257,6 +272,6 @@ module.exports = function(grunt) {
   grunt.registerTask('publish-pinned', 'Upload to S3 and invalidate Cloudfront (full semantic version and semantic major version)', ['upload_setup', 'lodash', 'browserify:main', 'concat:deploy', 'min:deploy', 's3', 'cloudfront']);
   grunt.registerTask('quick', 'Build snowplow.js, skipping building lodash and minifying', ['browserify:main', 'concat:deploy']);
   grunt.registerTask('test', 'Intern tests', ['browserify:test', 'intern']);
-  grunt.registerTask('travis', 'Intern tests for Travis CI',  ['lodash','concat:test', 'browserify:test','intern']);
+  grunt.registerTask('travis', 'Intern tests for Travis CI',  ['lodash', 'concat:test', 'browserify:test', 'intern:integration']);
   grunt.registerTask('tags', 'Minifiy the Snowplow invocation tag', ['min:tag', 'concat:tag']);
-}
+};

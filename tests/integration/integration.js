@@ -35,58 +35,109 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'intern/dojo/node!fs',
-	'intern/dojo/node!querystring',
-	'intern/dojo/node!lodash'
-], function(registerSuite, assert, fs, querystring, lodash) {
+	'intern/dojo/node!lodash',
+	'intern/dojo/node!http',
+	'intern/dojo/node!url'
+], function(registerSuite, assert, lodash, http, url) {
 
-	function parseLog () {
-		return fs.readFileSync('./tracker.log', 'utf8').split('\n');
-	}
+	/**
+	 * Expected amount of request for each browser
+	 * This must be increased when new tracking call added to
+	 * pages/integration-template.html
+	 */
+    var log = [];
 
-	function querystringFromLine(line) {
-		return line ? JSON.parse(line) : {};
-	}
-
-	function requestMatchesExpectedQuerystring(actual, expected) {
-		if (!actual) {
-			return false;
-		}
-		return !lodash.any(lodash.keys(expected), function (key) {
-			if (expected[key] !== actual[key]) {
-				return true;
-			}
-			return false;
+	function pageViewsHaveDifferentIds () {
+		var pageViews = lodash.filter(log, function (logLine) {
+			return logLine.e === 'pv';
 		});
+		var contexts = lodash.map(pageViews, function (logLine) {
+			var data = JSON.parse(decodeBase64(logLine.cx)).data;
+			return lodash.find(data, function (context) {
+				return context.schema === 'iglu:com.snowplowanalytics.snowplow/web_page/jsonschema/1-0-0';
+			});
+		});
+		var ids = lodash.map(contexts, function (wpContext) {
+			return wpContext.data.id;
+		});
+
+		return lodash.uniq(ids).length >= 2;
 	}
 
+	/**
+	 * Check if expected payload was exists in `log`
+     */
 	function checkExistenceOfExpectedQuerystring(expected) {
-		var lines = parseLog();
+		function compare(e, other) {	// e === expected
+			var result = lodash.map(e, function (v, k) {
+				if (lodash.isFunction(v)) { return v(other[k]); }
+				else { return lodash.isEqual(v, other[k]); }
+			});
+			return lodash.all(result);
+		}
 
-		return lodash.any(lines, function (line) {
-			if (requestMatchesExpectedQuerystring(querystringFromLine(line), expected)) {
-				return true;
-			}
-			return false;
+		function strip(logLine) {
+			var expectedKeys = lodash.keys(expected);
+			var stripped = lodash.pick(logLine, function (v, k) { return lodash.include(expectedKeys, k); });
+			if (lodash.keys(stripped).length !== expectedKeys.length) { return null; }
+			else { return stripped; }
+		}
+
+		return lodash.some(log, function (logLine) {
+			var stripped = strip(logLine);
+			if (stripped == null) { return false; }
+			else { return lodash.isEqual(expected, stripped, compare); }
 		});
 	}
+
+	function someTestsFailed(suite) {
+		return lodash.some(suite.tests, function (test) { return test.error !== null; });
+	}
+
+	// Ngrok must be running to forward requests to localhost
+	http.createServer(function (request, response) {
+		response.writeHead(200, {'Content-Type': 'image/gif'});
+
+		if (request.method === 'GET') {
+			var payload = url.parse(request.url, true).query;
+			log.push(payload);
+		}
+
+		var img = new Buffer('47494638396101000100800000dbdfef00000021f90401000000002c00000000010001000002024401003b', 'hex');
+		response.end(img, 'binary');
+
+	}).listen(8500, function () { console.log("Collector mock running...\n"); });
 
 	registerSuite({
 
+		teardown: function () {
+			if (someTestsFailed(this)) {
+				console.log("Tests failed with following log:");
+				console.log(log, function (l) { console.log(l); });
+			}
+			console.log("Cleaning log");
+			log = [];
+		},
+
 		name: 'Test that request_recorder logs meet expectations',
 
-		'Check existence of page view in log': function() {
+		'Check existence of page view in log': function () {
 			assert.isTrue(checkExistenceOfExpectedQuerystring({
 				e: 'pv',
 				p: 'mob',
 				aid: 'CFe23a',
 				uid: 'Malcolm',
 				page: 'My Title',
-				cx: 'eyJzY2hlbWEiOiJpZ2x1OmNvbS5zbm93cGxvd2FuYWx5dGljcy5zbm93cGxvdy9jb250ZXh0cy9qc29uc2NoZW1hLzEtMC0wIiwiZGF0YSI6W3sic2NoZW1hIjoiaWdsdTpjb20uZXhhbXBsZV9jb21wYW55L3VzZXIvanNvbnNjaGVtYS8yLTAtMCIsImRhdGEiOnsidXNlclR5cGUiOiJ0ZXN0ZXIifX1dfQ'
+				cx: function (cx) {
+					var contexts = JSON.parse(decodeBase64(cx)).data;
+					return lodash.some(contexts,
+						{schema:"iglu:com.example_company/user/jsonschema/2-0-0",data:{userType:'tester'}}
+					);
+				}
 			}), 'A page view should be detected');
 		},
 
-		'Check nonexistence of nonexistent event types in log': function() {
+		'Check nonexistence of nonexistent event types in log': function () {
 			assert.isFalse(checkExistenceOfExpectedQuerystring({
 				e: 'ad'
 			}), 'No nonexistent event type should be detected');
@@ -134,6 +185,16 @@ define([
 				ti_qu: '2',
 				ti_cu: 'JPY'
 			}), 'A transaction item event should be detected');
+		},
+
+		'Check an unhandled exception was sent': function () {
+			assert.isTrue(checkExistenceOfExpectedQuerystring({
+				e: 'ue',
+				ue_px: function (line) {
+					console.log(line);
+					return true
+				}
+			}))
 		}
-	});
+	})
 });

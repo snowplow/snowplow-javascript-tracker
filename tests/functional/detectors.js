@@ -34,28 +34,40 @@
 
 define([
 	'intern!object',
-	'intern/chai!assert',
-	'intern/dojo/node!../../src/js/lib/helpers'
-], function(registerSuite, assert, helpers) {
+	'intern/chai!assert'
+], function(registerSuite, assert) {
 
 	var 
 		// Expected viewport dimensions vary based on browser
-		expectedViewportWidths = [980, 1016, 1024, 1280],
-		expectedViewportHeights = [636, 642, 644, 660, 667, 670, 673, 684, 686, 695, 702, 705, 706, 707, 712],
+		expectedViewportWidths = [
+			1016,	// Linux, Firefox 27
+			1020,	// Windows 8, Windows 8.1
+			1022,	// Windows 7, Chrome 32
+			1024	// Windows 7, IE 9, Firefox 27; Mac OS, Safari
+		],
+		expectedViewportHeights = [
+			632,	// Firefox 27.0, Linux
+			666,	// Firefox 27.0, Windows 7
+			670,	// Safari 6/7
+			686,	// Chrome 32, Linux
+			694,	// Chrome 32, Windows 7
+            695,    // Windows 7, IE 9
+			717		// Windows 8/8.1
+		],
 
 		// User fingerprint varies based on browser features
 		// TODO: try to hash this off the useragent - 
 		// i.e. formal 1:1 relationship between viewport or signature and an individual browser
 		expectedSignatures = [
-			3343029130, // IE9 Windows
-			1101697779, // IE10
-			2209912060, // IE11
-			1268007327,  // Firefox 27.0 XP
-			1873889954,  // Firefox 27.0 Linux
-			2180938465, // Chrome 32.0 Windows NT
-			2184238358, // Chrome 32.0 Linux
-			1749770073, // Safari 7.1.7 Mac
-			1244201874  // Safari 6.2.7 Mac
+			1587753772, // IE9, Windows 7
+			1101697779, // IE10, Windows 8
+			645783373,  // IE11, Windows 8
+			580945094,  // Firefox 27.0, Windows 7
+			928914442,  // Firefox 27.0, Linux
+			1727588738, // Chrome 32.0, Windows 7
+			2368041567, // Chrome 32.0, Linux
+			3398131289, // Safari 7, OS X 10.9
+			3109552630  // Safari 6.2.7 Mac OS X 10.8
 		];
 
 	registerSuite({
