@@ -44,8 +44,9 @@ define([
 
 			return this.remote
 				.get(require.toUrl('tests/pages/integration.html'))
-				.waitForElementByCssSelector('body.loaded', 5000)
-				.sleep(2000);
+				.setFindTimeout(5000)
+				.findByCssSelector('body.loaded')
+				.sleep(15000);	// Time for requests to get written
 		}
 	});
 });
