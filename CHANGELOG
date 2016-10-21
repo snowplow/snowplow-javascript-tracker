@@ -1,4 +1,4 @@
-Version 2.6.2 (2016-xx-xx)
+Version 2.6.2 (2016-07-14)
 --------------------------
 Add date for release 2.6.1 to CHANGELOG (#495)
 Don't send invalid viewport dimensions (#488)
