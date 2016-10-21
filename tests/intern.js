@@ -35,7 +35,7 @@
 define({
 
 	capabilities: {
-		'selenium-version': '2.39.0'
+		'selenium-version': '2.48.0'
 	},
 
 	environments: [
