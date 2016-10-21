@@ -115,14 +115,14 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 	}
 
 	/**
-	 * Log an unstructured event
+	 * Log an self-describing (previously unstruct) event
 	 *
 	 * @param properties Contains the properties and schema location for the event
 	 * @param context Custom contexts relating to the event
 	 * @param tstamp Timestamp of the event
 	 * @return Payload
 	 */
-	function trackUnstructEvent(properties: Object, context?: Array<SelfDescribingJson>, tstamp?: number): PayloadData {
+	function trackSelfDescribingEvent(properties: Object, context?: Array<SelfDescribingJson>, tstamp?: number): PayloadData {
 		var sb = payload.payloadBuilder(base64);
 		var ueJson = {
 			schema: 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0',
@@ -134,7 +134,6 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 
 		return track(sb, context, tstamp);
 	}
-
 
 	return {
 
@@ -272,7 +271,9 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			addPayloadPair('ip', ip);
 		},
 
-		trackUnstructEvent: trackUnstructEvent,
+		trackUnstructEvent: trackSelfDescribingEvent,
+
+		trackSelfDescribingEvent: trackSelfDescribingEvent,
 
 		/**
 		 * Log the page view / visit
@@ -466,7 +467,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			context?: Array<SelfDescribingJson>,
 			tstamp?: number): PayloadData {
 
-			return trackUnstructEvent({
+			return trackSelfDescribingEvent({
 				schema: 'iglu:com.snowplowanalytics.snowplow/screen_view/jsonschema/1-0-0',
 				data: removeEmptyProperties({
 					name: name,
@@ -507,7 +508,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 				})
 			};
 
-			return trackUnstructEvent(eventJson, context, tstamp);
+			return trackSelfDescribingEvent(eventJson, context, tstamp);
 		},
 
 		/**
@@ -551,7 +552,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 				})
 			};
 
-			return trackUnstructEvent(eventJson, context, tstamp);
+			return trackSelfDescribingEvent(eventJson, context, tstamp);
 		},
 
 		/**
@@ -598,7 +599,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 				})
 			};
 
-			return trackUnstructEvent(eventJson, context, tstamp);
+			return trackSelfDescribingEvent(eventJson, context, tstamp);
 		},
 
 		/**
@@ -647,7 +648,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 				})
 			};
 
-			return trackUnstructEvent(eventJson, context, tstamp);
+			return trackSelfDescribingEvent(eventJson, context, tstamp);
 		},
 
 		/**
@@ -676,7 +677,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 				})
 			};
 
-			return trackUnstructEvent(eventJson, context, tstamp);
+			return trackSelfDescribingEvent(eventJson, context, tstamp);
 		},
 
 		/**
@@ -702,7 +703,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			context?: Array<SelfDescribingJson>,
 			tstamp?: number): PayloadData {
 
-			return trackUnstructEvent({
+			return trackSelfDescribingEvent({
 				schema: 'iglu:com.snowplowanalytics.snowplow/add_to_cart/jsonschema/1-0-0',
 				data: removeEmptyProperties({
 					sku: sku,
@@ -738,7 +739,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			context?: Array<SelfDescribingJson>,
 			tstamp?: number): PayloadData {
 
-			return trackUnstructEvent({
+			return trackSelfDescribingEvent({
 				schema: 'iglu:com.snowplowanalytics.snowplow/remove_from_cart/jsonschema/1-0-0',
 				data: removeEmptyProperties({
 					sku: sku,
@@ -776,7 +777,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			context?: Array<SelfDescribingJson>,
 			tstamp?: number): PayloadData {
 
-			return trackUnstructEvent({
+			return trackSelfDescribingEvent({
 				schema: 'iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0',
 				data: removeEmptyProperties({
 					formId: formId,
@@ -806,7 +807,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			context?: Array<SelfDescribingJson>,
 			tstamp?: number): PayloadData {
 
-			return trackUnstructEvent({
+			return trackSelfDescribingEvent({
 				schema: 'iglu:com.snowplowanalytics.snowplow/submit_form/jsonschema/1-0-0',
 				data: removeEmptyProperties({
 					formId: formId,
@@ -835,7 +836,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			context?: Array<SelfDescribingJson>,
 			tstamp?: number): PayloadData {
 
-			return trackUnstructEvent({
+			return trackSelfDescribingEvent({
 				schema: 'iglu:com.snowplowanalytics.snowplow/site_search/jsonschema/1-0-0',
 				data: removeEmptyProperties({
 					terms: terms,

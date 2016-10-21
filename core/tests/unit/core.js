@@ -139,6 +139,24 @@ define([
 			compare(tracker.trackUnstructEvent(inputJson), expected, 'An unstructured event should be tracked correctly');
 		},
 
+		"Track a self-describing event": function () {
+			var inputJson = {
+				schema: 'iglu:com.acme/user/jsonschema/1-0-1',
+				data: {
+					name: 'Eric'
+				}
+			};
+			var expected = {
+				e: 'ue',
+				ue_pr: JSON.stringify({
+					schema: unstructEventSchema,
+					data: inputJson
+				})
+			};
+
+			compare(tracker.trackSelfDescribingEvent(inputJson), expected, 'A self-describing event should be tracked correctly');
+		},
+
 		"Track a link click": function () {
 			var targetUrl = 'http://www.example.com';
 			var elementId = 'first header';
