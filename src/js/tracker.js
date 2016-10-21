@@ -282,7 +282,7 @@
 			enableGeolocationContext();
 		}
 
-		// Enable base 64 encoding for unstructured events and custom contexts
+		// Enable base 64 encoding for self-describing events and custom contexts
 		core.setBase64Encoding(argmap.hasOwnProperty('encodeBase64') ? argmap.encodeBase64 : true);
 
 		// Set up unchanging name-value pairs
@@ -1713,9 +1713,9 @@
 
 			/**
 			*
-			* Enable Base64 encoding for unstructured event payload
+			* Enable Base64 encoding for self-describing event payload
 			*
-			* @param bool enabled A boolean value indicating if the Base64 encoding for unstructured events should be enabled or not
+			* @param bool enabled A boolean value indicating if the Base64 encoding for self-describing events should be enabled or not
 			*/
 			encodeBase64: function (enabled) {
 				helpers.warn('This usage of encodeBase64 is deprecated. Instead add an "encodeBase64" field to the argmap argument of newTracker.');
@@ -1766,13 +1766,20 @@
 			},
 
 			/**
-			 * Track an unstructured event happening on this page.
+			 * Track a self-describing event (previously unstructured event) happening on this page.
 			 *
 			 * @param object eventJson Contains the properties and schema location for the event
 			 * @param object context Custom context relating to the event
 			 */
+			trackSelfDescribingEvent: function (eventJson, context) {
+				core.trackSelfDescribingEvent(eventJson, addCommonContexts(context));
+			},
+
+			/**
+			 * Alias for `trackSelfDescribingEvent`, left for compatibility
+			 */
 			trackUnstructEvent: function (eventJson, context) {
-				core.trackUnstructEvent(eventJson, addCommonContexts(context));
+				core.trackSelfDescribingEvent(eventJson, addCommonContexts(context));
 			},
 
 			/**
@@ -2001,7 +2008,7 @@
 			 * @param array context Optional. Context relating to the event.
 			 */
 			trackTiming: function (category, variable, timing, label, context) {
-				core.trackUnstructEvent({
+				core.trackSelfDescribingEvent({
 					schema: 'iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0',
 					data: {
 						category: category,
@@ -2023,7 +2030,7 @@
 				var combinedEnhancedEcommerceContexts = enhancedEcommerceContexts.concat(context || []);
 				enhancedEcommerceContexts.length = 0;
 
-				core.trackUnstructEvent({
+				core.trackSelfDescribingEvent({
 					schema: 'iglu:com.google.analytics.enhanced-ecommerce/action/jsonschema/1-0-0',
 					data: {
 						action: action
