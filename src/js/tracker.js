@@ -1268,8 +1268,10 @@
 			core.trackEcommerceTransactionItem(orderId, sku, name, category, price, quantity, currency, addCommonContexts(context));
 		}
 
-		/*
-		 * Browser prefix
+		/**
+		 * Construct a browser prefix
+		 *
+		 * E.g: (moz, hidden) -> mozHidden
 		 */
 		function prefixPropertyName(prefix, propertyName) {
 			
@@ -1294,17 +1296,18 @@
 				prefix;
 
 			if (!configCountPreRendered) {
+
 				for (i = 0; i < prefixes.length; i++) {
 					prefix = prefixes[i];
 
-					// does this browser support the page visibility API?
+					// does this browser support the page visibility API? (drop this check along with IE9 and iOS6)
 					if (documentAlias[prefixPropertyName(prefix, 'hidden')]) {
 						// if pre-rendered, then defer callback until page visibility changes
 						if (documentAlias[prefixPropertyName(prefix, 'visibilityState')] === 'prerender') {
 							isPreRendered = true;
 						}
 						break;
-					}
+					} else if (documentAlias[prefixPropertyName(prefix, 'hidden')] === false) { break }
 				}
 			}
 
