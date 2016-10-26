@@ -60,8 +60,8 @@ define([
 			addAttributeToOutput: function() {
 				output += attribute;
 			}
-		}
-	};
+		};
+	}
 
 	var asyncQueue = [
 		["newTracker", "firstTracker", "firstEndpoint"],

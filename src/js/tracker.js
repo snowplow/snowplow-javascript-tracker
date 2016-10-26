@@ -2,7 +2,7 @@
  * JavaScript tracker for Snowplow: tracker.js
  * 
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
- * 2012-2014 Snowplow Analytics Ltd. All rights reserved. 
+ * 2012-2016 Snowplow Analytics Ltd. All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without 
  * modification, are permitted provided that the following conditions are 
@@ -40,7 +40,6 @@
 		proxies = require('./lib/proxies'),
 		cookie = require('browser-cookie-lite'),
 		detectors = require('./lib/detectors'),
-		json2 = require('JSON'),
 		sha1 = require('sha1'),
 		links = require('./links'),
 		forms = require('./forms'),
@@ -53,15 +52,12 @@
 	/**
 	 * Snowplow Tracker class
 	 *
+	 * @param functionName global function name
 	 * @param namespace The namespace of the tracker object
-
 	 * @param version The current version of the JavaScript Tracker
-	 *
 	 * @param pageViewId ID for the current page view, to be attached to all events in the web_page context
-	 *
 	 * @param mutSnowplowState An object containing hasLoaded, registeredOnLoadHandlers, and expireDateTime
-	 * Passed in by reference in case they are altered by snowplow.js
-	 *
+	 * 	      Passed in by reference in case they are altered by snowplow.js
 	 * @param argmap Optional dictionary of configuration options. Supported fields and their default values:
 	 *
 	 * 1. encodeBase64, true
@@ -327,9 +323,8 @@
 		 *
 		 * @param event e The event targeting the link
 		 */
-		function linkDecorationHandler(e) {
+		function linkDecorationHandler() {
 			var tstamp = new Date().getTime();
-			var initialQsParams = '_sp=' + domainUserId + '.' + tstamp;
 			if (this.href) {
 				this.href = helpers.decorateQuerystring(this.href, '_sp', domainUserId + '.' + tstamp);
 			}
@@ -340,11 +335,11 @@
 		 * Whenever such a link is clicked on or navigated to via the keyboard,
 		 * add "_sp={{duid}}.{{timestamp}}" to its querystring
 		 *
-		 * @param function crossDomainLinker Function used to determine which links to decorate
+		 * @param crossDomainLinker Function used to determine which links to decorate
 		 */
 		function decorateLinks(crossDomainLinker) {
-			for (var i=0; i<document.links.length; i++) {
-				var elt = document.links[i];
+			for (var i=0; i<documentAlias.links.length; i++) {
+				var elt = documentAlias.links[i];
 				if (!elt.spDecorationEnabled && crossDomainLinker(elt)) {
 					helpers.addEventListener(elt, 'click', linkDecorationHandler, true);
 					helpers.addEventListener(elt, 'mousedown', linkDecorationHandler, true);
@@ -476,7 +471,7 @@
 		 * Adapts code taken from: http://www.javascriptkit.com/javatutors/static2.shtml
 		 */
 		function getPageOffsets() {
-			var iebody = (documentAlias.compatMode && documentAlias.compatMode != "BackCompat") ?
+			var iebody = (documentAlias.compatMode && documentAlias.compatMode !== "BackCompat") ?
 				documentAlias.documentElement :
 				documentAlias.body;
 			return [iebody.scrollLeft || windowAlias.pageXOffset, iebody.scrollTop || windowAlias.pageYOffset];
@@ -758,7 +753,7 @@
 			}
 
 			// Add Optimizely Contexts
-			if (window['optimizely']) {
+			if (windowAlias.optimizely) {
 
 				if (autoContexts.optimizelyExperiments) {
 					var experimentContexts = getOptimizelyExperimentContexts();
@@ -873,20 +868,20 @@
 		 * @return array Experiment contexts
 		 */
 		function getOptimizelyExperimentContexts() {
-			var experiments = window['optimizely'].data.experiments;
+			var experiments = windowAlias.optimizely.data.experiments;
 			if (experiments) {
 				var contexts = [];
 
 				for (var key in experiments) {
 					if (experiments.hasOwnProperty(key)) {
 						var context = {};
-						context['id'] = key;
+						context.id = key;
 						var experiment = experiments[key];
-						context['code'] = experiment.code; 
-						context['manual'] = experiment.manual;
-						context['conditional'] = experiment.conditional;
-						context['name'] = experiment.name;
-						context['variationIds'] = experiment.variation_ids;
+						context.code = experiment.code;
+						context.manual = experiment.manual;
+						context.conditional = experiment.conditional;
+						context.name = experiment.name;
+						context.variationIds = experiment.variation_ids;
 
 						contexts.push({
 							schema: 'iglu:com.optimizely/experiment/jsonschema/1-0-0',
@@ -902,11 +897,11 @@
 		/**
 		 * Creates a context from the window['optimizely'].data.state object
 		 *
-		 * @return array State contexts
+		 * @return Array State contexts
 		 */
 		function getOptimizelyStateContexts() {
 			var experimentIds = [];
-			var experiments = window['optimizely'].data.experiments;
+			var experiments = windowAlias.optimizely.data.experiments;
 			if (experiments) {
 				for (var key in experiments) {
 					if (experiments.hasOwnProperty(key)) {
@@ -915,7 +910,7 @@
 				}
 			}
 
-			var state = window['optimizely'].data.state;
+			var state = windowAlias.optimizely.data.state;
 			if (state) {
 				var contexts = [];
 				var activeExperiments = state.activeExperiments || [];
@@ -923,15 +918,15 @@
 				for (var i = 0; i < experimentIds.length; i++) {
 					var experimentId = experimentIds[i];
 					var context = {};
-					context['experimentId'] = experimentId;
-					context['isActive'] = helpers.isValueInArray(experimentIds[i], activeExperiments);
+					context.experimentId = experimentId;
+					context.isActive = helpers.isValueInArray(experimentIds[i], activeExperiments);
 					var variationMap = state.variationMap || {};
-					context['variationIndex'] = variationMap[experimentId];
+					context.variationIndex = variationMap[experimentId];
 					var variationNamesMap = state.variationNamesMap || {};
-					context['variationName'] = variationNamesMap[experimentId];
+					context.variationName = variationNamesMap[experimentId];
 					var variationIdsMap = state.variationIdsMap || {};
 					if (variationIdsMap[experimentId] && variationIdsMap[experimentId].length === 1) {
-						context['variationId'] = variationIdsMap[experimentId][0];
+						context.variationId = variationIdsMap[experimentId][0];
 					}
 
 					contexts.push({
@@ -947,20 +942,20 @@
 		/**
 		 * Creates a context from the window['optimizely'].data.variations object
 		 *
-		 * @return array Variation contexts
+		 * @return Array Variation contexts
 		 */
 		function getOptimizelyVariationContexts() {
-			var variations = window['optimizely'].data.variations;
+			var variations = windowAlias.optimizely.data.variations;
 			if (variations) {
 				var contexts = [];
 
 				for (var key in variations) {
 					if (variations.hasOwnProperty(key)) {
 						var context = {};
-						context['id'] = key;
+						context.id = key;
 						var variation = variations[key];
-						context['name'] = variation.name;
-						context['code'] = variation.code;
+						context.name = variation.name;
+						context.code = variation.code;
 
 						contexts.push({
 							schema: 'iglu:com.optimizely/variation/jsonschema/1-0-0',
@@ -979,25 +974,25 @@
 		 * @return object Visitor context
 		 */
 		function getOptimizelyVisitorContext() {
-			var visitor = window['optimizely'].data.visitor;
+			var visitor = windowAlias.optimizely.data.visitor;
 			if (visitor) {
 				var context = {};
-				context['browser'] = visitor.browser;
-				context['browserVersion'] = visitor.browserVersion;
-				context['device'] = visitor.device;
-				context['deviceType'] = visitor.deviceType;
-				context['ip'] = visitor.ip;
+				context.browser = visitor.browser;
+				context.browserVersion = visitor.browserVersion;
+				context.device = visitor.device;
+				context.deviceType = visitor.deviceType;
+				context.ip = visitor.ip;
 				var platform = visitor.platform || {};
-				context['platformId'] = platform.id;
-				context['platformVersion'] = platform.version;
+				context.platformId = platform.id;
+				context.platformVersion = platform.version;
 				var location = visitor.location || {};
-				context['locationCity'] = location.city;
-				context['locationRegion'] = location.region;
-				context['locationCountry'] = location.country;
-				context['mobile'] = visitor.mobile;
-				context['mobileId'] = visitor.mobileId;
-				context['referrer'] = visitor.referrer;
-				context['os'] = visitor.os;
+				context.locationCity = location.city;
+				context.locationRegion = location.region;
+				context.locationCountry = location.country;
+				context.mobile = visitor.mobile;
+				context.mobileId = visitor.mobileId;
+				context.referrer = visitor.referrer;
+				context.os = visitor.os;
 
 				return {
 					schema: 'iglu:com.optimizely/visitor/jsonschema/1-0-0',
@@ -1009,18 +1004,16 @@
 		/**
 		 * Creates a context from the window['optimizely'].data.visitor.audiences object
 		 *
-		 * @return array VisitorAudience contexts
+		 * @return Array VisitorAudience contexts
 		 */
 		function getOptimizelyAudienceContexts() {
-			var audienceIds = window['optimizely'].data.visitor.audiences;
+			var audienceIds = windowAlias.optimizely.data.visitor.audiences;
 			if (audienceIds) {
 				var contexts = [];
 
 				for (var key in audienceIds) {
 					if (audienceIds.hasOwnProperty(key)) {
-						var context = {};
-						context['id'] = key;
-						context['isMember'] = audienceIds[key]; 
+                        var context = { id: key, isMember: audienceIds[key] };
 
 						contexts.push({
 							schema: 'iglu:com.optimizely/visitor_audience/jsonschema/1-0-0',
@@ -1036,18 +1029,16 @@
 		/**
 		 * Creates a context from the window['optimizely'].data.visitor.dimensions object
 		 *
-		 * @return array VisitorDimension contexts
+		 * @return Array VisitorDimension contexts
 		 */
 		function getOptimizelyDimensionContexts() {
-			var dimensionIds = window['optimizely'].data.visitor.dimensions;
+			var dimensionIds = windowAlias.optimizely.data.visitor.dimensions;
 			if (dimensionIds) {
 				var contexts = [];
 
 				for (var key in dimensionIds) {
 					if (dimensionIds.hasOwnProperty(key)) {
-						var context = {};
-						context['id'] = key;
-						context['value'] = dimensionIds[key]; 
+						var context = { id: key, value: dimensionIds[key] };
 
 						contexts.push({
 							schema: 'iglu:com.optimizely/visitor_dimension/jsonschema/1-0-0',
@@ -1066,18 +1057,18 @@
 		 * @return object The IdentityLite context
 		 */
 		function getAugurIdentityLiteContext() {
-			var augur = window['augur'];
+			var augur = windowAlias.augur;
 			if (augur) {
 				var context = { consumer: {}, device: {} };
 				var consumer = augur.consumer || {};
-				context['consumer']['UUID'] = consumer.UID;
+				context.consumer.UUID = consumer.UID;
 				var device = augur.device || {};
-				context['device']['ID'] = device.ID;
-				context['device']['isBot'] = device.isBot;
-				context['device']['isProxied'] = device.isProxied;
-				context['device']['isTor'] = device.isTor;
+				context.device.ID = device.ID;
+				context.device.isBot = device.isBot;
+				context.device.isProxied = device.isProxied;
+				context.device.isTor = device.isTor;
 				var fingerprint = device.fingerprint || {};
-				context['device']['isIncognito'] = fingerprint.browserHasIncognitoEnabled;
+				context.device.isIncognito = fingerprint.browserHasIncognitoEnabled;
 
 				return {
 					schema: 'iglu:io.augur.snowplow/identity_lite/jsonschema/1-0-0',
@@ -1092,7 +1083,7 @@
 		function enableGeolocationContext() {
 			if (!geolocationContextAdded && navigatorAlias.geolocation && navigatorAlias.geolocation.getCurrentPosition) {
 				geolocationContextAdded = true;
-				navigator.geolocation.getCurrentPosition(function (position) {
+				navigatorAlias.geolocation.getCurrentPosition(function (position) {
 					var coords = position.coords;
 					var geolocationContext = {
 						schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
@@ -1134,8 +1125,8 @@
 		/**
 		 * Combine an array of unchanging contexts with the result of a context-creating function
 		 *
-		 * @param object staticContexts Array of custom contexts
-		 * @param object contextCallback Function returning an array of contexts
+		 * @param staticContexts Array of custom contexts
+		 * @param contextCallback Function returning an array of contexts
 		 */
 		function finalizeContexts(staticContexts, contextCallback) {
 			return (staticContexts || []).concat(contextCallback ? contextCallback() : []);
@@ -1144,9 +1135,9 @@
 		/**
 		 * Log the page view / visit
 		 *
-		 * @param string customTitle The user-defined page title to attach to this page view
-		 * @param object context Custom context relating to the event
-		 * @param object contextCallback Function returning an array of contexts
+		 * @param customTitle string The user-defined page title to attach to this page view
+		 * @param context object Custom context relating to the event
+		 * @param contextCallback Function returning an array of contexts
 		 * @param tstamp number
 		 */
 		function logPageView(customTitle, context, contextCallback, tstamp) {
@@ -1215,7 +1206,7 @@
 		 * Not part of the public API - only called from
 		 * logPageView() above.
 		 *
-		 * @param object context Custom context relating to the event
+		 * @param context object Custom context relating to the event
 		 */
 		function logPagePing(context) {
 			refreshUrl();

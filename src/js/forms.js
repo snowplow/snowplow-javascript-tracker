@@ -53,10 +53,10 @@ object.getFormTrackingManager = function (core, trackerId, contextAdder) {
 	var trackingMarker = trackerId + 'form';
 
 	// Filter to determine which forms should be tracked
-	var formFilter = function (e) {return true;}
+	var formFilter = function () { return true };
 
 	// Filter to determine which form fields should be tracked
-	var fieldFilter = function (e) {return true;}
+	var fieldFilter = function () { return true };
 
 	/*
 	 * Get an identifier for a form, input, textarea, or select element
@@ -144,7 +144,7 @@ object.getFormTrackingManager = function (core, trackerId, contextAdder) {
 		/*
 		 * Configures form tracking: which forms and fields will be tracked, and the context to attach
 		 */
-		configureFormTracking: function (config, context) {
+		configureFormTracking: function (config) {
 			if (config) {
 				formFilter = helpers.getFilter(config.forms, true);
 				fieldFilter = helpers.getFilter(config.fields, false);
