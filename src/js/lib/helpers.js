@@ -54,7 +54,7 @@
 		return title;
 	};
 
-	/*
+	/**
 	 * Extract hostname from URL
 	 */
 	object.getHostName = function (url) {
@@ -65,7 +65,7 @@
 		return matches ? matches[1] : url;
 	};
 
-	/*
+	/**
 	 * Fix-up domain
 	 */
 	object.fixupDomain = function (domain) {
@@ -125,7 +125,7 @@
 		return referrer;
 	};
 
-	/*
+	/**
 	 * Cross-browser helper function to add event handler
 	 */
 	object.addEventListener = function (element, eventType, eventHandler, useCapture) {
@@ -139,7 +139,7 @@
 		element['on' + eventType] = eventHandler;
 	};
 
-	/*
+	/**
 	 * Return value from name-value pair in querystring 
 	 */
 	object.fromQuerystring = function (field, url) {
@@ -150,7 +150,7 @@
 		return decodeURIComponent(match[1].replace(/\+/g, ' '));
 	};
 
-	/*
+	/**
 	 * Only log deprecation warnings if they won't cause an error
 	 */
 	object.warn = function(message) {
@@ -166,7 +166,7 @@
 		return elt.className.match(/\S+/g) || [];
 	};
 
-	/*
+	/**
 	 * Check whether an element has at least one class from a given list
 	 */
 	function checkClass(elt, classList) {
@@ -194,7 +194,7 @@
 
 		// If the criterion argument is not an object, add listeners to all elements
 		if (lodash.isArray(criterion) || !lodash.isObject(criterion)) {
-			return function (elt) {
+			return function () {
 				return true;
 			};
 		}
@@ -224,7 +224,7 @@
 				};
 			}
 		}
-	}
+	};
 
 	/**
 	 * Add a name-value pair to the querystring of a URL
@@ -336,7 +336,7 @@
 			}
 		}
 		return false;
-	}
+	};
 
 	/**
 	 * Deletes an arbitrary cookie by setting the expiration date to the past
@@ -375,7 +375,7 @@
 	object.parseInt = function (obj) {
 		var result = parseInt(obj);
 		return isNaN(result) ? undefined : result;
-	}
+	};
 
 	/**
 	 * Parses an object and returns either the
