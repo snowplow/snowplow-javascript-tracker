@@ -74,6 +74,12 @@
 		// trackTrans sends the transaction to Snowplow tracking servers.
 		// Must be called last to commit the transaction.
 		window.snowplow('trackTrans');
+
+		// track unhandled exception
+		window.snowplow("enableErrorTracking");
+		function raiseException() { notExiststentObject.notExistentProperty(); }
+		setTimeout(raiseException, 2500);
+
 	</script>
 
 </body>

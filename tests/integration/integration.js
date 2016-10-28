@@ -65,7 +65,7 @@ define([
 	}
 
 	/**
-	 * Check if expected payload was exists in `log`
+	 * Check if expected payload exists in `log`
      */
 	function checkExistenceOfExpectedQuerystring(expected) {
 		function compare(e, other) {	// e === expected
@@ -190,9 +190,12 @@ define([
 
 		'Check an unhandled exception was sent': function () {
 			assert.isTrue(checkExistenceOfExpectedQuerystring({
-				e: 'ue',
-				ue_px: function (line) {
-					return true
+				ue_px: function (ue) {
+					var event = JSON.parse(decodeBase64(ue)).data;
+					// We cannot test more because implementations vary much in old browsers (FF27,IE9)
+					return (event.schema === 'iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1') &&
+						(event.data.programmingLanguage === 'JAVASCRIPT') &&
+						(event.data.message != null)
 				}
 			}))
 		}
