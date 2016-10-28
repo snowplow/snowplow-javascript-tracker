@@ -43,6 +43,7 @@
 		sha1 = require('sha1'),
 		links = require('./links'),
 		forms = require('./forms'),
+		errors = require('./errors'),
 		requestQueue = require('./out_queue'),
 		coreConstructor = require('snowplow-tracker-core').trackerCore,
 		uuid = require('uuid'),
@@ -239,6 +240,9 @@
 
 			// Manager for automatic form tracking
 			formTrackingManager = forms.getFormTrackingManager(core, trackerId, addCommonContexts),
+
+			// Manager for tracking unhandled exceptions
+			errorManager = errors.errorManager(core),
 
 			// Manager for local storage queue
 			outQueueManager = new requestQueue.OutQueueManager(
@@ -2171,6 +2175,33 @@
 						currency: currency
 					}
 				});
+			},
+
+			/**
+			 * Enable tracking of unhandled exceptions with custom contexts
+			 *
+			 * @param filter Function ErrorEvent => Bool to check whether error should be tracker
+			 * @param contextsAdder Function ErrorEvent => Array<Context> to add custom contexts with
+			 *                     internal state based on particular error
+			 */
+			enableErrorTracking: function (filter, contextsAdder) {
+				errorManager.enableErrorTracking(filter, contextsAdder, addCommonContexts())
+			},
+
+			/**
+			 * Track unhandled exception.
+			 * This method supposed to be used inside try/catch block
+			 *
+			 * @param message string Message appeared in console
+			 * @param filename string Source file (not used)
+			 * @param lineno number Line number
+			 * @param colno number Column number (not used)
+			 * @param error Error error object (not present in all browsers)
+			 * @param contexts Array of custom contexts
+			 */
+			trackError: function (message, filename, lineno, colno, error, contexts) {
+				var enrichedContexts = addCommonContexts(contexts);
+			    errorManager.trackError(message, filename, lineno, colno, error, enrichedContexts);
 			}
 		};
 	};
