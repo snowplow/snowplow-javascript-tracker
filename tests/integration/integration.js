@@ -37,8 +37,10 @@ define([
 	'intern/chai!assert',
 	'intern/dojo/node!lodash',
 	'intern/dojo/node!http',
-	'intern/dojo/node!url'
-], function(registerSuite, assert, lodash, http, url) {
+	'intern/dojo/node!url',
+	"intern/dojo/node!js-base64"
+], function(registerSuite, assert, lodash, http, url, jsBase64) {
+	var decodeBase64 = jsBase64.Base64.fromBase64;
 
 	/**
 	 * Expected amount of request for each browser
@@ -195,9 +197,15 @@ define([
 					// We cannot test more because implementations vary much in old browsers (FF27,IE9)
 					return (event.schema === 'iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1') &&
 						(event.data.programmingLanguage === 'JAVASCRIPT') &&
-						(event.data.message != null)
+						(event.data.message != null);
 				}
 			}));
-		}
+		},
+
+
+	    'Check pageViewId is regenerated for each trackPageView': function () {
+		    assert.isTrue(pageViewsHaveDifferentIds());
+	    }
+
 	});
 });
