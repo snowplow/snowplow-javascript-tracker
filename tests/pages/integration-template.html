@@ -24,7 +24,10 @@
 		window.snowplow('newTracker', 'cf', subdomain + '.ngrok.io', {
 			encodeBase64: true,
 			appId: 'CFe23a',
-			platform: 'mob'
+			platform: 'mob',
+			contexts: {
+				webPage: true
+			}
 		});
 
 		window.snowplow('setUserId', 'Malcolm');
@@ -36,6 +39,9 @@
 				}
 			}
 		]);
+
+		// This should have different pageViewId in web_page context
+		window.snowplow('trackPageView');
 
 		window.snowplow('trackStructEvent', 'Mixes', 'Play', 'MRC/fabric-0503-mix', '', '0.0');
 		window.snowplow('trackUnstructEvent', {
