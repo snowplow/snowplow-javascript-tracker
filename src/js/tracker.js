@@ -56,7 +56,8 @@
 	 * @param functionName global function name
 	 * @param namespace The namespace of the tracker object
 	 * @param version The current version of the JavaScript Tracker
-	 * @param pageViewId ID for the current page view, to be attached to all events in the web_page context
+	 * @param pageViewId Initial (can be modified) ID for the current page view, to be attached to 
+	 *        all events in the web_page context.
 	 * @param mutSnowplowState An object containing hasLoaded, registeredOnLoadHandlers, and expireDateTime
 	 * 	      Passed in by reference in case they are altered by snowplow.js
 	 * @param argmap Optional dictionary of configuration options. Supported fields and their default values:
@@ -264,14 +265,13 @@
 			commonContexts = [],
 
 			// Enhanced Ecommerce Contexts to be added on every `trackEnhancedEcommerceAction` call
-			enhancedEcommerceContexts = [];
+			enhancedEcommerceContexts = [],
+			
+			// Whether pageViewId should be regenerated after each trackPageView. Affect web_page context
+			preservePageViewId = false;
 
 		if (argmap.hasOwnProperty('discoverRootDomain') && argmap.discoverRootDomain) {
 			configCookieDomain = helpers.findRootDomain();
-		}
-
-		if (autoContexts.webPage) {
-			commonContexts.push(getWebPageContext());
 		}
 
 		if (autoContexts.gaCookies) {
@@ -739,6 +739,16 @@
 		}
 
 		/**
+		 * Reset initial `pageViewId` if necessary after successful
+		 * `trackPageView`
+		 */
+		function resetPageViewState() {
+			if (!preservePageViewId) {
+				pageViewId = uuid.v4();
+			}
+		}
+
+		/**
 		 * Add common contexts to every event
 		 * TODO: move this functionality into the core
 		 *
@@ -747,6 +757,10 @@
 		 */
 		function addCommonContexts(userContexts) {
 			var combinedContexts = commonContexts.concat(userContexts || []);
+
+			if (autoContexts.webPage) {
+				combinedContexts.push(getWebPageContext());
+			}
 
 			// Add PerformanceTiming Context
 			if (autoContexts.performanceTiming) {
@@ -1162,6 +1176,8 @@
 				purify(customReferrer || configReferrerUrl),
 				addCommonContexts(finalizeContexts(context, contextCallback)),
 				tstamp);
+			
+			resetPageViewState();
 
 			// Send ping (to log that user has stayed on page)
 			var now = new Date();
@@ -2202,6 +2218,13 @@
 			trackError: function (message, filename, lineno, colno, error, contexts) {
 				var enrichedContexts = addCommonContexts(contexts);
 			    errorManager.trackError(message, filename, lineno, colno, error, enrichedContexts);
+			},
+
+			/**
+			 * Stop regenerating `pageViewId` (available from `web_page` context)
+			 */
+			preservePageViewId: function () {
+				preservePageViewId = true
 			}
 		};
 	};
