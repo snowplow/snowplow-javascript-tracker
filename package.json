@@ -11,6 +11,7 @@
     "sha1": "git://github.com/pvorb/node-sha1.git#v1.0.0"
   },
   "devDependencies": {
+    "js-base64": "2.1.9",
     "JSON": "1.0.0",
     "grunt": "0.4.5",
     "grunt-browserify": "5.0.0",

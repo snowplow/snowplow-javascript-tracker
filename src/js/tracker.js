@@ -56,7 +56,6 @@
 	 * @param functionName global function name
 	 * @param namespace The namespace of the tracker object
 	 * @param version The current version of the JavaScript Tracker
-	 * @param pageViewId ID for the current page view, to be attached to all events in the web_page context
 	 * @param mutSnowplowState An object containing hasLoaded, registeredOnLoadHandlers, and expireDateTime
 	 * 	      Passed in by reference in case they are altered by snowplow.js
 	 * @param argmap Optional dictionary of configuration options. Supported fields and their default values:
@@ -82,7 +81,7 @@
 	 * 19. maxPostBytes, 40000
 	 * 20. discoverRootDomain, false
 	 */
-	object.Tracker = function Tracker(functionName, namespace, version, pageViewId, mutSnowplowState, argmap) {
+	object.Tracker = function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
 
 		/************************************************************
 		 * Private members
@@ -264,14 +263,13 @@
 			commonContexts = [],
 
 			// Enhanced Ecommerce Contexts to be added on every `trackEnhancedEcommerceAction` call
-			enhancedEcommerceContexts = [];
+			enhancedEcommerceContexts = [],
+
+			// Whether pageViewId should be regenerated after each trackPageView. Affect web_page context
+			preservePageViewId = false;
 
 		if (argmap.hasOwnProperty('discoverRootDomain') && argmap.discoverRootDomain) {
 			configCookieDomain = helpers.findRootDomain();
-		}
-
-		if (autoContexts.webPage) {
-			commonContexts.push(getWebPageContext());
 		}
 
 		if (autoContexts.gaCookies) {
@@ -748,6 +746,10 @@
 		function addCommonContexts(userContexts) {
 			var combinedContexts = commonContexts.concat(userContexts || []);
 
+			if (autoContexts.webPage) {
+				combinedContexts.push(getWebPageContext());
+			}
+
 			// Add PerformanceTiming Context
 			if (autoContexts.performanceTiming) {
 				var performanceTimingContext = getPerformanceTimingContext();
@@ -814,6 +816,27 @@
 		}
 
 		/**
+		 * Initialize new `pageViewId` if it shouldn't be preserved.
+		 * Should be called when `trackPageView` is invoked
+		 */
+		function resetPageView() {
+			if (!preservePageViewId || mutSnowplowState.pageViewId == null) {
+				mutSnowplowState.pageViewId = uuid.v4();
+			}
+		}
+
+		/**
+		 * Safe function to get `pageViewId`.
+		 * Generates it if it wasn't initialized by other tracker
+		 */
+		function getPageViewId() {
+			if (mutSnowplowState.pageViewId == null) {
+				mutSnowplowState.pageViewId = uuid.v4();
+			}
+			return mutSnowplowState.pageViewId
+		}
+
+		/**
 		 * Put together a web page context with a unique UUID for the page view
 		 *
 		 * @return object web_page context
@@ -822,7 +845,7 @@
 			return {
 				schema: 'iglu:com.snowplowanalytics.snowplow/web_page/jsonschema/1-0-0',
 				data: {
-					id: pageViewId
+					id: getPageViewId()
 				}
 			};
 		}
@@ -1147,6 +1170,7 @@
 		function logPageView(customTitle, context, contextCallback, tstamp) {
 
 			refreshUrl();
+			resetPageView();
 
 			// So we know what document.title was at the time of trackPageView
 			lastDocumentTitle = documentAlias.title;
@@ -1162,7 +1186,7 @@
 				purify(customReferrer || configReferrerUrl),
 				addCommonContexts(finalizeContexts(context, contextCallback)),
 				tstamp);
-
+			
 			// Send ping (to log that user has stayed on page)
 			var now = new Date();
 			if (configMinimumVisitTime && configHeartBeatTimer && !activityTrackingInstalled) {
@@ -2202,6 +2226,13 @@
 			trackError: function (message, filename, lineno, colno, error, contexts) {
 				var enrichedContexts = addCommonContexts(contexts);
 			    errorManager.trackError(message, filename, lineno, colno, error, enrichedContexts);
+			},
+
+			/**
+			 * Stop regenerating `pageViewId` (available from `web_page` context)
+			 */
+			preservePageViewId: function () {
+				preservePageViewId = true
 			}
 		};
 	};

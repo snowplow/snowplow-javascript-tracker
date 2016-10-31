@@ -46,7 +46,7 @@
 	 *   after the Tracker has been initialized and loaded
 	 ************************************************************/
 
-	object.InQueueManager = function(TrackerConstructor, version, pageViewId, mutSnowplowState, asyncQueue, functionName) {
+	object.InQueueManager = function(TrackerConstructor, version, mutSnowplowState, asyncQueue, functionName) {
 
 		// Page view ID should be shared between all tracker instances
 		var trackerDictionary = {};
@@ -112,7 +112,7 @@
 			argmap = argmap || {};
 
 			if (!trackerDictionary.hasOwnProperty(namespace)) {
-				trackerDictionary[namespace] = new TrackerConstructor(functionName, namespace, version, pageViewId, mutSnowplowState, argmap);
+				trackerDictionary[namespace] = new TrackerConstructor(functionName, namespace, version, mutSnowplowState, argmap);
 				trackerDictionary[namespace].setCollectorUrl(endpoint);
 			} else {
 				helpers.warn('Tracker namespace ' + namespace + ' already exists.');
