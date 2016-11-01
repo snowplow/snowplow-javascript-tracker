@@ -84,8 +84,7 @@ module.exports = function(grunt) {
         dest: 'src/js/lib_managed/lodash.js',
         options: {
           exports: 'node',
-          include: 'isArray, isFunction, isString, isObject, isDate, isUndefined, isNull, map, mapValues, forEach, filter, find, compact, isEmpty, clone',
-          flags: ['debug']
+          include: 'isArray, isFunction, isString, isObject, isUndefined, map, mapValues, forEach, filter, find'
         }
       }
     },
