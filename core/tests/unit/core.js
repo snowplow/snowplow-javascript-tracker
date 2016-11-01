@@ -17,9 +17,8 @@ define([
 	"intern!object",
 	"intern/chai!assert",
 	"intern/chai!expect",
-	"intern/dojo/node!../../lib/core.js",
-	"intern/dojo/node!JSON"
-], function (registerSuite, assert, expect, core, JSON) {
+	"intern/dojo/node!../../lib/core.js"
+], function (registerSuite, assert, expect, core) {
 
 	var unstructEventSchema = 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0';
 	var tracker = core.trackerCore(false);
