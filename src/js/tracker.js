@@ -773,6 +773,13 @@
 			// Add Optimizely Contexts
 			if (windowAlias.optimizely) {
 
+				if (autoContexts.optimizelySummary) {
+					var activeExperiments = getOptimizelySummaryContexts();
+					lodash.each(activeExperiments, function (e) {
+						combinedContexts.push(e)
+					})
+				}
+
 				if (autoContexts.optimizelyExperiments) {
 					var experimentContexts = getOptimizelyExperimentContexts();
 					for (var i = 0; i < experimentContexts.length; i++) {
@@ -881,9 +888,33 @@
 		}
 
 		/**
+		 * Get data for Optimizely "lite" contexts - active experiments on current page
+		 * 
+		 * @returns Array content of lite optimizely lite context
+		 */
+		function getOptimizelySummary() {
+			// Prevent throwing exceptions
+			var data = windowAlias.optimizely.data;
+			var state = data && data.state;
+			var experiments = data && data.experiments;
+
+			return lodash.map(state && experiments && state.activeExperiments, function (activeExperiment) {
+				var current = experiments[activeExperiment];
+				return {
+					activeExperimentId: activeExperiment,
+					// User can be only in one variation (don't know why is this array)
+					variation: state.variationIdsMap[activeExperiment][0],
+					conditional: current && current.conditional,
+					manual: current && current.manual,
+					name: current && current.name
+				}
+			});
+		}
+
+		/**
 		 * Creates a context from the window['optimizely'].data.experiments object
 		 *
-		 * @return array Experiment contexts
+		 * @return Array Experiment contexts
 		 */
 		function getOptimizelyExperimentContexts() {
 			var experiments = windowAlias.optimizely.data.experiments;
@@ -1067,6 +1098,22 @@
 				return contexts;
 			}
 			return [];
+		}
+
+
+		/**
+		 * Creates an Optimizely lite context containing only data required to join
+		 * event to experiment data
+		 *
+		 * @returns Array of custom contexts
+		 */
+		function getOptimizelySummaryContexts() {
+			return lodash.map(getOptimizelySummary(), function (experiment) {
+				return {
+					schema: 'iglu:com.optimizely.snowplow/optimizely_summary/jsonschema/1-0-0',
+					data: experiment
+				};
+			});
 		}
 
 		/**
