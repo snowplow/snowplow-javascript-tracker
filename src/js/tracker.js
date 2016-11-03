@@ -1147,8 +1147,9 @@
 		 * @param string customTitle The user-defined page title to attach to this page view
 		 * @param object context Custom context relating to the event
 		 * @param object contextCallback Function returning an array of contexts
+		 * @param tstamp number
 		 */
-		function logPageView(customTitle, context, contextCallback) {
+		function logPageView(customTitle, context, contextCallback, tstamp) {
 
 			refreshUrl();
 
@@ -1164,7 +1165,8 @@
 				purify(configCustomUrl || locationHrefAlias),
 				pageTitle,
 				purify(customReferrer || configReferrerUrl),
-				addCommonContexts(finalizeContexts(context, contextCallback)));
+				addCommonContexts(finalizeContexts(context, contextCallback)),
+				tstamp);
 
 			// Send ping (to log that user has stayed on page)
 			var now = new Date();
@@ -1247,9 +1249,10 @@
 		 * @param string country
 		 * @param string currency The currency the total/tax/shipping are expressed in
 		 * @param object context Custom context relating to the event
+		 * @param tstamp number or Timestamp object
 		 */
-		function logTransaction(orderId, affiliation, total, tax, shipping, city, state, country, currency, context) {
-			core.trackEcommerceTransaction(orderId, affiliation, total, tax, shipping, city, state, country, currency, addCommonContexts(context));
+		function logTransaction(orderId, affiliation, total, tax, shipping, city, state, country, currency, context, tstamp) {
+			core.trackEcommerceTransaction(orderId, affiliation, total, tax, shipping, city, state, country, currency, addCommonContexts(context), tstamp);
 		}
 
 		/**
@@ -1264,8 +1267,8 @@
 		 * @param string currency The currency the price is expressed in
 		 * @param object context Custom context relating to the event
 		 */
-		function logTransactionItem(orderId, sku, name, category, price, quantity, currency, context) {
-			core.trackEcommerceTransactionItem(orderId, sku, name, category, price, quantity, currency, addCommonContexts(context));
+		function logTransactionItem(orderId, sku, name, category, price, quantity, currency, context, tstamp) {
+			core.trackEcommerceTransactionItem(orderId, sku, name, category, price, quantity, currency, addCommonContexts(context), tstamp);
 		}
 
 		/**
@@ -1744,10 +1747,11 @@
 			 * @param string customTitle
 			 * @param object Custom context relating to the event
 			 * @param object contextCallback Function returning an array of contexts
+			 * @param tstamp number or Timestamp object
 			 */
-			trackPageView: function (customTitle, context, contextCallback) {
+			trackPageView: function (customTitle, context, contextCallback, tstamp) {
 				trackCallback(function () {
-					logPageView(customTitle, context, contextCallback);
+					logPageView(customTitle, context, contextCallback, tstamp);
 				});
 			},
 
@@ -1763,9 +1767,10 @@
 			 * @param string property (optional) Describes the object or the action performed on it, e.g. quantity of item added to basket
 			 * @param int|float|string value (optional) An integer that you can use to provide numerical data about the user event
 			 * @param object Custom context relating to the event
+			 * @param tstamp number or Timestamp object
 			 */
-			trackStructEvent: function (category, action, label, property, value, context) {
-				core.trackStructEvent(category, action, label, property, value, addCommonContexts(context));
+			trackStructEvent: function (category, action, label, property, value, context, tstamp) {
+				core.trackStructEvent(category, action, label, property, value, addCommonContexts(context), tstamp);
 			},
 
 			/**
@@ -1773,16 +1778,17 @@
 			 *
 			 * @param object eventJson Contains the properties and schema location for the event
 			 * @param object context Custom context relating to the event
+			 * @param tstamp number or Timestamp object
 			 */
-			trackSelfDescribingEvent: function (eventJson, context) {
-				core.trackSelfDescribingEvent(eventJson, addCommonContexts(context));
+			trackSelfDescribingEvent: function (eventJson, context, tstamp) {
+				core.trackSelfDescribingEvent(eventJson, addCommonContexts(context), tstamp);
 			},
 
 			/**
 			 * Alias for `trackSelfDescribingEvent`, left for compatibility
 			 */
-			trackUnstructEvent: function (eventJson, context) {
-				core.trackSelfDescribingEvent(eventJson, addCommonContexts(context));
+			trackUnstructEvent: function (eventJson, context, tstamp) {
+				core.trackSelfDescribingEvent(eventJson, addCommonContexts(context), tstamp);
 			},
 
 			/**
@@ -1798,19 +1804,21 @@
 			 * @param string country Optional. Country to associate with transaction.
 			 * @param string currency Optional. Currency to associate with this transaction.
 			 * @param object context Optional. Context relating to the event.
+			 * @param tstamp number or Timestamp object
 			 */
-			addTrans: function(orderId, affiliation, total, tax, shipping, city, state, country, currency, context) {
+			addTrans: function(orderId, affiliation, total, tax, shipping, city, state, country, currency, context, tstamp) {
 				ecommerceTransaction.transaction = {
-					 orderId: orderId,
-					 affiliation: affiliation,
-					 total: total,
-					 tax: tax,
-					 shipping: shipping,
-					 city: city,
-					 state: state,
-					 country: country,
-					 currency: currency,
-					 context: context
+					orderId: orderId,
+					affiliation: affiliation,
+					total: total,
+					tax: tax,
+					shipping: shipping,
+					city: city,
+					state: state,
+					country: country,
+					currency: currency,
+					context: context,
+					tstamp: tstamp
 				};
 			},
 
@@ -1825,8 +1833,9 @@
 			 * @param string quantity Required. Purchase quantity.
 			 * @param string currency Optional. Product price currency.
 			 * @param object context Optional. Context relating to the event.
+			 * @param tstamp number or Timestamp object
 			 */
-			addItem: function(orderId, sku, name, category, price, quantity, currency, context) {
+			addItem: function(orderId, sku, name, category, price, quantity, currency, context, tstamp) {
 				ecommerceTransaction.items.push({
 					orderId: orderId,
 					sku: sku,
@@ -1835,7 +1844,8 @@
 					price: price,
 					quantity: quantity,
 					currency: currency,
-					context: context
+					context: context,
+					tstamp: tstamp
 				});
 			},
 
@@ -1846,18 +1856,20 @@
 			 * addItem methods to the tracking server.
 			 */
 			trackTrans: function() {
-				 logTransaction(
-						 ecommerceTransaction.transaction.orderId,
-						 ecommerceTransaction.transaction.affiliation,
-						 ecommerceTransaction.transaction.total,
-						 ecommerceTransaction.transaction.tax,
-						 ecommerceTransaction.transaction.shipping,
-						 ecommerceTransaction.transaction.city,
-						 ecommerceTransaction.transaction.state,
-						 ecommerceTransaction.transaction.country,
-						 ecommerceTransaction.transaction.currency,
-						 ecommerceTransaction.transaction.context
-						);
+				logTransaction(
+					ecommerceTransaction.transaction.orderId,
+					ecommerceTransaction.transaction.affiliation,
+					ecommerceTransaction.transaction.total,
+					ecommerceTransaction.transaction.tax,
+					ecommerceTransaction.transaction.shipping,
+					ecommerceTransaction.transaction.city,
+					ecommerceTransaction.transaction.state,
+					ecommerceTransaction.transaction.country,
+					ecommerceTransaction.transaction.currency,
+					ecommerceTransaction.transaction.context,
+					ecommerceTransaction.transaction.tstamp
+
+				);
 				for (var i = 0; i < ecommerceTransaction.items.length; i++) {
 					var item = ecommerceTransaction.items[i];
 					logTransactionItem(
@@ -1868,8 +1880,9 @@
 						item.price,
 						item.quantity,
 						item.currency,
-						item.context
-						);
+						item.context,
+						item.tstamp
+					);
 				}
 
 				ecommerceTransaction = ecommerceTransactionTemplate();
@@ -1884,11 +1897,12 @@
 			 * @param string targetUrl
 			 * @param string elementContent innerHTML of the element
 			 * @param object Custom context relating to the event
+			 * @param tstamp number or Timestamp object
 			 */
 			// TODO: break this into trackLink(destUrl) and trackDownload(destUrl)
-			trackLinkClick: function(targetUrl, elementId, elementClasses, elementTarget, elementContent, context) {
+			trackLinkClick: function(targetUrl, elementId, elementClasses, elementTarget, elementContent, context, tstamp) {
 				trackCallback(function () {
-					core.trackLinkClick(targetUrl, elementId, elementClasses, elementTarget, elementContent, addCommonContexts(context));
+					core.trackLinkClick(targetUrl, elementId, elementClasses, elementTarget, elementContent, addCommonContexts(context), tstamp);
 				});
 			},
 
@@ -1903,10 +1917,11 @@
 			 * @param string advertiserId Identifier for the advertiser
 			 * @param string campaignId Identifier for the campaign which the banner belongs to
 			 * @param object Custom context relating to the event
-			 */			
-			trackAdImpression: function(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, context) {
+			 * @param tstamp number or Timestamp object
+			 */
+			trackAdImpression: function(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, context, tstamp) {
 				trackCallback(function () {
-					core.trackAdImpression(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, addCommonContexts(context));
+					core.trackAdImpression(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, addCommonContexts(context), tstamp);
 				});
 			},
 			
@@ -1923,9 +1938,10 @@
 			 * @param string advertiserId Identifier for the advertiser
 			 * @param string campaignId Identifier for the campaign which the banner belongs to
 			 * @param object Custom context relating to the event
+			 * @param tstamp number or Timestamp object
 			 */
-			trackAdClick: function(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, context) {
-				core.trackAdClick(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, addCommonContexts(context));
+			trackAdClick: function(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, context, tstamp) {
+				core.trackAdClick(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, addCommonContexts(context), tstamp);
 			},
 
 			/**
@@ -1941,9 +1957,10 @@
 			 * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'
 			 * @param string campaignId Identifier for the campaign which the banner belongs to
 			 * @param object Custom context relating to the event
+			 * @param tstamp number or Timestamp object
 			 */
-			trackAdConversion: function(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, context) {
-				core.trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, addCommonContexts(context));
+			trackAdConversion: function(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, context, tstamp) {
+				core.trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, addCommonContexts(context), tstamp);
 			},
 
 			/**
@@ -1953,9 +1970,10 @@
 			 * @param string network (required) Social network
 			 * @param string target Object of the social action e.g. the video liked, the tweet retweeted
 			 * @param object Custom context relating to the event
+			 * @param tstamp number or Timestamp object
 			 */
-			trackSocialInteraction: function(action, network, target, context) {
-				core.trackSocialInteraction(action, network, target, addCommonContexts(context));
+			trackSocialInteraction: function(action, network, target, context, tstamp) {
+				core.trackSocialInteraction(action, network, target, addCommonContexts(context), tstamp);
 			},
 
 			/**
@@ -1968,9 +1986,10 @@
 			 * @param string quantity Required. Quantity added.
 			 * @param string currency Optional. Product price currency.
 			 * @param array context Optional. Context relating to the event.
+			 * @param tstamp number or Timestamp object
 			 */
-			trackAddToCart: function(sku, name, category, unitPrice, quantity, currency, context) {
-				core.trackAddToCart(sku, name, category, unitPrice, quantity, currency, addCommonContexts(context));
+			trackAddToCart: function(sku, name, category, unitPrice, quantity, currency, context, tstamp) {
+				core.trackAddToCart(sku, name, category, unitPrice, quantity, currency, addCommonContexts(context), tstamp);
 			},
 
 			/**
@@ -1983,9 +2002,10 @@
 			 * @param string quantity Required. Quantity removed.
 			 * @param string currency Optional. Product price currency.
 			 * @param array context Optional. Context relating to the event.
+			 * @param tstamp Opinal number or Timestamp object
 			 */
-			trackRemoveFromCart: function(sku, name, category, unitPrice, quantity, currency, context) {
-				core.trackRemoveFromCart(sku, name, category, unitPrice, quantity, currency, addCommonContexts(context));
+			trackRemoveFromCart: function(sku, name, category, unitPrice, quantity, currency, context, tstamp) {
+				core.trackRemoveFromCart(sku, name, category, unitPrice, quantity, currency, addCommonContexts(context), tstamp);
 			},
 
 			/**
@@ -1996,9 +2016,10 @@
 			 * @param number totalResults Number of results
 			 * @param number pageResults Number of results displayed on page
 			 * @param array context Optional. Context relating to the event.
+			 * @param tstamp Opinal number or Timestamp object
 			 */
-			trackSiteSearch: function(terms, filters, totalResults, pageResults, context) {
-				core.trackSiteSearch(terms, filters, totalResults, pageResults, addCommonContexts(context));
+			trackSiteSearch: function(terms, filters, totalResults, pageResults, context, tstamp) {
+				core.trackSiteSearch(terms, filters, totalResults, pageResults, addCommonContexts(context), tstamp);
 			},
 
 			/**
@@ -2009,8 +2030,9 @@
 			 * @param number timing Required.
 			 * @param string label Optional.
 			 * @param array context Optional. Context relating to the event.
+			 * @param tstamp Opinal number or Timestamp object
 			 */
-			trackTiming: function (category, variable, timing, label, context) {
+			trackTiming: function (category, variable, timing, label, context, tstamp) {
 				core.trackSelfDescribingEvent({
 					schema: 'iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0',
 					data: {
@@ -2019,7 +2041,7 @@
 						timing: timing,
 						label: label
 					}
-				}, addCommonContexts(context))
+				}, addCommonContexts(context), tstamp)
 			},
 
 			/**
@@ -2028,8 +2050,9 @@
 			 *
 			 * @param string action
 			 * @param array context Optional. Context relating to the event.
+			 * @param tstamp Opinal number or Timestamp object
 			 */
-			trackEnhancedEcommerceAction: function (action, context) {
+			trackEnhancedEcommerceAction: function (action, context, tstamp) {
 				var combinedEnhancedEcommerceContexts = enhancedEcommerceContexts.concat(context || []);
 				enhancedEcommerceContexts.length = 0;
 
@@ -2038,7 +2061,7 @@
 					data: {
 						action: action
 					}
-				}, addCommonContexts(combinedEnhancedEcommerceContexts));
+				}, addCommonContexts(combinedEnhancedEcommerceContexts), tstamp);
 			},
 
 			/**
