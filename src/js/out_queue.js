@@ -296,7 +296,7 @@
     // Filter the query string payload to try and get it shorter. Currently,
     // the payload is way too long and this is causing failures
     // https://github.com/snowplow/snowplow/wiki/Technical-architecture#technical-limitations
-    var queryUrlRe = /((refr|url)=http[^&]*%2Fquery%(23|3F)query%3D)[^&]*/g
+    var queryUrlRe = /((refr|url)=http[^&]*%2Fquery(%2F)?%(23|3F)query%3D)[^&]*/g
 
     function dwFilterRequest (req) {
       var newRequest = req;
