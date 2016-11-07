@@ -2,12 +2,19 @@ node_js:
 - 4.1.2
 language: node_js
 install:
+- npm install -g npm
+- npm install -g grunt-cli
+- cd core
+- npm install
+- grunt ts
+- grunt dtsGenerator
+- cd ..
+- npm install ./core --save # Must be cleaned from package.json before deploy
 - npm install
 - npm install -g grunt-cli
 - wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
 - unzip ./ngrok-stable-linux-amd64.zip
 before_script:
-# Create a random ngrok subdomain
 - export SUBDOMAIN=$RANDOM$RANDOM
 - ./ngrok http -authtoken $NGROK_AUTH -subdomain $SUBDOMAIN -log=stdout 8500 > /dev/null &
 script:
@@ -24,3 +31,5 @@ env:
   - secure: AEvIKW1H/DPU5yPKfRPHY9XpBCjXGtwVqpQERx0wYGwV8j9mzz8EMMrx6yPMaLOkeBMcaH/db3aXEePHWAlnxrTuUuhwwr9A7sihaaAwZ9GllUlUEJzfXeBcCM9rhsooY2roMzJM3Ener1W+yKHThagYxUZ4PyZrPJCMMzbc0qw=
   # AWS_SECRET_KEY
   - secure: C+PTon3PsELG2bFlAZ5qfinWVih8XxlZV45Gk2W5i2CK1AROJ60lnfhgYZM4YidIRcA/V/zbm8tDgZbA8i/MVKcO5f1qbD5Skyo2fEFRlXoSWhtwaScViihN338U/SsEviKThIGSSLgdfsQ0CW7TYxvetFSwXFyZPPrYrenF3dk=
+  # NPM_AUTH_TOKEN
+  - secure: Th+zA06xGaBxv+y1/lEcJOftaJNr9v4dYWhBkr6T+SB3AsNlh+eSXRyc5OsDKBQFburk5q6snz/OE3fvm4wvWkkGEXhdyRaAI3HkKBtZB691iuhSttIutLbWvVRnKkObhLP5ecK3818gbJibzJkcJfTEximw9GHkTAcOEwiMIkA=
