@@ -112,9 +112,9 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 	 * @return Outer JSON
 	 */
 	function completeContexts(contexts?: Array<SelfDescribingJson>): Object | undefined {		// TODO: can return nothing
-		if (contexts) {
+		if (contexts && contexts.length) {
 			return {
-				schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-1',
+				schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0',
 				data: contexts
 			};
 		}

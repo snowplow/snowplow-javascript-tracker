@@ -507,7 +507,7 @@ define([
 				url: url,
 				page: page,
 				co: JSON.stringify({
-					schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-1',
+					schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0',
 					data: inputContext
 				})
 			};
