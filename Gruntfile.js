@@ -224,7 +224,7 @@ module.exports = function(grunt) {
         files: [
           {
             src: ["dist/sp.js"],
-            dest: "<%= aws.uploadPath %>"
+            dest: "<%= pkg.version %>/sp.js"
           }
         ]
       },
@@ -237,7 +237,7 @@ module.exports = function(grunt) {
         files: [
           {
             src: ["dist/sp.js"],
-            dest: "<%= aws.uploadPath %>"
+            dest: "<%= pkg.pinnedVersion %>/sp.js"
           }
         ]
       }
@@ -252,14 +252,14 @@ module.exports = function(grunt) {
       not_pinned: {
         options: {
           invalidations: [
-            '/<%= aws.uploadPath %>'
+            '/<%= pkg.version %>/sp.js'
           ]
         }
       },
       pinned: {
         options: {
           invalidations: [
-            '/<%= aws.uploadPath %>'
+            '/<%= pkg.pinnedVersion %>/sp.js'
           ]
         }
       }
