@@ -21,10 +21,13 @@
 		// Taken from a random environment variable
 		var subdomain = '<%= subdomain %>';
 
-		window.snowplow('newTracker', 'cf', subdomain + '.ngrok.com', {
+		window.snowplow('newTracker', 'cf', subdomain + '.ngrok.io', {
 			encodeBase64: true,
 			appId: 'CFe23a',
-			platform: 'mob'
+			platform: 'mob',
+			contexts: {
+				webPage: true
+			}
 		});
 
 		window.snowplow('setUserId', 'Malcolm');
@@ -37,13 +40,16 @@
 			}
 		]);
 
+		// This should have different pageViewId in web_page context
+		window.snowplow('trackPageView');
+
 		window.snowplow('trackStructEvent', 'Mixes', 'Play', 'MRC/fabric-0503-mix', '', '0.0');
 		window.snowplow('trackUnstructEvent', {
 			schema: 'iglu:com.acme_company/viewed_product/jsonschema/5-0-0',
 			data: {
 				productId: 'ASO01043'
 			}
-		});
+		}, [], { type: 'ttm', value: 1477401868 });
 
 		var orderId = 'order-123';
 
@@ -74,6 +80,12 @@
 		// trackTrans sends the transaction to Snowplow tracking servers.
 		// Must be called last to commit the transaction.
 		window.snowplow('trackTrans');
+
+		// track unhandled exception
+		window.snowplow("enableErrorTracking");
+		function raiseException() { notExiststentObject.notExistentProperty(); }
+		setTimeout(raiseException, 2500);
+
 	</script>
 
 </body>

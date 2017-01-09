@@ -1,7 +1,7 @@
 /*
  * JavaScript tracker core for Snowplow: index.js
  * 
- * Copyright (c) 2014 Snowplow Analytics Ltd. All rights reserved.
+ * Copyright (c) 2014-2016 Snowplow Analytics Ltd. All rights reserved.
  *
  * This program is licensed to you under the Apache License Version 2.0,
  * and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -13,4 +13,4 @@
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
 
-module.exports = require('./lib/core');
+export {trackerCore} from "./lib/core";

@@ -1,15 +1,20 @@
 {
   "name": "snowplow-tracker-core",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "devDependencies": {
-    "grunt": "^0.4.5",
-    "intern": "^2.0.1"
+    "grunt": "0.4.5",
+    "intern": "3.3.2",
+    "dts-generator": "^2.0.0",
+    "grunt-ts": "5.5.1",
+    "typescript": "2.0.6",
+    "@types/uuid": "^2.0.29"
   },
   "contributors": [
     "Alex Dean",
     "Simon Andersson",
     "Fred Blundun"
   ],
+  "types": "./main.d.ts",
   "description": "Core functionality for the Snowplow JavaScript trackers (browser JavaScript; Node.js; Segment.io server-side)",
   "repository": {
     "type": "git",
@@ -24,7 +29,6 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "JSON": "^1.0.0",
-    "uuid": "^1.4.1"
+    "uuid": "2.0.3"
   }
 }
