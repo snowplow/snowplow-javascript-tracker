@@ -148,24 +148,6 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 		}
 	}
 
-
-
-	/*
-	 * Check whether a set of classes contains any of the classes of a link element
-	 * Used to determine whether clicks on that link should be tracked
-	 */
-	function checkLink(linkElement, specifiedClasses) {
-		var linkClasses = helpers.getCssClasses(linkElement),
-			i;
-
-		for (i = 0; i < linkClasses.length; i++) {
-			if (specifiedClasses[linkClasses[i]]) {
-				return true;
-			}
-		}
-		return false;
-	}
-
 	return {
 
 		/*
