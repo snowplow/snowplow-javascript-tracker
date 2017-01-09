@@ -16,7 +16,7 @@
 define([
 	"intern!object",
 	"intern/chai!assert",
-	"intern/dojo/node!../lib/base64.js"
+	"intern/dojo/node!../../lib/base64.js"
 ], function (registerSuite, assert, base64) {
 
 	registerSuite({

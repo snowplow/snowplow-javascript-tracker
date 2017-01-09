@@ -1,7 +1,7 @@
 /*
  * JavaScript tracker for Snowplow: tests/payload.js
  * 
- * Copyright (c) 2014 Snowplow Analytics Ltd. All rights reserved.
+ * Copyright (c) 2014-2016 Snowplow Analytics Ltd. All rights reserved.
  *
  * This program is licensed to you under the Apache License Version 2.0,
  * and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -16,7 +16,7 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'intern/dojo/node!../lib/payload.js'
+	'intern/dojo/node!../../lib/payload.js'
 ], function (registerSuite, assert, payload) {
 
 
@@ -27,7 +27,7 @@ define([
 				schema: "iglu:com.example_company/page/jsonschema/1-2-1",
 				data: {
 					pageType: 'test',
-					lastUpdated: new Date(2014, 1, 26)
+					lastUpdated: new Date(Date.UTC(2014, 1, 26))
 				}
 			},
 			{
