@@ -34,12 +34,8 @@
 
 define({
 
-	proxyPort: 9000,
-	proxyUrl: 'http://localhost:9000/',
-
 	capabilities: {
-		'selenium-version': '2.39.0',
-		'build': 'process.env.TRAVIS_JOB_ID'
+		'selenium-version': '2.48.0'
 	},
 
 	environments: [
@@ -53,22 +49,11 @@ define({
 	],
 
 	maxConcurrency: 1,
+
 	tunnel: 'SauceLabsTunnel',
-
-	// Connection information for the remote WebDriver service.
 	tunnelOptions: {
-		hostName: 'localhost',
-		port: 4444
+		logFile: process.cwd() + '/SauceLabsTunnel.log'
 	},
-
-	// Configuration options for the module loader; any AMD configuration options supported by the Dojo loader can be
-	// used here
-	loaderOptions: {},
-
-	suites: [],
-
-	// Functional test suite(s) to run in each browser once non-functional tests are completed
-	functionalSuites: ['tests/integration/setup', 'tests/integration/integration', 'tests/functional/helpers','tests/functional/detectors'],
 
 	// A regular expression matching URLs to files that should not be included in code coverage analysis
 	excludeInstrumentation: /^(?:tests|node_modules)\//

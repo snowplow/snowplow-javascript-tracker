@@ -3,6 +3,5 @@
   "secret": "ADD HERE",
   "bucket": "ADD HERE",
   "region": "ADD HERE",
-  "distribution": "ADD HERE",
-  "uploadPath": "ADD HERE"
+  "distribution": "ADD HERE"
 }

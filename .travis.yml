@@ -1,26 +1,51 @@
 node_js:
-- "4.1.2"
-script: node node_modules/intern/runner.js config=tests/intern
+- 4.1.2
 language: node_js
 install:
-  - npm install
-  - npm install -g grunt-cli
-  - wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
-  - unzip ./ngrok-stable-linux-amd64.zip
-before_script:
-  - node tests/integration/request_recorder.js &
+- npm install -g npm@3.10.8
+- npm install -g grunt-cli
 
-  # Create a random ngrok subdomain
-  - export SUBDOMAIN=$RANDOM$RANDOM
-  - ./ngrok http -authtoken $NGROK_AUTH -subdomain $SUBDOMAIN -log=stdout 8500 > /dev/null &
+- cd core
+- npm install --dev
+- grunt ts
+- grunt dtsGenerator
+- cd ..
+
+- npm install ./core --save # Must be cleaned from package.json before deploy
+- npm install --dev
+- wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
+- unzip ./ngrok-stable-linux-amd64.zip
+before_script:
+- export SUBDOMAIN=$RANDOM$RANDOM
+- ./ngrok http -authtoken $NGROK_AUTH -subdomain $SUBDOMAIN -log=stdout 8500 > /dev/null &
 script:
-  - grunt travis
-after_script:
-  - cat ./tracker.log
+- cd core && grunt intern && cd ..
+- grunt travis
+deploy:
+- provider: script
+  script: ./.travis/deploy.py
+  on:
+    condition: '"$(.travis/is_core_release_tag.sh $TRAVIS_TAG)" == "" && $? == 0'
+    tags: true
+- provider: script
+  script: ./.travis/deploy.py
+  on:
+    condition: '"$(.travis/is_tracker_release_tag.sh $TRAVIS_TAG)" == "" && $? == 0'
+    tags: true
 env:
   global:
-  - secure: "Ort7jy0HpYi0EGfuRYGW4tawmVJzfUUNXhtJEOWR09FYL28XUyxvjUnpS1WZlD0/rBZiuDPBep1Tc81F88pSns4ZAg1lxlM/zheWrCKvYudeAia2g06OqOA1JfeVWX7TjemJ5s1lY66b5VQrDG1QLIO1RPjgWWea0MpSQzv00Ms="
-  - secure: "JFprkMXxrQZhRlYvJb+ZOr540QuzMU2jQtf39oPzg8uqcV5TDDWTuUZ6D3ogyNJnzH0mYDRzHZQEAqxkyjfndpIgN+a+dBM1l4WoKrTR9BpA3ZZD6zFEG7UrHBcvZgvopbY1wMPXbn4JL7J7SPPOjvvrjjIk/QIsTUYft/UOyXI="
-
-  # NGROK_AUTH token
-  - secure: "aLAryygcpImMFo2ZrDhcrE5IFGrt300BfCXu4r2mChoGUMUU6fJltfKktwv9OKsfWFhhJ44fpJX2nSmGmOyGDljC8eegXUjB0vToQ0/NGvtibE+ug/T4fbMgVMA842Y1MB9MvIK10/cD2/2bLKGYHrNq8196YxBVptvVLu+aphY="
+  # SAUCE_USERNAME
+  - secure: S/6Ild1n9SmW8xYqarjkigDqmyFgWS4Hi0M07e/ryPeS1MNQdiS5+WuSmlSTevM/wU/oSCvzXnKhO9W/1tvz4qj/BMQYxYWFjwWAXJrkjJPvWoa5ogYkR3ETSYrqdhkT+8LVof8iLPlpHjS1y2fozyJbYf1YNSkcVCLxMdIwnk0=
+  # SAUCE_AUTH_KEY
+  - secure: bkmtL2PXFGdOB6YNfWw6thEyVAbX/l7Q99pfT2jHmfzhTDf4/FT1CprsAacf0JeYkwMg5UQDMqAcZSojjO6GeAY8rhC94Tor5hKoEwCL4wg5NatXBUUI+WWaoBSg2KWYG2MfkPxtGJyNk1LPQoV+nUUzwEGejV8lJvaHVxkBsqA=
+  # NGROK_AUTH
+  - secure: JwP5MuqZ6k8FlHg8AnzYTrCZByJLnlu0to2srEwfVOhW1efGTEmtWf/SLlplYHcdelsFakdiSbD3BkZyEqpe/2/AIb56KLAqtE2Ng3WS8Vz/80yknxII0xcSPzAZdhZYRUJlbIrA1Ua3XGgirBenjn7ILFXNX/qLgvwJ1uLKCPo=
+  # AWS_ACCESS_KEY
+  - secure: AEvIKW1H/DPU5yPKfRPHY9XpBCjXGtwVqpQERx0wYGwV8j9mzz8EMMrx6yPMaLOkeBMcaH/db3aXEePHWAlnxrTuUuhwwr9A7sihaaAwZ9GllUlUEJzfXeBcCM9rhsooY2roMzJM3Ener1W+yKHThagYxUZ4PyZrPJCMMzbc0qw=
+  # AWS_SECRET_KEY
+  - secure: C+PTon3PsELG2bFlAZ5qfinWVih8XxlZV45Gk2W5i2CK1AROJ60lnfhgYZM4YidIRcA/V/zbm8tDgZbA8i/MVKcO5f1qbD5Skyo2fEFRlXoSWhtwaScViihN338U/SsEviKThIGSSLgdfsQ0CW7TYxvetFSwXFyZPPrYrenF3dk=
+  # NPM_AUTH_TOKEN
+  - secure: Th+zA06xGaBxv+y1/lEcJOftaJNr9v4dYWhBkr6T+SB3AsNlh+eSXRyc5OsDKBQFburk5q6snz/OE3fvm4wvWkkGEXhdyRaAI3HkKBtZB691iuhSttIutLbWvVRnKkObhLP5ecK3818gbJibzJkcJfTEximw9GHkTAcOEwiMIkA=
+  - AWS_S3_BUCKET=snowplow-static-js
+  - AWS_REGION=eu-west-1
+  - AWS_CF_DISTRIBUTION=E1RICD7QD0F2KE
