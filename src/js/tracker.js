@@ -762,6 +762,13 @@
 			// Add Optimizely Contexts
 			if (windowAlias.optimizely) {
 
+				if (autoContexts.optimizelyXSummary) {
+					var activeExperiments = getOptimizelyXSummaryContexts();
+					lodash.each(activeExperiments, function(e) {
+						combinedContexts.push(e);
+					})
+				}
+
 				if (autoContexts.optimizelySummary) {
 					var activeExperiments = getOptimizelySummaryContexts();
 					lodash.each(activeExperiments, function (e) {
@@ -917,6 +924,31 @@
 					conditional: current && current.conditional,
 					manual: current && current.manual,
 					name: current && current.name
+				}
+			});
+		}
+
+		/**
+		 * Get data for OptimizelyX "lite" contexts - active experiments on current page
+		 *
+		 * @returns Array content of OptimizelyX context
+		 */
+		function getOptimizelyXSummary() {
+			var state = optimizely.get('state');
+			var experiment_ids = state.getActiveExperimentIds();
+			var experiments = optimizely.get('data').experiments;
+			var visitor = optimizely.get('visitor');
+
+			return lodash.map(experiment_ids, function(activeExperiment) {
+				var current = experiments[activeExperiment];
+				variationName = state.getVariationMap(activeExperiment)[activeExperiment].name;
+				variation = state.getVariationMap(activeExperiment)[activeExperiment].id;
+				visitorId = visitor.visitorId;
+				return {
+					experimentId: parseInt(activeExperiment),
+					variationName: variationName,
+					variation: parseInt(variation),
+					visitorId: visitorId
 				}
 			});
 		}
@@ -1121,6 +1153,21 @@
 			return lodash.map(getOptimizelySummary(), function (experiment) {
 				return {
 					schema: 'iglu:com.optimizely.snowplow/optimizely_summary/jsonschema/1-0-0',
+					data: experiment
+				};
+			});
+		}
+
+		/**
+		 * Creates an OptimizelyX context containing only data reuired to join event
+		 * to experiment data
+		 *
+		 * @returns Array of custom contexts
+		 */
+		function getOptimizelyXSummaryContexts() {
+			return lodash.map(getOptimizelyXSummary(), function(experiment) {
+				return {
+					schema: 'iglu.com.optimizely.snowplow/optimizelyx_summary/jsonschema/1-0-0', // this schema does not yet exist
 					data: experiment
 				};
 			});
