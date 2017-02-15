@@ -1167,7 +1167,7 @@
 		function getOptimizelyXSummaryContexts() {
 			return lodash.map(getOptimizelyXSummary(), function(experiment) {
 				return {
-					schema: 'iglu.com.optimizely.snowplow/optimizelyx_summary/jsonschema/1-0-0', // this schema does not yet exist
+					schema: 'iglu:com.optimizely.snowplow/optimizelyx_summary/jsonschema/1-0-0',
 					data: experiment
 				};
 			});
