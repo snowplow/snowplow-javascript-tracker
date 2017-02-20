@@ -1,3 +1,7 @@
+Version 2.7.1 (2017-02-20)
+--------------------------
+Add defensive check for window.optimizely.data (#553)
+
 Version 2.7.0 (2017-01-09)
 --------------------------
 Add CI/CD (#529)
