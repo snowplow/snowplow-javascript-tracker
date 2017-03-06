@@ -897,16 +897,32 @@
 			}
 		}
 
+        /**
+		 * Check that *both* optimizely and optimizely.data exist and return
+		 * optimizely.data.property
+		 *
+         * @param property optimizely data property
+         * @param snd optional nested property
+         */
+        function getOptimizelyData(property, snd) {
+            var data;
+            if (windowAlias.optimizely && windowAlias.optimizely.data) {
+                data = windowAlias.optimizely.data[property];
+                if (typeof snd !== 'undefined' && data !== undefined) {
+                	data = data[snd]
+				}
+            }
+            return data
+        }
+
 		/**
 		 * Get data for Optimizely "lite" contexts - active experiments on current page
 		 * 
 		 * @returns Array content of lite optimizely lite context
 		 */
 		function getOptimizelySummary() {
-			// Prevent throwing exceptions
-			var data = windowAlias.optimizely.data;
-			var state = data && data.state;
-			var experiments = data && data.experiments;
+			var state = getOptimizelyData('state');
+			var experiments = getOptimizelyData('experiments');
 
 			return lodash.map(state && experiments && state.activeExperiments, function (activeExperiment) {
 				var current = experiments[activeExperiment];
@@ -927,7 +943,7 @@
 		 * @return Array Experiment contexts
 		 */
 		function getOptimizelyExperimentContexts() {
-			var experiments = windowAlias.optimizely.data.experiments;
+			var experiments = getOptimizelyData('experiments');
 			if (experiments) {
 				var contexts = [];
 
@@ -960,7 +976,7 @@
 		 */
 		function getOptimizelyStateContexts() {
 			var experimentIds = [];
-			var experiments = windowAlias.optimizely.data.experiments;
+			var experiments = getOptimizelyData('experiments');
 			if (experiments) {
 				for (var key in experiments) {
 					if (experiments.hasOwnProperty(key)) {
@@ -1004,7 +1020,7 @@
 		 * @return Array Variation contexts
 		 */
 		function getOptimizelyVariationContexts() {
-			var variations = windowAlias.optimizely.data.variations;
+			var variations = getOptimizelyData('variations');
 			if (variations) {
 				var contexts = [];
 
@@ -1033,7 +1049,7 @@
 		 * @return object Visitor context
 		 */
 		function getOptimizelyVisitorContext() {
-			var visitor = windowAlias.optimizely.data.visitor;
+			var visitor = getOptimizelyData('visitor');
 			if (visitor) {
 				var context = {};
 				context.browser = visitor.browser;
@@ -1066,7 +1082,7 @@
 		 * @return Array VisitorAudience contexts
 		 */
 		function getOptimizelyAudienceContexts() {
-			var audienceIds = windowAlias.optimizely.data.visitor.audiences;
+			var audienceIds = getOptimizelyData('visitor', 'audiences');
 			if (audienceIds) {
 				var contexts = [];
 
@@ -1091,7 +1107,7 @@
 		 * @return Array VisitorDimension contexts
 		 */
 		function getOptimizelyDimensionContexts() {
-			var dimensionIds = windowAlias.optimizely.data.visitor.dimensions;
+			var dimensionIds = getOptimizelyData('visitor', 'dimensions');
 			if (dimensionIds) {
 				var contexts = [];
 
