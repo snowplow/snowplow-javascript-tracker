@@ -985,7 +985,7 @@
 				}
 			}
 
-			var state = windowAlias.optimizely.data.state;
+			var state = (windowAlias.optimizely && windowAlias.optimizely.data) ? windowAlias.optimizely.data.state : null;
 			if (state) {
 				var contexts = [];
 				var activeExperiments = state.activeExperiments || [];
