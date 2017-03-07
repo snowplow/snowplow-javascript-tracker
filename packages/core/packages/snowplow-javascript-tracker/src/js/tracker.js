@@ -897,23 +897,23 @@
 			}
 		}
 
-        /**
+		/**
 		 * Check that *both* optimizely and optimizely.data exist and return
 		 * optimizely.data.property
 		 *
-         * @param property optimizely data property
-         * @param snd optional nested property
-         */
-        function getOptimizelyData(property, snd) {
-            var data;
-            if (windowAlias.optimizely && windowAlias.optimizely.data) {
-                data = windowAlias.optimizely.data[property];
-                if (typeof snd !== 'undefined' && data !== undefined) {
-                	data = data[snd]
+		 * @param property optimizely data property
+		 * @param snd optional nested property
+		 */
+		function getOptimizelyData(property, snd) {
+			var data;
+			if (windowAlias.optimizely && windowAlias.optimizely.data) {
+				data = windowAlias.optimizely.data[property];
+				if (typeof snd !== 'undefined' && data !== undefined) {
+					data = data[snd]
 				}
-            }
-            return data
-        }
+			}
+			return data
+		}
 
 		/**
 		 * Get data for Optimizely "lite" contexts - active experiments on current page
@@ -985,7 +985,7 @@
 				}
 			}
 
-			var state = windowAlias.optimizely.data.state;
+			var state = getOptimizelyData('state');
 			if (state) {
 				var contexts = [];
 				var activeExperiments = state.activeExperiments || [];
