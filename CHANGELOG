@@ -1,3 +1,7 @@
+Version 2.7.2 (2017-03-07)
+--------------------------
+Add defensive check for window.optimizely.data in getOptimizelyStateContexts (#555)
+
 Version 2.7.1 (2017-03-06)
 --------------------------
 Add defensive check for window.optimizely.data (#553)
