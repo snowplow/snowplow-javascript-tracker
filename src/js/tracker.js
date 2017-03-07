@@ -819,9 +819,17 @@
 					combinedContexts.push(augurIdentityLiteContext);
 				}
 			}
-
+			
+			//Add Parrable Context
+			if (autoContexts.parrable){
+				var parrableContext = getParrableContext();
+				if (parrableContext) {
+					combinedContexts.push(parrableContext);
+				}
+			}
 			return combinedContexts;
 		}
+		
 
 		/**
 		 * Initialize new `pageViewId` if it shouldn't be preserved.
@@ -1168,6 +1176,25 @@
 			}
 		}
 
+		/**
+		 * Creates a context from the window['_hawk'] object
+		 *
+		 * @return object The Parrable context
+		 */
+		function getParrableContext() {
+			var parrable = window['_hawk'];
+			if (parrable) {
+				var context = { encryptedId: null, optout: null};
+				context['encryptedId'] =  parrable.browserid;
+				var regex = new RegExp('(?:^|;)\\s?' + "_parrable_hawk_optout".replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1') + '=(.*?)(?:;|$)', 'i'), match = document.cookie.match(regex);
+				context['optout'] = (match && decodeURIComponent(match[1])) ? match && decodeURIComponent(match[1]) : "false";
+				return {
+					schema: 'iglu:com.parrable/encrypted_payload/jsonschema/1-0-0',
+					data: context
+				};
+			}
+		}
+		
 		/**
 		 * Attempts to create a context using the geolocation API and add it to commonContexts
 		 */
