@@ -1687,10 +1687,7 @@
 			 * activity. i.e. While watching a video
 			 */
 			updatePageActivity: function () {
-				if(activityTrackingInstalled) {
-					var now = new Date();
-					lastActivityTime = now.getTime();
-				}
+				activityHandler();
 			},
 
 			/**
