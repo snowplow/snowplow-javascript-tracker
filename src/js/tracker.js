@@ -1683,6 +1683,17 @@
 			},
 
 			/**
+			 * Triggers the activityHandler manually to allow external user defined
+			 * activity. i.e. While watching a video
+			 */
+			updatePageActivity: function () {
+				if(activityTrackingInstalled) {
+					var now = new Date();
+					lastActivityTime = now.getTime();
+				}
+			},
+
+			/**
 			 * Enables automatic form tracking.
 			 * An event will be fired when a form field is changed or a form submitted.
 			 * This can be called multiple times: only forms not already tracked will be tracked.
