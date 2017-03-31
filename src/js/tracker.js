@@ -186,6 +186,9 @@
 			// Whether to use cookies
 			configUseCookies = argmap.hasOwnProperty('useCookies') ? argmap.useCookies : true,
 
+			// Whether we can store stuff in localStorage
+			localStorageAccessible = detectors.localStorageAccessible,
+
 			// Browser language (or Windows language for IE). Imperfect but CloudFront doesn't log the Accept-Language header
 			browserLanguage = navigatorAlias.userLanguage || navigatorAlias.language,
 
@@ -441,6 +444,12 @@
 		 * Cookie getter.
 		 */
 		function getSnowplowCookieValue(cookieName) {
+			if (localStorageAccessible) {
+				var fromLocalStorage = helpers.attemptGetLocalStorage(cookieName);
+				if (fromLocalStorage) {
+					return fromLocalStorage;
+				}
+			}
 			return cookie.cookie(getSnowplowCookieName(cookieName));
 		}
 
@@ -532,7 +541,17 @@
 		 * Sets or renews the session cookie
 		 */
 		function setSessionCookie() {
-			cookie.cookie(getSnowplowCookieName('ses'), '*', configSessionCookieTimeout, configCookiePath, configCookieDomain);
+			var cookieName = getSnowplowCookieName('ses');
+			var cookieValue = '*';
+			if (localStorageAccessible) {
+				if (!helpers.attemptWriteLocalStorage(cookieName, cookieValue)) {
+					cookie.cookie(cookieName, cookieValue, configSessionCookieTimeout,
+						configCookiePath, configCookieDomain);
+				}
+			} else {
+				cookie.cookie(cookieName, cookieValue, configSessionCookieTimeout, configCookiePath,
+					configCookieDomain);
+			}
 		}
 
 		/*
@@ -540,12 +559,18 @@
 		 * or when there is a new visit or a new page view
 		 */
 		function setDomainUserIdCookie(_domainUserId, createTs, visitCount, nowTs, lastVisitTs, sessionId) {
-			cookie.cookie(
-				getSnowplowCookieName('id'),
-				_domainUserId + '.' + createTs + '.' + visitCount + '.' + nowTs + '.' + lastVisitTs + '.' + sessionId,
-				configVisitorCookieTimeout,
-				configCookiePath,
-				configCookieDomain);
+			var cookieName = getSnowplowCookieValue('id');
+			var cookieValue = _domainUserId + '.' + createTs + '.' + visitCount + '.' + nowTs +
+				'.' + lastVisitTs + '.' + sessionId;
+			if (localStorageAccessible) {
+				if (!helpers.attemptWriteLocalStorage(cookieName, cookieValue)) {
+					cookie.cookie(cookieName, cookieValue, configVisitorCookieTimeout,
+						configCookiePath, configCookieDomain);
+				}
+			} else {
+				cookie.cookie(cookieName, cookieValue, configVisitorCookieTimeout,
+					configCookiePath, configCookieDomain);
+			}
 		}
 
 		/**
@@ -653,9 +678,14 @@
 				lastVisitTs = id[5],
 				sessionIdFromCookie = id[6];
 
-			if (configDoNotTrack && configUseCookies) {
-				cookie.cookie(idname, '', -1, configCookiePath, configCookieDomain);
-				cookie.cookie(sesname, '', -1, configCookiePath, configCookieDomain);
+			if (configDoNotTrack && (configUseCookies || localStorageAccessible)) {
+				if (localStorageAccessible) {
+					helpers.attemptWriteLocalStorage(idname, '');
+					helpers.attemptWriteLocalStorage(sesName, '');
+				} else {
+					cookie.cookie(idname, '', -1, configCookiePath, configCookieDomain);
+					cookie.cookie(sesname, '', -1, configCookiePath, configCookieDomain);
+				}
 				return;
 			}
 
