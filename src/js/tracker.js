@@ -186,7 +186,11 @@
 			forceUnsecureTracker = !forceSecureTracker && argmap.hasOwnProperty('forceUnsecureTracker') ? (argmap.forceUnsecureTracker === true) : false,
 
 			// Whether to use localStorage to store events between sessions while offline
-			useLocalStorage = argmap.hasOwnProperty('useLocalStorage') ? argmap.useLocalStorage : true,
+			useLocalStorage = argmap.hasOwnProperty('useLocalStorage') ? (
+				helpers.warn('argmap.useLocalStorage is deprecated. ' +
+					'Use argmap.stateStorageStrategy instead.'),
+				argmap.useLocalStorage
+			) : true,
 
 			// Whether to use cookies
 			configUseCookies = argmap.hasOwnProperty('useCookies') ? (
