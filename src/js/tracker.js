@@ -81,6 +81,8 @@
 	 * 19. maxPostBytes, 40000
 	 * 20. discoverRootDomain, false
 	 * 21. cookieLifetime, 63072000
+	 * 22. stateStorageStrategy, 'cookie'
+	 * 22. stateStorageStrategy, 'cookieAndLocalStorage'
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
 
@@ -186,14 +188,20 @@
 			// Whether to use cookies
 			configUseCookies = argmap.hasOwnProperty('useCookies') ? argmap.useCookies : true,
 
-			// Whether we can store stuff in localStorage
-			localStorageAccessible = detectors.localStorageAccessible,
+			// Strategy defining how to store the state: cookie, localStorage or none
+			configStateStorageStrategy = argmap.hasOwnProperty('stateStorageStrategy') ?
+				argmap.stateStorageStrategy : (!configUseCookies && !useLocalStorage ?
+				'none' : (configUseCookies && useLocalStorage ?
+				'cookieAndLocalStorage' : (configUseCookies ? 'cookie' : 'localStorage'))),
 
 			// Browser language (or Windows language for IE). Imperfect but CloudFront doesn't log the Accept-Language header
 			browserLanguage = navigatorAlias.userLanguage || navigatorAlias.language,
 
 			// Browser features via client-side data collection
-			browserFeatures = detectors.detectBrowserFeatures(configUseCookies, getSnowplowCookieName('testcookie')),
+			browserFeatures = detectors.detectBrowserFeatures(
+				configStateStorageStrategy == 'cookie' ||
+					configStateStorageStrategy == 'cookieAndLocalStorage',
+				getSnowplowCookieName('testcookie')),
 
 			// Visitor fingerprint
 			userFingerprint = (argmap.userFingerprint === false) ? '' : detectors.detectSignature(configUserFingerprintHashSeed),
@@ -252,7 +260,8 @@
 				functionName,
 				namespace,
 				mutSnowplowState,
-				useLocalStorage,
+				configStateStorageStrategy == 'localStorage' ||
+					configStateStorageStrategy == 'cookieAndLocalStorage',
 				argmap.post,
 				argmap.bufferSize,
 				argmap.maxPostBytes || 40000),
@@ -444,13 +453,12 @@
 		 * Cookie getter.
 		 */
 		function getSnowplowCookieValue(cookieName) {
-			if (localStorageAccessible) {
-				var fromLocalStorage = helpers.attemptGetLocalStorage(cookieName);
-				if (fromLocalStorage) {
-					return fromLocalStorage;
-				}
+			if (configStateStorageStrategy == 'localStorage') {
+				return helpers.attemptGetLocalStorage(cookieName);
+			} else if (configStateStorageStrategy == 'cookie' ||
+					configStateStorageStrategy == 'cookieAndLocalStorage') {
+				return cookie.cookie(getSnowplowCookieName(cookieName));
 			}
-			return cookie.cookie(getSnowplowCookieName(cookieName));
 		}
 
 		/*
@@ -543,15 +551,7 @@
 		function setSessionCookie() {
 			var cookieName = getSnowplowCookieName('ses');
 			var cookieValue = '*';
-			if (localStorageAccessible) {
-				if (!helpers.attemptWriteLocalStorage(cookieName, cookieValue)) {
-					cookie.cookie(cookieName, cookieValue, configSessionCookieTimeout,
-						configCookiePath, configCookieDomain);
-				}
-			} else {
-				cookie.cookie(cookieName, cookieValue, configSessionCookieTimeout, configCookiePath,
-					configCookieDomain);
-			}
+			setCookie(cookieName, cookieValue, configSessionCookieTimeout);
 		}
 
 		/*
@@ -559,17 +559,24 @@
 		 * or when there is a new visit or a new page view
 		 */
 		function setDomainUserIdCookie(_domainUserId, createTs, visitCount, nowTs, lastVisitTs, sessionId) {
-			var cookieName = getSnowplowCookieValue('id');
+			var cookieName = getSnowplowCookieName('id');
 			var cookieValue = _domainUserId + '.' + createTs + '.' + visitCount + '.' + nowTs +
 				'.' + lastVisitTs + '.' + sessionId;
-			if (localStorageAccessible) {
-				if (!helpers.attemptWriteLocalStorage(cookieName, cookieValue)) {
-					cookie.cookie(cookieName, cookieValue, configVisitorCookieTimeout,
-						configCookiePath, configCookieDomain);
-				}
-			} else {
-				cookie.cookie(cookieName, cookieValue, configVisitorCookieTimeout,
-					configCookiePath, configCookieDomain);
+			setCookie(cookieName, cookieValue, configVisitorCookieTimeout);
+		}
+
+		/*
+		 * Sets a cookie based on the storage strategy:
+		 * - if 'localStorage': attemps to write to local storage
+		 * - if 'cookie': writes to cookies
+		 * - otherwise: no-op
+		 */
+		function setCookie(name, value, timeout) {
+			if (configStateStorageStrategy == 'localStorage') {
+				helpers.attemptWriteLocalStorage(name, value);
+			} else if (configStateStorageStrategy == 'cookie' ||
+					configStateStorageStrategy == 'cookieAndLocalStorage') {
+				cookie.cookie(name, value, timeout, configCookiePath, configCookieDomain);
 			}
 		}
 
@@ -598,10 +605,8 @@
 			memorizedSessionId = idCookieComponents[6];
 
 			if (!sesCookieSet) {
-
 				// Increment the session ID
 				idCookieComponents[3] ++;
-
 				// Create a new sessionId
 				memorizedSessionId = uuid.v4();
 				idCookieComponents[6] = memorizedSessionId;
@@ -632,12 +637,12 @@
 
 			if (id) {
 				tmpContainer = id.split('.');
-				// New visitor set to 0 now
+				// cookies enabled
 				tmpContainer.unshift('0');
 			} else {
 
 				tmpContainer = [
-					// New visitor
+					// cookies disabled
 					'1',
 					// Domain user ID
 					domainUserId,
@@ -653,6 +658,7 @@
 			}
 
 			if (!tmpContainer[6]) {
+				// session id
 				tmpContainer[6] = uuid.v4();
 			}
 
@@ -668,7 +674,7 @@
 			var nowTs = Math.round(new Date().getTime() / 1000),
 				idname = getSnowplowCookieName('id'),
 				sesname = getSnowplowCookieName('ses'),
-				ses = getSnowplowCookieValue('ses'), // aka cookie.cookie(sesname)
+				ses = getSnowplowCookieValue('ses'),
 				id = loadDomainUserIdCookie(),
 				cookiesDisabled = id[0],
 				_domainUserId = id[1], // We could use the global (domainUserId) but this is better etiquette
@@ -678,11 +684,12 @@
 				lastVisitTs = id[5],
 				sessionIdFromCookie = id[6];
 
-			if (configDoNotTrack && (configUseCookies || localStorageAccessible)) {
-				if (localStorageAccessible) {
+			if (configDoNotTrack && configUseCookies) {
+				if (configStateStorageStrategy == 'localStorage') {
 					helpers.attemptWriteLocalStorage(idname, '');
 					helpers.attemptWriteLocalStorage(sesName, '');
-				} else {
+				} else if (configStateStorageStrategy == 'cookie' ||
+						configStateStorageStrategy == 'cookieAndLocalStorage') {
 					cookie.cookie(idname, '', -1, configCookiePath, configCookieDomain);
 					cookie.cookie(sesname, '', -1, configCookiePath, configCookieDomain);
 				}
@@ -731,7 +738,8 @@
 
 			// Update cookies
 			if (configUseCookies) {
-				setDomainUserIdCookie(_domainUserId, createTs, memorizedVisitCount, nowTs, lastVisitTs, memorizedSessionId);
+				setDomainUserIdCookie(_domainUserId, createTs, memorizedVisitCount, nowTs,
+					lastVisitTs, memorizedSessionId);
 				setSessionCookie();
 			}
 
@@ -1656,7 +1664,7 @@
 			* @param bool enable If false, turn off user fingerprinting
 			*/
 			enableUserFingerprint: function(enable) {
-			helpers.warn('enableUserFingerprintSeed is deprecated. Instead add a "userFingerprint" field to the argmap argument of newTracker.');
+				helpers.warn('enableUserFingerprintSeed is deprecated. Instead add a "userFingerprint" field to the argmap argument of newTracker.');
 				if (!enable) {
 					userFingerprint = '';
 				}
