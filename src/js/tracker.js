@@ -820,6 +820,13 @@
 					})
 				}
 
+				if (autoContexts.optimizelyXSummary) {
+					var activeExperiments = getOptimizelyXSummaryContexts();
+					lodash.each(activeExperiments, function (e) {
+						combinedContexts.push(e);
+					})
+				}
+
 				if (autoContexts.optimizelyExperiments) {
 					var experimentContexts = getOptimizelyExperimentContexts();
 					for (var i = 0; i < experimentContexts.length; i++) {
@@ -974,6 +981,23 @@
 		}
 
 		/**
+		 * Check that *both* optimizely and optimizely.data exist
+		 *
+		 * @param property optimizely data property
+		 * @param snd optional nested property
+		 */
+		function getOptimizelyXData(property, snd) {
+			var data;
+			if (windowAlias.optimizely) {
+				data = windowAlias.optimizely.get(property);
+				if (typeof snd !== 'undefined' && data !== undefined) {
+					data = data[snd]
+				}
+			}
+			return data
+		}
+
+		/**
 		 * Get data for Optimizely "lite" contexts - active experiments on current page
 		 * 
 		 * @returns Array content of lite optimizely lite context
@@ -993,6 +1017,31 @@
 					name: current && current.name
 				}
 			});
+		}
+
+		/**
+		 * Get data for OptimizelyX contexts - active experiments on current page
+		 * 
+		 * @returns Array content of lite optimizely lite context
+		 */
+		function getOptimizelyXSummary() {
+			var state = getOptimizelyXData('state');
+			var experiment_ids = state.getActiveExperimentIds();
+			var experiments = getOptimizelyXData('data', 'experiments');
+			var visitor = getOptimizelyXData('visitor');
+
+			return lodash.map(experiment_ids, function(activeExperiment) {
+				variation = state.getVariationMap()[activeExperiment];
+				variationName = variation.name;
+				variationId = variation.id;
+				visitorId = visitor.visitorId;
+				return {
+					experimentId: parseInt(activeExperiment),
+					variationName: variationName,
+					variation: parseInt(variationId),
+					visitorId: visitorId
+				}
+			})
 		}
 
 		/**
@@ -1195,6 +1244,21 @@
 			return lodash.map(getOptimizelySummary(), function (experiment) {
 				return {
 					schema: 'iglu:com.optimizely.snowplow/optimizely_summary/jsonschema/1-0-0',
+					data: experiment
+				};
+			});
+		}
+
+		/**
+		 * Creates an OptimizelyX context containing only data required to join
+		 * event to experiment data
+		 *
+		 * @returns Array of custom contexts
+		 */
+		function getOptimizelyXSummaryContexts() {
+			return lodash.map(getOptimizelyXSummary(), function (experiment) {
+				return {
+					schema: 'iglu:com.optimizely.optimizelyx/summary/jsonschema/1-0-0',
 					data: experiment
 				};
 			});
