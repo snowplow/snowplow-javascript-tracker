@@ -930,7 +930,7 @@
 		 */
 		function getOptimizelyXData(property, snd) {
 			var data;
-			if (windowAlias.optimizely && windowAlias.optimizely.data) {
+			if (windowAlias.optimizely) {
 				data = windowAlias.optimizely.get(property);
 				if (typeof snd !== 'undefined' && data !== undefined) {
 					data = data[snd]
