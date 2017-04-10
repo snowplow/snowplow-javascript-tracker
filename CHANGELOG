@@ -1,3 +1,20 @@
+Version 2.8.0 (2017-04-10)
+--------------------------
+Add support for users opting out of state tracking using cookie or localStorage (#459)
+Add support for recording state in localStorage rather than cookies (#506)
+Exclude password fields from form tracking (#521)
+Add Parrable context (#525)
+Add support for OptimizelyX context (#551)
+Update README markdown in according with CommonMark (#561)
+Add support for not recording any state (#563)
+Deprecate useCookies (#565)
+Deprecate useLocalStorage (#566)
+Prevent multiple setInterval from being created (#571)
+Guard against non-integer values for minimumVisitLength and heartBeatDelay (#572)
+Provide read-only access to domainSessionIndex (#573)
+Provide read-only access to cookieName (#574)
+Provide read-only access to pageViewId (#575)
+
 Version 2.7.2 (2017-03-07)
 --------------------------
 Add defensive check for window.optimizely.data in getOptimizelyStateContexts (#555)
