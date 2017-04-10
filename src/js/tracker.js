@@ -1459,6 +1459,15 @@
 		return {
 
 			/**
+			 * Get the page view ID as generated or provided by mutSnowplowState.pageViewId.
+			 *
+			 * @return string Page view ID
+			 */
+			getPageViewId: function () {
+				return getPageViewId();
+			},
+
+			/**
 			 * Get the current user ID (as set previously
 			 * with setUserId()).
 			 *
