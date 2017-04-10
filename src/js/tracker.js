@@ -1468,6 +1468,15 @@
 			},
 
 			/**
+			 * Get the cookie name as cookieNamePrefix + basename + . + domain.
+			 *
+			 * @return string Cookie name
+			 */
+			getCookieName: function(basename) {
+				return getSnowplowCookieName(basename);
+			},
+
+			/**
 			 * Get the current user ID (as set previously
 			 * with setUserId()).
 			 *
