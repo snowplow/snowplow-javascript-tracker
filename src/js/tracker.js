@@ -107,6 +107,9 @@
 			locationHrefAlias = locationArray[1],
 			configReferrerUrl = locationArray[2],
 
+			// Holder of the logPagePing interval
+			pagePingInterval,
+
 			customReferrer,
 
 			argmap = argmap || {},
@@ -1418,7 +1421,8 @@
 
 				// Periodic check for activity.
 				lastActivityTime = now.getTime();
-				setInterval(function heartBeat() {
+				clearInterval(pagePingInterval);
+				pagePingInterval = setInterval(function heartBeat() {
 					var now = new Date();
 
 					// There was activity during the heart beat period;
