@@ -1200,7 +1200,7 @@
 		function getOptimizelyXSummaryContexts() {
 			return lodash.map(getOptimizelyXSummary(), function (experiment) {
 				return {
-					schema: 'iglu:com.optimizely.snowplow/optimizelyx_summary/jsonschema/1-0-0',
+					schema: 'iglu:com.optimizely.optimizelyx/summary/jsonschema/1-0-0',
 					data: experiment
 				};
 			});
