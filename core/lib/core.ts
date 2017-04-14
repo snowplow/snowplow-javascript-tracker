@@ -818,7 +818,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		},
 
 		/**
-		 * Track the value of a form field changing
+		 * Track the value of a form field changing or receiving focus
 		 *
 		 * @param formId The parent form ID
 		 * @param elementId ID of the changed element
@@ -832,7 +832,8 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 *
 		 * @todo make `nodeName` enum
 		 */
-		trackFormChange: function (
+		trackFormFocusOrChange: function (
+			schema: string,
 			formId: string,
 			elementId: string,
 			nodeName: string,
@@ -843,7 +844,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			tstamp?: Timestamp): PayloadData {
 
 			return trackSelfDescribingEvent({
-				schema: 'iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0',
+				schema: 'iglu:com.snowplowanalytics.snowplow/' + schema + '/jsonschema/1-0-0',
 				data: removeEmptyProperties({
 					formId: formId,
 					elementId: elementId,
