@@ -124,12 +124,14 @@ object.getFormTrackingManager = function (core, trackerId, contextAdder) {
 	/*
 	 * Return function to handle form field change event
 	 */
-	function getFormChangeListener(context) {
+	function getFormChangeListener(event_type, context) {
 		return function (e) {
 			var elt = e.target;
 			var type = (elt.nodeName && elt.nodeName.toUpperCase() === 'INPUT') ? elt.type : null;
 			var value = (elt.type === 'checkbox' && !elt.checked) ? null : fieldTransform(elt.value);
-			core.trackFormChange(getParentFormName(elt), getFormElementName(elt), elt.nodeName, type, helpers.getCssClasses(elt), value, contextAdder(context));
+			if (event_type === 'change_form' || (type !== 'checkbox' && type !== 'radio')) {
+				core.trackFormFocusOrChange(event_type, getParentFormName(elt), getFormElementName(elt), elt.nodeName, type, helpers.getCssClasses(elt), value, contextAdder(context));
+			}
 		};
 	}
 
@@ -171,7 +173,8 @@ object.getFormTrackingManager = function (core, trackerId, contextAdder) {
 					forEach(innerElementTags, function (tagname) {
 						forEach(form.getElementsByTagName(tagname), function (innerElement) {
 							if (fieldFilter(innerElement) && !innerElement[trackingMarker] && innerElement.type.toLowerCase() !== 'password') {
-								helpers.addEventListener(innerElement, 'change', getFormChangeListener(context), false);
+								helpers.addEventListener(innerElement, 'focus', getFormChangeListener('focus_form', context), false);
+								helpers.addEventListener(innerElement, 'change', getFormChangeListener('change_form', context), false);
 								innerElement[trackingMarker] = true;
 							}
 						});
