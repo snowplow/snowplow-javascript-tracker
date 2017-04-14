@@ -786,6 +786,44 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		},
 
 		/**
+		 * Track the action of a select form field being clicked
+		 *
+		 * @param formId The parent form ID
+		 * @param elementId ID of the changed element
+		 * @param nodeName "SELECT"
+		 * @param type Type of the changed element if its type is "INPUT"
+		 * @param elementClasses List of classes of the changed element
+		 * @param value The current value of the changed element
+		 * @param context Optional. Context relating to the event.
+		 * @param tstamp Optional. TrackerTimestamp of the event
+		 * @return Payload
+		 *
+		 * @todo make `nodeName` enum
+		 */
+		trackFormClick: function (
+			formId: string,
+			elementId: string,
+			nodeName: string,
+			type: string,
+			elementClasses: Array<string>,
+			value: string,
+			context?: Array<SelfDescribingJson>,
+			tstamp?: Timestamp): PayloadData {
+
+			return trackSelfDescribingEvent({
+				schema: 'iglu:com.snowplowanalytics.snowplow/click_form/jsonschema/1-0-0',
+				data: removeEmptyProperties({
+					formId: formId,
+					elementId: elementId,
+					nodeName: nodeName,
+					type: type,
+					elementClasses: elementClasses,
+					value: value
+				}, {value: true})
+			}, context, tstamp);
+		},
+
+		/**
 		 * Track the value of a form field changing
 		 *
 		 * @param formId The parent form ID

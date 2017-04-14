@@ -119,12 +119,18 @@ object.getFormTrackingManager = function (core, trackerId, contextAdder) {
 	/*
 	 * Return function to handle form field change event
 	 */
-	function getFormChangeListener(context) {
+	function getFormChangeListener(type, context) {
 		return function (e) {
 			var elt = e.target;
 			var type = (elt.nodeName && elt.nodeName.toUpperCase() === 'INPUT') ? elt.type : null;
 			var value = (elt.type === 'checkbox' && !elt.checked) ? null : elt.value;
-			core.trackFormChange(getParentFormName(elt), getFormElementName(elt), elt.nodeName, type, helpers.getCssClasses(elt), value, contextAdder(context));
+			if (type == 'change') {
+				core.trackFormChange(getParentFormName(elt), getFormElementName(elt), elt.nodeName, type, helpers.getCssClasses(elt), value, contextAdder(context));
+			}
+			else if (type == 'click') {
+				core.trackFormClick(getParentFormName(elt), getFormElementName(elt), elt.nodeName, type, helpers.getCssClasses(elt), value, contextAdder(context));
+				
+			}
 		};
 	}
 
@@ -162,7 +168,8 @@ object.getFormTrackingManager = function (core, trackerId, contextAdder) {
 					lodash.forEach(innerElementTags, function (tagname) {
 						lodash.forEach(form.getElementsByTagName(tagname), function (innerElement) {
 							if (fieldFilter(innerElement) && !innerElement[trackingMarker]) {
-								helpers.addEventListener(innerElement, 'change', getFormChangeListener(context), false);
+								helpers.addEventListener(innerElement, 'click', getFormChangeListener('click', context), false);
+								helpers.addEventListener(innerElement, 'change', getFormChangeListener('change', context), false);
 								innerElement[trackingMarker] = true;
 							}
 						});

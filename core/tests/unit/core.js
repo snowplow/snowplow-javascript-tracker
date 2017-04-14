@@ -400,6 +400,37 @@ define([
 			compare(tracker.trackRemoveFromCart(sku, name, category, unitPrice, quantity, currency), expected);
 		},
 
+		"Track a form click event": function () {
+			var formId = "parent";
+			var elementId = "child";
+			var nodeName = "INPUT";
+			var type = "text";
+			var elementClasses = ["important"];
+			var value = "male";
+
+			var inputJson = {
+				schema: 'iglu:com.snowplowanalytics.snowplow/click_form/jsonschema/1-0-0',
+				data: {
+					formId: formId,
+					elementId: elementId,
+					nodeName: nodeName,
+					type: type,
+					elementClasses: elementClasses,
+					value: value
+				}
+			};
+
+			var expected = {
+				e: 'ue',
+				ue_pr: JSON.stringify({
+					schema: unstructEventSchema,
+					data: inputJson
+				})
+			};
+
+			compare(tracker.trackFormClick(formId, elementId, nodeName, type, elementClasses, value), expected);
+		},
+
 		"Track a form change event": function () {
 			var formId = "parent";
 			var elementId = "child";
