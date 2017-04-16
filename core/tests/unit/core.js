@@ -400,7 +400,7 @@ define([
 			compare(tracker.trackRemoveFromCart(sku, name, category, unitPrice, quantity, currency), expected);
 		},
 
-		"Track a form click event": function () {
+		"Track a form focus event": function () {
 			var formId = "parent";
 			var elementId = "child";
 			var nodeName = "INPUT";
@@ -409,7 +409,7 @@ define([
 			var value = "male";
 
 			var inputJson = {
-				schema: 'iglu:com.snowplowanalytics.snowplow/click_form/jsonschema/1-0-0',
+				schema: 'iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0',
 				data: {
 					formId: formId,
 					elementId: elementId,
@@ -428,7 +428,7 @@ define([
 				})
 			};
 
-			compare(tracker.trackFormClick(formId, elementId, nodeName, type, elementClasses, value), expected);
+			compare(tracker.trackFormFocusOrChange('focus_form', formId, elementId, nodeName, type, elementClasses, value), expected);
 		},
 
 		"Track a form change event": function () {
@@ -459,7 +459,7 @@ define([
 				})
 			};
 
-			compare(tracker.trackFormChange(formId, elementId, nodeName, type, elementClasses, value), expected);
+			compare(tracker.trackFormFocusOrChange('change_form', formId, elementId, nodeName, type, elementClasses, value), expected);
 		},
 
 		"Track a form submission event": function () {
