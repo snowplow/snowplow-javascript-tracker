@@ -1,30 +1,32 @@
 # JavaScript web analytics for Snowplow
 
-[ ![Build Status] [travis-image] ] [travis]
-[ ![Selenium Test Status] [saucelabs-button-image]][saucelabs]
-[ ![Code Climate] [codeclimate-image] ] [codeclimate]
-[ ![Built with Grunt] [grunt-image] ] [grunt]
-[ ![License] [license-image] ] [bsd]
+[![Build Status][travis-image]][travis]
+[![Selenium Test Status][saucelabs-button-image]][saucelabs]
+[![Code Climate][codeclimate-image]][codeclimate]
+[![Built with Grunt][grunt-image]][grunt]
+[![License][license-image]][bsd]
 
 ## Overview
 
-Add analytics to your websites and web apps with the [Snowplow] [snowplow] event tracker for JavaScript.
+Add analytics to your websites and web apps with the [Snowplow][snowplow] event tracker for
+JavaScript.
 
-With this tracker you can collect user event data (page views, e-commerce transactions etc) from the client-side tier of your websites and web apps.
+With this tracker you can collect user event data (page views, e-commerce transactions etc) from the
+client-side tier of your websites and web apps.
 
 ## Find out more
 
-| Technical Docs              | Setup Guide           | Roadmap & Contributing               |         
-|-----------------------------|-----------------------|--------------------------------------|
-| [ ![i1] [techdocs-image] ] [tech-docs]      | [ ![i2] [setup-image] ] [setup]   | ![i3] [roadmap-image]                |
-| [Technical Docs] [tech-docs] | [Setup Guide] [setup] | _coming soon_                        |
+| Technical Docs                      | Setup Guide                  | Roadmap & Contributing               |         
+|-------------------------------------|------------------------------|--------------------------------------|
+| [![i1] [techdocs-image]][tech-docs] | [ ![i2][setup-image]][setup] | ![i3][roadmap-image]                 |
+| [Technical Docs][tech-docs]         | [Setup Guide][setup]         | _coming soon_                        |
 
 
 ## Developers
 
 ### Contributing quickstart
 
-Assuming git, [Vagrant] [vagrant-install] and [VirtualBox] [virtualbox-install] installed:
+Assuming git, [Vagrant][vagrant-install] and [VirtualBox][virtualbox-install] installed:
 
 ```
  host$ git clone https://github.com/snowplow/snowplow-javascript-tracker.git
@@ -36,21 +38,25 @@ guest$ cd core
 guest$ sudo npm install
 ```
 
-Set up an `./aws.json` file using the example `./aws.sample.json`. If you just want to concat + minify without uploading then you don't need to fill out the `aws.json` file with valid credentials.
+Set up an `./aws.json` file using the example `./aws.sample.json`. If you just want to concat +
+minify without uploading then you don't need to fill out the `aws.json` file with valid credentials.
 
 Build the package (default task concatenates and minifies) using `grunt`.
 
 ## Testing
 
-[ ![Selenium Test Status][saucelabs-matrix-image]][saucelabs]
+[![Selenium Test Status][saucelabs-matrix-image]][saucelabs]
 
 ## Copyright and license
 
-The Snowplow JavaScript Tracker is based on Anthon Pang's [`piwik.js`] [piwikjs], the JavaScript tracker for the open-source [Piwik] [piwik] project, and is distributed under the same license ([Simplified BSD] [bsd]).
+The Snowplow JavaScript Tracker is based on Anthon Pang's [`piwik.js`][piwikjs], the JavaScript
+tracker for the open-source [Piwik][piwik] project, and is distributed under the same license
+([Simplified BSD][bsd]).
 
-Significant portions of the Snowplow JavaScript Tracker copyright 2010 Anthon Pang. Remainder copyright 2012-14 Snowplow Analytics Ltd.
+Significant portions of the Snowplow JavaScript Tracker copyright 2010 Anthon Pang. Remainder
+copyright 2012-14 Snowplow Analytics Ltd.
 
-Licensed under the [Simplified BSD] [bsd] license.
+Licensed under the [Simplified BSD][bsd] license.
 
 [snowplow]: http://snowplowanalytics.com/
 

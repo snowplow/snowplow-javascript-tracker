@@ -161,7 +161,7 @@ object.getFormTrackingManager = function (core, trackerId, contextAdder) {
 
 					lodash.forEach(innerElementTags, function (tagname) {
 						lodash.forEach(form.getElementsByTagName(tagname), function (innerElement) {
-							if (fieldFilter(innerElement) && !innerElement[trackingMarker]) {
+							if (fieldFilter(innerElement) && !innerElement[trackingMarker] && innerElement.type.toLowerCase() !== 'password') {
 								helpers.addEventListener(innerElement, 'change', getFormChangeListener(context), false);
 								innerElement[trackingMarker] = true;
 							}
