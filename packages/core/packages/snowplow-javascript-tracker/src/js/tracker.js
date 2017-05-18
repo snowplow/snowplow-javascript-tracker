@@ -81,6 +81,8 @@
 	 * 19. maxPostBytes, 40000
 	 * 20. discoverRootDomain, false
 	 * 21. cookieLifetime, 63072000
+	 * 22. stateStorageStrategy, 'cookieAndLocalStorage'
+	 * 23. respectOptOutCookie, false
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
 
@@ -104,6 +106,9 @@
 			domainAlias = helpers.fixupDomain(locationArray[0]),
 			locationHrefAlias = locationArray[1],
 			configReferrerUrl = locationArray[2],
+
+			// Holder of the logPagePing interval
+			pagePingInterval,
 
 			customReferrer,
 
@@ -133,6 +138,9 @@
 			// Maximum delay to wait for web bug image to be fetched (in milliseconds)
 			configTrackerPause = argmap.hasOwnProperty('pageUnloadTimer') ? argmap.pageUnloadTimer : 500,
 
+			// Whether appropriate values have been supplied to enableActivityTracking
+			activityTrackingEnabled = false,
+
 			// Minimum visit time after initial page view (in milliseconds)
 			configMinimumVisitTime,
 
@@ -159,6 +167,9 @@
 			// Do Not Track
 			configDoNotTrack = argmap.hasOwnProperty('respectDoNotTrack') ? argmap.respectDoNotTrack && (dnt === 'yes' || dnt === '1') : false,
 
+			// Opt out of cookie tracking
+			configOptOutCookie,
+
 			// Count sites which are pre-rendered
 			configCountPreRendered,
 
@@ -181,16 +192,33 @@
 			forceUnsecureTracker = !forceSecureTracker && argmap.hasOwnProperty('forceUnsecureTracker') ? (argmap.forceUnsecureTracker === true) : false,
 
 			// Whether to use localStorage to store events between sessions while offline
-			useLocalStorage = argmap.hasOwnProperty('useLocalStorage') ? argmap.useLocalStorage : true,
+			useLocalStorage = argmap.hasOwnProperty('useLocalStorage') ? (
+				helpers.warn('argmap.useLocalStorage is deprecated. ' +
+					'Use argmap.stateStorageStrategy instead.'),
+				argmap.useLocalStorage
+			) : true,
 
 			// Whether to use cookies
-			configUseCookies = argmap.hasOwnProperty('useCookies') ? argmap.useCookies : true,
+			configUseCookies = argmap.hasOwnProperty('useCookies') ? (
+				helpers.warn(
+					'argmap.useCookies is deprecated. Use argmap.stateStorageStrategy instead.'),
+				argmap.useCookies
+			) : true,
+
+			// Strategy defining how to store the state: cookie, localStorage or none
+			configStateStorageStrategy = argmap.hasOwnProperty('stateStorageStrategy') ?
+				argmap.stateStorageStrategy : (!configUseCookies && !useLocalStorage ?
+				'none' : (configUseCookies && useLocalStorage ?
+				'cookieAndLocalStorage' : (configUseCookies ? 'cookie' : 'localStorage'))),
 
 			// Browser language (or Windows language for IE). Imperfect but CloudFront doesn't log the Accept-Language header
 			browserLanguage = navigatorAlias.userLanguage || navigatorAlias.language,
 
 			// Browser features via client-side data collection
-			browserFeatures = detectors.detectBrowserFeatures(configUseCookies, getSnowplowCookieName('testcookie')),
+			browserFeatures = detectors.detectBrowserFeatures(
+				configStateStorageStrategy == 'cookie' ||
+					configStateStorageStrategy == 'cookieAndLocalStorage',
+				getSnowplowCookieName('testcookie')),
 
 			// Visitor fingerprint
 			userFingerprint = (argmap.userFingerprint === false) ? '' : detectors.detectSignature(configUserFingerprintHashSeed),
@@ -249,7 +277,8 @@
 				functionName,
 				namespace,
 				mutSnowplowState,
-				useLocalStorage,
+				configStateStorageStrategy == 'localStorage' ||
+					configStateStorageStrategy == 'cookieAndLocalStorage',
 				argmap.post,
 				argmap.bufferSize,
 				argmap.maxPostBytes || 40000),
@@ -424,7 +453,7 @@
 		function sendRequest(request, delay) {
 			var now = new Date();
 
-			if (!configDoNotTrack) {
+			if (!(configDoNotTrack || !!getSnowplowCookieValue(configOptOutCookie))) {
 				outQueueManager.enqueueRequest(request.build(), configCollectorUrl);
 				mutSnowplowState.expireDateTime = now.getTime() + delay;
 			}
@@ -441,7 +470,12 @@
 		 * Cookie getter.
 		 */
 		function getSnowplowCookieValue(cookieName) {
-			return cookie.cookie(getSnowplowCookieName(cookieName));
+			if (configStateStorageStrategy == 'localStorage') {
+				return helpers.attemptGetLocalStorage(cookieName);
+			} else if (configStateStorageStrategy == 'cookie' ||
+					configStateStorageStrategy == 'cookieAndLocalStorage') {
+				return cookie.cookie(getSnowplowCookieName(cookieName));
+			}
 		}
 
 		/*
@@ -532,7 +566,9 @@
 		 * Sets or renews the session cookie
 		 */
 		function setSessionCookie() {
-			cookie.cookie(getSnowplowCookieName('ses'), '*', configSessionCookieTimeout, configCookiePath, configCookieDomain);
+			var cookieName = getSnowplowCookieName('ses');
+			var cookieValue = '*';
+			setCookie(cookieName, cookieValue, configSessionCookieTimeout);
 		}
 
 		/*
@@ -540,12 +576,25 @@
 		 * or when there is a new visit or a new page view
 		 */
 		function setDomainUserIdCookie(_domainUserId, createTs, visitCount, nowTs, lastVisitTs, sessionId) {
-			cookie.cookie(
-				getSnowplowCookieName('id'),
-				_domainUserId + '.' + createTs + '.' + visitCount + '.' + nowTs + '.' + lastVisitTs + '.' + sessionId,
-				configVisitorCookieTimeout,
-				configCookiePath,
-				configCookieDomain);
+			var cookieName = getSnowplowCookieName('id');
+			var cookieValue = _domainUserId + '.' + createTs + '.' + visitCount + '.' + nowTs +
+				'.' + lastVisitTs + '.' + sessionId;
+			setCookie(cookieName, cookieValue, configVisitorCookieTimeout);
+		}
+
+		/*
+		 * Sets a cookie based on the storage strategy:
+		 * - if 'localStorage': attemps to write to local storage
+		 * - if 'cookie': writes to cookies
+		 * - otherwise: no-op
+		 */
+		function setCookie(name, value, timeout) {
+			if (configStateStorageStrategy == 'localStorage') {
+				helpers.attemptWriteLocalStorage(name, value);
+			} else if (configStateStorageStrategy == 'cookie' ||
+					configStateStorageStrategy == 'cookieAndLocalStorage') {
+				cookie.cookie(name, value, timeout, configCookiePath, configCookieDomain);
+			}
 		}
 
 		/**
@@ -560,7 +609,8 @@
 		 * Set the cookies (if cookies are enabled)
 		 */
 		function initializeIdsAndCookies() {
-			var sesCookieSet = configUseCookies && !!getSnowplowCookieValue('ses');
+			var sesCookieSet =
+				configStateStorageStrategy != 'none' && !!getSnowplowCookieValue('ses');
 			var idCookieComponents = loadDomainUserIdCookie();
 
 			if (idCookieComponents[1]) {
@@ -573,10 +623,8 @@
 			memorizedSessionId = idCookieComponents[6];
 
 			if (!sesCookieSet) {
-
 				// Increment the session ID
 				idCookieComponents[3] ++;
-
 				// Create a new sessionId
 				memorizedSessionId = uuid.v4();
 				idCookieComponents[6] = memorizedSessionId;
@@ -584,7 +632,7 @@
 				idCookieComponents[5] = idCookieComponents[4];
 			}
 
-			if (configUseCookies) {
+			if (configStateStorageStrategy != 'none') {
 				setSessionCookie();
 				// Update currentVisitTs
 				idCookieComponents[4] = Math.round(new Date().getTime() / 1000);
@@ -597,7 +645,7 @@
 		 * Load visitor ID cookie
 		 */
 		function loadDomainUserIdCookie() {
-			if (!configUseCookies) {
+			if (configStateStorageStrategy == 'none') {
 				return [];
 			}
 			var now = new Date(),
@@ -607,12 +655,12 @@
 
 			if (id) {
 				tmpContainer = id.split('.');
-				// New visitor set to 0 now
+				// cookies enabled
 				tmpContainer.unshift('0');
 			} else {
 
 				tmpContainer = [
-					// New visitor
+					// cookies disabled
 					'1',
 					// Domain user ID
 					domainUserId,
@@ -628,6 +676,7 @@
 			}
 
 			if (!tmpContainer[6]) {
+				// session id
 				tmpContainer[6] = uuid.v4();
 			}
 
@@ -643,7 +692,7 @@
 			var nowTs = Math.round(new Date().getTime() / 1000),
 				idname = getSnowplowCookieName('id'),
 				sesname = getSnowplowCookieName('ses'),
-				ses = getSnowplowCookieValue('ses'), // aka cookie.cookie(sesname)
+				ses = getSnowplowCookieValue('ses'),
 				id = loadDomainUserIdCookie(),
 				cookiesDisabled = id[0],
 				_domainUserId = id[1], // We could use the global (domainUserId) but this is better etiquette
@@ -653,9 +702,16 @@
 				lastVisitTs = id[5],
 				sessionIdFromCookie = id[6];
 
-			if (configDoNotTrack && configUseCookies) {
-				cookie.cookie(idname, '', -1, configCookiePath, configCookieDomain);
-				cookie.cookie(sesname, '', -1, configCookiePath, configCookieDomain);
+			if ((configDoNotTrack || !!getSnowplowCookieValue(configOptOutCookie)) &&
+					configStateStorageStrategy != 'none') {
+				if (configStateStorageStrategy == 'localStorage') {
+					helpers.attemptWriteLocalStorage(idname, '');
+					helpers.attemptWriteLocalStorage(sesName, '');
+				} else if (configStateStorageStrategy == 'cookie' ||
+						configStateStorageStrategy == 'cookieAndLocalStorage') {
+					cookie.cookie(idname, '', -1, configCookiePath, configCookieDomain);
+					cookie.cookie(sesname, '', -1, configCookiePath, configCookieDomain);
+				}
 				return;
 			}
 
@@ -664,7 +720,7 @@
 				memorizedSessionId = sessionIdFromCookie;
 
 				// New session?
-				if (!ses && configUseCookies) {
+				if (!ses && configStateStorageStrategy != 'none') {
 					// New session (aka new visit)
 					visitCount++;
 					// Update the last visit timestamp
@@ -700,8 +756,9 @@
 			sb.add('url', purify(configCustomUrl || locationHrefAlias));
 
 			// Update cookies
-			if (configUseCookies) {
-				setDomainUserIdCookie(_domainUserId, createTs, memorizedVisitCount, nowTs, lastVisitTs, memorizedSessionId);
+			if (configStateStorageStrategy != 'none') {
+				setDomainUserIdCookie(_domainUserId, createTs, memorizedVisitCount, nowTs,
+					lastVisitTs, memorizedSessionId);
 				setSessionCookie();
 			}
 
@@ -769,6 +826,13 @@
 					})
 				}
 
+				if (autoContexts.optimizelyXSummary) {
+					var activeExperiments = getOptimizelyXSummaryContexts();
+					lodash.each(activeExperiments, function (e) {
+						combinedContexts.push(e);
+					})
+				}
+
 				if (autoContexts.optimizelyExperiments) {
 					var experimentContexts = getOptimizelyExperimentContexts();
 					for (var i = 0; i < experimentContexts.length; i++) {
@@ -819,7 +883,14 @@
 					combinedContexts.push(augurIdentityLiteContext);
 				}
 			}
-
+			
+			//Add Parrable Context
+			if (autoContexts.parrable) {
+				var parrableContext = getParrableContext();
+				if (parrableContext) {
+					combinedContexts.push(parrableContext);
+				}
+			}
 			return combinedContexts;
 		}
 
@@ -916,6 +987,23 @@
 		}
 
 		/**
+		 * Check that *both* optimizely and optimizely.data exist
+		 *
+		 * @param property optimizely data property
+		 * @param snd optional nested property
+		 */
+		function getOptimizelyXData(property, snd) {
+			var data;
+			if (windowAlias.optimizely) {
+				data = windowAlias.optimizely.get(property);
+				if (typeof snd !== 'undefined' && data !== undefined) {
+					data = data[snd]
+				}
+			}
+			return data
+		}
+
+		/**
 		 * Get data for Optimizely "lite" contexts - active experiments on current page
 		 * 
 		 * @returns Array content of lite optimizely lite context
@@ -935,6 +1023,31 @@
 					name: current && current.name
 				}
 			});
+		}
+
+		/**
+		 * Get data for OptimizelyX contexts - active experiments on current page
+		 * 
+		 * @returns Array content of lite optimizely lite context
+		 */
+		function getOptimizelyXSummary() {
+			var state = getOptimizelyXData('state');
+			var experiment_ids = state.getActiveExperimentIds();
+			var experiments = getOptimizelyXData('data', 'experiments');
+			var visitor = getOptimizelyXData('visitor');
+
+			return lodash.map(experiment_ids, function(activeExperiment) {
+				variation = state.getVariationMap()[activeExperiment];
+				variationName = variation.name;
+				variationId = variation.id;
+				visitorId = visitor.visitorId;
+				return {
+					experimentId: parseInt(activeExperiment),
+					variationName: variationName,
+					variation: parseInt(variationId),
+					visitorId: visitorId
+				}
+			})
 		}
 
 		/**
@@ -1143,6 +1256,21 @@
 		}
 
 		/**
+		 * Creates an OptimizelyX context containing only data required to join
+		 * event to experiment data
+		 *
+		 * @returns Array of custom contexts
+		 */
+		function getOptimizelyXSummaryContexts() {
+			return lodash.map(getOptimizelyXSummary(), function (experiment) {
+				return {
+					schema: 'iglu:com.optimizely.optimizelyx/summary/jsonschema/1-0-0',
+					data: experiment
+				};
+			});
+		}
+
+		/**
 		 * Creates a context from the window['augur'] object
 		 *
 		 * @return object The IdentityLite context
@@ -1168,6 +1296,25 @@
 			}
 		}
 
+		/**
+		 * Creates a context from the window['_hawk'] object
+		 *
+		 * @return object The Parrable context
+		 */
+		function getParrableContext() {
+			var parrable = window['_hawk'];
+			if (parrable) {
+				var context = { encryptedId: null, optout: null };
+				context['encryptedId'] = parrable.browserid;
+				var regex = new RegExp('(?:^|;)\\s?' + "_parrable_hawk_optout".replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1') + '=(.*?)(?:;|$)', 'i'), match = document.cookie.match(regex);
+				context['optout'] = (match && decodeURIComponent(match[1])) ? match && decodeURIComponent(match[1]) : "false";
+				return {
+					schema: 'iglu:com.parrable/encrypted_payload/jsonschema/1-0-0',
+					data: context
+				};
+			}
+		}
+		
 		/**
 		 * Attempts to create a context using the geolocation API and add it to commonContexts
 		 */
@@ -1253,7 +1400,7 @@
 			
 			// Send ping (to log that user has stayed on page)
 			var now = new Date();
-			if (configMinimumVisitTime && configHeartBeatTimer && !activityTrackingInstalled) {
+			if (activityTrackingEnabled && !activityTrackingInstalled) {
 				activityTrackingInstalled = true;
 
 				// Capture our initial scroll points
@@ -1277,7 +1424,8 @@
 
 				// Periodic check for activity.
 				lastActivityTime = now.getTime();
-				setInterval(function heartBeat() {
+				clearInterval(pagePingInterval);
+				pagePingInterval = setInterval(function heartBeat() {
 					var now = new Date();
 
 					// There was activity during the heart beat period;
@@ -1433,6 +1581,33 @@
 		return {
 
 			/**
+			 * Get the domain session index also known as current memorized visit count.
+			 *
+			 * @return int Domain session index
+			 */
+			getDomainSessionIndex: function() {
+				return memorizedVisitCount;
+			},
+
+			/**
+			 * Get the page view ID as generated or provided by mutSnowplowState.pageViewId.
+			 *
+			 * @return string Page view ID
+			 */
+			getPageViewId: function () {
+				return getPageViewId();
+			},
+
+			/**
+			 * Get the cookie name as cookieNamePrefix + basename + . + domain.
+			 *
+			 * @return string Cookie name
+			 */
+			getCookieName: function(basename) {
+				return getSnowplowCookieName(basename);
+			},
+
+			/**
 			 * Get the current user ID (as set previously
 			 * with setUserId()).
 			 *
@@ -1582,7 +1757,7 @@
 			* @param bool enable If false, turn off user fingerprinting
 			*/
 			enableUserFingerprint: function(enable) {
-			helpers.warn('enableUserFingerprintSeed is deprecated. Instead add a "userFingerprint" field to the argmap argument of newTracker.');
+				helpers.warn('enableUserFingerprintSeed is deprecated. Instead add a "userFingerprint" field to the argmap argument of newTracker.');
 				if (!enable) {
 					userFingerprint = '';
 				}
@@ -1678,8 +1853,23 @@
 			 * @param int heartBeatDelay Seconds to wait between pings
 			 */
 			enableActivityTracking: function (minimumVisitLength, heartBeatDelay) {
-				configMinimumVisitTime = new Date().getTime() + minimumVisitLength * 1000;
-				configHeartBeatTimer = heartBeatDelay * 1000;
+				if (minimumVisitLength === parseInt(minimumVisitLength, 10) &&
+						heartBeatDelay === parseInt(heartBeatDelay, 10)) {
+					activityTrackingEnabled = true;
+					configMinimumVisitTime = new Date().getTime() + minimumVisitLength * 1000;
+					configHeartBeatTimer = heartBeatDelay * 1000;
+				} else {
+					helpers.warn("Activity tracking not enabled, please provide integer values " +
+						"for minimumVisitLength and heartBeatDelay.")
+				}
+			},
+
+			/**
+			 * Triggers the activityHandler manually to allow external user defined
+			 * activity. i.e. While watching a video
+			 */
+			updatePageActivity: function () {
+				activityHandler();
 			},
 
 			/**
@@ -1721,6 +1911,16 @@
 				if (windowAlias.location.protocol === 'file:') {
 					windowAlias.location = url;
 				}
+			},
+
+			/**
+			 * Sets the opt out cookie.
+			 *
+			 * @param string name of the opt out cookie
+			 */
+			setOptOutCookie: function (name) {
+				configOptOutCookie = name;
+				setCookie(name, '*', 1800);
 			},
 
 			/**
