@@ -601,7 +601,7 @@
 		 * Generate a pseudo-unique ID to fingerprint this user
 		 */
 		function createNewDomainUserId() {
-			return uuid.v4();
+			return configTrackerSiteId + "--" + uuid.v4();
 		}
 
 		/*
