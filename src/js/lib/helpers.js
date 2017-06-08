@@ -167,7 +167,7 @@
 				try {
 					return context.apply(null, params);
 				} catch (e) {
-					//TODO: provide warning
+					object.warn('Exception thrown in dynamic context generator: ' + e);
 				}
 			} else {
 				return context;
