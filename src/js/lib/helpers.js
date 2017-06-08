@@ -150,6 +150,28 @@
 		return decodeURIComponent(match[1].replace(/\+/g, ' '));
 	};
 
+	/*
+	 * Find dynamic context generating functions and merge their results into the static contexts
+	 * Combine an array of unchanging contexts with the result of a context-creating function
+	 *
+	 * @param {(object|function(...*): ?object)[]} dynamicOrStaticContexts Array of custom context Objects or custom context generating functions
+	 * @param {...*} Parameters to pass to dynamic callbacks
+	 */
+	object.resolveDynamicContexts = function (dynamicOrStaticContexts) {
+		var params = Array.prototype.slice.call(arguments, 1);
+		return lodash.map(dynamicOrStaticContexts, function(context) {
+			if (typeof context === 'function') {
+				try {
+					return context.apply(null, params);
+				} catch (e) {
+					object.warn('Exception thrown in dynamic context generator: ' + e);
+				}
+			} else {
+				return context;
+			}
+		});
+	};
+
 	/**
 	 * Only log deprecation warnings if they won't cause an error
 	 */
