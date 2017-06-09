@@ -1,7 +1,7 @@
 /*
 * JavaScript tracker core for Snowplow: Gruntfile.js
 *
- * Copyright (c) 2014 Snowplow Analytics Ltd. All rights reserved.
+ * Copyright (c) 2014-2016 Snowplow Analytics Ltd. All rights reserved.
  *
  * This program is licensed to you under the Apache License Version 2.0,
  * and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -18,15 +18,31 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
 
+    ts: {
+      default : {
+        tsconfig: true
+      }
+    },
+
+    dtsGenerator: {
+        default: {
+            options: {
+                name: 'snowplow-tracker',
+                project: '.',
+                out: 'main.d.ts'
+            }
+        }
+    },
+
     intern: {
-      nonfunctional: {
+      unit: {
         options: {
           runType: 'client',
           config: 'tests/intern.js',
           suites: [
-            'tests/base64.js',
-            'tests/payload.js',
-            'tests/core.js'
+            'tests/unit/base64.js',
+            'tests/unit/payload.js',
+            'tests/unit/core.js'
             ]
         }
       }
@@ -34,6 +50,8 @@ module.exports = function(grunt) {
   });
 
   grunt.loadNpmTasks('intern');
+  grunt.loadNpmTasks('grunt-ts');
+  grunt.loadNpmTasks('dts-generator');
 
-  grunt.registerTask('default', 'Run tests', ['intern']);
-}
+  grunt.registerTask('default', 'Compile and test', ['ts', 'dtsGenerator', 'intern']);
+};

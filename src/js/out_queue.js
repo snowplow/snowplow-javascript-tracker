@@ -35,7 +35,6 @@
 ;(function() {
 
 	var
-		json2 = require('JSON'),
 		lodash = require('./lib_managed/lodash'),
 		localStorageAccessible = require('./lib/detectors').localStorageAccessible,
 		helpers = require('./lib/helpers'),
@@ -76,7 +75,7 @@
 			// Catch any JSON parse errors or localStorage that might be thrown
 			try {
 				// TODO: backward compatibility with the old version of the queue for POST requests
-				outQueue = json2.parse(localStorage.getItem(queueName));
+				outQueue = JSON.parse(localStorage.getItem(queueName));
 			}
 			catch(e) {}
 		}
@@ -135,7 +134,7 @@
 			});
 			return {
 				evt: cleanedRequest,
-				bytes: getUTF8Length(json2.stringify(cleanedRequest))
+				bytes: getUTF8Length(JSON.stringify(cleanedRequest))
 			};
 		}
 
@@ -189,7 +188,7 @@
 			}
 			var savedToLocalStorage = false;
 			if (useLocalStorage) {
-				savedToLocalStorage = helpers.attemptWriteLocalStorage(queueName, json2.stringify(outQueue));
+				savedToLocalStorage = helpers.attemptWriteLocalStorage(queueName, JSON.stringify(outQueue));
 			}
 
 			if (!executingQueue && (!savedToLocalStorage || outQueue.length >= bufferSize)) {
@@ -255,7 +254,7 @@
 							outQueue.shift();
 						}
 						if (useLocalStorage) {
-							helpers.attemptWriteLocalStorage(queueName, json2.stringify(outQueue));
+							helpers.attemptWriteLocalStorage(queueName, JSON.stringify(outQueue));
 						}
 						clearTimeout(xhrTimeout);
 						executeQueue();
@@ -280,7 +279,7 @@
 				image.onload = function () {
 					outQueue.shift();
 					if (useLocalStorage) {
-						helpers.attemptWriteLocalStorage(queueName, json2.stringify(outQueue));
+						helpers.attemptWriteLocalStorage(queueName, JSON.stringify(outQueue));
 					}
 					executeQueue();
 				};
@@ -314,8 +313,8 @@
 		 * @return string payload_data self-describing JSON
 		 */
 		function encloseInPayloadDataEnvelope(events) {
-			return json2.stringify({
-				schema: 'iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-3',
+			return JSON.stringify({
+				schema: 'iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-4',
 				data: events
 			});
 		}

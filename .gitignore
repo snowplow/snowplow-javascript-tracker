@@ -1,5 +1,5 @@
-# Sauce Labs
-sauce_connect.log*
+# Tests suite
+ngrok
 
 # node.js
 lib-cov

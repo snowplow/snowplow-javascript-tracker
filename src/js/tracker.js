@@ -2,33 +2,33 @@
  * JavaScript tracker for Snowplow: tracker.js
  * 
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
- * 2012-2014 Snowplow Analytics Ltd. All rights reserved. 
+ * 2012-2016 Snowplow Analytics Ltd. All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without 
  * modification, are permitted provided that the following conditions are 
  * met: 
  *
- * * Redistributions of source code must retain the above copyright 
- *   notice, this list of conditions and the following disclaimer. 
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
  *
- * * Redistributions in binary form must reproduce the above copyright 
- *   notice, this list of conditions and the following disclaimer in the 
- *   documentation and/or other materials provided with the distribution. 
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
  *
  * * Neither the name of Anthon Pang nor Snowplow Analytics Ltd nor the
  *   names of their contributors may be used to endorse or promote products
- *   derived from this software without specific prior written permission. 
+ *   derived from this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
@@ -40,12 +40,12 @@
 		proxies = require('./lib/proxies'),
 		cookie = require('browser-cookie-lite'),
 		detectors = require('./lib/detectors'),
-		json2 = require('JSON'),
 		sha1 = require('sha1'),
 		links = require('./links'),
 		forms = require('./forms'),
+		errors = require('./errors'),
 		requestQueue = require('./out_queue'),
-		coreConstructor = require('snowplow-tracker-core'),
+		coreConstructor = require('snowplow-tracker-core').trackerCore,
 		uuid = require('uuid'),
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
@@ -53,15 +53,11 @@
 	/**
 	 * Snowplow Tracker class
 	 *
+	 * @param functionName global function name
 	 * @param namespace The namespace of the tracker object
-
 	 * @param version The current version of the JavaScript Tracker
-	 *
-	 * @param pageViewId ID for the current page view, to be attached to all events in the web_page context
-	 *
 	 * @param mutSnowplowState An object containing hasLoaded, registeredOnLoadHandlers, and expireDateTime
-	 * Passed in by reference in case they are altered by snowplow.js
-	 *
+	 * 	      Passed in by reference in case they are altered by snowplow.js
 	 * @param argmap Optional dictionary of configuration options. Supported fields and their default values:
 	 *
 	 * 1. encodeBase64, true
@@ -84,8 +80,11 @@
 	 * 18. crossDomainLinker, false
 	 * 19. maxPostBytes, 40000
 	 * 20. discoverRootDomain, false
+	 * 21. cookieLifetime, 63072000
+	 * 22. stateStorageStrategy, 'cookieAndLocalStorage'
+	 * 23. respectOptOutCookie, false
 	 */
-	object.Tracker = function Tracker(functionName, namespace, version, pageViewId, mutSnowplowState, argmap) {
+	object.Tracker = function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
 
 		/************************************************************
 		 * Private members
@@ -107,6 +106,9 @@
 			domainAlias = helpers.fixupDomain(locationArray[0]),
 			locationHrefAlias = locationArray[1],
 			configReferrerUrl = locationArray[2],
+
+			// Holder of the logPagePing interval
+			pagePingInterval,
 
 			customReferrer,
 
@@ -136,6 +138,9 @@
 			// Maximum delay to wait for web bug image to be fetched (in milliseconds)
 			configTrackerPause = argmap.hasOwnProperty('pageUnloadTimer') ? argmap.pageUnloadTimer : 500,
 
+			// Whether appropriate values have been supplied to enableActivityTracking
+			activityTrackingEnabled = false,
+
 			// Minimum visit time after initial page view (in milliseconds)
 			configMinimumVisitTime,
 
@@ -162,11 +167,14 @@
 			// Do Not Track
 			configDoNotTrack = argmap.hasOwnProperty('respectDoNotTrack') ? argmap.respectDoNotTrack && (dnt === 'yes' || dnt === '1') : false,
 
+			// Opt out of cookie tracking
+			configOptOutCookie,
+
 			// Count sites which are pre-rendered
 			configCountPreRendered,
 
 			// Life of the visitor cookie (in seconds)
-			configVisitorCookieTimeout = 63072000, // 2 years
+			configVisitorCookieTimeout = argmap.hasOwnProperty('cookieLifetime') ? argmap.cookieLifetime : 63072000, // 2 years
 
 			// Life of the session cookie (in seconds)
 			configSessionCookieTimeout = argmap.hasOwnProperty('sessionCookieTimeout') ? argmap.sessionCookieTimeout : 1800, // 30 minutes
@@ -184,16 +192,33 @@
 			forceUnsecureTracker = !forceSecureTracker && argmap.hasOwnProperty('forceUnsecureTracker') ? (argmap.forceUnsecureTracker === true) : false,
 
 			// Whether to use localStorage to store events between sessions while offline
-			useLocalStorage = argmap.hasOwnProperty('useLocalStorage') ? argmap.useLocalStorage : true,
+			useLocalStorage = argmap.hasOwnProperty('useLocalStorage') ? (
+				helpers.warn('argmap.useLocalStorage is deprecated. ' +
+					'Use argmap.stateStorageStrategy instead.'),
+				argmap.useLocalStorage
+			) : true,
 
 			// Whether to use cookies
-			configUseCookies = argmap.hasOwnProperty('useCookies') ? argmap.useCookies : true,
+			configUseCookies = argmap.hasOwnProperty('useCookies') ? (
+				helpers.warn(
+					'argmap.useCookies is deprecated. Use argmap.stateStorageStrategy instead.'),
+				argmap.useCookies
+			) : true,
+
+			// Strategy defining how to store the state: cookie, localStorage or none
+			configStateStorageStrategy = argmap.hasOwnProperty('stateStorageStrategy') ?
+				argmap.stateStorageStrategy : (!configUseCookies && !useLocalStorage ?
+				'none' : (configUseCookies && useLocalStorage ?
+				'cookieAndLocalStorage' : (configUseCookies ? 'cookie' : 'localStorage'))),
 
 			// Browser language (or Windows language for IE). Imperfect but CloudFront doesn't log the Accept-Language header
 			browserLanguage = navigatorAlias.userLanguage || navigatorAlias.language,
 
 			// Browser features via client-side data collection
-			browserFeatures = detectors.detectBrowserFeatures(configUseCookies, getSnowplowCookieName('testcookie')),
+			browserFeatures = detectors.detectBrowserFeatures(
+				configStateStorageStrategy == 'cookie' ||
+					configStateStorageStrategy == 'cookieAndLocalStorage',
+				getSnowplowCookieName('testcookie')),
 
 			// Visitor fingerprint
 			userFingerprint = (argmap.userFingerprint === false) ? '' : detectors.detectSignature(configUserFingerprintHashSeed),
@@ -244,12 +269,16 @@
 			// Manager for automatic form tracking
 			formTrackingManager = forms.getFormTrackingManager(core, trackerId, addCommonContexts),
 
+			// Manager for tracking unhandled exceptions
+			errorManager = errors.errorManager(core),
+
 			// Manager for local storage queue
 			outQueueManager = new requestQueue.OutQueueManager(
 				functionName,
 				namespace,
 				mutSnowplowState,
-				useLocalStorage,
+				configStateStorageStrategy == 'localStorage' ||
+					configStateStorageStrategy == 'cookieAndLocalStorage',
 				argmap.post,
 				argmap.bufferSize,
 				argmap.maxPostBytes || 40000),
@@ -264,14 +293,13 @@
 			commonContexts = [],
 
 			// Enhanced Ecommerce Contexts to be added on every `trackEnhancedEcommerceAction` call
-			enhancedEcommerceContexts = [];
+			enhancedEcommerceContexts = [],
+
+			// Whether pageViewId should be regenerated after each trackPageView. Affect web_page context
+			preservePageViewId = false;
 
 		if (argmap.hasOwnProperty('discoverRootDomain') && argmap.discoverRootDomain) {
 			configCookieDomain = helpers.findRootDomain();
-		}
-
-		if (autoContexts.webPage) {
-			commonContexts.push(getWebPageContext());
 		}
 
 		if (autoContexts.gaCookies) {
@@ -282,7 +310,7 @@
 			enableGeolocationContext();
 		}
 
-		// Enable base 64 encoding for unstructured events and custom contexts
+		// Enable base 64 encoding for self-describing events and custom contexts
 		core.setBase64Encoding(argmap.hasOwnProperty('encodeBase64') ? argmap.encodeBase64 : true);
 
 		// Set up unchanging name-value pairs
@@ -327,9 +355,8 @@
 		 *
 		 * @param event e The event targeting the link
 		 */
-		function linkDecorationHandler(e) {
+		function linkDecorationHandler() {
 			var tstamp = new Date().getTime();
-			var initialQsParams = '_sp=' + domainUserId + '.' + tstamp;
 			if (this.href) {
 				this.href = helpers.decorateQuerystring(this.href, '_sp', domainUserId + '.' + tstamp);
 			}
@@ -340,11 +367,11 @@
 		 * Whenever such a link is clicked on or navigated to via the keyboard,
 		 * add "_sp={{duid}}.{{timestamp}}" to its querystring
 		 *
-		 * @param function crossDomainLinker Function used to determine which links to decorate
+		 * @param crossDomainLinker Function used to determine which links to decorate
 		 */
 		function decorateLinks(crossDomainLinker) {
-			for (var i=0; i<document.links.length; i++) {
-				var elt = document.links[i];
+			for (var i=0; i<documentAlias.links.length; i++) {
+				var elt = documentAlias.links[i];
 				if (!elt.spDecorationEnabled && crossDomainLinker(elt)) {
 					helpers.addEventListener(elt, 'click', linkDecorationHandler, true);
 					helpers.addEventListener(elt, 'mousedown', linkDecorationHandler, true);
@@ -426,7 +453,7 @@
 		function sendRequest(request, delay) {
 			var now = new Date();
 
-			if (!configDoNotTrack) {
+			if (!(configDoNotTrack || !!getSnowplowCookieValue(configOptOutCookie))) {
 				outQueueManager.enqueueRequest(request.build(), configCollectorUrl);
 				mutSnowplowState.expireDateTime = now.getTime() + delay;
 			}
@@ -443,7 +470,12 @@
 		 * Cookie getter.
 		 */
 		function getSnowplowCookieValue(cookieName) {
-			return cookie.cookie(getSnowplowCookieName(cookieName));
+			if (configStateStorageStrategy == 'localStorage') {
+				return helpers.attemptGetLocalStorage(cookieName);
+			} else if (configStateStorageStrategy == 'cookie' ||
+					configStateStorageStrategy == 'cookieAndLocalStorage') {
+				return cookie.cookie(getSnowplowCookieName(cookieName));
+			}
 		}
 
 		/*
@@ -476,7 +508,7 @@
 		 * Adapts code taken from: http://www.javascriptkit.com/javatutors/static2.shtml
 		 */
 		function getPageOffsets() {
-			var iebody = (documentAlias.compatMode && documentAlias.compatMode != "BackCompat") ?
+			var iebody = (documentAlias.compatMode && documentAlias.compatMode !== "BackCompat") ?
 				documentAlias.documentElement :
 				documentAlias.body;
 			return [iebody.scrollLeft || windowAlias.pageXOffset, iebody.scrollTop || windowAlias.pageYOffset];
@@ -487,11 +519,11 @@
 		 */
 		function resetMaxScrolls() {
 			var offsets = getPageOffsets();
-			
+
 			var x = offsets[0];
 			minXOffset = x;
 			maxXOffset = x;
-			
+
 			var y = offsets[1];
 			minYOffset = y;
 			maxYOffset = y;
@@ -502,7 +534,7 @@
 		 */
 		function updateMaxScrolls() {
 			var offsets = getPageOffsets();
-			
+
 			var x = offsets[0];
 			if (x < minXOffset) {
 				minXOffset = x;
@@ -515,7 +547,7 @@
 				minYOffset = y;
 			} else if (y > maxYOffset) {
 				maxYOffset = y;
-			}	
+			}
 		}
 
 		/*
@@ -534,7 +566,9 @@
 		 * Sets or renews the session cookie
 		 */
 		function setSessionCookie() {
-			cookie.cookie(getSnowplowCookieName('ses'), '*', configSessionCookieTimeout, configCookiePath, configCookieDomain);
+			var cookieName = getSnowplowCookieName('ses');
+			var cookieValue = '*';
+			setCookie(cookieName, cookieValue, configSessionCookieTimeout);
 		}
 
 		/*
@@ -542,12 +576,25 @@
 		 * or when there is a new visit or a new page view
 		 */
 		function setDomainUserIdCookie(_domainUserId, createTs, visitCount, nowTs, lastVisitTs, sessionId) {
-			cookie.cookie(
-				getSnowplowCookieName('id'),
-				_domainUserId + '.' + createTs + '.' + visitCount + '.' + nowTs + '.' + lastVisitTs + '.' + sessionId,
-				configVisitorCookieTimeout,
-				configCookiePath,
-				configCookieDomain);
+			var cookieName = getSnowplowCookieName('id');
+			var cookieValue = _domainUserId + '.' + createTs + '.' + visitCount + '.' + nowTs +
+				'.' + lastVisitTs + '.' + sessionId;
+			setCookie(cookieName, cookieValue, configVisitorCookieTimeout);
+		}
+
+		/*
+		 * Sets a cookie based on the storage strategy:
+		 * - if 'localStorage': attemps to write to local storage
+		 * - if 'cookie': writes to cookies
+		 * - otherwise: no-op
+		 */
+		function setCookie(name, value, timeout) {
+			if (configStateStorageStrategy == 'localStorage') {
+				helpers.attemptWriteLocalStorage(name, value);
+			} else if (configStateStorageStrategy == 'cookie' ||
+					configStateStorageStrategy == 'cookieAndLocalStorage') {
+				cookie.cookie(name, value, timeout, configCookiePath, configCookieDomain);
+			}
 		}
 
 		/**
@@ -562,7 +609,8 @@
 		 * Set the cookies (if cookies are enabled)
 		 */
 		function initializeIdsAndCookies() {
-			var sesCookieSet = configUseCookies && !!getSnowplowCookieValue('ses');
+			var sesCookieSet =
+				configStateStorageStrategy != 'none' && !!getSnowplowCookieValue('ses');
 			var idCookieComponents = loadDomainUserIdCookie();
 
 			if (idCookieComponents[1]) {
@@ -575,10 +623,8 @@
 			memorizedSessionId = idCookieComponents[6];
 
 			if (!sesCookieSet) {
-
 				// Increment the session ID
 				idCookieComponents[3] ++;
-
 				// Create a new sessionId
 				memorizedSessionId = uuid.v4();
 				idCookieComponents[6] = memorizedSessionId;
@@ -586,7 +632,7 @@
 				idCookieComponents[5] = idCookieComponents[4];
 			}
 
-			if (configUseCookies) {
+			if (configStateStorageStrategy != 'none') {
 				setSessionCookie();
 				// Update currentVisitTs
 				idCookieComponents[4] = Math.round(new Date().getTime() / 1000);
@@ -599,7 +645,7 @@
 		 * Load visitor ID cookie
 		 */
 		function loadDomainUserIdCookie() {
-			if (!configUseCookies) {
+			if (configStateStorageStrategy == 'none') {
 				return [];
 			}
 			var now = new Date(),
@@ -609,12 +655,12 @@
 
 			if (id) {
 				tmpContainer = id.split('.');
-				// New visitor set to 0 now
+				// cookies enabled
 				tmpContainer.unshift('0');
 			} else {
 
 				tmpContainer = [
-					// New visitor
+					// cookies disabled
 					'1',
 					// Domain user ID
 					domainUserId,
@@ -630,6 +676,7 @@
 			}
 
 			if (!tmpContainer[6]) {
+				// session id
 				tmpContainer[6] = uuid.v4();
 			}
 
@@ -645,7 +692,7 @@
 			var nowTs = Math.round(new Date().getTime() / 1000),
 				idname = getSnowplowCookieName('id'),
 				sesname = getSnowplowCookieName('ses'),
-				ses = getSnowplowCookieValue('ses'), // aka cookie.cookie(sesname)
+				ses = getSnowplowCookieValue('ses'),
 				id = loadDomainUserIdCookie(),
 				cookiesDisabled = id[0],
 				_domainUserId = id[1], // We could use the global (domainUserId) but this is better etiquette
@@ -655,9 +702,16 @@
 				lastVisitTs = id[5],
 				sessionIdFromCookie = id[6];
 
-			if (configDoNotTrack && configUseCookies) {
-				cookie.cookie(idname, '', -1, configCookiePath, configCookieDomain);
-				cookie.cookie(sesname, '', -1, configCookiePath, configCookieDomain);
+			if ((configDoNotTrack || !!getSnowplowCookieValue(configOptOutCookie)) &&
+					configStateStorageStrategy != 'none') {
+				if (configStateStorageStrategy == 'localStorage') {
+					helpers.attemptWriteLocalStorage(idname, '');
+					helpers.attemptWriteLocalStorage(sesName, '');
+				} else if (configStateStorageStrategy == 'cookie' ||
+						configStateStorageStrategy == 'cookieAndLocalStorage') {
+					cookie.cookie(idname, '', -1, configCookiePath, configCookieDomain);
+					cookie.cookie(sesname, '', -1, configCookiePath, configCookieDomain);
+				}
 				return;
 			}
 
@@ -666,7 +720,7 @@
 				memorizedSessionId = sessionIdFromCookie;
 
 				// New session?
-				if (!ses && configUseCookies) {
+				if (!ses && configStateStorageStrategy != 'none') {
 					// New session (aka new visit)
 					visitCount++;
 					// Update the last visit timestamp
@@ -702,8 +756,9 @@
 			sb.add('url', purify(configCustomUrl || locationHrefAlias));
 
 			// Update cookies
-			if (configUseCookies) {
-				setDomainUserIdCookie(_domainUserId, createTs, memorizedVisitCount, nowTs, lastVisitTs, memorizedSessionId);
+			if (configStateStorageStrategy != 'none') {
+				setDomainUserIdCookie(_domainUserId, createTs, memorizedVisitCount, nowTs,
+					lastVisitTs, memorizedSessionId);
 				setSessionCookie();
 			}
 
@@ -749,6 +804,10 @@
 		function addCommonContexts(userContexts) {
 			var combinedContexts = commonContexts.concat(userContexts || []);
 
+			if (autoContexts.webPage) {
+				combinedContexts.push(getWebPageContext());
+			}
+
 			// Add PerformanceTiming Context
 			if (autoContexts.performanceTiming) {
 				var performanceTimingContext = getPerformanceTimingContext();
@@ -758,7 +817,21 @@
 			}
 
 			// Add Optimizely Contexts
-			if (window['optimizely']) {
+			if (windowAlias.optimizely) {
+
+				if (autoContexts.optimizelySummary) {
+					var activeExperiments = getOptimizelySummaryContexts();
+					lodash.each(activeExperiments, function (e) {
+						combinedContexts.push(e)
+					})
+				}
+
+				if (autoContexts.optimizelyXSummary) {
+					var activeExperiments = getOptimizelyXSummaryContexts();
+					lodash.each(activeExperiments, function (e) {
+						combinedContexts.push(e);
+					})
+				}
 
 				if (autoContexts.optimizelyExperiments) {
 					var experimentContexts = getOptimizelyExperimentContexts();
@@ -810,8 +883,36 @@
 					combinedContexts.push(augurIdentityLiteContext);
 				}
 			}
-
+			
+			//Add Parrable Context
+			if (autoContexts.parrable) {
+				var parrableContext = getParrableContext();
+				if (parrableContext) {
+					combinedContexts.push(parrableContext);
+				}
+			}
 			return combinedContexts;
+		}
+
+		/**
+		 * Initialize new `pageViewId` if it shouldn't be preserved.
+		 * Should be called when `trackPageView` is invoked
+		 */
+		function resetPageView() {
+			if (!preservePageViewId || mutSnowplowState.pageViewId == null) {
+				mutSnowplowState.pageViewId = uuid.v4();
+			}
+		}
+
+		/**
+		 * Safe function to get `pageViewId`.
+		 * Generates it if it wasn't initialized by other tracker
+		 */
+		function getPageViewId() {
+			if (mutSnowplowState.pageViewId == null) {
+				mutSnowplowState.pageViewId = uuid.v4();
+			}
+			return mutSnowplowState.pageViewId
 		}
 
 		/**
@@ -823,7 +924,7 @@
 			return {
 				schema: 'iglu:com.snowplowanalytics.snowplow/web_page/jsonschema/1-0-0',
 				data: {
-					id: pageViewId
+					id: getPageViewId()
 				}
 			};
 		}
@@ -868,25 +969,107 @@
 		}
 
 		/**
+		 * Check that *both* optimizely and optimizely.data exist and return
+		 * optimizely.data.property
+		 *
+		 * @param property optimizely data property
+		 * @param snd optional nested property
+		 */
+		function getOptimizelyData(property, snd) {
+			var data;
+			if (windowAlias.optimizely && windowAlias.optimizely.data) {
+				data = windowAlias.optimizely.data[property];
+				if (typeof snd !== 'undefined' && data !== undefined) {
+					data = data[snd]
+				}
+			}
+			return data
+		}
+
+		/**
+		 * Check that *both* optimizely and optimizely.data exist
+		 *
+		 * @param property optimizely data property
+		 * @param snd optional nested property
+		 */
+		function getOptimizelyXData(property, snd) {
+			var data;
+			if (windowAlias.optimizely) {
+				data = windowAlias.optimizely.get(property);
+				if (typeof snd !== 'undefined' && data !== undefined) {
+					data = data[snd]
+				}
+			}
+			return data
+		}
+
+		/**
+		 * Get data for Optimizely "lite" contexts - active experiments on current page
+		 * 
+		 * @returns Array content of lite optimizely lite context
+		 */
+		function getOptimizelySummary() {
+			var state = getOptimizelyData('state');
+			var experiments = getOptimizelyData('experiments');
+
+			return lodash.map(state && experiments && state.activeExperiments, function (activeExperiment) {
+				var current = experiments[activeExperiment];
+				return {
+					activeExperimentId: activeExperiment,
+					// User can be only in one variation (don't know why is this array)
+					variation: state.variationIdsMap[activeExperiment][0],
+					conditional: current && current.conditional,
+					manual: current && current.manual,
+					name: current && current.name
+				}
+			});
+		}
+
+		/**
+		 * Get data for OptimizelyX contexts - active experiments on current page
+		 * 
+		 * @returns Array content of lite optimizely lite context
+		 */
+		function getOptimizelyXSummary() {
+			var state = getOptimizelyXData('state');
+			var experiment_ids = state.getActiveExperimentIds();
+			var experiments = getOptimizelyXData('data', 'experiments');
+			var visitor = getOptimizelyXData('visitor');
+
+			return lodash.map(experiment_ids, function(activeExperiment) {
+				variation = state.getVariationMap()[activeExperiment];
+				variationName = variation.name;
+				variationId = variation.id;
+				visitorId = visitor.visitorId;
+				return {
+					experimentId: parseInt(activeExperiment),
+					variationName: variationName,
+					variation: parseInt(variationId),
+					visitorId: visitorId
+				}
+			})
+		}
+
+		/**
 		 * Creates a context from the window['optimizely'].data.experiments object
 		 *
-		 * @return array Experiment contexts
+		 * @return Array Experiment contexts
 		 */
 		function getOptimizelyExperimentContexts() {
-			var experiments = window['optimizely'].data.experiments;
+			var experiments = getOptimizelyData('experiments');
 			if (experiments) {
 				var contexts = [];
 
 				for (var key in experiments) {
 					if (experiments.hasOwnProperty(key)) {
 						var context = {};
-						context['id'] = key;
+						context.id = key;
 						var experiment = experiments[key];
-						context['code'] = experiment.code; 
-						context['manual'] = experiment.manual;
-						context['conditional'] = experiment.conditional;
-						context['name'] = experiment.name;
-						context['variationIds'] = experiment.variation_ids;
+						context.code = experiment.code;
+						context.manual = experiment.manual;
+						context.conditional = experiment.conditional;
+						context.name = experiment.name;
+						context.variationIds = experiment.variation_ids;
 
 						contexts.push({
 							schema: 'iglu:com.optimizely/experiment/jsonschema/1-0-0',
@@ -902,11 +1085,11 @@
 		/**
 		 * Creates a context from the window['optimizely'].data.state object
 		 *
-		 * @return array State contexts
+		 * @return Array State contexts
 		 */
 		function getOptimizelyStateContexts() {
 			var experimentIds = [];
-			var experiments = window['optimizely'].data.experiments;
+			var experiments = getOptimizelyData('experiments');
 			if (experiments) {
 				for (var key in experiments) {
 					if (experiments.hasOwnProperty(key)) {
@@ -915,7 +1098,7 @@
 				}
 			}
 
-			var state = window['optimizely'].data.state;
+			var state = getOptimizelyData('state');
 			if (state) {
 				var contexts = [];
 				var activeExperiments = state.activeExperiments || [];
@@ -923,15 +1106,15 @@
 				for (var i = 0; i < experimentIds.length; i++) {
 					var experimentId = experimentIds[i];
 					var context = {};
-					context['experimentId'] = experimentId;
-					context['isActive'] = helpers.isValueInArray(experimentIds[i], activeExperiments);
+					context.experimentId = experimentId;
+					context.isActive = helpers.isValueInArray(experimentIds[i], activeExperiments);
 					var variationMap = state.variationMap || {};
-					context['variationIndex'] = variationMap[experimentId];
+					context.variationIndex = variationMap[experimentId];
 					var variationNamesMap = state.variationNamesMap || {};
-					context['variationName'] = variationNamesMap[experimentId];
+					context.variationName = variationNamesMap[experimentId];
 					var variationIdsMap = state.variationIdsMap || {};
 					if (variationIdsMap[experimentId] && variationIdsMap[experimentId].length === 1) {
-						context['variationId'] = variationIdsMap[experimentId][0];
+						context.variationId = variationIdsMap[experimentId][0];
 					}
 
 					contexts.push({
@@ -947,20 +1130,20 @@
 		/**
 		 * Creates a context from the window['optimizely'].data.variations object
 		 *
-		 * @return array Variation contexts
+		 * @return Array Variation contexts
 		 */
 		function getOptimizelyVariationContexts() {
-			var variations = window['optimizely'].data.variations;
+			var variations = getOptimizelyData('variations');
 			if (variations) {
 				var contexts = [];
 
 				for (var key in variations) {
 					if (variations.hasOwnProperty(key)) {
 						var context = {};
-						context['id'] = key;
+						context.id = key;
 						var variation = variations[key];
-						context['name'] = variation.name;
-						context['code'] = variation.code;
+						context.name = variation.name;
+						context.code = variation.code;
 
 						contexts.push({
 							schema: 'iglu:com.optimizely/variation/jsonschema/1-0-0',
@@ -979,25 +1162,25 @@
 		 * @return object Visitor context
 		 */
 		function getOptimizelyVisitorContext() {
-			var visitor = window['optimizely'].data.visitor;
+			var visitor = getOptimizelyData('visitor');
 			if (visitor) {
 				var context = {};
-				context['browser'] = visitor.browser;
-				context['browserVersion'] = visitor.browserVersion;
-				context['device'] = visitor.device;
-				context['deviceType'] = visitor.deviceType;
-				context['ip'] = visitor.ip;
+				context.browser = visitor.browser;
+				context.browserVersion = visitor.browserVersion;
+				context.device = visitor.device;
+				context.deviceType = visitor.deviceType;
+				context.ip = visitor.ip;
 				var platform = visitor.platform || {};
-				context['platformId'] = platform.id;
-				context['platformVersion'] = platform.version;
+				context.platformId = platform.id;
+				context.platformVersion = platform.version;
 				var location = visitor.location || {};
-				context['locationCity'] = location.city;
-				context['locationRegion'] = location.region;
-				context['locationCountry'] = location.country;
-				context['mobile'] = visitor.mobile;
-				context['mobileId'] = visitor.mobileId;
-				context['referrer'] = visitor.referrer;
-				context['os'] = visitor.os;
+				context.locationCity = location.city;
+				context.locationRegion = location.region;
+				context.locationCountry = location.country;
+				context.mobile = visitor.mobile;
+				context.mobileId = visitor.mobileId;
+				context.referrer = visitor.referrer;
+				context.os = visitor.os;
 
 				return {
 					schema: 'iglu:com.optimizely/visitor/jsonschema/1-0-0',
@@ -1009,18 +1192,16 @@
 		/**
 		 * Creates a context from the window['optimizely'].data.visitor.audiences object
 		 *
-		 * @return array VisitorAudience contexts
+		 * @return Array VisitorAudience contexts
 		 */
 		function getOptimizelyAudienceContexts() {
-			var audienceIds = window['optimizely'].data.visitor.audiences;
+			var audienceIds = getOptimizelyData('visitor', 'audiences');
 			if (audienceIds) {
 				var contexts = [];
 
 				for (var key in audienceIds) {
 					if (audienceIds.hasOwnProperty(key)) {
-						var context = {};
-						context['id'] = key;
-						context['isMember'] = audienceIds[key]; 
+                        var context = { id: key, isMember: audienceIds[key] };
 
 						contexts.push({
 							schema: 'iglu:com.optimizely/visitor_audience/jsonschema/1-0-0',
@@ -1036,18 +1217,16 @@
 		/**
 		 * Creates a context from the window['optimizely'].data.visitor.dimensions object
 		 *
-		 * @return array VisitorDimension contexts
+		 * @return Array VisitorDimension contexts
 		 */
 		function getOptimizelyDimensionContexts() {
-			var dimensionIds = window['optimizely'].data.visitor.dimensions;
+			var dimensionIds = getOptimizelyData('visitor', 'dimensions');
 			if (dimensionIds) {
 				var contexts = [];
 
 				for (var key in dimensionIds) {
 					if (dimensionIds.hasOwnProperty(key)) {
-						var context = {};
-						context['id'] = key;
-						context['value'] = dimensionIds[key]; 
+						var context = { id: key, value: dimensionIds[key] };
 
 						contexts.push({
 							schema: 'iglu:com.optimizely/visitor_dimension/jsonschema/1-0-0',
@@ -1060,24 +1239,55 @@
 			return [];
 		}
 
+
+		/**
+		 * Creates an Optimizely lite context containing only data required to join
+		 * event to experiment data
+		 *
+		 * @returns Array of custom contexts
+		 */
+		function getOptimizelySummaryContexts() {
+			return lodash.map(getOptimizelySummary(), function (experiment) {
+				return {
+					schema: 'iglu:com.optimizely.snowplow/optimizely_summary/jsonschema/1-0-0',
+					data: experiment
+				};
+			});
+		}
+
+		/**
+		 * Creates an OptimizelyX context containing only data required to join
+		 * event to experiment data
+		 *
+		 * @returns Array of custom contexts
+		 */
+		function getOptimizelyXSummaryContexts() {
+			return lodash.map(getOptimizelyXSummary(), function (experiment) {
+				return {
+					schema: 'iglu:com.optimizely.optimizelyx/summary/jsonschema/1-0-0',
+					data: experiment
+				};
+			});
+		}
+
 		/**
 		 * Creates a context from the window['augur'] object
 		 *
 		 * @return object The IdentityLite context
 		 */
 		function getAugurIdentityLiteContext() {
-			var augur = window['augur'];
+			var augur = windowAlias.augur;
 			if (augur) {
 				var context = { consumer: {}, device: {} };
 				var consumer = augur.consumer || {};
-				context['consumer']['UUID'] = consumer.UID;
+				context.consumer.UUID = consumer.UID;
 				var device = augur.device || {};
-				context['device']['ID'] = device.ID;
-				context['device']['isBot'] = device.isBot;
-				context['device']['isProxied'] = device.isProxied;
-				context['device']['isTor'] = device.isTor;
+				context.device.ID = device.ID;
+				context.device.isBot = device.isBot;
+				context.device.isProxied = device.isProxied;
+				context.device.isTor = device.isTor;
 				var fingerprint = device.fingerprint || {};
-				context['device']['isIncognito'] = fingerprint.browserHasIncognitoEnabled;
+				context.device.isIncognito = fingerprint.browserHasIncognitoEnabled;
 
 				return {
 					schema: 'iglu:io.augur.snowplow/identity_lite/jsonschema/1-0-0',
@@ -1087,12 +1297,31 @@
 		}
 
 		/**
+		 * Creates a context from the window['_hawk'] object
+		 *
+		 * @return object The Parrable context
+		 */
+		function getParrableContext() {
+			var parrable = window['_hawk'];
+			if (parrable) {
+				var context = { encryptedId: null, optout: null };
+				context['encryptedId'] = parrable.browserid;
+				var regex = new RegExp('(?:^|;)\\s?' + "_parrable_hawk_optout".replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1') + '=(.*?)(?:;|$)', 'i'), match = document.cookie.match(regex);
+				context['optout'] = (match && decodeURIComponent(match[1])) ? match && decodeURIComponent(match[1]) : "false";
+				return {
+					schema: 'iglu:com.parrable/encrypted_payload/jsonschema/1-0-0',
+					data: context
+				};
+			}
+		}
+		
+		/**
 		 * Attempts to create a context using the geolocation API and add it to commonContexts
 		 */
 		function enableGeolocationContext() {
 			if (!geolocationContextAdded && navigatorAlias.geolocation && navigatorAlias.geolocation.getCurrentPosition) {
 				geolocationContextAdded = true;
-				navigator.geolocation.getCurrentPosition(function (position) {
+				navigatorAlias.geolocation.getCurrentPosition(function (position) {
 					var coords = position.coords;
 					var geolocationContext = {
 						schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
@@ -1134,8 +1363,8 @@
 		/**
 		 * Combine an array of unchanging contexts with the result of a context-creating function
 		 *
-		 * @param object staticContexts Array of custom contexts
-		 * @param object contextCallback Function returning an array of contexts
+		 * @param staticContexts Array of custom contexts
+		 * @param contextCallback Function returning an array of contexts
 		 */
 		function finalizeContexts(staticContexts, contextCallback) {
 			return (staticContexts || []).concat(contextCallback ? contextCallback() : []);
@@ -1144,13 +1373,15 @@
 		/**
 		 * Log the page view / visit
 		 *
-		 * @param string customTitle The user-defined page title to attach to this page view
-		 * @param object context Custom context relating to the event
-		 * @param object contextCallback Function returning an array of contexts
+		 * @param customTitle string The user-defined page title to attach to this page view
+		 * @param context object Custom context relating to the event
+		 * @param contextCallback Function returning an array of contexts
+		 * @param tstamp number
 		 */
-		function logPageView(customTitle, context, contextCallback) {
+		function logPageView(customTitle, context, contextCallback, tstamp) {
 
 			refreshUrl();
+			resetPageView();
 
 			// So we know what document.title was at the time of trackPageView
 			lastDocumentTitle = documentAlias.title;
@@ -1164,11 +1395,12 @@
 				purify(configCustomUrl || locationHrefAlias),
 				pageTitle,
 				purify(customReferrer || configReferrerUrl),
-				addCommonContexts(finalizeContexts(context, contextCallback)));
-
+				addCommonContexts(finalizeContexts(context, contextCallback)),
+				tstamp);
+			
 			// Send ping (to log that user has stayed on page)
 			var now = new Date();
-			if (configMinimumVisitTime && configHeartBeatTimer && !activityTrackingInstalled) {
+			if (activityTrackingEnabled && !activityTrackingInstalled) {
 				activityTrackingInstalled = true;
 
 				// Capture our initial scroll points
@@ -1192,7 +1424,8 @@
 
 				// Periodic check for activity.
 				lastActivityTime = now.getTime();
-				setInterval(function heartBeat() {
+				clearInterval(pagePingInterval);
+				pagePingInterval = setInterval(function heartBeat() {
 					var now = new Date();
 
 					// There was activity during the heart beat period;
@@ -1213,7 +1446,7 @@
 		 * Not part of the public API - only called from
 		 * logPageView() above.
 		 *
-		 * @param object context Custom context relating to the event
+		 * @param context object Custom context relating to the event
 		 */
 		function logPagePing(context) {
 			refreshUrl();
@@ -1242,14 +1475,15 @@
 		 * @param string total
 		 * @param string tax
 		 * @param string shipping
-		 * @param string city 
+		 * @param string city
 		 * @param string state
 		 * @param string country
 		 * @param string currency The currency the total/tax/shipping are expressed in
 		 * @param object context Custom context relating to the event
+		 * @param tstamp number or Timestamp object
 		 */
-		function logTransaction(orderId, affiliation, total, tax, shipping, city, state, country, currency, context) {
-			core.trackEcommerceTransaction(orderId, affiliation, total, tax, shipping, city, state, country, currency, addCommonContexts(context));
+		function logTransaction(orderId, affiliation, total, tax, shipping, city, state, country, currency, context, tstamp) {
+			core.trackEcommerceTransaction(orderId, affiliation, total, tax, shipping, city, state, country, currency, addCommonContexts(context), tstamp);
 		}
 
 		/**
@@ -1264,15 +1498,17 @@
 		 * @param string currency The currency the price is expressed in
 		 * @param object context Custom context relating to the event
 		 */
-		function logTransactionItem(orderId, sku, name, category, price, quantity, currency, context) {
-			core.trackEcommerceTransactionItem(orderId, sku, name, category, price, quantity, currency, addCommonContexts(context));
+		function logTransactionItem(orderId, sku, name, category, price, quantity, currency, context, tstamp) {
+			core.trackEcommerceTransactionItem(orderId, sku, name, category, price, quantity, currency, addCommonContexts(context), tstamp);
 		}
 
-		/*
-		 * Browser prefix
+		/**
+		 * Construct a browser prefix
+		 *
+		 * E.g: (moz, hidden) -> mozHidden
 		 */
 		function prefixPropertyName(prefix, propertyName) {
-			
+
 			if (prefix !== '') {
 				return prefix + propertyName.charAt(0).toUpperCase() + propertyName.slice(1);
 			}
@@ -1294,17 +1530,18 @@
 				prefix;
 
 			if (!configCountPreRendered) {
+
 				for (i = 0; i < prefixes.length; i++) {
 					prefix = prefixes[i];
 
-					// does this browser support the page visibility API?
+					// does this browser support the page visibility API? (drop this check along with IE9 and iOS6)
 					if (documentAlias[prefixPropertyName(prefix, 'hidden')]) {
 						// if pre-rendered, then defer callback until page visibility changes
 						if (documentAlias[prefixPropertyName(prefix, 'visibilityState')] === 'prerender') {
 							isPreRendered = true;
 						}
 						break;
-					}
+					} else if (documentAlias[prefixPropertyName(prefix, 'hidden')] === false) { break }
 				}
 			}
 
@@ -1342,6 +1579,33 @@
 		 ************************************************************/
 
 		return {
+
+			/**
+			 * Get the domain session index also known as current memorized visit count.
+			 *
+			 * @return int Domain session index
+			 */
+			getDomainSessionIndex: function() {
+				return memorizedVisitCount;
+			},
+
+			/**
+			 * Get the page view ID as generated or provided by mutSnowplowState.pageViewId.
+			 *
+			 * @return string Page view ID
+			 */
+			getPageViewId: function () {
+				return getPageViewId();
+			},
+
+			/**
+			 * Get the cookie name as cookieNamePrefix + basename + . + domain.
+			 *
+			 * @return string Cookie name
+			 */
+			getCookieName: function(basename) {
+				return getSnowplowCookieName(basename);
+			},
 
 			/**
 			 * Get the current user ID (as set previously
@@ -1493,7 +1757,7 @@
 			* @param bool enable If false, turn off user fingerprinting
 			*/
 			enableUserFingerprint: function(enable) {
-			helpers.warn('enableUserFingerprintSeed is deprecated. Instead add a "userFingerprint" field to the argmap argument of newTracker.');
+				helpers.warn('enableUserFingerprintSeed is deprecated. Instead add a "userFingerprint" field to the argmap argument of newTracker.');
 				if (!enable) {
 					userFingerprint = '';
 				}
@@ -1504,7 +1768,7 @@
 			 * where tracking is:
 			 * 1) Sending events to a collector
 			 * 2) Setting first-party cookies
-			 * @param bool enable If true and Do Not Track feature enabled, don't track. 
+			 * @param bool enable If true and Do Not Track feature enabled, don't track.
 			 */
 			respectDoNotTrack: function (enable) {
 				helpers.warn('This usage of respectDoNotTrack is deprecated. Instead add a "respectDoNotTrack" field to the argmap argument of newTracker.');
@@ -1547,7 +1811,7 @@
 			 * be "_self", "_top", or "_parent").
 			 *
 			 * @see https://bugs.webkit.org/show_bug.cgi?id=54783
-			 * 
+			 *
 			 * @param object criterion Criterion by which it will be decided whether a link will be tracked
 			 * @param bool pseudoClicks If true, use pseudo click-handler (mousedown+mouseup)
 			 * @param bool trackContent Whether to track the innerHTML of the link element
@@ -1589,8 +1853,23 @@
 			 * @param int heartBeatDelay Seconds to wait between pings
 			 */
 			enableActivityTracking: function (minimumVisitLength, heartBeatDelay) {
-				configMinimumVisitTime = new Date().getTime() + minimumVisitLength * 1000;
-				configHeartBeatTimer = heartBeatDelay * 1000;
+				if (minimumVisitLength === parseInt(minimumVisitLength, 10) &&
+						heartBeatDelay === parseInt(heartBeatDelay, 10)) {
+					activityTrackingEnabled = true;
+					configMinimumVisitTime = new Date().getTime() + minimumVisitLength * 1000;
+					configHeartBeatTimer = heartBeatDelay * 1000;
+				} else {
+					helpers.warn("Activity tracking not enabled, please provide integer values " +
+						"for minimumVisitLength and heartBeatDelay.")
+				}
+			},
+
+			/**
+			 * Triggers the activityHandler manually to allow external user defined
+			 * activity. i.e. While watching a video
+			 */
+			updatePageActivity: function () {
+				activityHandler();
 			},
 
 			/**
@@ -1635,6 +1914,16 @@
 			},
 
 			/**
+			 * Sets the opt out cookie.
+			 *
+			 * @param string name of the opt out cookie
+			 */
+			setOptOutCookie: function (name) {
+				configOptOutCookie = name;
+				setCookie(name, '*', 1800);
+			},
+
+			/**
 			 * Count sites in pre-rendered state
 			 *
 			 * @param bool enable If true, track when in pre-rendered state
@@ -1654,7 +1943,7 @@
 
 			/**
 			 * Set the business-defined user ID for this user using the location querystring.
-			 * 
+			 *
 			 * @param string queryName Name of a querystring name-value pair
 			 */
 			setUserIdFromLocation: function(querystringField) {
@@ -1664,7 +1953,7 @@
 
 			/**
 			 * Set the business-defined user ID for this user using the referrer querystring.
-			 * 
+			 *
 			 * @param string queryName Name of a querystring name-value pair
 			 */
 			setUserIdFromReferrer: function(querystringField) {
@@ -1674,7 +1963,7 @@
 
 			/**
 			 * Set the business-defined user ID for this user to the value of a cookie.
-			 * 
+			 *
 			 * @param string cookieName Name of the cookie whose value will be assigned to businessUserId
 			 */
 			setUserIdFromCookie: function(cookieName) {
@@ -1682,7 +1971,7 @@
 			},
 
 			/**
-			 * Configure this tracker to log to a CloudFront collector. 
+			 * Configure this tracker to log to a CloudFront collector.
 			 *
 			 * @param string distSubdomain The subdomain on your CloudFront collector's distribution
 			 */
@@ -1694,7 +1983,7 @@
 			 *
 			 * Specify the Snowplow collector URL. No need to include HTTP
 			 * or HTTPS - we will add this.
-			 * 
+			 *
 			 * @param string rawUrl The collector URL minus protocol and /i
 			 */
 			setCollectorUrl: function (rawUrl) {
@@ -1713,9 +2002,9 @@
 
 			/**
 			*
-			* Enable Base64 encoding for unstructured event payload
+			* Enable Base64 encoding for self-describing event payload
 			*
-			* @param bool enabled A boolean value indicating if the Base64 encoding for unstructured events should be enabled or not
+			* @param bool enabled A boolean value indicating if the Base64 encoding for self-describing events should be enabled or not
 			*/
 			encodeBase64: function (enabled) {
 				helpers.warn('This usage of encodeBase64 is deprecated. Instead add an "encodeBase64" field to the argmap argument of newTracker.');
@@ -1741,10 +2030,11 @@
 			 * @param string customTitle
 			 * @param object Custom context relating to the event
 			 * @param object contextCallback Function returning an array of contexts
+			 * @param tstamp number or Timestamp object
 			 */
-			trackPageView: function (customTitle, context, contextCallback) {
+			trackPageView: function (customTitle, context, contextCallback, tstamp) {
 				trackCallback(function () {
-					logPageView(customTitle, context, contextCallback);
+					logPageView(customTitle, context, contextCallback, tstamp);
 				});
 			},
 
@@ -1760,19 +2050,28 @@
 			 * @param string property (optional) Describes the object or the action performed on it, e.g. quantity of item added to basket
 			 * @param int|float|string value (optional) An integer that you can use to provide numerical data about the user event
 			 * @param object Custom context relating to the event
+			 * @param tstamp number or Timestamp object
 			 */
-			trackStructEvent: function (category, action, label, property, value, context) {
-				core.trackStructEvent(category, action, label, property, value, addCommonContexts(context));
+			trackStructEvent: function (category, action, label, property, value, context, tstamp) {
+				core.trackStructEvent(category, action, label, property, value, addCommonContexts(context), tstamp);
 			},
 
 			/**
-			 * Track an unstructured event happening on this page.
+			 * Track a self-describing event (previously unstructured event) happening on this page.
 			 *
 			 * @param object eventJson Contains the properties and schema location for the event
 			 * @param object context Custom context relating to the event
+			 * @param tstamp number or Timestamp object
 			 */
-			trackUnstructEvent: function (eventJson, context) {
-				core.trackUnstructEvent(eventJson, addCommonContexts(context));
+			trackSelfDescribingEvent: function (eventJson, context, tstamp) {
+				core.trackSelfDescribingEvent(eventJson, addCommonContexts(context), tstamp);
+			},
+
+			/**
+			 * Alias for `trackSelfDescribingEvent`, left for compatibility
+			 */
+			trackUnstructEvent: function (eventJson, context, tstamp) {
+				core.trackSelfDescribingEvent(eventJson, addCommonContexts(context), tstamp);
 			},
 
 			/**
@@ -1788,19 +2087,21 @@
 			 * @param string country Optional. Country to associate with transaction.
 			 * @param string currency Optional. Currency to associate with this transaction.
 			 * @param object context Optional. Context relating to the event.
+			 * @param tstamp number or Timestamp object
 			 */
-			addTrans: function(orderId, affiliation, total, tax, shipping, city, state, country, currency, context) {
+			addTrans: function(orderId, affiliation, total, tax, shipping, city, state, country, currency, context, tstamp) {
 				ecommerceTransaction.transaction = {
-					 orderId: orderId,
-					 affiliation: affiliation,
-					 total: total,
-					 tax: tax,
-					 shipping: shipping,
-					 city: city,
-					 state: state,
-					 country: country,
-					 currency: currency,
-					 context: context
+					orderId: orderId,
+					affiliation: affiliation,
+					total: total,
+					tax: tax,
+					shipping: shipping,
+					city: city,
+					state: state,
+					country: country,
+					currency: currency,
+					context: context,
+					tstamp: tstamp
 				};
 			},
 
@@ -1815,8 +2116,9 @@
 			 * @param string quantity Required. Purchase quantity.
 			 * @param string currency Optional. Product price currency.
 			 * @param object context Optional. Context relating to the event.
+			 * @param tstamp number or Timestamp object
 			 */
-			addItem: function(orderId, sku, name, category, price, quantity, currency, context) {
+			addItem: function(orderId, sku, name, category, price, quantity, currency, context, tstamp) {
 				ecommerceTransaction.items.push({
 					orderId: orderId,
 					sku: sku,
@@ -1825,7 +2127,8 @@
 					price: price,
 					quantity: quantity,
 					currency: currency,
-					context: context
+					context: context,
+					tstamp: tstamp
 				});
 			},
 
@@ -1836,18 +2139,20 @@
 			 * addItem methods to the tracking server.
 			 */
 			trackTrans: function() {
-				 logTransaction(
-						 ecommerceTransaction.transaction.orderId,
-						 ecommerceTransaction.transaction.affiliation,
-						 ecommerceTransaction.transaction.total,
-						 ecommerceTransaction.transaction.tax,
-						 ecommerceTransaction.transaction.shipping,
-						 ecommerceTransaction.transaction.city,
-						 ecommerceTransaction.transaction.state,
-						 ecommerceTransaction.transaction.country,
-						 ecommerceTransaction.transaction.currency,
-						 ecommerceTransaction.transaction.context
-						);
+				logTransaction(
+					ecommerceTransaction.transaction.orderId,
+					ecommerceTransaction.transaction.affiliation,
+					ecommerceTransaction.transaction.total,
+					ecommerceTransaction.transaction.tax,
+					ecommerceTransaction.transaction.shipping,
+					ecommerceTransaction.transaction.city,
+					ecommerceTransaction.transaction.state,
+					ecommerceTransaction.transaction.country,
+					ecommerceTransaction.transaction.currency,
+					ecommerceTransaction.transaction.context,
+					ecommerceTransaction.transaction.tstamp
+
+				);
 				for (var i = 0; i < ecommerceTransaction.items.length; i++) {
 					var item = ecommerceTransaction.items[i];
 					logTransactionItem(
@@ -1858,8 +2163,9 @@
 						item.price,
 						item.quantity,
 						item.currency,
-						item.context
-						);
+						item.context,
+						item.tstamp
+					);
 				}
 
 				ecommerceTransaction = ecommerceTransactionTemplate();
@@ -1874,11 +2180,12 @@
 			 * @param string targetUrl
 			 * @param string elementContent innerHTML of the element
 			 * @param object Custom context relating to the event
+			 * @param tstamp number or Timestamp object
 			 */
 			// TODO: break this into trackLink(destUrl) and trackDownload(destUrl)
-			trackLinkClick: function(targetUrl, elementId, elementClasses, elementTarget, elementContent, context) {
+			trackLinkClick: function(targetUrl, elementId, elementClasses, elementTarget, elementContent, context, tstamp) {
 				trackCallback(function () {
-					core.trackLinkClick(targetUrl, elementId, elementClasses, elementTarget, elementContent, addCommonContexts(context));
+					core.trackLinkClick(targetUrl, elementId, elementClasses, elementTarget, elementContent, addCommonContexts(context), tstamp);
 				});
 			},
 
@@ -1886,25 +2193,26 @@
 			 * Track an ad being served
 			 *
 			 * @param string impressionId Identifier for a particular ad impression
-			 * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'			 
+			 * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'
 			 * @param number cost Cost
 			 * @param string bannerId Identifier for the ad banner displayed
 			 * @param string zoneId Identifier for the ad zone
 			 * @param string advertiserId Identifier for the advertiser
 			 * @param string campaignId Identifier for the campaign which the banner belongs to
 			 * @param object Custom context relating to the event
-			 */			
-			trackAdImpression: function(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, context) {
+			 * @param tstamp number or Timestamp object
+			 */
+			trackAdImpression: function(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, context, tstamp) {
 				trackCallback(function () {
-					core.trackAdImpression(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, addCommonContexts(context));
+					core.trackAdImpression(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, addCommonContexts(context), tstamp);
 				});
 			},
-			
+
 			/**
 			 * Track an ad being clicked
 			 *
 			 * @param string clickId Identifier for the ad click
-			 * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'			 
+			 * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'
 			 * @param number cost Cost
 			 * @param string targetUrl (required) The link's target URL
 			 * @param string bannerId Identifier for the ad banner displayed
@@ -1913,9 +2221,10 @@
 			 * @param string advertiserId Identifier for the advertiser
 			 * @param string campaignId Identifier for the campaign which the banner belongs to
 			 * @param object Custom context relating to the event
+			 * @param tstamp number or Timestamp object
 			 */
-			trackAdClick: function(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, context) {
-				core.trackAdClick(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, addCommonContexts(context));
+			trackAdClick: function(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, context, tstamp) {
+				core.trackAdClick(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, addCommonContexts(context), tstamp);
 			},
 
 			/**
@@ -1931,9 +2240,10 @@
 			 * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'
 			 * @param string campaignId Identifier for the campaign which the banner belongs to
 			 * @param object Custom context relating to the event
+			 * @param tstamp number or Timestamp object
 			 */
-			trackAdConversion: function(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, context) {
-				core.trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, addCommonContexts(context));
+			trackAdConversion: function(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, context, tstamp) {
+				core.trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, addCommonContexts(context), tstamp);
 			},
 
 			/**
@@ -1943,9 +2253,10 @@
 			 * @param string network (required) Social network
 			 * @param string target Object of the social action e.g. the video liked, the tweet retweeted
 			 * @param object Custom context relating to the event
+			 * @param tstamp number or Timestamp object
 			 */
-			trackSocialInteraction: function(action, network, target, context) {
-				core.trackSocialInteraction(action, network, target, addCommonContexts(context));
+			trackSocialInteraction: function(action, network, target, context, tstamp) {
+				core.trackSocialInteraction(action, network, target, addCommonContexts(context), tstamp);
 			},
 
 			/**
@@ -1958,9 +2269,10 @@
 			 * @param string quantity Required. Quantity added.
 			 * @param string currency Optional. Product price currency.
 			 * @param array context Optional. Context relating to the event.
+			 * @param tstamp number or Timestamp object
 			 */
-			trackAddToCart: function(sku, name, category, unitPrice, quantity, currency, context) {
-				core.trackAddToCart(sku, name, category, unitPrice, quantity, currency, addCommonContexts(context));
+			trackAddToCart: function(sku, name, category, unitPrice, quantity, currency, context, tstamp) {
+				core.trackAddToCart(sku, name, category, unitPrice, quantity, currency, addCommonContexts(context), tstamp);
 			},
 
 			/**
@@ -1973,9 +2285,10 @@
 			 * @param string quantity Required. Quantity removed.
 			 * @param string currency Optional. Product price currency.
 			 * @param array context Optional. Context relating to the event.
+			 * @param tstamp Opinal number or Timestamp object
 			 */
-			trackRemoveFromCart: function(sku, name, category, unitPrice, quantity, currency, context) {
-				core.trackRemoveFromCart(sku, name, category, unitPrice, quantity, currency, addCommonContexts(context));
+			trackRemoveFromCart: function(sku, name, category, unitPrice, quantity, currency, context, tstamp) {
+				core.trackRemoveFromCart(sku, name, category, unitPrice, quantity, currency, addCommonContexts(context), tstamp);
 			},
 
 			/**
@@ -1986,9 +2299,10 @@
 			 * @param number totalResults Number of results
 			 * @param number pageResults Number of results displayed on page
 			 * @param array context Optional. Context relating to the event.
+			 * @param tstamp Opinal number or Timestamp object
 			 */
-			trackSiteSearch: function(terms, filters, totalResults, pageResults, context) {
-				core.trackSiteSearch(terms, filters, totalResults, pageResults, addCommonContexts(context));
+			trackSiteSearch: function(terms, filters, totalResults, pageResults, context, tstamp) {
+				core.trackSiteSearch(terms, filters, totalResults, pageResults, addCommonContexts(context), tstamp);
 			},
 
 			/**
@@ -1999,9 +2313,10 @@
 			 * @param number timing Required.
 			 * @param string label Optional.
 			 * @param array context Optional. Context relating to the event.
+			 * @param tstamp Opinal number or Timestamp object
 			 */
-			trackTiming: function (category, variable, timing, label, context) {
-				core.trackUnstructEvent({
+			trackTiming: function (category, variable, timing, label, context, tstamp) {
+				core.trackSelfDescribingEvent({
 					schema: 'iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0',
 					data: {
 						category: category,
@@ -2009,7 +2324,7 @@
 						timing: timing,
 						label: label
 					}
-				}, addCommonContexts(context))
+				}, addCommonContexts(context), tstamp)
 			},
 
 			/**
@@ -2018,17 +2333,18 @@
 			 *
 			 * @param string action
 			 * @param array context Optional. Context relating to the event.
+			 * @param tstamp Opinal number or Timestamp object
 			 */
-			trackEnhancedEcommerceAction: function (action, context) {
+			trackEnhancedEcommerceAction: function (action, context, tstamp) {
 				var combinedEnhancedEcommerceContexts = enhancedEcommerceContexts.concat(context || []);
 				enhancedEcommerceContexts.length = 0;
 
-				core.trackUnstructEvent({
+				core.trackSelfDescribingEvent({
 					schema: 'iglu:com.google.analytics.enhanced-ecommerce/action/jsonschema/1-0-0',
 					data: {
 						action: action
 					}
-				}, addCommonContexts(combinedEnhancedEcommerceContexts));
+				}, addCommonContexts(combinedEnhancedEcommerceContexts), tstamp);
 			},
 
 			/**
@@ -2147,6 +2463,40 @@
 						currency: currency
 					}
 				});
+			},
+
+			/**
+			 * Enable tracking of unhandled exceptions with custom contexts
+			 *
+			 * @param filter Function ErrorEvent => Bool to check whether error should be tracker
+			 * @param contextsAdder Function ErrorEvent => Array<Context> to add custom contexts with
+			 *                     internal state based on particular error
+			 */
+			enableErrorTracking: function (filter, contextsAdder) {
+				errorManager.enableErrorTracking(filter, contextsAdder, addCommonContexts())
+			},
+
+			/**
+			 * Track unhandled exception.
+			 * This method supposed to be used inside try/catch block
+			 *
+			 * @param message string Message appeared in console
+			 * @param filename string Source file (not used)
+			 * @param lineno number Line number
+			 * @param colno number Column number (not used)
+			 * @param error Error error object (not present in all browsers)
+			 * @param contexts Array of custom contexts
+			 */
+			trackError: function (message, filename, lineno, colno, error, contexts) {
+				var enrichedContexts = addCommonContexts(contexts);
+			    errorManager.trackError(message, filename, lineno, colno, error, enrichedContexts);
+			},
+
+			/**
+			 * Stop regenerating `pageViewId` (available from `web_page` context)
+			 */
+			preservePageViewId: function () {
+				preservePageViewId = true
 			}
 		};
 	};

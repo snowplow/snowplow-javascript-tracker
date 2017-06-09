@@ -1,7 +1,7 @@
 /*
  * JavaScript tracker core for Snowplow: tests/integration.js
  * 
- * Copyright (c) 2014 Snowplow Analytics Ltd. All rights reserved.
+ * Copyright (c) 2014-2016 Snowplow Analytics Ltd. All rights reserved.
  *
  * This program is licensed to you under the Apache License Version 2.0,
  * and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -16,13 +16,14 @@
 define([
 	"intern!object",
 	"intern/chai!assert",
-	"intern/dojo/node!../lib/core.js",
-	"intern/dojo/node!JSON"
-], function (registerSuite, assert, core, JSON) {
+	"intern/chai!expect",
+	"intern/dojo/node!../../lib/core.js"
+], function (registerSuite, assert, expect, core) {
 
 	var unstructEventSchema = 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0';
-	var tracker = core(false);
+	var tracker = core.trackerCore(false);
 
+	// Doesn't check true timestamp
 	function compare(result, expected, message) {
 		result = result.build();
 		assert.ok(result['eid'], 'A UUID should be attached to all events');
@@ -34,6 +35,7 @@ define([
 
 	registerSuite({
 		name: "Tracking events",
+
 		"Track a page view": function () {
 			var url = 'http://www.example.com';
 			var page = 'title page';
@@ -52,10 +54,10 @@ define([
 				e: 'pp',
 				url: url,
 				refr: referer,
-				pp_mix: 1,
-				pp_max: 2,
-				pp_miy: 3,
-				pp_may: 4
+				pp_mix: '1',
+				pp_max: '2',
+				pp_miy: '3',
+				pp_may: '4'
 			};
 
 			compare(tracker.trackPagePing(url, null, referer, 1, 2, 3, 4), expected, 'A page ping should be tracked correctly');
@@ -136,6 +138,24 @@ define([
 			};
 
 			compare(tracker.trackUnstructEvent(inputJson), expected, 'An unstructured event should be tracked correctly');
+		},
+
+		"Track a self-describing event": function () {
+			var inputJson = {
+				schema: 'iglu:com.acme/user/jsonschema/1-0-1',
+				data: {
+					name: 'Eric'
+				}
+			};
+			var expected = {
+				e: 'ue',
+				ue_pr: JSON.stringify({
+					schema: unstructEventSchema,
+					data: inputJson
+				})
+			};
+
+			compare(tracker.trackSelfDescribingEvent(inputJson), expected, 'A self-describing event should be tracked correctly');
 		},
 
 		"Track a link click": function () {
@@ -486,7 +506,7 @@ define([
 				url: url,
 				page: page,
 				co: JSON.stringify({
-					schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-1',
+					schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0',
 					data: inputContext
 				})
 			};
@@ -496,11 +516,11 @@ define([
 		"Track a page view with a timestamp": function () {
 			var tstamp = 1000000000000;
 
-			assert.strictEqual(tracker.trackPageView('http://www.example.com', null, null, null, tstamp).build()['dtm'], tstamp, 'A timestamp should be attached correctly');
+			assert.strictEqual(tracker.trackPageView('http://www.example.com', null, null, null, tstamp).build()['dtm'], '1000000000000', 'A timestamp should be attached correctly');
 		},
 
 		"Add individual name-value pairs to the payload": function () {
-			var tracker = core(false);
+			var tracker = core.trackerCore(false);
 			var url = 'http://www.example.com';
 			var expected = {
 				e: 'pv',
@@ -515,7 +535,7 @@ define([
 		},
 
 		"Add a dictionary of name-value pairs to the payload": function () {
-			var tracker = core(false);
+			var tracker = core.trackerCore(false);
 			var url = 'http://www.example.com';
 			var expected = {
 				e: 'pv',
@@ -534,7 +554,7 @@ define([
 		},
 
 		"Reset payload name-value pairs": function () {
-			var tracker = core(false);
+			var tracker = core.trackerCore(false);
 			var url = 'http://www.example.com';
 			var expected = {
 				e: 'pv',
@@ -549,13 +569,13 @@ define([
 
 		"Execute a callback": function () {
 			var callbackTarget;
-			var tracker = core(false, function (payload) {
+			var tracker = core.trackerCore(false, function (payload) {
 				callbackTarget = payload;
 			});
 			var url = 'http://www.example.com';
 			var expected = {
 				e: 'pv',
-				url: url,
+				url: url
 			};
 			tracker.trackPageView(url);
 
@@ -563,7 +583,7 @@ define([
 		},
 
 		"Use setter methods": function () {
-			var tracker = core(false);
+			var tracker = core.trackerCore(false);
 			tracker.setTrackerVersion('js-3.0.0');
 			tracker.setTrackerNamespace('cf1');
 			tracker.setAppId('my-app');
@@ -593,8 +613,32 @@ define([
 			};
 
 			compare(tracker.trackPageView(url, page), expected, 'setXXX methods should work correctly');
-		},		
+		},
 
+		"Set true timestamp": function () {
+			var url = 'http://www.example.com';
+			var page = 'title page';
+            var result = tracker.trackPageView(url, page, null, null, { type: 'ttm', value: 1477403862 }).build();
+			assert('ttm' in result, 'ttm should be attached');
+			assert.strictEqual(result['ttm'] , '1477403862', 'ttm should be attached as is');
+			assert(!('dtm' in result), 'dtm should absent');
+		},
+
+		"Set device timestamp as ADT": function () {
+
+			var inputJson = {
+				schema: 'iglu:com.acme/user/jsonschema/1-0-1',
+				data: {
+					name: 'Eric'
+				}
+			};
+
+			// Object structure should be enforced by typesystem
+			var result = tracker.trackSelfDescribingEvent(inputJson, [inputJson], {type: 'dtm', value: 1477403869}).build();
+			assert('dtm' in result, 'dtm should be attached');
+			assert.strictEqual(result['dtm'] , '1477403869', 'dtm should be attached as is');
+			assert(!('ttm' in result), 'ttm should absent');
+		}
 	});
 	
 });

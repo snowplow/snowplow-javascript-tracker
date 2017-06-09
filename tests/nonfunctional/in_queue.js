@@ -40,7 +40,7 @@ define([
 
 	var output = 0;
 
-	function mockTrackerConstructor (functionName, namespace, version, sessionId, mutSnowplowState, argmap) {
+	function mockTrackerConstructor (functionName, namespace, version, mutSnowplowState, argmap) {
 		var configCollectorUrl,
 			attribute = 10;
 
@@ -60,15 +60,15 @@ define([
 			addAttributeToOutput: function() {
 				output += attribute;
 			}
-		}
-	};
+		};
+	}
 
 	var asyncQueue = [
 		["newTracker", "firstTracker", "firstEndpoint"],
 		["increaseAttribute", 5],
 		["setOutputToAttribute"]
 	];
-	asyncQueue = new in_queue.InQueueManager(mockTrackerConstructor, 0, "c7a63a97-ac4a-4d58-8774-33b985701d16", {}, asyncQueue, 'snowplow');
+	asyncQueue = new in_queue.InQueueManager(mockTrackerConstructor, 0, {}, asyncQueue, 'snowplow');
 
 	registerSuite({
 		name: "InQueueManager test",
