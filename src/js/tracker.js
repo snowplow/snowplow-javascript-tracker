@@ -313,6 +313,9 @@
 		// Enable base 64 encoding for self-describing events and custom contexts
 		core.setBase64Encoding(argmap.hasOwnProperty('encodeBase64') ? argmap.encodeBase64 : true);
 
+		// Enable json stringify for self-describing events
+		core.setStringifyJson(argmap.hasOwnProperty('stringifyJson') ? argmap.stringifyJson : true);
+
 		// Set up unchanging name-value pairs
 		core.setTrackerVersion(version);
 		core.setTrackerNamespace(namespace);

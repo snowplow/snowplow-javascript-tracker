@@ -73,7 +73,7 @@ export function isJson(property: Object): boolean {
  *
  * @return object The request string builder, with add, addRaw and build methods
  */
-export function payloadBuilder(base64Encode: boolean): PayloadData {
+export function payloadBuilder(base64Encode: boolean, stringifyJson: boolean): PayloadData {
 	var dict = {};
 
 	var add = function (key: string, value?: string): void {
@@ -92,11 +92,15 @@ export function payloadBuilder(base64Encode: boolean): PayloadData {
 
 	var addJson = function (keyIfEncoded: string, keyIfNotEncoded: string, json?: Object) {
 		if (isNonEmptyJson(json)) {
-			var str = JSON.stringify(json);
-			if (base64Encode) {
-				add(keyIfEncoded, base64urlencode(str));
+			if (stringifyJson) {
+				var str = JSON.stringify(json);
+				if (base64Encode) {
+					add(keyIfEncoded, base64urlencode(str));
+				} else {
+					add(keyIfNotEncoded, str);
+				}
 			} else {
-				add(keyIfNotEncoded, str);
+				dict[keyIfNotEncoded] = json;
 			}
 		}
 	};

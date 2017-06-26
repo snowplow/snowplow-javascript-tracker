@@ -130,7 +130,11 @@
 		 */
 		function getBody(request) {
 			var cleanedRequest = lodash.mapValues(request, function (v) {
-				return v.toString();
+				if (typeof v === 'object') {
+					return v;
+				} else {
+					return v.toString();
+				}
 			});
 			return {
 				evt: cleanedRequest,

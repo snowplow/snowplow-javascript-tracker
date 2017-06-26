@@ -67,11 +67,16 @@ function getTimestamp(tstamp?: Timestamp): TimestampPayload {
  * @param callback Function applied to every payload dictionary object
  * @return Tracker core
  */
-export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
+export function trackerCore(base64: boolean, stringifyJson?: boolean, callback?: (PayloadData) => void) {
 
 	// base 64 encoding should default to true
 	if (typeof base64 === 'undefined') {
 		base64 = true;
+	}
+
+	// stringify json should default to true
+	if (typeof stringifyJson === 'undefined') {
+		stringifyJson = true;
 	}
 
 	// Dictionary of key-value pairs which get added to every payload, e.g. tracker version
@@ -156,7 +161,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 	 * @return Payload
 	 */
 	function trackSelfDescribingEvent(properties: Object, context?: Array<SelfDescribingJson>, tstamp?: Timestamp): PayloadData {
-		var sb = payload.payloadBuilder(base64);
+		var sb = payload.payloadBuilder(base64, stringifyJson);
 		var ueJson = {
 			schema: 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0',
 			data: properties
@@ -177,6 +182,15 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 */
 		setBase64Encoding: function (encode: boolean) {
 			base64 = encode;
+		},
+
+		/**
+		 * Turn stringify json on or off
+		 *
+		 * @param stringify Whether to stringify inner json payloads
+		 */
+		setStringifyJson: function (stringify: boolean) {
+			stringifyJson = stringify;
 		},
 
 		addPayloadPair: addPayloadPair,
@@ -325,7 +339,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			context?: Array<SelfDescribingJson>,
 			tstamp?: Timestamp): PayloadData {
 
-			var sb = payload.payloadBuilder(base64);
+			var sb = payload.payloadBuilder(base64, stringifyJson);
 			sb.add('e', 'pv'); // 'pv' for Page View
 			sb.add('url', pageUrl);
 			sb.add('page', pageTitle);
@@ -359,7 +373,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			context?: Array<SelfDescribingJson>,
 			tstamp?: Timestamp): PayloadData {
 
-			var sb = payload.payloadBuilder(base64);
+			var sb = payload.payloadBuilder(base64, stringifyJson);
 			sb.add('e', 'pp'); // 'pp' for Page Ping
 			sb.add('url', pageUrl);
 			sb.add('page', pageTitle);
@@ -392,7 +406,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			context?: Array<SelfDescribingJson>,
 			tstamp?: Timestamp): PayloadData {
 
-			var sb = payload.payloadBuilder(base64);
+			var sb = payload.payloadBuilder(base64, stringifyJson);
 			sb.add('e', 'se'); // 'se' for Structured Event
 			sb.add('se_ca', category);
 			sb.add('se_ac', action);
@@ -432,7 +446,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			context?: Array<SelfDescribingJson>,
 			tstamp?: Timestamp): PayloadData {
 
-			var sb = payload.payloadBuilder(base64);
+			var sb = payload.payloadBuilder(base64, stringifyJson);
 			sb.add('e', 'tr'); // 'tr' for Transaction
 			sb.add("tr_id", orderId);
 			sb.add("tr_af", affiliation);
@@ -472,7 +486,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			context?: Array<SelfDescribingJson>,
 			tstamp?: Timestamp): PayloadData {
 
-			var sb = payload.payloadBuilder(base64);
+			var sb = payload.payloadBuilder(base64, stringifyJson);
 			sb.add("e", "ti"); // 'tr' for Transaction Item
 			sb.add("ti_id", orderId);
 			sb.add("ti_sk", sku);
