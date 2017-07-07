@@ -18,7 +18,7 @@ client-side tier of your websites and web apps.
 
 | Technical Docs                      | Setup Guide                  | Roadmap & Contributing               |         
 |-------------------------------------|------------------------------|--------------------------------------|
-| [![i1] [techdocs-image]][tech-docs] | [ ![i2][setup-image]][setup] | ![i3][roadmap-image]                 |
+| [![i1][techdocs-image]][tech-docs] | [ ![i2][setup-image]][setup] | ![i3][roadmap-image]                 |
 | [Technical Docs][tech-docs]         | [Setup Guide][setup]         | _coming soon_                        |
 
 
