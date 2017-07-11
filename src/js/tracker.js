@@ -1018,9 +1018,9 @@
 			return lodash.map(state && experiments && state.activeExperiments, function (activeExperiment) {
 				var current = experiments[activeExperiment];
 				return {
-					activeExperimentId: activeExperiment,
+					activeExperimentId: activeExperiment.toString(),
 					// User can be only in one variation (don't know why is this array)
-					variation: state.variationIdsMap[activeExperiment][0],
+					variation: state.variationIdsMap[activeExperiment][0].toString(),
 					conditional: current && current.conditional,
 					manual: current && current.manual,
 					name: current && current.name
