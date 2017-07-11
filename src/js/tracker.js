@@ -296,7 +296,10 @@
 			enhancedEcommerceContexts = [],
 
 			// Whether pageViewId should be regenerated after each trackPageView. Affect web_page context
-			preservePageViewId = false;
+			preservePageViewId = false,
+
+			// Whether first trackPageView was fired and pageViewId should not be changed anymore until reload
+			pageViewSent = false;
 
 		if (argmap.hasOwnProperty('discoverRootDomain') && argmap.discoverRootDomain) {
 			configCookieDomain = helpers.findRootDomain();
@@ -1201,7 +1204,7 @@
 
 				for (var key in audienceIds) {
 					if (audienceIds.hasOwnProperty(key)) {
-                        var context = { id: key, isMember: audienceIds[key] };
+						var context = { id: key, isMember: audienceIds[key] };
 
 						contexts.push({
 							schema: 'iglu:com.optimizely/visitor_audience/jsonschema/1-0-0',
@@ -1381,7 +1384,10 @@
 		function logPageView(customTitle, context, contextCallback, tstamp) {
 
 			refreshUrl();
-			resetPageView();
+			if (pageViewSent) {	 // Do not reset pageViewId if previous events were not page_view
+				resetPageView();
+			}
+			pageViewSent = true;
 
 			// So we know what document.title was at the time of trackPageView
 			lastDocumentTitle = documentAlias.title;
@@ -1529,7 +1535,9 @@
 				prefixes = ['', 'webkit', 'ms', 'moz'],
 				prefix;
 
-			if (!configCountPreRendered) {
+			// If configPrerendered == true - we'll never set `isPreRendered` to true and fire immediately,
+			// otherwise we need to check if this is just prerendered
+			if (!configCountPreRendered) { // true by default
 
 				for (i = 0; i < prefixes.length; i++) {
 					prefix = prefixes[i];
@@ -1545,6 +1553,7 @@
 				}
 			}
 
+			// Implies configCountPreRendered = false
 			if (isPreRendered) {
 				// note: the event name doesn't follow the same naming convention as vendor properties
 				helpers.addEventListener(documentAlias, prefix + 'visibilitychange', function ready() {
@@ -2489,7 +2498,7 @@
 			 */
 			trackError: function (message, filename, lineno, colno, error, contexts) {
 				var enrichedContexts = addCommonContexts(contexts);
-			    errorManager.trackError(message, filename, lineno, colno, error, enrichedContexts);
+				errorManager.trackError(message, filename, lineno, colno, error, enrichedContexts);
 			},
 
 			/**
