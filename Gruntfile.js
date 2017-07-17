@@ -223,8 +223,8 @@ module.exports = function(grunt) {
         },
         files: [
           {
-            src: ["dist/sp-mint.js"],
-            dest: "<%= aws.uploadPath %>"
+            src: ["dist/sp.js"],
+            dest: "<%= pkg.version %>/sp.js"
           }
         ]
       },
@@ -236,8 +236,8 @@ module.exports = function(grunt) {
         },
         files: [
           {
-            src: ["dist/sp-mint.js"],
-            dest: "<%= aws.uploadPath %>"
+            src: ["dist/sp.js"],
+            dest: "<%= pkg.pinnedVersion %>/sp.js"
           }
         ]
       }
