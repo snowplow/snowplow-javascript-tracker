@@ -41,9 +41,15 @@
 		cookie = require('browser-cookie-lite'),
 		detectors = require('./lib/detectors'),
 		sha1 = require('sha1'),
+		//#if linkTrackingEnabled
 		links = require('./links'),
+		//#endif
+		//#if formTrackingEnabled
 		forms = require('./forms'),
+		//#endif
+		//#if errorTrackingEnabled
 		errors = require('./errors'),
+		//#endif
 		requestQueue = require('./out_queue'),
 		coreConstructor = require('snowplow-tracker-core').trackerCore,
 		uuid = require('uuid'),
@@ -264,13 +270,19 @@
 			ecommerceTransaction = ecommerceTransactionTemplate(),
 
 			// Manager for automatic link click tracking
+			//#if linkTrackingEnabled
 			linkTrackingManager = links.getLinkTrackingManager(core, trackerId, addCommonContexts),
+			//#endif
 
 			// Manager for automatic form tracking
+			//#if formTrackingEnabled
 			formTrackingManager = forms.getFormTrackingManager(core, trackerId, addCommonContexts),
+			//#endif
 
+			//#if errorTrackingEnabled
 			// Manager for tracking unhandled exceptions
 			errorManager = errors.errorManager(core),
+			//#endif
 
 			// Manager for local storage queue
 			outQueueManager = new requestQueue.OutQueueManager(
@@ -808,6 +820,7 @@
 				combinedContexts.push(getWebPageContext());
 			}
 
+			//#if performanceTiming
 			// Add PerformanceTiming Context
 			if (autoContexts.performanceTiming) {
 				var performanceTimingContext = getPerformanceTimingContext();
@@ -815,7 +828,9 @@
 					combinedContexts.push(performanceTimingContext);
 				}
 			}
+			//#endif
 
+			//#if optimizelyEnabled
 			// Add Optimizely Contexts
 			if (windowAlias.optimizely) {
 
@@ -875,7 +890,9 @@
 					}
 				}
 			}
+			//#endif
 
+			//#if augurEnabled
 			// Add Augur Context
 			if (autoContexts.augurIdentityLite) {
 				var augurIdentityLiteContext = getAugurIdentityLiteContext();
@@ -883,7 +900,9 @@
 					combinedContexts.push(augurIdentityLiteContext);
 				}
 			}
-			
+			//#endif
+
+			//#if parrableEnabled
 			//Add Parrable Context
 			if (autoContexts.parrable) {
 				var parrableContext = getParrableContext();
@@ -891,6 +910,7 @@
 					combinedContexts.push(parrableContext);
 				}
 			}
+			//#endif
 			return combinedContexts;
 		}
 
@@ -929,6 +949,7 @@
 			};
 		}
 
+		//#if performanceTiming
 		/**
 		 * Creates a context from the window.performance.timing object
 		 *
@@ -967,7 +988,9 @@
 				};
 			}
 		}
+		//#endif
 
+		//#if optimizelyEnabled
 		/**
 		 * Check that *both* optimizely and optimizely.data exist and return
 		 * optimizely.data.property
@@ -1269,7 +1292,9 @@
 				};
 			});
 		}
+		//#endif
 
+		//#if augurEnabled
 		/**
 		 * Creates a context from the window['augur'] object
 		 *
@@ -1295,7 +1320,9 @@
 				};
 			}
 		}
+		//#endif
 
+		//#if parrableEnabled
 		/**
 		 * Creates a context from the window['_hawk'] object
 		 *
@@ -1314,7 +1341,8 @@
 				};
 			}
 		}
-		
+		//#endif
+
 		/**
 		 * Attempts to create a context using the geolocation API and add it to commonContexts
 		 */
@@ -1797,6 +1825,7 @@
 				addClickListener(element, pseudoClicks, context);
 			},
 
+			//#if linkTrackingEnabled
 			/**
 			 * Install link tracker
 			 *
@@ -1844,6 +1873,7 @@
 					});
 				}
 			},
+			//#endif
 
 			/**
 			 * Enables page activity tracking (sends page
@@ -1872,6 +1902,7 @@
 				activityHandler();
 			},
 
+			//#if formTrackingEnabled
 			/**
 			 * Enables automatic form tracking.
 			 * An event will be fired when a form field is changed or a form submitted.
@@ -1892,6 +1923,7 @@
 					});
 				}
 			},
+			//#endif
 
 			/**
 			 * Frame buster
@@ -2465,6 +2497,7 @@
 				});
 			},
 
+			//#if errorTrackingEnabled
 			/**
 			 * Enable tracking of unhandled exceptions with custom contexts
 			 *
@@ -2491,6 +2524,7 @@
 				var enrichedContexts = addCommonContexts(contexts);
 			    errorManager.trackError(message, filename, lineno, colno, error, enrichedContexts);
 			},
+			//#endif
 
 			/**
 			 * Stop regenerating `pageViewId` (available from `web_page` context)
