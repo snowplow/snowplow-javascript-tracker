@@ -1,3 +1,11 @@
+Version 2.8.1 (2017-07-26)
+--------------------------
+Use trackCallback for all events (#589)
+Fix grunt ts in CI/CD (#598)
+Fix tech docs icon (#596)
+Fix string ids in Optimizely Summary context (#591)
+Fix race condition with pageViewId creation (#592)
+
 Version 2.8.0 (2017-05-18)
 --------------------------
 Add support for users opting out of state tracking using cookie or localStorage (#459)
