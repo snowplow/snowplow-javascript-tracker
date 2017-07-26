@@ -296,7 +296,10 @@
 			enhancedEcommerceContexts = [],
 
 			// Whether pageViewId should be regenerated after each trackPageView. Affect web_page context
-			preservePageViewId = false;
+			preservePageViewId = false,
+
+			// Whether first trackPageView was fired and pageViewId should not be changed anymore until reload
+			pageViewSent = false;
 
 		if (argmap.hasOwnProperty('discoverRootDomain') && argmap.discoverRootDomain) {
 			configCookieDomain = helpers.findRootDomain();
@@ -1015,9 +1018,9 @@
 			return lodash.map(state && experiments && state.activeExperiments, function (activeExperiment) {
 				var current = experiments[activeExperiment];
 				return {
-					activeExperimentId: activeExperiment,
+					activeExperimentId: activeExperiment.toString(),
 					// User can be only in one variation (don't know why is this array)
-					variation: state.variationIdsMap[activeExperiment][0],
+					variation: state.variationIdsMap[activeExperiment][0].toString(),
 					conditional: current && current.conditional,
 					manual: current && current.manual,
 					name: current && current.name
@@ -1201,7 +1204,7 @@
 
 				for (var key in audienceIds) {
 					if (audienceIds.hasOwnProperty(key)) {
-                        var context = { id: key, isMember: audienceIds[key] };
+						var context = { id: key, isMember: audienceIds[key] };
 
 						contexts.push({
 							schema: 'iglu:com.optimizely/visitor_audience/jsonschema/1-0-0',
@@ -1381,7 +1384,10 @@
 		function logPageView(customTitle, context, contextCallback, tstamp) {
 
 			refreshUrl();
-			resetPageView();
+			if (pageViewSent) {	 // Do not reset pageViewId if previous events were not page_view
+				resetPageView();
+			}
+			pageViewSent = true;
 
 			// So we know what document.title was at the time of trackPageView
 			lastDocumentTitle = documentAlias.title;
@@ -1529,7 +1535,9 @@
 				prefixes = ['', 'webkit', 'ms', 'moz'],
 				prefix;
 
-			if (!configCountPreRendered) {
+			// If configPrerendered == true - we'll never set `isPreRendered` to true and fire immediately,
+			// otherwise we need to check if this is just prerendered
+			if (!configCountPreRendered) { // true by default
 
 				for (i = 0; i < prefixes.length; i++) {
 					prefix = prefixes[i];
@@ -1545,6 +1553,7 @@
 				}
 			}
 
+			// Implies configCountPreRendered = false
 			if (isPreRendered) {
 				// note: the event name doesn't follow the same naming convention as vendor properties
 				helpers.addEventListener(documentAlias, prefix + 'visibilitychange', function ready() {
@@ -2053,7 +2062,9 @@
 			 * @param tstamp number or Timestamp object
 			 */
 			trackStructEvent: function (category, action, label, property, value, context, tstamp) {
-				core.trackStructEvent(category, action, label, property, value, addCommonContexts(context), tstamp);
+				trackCallback(function () {
+					core.trackStructEvent(category, action, label, property, value, addCommonContexts(context), tstamp);
+				});
 			},
 
 			/**
@@ -2064,14 +2075,18 @@
 			 * @param tstamp number or Timestamp object
 			 */
 			trackSelfDescribingEvent: function (eventJson, context, tstamp) {
-				core.trackSelfDescribingEvent(eventJson, addCommonContexts(context), tstamp);
+				trackCallback(function () {
+					core.trackSelfDescribingEvent(eventJson, addCommonContexts(context), tstamp);
+				});
 			},
 
 			/**
 			 * Alias for `trackSelfDescribingEvent`, left for compatibility
 			 */
 			trackUnstructEvent: function (eventJson, context, tstamp) {
-				core.trackSelfDescribingEvent(eventJson, addCommonContexts(context), tstamp);
+				trackCallback(function () {
+					core.trackSelfDescribingEvent(eventJson, addCommonContexts(context), tstamp);
+				});
 			},
 
 			/**
@@ -2139,36 +2154,38 @@
 			 * addItem methods to the tracking server.
 			 */
 			trackTrans: function() {
-				logTransaction(
-					ecommerceTransaction.transaction.orderId,
-					ecommerceTransaction.transaction.affiliation,
-					ecommerceTransaction.transaction.total,
-					ecommerceTransaction.transaction.tax,
-					ecommerceTransaction.transaction.shipping,
-					ecommerceTransaction.transaction.city,
-					ecommerceTransaction.transaction.state,
-					ecommerceTransaction.transaction.country,
-					ecommerceTransaction.transaction.currency,
-					ecommerceTransaction.transaction.context,
-					ecommerceTransaction.transaction.tstamp
+				trackCallback(function () {
 
-				);
-				for (var i = 0; i < ecommerceTransaction.items.length; i++) {
-					var item = ecommerceTransaction.items[i];
-					logTransactionItem(
-						item.orderId,
-						item.sku,
-						item.name,
-						item.category,
-						item.price,
-						item.quantity,
-						item.currency,
-						item.context,
-						item.tstamp
+					logTransaction(
+						ecommerceTransaction.transaction.orderId,
+						ecommerceTransaction.transaction.affiliation,
+						ecommerceTransaction.transaction.total,
+						ecommerceTransaction.transaction.tax,
+						ecommerceTransaction.transaction.shipping,
+						ecommerceTransaction.transaction.city,
+						ecommerceTransaction.transaction.state,
+						ecommerceTransaction.transaction.country,
+						ecommerceTransaction.transaction.currency,
+						ecommerceTransaction.transaction.context,
+						ecommerceTransaction.transaction.tstamp
 					);
-				}
+					for (var i = 0; i < ecommerceTransaction.items.length; i++) {
+						var item = ecommerceTransaction.items[i];
+						logTransactionItem(
+							item.orderId,
+							item.sku,
+							item.name,
+							item.category,
+							item.price,
+							item.quantity,
+							item.currency,
+							item.context,
+							item.tstamp
+						);
+					}
 
-				ecommerceTransaction = ecommerceTransactionTemplate();
+					ecommerceTransaction = ecommerceTransactionTemplate();
+				});
 			},
 
 			/**
@@ -2224,7 +2241,9 @@
 			 * @param tstamp number or Timestamp object
 			 */
 			trackAdClick: function(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, context, tstamp) {
-				core.trackAdClick(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, addCommonContexts(context), tstamp);
+				trackCallback(function () {
+					core.trackAdClick(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, addCommonContexts(context), tstamp);
+				});
 			},
 
 			/**
@@ -2243,7 +2262,9 @@
 			 * @param tstamp number or Timestamp object
 			 */
 			trackAdConversion: function(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, context, tstamp) {
-				core.trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, addCommonContexts(context), tstamp);
+				trackCallback(function () {
+					core.trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, addCommonContexts(context), tstamp);
+				});
 			},
 
 			/**
@@ -2256,7 +2277,9 @@
 			 * @param tstamp number or Timestamp object
 			 */
 			trackSocialInteraction: function(action, network, target, context, tstamp) {
-				core.trackSocialInteraction(action, network, target, addCommonContexts(context), tstamp);
+				trackCallback(function () {
+					core.trackSocialInteraction(action, network, target, addCommonContexts(context), tstamp);
+				});
 			},
 
 			/**
@@ -2272,7 +2295,9 @@
 			 * @param tstamp number or Timestamp object
 			 */
 			trackAddToCart: function(sku, name, category, unitPrice, quantity, currency, context, tstamp) {
-				core.trackAddToCart(sku, name, category, unitPrice, quantity, currency, addCommonContexts(context), tstamp);
+				trackCallback(function () {
+					core.trackAddToCart(sku, name, category, unitPrice, quantity, currency, addCommonContexts(context), tstamp);
+				});
 			},
 
 			/**
@@ -2288,7 +2313,9 @@
 			 * @param tstamp Opinal number or Timestamp object
 			 */
 			trackRemoveFromCart: function(sku, name, category, unitPrice, quantity, currency, context, tstamp) {
-				core.trackRemoveFromCart(sku, name, category, unitPrice, quantity, currency, addCommonContexts(context), tstamp);
+				trackCallback(function () {
+					core.trackRemoveFromCart(sku, name, category, unitPrice, quantity, currency, addCommonContexts(context), tstamp);
+				});
 			},
 
 			/**
@@ -2302,7 +2329,9 @@
 			 * @param tstamp Opinal number or Timestamp object
 			 */
 			trackSiteSearch: function(terms, filters, totalResults, pageResults, context, tstamp) {
-				core.trackSiteSearch(terms, filters, totalResults, pageResults, addCommonContexts(context), tstamp);
+				trackCallback(function () {
+					core.trackSiteSearch(terms, filters, totalResults, pageResults, addCommonContexts(context), tstamp);
+				});
 			},
 
 			/**
@@ -2316,15 +2345,17 @@
 			 * @param tstamp Opinal number or Timestamp object
 			 */
 			trackTiming: function (category, variable, timing, label, context, tstamp) {
-				core.trackSelfDescribingEvent({
-					schema: 'iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0',
-					data: {
-						category: category,
-						variable: variable,
-						timing: timing,
-						label: label
-					}
-				}, addCommonContexts(context), tstamp)
+				trackCallback(function () {
+					core.trackSelfDescribingEvent({
+						schema: 'iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0',
+						data: {
+							category: category,
+							variable: variable,
+							timing: timing,
+							label: label
+						}
+					}, addCommonContexts(context), tstamp)
+				});
 			},
 
 			/**
@@ -2339,12 +2370,14 @@
 				var combinedEnhancedEcommerceContexts = enhancedEcommerceContexts.concat(context || []);
 				enhancedEcommerceContexts.length = 0;
 
-				core.trackSelfDescribingEvent({
-					schema: 'iglu:com.google.analytics.enhanced-ecommerce/action/jsonschema/1-0-0',
-					data: {
-						action: action
-					}
-				}, addCommonContexts(combinedEnhancedEcommerceContexts), tstamp);
+				trackCallback(function () {
+					core.trackSelfDescribingEvent({
+						schema: 'iglu:com.google.analytics.enhanced-ecommerce/action/jsonschema/1-0-0',
+						data: {
+							action: action
+						}
+					}, addCommonContexts(combinedEnhancedEcommerceContexts), tstamp);
+				});
 			},
 
 			/**
@@ -2470,7 +2503,7 @@
 			 *
 			 * @param filter Function ErrorEvent => Bool to check whether error should be tracker
 			 * @param contextsAdder Function ErrorEvent => Array<Context> to add custom contexts with
-			 *                     internal state based on particular error
+			 *		             internal state based on particular error
 			 */
 			enableErrorTracking: function (filter, contextsAdder) {
 				errorManager.enableErrorTracking(filter, contextsAdder, addCommonContexts())
@@ -2489,7 +2522,7 @@
 			 */
 			trackError: function (message, filename, lineno, colno, error, contexts) {
 				var enrichedContexts = addCommonContexts(contexts);
-			    errorManager.trackError(message, filename, lineno, colno, error, enrichedContexts);
+				errorManager.trackError(message, filename, lineno, colno, error, enrichedContexts);
 			},
 
 			/**

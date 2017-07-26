@@ -6,7 +6,8 @@
     "intern": "3.3.2",
     "dts-generator": "^2.0.0",
     "grunt-ts": "5.5.1",
-    "typescript": "2.0.6",
+    "typescript": "2.2.2",
+    "@types/es6-shim": "0.31.34",
     "@types/uuid": "^2.0.29"
   },
   "contributors": [
