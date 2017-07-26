@@ -99,13 +99,13 @@ module.exports = function(grunt) {
           transform: [
             [conditionalify, {
               definitions: {
-                augurEnabled: true,
-                errorTrackingEnabled: true,
-                formTrackingEnabled: true,
-                linkTrackingEnabled: true,
-                optimizelyEnabled: true,
-                parrableEnabled: true,
-                performanceTimingContextEnabled: true
+                supportAugur: false,
+                supportErrorTracking: false,
+                supportFormTracking: false,
+                supportLinkTracking: false,
+                supportOptimizely: false,
+                supportParrable: false,
+                supportPerformanceTiming: false
               }
             }]
           ]

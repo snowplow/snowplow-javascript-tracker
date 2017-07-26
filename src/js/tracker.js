@@ -41,13 +41,13 @@
 		cookie = require('browser-cookie-lite'),
 		detectors = require('./lib/detectors'),
 		sha1 = require('sha1'),
-		//#if linkTrackingEnabled
+		//#if supportLinkTracking
 		links = require('./links'),
 		//#endif
-		//#if formTrackingEnabled
+		//#if supportFormTracking
 		forms = require('./forms'),
 		//#endif
-		//#if errorTrackingEnabled
+		//#if supportErrorTracking
 		errors = require('./errors'),
 		//#endif
 		requestQueue = require('./out_queue'),
@@ -270,16 +270,16 @@
 			ecommerceTransaction = ecommerceTransactionTemplate(),
 
 			// Manager for automatic link click tracking
-			//#if linkTrackingEnabled
+			//#if supportLinkTracking
 			linkTrackingManager = links.getLinkTrackingManager(core, trackerId, addCommonContexts),
 			//#endif
 
 			// Manager for automatic form tracking
-			//#if formTrackingEnabled
+			//#if supportFormTracking
 			formTrackingManager = forms.getFormTrackingManager(core, trackerId, addCommonContexts),
 			//#endif
 
-			//#if errorTrackingEnabled
+			//#if supportErrorTracking
 			// Manager for tracking unhandled exceptions
 			errorManager = errors.errorManager(core),
 			//#endif
@@ -820,7 +820,7 @@
 				combinedContexts.push(getWebPageContext());
 			}
 
-			//#if performanceTiming
+			//#if supportPerformanceTiming
 			// Add PerformanceTiming Context
 			if (autoContexts.performanceTiming) {
 				var performanceTimingContext = getPerformanceTimingContext();
@@ -830,7 +830,7 @@
 			}
 			//#endif
 
-			//#if optimizelyEnabled
+			//#if supportOptimizely
 			// Add Optimizely Contexts
 			if (windowAlias.optimizely) {
 
@@ -892,7 +892,7 @@
 			}
 			//#endif
 
-			//#if augurEnabled
+			//#if supportAugur
 			// Add Augur Context
 			if (autoContexts.augurIdentityLite) {
 				var augurIdentityLiteContext = getAugurIdentityLiteContext();
@@ -902,7 +902,7 @@
 			}
 			//#endif
 
-			//#if parrableEnabled
+			//#if supportParrable
 			//Add Parrable Context
 			if (autoContexts.parrable) {
 				var parrableContext = getParrableContext();
@@ -949,7 +949,7 @@
 			};
 		}
 
-		//#if performanceTiming
+		//#if supportPerformanceTiming
 		/**
 		 * Creates a context from the window.performance.timing object
 		 *
@@ -990,7 +990,7 @@
 		}
 		//#endif
 
-		//#if optimizelyEnabled
+		//#if supportOptimizely
 		/**
 		 * Check that *both* optimizely and optimizely.data exist and return
 		 * optimizely.data.property
@@ -1294,7 +1294,7 @@
 		}
 		//#endif
 
-		//#if augurEnabled
+		//#if supportAugur
 		/**
 		 * Creates a context from the window['augur'] object
 		 *
@@ -1322,7 +1322,7 @@
 		}
 		//#endif
 
-		//#if parrableEnabled
+		//#if supportParrable
 		/**
 		 * Creates a context from the window['_hawk'] object
 		 *
@@ -1825,7 +1825,7 @@
 				addClickListener(element, pseudoClicks, context);
 			},
 
-			//#if linkTrackingEnabled
+			//#if supportLinkTracking
 			/**
 			 * Install link tracker
 			 *
@@ -1902,7 +1902,7 @@
 				activityHandler();
 			},
 
-			//#if formTrackingEnabled
+			//#if supportFormTracking
 			/**
 			 * Enables automatic form tracking.
 			 * An event will be fired when a form field is changed or a form submitted.
@@ -2497,7 +2497,7 @@
 				});
 			},
 
-			//#if errorTrackingEnabled
+			//#if supportErrorTracking
 			/**
 			 * Enable tracking of unhandled exceptions with custom contexts
 			 *
