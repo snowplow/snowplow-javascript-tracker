@@ -456,7 +456,10 @@
 		function sendRequest(request, delay) {
 			var now = new Date();
 
-			if (!(configDoNotTrack || !!getSnowplowCookieValue(configOptOutCookie))) {
+			// Set to true if Opt-out cookie is defined
+			var toOptoutByCookie = !!cookie.cookie(configOptOutCookie);
+
+			if (!(configDoNotTrack || toOptoutByCookie)) {
 				outQueueManager.enqueueRequest(request.build(), configCollectorUrl);
 				mutSnowplowState.expireDateTime = now.getTime() + delay;
 			}
@@ -705,7 +708,9 @@
 				lastVisitTs = id[5],
 				sessionIdFromCookie = id[6];
 
-			if ((configDoNotTrack || !!getSnowplowCookieValue(configOptOutCookie)) &&
+			var toOptoutByCookie = !!cookie.cookie(configOptOutCookie);
+
+			if ((configDoNotTrack || toOptoutByCookie) &&
 					configStateStorageStrategy != 'none') {
 				if (configStateStorageStrategy == 'localStorage') {
 					helpers.attemptWriteLocalStorage(idname, '');
@@ -1929,7 +1934,6 @@
 			 */
 			setOptOutCookie: function (name) {
 				configOptOutCookie = name;
-				setCookie(name, '*', 1800);
 			},
 
 			/**
