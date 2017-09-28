@@ -1604,6 +1604,15 @@
 			},
 
 			/**
+			 * Get the domain session ID also known as current memorized session ID.
+			 *
+			 * @return string Domain session ID
+			 */
+			getDomainSessionId: function() {
+				return memorizedSessionId;
+			},
+			
+			/**
 			 * Get the page view ID as generated or provided by mutSnowplowState.pageViewId.
 			 *
 			 * @return string Page view ID
