@@ -5,6 +5,7 @@
 [![Code Climate][codeclimate-image]][codeclimate]
 [![Built with Grunt][grunt-image]][grunt]
 [![License][license-image]][bsd]
+[![jsDelivr Hits](https://data.jsdelivr.com/v1/package/gh/snowplow/snowplow-javascript-tracker/badge?style=rounded)](https://www.jsdelivr.com/package/gh/snowplow/snowplow-javascript-tracker)
 
 ## Overview
 
