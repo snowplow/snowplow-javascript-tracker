@@ -64,7 +64,10 @@
 		// Fall back to GET for browsers which don't support CORS XMLHttpRequests (e.g. IE <= 9)
 		usePost = usePost && window.XMLHttpRequest && ('withCredentials' in new XMLHttpRequest());
 
-		var path = usePost ? '/com.snowplowanalytics.snowplow/tp2' : '/i';
+        if (typeof usePost != 'undefined')
+		    var path = usePost ? '/com.snowplowanalytics.snowplow/tp2' : '/i';
+        else
+            Console.warn('usePost undefined');
 
 		bufferSize = (localStorageAccessible() && useLocalStorage && usePost && bufferSize) || 1;
 
