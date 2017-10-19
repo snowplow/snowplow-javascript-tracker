@@ -66,23 +66,21 @@
 	 * 4. appId, ''
 	 * 5. platform, 'web'
 	 * 6. respectDoNotTrack, false
-	 * 7. userFingerprint, true
-	 * 8. userFingerprintSeed, 123412414
-	 * 9. pageUnloadTimer, 500
-	 * 10. forceSecureTracker, false
-	 * 11. forceUnsecureTracker, false
-	 * 12. useLocalStorage, true
-	 * 13. useCookies, true
-	 * 14. sessionCookieTimeout, 1800
-	 * 15. contexts, {}
-	 * 16. post, false
-	 * 17. bufferSize, 1
-	 * 18. crossDomainLinker, false
-	 * 19. maxPostBytes, 40000
-	 * 20. discoverRootDomain, false
-	 * 21. cookieLifetime, 63072000
-	 * 22. stateStorageStrategy, 'cookieAndLocalStorage'
-	 * 23. respectOptOutCookie, false
+	 * 7. userFingerprintSeed, 123412414
+	 * 8. pageUnloadTimer, 500
+	 * 9. forceSecureTracker, false
+	 * 10. forceUnsecureTracker, false
+	 * 11. useLocalStorage, true
+	 * 12. useCookies, true
+	 * 13. sessionCookieTimeout, 1800
+	 * 14. contexts, {}
+	 * 15. post, false
+	 * 16. bufferSize, 1
+	 * 17. crossDomainLinker, false
+	 * 18. maxPostBytes, 40000
+	 * 19. discoverRootDomain, false
+	 * 20. cookieLifetime, 63072000
+	 * 21. stateStorageStrategy, 'cookieAndLocalStorage'
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
 
