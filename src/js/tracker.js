@@ -1510,7 +1510,7 @@
 		 */
 		function logPagePing(context) {
 			refreshUrl();
-			newDocumentTitle = documentAlias.title;
+			var newDocumentTitle = documentAlias.title;
 			if (newDocumentTitle !== lastDocumentTitle) {
 				lastDocumentTitle = newDocumentTitle;
 				lastConfigTitle = null;
