@@ -2011,6 +2011,15 @@
 			},
 
 			/**
+			 * Alias for setUserId.
+			 *
+			 * @param string userId The business-defined user ID
+			 */
+			identifyUser: function(userId) {
+				setUserId(userId);
+			},
+
+			/**
 			 * Set the business-defined user ID for this user using the location querystring.
 			 *
 			 * @param string queryName Name of a querystring name-value pair
