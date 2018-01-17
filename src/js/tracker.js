@@ -1,12 +1,12 @@
 /*
  * JavaScript tracker for Snowplow: tracker.js
- * 
- * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
+ *
+ * Significant portions copyright 2010 Anthon Pang. Remainder copyright
  * 2012-2016 Snowplow Analytics Ltd. All rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without 
- * modification, are permitted provided that the following conditions are 
- * met: 
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
  *
  * * Redistributions of source code must retain the above copyright
  *   notice, this list of conditions and the following disclaimer.
@@ -476,11 +476,12 @@
 		 * Cookie getter.
 		 */
 		function getSnowplowCookieValue(cookieName) {
+			var fullName = getSnowplowCookieName(cookieName);
 			if (configStateStorageStrategy == 'localStorage') {
-				return helpers.attemptGetLocalStorage(cookieName);
+				return helpers.attemptGetLocalStorage(fullName);
 			} else if (configStateStorageStrategy == 'cookie' ||
 					configStateStorageStrategy == 'cookieAndLocalStorage') {
-				return cookie.cookie(getSnowplowCookieName(cookieName));
+				return cookie.cookie(fullName);
 			}
 		}
 
@@ -795,10 +796,10 @@
 		function asCollectorUrl(rawUrl) {
 			if (forceSecureTracker) {
 				return ('https' + '://' + rawUrl);
-			} 
+			}
 			if (forceUnsecureTracker) {
 				return ('http' + '://' + rawUrl);
-			} 
+			}
 			return ('https:' === documentAlias.location.protocol ? 'https' : 'http') + '://' + rawUrl;
 		}
 
@@ -891,7 +892,7 @@
 					combinedContexts.push(augurIdentityLiteContext);
 				}
 			}
-			
+
 			//Add Parrable Context
 			if (autoContexts.parrable) {
 				var parrableContext = getParrableContext();
@@ -944,9 +945,9 @@
 		 */
 		function getPerformanceTimingContext() {
 			var allowedKeys = [
-				'navigationStart', 'redirectStart', 'redirectEnd', 'fetchStart', 'domainLookupStart', 'domainLookupEnd', 'connectStart', 
+				'navigationStart', 'redirectStart', 'redirectEnd', 'fetchStart', 'domainLookupStart', 'domainLookupEnd', 'connectStart',
 				'secureConnectionStart', 'connectEnd', 'requestStart', 'responseStart', 'responseEnd', 'unloadEventStart', 'unloadEventEnd',
-				'domLoading', 'domInteractive', 'domContentLoadedEventStart', 'domContentLoadedEventEnd', 'domComplete', 'loadEventStart', 
+				'domLoading', 'domInteractive', 'domContentLoadedEventStart', 'domContentLoadedEventEnd', 'domComplete', 'loadEventStart',
 				'loadEventEnd', 'msFirstPaint', 'chromeFirstPaint', 'requestEnd', 'proxyStart', 'proxyEnd'
 			];
 			var performance = windowAlias.performance || windowAlias.mozPerformance || windowAlias.msPerformance || windowAlias.webkitPerformance;
@@ -1013,7 +1014,7 @@
 
 		/**
 		 * Get data for Optimizely "lite" contexts - active experiments on current page
-		 * 
+		 *
 		 * @returns Array content of lite optimizely lite context
 		 */
 		function getOptimizelySummary() {
@@ -1035,7 +1036,7 @@
 
 		/**
 		 * Get data for OptimizelyX contexts - active experiments on current page
-		 * 
+		 *
 		 * @returns Array content of lite optimizely lite context
 		 */
 		function getOptimizelyXSummary() {
@@ -1458,7 +1459,7 @@
 				purify(customReferrer || configReferrerUrl),
 				addCommonContexts(finalizeContexts(context, contextCallback)),
 				tstamp);
-			
+
 			// Send ping (to log that user has stayed on page)
 			var now = new Date();
 			if (activityTrackingEnabled && !activityTrackingInstalled) {
