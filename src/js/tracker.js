@@ -2363,6 +2363,23 @@
 			},
 
 			/**
+			 * Track a consent withdrawn action
+			 *
+			 * @param {boolean} all - Indicates user withdraws all consent regardless of context documents.
+			 * @param {number} [id] - Number associated with document.
+			 * @param {number} [version] - Document version number.
+			 * @param {string} [name] - Document name.
+			 * @param {string} [description] - Document description.
+			 * @param {array} [context] - Context relating to the event.
+			 * @param {number|Timestamp} [tstamp] - Number or Timestamp object.
+			 */
+			trackConsentWithdrawn: function (all, id, version, name, description, context, tstamp) {
+				trackCallback(function () {
+					core.trackConsentWithdrawn(all, id, version, name, description, addCommonContexts(context), tstamp);
+				});
+			},
+
+			/**
 			 * Track a GA Enhanced Ecommerce Action with all stored
 			 * Enhanced Ecommerce contexts
 			 *
