@@ -878,6 +878,45 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 					pageResults: pageResults
 				})
 			}, context, tstamp);
+		},
+
+		/**
+		 * Track a consent withdrawn event
+		 *
+		 * @param {boolean} all - Indicates user withdraws consent for all documents.
+		 * @param {number} [id] - ID number associated with document.
+		 * @param {number} [version] - Version number of document.
+		 * @param {string} [name] - Name of document.
+		 * @param {string} [description] - Description of document.
+		 * @param {Array<SelfDescribingJson>} [context] - Context relating to the event.
+		 * @param {Timestamp} [tstamp] - TrackerTimestamp of the event.
+		 * @return Payload
+		 */
+		trackConsentWithdrawn: function(
+			all: boolean,
+			id?: number,
+			version?: number,
+			name?: string,
+			description?: string,
+			context?: Array<SelfDescribingJson>,
+			tstamp?: Timestamp): PayloadData {
+
+			let documentJson = {
+				schema: 'iglu:com.snowplowanalytics.snowplow/consent_document/jsonschema/1-0-0',
+				data: removeEmptyProperties({
+					id: id,
+					version: version,
+					name: name,
+					description: description
+				})
+			};
+
+			return trackSelfDescribingEvent({
+				schema: 'iglu:com.snowplowanalytics.snowplow/consent_withdrawn/jsonschema/1-0-0',
+				data: removeEmptyProperties({
+					all: all
+				})
+			}, documentJson.data && context ? context.concat([documentJson]) : context, tstamp);
 		}
 	};
 }
