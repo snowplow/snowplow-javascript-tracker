@@ -2445,6 +2445,23 @@
 			},
 
 			/**
+			 * Track a consent granted action
+			 *
+			 * @param {number} id - ID number associated with document.
+			 * @param {number} version - Document version number.
+			 * @param {string} [name] - Document name.
+			 * @param {string} [description] - Document description.
+			 * @param {string} [expiry] - Date-time when consent document(s) expire.
+			 * @param {array} [context] - Context containing consent documents.
+			 * @param {Timestamp|number} [tstamp] - number or Timestamp object.
+			 */
+			trackConsentGranted: function (id, version, name, description, expiry, context, tstamp) {
+				trackCallback(function () {
+					core.trackConsentGranted(id, version, name, description, expiry, addCommonContexts(context), tstamp);
+				});
+			},
+
+			/**
 			 * Track a GA Enhanced Ecommerce Action with all stored
 			 * Enhanced Ecommerce contexts
 			 *
