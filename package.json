@@ -8,7 +8,7 @@
     "snowplow-tracker-core": "0.5.0",
     "murmurhash": "0.0.2",
     "uuid": "2.0.3",
-    "sha1": "git://github.com/pvorb/node-sha1.git#v1.0.0"
+    "sha1": "git://github.com/pvorb/node-sha1.git#910081c83f3661507d9d89e66e3f38d8b59d5559"
   },
   "devDependencies": {
     "JSON": "1.0.0",
@@ -17,7 +17,7 @@
     "grunt-browserify": "5.0.0",
     "grunt-contrib-concat": "0.5.1",
     "grunt-lodash": "0.5.1",
-    "grunt-yui-compressor": "git://github.com/snowplow/grunt-yui-compressor.git#0.4.0",
+    "grunt-yui-compressor": "git://github.com/snowplow/grunt-yui-compressor.git#fc70c3aa41bad8848b3569d6ea6ee70d270fd8a6",
     "intern": "3.3.2",
     "js-base64": "2.1.9",
     "lodash-cli": "3.10.1",

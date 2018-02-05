@@ -1,4 +1,8 @@
 {
+  "name": "snowplow-tracker",
+  "version": "2.8.2",
+  "lockfileVersion": 1,
+  "requires": true,
   "dependencies": {
     "@browserify/acorn5-object-spread": {
       "version": "5.0.1",
@@ -1947,7 +1951,7 @@
       }
     },
     "grunt-yui-compressor": {
-      "version": "git://github.com/snowplow/grunt-yui-compressor.git#1190dd16757c7f6af7674ce3ae9b3305bb66c2fa",
+      "version": "git://github.com/snowplow/grunt-yui-compressor.git#fc70c3aa41bad8848b3569d6ea6ee70d270fd8a6",
       "dev": true,
       "requires": {
         "maxmin": "1.1.0",
