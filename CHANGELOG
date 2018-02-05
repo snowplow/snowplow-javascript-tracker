@@ -1,3 +1,21 @@
+Version 2.9.0 (2018-02-27)
+--------------------------
+Add ability to change field content before sending form tracking (#465)
+Add a method to start a new session (#515)
+Make newDocumentTitle variable local (#580)
+Enforce that geolocation.timestamp is an integer (#602)
+Remove respectOptOutCookie from the Tracker function comments (#605)
+Add jsDelivr hits badge (#611)
+Add identifyUser as alias for setUserId (#621)
+Add trackConsentGranted method (#623)
+Add trackConsentWithdrawn method (#624)
+Bump semver to 4.3.2 (#625)
+LocalStorage domain user ID is not persisted properly (#627)
+Core: add trackConsentGranted method (#629)
+Core: add trackConsentWithdrawn method (#630)
+Update OS X test targets for Saucelabs (#632)
+Install dependencies and update shrinkwrap before deployment (#633)
+
 Version 2.8.2 (2017-08-21)
 --------------------------
 Fix opt-out cookie check (#604)
