@@ -10,6 +10,9 @@
     "@types/es6-shim": "0.31.34",
     "@types/uuid": "^2.0.29"
   },
+  "dependencies": {
+    "uuid": "2.0.3"
+  },
   "contributors": [
     "Alex Dean",
     "Simon Andersson",
@@ -28,8 +31,5 @@
     "events",
     "open source"
   ],
-  "license": "Apache-2.0",
-  "dependencies": {
-    "uuid": "2.0.3"
-  }
+  "license": "Apache-2.0"
 }
