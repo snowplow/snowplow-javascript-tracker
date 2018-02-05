@@ -156,6 +156,7 @@ def publish_core():
 
 def publish_tracker():
     os.chdir(TRAVIS_BUILD_DIR)
+    execute(['npm', 'install', '--dev'])
     with aws_credentials():
         execute(['grunt', 'publish'])
 
