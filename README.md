@@ -91,7 +91,7 @@ $ yarn global bin
 ```
 
 #### Procedure
-1. Merge all changes needed for the release
+1. Merge all changes needed for the release into master
 1. Run `<path/to/global/yarn/bin/grunt` (will run the `default` task in _Gruntfile.js_)
 1. Commit the changes in _dist_
 1. Update the version in _package.json_ accordingly
