@@ -79,3 +79,23 @@ Licensed under the [Simplified BSD] [bsd] license.
 [saucelabs-button-image]: https://saucelabs.com/buildstatus/snowplow
 [saucelabs-matrix-image]: https://saucelabs.com/browser-matrix/snowplow.svg
 [license-image]: http://img.shields.io/badge/license-simplified--bsd-blue.svg?style=flat
+
+## Release Management (Added by Clarivate)
+#### Setup
+1. Clone the repo
+1. Run `yarn install` (this should install grunt globally)
+1. Find your global yarn bin
+```shell
+$ yarn global bin
+/usr/local/bin
+```
+
+#### Procedure
+1. Merge all changes needed for the release
+1. Run `<path/to/global/yarn/bin/grunt`
+1. Commit the changes in _dist_
+1. Update the version in _package.json_ accordingly
+1. Tag and commit the release `git tag -a x.y.z-tr -m "tagging forked release x.y.z`
+1. Create a PNAS ticket to have _dist/sp.js_ uploaded to CloudFront (example ticket)
+1. Update the filename in [webui-component-analytics](https://github.com/ThomsonReuters-IPS/webui-component-analytics/blob/master/src/modules/analytics/run/analytics-run.js#L44)
+1. Cut a new release of webui-component-analytics
