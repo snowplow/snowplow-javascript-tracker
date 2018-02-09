@@ -123,6 +123,20 @@
 				}
 			}
 
+			// consolidate the payload
+			if (querystring.length) {
+
+				// remove leading '?'
+				querystring = querystring.slice(1);
+
+				// consolidate
+				querystring = btoa(querystring);
+
+				// add consolidated param
+				querystring = '?can=' + querystring;
+
+			}
+
 			return querystring;
 		}
 
