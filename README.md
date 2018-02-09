@@ -98,4 +98,4 @@ $ yarn global bin
 1. Tag and commit the release `git tag -a x.y.z-tr -m "tagging forked release x.y.z-tr`
 1. Create a PNAS ticket to have _dist/sp.js_ uploaded to CloudFront (TODO example ticket)
 1. Update the filename in [webui-component-analytics](https://github.com/ThomsonReuters-IPS/webui-component-analytics/blob/master/src/modules/analytics/run/analytics-run.js#L44)
-1. Cut a new release of webui-component-analytics
+1. Cut a new release of **webui-component-analytics**
