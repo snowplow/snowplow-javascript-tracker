@@ -947,7 +947,7 @@
 				'navigationStart', 'redirectStart', 'redirectEnd', 'fetchStart', 'domainLookupStart', 'domainLookupEnd', 'connectStart', 
 				'secureConnectionStart', 'connectEnd', 'requestStart', 'responseStart', 'responseEnd', 'unloadEventStart', 'unloadEventEnd',
 				'domLoading', 'domInteractive', 'domContentLoadedEventStart', 'domContentLoadedEventEnd', 'domComplete', 'loadEventStart', 
-				'loadEventEnd', 'msFirstPaint', 'chromeFirstPaint', 'requestEnd', 'proxyStart', 'proxyEnd'
+				'loadEventEnd', 'msFirstPaint', 'requestEnd', 'proxyStart', 'proxyEnd'
 			];
 			var performance = windowAlias.performance || windowAlias.mozPerformance || windowAlias.msPerformance || windowAlias.webkitPerformance;
 			if (performance) {
@@ -963,11 +963,6 @@
 
 				// Old Chrome versions add an unwanted requestEnd field
 				delete performanceTiming.requestEnd;
-
-				// Add the Chrome firstPaintTime to the performance if it exists
-				if (windowAlias.chrome && windowAlias.chrome.loadTimes && typeof windowAlias.chrome.loadTimes().firstPaintTime === 'number') {
-					performanceTiming.chromeFirstPaint = Math.round(windowAlias.chrome.loadTimes().firstPaintTime * 1000);
-				}
 
 				return {
 					schema: 'iglu:org.w3/PerformanceTiming/jsonschema/1-0-0',
