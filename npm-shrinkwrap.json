@@ -1,6 +1,6 @@
 {
   "name": "snowplow-tracker",
-  "version": "2.9.0",
+  "version": "2.9.0-rc2",
   "lockfileVersion": 1,
   "requires": true,
   "dependencies": {
@@ -3823,9 +3823,9 @@
       "dev": true
     },
     "snowplow-tracker-core": {
-      "version": "0.5.0",
-      "resolved": "https://registry.npmjs.org/snowplow-tracker-core/-/snowplow-tracker-core-0.5.0.tgz",
-      "integrity": "sha1-Bnx1iQKmdubYtJX+/FC0+h4kfIQ=",
+      "version": "0.6.0-beta2",
+      "resolved": "https://registry.npmjs.org/snowplow-tracker-core/-/snowplow-tracker-core-0.6.0-beta2.tgz",
+      "integrity": "sha1-zjcHlWrqG+MF9fHA4BlTzNdGNLs=",
       "requires": {
         "uuid": "2.0.3"
       }
