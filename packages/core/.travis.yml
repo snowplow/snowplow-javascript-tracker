@@ -6,13 +6,15 @@ install:
 - npm install -g grunt-cli
 
 - cd core
-- npm install --dev
+- npm install --only=dev --quiet
 - grunt ts
 - grunt dtsGenerator
 - cd ..
 
+- npm install --no-optional
 - npm install ./core --save # Must be cleaned from package.json before deploy
-- npm install --dev
+- npm dedupe
+- npm shrinkwrap --also=dev
 - wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
 - unzip ./ngrok-stable-linux-amd64.zip
 before_script:
@@ -23,11 +25,13 @@ script:
 - grunt travis
 deploy:
 - provider: script
+  skip_cleanup: true
   script: ./.travis/deploy.py
   on:
     condition: '"$(.travis/is_core_release_tag.sh $TRAVIS_TAG)" == "" && $? == 0'
     tags: true
 - provider: script
+  skip_cleanup: true
   script: ./.travis/deploy.py
   on:
     condition: '"$(.travis/is_tracker_release_tag.sh $TRAVIS_TAG)" == "" && $? == 0'

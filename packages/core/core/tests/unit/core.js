@@ -491,6 +491,78 @@ define([
 			compare(tracker.trackSiteSearch(terms, filters, totalResults, pageResults), expected);
 		},
 
+		"Track a consent withdrawn event": function () {
+			var all = false;
+			var id = 1234;
+			var version = 2;
+			var name = "consent_form";
+			var description = "user withdraws consent for form";
+			var tstamp = 1000000000000;
+			var inputContext = [{
+				schema: 'iglu:com.snowplowanalytics.snowplow/consent_document/jsonschema/1-0-0',
+				data: {
+					id: id,
+					version: version,
+					name: name,
+					description: description
+				}
+			}];
+			var inputJson = {
+				schema: 'iglu:com.snowplowanalytics.snowplow/consent_withdrawn/jsonschema/1-0-0',
+				data: {
+					all: all
+				}
+			};
+			var expected = {
+				e: 'ue',
+				ue_pr: JSON.stringify({
+					schema: unstructEventSchema,
+					data: inputJson
+				}),
+				co: JSON.stringify({
+					schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0',
+					data: inputContext
+				})
+			};
+			compare(tracker.trackConsentWithdrawn(all, id, version, name, description, [], tstamp), expected);
+		},
+
+		"Track a consent granted event": function () {
+			var id = 1234;
+			var version = 2;
+			var name = "consent_form";
+			var description = "user grants consent for form";
+			var tstamp = 1000000000000;
+			var expiry = "01 January, 1970 00:00:00 Universal Time (UTC)";
+			var inputContext = [{
+				schema: 'iglu:com.snowplowanalytics.snowplow/consent_document/jsonschema/1-0-0',
+				data: {
+					id: id,
+					version: version,
+					name: name,
+					description: description
+				}
+			}];
+			var inputJson = {
+				schema: 'iglu:com.snowplowanalytics.snowplow/consent_granted/jsonschema/1-0-0',
+				data: {
+					expiry: expiry
+				}
+			};
+			var expected = {
+				e: 'ue',
+				ue_pr: JSON.stringify({
+					schema: unstructEventSchema,
+					data: inputJson
+				}),
+				co: JSON.stringify({
+					schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0',
+					data: inputContext
+				})
+			};
+			compare(tracker.trackConsentGranted(id, version, name, description, expiry, [], tstamp), expected);
+		},
+
 		"Track a page view with custom context": function () {
 			var url = 'http://www.example.com';
 			var page = 'title page';
