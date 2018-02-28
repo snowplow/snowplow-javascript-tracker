@@ -1,6 +1,6 @@
 {
   "name": "snowplow-tracker-core",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "devDependencies": {
     "grunt": "0.4.5",
     "intern": "3.3.2",
@@ -9,6 +9,9 @@
     "typescript": "2.2.2",
     "@types/es6-shim": "0.31.34",
     "@types/uuid": "^2.0.29"
+  },
+  "dependencies": {
+    "uuid": "2.0.3"
   },
   "contributors": [
     "Alex Dean",
@@ -28,8 +31,5 @@
     "events",
     "open source"
   ],
-  "license": "Apache-2.0",
-  "dependencies": {
-    "uuid": "2.0.3"
-  }
+  "license": "Apache-2.0"
 }
