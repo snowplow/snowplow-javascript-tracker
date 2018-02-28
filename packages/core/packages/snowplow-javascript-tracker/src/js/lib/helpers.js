@@ -186,7 +186,7 @@
 	 *
 	 * @param object criterion Either {whitelist: [array of allowable strings]}
 	 *                             or {blacklist: [array of allowable strings]}
-	 *                             or {filter: function (elt) {return whether to track the element}}
+	 *                             or {filter: function (elt) {return whether to track the element}
 	 * @param boolean byClass Whether to whitelist/blacklist based on an element's classes (for forms)
 	 *                        or name attribute (for fields)
 	 */
@@ -224,6 +224,25 @@
 				};
 			}
 		}
+	};
+
+	/**
+	 * Convert a criterion object to a transform function
+	 *
+	 * @param object criterion {transform: function (elt) {return the result of transform function applied to element}
+	 */
+	object.getTransform = function (criterion) {
+		if (!lodash.isObject(criterion)) {
+			return function(x) { return x };
+		}
+
+		if (criterion.hasOwnProperty('transform')) {
+			return criterion.transform;
+		} else {
+			return function(x) { return x };
+		}
+
+        return function(x) { return x };
 	};
 
 	/**
