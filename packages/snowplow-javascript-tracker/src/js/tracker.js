@@ -1,12 +1,12 @@
 /*
  * JavaScript tracker for Snowplow: tracker.js
- * 
- * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
+ *
+ * Significant portions copyright 2010 Anthon Pang. Remainder copyright
  * 2012-2016 Snowplow Analytics Ltd. All rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without 
- * modification, are permitted provided that the following conditions are 
- * met: 
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
  *
  * * Redistributions of source code must retain the above copyright
  *   notice, this list of conditions and the following disclaimer.
@@ -66,23 +66,21 @@
 	 * 4. appId, ''
 	 * 5. platform, 'web'
 	 * 6. respectDoNotTrack, false
-	 * 7. userFingerprint, true
-	 * 8. userFingerprintSeed, 123412414
-	 * 9. pageUnloadTimer, 500
-	 * 10. forceSecureTracker, false
-	 * 11. forceUnsecureTracker, false
-	 * 12. useLocalStorage, true
-	 * 13. useCookies, true
-	 * 14. sessionCookieTimeout, 1800
-	 * 15. contexts, {}
-	 * 16. post, false
-	 * 17. bufferSize, 1
-	 * 18. crossDomainLinker, false
-	 * 19. maxPostBytes, 40000
-	 * 20. discoverRootDomain, false
-	 * 21. cookieLifetime, 63072000
-	 * 22. stateStorageStrategy, 'cookieAndLocalStorage'
-	 * 23. respectOptOutCookie, false
+	 * 7. userFingerprintSeed, 123412414
+	 * 8. pageUnloadTimer, 500
+	 * 9. forceSecureTracker, false
+	 * 10. forceUnsecureTracker, false
+	 * 11. useLocalStorage, true
+	 * 12. useCookies, true
+	 * 13. sessionCookieTimeout, 1800
+	 * 14. contexts, {}
+	 * 15. post, false
+	 * 16. bufferSize, 1
+	 * 17. crossDomainLinker, false
+	 * 18. maxPostBytes, 40000
+	 * 19. discoverRootDomain, false
+	 * 20. cookieLifetime, 63072000
+	 * 21. stateStorageStrategy, 'cookieAndLocalStorage'
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
 
@@ -476,11 +474,12 @@
 		 * Cookie getter.
 		 */
 		function getSnowplowCookieValue(cookieName) {
+			var fullName = getSnowplowCookieName(cookieName);
 			if (configStateStorageStrategy == 'localStorage') {
-				return helpers.attemptGetLocalStorage(cookieName);
+				return helpers.attemptGetLocalStorage(fullName);
 			} else if (configStateStorageStrategy == 'cookie' ||
 					configStateStorageStrategy == 'cookieAndLocalStorage') {
-				return cookie.cookie(getSnowplowCookieName(cookieName));
+				return cookie.cookie(fullName);
 			}
 		}
 
@@ -795,10 +794,10 @@
 		function asCollectorUrl(rawUrl) {
 			if (forceSecureTracker) {
 				return ('https' + '://' + rawUrl);
-			} 
+			}
 			if (forceUnsecureTracker) {
 				return ('http' + '://' + rawUrl);
-			} 
+			}
 			return ('https:' === documentAlias.location.protocol ? 'https' : 'http') + '://' + rawUrl;
 		}
 
@@ -891,7 +890,7 @@
 					combinedContexts.push(augurIdentityLiteContext);
 				}
 			}
-			
+
 			//Add Parrable Context
 			if (autoContexts.parrable) {
 				var parrableContext = getParrableContext();
@@ -944,9 +943,9 @@
 		 */
 		function getPerformanceTimingContext() {
 			var allowedKeys = [
-				'navigationStart', 'redirectStart', 'redirectEnd', 'fetchStart', 'domainLookupStart', 'domainLookupEnd', 'connectStart', 
+				'navigationStart', 'redirectStart', 'redirectEnd', 'fetchStart', 'domainLookupStart', 'domainLookupEnd', 'connectStart',
 				'secureConnectionStart', 'connectEnd', 'requestStart', 'responseStart', 'responseEnd', 'unloadEventStart', 'unloadEventEnd',
-				'domLoading', 'domInteractive', 'domContentLoadedEventStart', 'domContentLoadedEventEnd', 'domComplete', 'loadEventStart', 
+				'domLoading', 'domInteractive', 'domContentLoadedEventStart', 'domContentLoadedEventEnd', 'domComplete', 'loadEventStart',
 				'loadEventEnd', 'msFirstPaint', 'chromeFirstPaint', 'requestEnd', 'proxyStart', 'proxyEnd'
 			];
 			var performance = windowAlias.performance || windowAlias.mozPerformance || windowAlias.msPerformance || windowAlias.webkitPerformance;
@@ -1013,7 +1012,7 @@
 
 		/**
 		 * Get data for Optimizely "lite" contexts - active experiments on current page
-		 * 
+		 *
 		 * @returns Array content of lite optimizely lite context
 		 */
 		function getOptimizelySummary() {
@@ -1035,7 +1034,7 @@
 
 		/**
 		 * Get data for OptimizelyX contexts - active experiments on current page
-		 * 
+		 *
 		 * @returns Array content of lite optimizely lite context
 		 */
 		function getOptimizelyXSummary() {
@@ -1322,7 +1321,57 @@
 				};
 			}
 		}
-		
+
+		/**
+		 * Expires current session and starts a new session.
+		 */
+		function newSession() {
+			// If cookies are enabled, base visit count and session ID on the cookies
+			var nowTs = Math.round(new Date().getTime() / 1000),
+				ses = getSnowplowCookieValue('ses'),
+				id = loadDomainUserIdCookie(),
+				cookiesDisabled = id[0],
+				_domainUserId = id[1], // We could use the global (domainUserId) but this is better etiquette
+				createTs = id[2],
+				visitCount = id[3],
+				currentVisitTs = id[4],
+				lastVisitTs = id[5],
+				sessionIdFromCookie = id[6];
+
+			// When cookies are enabled
+			if (cookiesDisabled === '0') {
+				memorizedSessionId = sessionIdFromCookie;
+
+				// When cookie/local storage is enabled - make a new session
+				if (configStateStorageStrategy != 'none') {
+					// New session (aka new visit)
+					visitCount++;
+					// Update the last visit timestamp
+					lastVisitTs = currentVisitTs;
+					// Regenerate the session ID
+					memorizedSessionId = uuid.v4();
+				}
+
+				memorizedVisitCount = visitCount;
+
+				// Create a new session cookie
+				setSessionCookie()
+
+			} else {
+				memorizedSessionId = uuid.v4();
+				memorizedVisitCount++;
+			}
+
+			// Update cookies
+			if (configStateStorageStrategy != 'none') {
+				setDomainUserIdCookie(_domainUserId, createTs, memorizedVisitCount, nowTs,
+					lastVisitTs, memorizedSessionId);
+				setSessionCookie();
+			}
+
+			lastEventTime = new Date().getTime();
+		}
+
 		/**
 		 * Attempts to create a context using the geolocation API and add it to commonContexts
 		 */
@@ -1341,7 +1390,7 @@
 							altitudeAccuracy: coords.altitudeAccuracy,
 							bearing: coords.heading,
 							speed: coords.speed,
-							timestamp: position.timestamp
+							timestamp: Math.round(position.timestamp)
 						}
 					};
 					commonContexts.push(geolocationContext);
@@ -1408,7 +1457,7 @@
 				purify(customReferrer || configReferrerUrl),
 				addCommonContexts(finalizeContexts(context, contextCallback)),
 				tstamp);
-			
+
 			// Send ping (to log that user has stayed on page)
 			var now = new Date();
 			if (activityTrackingEnabled && !activityTrackingInstalled) {
@@ -1461,7 +1510,7 @@
 		 */
 		function logPagePing(context) {
 			refreshUrl();
-			newDocumentTitle = documentAlias.title;
+			var newDocumentTitle = documentAlias.title;
 			if (newDocumentTitle !== lastDocumentTitle) {
 				lastDocumentTitle = newDocumentTitle;
 				lastConfigTitle = null;
@@ -1611,6 +1660,11 @@
 			getPageViewId: function () {
 				return getPageViewId();
 			},
+
+			/**
+			 * Expires current session and starts a new session.
+			 */
+			newSession: newSession,
 
 			/**
 			 * Get the cookie name as cookieNamePrefix + basename + . + domain.
@@ -1952,6 +2006,15 @@
 			 */
 			setUserId: function(userId) {
 				businessUserId = userId;
+			},
+
+			/**
+			 * Alias for setUserId.
+			 *
+			 * @param string userId The business-defined user ID
+			 */
+			identifyUser: function(userId) {
+				setUserId(userId);
 			},
 
 			/**
@@ -2359,6 +2422,40 @@
 							label: label
 						}
 					}, addCommonContexts(context), tstamp)
+				});
+			},
+
+			/**
+			 * Track a consent withdrawn action
+			 *
+			 * @param {boolean} all - Indicates user withdraws all consent regardless of context documents.
+			 * @param {number} [id] - Number associated with document.
+			 * @param {number} [version] - Document version number.
+			 * @param {string} [name] - Document name.
+			 * @param {string} [description] - Document description.
+			 * @param {array} [context] - Context relating to the event.
+			 * @param {number|Timestamp} [tstamp] - Number or Timestamp object.
+			 */
+			trackConsentWithdrawn: function (all, id, version, name, description, context, tstamp) {
+				trackCallback(function () {
+					core.trackConsentWithdrawn(all, id, version, name, description, addCommonContexts(context), tstamp);
+				});
+			},
+
+			/**
+			 * Track a consent granted action
+			 *
+			 * @param {number} id - ID number associated with document.
+			 * @param {number} version - Document version number.
+			 * @param {string} [name] - Document name.
+			 * @param {string} [description] - Document description.
+			 * @param {string} [expiry] - Date-time when consent document(s) expire.
+			 * @param {array} [context] - Context containing consent documents.
+			 * @param {Timestamp|number} [tstamp] - number or Timestamp object.
+			 */
+			trackConsentGranted: function (id, version, name, description, expiry, context, tstamp) {
+				trackCallback(function () {
+					core.trackConsentGranted(id, version, name, description, expiry, addCommonContexts(context), tstamp);
 				});
 			},
 

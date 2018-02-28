@@ -58,6 +58,9 @@ object.getFormTrackingManager = function (core, trackerId, contextAdder) {
 	// Filter to determine which form fields should be tracked
 	var fieldFilter = function () { return true };
 
+	// Default function applied to all elements, optionally overridden by transform field
+	var fieldTransform = function (x) { return x };
+
 	/*
 	 * Get an identifier for a form, input, textarea, or select element
 	 */
@@ -123,7 +126,7 @@ object.getFormTrackingManager = function (core, trackerId, contextAdder) {
 		return function (e) {
 			var elt = e.target;
 			var type = (elt.nodeName && elt.nodeName.toUpperCase() === 'INPUT') ? elt.type : null;
-			var value = (elt.type === 'checkbox' && !elt.checked) ? null : elt.value;
+			var value = (elt.type === 'checkbox' && !elt.checked) ? null : fieldTransform(elt.value);
 			core.trackFormChange(getParentFormName(elt), getFormElementName(elt), elt.nodeName, type, helpers.getCssClasses(elt), value, contextAdder(context));
 		};
 	}
@@ -135,6 +138,9 @@ object.getFormTrackingManager = function (core, trackerId, contextAdder) {
 		return function (e) {
 			var elt = e.target;
 			var innerElements = getInnerFormElements(elt);
+			lodash.forEach(innerElements, function (innerElement) {
+				innerElement.value = fieldTransform(innerElement.value);
+			});
 			core.trackFormSubmission(getFormElementName(elt), helpers.getCssClasses(elt), innerElements, contextAdder(context));
 		};
 	}
@@ -148,6 +154,7 @@ object.getFormTrackingManager = function (core, trackerId, contextAdder) {
 			if (config) {
 				formFilter = helpers.getFilter(config.forms, true);
 				fieldFilter = helpers.getFilter(config.fields, false);
+				fieldTransform = helpers.getTransform(config.fields);
 			}
 		},
 
