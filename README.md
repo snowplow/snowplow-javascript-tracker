@@ -95,7 +95,7 @@ $ yarn global bin
 1. Run `<path/to/global/yarn/bin/grunt` (will run the `default` task in _Gruntfile.js_)
 1. Commit the changes in _dist_
 1. Update the version in _package.json_ accordingly
-1. Tag and commit the release `git tag -a x.y.z -m "tagging forked release x.y.z`
-1. Create a PNAS ticket to have _dist/bundle.js_ uploaded to CloudFront as _snowplow.bundle.x.y.z.js_ (TODO example ticket)
+1. Tag and commit the release `git tag -a x.y.z-can -m "tagging forked release x.y.z-can`
+1. Create a PNAS ticket like [this](XXX) to have _dist/bundle.js_ uploaded to CloudFront as _snowplow.bundle.x.y.z-can.js_
 1. Update the filename in [webui-component-analytics](https://github.com/ThomsonReuters-IPS/webui-component-analytics/blob/master/src/modules/analytics/run/analytics-run.js#L44)
 1. Cut a new release of **webui-component-analytics**
