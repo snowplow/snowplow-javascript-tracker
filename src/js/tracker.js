@@ -1472,8 +1472,18 @@
 				helpers.addEventListener(documentAlias, 'mouseup', activityHandler);
 				helpers.addEventListener(documentAlias, 'mousedown', activityHandler);
 				helpers.addEventListener(documentAlias, 'mousemove', activityHandler);
-				helpers.addEventListener(documentAlias, 'mousewheel', activityHandler);
-				helpers.addEventListener(windowAlias, 'DOMMouseScroll', activityHandler);
+				// https://github.com/Modernizr/Modernizr/blob/a9369b031d05b90231b572e2796afba0334b21e6/feature-detects/dom/passiveeventlisteners.js#L26
+				var supportsPassiveOption = false;
+				try {
+					var opts = Object.defineProperty({}, 'passive', {
+						get: function() {
+							supportsPassiveOption = true;
+						}
+					});
+					window.addEventListener('test', null, opts);
+				} catch (e) {}
+				helpers.addEventListener(documentAlias, 'mousewheel', activityHandler, supportsPassiveOption ? { passive: true } : false);
+				helpers.addEventListener(windowAlias, 'DOMMouseScroll', activityHandler, supportsPassiveOption ? { passive: true } : false);
 				helpers.addEventListener(windowAlias, 'scroll', scrollHandler); // Will updateMaxScrolls() for us
 				helpers.addEventListener(documentAlias, 'keypress', activityHandler);
 				helpers.addEventListener(documentAlias, 'keydown', activityHandler);
