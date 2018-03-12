@@ -8,7 +8,8 @@
     "snowplow-tracker-core": "0.6.0",
     "murmurhash": "0.0.2",
     "uuid": "2.0.3",
-    "sha1": "git://github.com/pvorb/node-sha1.git#910081c83f3661507d9d89e66e3f38d8b59d5559"
+    "sha1": "git://github.com/pvorb/node-sha1.git#910081c83f3661507d9d89e66e3f38d8b59d5559",
+    "detect-passive-events": "1.0.4"
   },
   "devDependencies": {
     "JSON": "1.0.0",

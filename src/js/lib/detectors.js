@@ -247,6 +247,39 @@
 			features.cookie = object.hasCookies(testCookieName);
 		}
 
+		// Passive event listening
+		var detectPassiveEvents = {
+			update: function update() {
+				if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+					var passive = false;
+					var options = Object.defineProperty({}, 'passive', {
+						get: function get() {
+							passive = true;
+						}
+					});
+					// note: have to set and remove a no-op listener instead of null
+					// (which was used previously), becasue Edge v15 throws an error
+					// when providing a null callback.
+					// https://github.com/rafrex/detect-passive-events/pull/3
+					var noop = function noop() {
+					};
+					window.addEventListener('testPassiveEventSupport', noop, options);
+					window.removeEventListener('testPassiveEventSupport', noop, options);
+					detectPassiveEvents.hasSupport = passive;
+				}
+			}
+		};
+		detectPassiveEvents.update();
+
+		if (detectPassiveEvents.hasSupport === true) {
+			features.passive = '1';
+		}
+
+		// Detect available wheel event
+		features.wheel = "onwheel" in document.createElement("div") ? "wheel" : // Modern browsers support "wheel"
+			document.onmousewheel !== undefined ? "mousewheel" : // Webkit and IE support at least "mousewheel"
+			"DOMMouseScroll"; // let's assume that remaining browsers are older Firefox
+
 		return features;
 	};
 
