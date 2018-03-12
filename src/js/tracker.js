@@ -1472,6 +1472,7 @@
 				helpers.addEventListener(documentAlias, 'mouseup', activityHandler);
 				helpers.addEventListener(documentAlias, 'mousedown', activityHandler);
 				helpers.addEventListener(documentAlias, 'mousemove', activityHandler);
+				// Detect support for passive event listeners. Copied from:
 				// https://github.com/Modernizr/Modernizr/blob/a9369b031d05b90231b572e2796afba0334b21e6/feature-detects/dom/passiveeventlisteners.js#L26
 				var supportsPassiveOption = false;
 				try {
