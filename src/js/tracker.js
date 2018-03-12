@@ -1483,7 +1483,7 @@
 					window.addEventListener('test', null, opts);
 				} catch (e) {}
 				helpers.addEventListener(documentAlias, 'mousewheel', activityHandler, supportsPassiveOption ? { passive: true } : undefined);
-				helpers.addEventListener(windowAlias, 'DOMMouseScroll', activityHandler, supportsPassiveOption ? { passive: true } : undefined);
+				helpers.addEventListener(windowAlias, 'DOMMouseScroll', activityHandler);
 				helpers.addEventListener(windowAlias, 'scroll', scrollHandler); // Will updateMaxScrolls() for us
 				helpers.addEventListener(documentAlias, 'keypress', activityHandler);
 				helpers.addEventListener(documentAlias, 'keydown', activityHandler);
