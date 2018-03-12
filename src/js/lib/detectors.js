@@ -39,6 +39,7 @@
 		murmurhash3_32_gc = require('murmurhash').v3,
 		tz = require('jstimezonedetect').jstz.determine(),
 		cookie = require('browser-cookie-lite'),
+		detectPassiveEvents = require('detect-passive-events')
 
 		object = typeof exports !== 'undefined' ? exports : this, // For eventual node.js environment support
 		
@@ -246,6 +247,16 @@
 		if (useCookies) {
 			features.cookie = object.hasCookies(testCookieName);
 		}
+
+		// Passive event listening
+		if (detectPassiveEvents.hasSupport) {
+			features.passive = '1'
+		}
+
+		// Detect available wheel event
+		features.wheel = "onwheel" in document.createElement("div") ? "wheel" : // Modern browsers support "wheel"
+			document.onmousewheel !== undefined ? "mousewheel" : // Webkit and IE support at least "mousewheel"
+			"DOMMouseScroll"; // let's assume that remaining browsers are older Firefox
 
 		return features;
 	};

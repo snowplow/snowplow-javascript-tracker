@@ -1460,29 +1460,34 @@
 
 			// Send ping (to log that user has stayed on page)
 			var now = new Date();
-			if (activityTrackingEnabled) {
-				if (!activityTrackingInstalled) {
-					activityTrackingInstalled = true;
+			if (activityTrackingEnabled && !activityTrackingInstalled) {
+				activityTrackingInstalled = true;
 
-					// Capture our initial scroll points
-					resetMaxScrolls();
-
-					// Add event handlers; cross-browser compatibility here varies significantly
-					// @see http://quirksmode.org/dom/events
-					helpers.addEventListener(documentAlias, 'click', activityHandler);
-					helpers.addEventListener(documentAlias, 'mouseup', activityHandler);
-					helpers.addEventListener(documentAlias, 'mousedown', activityHandler);
-					helpers.addEventListener(documentAlias, 'mousemove', activityHandler);
-					helpers.addEventListener(documentAlias, 'mousewheel', activityHandler);
-					helpers.addEventListener(windowAlias, 'DOMMouseScroll', activityHandler);
-					helpers.addEventListener(windowAlias, 'scroll', scrollHandler); // Will updateMaxScrolls() for us
-					helpers.addEventListener(documentAlias, 'keypress', activityHandler);
-					helpers.addEventListener(documentAlias, 'keydown', activityHandler);
-					helpers.addEventListener(documentAlias, 'keyup', activityHandler);
-					helpers.addEventListener(windowAlias, 'resize', activityHandler);
-					helpers.addEventListener(windowAlias, 'focus', activityHandler);
-					helpers.addEventListener(windowAlias, 'blur', activityHandler);
+				// Add mousewheel event handler, detect passive event listeners for performance
+				if (Object.prototype.hasOwnProperty.call(browserFeatures, 'wheel')) {
+					if (Object.prototype.hasOwnProperty.call(browserFeatures, 'passive')) {
+						helpers.addEventListener(documentAlias, browserFeatures.wheel, activityHandler, {passive: true});
+					} else {
+						helpers.addEventListener(documentAlias, browserFeatures.wheel, activityHandler);
+					}
 				}
+
+				// Capture our initial scroll points
+				resetMaxScrolls();
+
+				// Add event handlers; cross-browser compatibility here varies significantly
+				// @see http://quirksmode.org/dom/events
+				helpers.addEventListener(documentAlias, 'click', activityHandler);
+				helpers.addEventListener(documentAlias, 'mouseup', activityHandler);
+				helpers.addEventListener(documentAlias, 'mousedown', activityHandler);
+				helpers.addEventListener(documentAlias, 'mousemove', activityHandler);
+				helpers.addEventListener(windowAlias, 'scroll', scrollHandler); // Will updateMaxScrolls() for us
+				helpers.addEventListener(documentAlias, 'keypress', activityHandler);
+				helpers.addEventListener(documentAlias, 'keydown', activityHandler);
+				helpers.addEventListener(documentAlias, 'keyup', activityHandler);
+				helpers.addEventListener(windowAlias, 'resize', activityHandler);
+				helpers.addEventListener(windowAlias, 'focus', activityHandler);
+				helpers.addEventListener(windowAlias, 'blur', activityHandler);
 
 				// Periodic check for activity.
 				lastActivityTime = now.getTime();
