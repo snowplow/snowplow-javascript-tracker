@@ -7,6 +7,7 @@
     "dts-generator": "^2.0.0",
     "grunt-ts": "5.5.1",
     "typescript": "2.2.2",
+    "@types/node": "^9.6.7",
     "@types/es6-shim": "0.31.34",
     "@types/uuid": "^2.0.29"
   },
