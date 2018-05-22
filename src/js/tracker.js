@@ -955,7 +955,7 @@
 				// performance.timing so we cannot copy them using lodash.clone
 				var performanceTiming = {};
 				for (var field in performance.timing) {
-					if (helpers.isValueInArray(field, allowedKeys)) {
+					if (helpers.isValueInArray(field, allowedKeys) && (performance.timing[field] !== null)) {
 						performanceTiming[field] = performance.timing[field];
 					}
 				}
