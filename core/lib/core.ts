@@ -884,8 +884,8 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 * Track a consent withdrawn event
 		 *
 		 * @param {boolean} all - Indicates user withdraws consent for all documents.
-		 * @param {number} [id] - ID number associated with document.
-		 * @param {number} [version] - Version number of document.
+		 * @param {string} [id] - ID number associated with document.
+		 * @param {string} [version] - Version number of document.
 		 * @param {string} [name] - Name of document.
 		 * @param {string} [description] - Description of document.
 		 * @param {Array<SelfDescribingJson>} [context] - Context relating to the event.
@@ -894,8 +894,8 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 */
 		trackConsentWithdrawn: function(
 			all: boolean,
-			id?: number,
-			version?: number,
+			id?: string,
+			version?: string,
 			name?: string,
 			description?: string,
 			context?: Array<SelfDescribingJson>,
@@ -922,8 +922,8 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		/**
 		 * Track a consent granted event
 		 *
-		 * @param {number} id - ID number associated with document.
-		 * @param {number} version - Version number of document.
+		 * @param {string} id - ID number associated with document.
+		 * @param {string} version - Version number of document.
 		 * @param {string} [name] - Name of document.
 		 * @param {string} [description] - Description of document.
 		 * @param {string} [expiry] - Date-time when consent expires.
@@ -932,8 +932,8 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 * @return Payload
 		 */
 		trackConsentGranted: function(
-			id: number,
-			version: number,
+			id: string,
+			version: string,
 			name?: string,
 			description?: string,
 			expiry?: string,
