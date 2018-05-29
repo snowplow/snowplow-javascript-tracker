@@ -2431,8 +2431,8 @@
 			 * Track a consent withdrawn action
 			 *
 			 * @param {boolean} all - Indicates user withdraws all consent regardless of context documents.
-			 * @param {number} [id] - Number associated with document.
-			 * @param {number} [version] - Document version number.
+			 * @param {string} [id] - Number associated with document.
+			 * @param {string} [version] - Document version number.
 			 * @param {string} [name] - Document name.
 			 * @param {string} [description] - Document description.
 			 * @param {array} [context] - Context relating to the event.
@@ -2447,8 +2447,8 @@
 			/**
 			 * Track a consent granted action
 			 *
-			 * @param {number} id - ID number associated with document.
-			 * @param {number} version - Document version number.
+			 * @param {string} id - ID number associated with document.
+			 * @param {string} version - Document version number.
 			 * @param {string} [name] - Document name.
 			 * @param {string} [description] - Document description.
 			 * @param {string} [expiry] - Date-time when consent document(s) expire.
