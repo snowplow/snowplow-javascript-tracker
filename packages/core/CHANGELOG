@@ -1,3 +1,13 @@
+Version 2.9.1 (2018-06-20)
+--------------------------
+Keep node type definitions at version 9.6.7 (#649)
+Update page ping context on every call to trackPageView (#612)
+Core: fix type incompatibility in consent methods (#652)
+Added src/js/lib_managed to .gitignore (#650)
+Use passive event listeners for mouse wheel event (#478)
+Check if browser has full support of Performance Timing API (#539)
+Add Java 10 to Ansible playbooks (close #657)
+
 Version 2.9.0 (2018-02-27)
 --------------------------
 Add ability to change field content before sending form tracking (#465)
