@@ -1465,12 +1465,38 @@
 				activityTrackingInstalled = true;
 
 				// Add mousewheel event handler, detect passive event listeners for performance
-				if (Object.prototype.hasOwnProperty.call(browserFeatures, 'wheel')) {
-					if (Object.prototype.hasOwnProperty.call(browserFeatures, 'passive')) {
-						helpers.addEventListener(documentAlias, browserFeatures.wheel, activityHandler, {passive: true});
-					} else {
-						helpers.addEventListener(documentAlias, browserFeatures.wheel, activityHandler);
+				var detectPassiveEvents = {
+					update: function update() {
+						if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+							var passive = false;
+							var options = Object.defineProperty({}, 'passive', {
+								get: function get() {
+									passive = true;
+								}
+							});
+							// note: have to set and remove a no-op listener instead of null
+							// (which was used previously), becasue Edge v15 throws an error
+							// when providing a null callback.
+							// https://github.com/rafrex/detect-passive-events/pull/3
+							var noop = function noop() {
+							};
+							window.addEventListener('testPassiveEventSupport', noop, options);
+							window.removeEventListener('testPassiveEventSupport', noop, options);
+							detectPassiveEvents.hasSupport = passive;
+						}
 					}
+				};
+				detectPassiveEvents.update();
+
+				// Detect available wheel event
+				var wheelEvent = "onwheel" in document.createElement("div") ? "wheel" : // Modern browsers support "wheel"
+					document.onmousewheel !== undefined ? "mousewheel" : // Webkit and IE support at least "mousewheel"
+						"DOMMouseScroll"; // let's assume that remaining browsers are older Firefox
+
+				if (Object.prototype.hasOwnProperty.call(detectPassiveEvents, 'hasSupport')) {
+					helpers.addEventListener(documentAlias, wheelEvent, activityHandler, {passive: true});
+				} else {
+					helpers.addEventListener(documentAlias, wheelEvent, activityHandler);
 				}
 
 				// Capture our initial scroll points
