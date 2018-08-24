@@ -32,3 +32,5 @@ VERSION
 
 # IDEs
 .idea
+
+dist/*.tgz
