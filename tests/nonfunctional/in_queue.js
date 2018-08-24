@@ -68,7 +68,7 @@ define([
 		["increaseAttribute", 5],
 		["setOutputToAttribute"]
 	];
-	asyncQueue = new in_queue.InQueueManager(mockTrackerConstructor, 0, {}, asyncQueue, 'snowplow');
+	asyncQueue = new in_queue.InQueueManager(mockTrackerConstructor, 0, "c7a63a97-ac4a-4d58-8774-33b985701d16", {}, asyncQueue, 'snowplow');
 
 	registerSuite({
 		name: "InQueueManager test",

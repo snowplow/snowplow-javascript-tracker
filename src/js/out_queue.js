@@ -193,7 +193,7 @@
 				if (body.bytes >= maxPostBytes) {
 					helpers.warn("Event of size " + body.bytes + " is too long - the maximum size is " + maxPostBytes);
 					var xhr = initializeXMLHttpRequest(configCollectorUrl);
-					xhr.send(encloseInPayloadDataEnvelope([body.evt]));
+					xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent([body.evt])));
 					return;
 				} else {
 					outQueue.push(body);
@@ -282,8 +282,9 @@
 				var batch = lodash.map(outQueue.slice(0, numberToSend), function (x) {
 					return x.evt;
 				});
+
 				if (batch.length > 0) {
-					xhr.send(encloseInPayloadDataEnvelope(batch));
+					xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent(batch)));
 				}
 
 			} else {
@@ -302,7 +303,7 @@
 					executingQueue = false;
 				};
 
-				image.src = configCollectorUrl + nextRequest;
+				image.src = configCollectorUrl + nextRequest.replace('?', '?stm=' + new Date().getTime() + '&');
 			}
 		}
 
@@ -331,6 +332,19 @@
 				schema: 'iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-3',
 				data: events
 			});
+		}
+
+		/**
+		 * Attaches the STM field to outbound POST events.
+		 *
+		 * @param events the events to attach the STM to
+		 */
+		function attachStmToEvent(events) {
+			var stm = new Date().getTime().toString();
+			for (var i = 0; i < events.length; i++) {
+				events[i]['stm'] = stm;
+			}
+			return events
 		}
 
 		return {

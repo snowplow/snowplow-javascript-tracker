@@ -2,5 +2,7 @@
   "key":    "ADD HERE",
   "secret": "ADD HERE",
   "bucket": "ADD HERE",
-  "distribution": "ADD HERE"
+  "region": "ADD HERE",
+  "distribution": "ADD HERE",
+  "uploadPath": "ADD HERE"
 }

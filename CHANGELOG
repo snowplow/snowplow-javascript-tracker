@@ -1,3 +1,39 @@
+Version 2.6.2 (2016-xx-xx)
+--------------------------
+Add date for release 2.6.1 to CHANGELOG (#495)
+Don't send invalid viewport dimensions (#488)
+Check whether elements of navigator.plugins array are undefined (#492)
+Only call navigator.javaEnabled on instances of Navigator (#491)
+Stop using String.startsWith (#493)
+Ensure page view ID is passed to synchronous tracker (#485)
+
+Version 2.6.1 (2016-04-14)
+--------------------------
+Prevent CSS class listing from failing for elements with no CSS classes (#473)
+Explicitly set suites field in Intern config (#475)
+
+Version 2.6.0 (2016-03-03)
+--------------------------
+Bumped ngrok version used in CI to 2.x (#460)
+Allowed random upload path in grunt task (#461)
+Ensured that PerformanceTiming context doesn't contain properties inherited from Object.prototype (#458)
+Added `forceUnsecureTracker` Tracker argument, thanks @bloodyowl! (#374)
+Added subset of Augur data as a new context (#386)
+Added deprecation warning to setSessionCookieTimeout (#394)
+Added setting to automatically use top-level domain for duid (#409)
+Added Optimizely contexts (#448)
+Added trackEnhancedEcommerceAction() method (#452)
+Added addEnhancedEcommerceActionContext() method (#453)
+Added addEnhancedEcommerceImpressionContext() method (#454)
+Added addEnhancedEcommerceProductContext() method (#455)
+Added addEnhancedEcommercePromoContext() method (#456)
+Made domainUserId a UUID (#274)
+Attached device sent timestamp (stm) to events at last possible moment (#355)
+Attempting to create a new tracker using an existing namespace should do nothing (#411)
+Using a different library to publish to S3 (#422)
+Prevented error running grunt-cloudfront (#426)
+Respected doNotTrack in IE 11 and Safari 7.1.3+, thanks @grzegorzewald! (#440)
+
 Version 2.5.3 (2015-11-10)
 --------------------------
 Bumped Node version to 4.1.2 in .travis.yml (#420)

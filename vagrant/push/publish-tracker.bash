@@ -84,10 +84,14 @@ then
 	read -e -s secret
 	echo "Please enter your AWS bucket"
 	read -e -s bucket
+	echo "Please enter your AWS region"
+	read -e -s region
 	echo "Please enter your AWS distribution"
 	read -e -s distribution
+	echo "Please enter your AWS bucket key-path (eg. 'test/b7IkgoKFWXLNbFk.js')"
+	read -e -s uploadPath
 
-	echo "{\"key\":\"$key\",\"secret\":\"$secret\",\"bucket\":\"$bucket\",\"distribution\":\"$distribution\"}" > aws.json
+	echo "{\"key\":\"$key\",\"secret\":\"$secret\",\"bucket\":\"$bucket\",\"distribution\":\"$distribution\",\"region\":\"$region\",\"uploadPath\":\"$uploadPath\"}" > aws.json
 
 	vagrant ssh -c "cd /vagrant && sudo npm install && grunt publish"
 

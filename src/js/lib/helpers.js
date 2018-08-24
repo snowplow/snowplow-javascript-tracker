@@ -35,6 +35,7 @@
 
 	var 
 		lodash = require('../lib_managed/lodash'),
+		cookie = require('browser-cookie-lite'),
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
@@ -162,7 +163,7 @@
 	 * List the classes of a DOM element without using elt.classList (for compatibility with IE 9)
 	 */
 	object.getCssClasses = function (elt) {
-		return elt.className.match(/\S+/g);
+		return elt.className.match(/\S+/g) || [];
 	};
 
 	/*
@@ -289,5 +290,103 @@
 			return false;
 		}
 	};
+
+	/**
+	 * Finds the root domain
+	 */
+	object.findRootDomain = function () {
+		var cookiePrefix = '_sp_root_domain_test_';
+		var cookieName = cookiePrefix + new Date().getTime();
+		var cookieValue = '_test_value_' + new Date().getTime();
+
+		var split = window.location.hostname.split('.');
+		var position = split.length - 1;
+		while (position >= 0) {
+			var currentDomain = split.slice(position, split.length).join('.');
+			cookie.cookie(cookieName, cookieValue, 0, '/', currentDomain);
+			if (cookie.cookie(cookieName) === cookieValue) {
+
+				// Clean up created cookie(s)
+				object.deleteCookie(cookieName, currentDomain);
+				var cookieNames = object.getCookiesWithPrefix(cookiePrefix);
+				for (var i = 0; i < cookieNames.length; i++) {
+					object.deleteCookie(cookieNames[i], currentDomain);
+				}
+
+				return currentDomain;
+			}
+			position -= 1;
+		}
+
+		// Cookies cannot be read
+		return window.location.hostname;
+	};
+
+	/**
+	 * Checks whether a value is present within an array
+	 *
+	 * @param val The value to check for
+	 * @param array The array to check within
+	 * @return boolean Whether it exists
+	 */
+	object.isValueInArray = function (val, array) {
+		for (var i = 0; i < array.length; i++) {
+			if (array[i] === val) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Deletes an arbitrary cookie by setting the expiration date to the past
+	 *
+	 * @param cookieName The name of the cookie to delete
+	 * @param domainName The domain the cookie is in
+	 */
+	object.deleteCookie = function (cookieName, domainName) {
+		cookie.cookie(cookieName, '', -1, '/', domainName);
+	};
+
+	/**
+	 * Fetches the name of all cookies beginning with a certain prefix
+	 *
+	 * @param cookiePrefix The prefix to check for
+	 * @return array The cookies that begin with the prefix
+	 */
+	object.getCookiesWithPrefix = function (cookiePrefix) {
+		var cookies = document.cookie.split("; ");
+		var cookieNames = [];
+		for (var i = 0; i < cookies.length; i++) {
+			if (cookies[i].substring(0, cookiePrefix.length) === cookiePrefix) {
+				cookieNames.push(cookies[i]);
+			}
+		}
+		return cookieNames;
+	};
+
+	/**
+	 * Parses an object and returns either the
+	 * integer or undefined.
+	 *
+	 * @param obj The object to parse
+	 * @return the result of the parse operation
+	 */
+	object.parseInt = function (obj) {
+		var result = parseInt(obj);
+		return isNaN(result) ? undefined : result;
+	}
+
+	/**
+	 * Parses an object and returns either the
+	 * number or undefined.
+	 *
+	 * @param obj The object to parse
+	 * @return the result of the parse operation
+	 */
+	object.parseFloat = function (obj) {
+		var result = parseFloat(obj);
+		return isNaN(result) ? undefined : result;
+	}
 
 }());

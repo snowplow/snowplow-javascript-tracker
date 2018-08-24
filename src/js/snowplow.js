@@ -75,6 +75,7 @@
 
 	// Load all our modules (at least until we fully modularize & remove grunt-concat)
 	var
+		uuid = require('uuid'),
 		lodash = require('./lib_managed/lodash'),
 		helpers = require('./lib/helpers'),
 		queue = require('./in_queue'),
@@ -90,6 +91,8 @@
 
 			/* Tracker identifier with version */
 			version = 'js-' + '<%= pkg.version %>', // Update banner.js too
+
+			pageViewId = uuid.v4(),
 
 			/* Contains four variables that are shared with tracker.js and must be passed by reference */
 			mutSnowplowState = {
@@ -220,7 +223,7 @@
 			 * @param string distSubdomain The subdomain on your CloudFront collector's distribution
 			 */
 			getTrackerCf: function (distSubdomain) {
-				var t = new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
+				var t = new tracker.Tracker(functionName, '', version, pageViewId, mutSnowplowState, {});
 				t.setCollectorCf(distSubdomain);
 				return t;
 			},
@@ -232,7 +235,7 @@
 			 * @param string rawUrl The collector URL minus protocol and /i
 			 */
 			getTrackerUrl: function (rawUrl) {
-				var t = new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
+				var t = new tracker.Tracker(functionName, '', version, pageViewId, mutSnowplowState, {});
 				t.setCollectorUrl(rawUrl);
 				return t;
 			},
@@ -243,7 +246,7 @@
 			 * @return Tracker
 			 */
 			getAsyncTracker: function () {
-				return new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
+				return new tracker.Tracker(functionName, '', version, pageViewId, mutSnowplowState, {});
 			}
 		};
 
@@ -256,7 +259,7 @@
 		addReadyListener();
 
 		// Now replace initialization array with queue manager object
-		return new queue.InQueueManager(tracker.Tracker, version, mutSnowplowState, asynchronousQueue, functionName);
+		return new queue.InQueueManager(tracker.Tracker, version, pageViewId, mutSnowplowState, asynchronousQueue, functionName);
 	};
 
 }());

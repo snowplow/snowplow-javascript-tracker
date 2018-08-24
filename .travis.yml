@@ -5,14 +5,14 @@ language: node_js
 install:
   - npm install
   - npm install -g grunt-cli
-  - wget https://api.equinox.io/1/Applications/ap_pJSFC5wQYkAyI0FIVwKYs9h1hW/Updates/Asset/ngrok.zip\?os\=linux\&arch\=386\&channel\=stable
-  - unzip ./ngrok.zip\?os=linux\&arch=386\&channel=stable
+  - wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
+  - unzip ./ngrok-stable-linux-amd64.zip
 before_script:
   - node tests/integration/request_recorder.js &
 
   # Create a random ngrok subdomain
   - export SUBDOMAIN=$RANDOM$RANDOM
-  - ./ngrok -authtoken $NGROK_AUTH -subdomain $SUBDOMAIN -log=stdout 8500 > /dev/null &
+  - ./ngrok http -authtoken $NGROK_AUTH -subdomain $SUBDOMAIN -log=stdout 8500 > /dev/null &
 script:
   - grunt travis
 after_script:
