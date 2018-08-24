@@ -1,7 +1,7 @@
 # Release Managment Guide
 This guide aims to document workflows related to maintaing this fork of Snowplow JavaScript Tracker.  This includes custom changes needed internally for Clarivate, as well as merging in upstream changes / features. 
 
-In addition, this guide aims to establish a consistent release workflow that aims to maintain lockstep with the released versions of Snowplow alongside custom releases needed for Clarivate.
+In addition, this guide serves to establish a consistent release workflow for maintaining lockstep with the released versions of Snowplow alongside custom releases needed for Clarivate.
 
 > The current version of Snowplow being used in this fork is [v2.6.2](https://github.com/snowplow/snowplow-javascript-tracker/releases/tag/2.6.2).
 
@@ -12,7 +12,7 @@ In addition, this guide aims to establish a consistent release workflow that aim
     $ git clone git@github.com:ThomsonReuters-IPS/snowplow-javascript-tracker.git
     $ cd snowplow-javascript-tracker
     ```
-1. Add a remote origin called upstream using source Snowplow repo
+1. Add a remote origin called _upstream_
     ```
     $ git remote add upstream git@github.com:snowplow/snowplow-javascript-tracker.git
     ```
@@ -59,7 +59,7 @@ So at the end of the day, there would be two tags per version in git
 - `2.x.y` - Tagged version of Snowplow as it comes from upstream `git fetch`
 - `2.x.y-clv` - Clarivate version of the corresponding upstream tag, but with custom changes included.
 
-It is then hosted in CloudFront at `//d3rm6si6l6yzgk.cloudfront.net/snowplow/sp-2.6.x-clv.js`
+It is then hosted in CloudFront at `//d3rm6si6l6yzgk.cloudfront.net/webui/snowplow/sp-2.x.y-clv.js`
 
 > If internal changes get made without a need to consume a newer version of upstream Snowplow, consider incrementing the versions as such `2.x.y-clv1`, `2.x.y-clv2` or consider updating a newer minor version of Snowplow to "reset" the versioning.
 
