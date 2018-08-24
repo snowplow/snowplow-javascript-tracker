@@ -196,9 +196,9 @@ async@~0.1.22:
   version "0.1.22"
   resolved "https://registry.yarnpkg.com/async/-/async-0.1.22.tgz#0fc1aaa088a0e3ef0ebe2d8831bab0dcf8845061"
 
-async@~0.2.6:
+async@~0.2.6, async@~0.2.9:
   version "0.2.10"
-  resolved "https://registry.yarnpkg.com/async/-/async-0.2.10.tgz#b6bbe0b0674b9d719708ca38de8c237cb526c3d1"
+  resolved "http://repo.oneplatform.build/nexus/content/groups/npm/async/-/async-0.2.10.tgz#b6bbe0b0674b9d719708ca38de8c237cb526c3d1"
 
 asynckit@^0.4.0:
   version "0.4.0"
@@ -207,6 +207,14 @@ asynckit@^0.4.0:
 aws-sdk@2.2.18:
   version "2.2.18"
   resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.2.18.tgz#bec3c111b19f833a786bcdf7dd58814678d7fa4f"
+  dependencies:
+    sax "0.5.3"
+    xml2js "0.2.8"
+    xmlbuilder "0.4.2"
+
+aws-sdk@~2.1.29:
+  version "2.1.50"
+  resolved "http://repo.oneplatform.build/nexus/content/groups/npm/aws-sdk/-/aws-sdk-2.1.50.tgz#65ddc2b840e69021087ed35f282d632a05294a1b"
   dependencies:
     sax "0.5.3"
     xml2js "0.2.8"
@@ -851,10 +859,6 @@ debug@^2.2.0:
   dependencies:
     ms "2.0.0"
 
-debug@~0.7.0:
-  version "0.7.4"
-  resolved "https://registry.yarnpkg.com/debug/-/debug-0.7.4.tgz#06e1ea8082c2cb14e39806e22e2f6f757f92af39"
-
 decamelize@^1.0.0, decamelize@^1.1.2:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/decamelize/-/decamelize-1.2.0.tgz#f6534d15148269b20352e7bee26f501f9a191290"
@@ -1432,6 +1436,15 @@ graceful-fs@~1.2.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/graceful-readlink/-/graceful-readlink-1.0.1.tgz#4cafad76bc62f02fa039b2f94e9a3dd3a391a725"
 
+grunt-aws@~0.6.1:
+  version "0.6.2"
+  resolved "http://repo.oneplatform.build/nexus/content/groups/npm/grunt-aws/-/grunt-aws-0.6.2.tgz#2677282c12f0c5d1354cd5ebe20ee05a905c37ec"
+  dependencies:
+    async "~0.2.9"
+    aws-sdk "~2.1.29"
+    lodash "~1.3.1"
+    mime "~1.2.11"
+
 grunt-browserify@~4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/grunt-browserify/-/grunt-browserify-4.0.1.tgz#f5ced9026958a800f2e8898e1a4df1e525ff69ff"
@@ -1492,19 +1505,9 @@ grunt-lodash@~0.3.0:
   dependencies:
     lodash "2.0.0"
 
-grunt-s3@~0.2.0-alpha.3:
-  version "0.2.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/grunt-s3/-/grunt-s3-0.2.0-alpha.3.tgz#e3329d2caa6ed93c4dbc0397e257caa68ae9ee7c"
-  dependencies:
-    grunt "0.4.x"
-    knox "0.8.x"
-    mime "~1.2.5"
-    temporary "0.0.5"
-    underscore.deferred "~0.1.4"
-
-"grunt-yui-compressor@https://github.com/snowplow/grunt-yui-compressor.git#0.4.0":
+"grunt-yui-compressor@git://github.com/snowplow/grunt-yui-compressor.git#0.4.0":
   version "0.4.0"
-  resolved "https://github.com/snowplow/grunt-yui-compressor.git#1190dd16757c7f6af7674ce3ae9b3305bb66c2fa"
+  resolved "git://github.com/snowplow/grunt-yui-compressor.git#1190dd16757c7f6af7674ce3ae9b3305bb66c2fa"
   dependencies:
     maxmin "^1.0.1"
     node-minify "^1.0.1"
@@ -1532,7 +1535,7 @@ grunt@0.4.2:
     underscore.string "~2.2.1"
     which "~1.0.5"
 
-grunt@0.4.x, grunt@~0.4.1:
+grunt@~0.4.1:
   version "0.4.5"
   resolved "https://registry.yarnpkg.com/grunt/-/grunt-0.4.5.tgz#56937cd5194324adff6d207631832a9d6ba4e7f0"
   dependencies:
@@ -2033,15 +2036,6 @@ kind-of@^4.0.0:
   dependencies:
     is-buffer "^1.1.5"
 
-knox@0.8.x:
-  version "0.8.10"
-  resolved "https://registry.yarnpkg.com/knox/-/knox-0.8.10.tgz#6a2edcdac1d2ae379d1e1994d559b95c283b2588"
-  dependencies:
-    debug "~0.7.0"
-    mime "*"
-    stream-counter "~0.1.0"
-    xml2js "0.2.x"
-
 labeled-stream-splicer@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/labeled-stream-splicer/-/labeled-stream-splicer-1.0.2.tgz#4615331537784981e8fd264e1f3a434c4e0ddd65"
@@ -2139,6 +2133,10 @@ lodash@~0.9.2:
   version "0.9.2"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-0.9.2.tgz#8f3499c5245d346d682e5b0d3b40767e09f1a92c"
 
+lodash@~1.3.1:
+  version "1.3.1"
+  resolved "http://repo.oneplatform.build/nexus/content/groups/npm/lodash/-/lodash-1.3.1.tgz#a4663b53686b895ff074e2ba504dfb76a8e2b770"
+
 lodash@~2.4.1:
   version "2.4.2"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-2.4.2.tgz#fadd834b9683073da179b3eae6d9c0d15053f73e"
@@ -2234,13 +2232,9 @@ mime-types@^2.1.12, mime-types@~2.1.7:
   dependencies:
     mime-db "~1.30.0"
 
-mime@*:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/mime/-/mime-2.2.0.tgz#161e541965551d3b549fa1114391e3a3d55b923b"
-
-mime@~1.2.5:
+mime@~1.2.11:
   version "1.2.11"
-  resolved "https://registry.yarnpkg.com/mime/-/mime-1.2.11.tgz#58203eed86e3a5ef17aed2b7d9ebd47f0a60dd10"
+  resolved "http://repo.oneplatform.build/nexus/content/groups/npm/mime/-/mime-1.2.11.tgz#58203eed86e3a5ef17aed2b7d9ebd47f0a60dd10"
 
 mimetype@0.0.8:
   version "0.0.8"
@@ -2521,10 +2515,6 @@ outpipe@^1.1.0:
   dependencies:
     shell-quote "^1.4.2"
 
-"package@>= 1.0.0 < 1.2.0":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/package/-/package-1.0.1.tgz#d25a1f99e2506dcb27d6704b83dca8a312e4edcc"
-
 pako@~0.2.0, pako@~0.2.5:
   version "0.2.9"
   resolved "https://registry.yarnpkg.com/pako/-/pako-0.2.9.tgz#f3f7522f4ef782348da8161bad9ecfd51bf83a75"
@@ -2755,7 +2745,7 @@ read-pkg@^1.0.0:
     normalize-package-data "^2.3.2"
     path-type "^1.0.0"
 
-"readable-stream@>=1.0.33-1 <1.1.0-0", readable-stream@~1.0.17, readable-stream@~1.0.2:
+"readable-stream@>=1.0.33-1 <1.1.0-0", readable-stream@~1.0.17:
   version "1.0.34"
   resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-1.0.34.tgz#125820e34bc842d2f2aaafafe4c2916ee32c157c"
   dependencies:
@@ -3094,12 +3084,6 @@ stream-combiner2@~1.0.0:
     duplexer2 "~0.0.2"
     through2 "~0.5.1"
 
-stream-counter@~0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/stream-counter/-/stream-counter-0.1.0.tgz#a035e429361fb57f361606e17fcd8a8b9677327b"
-  dependencies:
-    readable-stream "~1.0.2"
-
 stream-http@^1.2.0:
   version "1.7.1"
   resolved "https://registry.yarnpkg.com/stream-http/-/stream-http-1.7.1.tgz#d3d2a6e14c36a38b9dafb199aee7bbc570519978"
@@ -3263,12 +3247,6 @@ tar@^2.2.1:
     fstream "^1.0.2"
     inherits "2"
 
-temporary@0.0.5:
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/temporary/-/temporary-0.0.5.tgz#e2916b72176517a6c8fb67d3fa78a568e9b27865"
-  dependencies:
-    package ">= 1.0.0 < 1.2.0"
-
 through2-filter@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/through2-filter/-/through2-filter-2.0.0.tgz#60bc55a0dacb76085db1f9dae99ab43f83d622ec"
@@ -3404,10 +3382,6 @@ uid-number@^0.0.6:
 umd@^3.0.0:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/umd/-/umd-3.0.1.tgz#8ae556e11011f63c2596708a8837259f01b3d60e"
-
-underscore.deferred@~0.1.4:
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/underscore.deferred/-/underscore.deferred-0.1.5.tgz#47ead60c988bf0cf3220bf8843f362e0e824e689"
 
 underscore.string@~2.2.1:
   version "2.2.1"
@@ -3589,7 +3563,7 @@ wrappy@1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
 
-xml2js@0.2.8, xml2js@0.2.x:
+xml2js@0.2.8:
   version "0.2.8"
   resolved "https://registry.yarnpkg.com/xml2js/-/xml2js-0.2.8.tgz#9b81690931631ff09d1957549faf54f4f980b3c2"
   dependencies:
