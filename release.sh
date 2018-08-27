@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 VERSION=$1
+FILENAME=sp-$VERSION-clv.js
 
 if [ -z "$1" ]
   then
@@ -11,11 +12,13 @@ fi
 echo "creating release for $VERSION release of Clarivage Snowplow fork"
 
 echo "create dist files using Snowplow Grunt build"
-rm -rf ./dist/*.tgz
+rm -rf ./dist/*.tgz ./dist/*-clv.js
 npx grunt
 
 echo "generate a zip file of ./dist/bundle.js for upload to AWS"
-tar -czvf ./dist/sp-$VERSION-clv.tar.gz ./dist/sp.js
+cd ./dist
+cp sp.js $FILENAME
+tar -czvf $FILENAME.tar.gz $FILENAME
 
 echo "committing dist"
 git commit -a -m "generating latest dist for $VERSION release"

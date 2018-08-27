@@ -33,4 +33,6 @@ VERSION
 # IDEs
 .idea
 
+# Clarivate generated build files
 dist/*.tgz
+dist/*-clv.js
