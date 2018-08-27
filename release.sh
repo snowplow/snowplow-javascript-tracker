@@ -15,7 +15,7 @@ rm -rf ./dist/*.tgz
 npx grunt
 
 echo "generate a zip file of ./dist/bundle.js for upload to AWS"
-tar -czvf ./dist/sp-$VERSION-clv.tar.gz ./dist/bundle.js
+tar -czvf ./dist/sp-$VERSION-clv.tar.gz ./dist/sp.js
 
 echo "committing dist"
 git commit -a -m "generating latest dist for $VERSION release"
