@@ -2798,7 +2798,6 @@ object.getFormTrackingManager = function (core, trackerId, contextAdder) {
 	var
 		lodash = require('./lib_managed/lodash'),
 		helpers = require('./lib/helpers'),
-		uuid = require('uuid'),
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
@@ -2808,11 +2807,10 @@ object.getFormTrackingManager = function (core, trackerId, contextAdder) {
 	 *   after the Tracker has been initialized and loaded
 	 ************************************************************/
 
-	object.InQueueManager = function(TrackerConstructor, version, mutSnowplowState, asyncQueue, functionName) {
+	object.InQueueManager = function(TrackerConstructor, version, pageViewId, mutSnowplowState, asyncQueue, functionName) {
 
 		// Page view ID should be shared between all tracker instances
-		var pageViewId = uuid.v4(),
-			trackerDictionary = {}
+		var trackerDictionary = {};
 
 		/**
 		 * Get an array of trackers to which a function should be applied.
@@ -2873,8 +2871,13 @@ object.getFormTrackingManager = function (core, trackerId, contextAdder) {
 		 */
 		function createNewNamespace(namespace, endpoint, argmap) {
 			argmap = argmap || {};
-			trackerDictionary[namespace] = new TrackerConstructor(functionName, namespace, version, pageViewId, mutSnowplowState, argmap);
-			trackerDictionary[namespace].setCollectorUrl(endpoint);
+
+			if (!trackerDictionary.hasOwnProperty(namespace)) {
+				trackerDictionary[namespace] = new TrackerConstructor(functionName, namespace, version, pageViewId, mutSnowplowState, argmap);
+				trackerDictionary[namespace].setCollectorUrl(endpoint);
+			} else {
+				helpers.warn('Tracker namespace ' + namespace + ' already exists.');
+			}
 		}
 
 		/**
@@ -2948,7 +2951,7 @@ object.getFormTrackingManager = function (core, trackerId, contextAdder) {
 
 }());
 
-},{"./lib/helpers":21,"./lib_managed/lodash":23,"uuid":16}],19:[function(require,module,exports){
+},{"./lib/helpers":21,"./lib_managed/lodash":23}],19:[function(require,module,exports){
 /*
  * JavaScript tracker for Snowplow: init.js
  * 
@@ -3133,12 +3136,13 @@ if (windowAlias.GlobalSnowplowNamespace && windowAlias.GlobalSnowplowNamespace.l
 		{
 			for(var i = 0; i < navigatorAlias.plugins.length; i++)
 			{
-				var mt = [];
-				for(var j = 0; j < navigatorAlias.plugins[i].length; j++)
-				{
-					mt.push([navigatorAlias.plugins[i][j].type, navigatorAlias.plugins[i][j].suffixes]);
+				if (navigatorAlias.plugins[i]) {
+					var mt = [];
+					for(var j = 0; j < navigatorAlias.plugins[i].length; j++) {
+						mt.push([navigatorAlias.plugins[i][j].type, navigatorAlias.plugins[i][j].suffixes]);
+					}
+					plugins.push([navigatorAlias.plugins[i].name + "::" + navigatorAlias.plugins[i].description, mt.join("~")]);
 				}
-				plugins.push([navigatorAlias.plugins[i].name + "::" + navigatorAlias.plugins[i].description, mt.join("~")]);
 			}
 		}
 		return murmurhash3_32_gc(fingerprint.join("###") + "###" + plugins.sort().join(";"), hashSeed);
@@ -3164,7 +3168,13 @@ if (windowAlias.GlobalSnowplowNamespace && windowAlias.GlobalSnowplowNamespace.l
 			a = 'client';
 			e = documentAlias.documentElement || documentAlias.body;
 		}
-		return e[a+'Width'] + 'x' + e[a+'Height'];
+		var width = e[a+'Width'];
+		var height = e[a+'Height'];
+		if (width >= 0 && height >= 0) {
+			return width + 'x' + height;
+		} else {
+			return null;
+		}
 	};
 
 	/**
@@ -3227,7 +3237,8 @@ if (windowAlias.GlobalSnowplowNamespace && windowAlias.GlobalSnowplowNamespace.l
 
 		// Safari and Opera
 		// IE6/IE7 navigator.javaEnabled can't be aliased, so test directly
-		if (typeof navigatorAlias.javaEnabled !== 'unknown' &&
+		if (navigatorAlias.constructor === window.Navigator &&
+				typeof navigatorAlias.javaEnabled !== 'unknown' &&
 				!lodash.isUndefined(navigatorAlias.javaEnabled) &&
 				navigatorAlias.javaEnabled()) {
 			features.java = '1';
@@ -3288,6 +3299,7 @@ if (windowAlias.GlobalSnowplowNamespace && windowAlias.GlobalSnowplowNamespace.l
 
 	var 
 		lodash = require('../lib_managed/lodash'),
+		cookie = require('browser-cookie-lite'),
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
@@ -3415,7 +3427,7 @@ if (windowAlias.GlobalSnowplowNamespace && windowAlias.GlobalSnowplowNamespace.l
 	 * List the classes of a DOM element without using elt.classList (for compatibility with IE 9)
 	 */
 	object.getCssClasses = function (elt) {
-		return elt.className.match(/\S+/g);
+		return elt.className.match(/\S+/g) || [];
 	};
 
 	/*
@@ -3543,9 +3555,107 @@ if (windowAlias.GlobalSnowplowNamespace && windowAlias.GlobalSnowplowNamespace.l
 		}
 	};
 
+	/**
+	 * Finds the root domain
+	 */
+	object.findRootDomain = function () {
+		var cookiePrefix = '_sp_root_domain_test_';
+		var cookieName = cookiePrefix + new Date().getTime();
+		var cookieValue = '_test_value_' + new Date().getTime();
+
+		var split = window.location.hostname.split('.');
+		var position = split.length - 1;
+		while (position >= 0) {
+			var currentDomain = split.slice(position, split.length).join('.');
+			cookie.cookie(cookieName, cookieValue, 0, '/', currentDomain);
+			if (cookie.cookie(cookieName) === cookieValue) {
+
+				// Clean up created cookie(s)
+				object.deleteCookie(cookieName, currentDomain);
+				var cookieNames = object.getCookiesWithPrefix(cookiePrefix);
+				for (var i = 0; i < cookieNames.length; i++) {
+					object.deleteCookie(cookieNames[i], currentDomain);
+				}
+
+				return currentDomain;
+			}
+			position -= 1;
+		}
+
+		// Cookies cannot be read
+		return window.location.hostname;
+	};
+
+	/**
+	 * Checks whether a value is present within an array
+	 *
+	 * @param val The value to check for
+	 * @param array The array to check within
+	 * @return boolean Whether it exists
+	 */
+	object.isValueInArray = function (val, array) {
+		for (var i = 0; i < array.length; i++) {
+			if (array[i] === val) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Deletes an arbitrary cookie by setting the expiration date to the past
+	 *
+	 * @param cookieName The name of the cookie to delete
+	 * @param domainName The domain the cookie is in
+	 */
+	object.deleteCookie = function (cookieName, domainName) {
+		cookie.cookie(cookieName, '', -1, '/', domainName);
+	};
+
+	/**
+	 * Fetches the name of all cookies beginning with a certain prefix
+	 *
+	 * @param cookiePrefix The prefix to check for
+	 * @return array The cookies that begin with the prefix
+	 */
+	object.getCookiesWithPrefix = function (cookiePrefix) {
+		var cookies = document.cookie.split("; ");
+		var cookieNames = [];
+		for (var i = 0; i < cookies.length; i++) {
+			if (cookies[i].substring(0, cookiePrefix.length) === cookiePrefix) {
+				cookieNames.push(cookies[i]);
+			}
+		}
+		return cookieNames;
+	};
+
+	/**
+	 * Parses an object and returns either the
+	 * integer or undefined.
+	 *
+	 * @param obj The object to parse
+	 * @return the result of the parse operation
+	 */
+	object.parseInt = function (obj) {
+		var result = parseInt(obj);
+		return isNaN(result) ? undefined : result;
+	}
+
+	/**
+	 * Parses an object and returns either the
+	 * number or undefined.
+	 *
+	 * @param obj The object to parse
+	 * @return the result of the parse operation
+	 */
+	object.parseFloat = function (obj) {
+		var result = parseFloat(obj);
+		return isNaN(result) ? undefined : result;
+	}
+
 }());
 
-},{"../lib_managed/lodash":23}],22:[function(require,module,exports){
+},{"../lib_managed/lodash":23,"browser-cookie-lite":2}],22:[function(require,module,exports){
 /*
  * JavaScript tracker for Snowplow: proxies.js
  * 
@@ -6185,7 +6295,7 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 				if (body.bytes >= maxPostBytes) {
 					helpers.warn("Event of size " + body.bytes + " is too long - the maximum size is " + maxPostBytes);
 					var xhr = initializeXMLHttpRequest(configCollectorUrl);
-					xhr.send(encloseInPayloadDataEnvelope([body.evt]));
+					xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent([body.evt])));
 					return;
 				} else {
 					outQueue.push(body);
@@ -6274,8 +6384,9 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 				var batch = lodash.map(outQueue.slice(0, numberToSend), function (x) {
 					return x.evt;
 				});
+
 				if (batch.length > 0) {
-					xhr.send(encloseInPayloadDataEnvelope(batch));
+					xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent(batch)));
 				}
 
 			} else {
@@ -6294,7 +6405,7 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 					executingQueue = false;
 				};
 
-				image.src = configCollectorUrl + nextRequest;
+				image.src = configCollectorUrl + nextRequest.replace('?', '?stm=' + new Date().getTime() + '&');
 			}
 		}
 
@@ -6323,6 +6434,19 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 				schema: 'iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-3',
 				data: events
 			});
+		}
+
+		/**
+		 * Attaches the STM field to outbound POST events.
+		 *
+		 * @param events the events to attach the STM to
+		 */
+		function attachStmToEvent(events) {
+			var stm = new Date().getTime().toString();
+			for (var i = 0; i < events.length; i++) {
+				events[i]['stm'] = stm;
+			}
+			return events
 		}
 
 		return {
@@ -6411,6 +6535,7 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 
 	// Load all our modules (at least until we fully modularize & remove grunt-concat)
 	var
+		uuid = require('uuid'),
 		lodash = require('./lib_managed/lodash'),
 		helpers = require('./lib/helpers'),
 		queue = require('./in_queue'),
@@ -6426,6 +6551,8 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 
 			/* Tracker identifier with version */
 			version = 'js-' + '<%= pkg.version %>', // Update banner.js too
+
+			pageViewId = uuid.v4(),
 
 			/* Contains four variables that are shared with tracker.js and must be passed by reference */
 			mutSnowplowState = {
@@ -6556,7 +6683,7 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 			 * @param string distSubdomain The subdomain on your CloudFront collector's distribution
 			 */
 			getTrackerCf: function (distSubdomain) {
-				var t = new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
+				var t = new tracker.Tracker(functionName, '', version, pageViewId, mutSnowplowState, {});
 				t.setCollectorCf(distSubdomain);
 				return t;
 			},
@@ -6568,7 +6695,7 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 			 * @param string rawUrl The collector URL minus protocol and /i
 			 */
 			getTrackerUrl: function (rawUrl) {
-				var t = new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
+				var t = new tracker.Tracker(functionName, '', version, pageViewId, mutSnowplowState, {});
 				t.setCollectorUrl(rawUrl);
 				return t;
 			},
@@ -6579,7 +6706,7 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 			 * @return Tracker
 			 */
 			getAsyncTracker: function () {
-				return new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
+				return new tracker.Tracker(functionName, '', version, pageViewId, mutSnowplowState, {});
 			}
 		};
 
@@ -6592,12 +6719,12 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 		addReadyListener();
 
 		// Now replace initialization array with queue manager object
-		return new queue.InQueueManager(tracker.Tracker, version, mutSnowplowState, asynchronousQueue, functionName);
+		return new queue.InQueueManager(tracker.Tracker, version, pageViewId, mutSnowplowState, asynchronousQueue, functionName);
 	};
 
 }());
 
-},{"./in_queue":18,"./lib/helpers":21,"./lib_managed/lodash":23,"./tracker":27}],27:[function(require,module,exports){
+},{"./in_queue":18,"./lib/helpers":21,"./lib_managed/lodash":23,"./tracker":27,"uuid":16}],27:[function(require,module,exports){
 /*
  * JavaScript tracker for Snowplow: tracker.js
  * 
@@ -6674,14 +6801,16 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 	 * 8. userFingerprintSeed, 123412414
 	 * 9. pageUnloadTimer, 500
 	 * 10. forceSecureTracker, false
-	 * 11. useLocalStorage, true
-	 * 12. useCookies, true
-	 * 13. sessionCookieTimeout, 1800
-	 * 14. contexts, {}
-	 * 15. post, false
-	 * 16. bufferSize, 1
-	 * 17. crossDomainLinker, false
-	 * 18. maxPostBytes, 40000
+	 * 11. forceUnsecureTracker, false
+	 * 12. useLocalStorage, true
+	 * 13. useCookies, true
+	 * 14. sessionCookieTimeout, 1800
+	 * 15. contexts, {}
+	 * 16. post, false
+	 * 17. bufferSize, 1
+	 * 18. crossDomainLinker, false
+	 * 19. maxPostBytes, 40000
+	 * 20. discoverRootDomain, false
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, pageViewId, mutSnowplowState, argmap) {
 
@@ -6755,7 +6884,7 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 			configCookiePath = '/',
 
 			// Do Not Track browser feature
-			dnt = navigatorAlias.doNotTrack || navigatorAlias.msDoNotTrack,
+			dnt = navigatorAlias.doNotTrack || navigatorAlias.msDoNotTrack || windowAlias.doNotTrack,
 
 			// Do Not Track
 			configDoNotTrack = argmap.hasOwnProperty('respectDoNotTrack') ? argmap.respectDoNotTrack && (dnt === 'yes' || dnt === '1') : false,
@@ -6777,6 +6906,9 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 
 			// This forces the tracker to be HTTPS even if the page is not secure
 			forceSecureTracker = argmap.hasOwnProperty('forceSecureTracker') ? (argmap.forceSecureTracker === true) : false,
+
+			// This forces the tracker to be HTTP even if the page is secure
+			forceUnsecureTracker = !forceSecureTracker && argmap.hasOwnProperty('forceUnsecureTracker') ? (argmap.forceUnsecureTracker === true) : false,
 
 			// Whether to use localStorage to store events between sessions while offline
 			useLocalStorage = argmap.hasOwnProperty('useLocalStorage') ? argmap.useLocalStorage : true,
@@ -6856,7 +6988,14 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 			autoContexts = argmap.contexts || {},
 
 			// Context to be added to every event
-			commonContexts = [];
+			commonContexts = [],
+
+			// Enhanced Ecommerce Contexts to be added on every `trackEnhancedEcommerceAction` call
+			enhancedEcommerceContexts = [];
+
+		if (argmap.hasOwnProperty('discoverRootDomain') && argmap.discoverRootDomain) {
+			configCookieDomain = helpers.findRootDomain();
+		}
 
 		if (autoContexts.webPage) {
 			commonContexts.push(getWebPageContext());
@@ -7140,14 +7279,9 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 
 		/**
 		 * Generate a pseudo-unique ID to fingerprint this user
-		 * Note: this isn't a RFC4122-compliant UUID
 		 */
 		function createNewDomainUserId() {
-			return hash(
-				(navigatorAlias.userAgent || '') +
-					(navigatorAlias.platform || '') +
-					json2.stringify(browserFeatures) + Math.round(new Date().getTime() / 1000)
-			).slice(0, 16); // 16 hexits = 64 bits
+			return uuid.v4();
 		}
 
 		/*
@@ -7345,10 +7479,13 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 		 * @return string collectorUrl The tracker URL with protocol
 		 */
 		function asCollectorUrl(rawUrl) {
-			if (forceSecureTracker)
+			if (forceSecureTracker) {
 				return ('https' + '://' + rawUrl);
-			else
-				return ('https:' === documentAlias.location.protocol ? 'https' : 'http') + '://' + rawUrl;
+			} 
+			if (forceUnsecureTracker) {
+				return ('http' + '://' + rawUrl);
+			} 
+			return ('https:' === documentAlias.location.protocol ? 'https' : 'http') + '://' + rawUrl;
 		}
 
 		/**
@@ -7360,12 +7497,69 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 		 */
 		function addCommonContexts(userContexts) {
 			var combinedContexts = commonContexts.concat(userContexts || []);
+
+			// Add PerformanceTiming Context
 			if (autoContexts.performanceTiming) {
 				var performanceTimingContext = getPerformanceTimingContext();
 				if (performanceTimingContext) {
 					combinedContexts.push(performanceTimingContext);
 				}
 			}
+
+			// Add Optimizely Contexts
+			if (window['optimizely']) {
+
+				if (autoContexts.optimizelyExperiments) {
+					var experimentContexts = getOptimizelyExperimentContexts();
+					for (var i = 0; i < experimentContexts.length; i++) {
+						combinedContexts.push(experimentContexts[i]);
+					}
+				}
+
+				if (autoContexts.optimizelyStates) {
+					var stateContexts = getOptimizelyStateContexts();
+					for (var i = 0; i < stateContexts.length; i++) {
+						combinedContexts.push(stateContexts[i]);
+					}
+				}
+
+				if (autoContexts.optimizelyVariations) {
+					var variationContexts = getOptimizelyVariationContexts();
+					for (var i = 0; i < variationContexts.length; i++) {
+						combinedContexts.push(variationContexts[i]);
+					}
+				}
+
+				if (autoContexts.optimizelyVisitor) {
+					var optimizelyVisitorContext = getOptimizelyVisitorContext();
+					if (optimizelyVisitorContext) {
+						combinedContexts.push(optimizelyVisitorContext);
+					}
+				}
+
+				if (autoContexts.optimizelyAudiences) {
+					var audienceContexts = getOptimizelyAudienceContexts();
+					for (var i = 0; i < audienceContexts.length; i++) {
+						combinedContexts.push(audienceContexts[i]);
+					}
+				}
+
+				if (autoContexts.optimizelyDimensions) {
+					var dimensionContexts = getOptimizelyDimensionContexts();
+					for (var i = 0; i < dimensionContexts.length; i++) {
+						combinedContexts.push(dimensionContexts[i]);
+					}
+				}
+			}
+
+			// Add Augur Context
+			if (autoContexts.augurIdentityLite) {
+				var augurIdentityLiteContext = getAugurIdentityLiteContext();
+				if (augurIdentityLiteContext) {
+					combinedContexts.push(augurIdentityLiteContext);
+				}
+			}
+
 			return combinedContexts;
 		}
 
@@ -7389,6 +7583,12 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 		 * @return object PerformanceTiming context
 		 */
 		function getPerformanceTimingContext() {
+			var allowedKeys = [
+				'navigationStart', 'redirectStart', 'redirectEnd', 'fetchStart', 'domainLookupStart', 'domainLookupEnd', 'connectStart', 
+				'secureConnectionStart', 'connectEnd', 'requestStart', 'responseStart', 'responseEnd', 'unloadEventStart', 'unloadEventEnd',
+				'domLoading', 'domInteractive', 'domContentLoadedEventStart', 'domContentLoadedEventEnd', 'domComplete', 'loadEventStart', 
+				'loadEventEnd', 'msFirstPaint', 'chromeFirstPaint', 'requestEnd', 'proxyStart', 'proxyEnd'
+			];
 			var performance = windowAlias.performance || windowAlias.mozPerformance || windowAlias.msPerformance || windowAlias.webkitPerformance;
 			if (performance) {
 
@@ -7396,8 +7596,7 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 				// performance.timing so we cannot copy them using lodash.clone
 				var performanceTiming = {};
 				for (var field in performance.timing) {
-					// Don't copy the toJSON method
-					if (!lodash.isFunction(performance.timing[field])) {
+					if (helpers.isValueInArray(field, allowedKeys)) {
 						performanceTiming[field] = performance.timing[field];
 					}
 				}
@@ -7413,6 +7612,225 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 				return {
 					schema: 'iglu:org.w3/PerformanceTiming/jsonschema/1-0-0',
 					data: performanceTiming
+				};
+			}
+		}
+
+		/**
+		 * Creates a context from the window['optimizely'].data.experiments object
+		 *
+		 * @return array Experiment contexts
+		 */
+		function getOptimizelyExperimentContexts() {
+			var experiments = window['optimizely'].data.experiments;
+			if (experiments) {
+				var contexts = [];
+
+				for (var key in experiments) {
+					if (experiments.hasOwnProperty(key)) {
+						var context = {};
+						context['id'] = key;
+						var experiment = experiments[key];
+						context['code'] = experiment.code; 
+						context['manual'] = experiment.manual;
+						context['conditional'] = experiment.conditional;
+						context['name'] = experiment.name;
+						context['variationIds'] = experiment.variation_ids;
+
+						contexts.push({
+							schema: 'iglu:com.optimizely/experiment/jsonschema/1-0-0',
+							data: context
+						});
+					}
+				}
+				return contexts;
+			}
+			return [];
+		}
+
+		/**
+		 * Creates a context from the window['optimizely'].data.state object
+		 *
+		 * @return array State contexts
+		 */
+		function getOptimizelyStateContexts() {
+			var experimentIds = [];
+			var experiments = window['optimizely'].data.experiments;
+			if (experiments) {
+				for (var key in experiments) {
+					if (experiments.hasOwnProperty(key)) {
+						experimentIds.push(key);
+					}
+				}
+			}
+
+			var state = window['optimizely'].data.state;
+			if (state) {
+				var contexts = [];
+				var activeExperiments = state.activeExperiments || [];
+
+				for (var i = 0; i < experimentIds.length; i++) {
+					var experimentId = experimentIds[i];
+					var context = {};
+					context['experimentId'] = experimentId;
+					context['isActive'] = helpers.isValueInArray(experimentIds[i], activeExperiments);
+					var variationMap = state.variationMap || {};
+					context['variationIndex'] = variationMap[experimentId];
+					var variationNamesMap = state.variationNamesMap || {};
+					context['variationName'] = variationNamesMap[experimentId];
+					var variationIdsMap = state.variationIdsMap || {};
+					if (variationIdsMap[experimentId] && variationIdsMap[experimentId].length === 1) {
+						context['variationId'] = variationIdsMap[experimentId][0];
+					}
+
+					contexts.push({
+						schema: 'iglu:com.optimizely/state/jsonschema/1-0-0',
+						data: context
+					});
+				}
+				return contexts;
+			}
+			return [];
+		}
+
+		/**
+		 * Creates a context from the window['optimizely'].data.variations object
+		 *
+		 * @return array Variation contexts
+		 */
+		function getOptimizelyVariationContexts() {
+			var variations = window['optimizely'].data.variations;
+			if (variations) {
+				var contexts = [];
+
+				for (var key in variations) {
+					if (variations.hasOwnProperty(key)) {
+						var context = {};
+						context['id'] = key;
+						var variation = variations[key];
+						context['name'] = variation.name;
+						context['code'] = variation.code;
+
+						contexts.push({
+							schema: 'iglu:com.optimizely/variation/jsonschema/1-0-0',
+							data: context
+						});
+					}
+				}
+				return contexts;
+			}
+			return [];
+		}
+
+		/**
+		 * Creates a context from the window['optimizely'].data.visitor object
+		 *
+		 * @return object Visitor context
+		 */
+		function getOptimizelyVisitorContext() {
+			var visitor = window['optimizely'].data.visitor;
+			if (visitor) {
+				var context = {};
+				context['browser'] = visitor.browser;
+				context['browserVersion'] = visitor.browserVersion;
+				context['device'] = visitor.device;
+				context['deviceType'] = visitor.deviceType;
+				context['ip'] = visitor.ip;
+				var platform = visitor.platform || {};
+				context['platformId'] = platform.id;
+				context['platformVersion'] = platform.version;
+				var location = visitor.location || {};
+				context['locationCity'] = location.city;
+				context['locationRegion'] = location.region;
+				context['locationCountry'] = location.country;
+				context['mobile'] = visitor.mobile;
+				context['mobileId'] = visitor.mobileId;
+				context['referrer'] = visitor.referrer;
+				context['os'] = visitor.os;
+
+				return {
+					schema: 'iglu:com.optimizely/visitor/jsonschema/1-0-0',
+					data: context
+				};
+			}
+		}
+
+		/**
+		 * Creates a context from the window['optimizely'].data.visitor.audiences object
+		 *
+		 * @return array VisitorAudience contexts
+		 */
+		function getOptimizelyAudienceContexts() {
+			var audienceIds = window['optimizely'].data.visitor.audiences;
+			if (audienceIds) {
+				var contexts = [];
+
+				for (var key in audienceIds) {
+					if (audienceIds.hasOwnProperty(key)) {
+						var context = {};
+						context['id'] = key;
+						context['isMember'] = audienceIds[key]; 
+
+						contexts.push({
+							schema: 'iglu:com.optimizely/visitor_audience/jsonschema/1-0-0',
+							data: context
+						});
+					}
+				}
+				return contexts;
+			}
+			return [];
+		}
+
+		/**
+		 * Creates a context from the window['optimizely'].data.visitor.dimensions object
+		 *
+		 * @return array VisitorDimension contexts
+		 */
+		function getOptimizelyDimensionContexts() {
+			var dimensionIds = window['optimizely'].data.visitor.dimensions;
+			if (dimensionIds) {
+				var contexts = [];
+
+				for (var key in dimensionIds) {
+					if (dimensionIds.hasOwnProperty(key)) {
+						var context = {};
+						context['id'] = key;
+						context['value'] = dimensionIds[key]; 
+
+						contexts.push({
+							schema: 'iglu:com.optimizely/visitor_dimension/jsonschema/1-0-0',
+							data: context
+						});
+					}
+				}
+				return contexts;
+			}
+			return [];
+		}
+
+		/**
+		 * Creates a context from the window['augur'] object
+		 *
+		 * @return object The IdentityLite context
+		 */
+		function getAugurIdentityLiteContext() {
+			var augur = window['augur'];
+			if (augur) {
+				var context = { consumer: {}, device: {} };
+				var consumer = augur.consumer || {};
+				context['consumer']['UUID'] = consumer.UID;
+				var device = augur.device || {};
+				context['device']['ID'] = device.ID;
+				context['device']['isBot'] = device.isBot;
+				context['device']['isProxied'] = device.isProxied;
+				context['device']['isTor'] = device.isTor;
+				var fingerprint = device.fingerprint || {};
+				context['device']['isIncognito'] = fingerprint.browserHasIncognitoEnabled;
+
+				return {
+					schema: 'iglu:io.augur.snowplow/identity_lite/jsonschema/1-0-0',
+					data: context
 				};
 			}
 		}
@@ -7814,6 +8232,7 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 			 * @param int timeout
 			 */
 			setSessionCookieTimeout: function (timeout) {
+				helpers.warn('setSessionCookieTimeout is deprecated. Instead add a "sessionCookieTimeout" field to the argmap argument of newTracker.')
 				configSessionCookieTimeout = timeout;
 			},
 
@@ -8348,6 +8767,143 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 						label: label
 					}
 				}, addCommonContexts(context))
+			},
+
+			/**
+			 * Track a GA Enhanced Ecommerce Action with all stored
+			 * Enhanced Ecommerce contexts
+			 *
+			 * @param string action
+			 * @param array context Optional. Context relating to the event.
+			 */
+			trackEnhancedEcommerceAction: function (action, context) {
+				var combinedEnhancedEcommerceContexts = enhancedEcommerceContexts.concat(context || []);
+				enhancedEcommerceContexts.length = 0;
+
+				core.trackUnstructEvent({
+					schema: 'iglu:com.google.analytics.enhanced-ecommerce/action/jsonschema/1-0-0',
+					data: {
+						action: action
+					}
+				}, addCommonContexts(combinedEnhancedEcommerceContexts));
+			},
+
+			/**
+			 * Adds a GA Enhanced Ecommerce Action Context
+			 *
+			 * @param string id
+			 * @param string affiliation
+			 * @param number revenue
+			 * @param number tax
+			 * @param number shipping
+			 * @param string coupon
+			 * @param string list
+			 * @param integer step
+			 * @param string option
+			 * @param string currency
+			 */
+			addEnhancedEcommerceActionContext: function (id, affiliation, revenue, tax, shipping, coupon, list, step, option, currency) {
+				enhancedEcommerceContexts.push({
+					schema: 'iglu:com.google.analytics.enhanced-ecommerce/actionFieldObject/jsonschema/1-0-0',
+					data: {
+						id: id,
+						affiliation: affiliation,
+						revenue: helpers.parseFloat(revenue),
+						tax: helpers.parseFloat(tax),
+						shipping: helpers.parseFloat(shipping),
+						coupon: coupon,
+						list: list,
+						step: helpers.parseInt(step),
+						option: option,
+						currency: currency
+					}
+				});
+			},
+
+			/**
+			 * Adds a GA Enhanced Ecommerce Impression Context
+			 *
+			 * @param string id
+			 * @param string name
+			 * @param string list
+			 * @param string brand
+			 * @param string category
+			 * @param string variant
+			 * @param integer position
+			 * @param number price
+			 * @param string currency
+			 */
+			addEnhancedEcommerceImpressionContext: function (id, name, list, brand, category, variant, position, price, currency) {
+				enhancedEcommerceContexts.push({
+					schema: 'iglu:com.google.analytics.enhanced-ecommerce/impressionFieldObject/jsonschema/1-0-0',
+					data: {
+						id: id,
+						name: name,
+						list: list,
+						brand: brand,
+						category: category,
+						variant: variant,
+						position: helpers.parseInt(position),
+						price: helpers.parseFloat(price),
+						currency: currency
+					}
+				});
+			},
+
+			/**
+			 * Adds a GA Enhanced Ecommerce Product Context
+			 *
+			 * @param string id
+			 * @param string name
+			 * @param string list
+			 * @param string brand
+			 * @param string category
+			 * @param string variant
+			 * @param number price
+			 * @param integer quantity
+			 * @param string coupon
+			 * @param integer position
+			 * @param string currency
+			 */
+			addEnhancedEcommerceProductContext: function (id, name, list, brand, category, variant, price, quantity, coupon, position, currency) {
+				enhancedEcommerceContexts.push({
+					schema: 'iglu:com.google.analytics.enhanced-ecommerce/productFieldObject/jsonschema/1-0-0',
+					data: {
+						id: id,
+						name: name,
+						list: list,
+						brand: brand,
+						category: category,
+						variant: variant,
+						price: helpers.parseFloat(price),
+						quantity: helpers.parseInt(quantity),
+						coupon: coupon,
+						position: helpers.parseInt(position),
+						currency: currency
+					}
+				});
+			},
+
+			/**
+			 * Adds a GA Enhanced Ecommerce Promo Context
+			 *
+			 * @param string id
+			 * @param string name
+			 * @param string creative
+			 * @param string position
+			 * @param string currency
+			 */
+			addEnhancedEcommercePromoContext: function (id, name, creative, position, currency) {
+				enhancedEcommerceContexts.push({
+					schema: 'iglu:com.google.analytics.enhanced-ecommerce/promoFieldObject/jsonschema/1-0-0',
+					data: {
+						id: id,
+						name: name,
+						creative: creative,
+						position: position,
+						currency: currency
+					}
+				});
 			}
 		};
 	};
