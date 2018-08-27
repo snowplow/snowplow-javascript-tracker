@@ -61,7 +61,7 @@ So at the end of the day, there would be two tags per version in git
 
 It is then hosted in CloudFront at `//d3rm6si6l6yzgk.cloudfront.net/webui/snowplow/sp-2.x.y-clv.js`
 
-> If internal changes get made without a need to consume a newer version of upstream Snowplow, consider incrementing the versions as such `2.x.y-clv1`, `2.x.y-clv2` or consider updating a newer minor version of Snowplow to "reset" the versioning.
+> If internal changes get made without a need to consume a newer version of upstream Snowplow, consider incrementing the versions as such `2.x.y.1-clv`, `2.x.y.2-clv` or consider updating a newer minor version of Snowplow to "reset" the versioning.
 
 ### Steps
 Please follow these steps to release a new version of this library:
@@ -78,5 +78,6 @@ Please follow these steps to release a new version of this library:
     # pass the version to be released (below is just an example)
     $ sh release.js 2.6.2
     ```
+1. Create [release notes](https://github.com/ThomsonReuters-IPS/snowplow-javascript-tracker/releases) in GitHub
 1. Create a PNAS ticket like ([example](https://jira.clarivate.io/browse/PNAS-2660)) and attach the zip file from ./dist/
 1. Update the filename in [webui-component-analytics](https://github.com/ThomsonReuters-IPS/webui-component-analytics/blob/master/src/modules/analytics/run/analytics-run.js#L44) and cut a new release of **webui-component-analytics**
