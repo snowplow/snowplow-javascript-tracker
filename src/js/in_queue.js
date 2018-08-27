@@ -37,7 +37,6 @@
 	var
 		lodash = require('./lib_managed/lodash'),
 		helpers = require('./lib/helpers'),
-		uuid = require('uuid'),
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
@@ -47,11 +46,10 @@
 	 *   after the Tracker has been initialized and loaded
 	 ************************************************************/
 
-	object.InQueueManager = function(TrackerConstructor, version, mutSnowplowState, asyncQueue, functionName) {
+	object.InQueueManager = function(TrackerConstructor, version, pageViewId, mutSnowplowState, asyncQueue, functionName) {
 
 		// Page view ID should be shared between all tracker instances
-		var pageViewId = uuid.v4(),
-			trackerDictionary = {}
+		var trackerDictionary = {};
 
 		/**
 		 * Get an array of trackers to which a function should be applied.
@@ -112,8 +110,13 @@
 		 */
 		function createNewNamespace(namespace, endpoint, argmap) {
 			argmap = argmap || {};
-			trackerDictionary[namespace] = new TrackerConstructor(functionName, namespace, version, pageViewId, mutSnowplowState, argmap);
-			trackerDictionary[namespace].setCollectorUrl(endpoint);
+
+			if (!trackerDictionary.hasOwnProperty(namespace)) {
+				trackerDictionary[namespace] = new TrackerConstructor(functionName, namespace, version, pageViewId, mutSnowplowState, argmap);
+				trackerDictionary[namespace].setCollectorUrl(endpoint);
+			} else {
+				helpers.warn('Tracker namespace ' + namespace + ' already exists.');
+			}
 		}
 
 		/**

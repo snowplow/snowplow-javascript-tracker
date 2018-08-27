@@ -1,3 +1,6 @@
+> **Note:** This is a fork of the [Snowplow JavaScript Tracker](https://github.com/snowplow/snowplow-javascript-tracker/), maintained internally for use by UI applications.  Please review the [documented workflows](RELEASE_MANAGEMENT_GUIDE.md) for adding custom feature and staying in sync with the upstream repo.  If you are using Angular please use [**webui-component-analytics**](https://github.com/ThomsonReuters-IPS/webui-component-analytics), or if you are a "BAU" app please see [**snowplow-vanilla-demo**](https://github.com/ThomsonReuters-IPS/vanilla-snowplow-demo) for examples of how to use this library with Clarivate UI projects.
+
+
 # JavaScript web analytics for Snowplow
 
 [ ![Build Status] [travis-image] ] [travis]
@@ -79,23 +82,3 @@ Licensed under the [Simplified BSD] [bsd] license.
 [saucelabs-button-image]: https://saucelabs.com/buildstatus/snowplow
 [saucelabs-matrix-image]: https://saucelabs.com/browser-matrix/snowplow.svg
 [license-image]: http://img.shields.io/badge/license-simplified--bsd-blue.svg?style=flat
-
-## Release Management (Added by Clarivate)
-#### Setup
-1. Clone the repo
-1. Run `yarn install` (this should install `grunt` globally)
-1. Find your global yarn bin
-```shell
-$ yarn global bin
-/usr/local/bin
-```
-
-#### Procedure
-1. Merge all changes needed for the release into master
-1. Run `<path/to/global/yarn/bin/grunt` (will run the `default` task in _Gruntfile.js_)
-1. Commit the changes in _dist_
-1. Update the version in _package.json_ accordingly
-1. Tag and commit the release `git tag -a x.y.z-can -m "tagging forked release x.y.z-can`
-1. Create a PNAS ticket like [this](XXX) to have _dist/bundle.js_ uploaded to CloudFront as _snowplow.bundle.x.y.z-can.js_
-1. Update the filename in [webui-component-analytics](https://github.com/ThomsonReuters-IPS/webui-component-analytics/blob/master/src/modules/analytics/run/analytics-run.js#L44)
-1. Cut a new release of **webui-component-analytics**
