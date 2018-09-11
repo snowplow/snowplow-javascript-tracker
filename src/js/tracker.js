@@ -1684,9 +1684,15 @@
 			callback();
 		}
 
+<<<<<<< HEAD
 		/**
 		 * Update the returned methods (public facing methods)
 		 */
+=======
+        /**
+		 * Update the returned methods (public facing methods)
+         */
+>>>>>>> Error-handling for tracker methods
 		function updateReturnMethods() {
 			if (debug) {
 				returnMethods = apiMethods;
@@ -1742,7 +1748,11 @@
 		 *
 		 * @return string Cookie name
 		 */
+<<<<<<< HEAD
 		apiMethods.getCookieName = function(basename) {
+=======
+		getCookieName = function(basename) {
+>>>>>>> Error-handling for tracker methods
 			return getSnowplowCookieName(basename);
 		};
 
@@ -1926,6 +1936,20 @@
 		};
 
 		/**
+<<<<<<< HEAD
+=======
+		 * Add click listener to a specific link element.
+		 * When clicked, Piwik will log the click automatically.
+		 *
+		 * @param DOMElement element
+		 * @param bool enable If true, use pseudo click-handler (mousedown+mouseup)
+		 */
+		apiMethods.addListener = function (element, pseudoClicks, context) {
+			addClickListener(element, pseudoClicks, context);
+		};
+
+		/**
+>>>>>>> Error-handling for tracker methods
 		 * Install link tracker
 		 *
 		 * The default behaviour is to use actual click events. However, some browsers
@@ -2539,6 +2563,7 @@
 					}
 				}, addCommonContexts(combinedEnhancedEcommerceContexts), tstamp);
 			});
+<<<<<<< HEAD
 		};
 
 		/**
@@ -2604,6 +2629,73 @@
 		};
 
 		/**
+=======
+		};
+
+		/**
+		 * Adds a GA Enhanced Ecommerce Action Context
+		 *
+		 * @param string id
+		 * @param string affiliation
+		 * @param number revenue
+		 * @param number tax
+		 * @param number shipping
+		 * @param string coupon
+		 * @param string list
+		 * @param integer step
+		 * @param string option
+		 * @param string currency
+		 */
+		apiMethods.addEnhancedEcommerceActionContext = function (id, affiliation, revenue, tax, shipping, coupon, list, step, option, currency) {
+			enhancedEcommerceContexts.push({
+				schema: 'iglu:com.google.analytics.enhanced-ecommerce/actionFieldObject/jsonschema/1-0-0',
+				data: {
+					id: id,
+					affiliation: affiliation,
+					revenue: helpers.parseFloat(revenue),
+					tax: helpers.parseFloat(tax),
+					shipping: helpers.parseFloat(shipping),
+					coupon: coupon,
+					list: list,
+					step: helpers.parseInt(step),
+					option: option,
+					currency: currency
+				}
+			});
+		};
+
+		/**
+		 * Adds a GA Enhanced Ecommerce Impression Context
+		 *
+		 * @param string id
+		 * @param string name
+		 * @param string list
+		 * @param string brand
+		 * @param string category
+		 * @param string variant
+		 * @param integer position
+		 * @param number price
+		 * @param string currency
+		 */
+		apiMethods.addEnhancedEcommerceImpressionContext = function (id, name, list, brand, category, variant, position, price, currency) {
+			enhancedEcommerceContexts.push({
+				schema: 'iglu:com.google.analytics.enhanced-ecommerce/impressionFieldObject/jsonschema/1-0-0',
+				data: {
+					id: id,
+					name: name,
+					list: list,
+					brand: brand,
+					category: category,
+					variant: variant,
+					position: helpers.parseInt(position),
+					price: helpers.parseFloat(price),
+					currency: currency
+				}
+			});
+		};
+
+		/**
+>>>>>>> Error-handling for tracker methods
 		 * Adds a GA Enhanced Ecommerce Product Context
 		 *
 		 * @param string id
@@ -2660,6 +2752,7 @@
 		};
 
 		/**
+<<<<<<< HEAD
 		 * All provided contexts will be sent with every event
 		 *
 		 * @param contexts Array<ContextPrimitive | ConditionalContextProvider>
@@ -2679,6 +2772,8 @@
 		apiMethods.clearGlobalContexts = function () { core.clearGlobalContexts(); };
 
 		/**
+=======
+>>>>>>> Error-handling for tracker methods
 		 * Enable tracking of unhandled exceptions with custom contexts
 		 *
 		 * @param filter Function ErrorEvent => Bool to check whether error should be tracker
@@ -2708,7 +2803,11 @@
 		/**
 		 * Stop regenerating `pageViewId` (available from `web_page` context)
 		 */
+<<<<<<< HEAD
 		apiMethods.preservePageViewId = function () {
+=======
+		apiMethods.preservePageViewId =  function () {
+>>>>>>> Error-handling for tracker methods
 			preservePageViewId = true
 		};
 
@@ -2719,7 +2818,11 @@
 
 		// Create guarded methods from apiMethods,
 		// and set returnMethods to apiMethods or safeMethods depending on value of debug
+<<<<<<< HEAD
 		safeMethods = productionize(apiMethods);
+=======
+        safeMethods = productionize(apiMethods);
+>>>>>>> Error-handling for tracker methods
 		updateReturnMethods();
 
 		return returnMethods;

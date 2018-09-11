@@ -35,6 +35,7 @@
 
 var object = typeof exports !== 'undefined' ? exports : this;
 
+<<<<<<< HEAD
 var makeSafe = function (fn) {
   return function () {
     try {
@@ -57,4 +58,67 @@ exports.productionize = function (methods) {
     );
   }
   return safeMethods;
+=======
+object.ManagedError = function(message) {
+	Error.prototype.constructor.apply(this, arguments);
+	this.message = message;
+};
+
+object.ManagedError.prototype = new Error();
+
+function wrap(fn, value) {
+	// not all 'function's are actually functions!
+	if (typeof value === 'function') {
+		return fn(value);
+	} else if (typeof value === 'object' && value !== null) {
+		for (var key in value) if (value.hasOwnProperty(key)) {
+			value[key] = wrap(fn, value[key]);
+		}
+	}
+
+	return value;
+}
+
+function unguard(fn) {
+	return function () {
+		try {
+			return fn.apply(this, arguments);
+		} catch (e) {
+			// surface the error
+			setTimeout(function () {
+				throw e;
+			}, 0);
+		}
+	}
+}
+
+function guard (fn) {
+	return function () {
+		// capture the arguments and unguard any functions
+		var args = Array.prototype.slice.call(arguments)
+			.map(function (arg) {
+				return wrap(unguard, arg);
+			});
+
+		try {
+			return wrap(guard, fn.apply(this, args));
+		} catch (e) {
+			if (e instanceof object.ManagedError) {
+				throw e;
+			}
+		}
+	}
+}
+
+exports.productionize = function (value) {
+	var methods = {};
+	if (typeof value === 'object' && value !== null) {
+        Object.getOwnPropertyNames(value).forEach(
+            function (val, idx, array) {
+                methods[val] = guard(value[val]);
+            }
+        );
+	}
+	return methods;
+>>>>>>> Error-handling for tracker methods
 };
