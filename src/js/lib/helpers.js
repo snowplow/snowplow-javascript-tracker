@@ -36,6 +36,7 @@
 	var 
 		lodash = require('../lib_managed/lodash'),
 		cookie = require('browser-cookie-lite'),
+		guard = require('../guard').guard,
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
@@ -130,13 +131,13 @@
 	 */
 	object.addEventListener = function (element, eventType, eventHandler, useCapture) {
 		if (element.addEventListener) {
-			element.addEventListener(eventType, eventHandler, useCapture);
+			element.addEventListener(eventType, guard(eventHandler), useCapture);
 			return true;
 		}
 		if (element.attachEvent) {
-			return element.attachEvent('on' + eventType, eventHandler);
+			return element.attachEvent('on' + eventType, guard(eventHandler));
 		}
-		element['on' + eventType] = eventHandler;
+		element['on' + eventType] = guard(eventHandler);
 	};
 
 	/**
@@ -237,7 +238,7 @@
 		}
 
 		if (criterion.hasOwnProperty('transform')) {
-			return criterion.transform;
+			return guard(criterion.transform);
 		} else {
 			return function(x) { return x };
 		}
