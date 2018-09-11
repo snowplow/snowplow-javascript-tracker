@@ -47,6 +47,7 @@
 		errors = require('./errors'),
 		requestQueue = require('./out_queue'),
 		coreConstructor = require('snowplow-tracker-core').trackerCore,
+		productionize = require('./guard').productionize,
 		uuid = require('uuid'),
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
@@ -95,6 +96,20 @@
 				addBrowserData(payload);
 				sendRequest(payload, configTrackerPause);
 			}),
+
+			// Debug - whether to raise errors to console and log to console
+			// or silence all errors from public methods
+			debug = false,
+
+			// API functions of the tracker
+			apiMethods = {},
+
+			// Safe methods (i.e. ones that won't raise errors)
+			// These values should be guarded publicMethods
+			safeMethods = {},
+
+			// The client-facing methods returned from tracker IIFE
+			returnMethods = {},
 
 			// Aliases
 			documentAlias = document,
@@ -835,14 +850,14 @@
 
 				if (autoContexts.optimizelySummary) {
 					var activeExperiments = getOptimizelySummaryContexts();
-                    forEach(activeExperiments, function (e) {
+					forEach(activeExperiments, function (e) {
 						combinedContexts.push(e)
 					})
 				}
 
 				if (autoContexts.optimizelyXSummary) {
 					var activeExperiments = getOptimizelyXSummaryContexts();
-                    forEach(activeExperiments, function (e) {
+					forEach(activeExperiments, function (e) {
 						combinedContexts.push(e);
 					})
 				}
@@ -1662,6 +1677,16 @@
 			callback();
 		}
 
+		/**
+		 * Update the returned methods (public facing methods)
+		 */
+		function updateReturnMethods() {
+			if (debug) {
+				returnMethods = apiMethods;
+			} else {
+				returnMethods = safeMethods;
+			}
+		}
 
 		/************************************************************
 		 * Constructor
@@ -1682,1017 +1707,1025 @@
 		 * Public data and methods
 		 ************************************************************/
 
-		return {
-
-			/**
-			 * Get the domain session index also known as current memorized visit count.
-			 *
-			 * @return int Domain session index
-			 */
-			getDomainSessionIndex: function() {
-				return memorizedVisitCount;
-			},
-
-			/**
-			 * Get the page view ID as generated or provided by mutSnowplowState.pageViewId.
-			 *
-			 * @return string Page view ID
-			 */
-			getPageViewId: function () {
-				return getPageViewId();
-			},
-
-			/**
-			 * Expires current session and starts a new session.
-			 */
-			newSession: newSession,
-
-			/**
-			 * Get the cookie name as cookieNamePrefix + basename + . + domain.
-			 *
-			 * @return string Cookie name
-			 */
-			getCookieName: function(basename) {
-				return getSnowplowCookieName(basename);
-			},
-
-			/**
-			 * Get the current user ID (as set previously
-			 * with setUserId()).
-			 *
-			 * @return string Business-defined user ID
-			 */
-			getUserId: function () {
-				return businessUserId;
-			},
-
-			/**
-			 * Get visitor ID (from first party cookie)
-			 *
-			 * @return string Visitor ID in hexits (or null, if not yet known)
-			 */
-			getDomainUserId: function () {
-				return (loadDomainUserIdCookie())[1];
-			},
-
-			/**
-			 * Get the visitor information (from first party cookie)
-			 *
-			 * @return array
-			 */
-			getDomainUserInfo: function () {
-				return loadDomainUserIdCookie();
-			},
-
-			/**
-			 * Get the user fingerprint
-			 *
-			 * @return string The user fingerprint
-			 */
-			getUserFingerprint: function () {
-				return userFingerprint;
-			},
-
-			/**
-			* Specify the app ID
-			*
-			* @param int|string appId
-			*/
-			setAppId: function (appId) {
-				helpers.warn('setAppId is deprecated. Instead add an "appId" field to the argmap argument of newTracker.');
-				core.setAppId(appId);
-			},
-
-			/**
-			 * Override referrer
-			 *
-			 * @param string url
-			 */
-			setReferrerUrl: function (url) {
-				customReferrer = url;
-			},
-
-			/**
-			 * Override url
-			 *
-			 * @param string url
-			 */
-			setCustomUrl: function (url) {
-				refreshUrl();
-				configCustomUrl = resolveRelativeReference(locationHrefAlias, url);
-			},
-
-			/**
-			 * Override document.title
-			 *
-			 * @param string title
-			 */
-			setDocumentTitle: function (title) {
-				// So we know what document.title was at the time of trackPageView
-				lastDocumentTitle = documentAlias.title;
-				lastConfigTitle = title;
-			},
-
-			/**
-			 * Strip hash tag (or anchor) from URL
-			 *
-			 * @param bool enableFilter
-			 */
-			discardHashTag: function (enableFilter) {
-				configDiscardHashTag = enableFilter;
-			},
-
-			/**
-			 * Set first-party cookie name prefix
-			 *
-			 * @param string cookieNamePrefix
-			 */
-			setCookieNamePrefix: function (cookieNamePrefix) {
-				helpers.warn('setCookieNamePrefix is deprecated. Instead add a "cookieName" field to the argmap argument of newTracker.');
-				configCookieNamePrefix = cookieNamePrefix;
-			},
-
-			/**
-			 * Set first-party cookie domain
-			 *
-			 * @param string domain
-			 */
-			setCookieDomain: function (domain) {
-				helpers.warn('setCookieDomain is deprecated. Instead add a "cookieDomain" field to the argmap argument of newTracker.');
-				configCookieDomain = helpers.fixupDomain(domain);
-				updateDomainHash();
-			},
-
-			/**
-			 * Set first-party cookie path
-			 *
-			 * @param string domain
-			 */
-			setCookiePath: function (path) {
-				configCookiePath = path;
-				updateDomainHash();
-			},
-
-			/**
-			 * Set visitor cookie timeout (in seconds)
-			 *
-			 * @param int timeout
-			 */
-			setVisitorCookieTimeout: function (timeout) {
-				configVisitorCookieTimeout = timeout;
-			},
-
-			/**
-			 * Set session cookie timeout (in seconds)
-			 *
-			 * @param int timeout
-			 */
-			setSessionCookieTimeout: function (timeout) {
-				helpers.warn('setSessionCookieTimeout is deprecated. Instead add a "sessionCookieTimeout" field to the argmap argument of newTracker.')
-				configSessionCookieTimeout = timeout;
-			},
-
-			/**
-			* @param number seed The seed used for MurmurHash3
-			*/
-			setUserFingerprintSeed: function(seed) {
-				helpers.warn('setUserFingerprintSeed is deprecated. Instead add a "userFingerprintSeed" field to the argmap argument of newTracker.');
-				configUserFingerprintHashSeed = seed;
-				userFingerprint = detectors.detectSignature(configUserFingerprintHashSeed);
-			},
-
-			/**
-			* Enable/disable user fingerprinting. User fingerprinting is enabled by default.
-			* @param bool enable If false, turn off user fingerprinting
-			*/
-			enableUserFingerprint: function(enable) {
-				helpers.warn('enableUserFingerprintSeed is deprecated. Instead add a "userFingerprint" field to the argmap argument of newTracker.');
-				if (!enable) {
-					userFingerprint = '';
-				}
-			},
-
-			/**
-			 * Prevent tracking if user's browser has Do Not Track feature enabled,
-			 * where tracking is:
-			 * 1) Sending events to a collector
-			 * 2) Setting first-party cookies
-			 * @param bool enable If true and Do Not Track feature enabled, don't track.
-			 */
-			respectDoNotTrack: function (enable) {
-				helpers.warn('This usage of respectDoNotTrack is deprecated. Instead add a "respectDoNotTrack" field to the argmap argument of newTracker.');
-				var dnt = navigatorAlias.doNotTrack || navigatorAlias.msDoNotTrack;
-
-				configDoNotTrack = enable && (dnt === 'yes' || dnt === '1');
-			},
-
-			/**
-			 * Enable querystring decoration for links pasing a filter
-			 *
-			 * @param function crossDomainLinker Function used to determine which links to decorate
-			 */
-			crossDomainLinker: function (crossDomainLinkerCriterion) {
-				decorateLinks(crossDomainLinkerCriterion);
-			},
-
-			/**
-			 * Add click listener to a specific link element.
-			 * When clicked, Piwik will log the click automatically.
-			 *
-			 * @param DOMElement element
-			 * @param bool enable If true, use pseudo click-handler (mousedown+mouseup)
-			 */
-			addListener: function (element, pseudoClicks, context) {
-				addClickListener(element, pseudoClicks, context);
-			},
-
-			/**
-			 * Install link tracker
-			 *
-			 * The default behaviour is to use actual click events. However, some browsers
-			 * (e.g., Firefox, Opera, and Konqueror) don't generate click events for the middle mouse button.
-			 *
-			 * To capture more "clicks", the pseudo click-handler uses mousedown + mouseup events.
-			 * This is not industry standard and is vulnerable to false positives (e.g., drag events).
-			 *
-			 * There is a Safari/Chrome/Webkit bug that prevents tracking requests from being sent
-			 * by either click handler.  The workaround is to set a target attribute (which can't
-			 * be "_self", "_top", or "_parent").
-			 *
-			 * @see https://bugs.webkit.org/show_bug.cgi?id=54783
-			 *
-			 * @param object criterion Criterion by which it will be decided whether a link will be tracked
-			 * @param bool pseudoClicks If true, use pseudo click-handler (mousedown+mouseup)
-			 * @param bool trackContent Whether to track the innerHTML of the link element
-			 * @param array context Context for all link click events
-			 */
-			enableLinkClickTracking: function (criterion, pseudoClicks, trackContent, context) {
-				if (mutSnowplowState.hasLoaded) {
-					// the load event has already fired, add the click listeners now
-					linkTrackingManager.configureLinkClickTracking(criterion, pseudoClicks, trackContent, context);
-					linkTrackingManager.addClickListeners();
-				} else {
-					// defer until page has loaded
-					mutSnowplowState.registeredOnLoadHandlers.push(function () {
-						linkTrackingManager.configureLinkClickTracking(criterion, pseudoClicks, trackContent, context);
-						linkTrackingManager.addClickListeners();
-					});
-				}
-			},
-
-			/**
-			 * Add click event listeners to links which have been added to the page since the
-			 * last time enableLinkClickTracking or refreshLinkClickTracking was used
-			 */
-			refreshLinkClickTracking: function () {
-				if (mutSnowplowState.hasLoaded) {
-					linkTrackingManager.addClickListeners();
-				} else {
-					mutSnowplowState.registeredOnLoadHandlers.push(function () {
-						linkTrackingManager.addClickListeners();
-					});
-				}
-			},
-
-			/**
-			 * Enables page activity tracking (sends page
-			 * pings to the Collector regularly).
-			 *
-			 * @param int minimumVisitLength Seconds to wait before sending first page ping
-			 * @param int heartBeatDelay Seconds to wait between pings
-			 */
-			enableActivityTracking: function (minimumVisitLength, heartBeatDelay) {
-				if (minimumVisitLength === parseInt(minimumVisitLength, 10) &&
-						heartBeatDelay === parseInt(heartBeatDelay, 10)) {
-					activityTrackingEnabled = true;
-					configMinimumVisitTime = new Date().getTime() + minimumVisitLength * 1000;
-					configHeartBeatTimer = heartBeatDelay * 1000;
-				} else {
-					helpers.warn("Activity tracking not enabled, please provide integer values " +
-						"for minimumVisitLength and heartBeatDelay.")
-				}
-			},
-
-			/**
-			 * Triggers the activityHandler manually to allow external user defined
-			 * activity. i.e. While watching a video
-			 */
-			updatePageActivity: function () {
-				activityHandler();
-			},
-
-			/**
-			 * Enables automatic form tracking.
-			 * An event will be fired when a form field is changed or a form submitted.
-			 * This can be called multiple times: only forms not already tracked will be tracked.
-			 *
-			 * @param object config Configuration object determining which forms and fields to track.
-			 *                      Has two properties: "forms" and "fields"
-			 * @param array context Context for all form tracking events
-			 */
-			enableFormTracking: function (config, context) {
-				if (mutSnowplowState.hasLoaded) {
-					formTrackingManager.configureFormTracking(config);
-					formTrackingManager.addFormListeners(context);
-				} else {
-					mutSnowplowState.registeredOnLoadHandlers.push(function () {
-						formTrackingManager.configureFormTracking(config);
-						formTrackingManager.addFormListeners(context);
-					});
-				}
-			},
-
-			/**
-			 * Frame buster
-			 */
-			killFrame: function () {
-				if (windowAlias.location !== windowAlias.top.location) {
-					windowAlias.top.location = windowAlias.location;
-				}
-			},
-
-			/**
-			 * Redirect if browsing offline (aka file: buster)
-			 *
-			 * @param string url Redirect to this URL
-			 */
-			redirectFile: function (url) {
-				if (windowAlias.location.protocol === 'file:') {
-					windowAlias.location = url;
-				}
-			},
-
-			/**
-			 * Sets the opt out cookie.
-			 *
-			 * @param string name of the opt out cookie
-			 */
-			setOptOutCookie: function (name) {
-				configOptOutCookie = name;
-			},
-
-			/**
-			 * Count sites in pre-rendered state
-			 *
-			 * @param bool enable If true, track when in pre-rendered state
-			 */
-			setCountPreRendered: function (enable) {
-				configCountPreRendered = enable;
-			},
-
-			/**
-			 * Set the business-defined user ID for this user.
-			 *
-			 * @param string userId The business-defined user ID
-			 */
-			setUserId: function(userId) {
-				businessUserId = userId;
-			},
-
-			/**
-			 * Alias for setUserId.
-			 *
-			 * @param string userId The business-defined user ID
-			 */
-			identifyUser: function(userId) {
-				setUserId(userId);
-			},
-
-			/**
-			 * Set the business-defined user ID for this user using the location querystring.
-			 *
-			 * @param string queryName Name of a querystring name-value pair
-			 */
-			setUserIdFromLocation: function(querystringField) {
-				refreshUrl();
-				businessUserId = helpers.fromQuerystring(querystringField, locationHrefAlias);
-			},
-
-			/**
-			 * Set the business-defined user ID for this user using the referrer querystring.
-			 *
-			 * @param string queryName Name of a querystring name-value pair
-			 */
-			setUserIdFromReferrer: function(querystringField) {
-				refreshUrl();
-				businessUserId = helpers.fromQuerystring(querystringField, configReferrerUrl);
-			},
-
-			/**
-			 * Set the business-defined user ID for this user to the value of a cookie.
-			 *
-			 * @param string cookieName Name of the cookie whose value will be assigned to businessUserId
-			 */
-			setUserIdFromCookie: function(cookieName) {
-				businessUserId = cookie.cookie(cookieName);
-			},
-
-			/**
-			 * Configure this tracker to log to a CloudFront collector.
-			 *
-			 * @param string distSubdomain The subdomain on your CloudFront collector's distribution
-			 */
-			setCollectorCf: function (distSubdomain) {
-				configCollectorUrl = collectorUrlFromCfDist(distSubdomain);
-			},
-
-			/**
-			 *
-			 * Specify the Snowplow collector URL. No need to include HTTP
-			 * or HTTPS - we will add this.
-			 *
-			 * @param string rawUrl The collector URL minus protocol and /i
-			 */
-			setCollectorUrl: function (rawUrl) {
-				configCollectorUrl = asCollectorUrl(rawUrl);
-			},
-
-			/**
-			* Specify the platform
-			*
-			* @param string platform Overrides the default tracking platform
-			*/
-			setPlatform: function(platform) {
-				helpers.warn('setPlatform is deprecated. Instead add a "platform" field to the argmap argument of newTracker.');
-				core.setPlatform(platform);
-			},
-
-			/**
-			*
-			* Enable Base64 encoding for self-describing event payload
-			*
-			* @param bool enabled A boolean value indicating if the Base64 encoding for self-describing events should be enabled or not
-			*/
-			encodeBase64: function (enabled) {
-				helpers.warn('This usage of encodeBase64 is deprecated. Instead add an "encodeBase64" field to the argmap argument of newTracker.');
-				core.setBase64Encoding(enabled);
-			},
-
-			/**
-			 * Send all events in the outQueue
-			 * Use only when sending POSTs with a bufferSize of at least 2
-			 */
-			flushBuffer: function () {
-				outQueueManager.executeQueue();
-			},
-
-			/**
-			 * Add the geolocation context to all events
-			 */
-			enableGeolocationContext: enableGeolocationContext,
-
-			/**
-			 * Log visit to this page
-			 *
-			 * @param string customTitle
-			 * @param object Custom context relating to the event
-			 * @param object contextCallback Function returning an array of contexts
-			 * @param tstamp number or Timestamp object
-			 */
-			trackPageView: function (customTitle, context, contextCallback, tstamp) {
-				trackCallback(function () {
-					logPageView(customTitle, context, contextCallback, tstamp);
-				});
-			},
-
-			/**
-			 * Track a structured event happening on this page.
-			 *
-			 * Replaces trackEvent, making clear that the type
-			 * of event being tracked is a structured one.
-			 *
-			 * @param string category The name you supply for the group of objects you want to track
-			 * @param string action A string that is uniquely paired with each category, and commonly used to define the type of user interaction for the web object
-			 * @param string label (optional) An optional string to provide additional dimensions to the event data
-			 * @param string property (optional) Describes the object or the action performed on it, e.g. quantity of item added to basket
-			 * @param int|float|string value (optional) An integer that you can use to provide numerical data about the user event
-			 * @param object Custom context relating to the event
-			 * @param tstamp number or Timestamp object
-			 */
-			trackStructEvent: function (category, action, label, property, value, context, tstamp) {
-				trackCallback(function () {
-					core.trackStructEvent(category, action, label, property, value, addCommonContexts(context), tstamp);
-				});
-			},
-
-			/**
-			 * Track a self-describing event (previously unstructured event) happening on this page.
-			 *
-			 * @param object eventJson Contains the properties and schema location for the event
-			 * @param object context Custom context relating to the event
-			 * @param tstamp number or Timestamp object
-			 */
-			trackSelfDescribingEvent: function (eventJson, context, tstamp) {
-				trackCallback(function () {
-					core.trackSelfDescribingEvent(eventJson, addCommonContexts(context), tstamp);
-				});
-			},
-
-			/**
-			 * Alias for `trackSelfDescribingEvent`, left for compatibility
-			 */
-			trackUnstructEvent: function (eventJson, context, tstamp) {
-				trackCallback(function () {
-					core.trackSelfDescribingEvent(eventJson, addCommonContexts(context), tstamp);
-				});
-			},
-
-			/**
-			 * Track an ecommerce transaction
-			 *
-			 * @param string orderId Required. Internal unique order id number for this transaction.
-			 * @param string affiliation Optional. Partner or store affiliation.
-			 * @param string total Required. Total amount of the transaction.
-			 * @param string tax Optional. Tax amount of the transaction.
-			 * @param string shipping Optional. Shipping charge for the transaction.
-			 * @param string city Optional. City to associate with transaction.
-			 * @param string state Optional. State to associate with transaction.
-			 * @param string country Optional. Country to associate with transaction.
-			 * @param string currency Optional. Currency to associate with this transaction.
-			 * @param object context Optional. Context relating to the event.
-			 * @param tstamp number or Timestamp object
-			 */
-			addTrans: function(orderId, affiliation, total, tax, shipping, city, state, country, currency, context, tstamp) {
-				ecommerceTransaction.transaction = {
-					orderId: orderId,
-					affiliation: affiliation,
-					total: total,
-					tax: tax,
-					shipping: shipping,
-					city: city,
-					state: state,
-					country: country,
-					currency: currency,
-					context: context,
-					tstamp: tstamp
-				};
-			},
-
-			/**
-			 * Track an ecommerce transaction item
-			 *
-			 * @param string orderId Required Order ID of the transaction to associate with item.
-			 * @param string sku Required. Item's SKU code.
-			 * @param string name Optional. Product name.
-			 * @param string category Optional. Product category.
-			 * @param string price Required. Product price.
-			 * @param string quantity Required. Purchase quantity.
-			 * @param string currency Optional. Product price currency.
-			 * @param object context Optional. Context relating to the event.
-			 * @param tstamp number or Timestamp object
-			 */
-			addItem: function(orderId, sku, name, category, price, quantity, currency, context, tstamp) {
-				ecommerceTransaction.items.push({
-					orderId: orderId,
-					sku: sku,
-					name: name,
-					category: category,
-					price: price,
-					quantity: quantity,
-					currency: currency,
-					context: context,
-					tstamp: tstamp
-				});
-			},
-
-			/**
-			 * Commit the ecommerce transaction
-			 *
-			 * This call will send the data specified with addTrans,
-			 * addItem methods to the tracking server.
-			 */
-			trackTrans: function() {
-				trackCallback(function () {
-
-					logTransaction(
-						ecommerceTransaction.transaction.orderId,
-						ecommerceTransaction.transaction.affiliation,
-						ecommerceTransaction.transaction.total,
-						ecommerceTransaction.transaction.tax,
-						ecommerceTransaction.transaction.shipping,
-						ecommerceTransaction.transaction.city,
-						ecommerceTransaction.transaction.state,
-						ecommerceTransaction.transaction.country,
-						ecommerceTransaction.transaction.currency,
-						ecommerceTransaction.transaction.context,
-						ecommerceTransaction.transaction.tstamp
-					);
-					for (var i = 0; i < ecommerceTransaction.items.length; i++) {
-						var item = ecommerceTransaction.items[i];
-						logTransactionItem(
-							item.orderId,
-							item.sku,
-							item.name,
-							item.category,
-							item.price,
-							item.quantity,
-							item.currency,
-							item.context,
-							item.tstamp
-						);
-					}
-
-					ecommerceTransaction = ecommerceTransactionTemplate();
-				});
-			},
-
-			/**
-			 * Manually log a click from your own code
-			 *
-			 * @param string elementId
-			 * @param array elementClasses
-			 * @param string elementTarget
-			 * @param string targetUrl
-			 * @param string elementContent innerHTML of the element
-			 * @param object Custom context relating to the event
-			 * @param tstamp number or Timestamp object
-			 */
-			// TODO: break this into trackLink(destUrl) and trackDownload(destUrl)
-			trackLinkClick: function(targetUrl, elementId, elementClasses, elementTarget, elementContent, context, tstamp) {
-				trackCallback(function () {
-					core.trackLinkClick(targetUrl, elementId, elementClasses, elementTarget, elementContent, addCommonContexts(context), tstamp);
-				});
-			},
-
-			/**
-			 * Track an ad being served
-			 *
-			 * @param string impressionId Identifier for a particular ad impression
-			 * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'
-			 * @param number cost Cost
-			 * @param string bannerId Identifier for the ad banner displayed
-			 * @param string zoneId Identifier for the ad zone
-			 * @param string advertiserId Identifier for the advertiser
-			 * @param string campaignId Identifier for the campaign which the banner belongs to
-			 * @param object Custom context relating to the event
-			 * @param tstamp number or Timestamp object
-			 */
-			trackAdImpression: function(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, context, tstamp) {
-				trackCallback(function () {
-					core.trackAdImpression(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, addCommonContexts(context), tstamp);
-				});
-			},
-
-			/**
-			 * Track an ad being clicked
-			 *
-			 * @param string clickId Identifier for the ad click
-			 * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'
-			 * @param number cost Cost
-			 * @param string targetUrl (required) The link's target URL
-			 * @param string bannerId Identifier for the ad banner displayed
-			 * @param string zoneId Identifier for the ad zone
-			 * @param string impressionId Identifier for a particular ad impression
-			 * @param string advertiserId Identifier for the advertiser
-			 * @param string campaignId Identifier for the campaign which the banner belongs to
-			 * @param object Custom context relating to the event
-			 * @param tstamp number or Timestamp object
-			 */
-			trackAdClick: function(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, context, tstamp) {
-				trackCallback(function () {
-					core.trackAdClick(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, addCommonContexts(context), tstamp);
-				});
-			},
-
-			/**
-			 * Track an ad conversion event
-			 *
-			 * @param string conversionId Identifier for the ad conversion event
-			 * @param number cost Cost
-			 * @param string category The name you supply for the group of objects you want to track
-			 * @param string action A string that is uniquely paired with each category
-			 * @param string property Describes the object of the conversion or the action performed on it
-			 * @param number initialValue Revenue attributable to the conversion at time of conversion
-			 * @param string advertiserId Identifier for the advertiser
-			 * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'
-			 * @param string campaignId Identifier for the campaign which the banner belongs to
-			 * @param object Custom context relating to the event
-			 * @param tstamp number or Timestamp object
-			 */
-			trackAdConversion: function(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, context, tstamp) {
-				trackCallback(function () {
-					core.trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, addCommonContexts(context), tstamp);
-				});
-			},
-
-			/**
-			 * Track a social interaction event
-			 *
-			 * @param string action (required) Social action performed
-			 * @param string network (required) Social network
-			 * @param string target Object of the social action e.g. the video liked, the tweet retweeted
-			 * @param object Custom context relating to the event
-			 * @param tstamp number or Timestamp object
-			 */
-			trackSocialInteraction: function(action, network, target, context, tstamp) {
-				trackCallback(function () {
-					core.trackSocialInteraction(action, network, target, addCommonContexts(context), tstamp);
-				});
-			},
-
-			/**
-			 * Track an add-to-cart event
-			 *
-			 * @param string sku Required. Item's SKU code.
-			 * @param string name Optional. Product name.
-			 * @param string category Optional. Product category.
-			 * @param string unitPrice Optional. Product price.
-			 * @param string quantity Required. Quantity added.
-			 * @param string currency Optional. Product price currency.
-			 * @param array context Optional. Context relating to the event.
-			 * @param tstamp number or Timestamp object
-			 */
-			trackAddToCart: function(sku, name, category, unitPrice, quantity, currency, context, tstamp) {
-				trackCallback(function () {
-					core.trackAddToCart(sku, name, category, unitPrice, quantity, currency, addCommonContexts(context), tstamp);
-				});
-			},
-
-			/**
-			 * Track a remove-from-cart event
-			 *
-			 * @param string sku Required. Item's SKU code.
-			 * @param string name Optional. Product name.
-			 * @param string category Optional. Product category.
-			 * @param string unitPrice Optional. Product price.
-			 * @param string quantity Required. Quantity removed.
-			 * @param string currency Optional. Product price currency.
-			 * @param array context Optional. Context relating to the event.
-			 * @param tstamp Opinal number or Timestamp object
-			 */
-			trackRemoveFromCart: function(sku, name, category, unitPrice, quantity, currency, context, tstamp) {
-				trackCallback(function () {
-					core.trackRemoveFromCart(sku, name, category, unitPrice, quantity, currency, addCommonContexts(context), tstamp);
-				});
-			},
-
-			/**
-			 * Track an internal search event
-			 *
-			 * @param array terms Search terms
-			 * @param object filters Search filters
-			 * @param number totalResults Number of results
-			 * @param number pageResults Number of results displayed on page
-			 * @param array context Optional. Context relating to the event.
-			 * @param tstamp Opinal number or Timestamp object
-			 */
-			trackSiteSearch: function(terms, filters, totalResults, pageResults, context, tstamp) {
-				trackCallback(function () {
-					core.trackSiteSearch(terms, filters, totalResults, pageResults, addCommonContexts(context), tstamp);
-				});
-			},
-
-			/**
-			 * Track a timing event (such as the time taken for a resource to load)
-			 *
-			 * @param string category Required.
-			 * @param string variable Required.
-			 * @param number timing Required.
-			 * @param string label Optional.
-			 * @param array context Optional. Context relating to the event.
-			 * @param tstamp Opinal number or Timestamp object
-			 */
-			trackTiming: function (category, variable, timing, label, context, tstamp) {
-				trackCallback(function () {
-					core.trackSelfDescribingEvent({
-						schema: 'iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0',
-						data: {
-							category: category,
-							variable: variable,
-							timing: timing,
-							label: label
-						}
-					}, addCommonContexts(context), tstamp)
-				});
-			},
-
-			/**
-			 * Track a consent withdrawn action
-			 *
-			 * @param {boolean} all - Indicates user withdraws all consent regardless of context documents.
-			 * @param {string} [id] - Number associated with document.
-			 * @param {string} [version] - Document version number.
-			 * @param {string} [name] - Document name.
-			 * @param {string} [description] - Document description.
-			 * @param {array} [context] - Context relating to the event.
-			 * @param {number|Timestamp} [tstamp] - Number or Timestamp object.
-			 */
-			trackConsentWithdrawn: function (all, id, version, name, description, context, tstamp) {
-				trackCallback(function () {
-					core.trackConsentWithdrawn(all, id, version, name, description, addCommonContexts(context), tstamp);
-				});
-			},
-
-			/**
-			 * Track a consent granted action
-			 *
-			 * @param {string} id - ID number associated with document.
-			 * @param {string} version - Document version number.
-			 * @param {string} [name] - Document name.
-			 * @param {string} [description] - Document description.
-			 * @param {string} [expiry] - Date-time when consent document(s) expire.
-			 * @param {array} [context] - Context containing consent documents.
-			 * @param {Timestamp|number} [tstamp] - number or Timestamp object.
-			 */
-			trackConsentGranted: function (id, version, name, description, expiry, context, tstamp) {
-				trackCallback(function () {
-					core.trackConsentGranted(id, version, name, description, expiry, addCommonContexts(context), tstamp);
-				});
-			},
-
-			/**
-			 * Track a GA Enhanced Ecommerce Action with all stored
-			 * Enhanced Ecommerce contexts
-			 *
-			 * @param string action
-			 * @param array context Optional. Context relating to the event.
-			 * @param tstamp Opinal number or Timestamp object
-			 */
-			trackEnhancedEcommerceAction: function (action, context, tstamp) {
-				var combinedEnhancedEcommerceContexts = enhancedEcommerceContexts.concat(context || []);
-				enhancedEcommerceContexts.length = 0;
-
-				trackCallback(function () {
-					core.trackSelfDescribingEvent({
-						schema: 'iglu:com.google.analytics.enhanced-ecommerce/action/jsonschema/1-0-0',
-						data: {
-							action: action
-						}
-					}, addCommonContexts(combinedEnhancedEcommerceContexts), tstamp);
-				});
-			},
-
-			/**
-			 * Adds a GA Enhanced Ecommerce Action Context
-			 *
-			 * @param string id
-			 * @param string affiliation
-			 * @param number revenue
-			 * @param number tax
-			 * @param number shipping
-			 * @param string coupon
-			 * @param string list
-			 * @param integer step
-			 * @param string option
-			 * @param string currency
-			 */
-			addEnhancedEcommerceActionContext: function (id, affiliation, revenue, tax, shipping, coupon, list, step, option, currency) {
-				enhancedEcommerceContexts.push({
-					schema: 'iglu:com.google.analytics.enhanced-ecommerce/actionFieldObject/jsonschema/1-0-0',
-					data: {
-						id: id,
-						affiliation: affiliation,
-						revenue: helpers.parseFloat(revenue),
-						tax: helpers.parseFloat(tax),
-						shipping: helpers.parseFloat(shipping),
-						coupon: coupon,
-						list: list,
-						step: helpers.parseInt(step),
-						option: option,
-						currency: currency
-					}
-				});
-			},
-
-			/**
-			 * Adds a GA Enhanced Ecommerce Impression Context
-			 *
-			 * @param string id
-			 * @param string name
-			 * @param string list
-			 * @param string brand
-			 * @param string category
-			 * @param string variant
-			 * @param integer position
-			 * @param number price
-			 * @param string currency
-			 */
-			addEnhancedEcommerceImpressionContext: function (id, name, list, brand, category, variant, position, price, currency) {
-				enhancedEcommerceContexts.push({
-					schema: 'iglu:com.google.analytics.enhanced-ecommerce/impressionFieldObject/jsonschema/1-0-0',
-					data: {
-						id: id,
-						name: name,
-						list: list,
-						brand: brand,
-						category: category,
-						variant: variant,
-						position: helpers.parseInt(position),
-						price: helpers.parseFloat(price),
-						currency: currency
-					}
-				});
-			},
-
-			/**
-			 * Adds a GA Enhanced Ecommerce Product Context
-			 *
-			 * @param string id
-			 * @param string name
-			 * @param string list
-			 * @param string brand
-			 * @param string category
-			 * @param string variant
-			 * @param number price
-			 * @param integer quantity
-			 * @param string coupon
-			 * @param integer position
-			 * @param string currency
-			 */
-			addEnhancedEcommerceProductContext: function (id, name, list, brand, category, variant, price, quantity, coupon, position, currency) {
-				enhancedEcommerceContexts.push({
-					schema: 'iglu:com.google.analytics.enhanced-ecommerce/productFieldObject/jsonschema/1-0-0',
-					data: {
-						id: id,
-						name: name,
-						list: list,
-						brand: brand,
-						category: category,
-						variant: variant,
-						price: helpers.parseFloat(price),
-						quantity: helpers.parseInt(quantity),
-						coupon: coupon,
-						position: helpers.parseInt(position),
-						currency: currency
-					}
-				});
-			},
-
-			/**
-			 * Adds a GA Enhanced Ecommerce Promo Context
-			 *
-			 * @param string id
-			 * @param string name
-			 * @param string creative
-			 * @param string position
-			 * @param string currency
-			 */
-			addEnhancedEcommercePromoContext: function (id, name, creative, position, currency) {
-				enhancedEcommerceContexts.push({
-					schema: 'iglu:com.google.analytics.enhanced-ecommerce/promoFieldObject/jsonschema/1-0-0',
-					data: {
-						id: id,
-						name: name,
-						creative: creative,
-						position: position,
-						currency: currency
-					}
-				});
-			},
-
-			/**
-			 * All provided contexts will be sent with every event
-			 *
-			 * @param contexts Array<ContextPrimitive | ConditionalContextProvider>
-			 */
-			addGlobalContexts: function (contexts) { core.addGlobalContexts(contexts); },
-
-			/**
-			 * All provided contexts will no longer be sent with every event
-			 *
-			 * @param contexts Array<ContextPrimitive | ConditionalContextProvider>
-			 */
-			removeGlobalContexts: function (contexts) { core.removeGlobalContexts(contexts); },
-
-			/**
-			 * Clear all global contexts that are sent with events
-			 */
-			clearGlobalContexts: function () { core.clearGlobalContexts(); },
-
-			/**
-			 * Enable tracking of unhandled exceptions with custom contexts
-			 *
-			 * @param filter Function ErrorEvent => Bool to check whether error should be tracker
-			 * @param contextsAdder Function ErrorEvent => Array<Context> to add custom contexts with
-			 *		             internal state based on particular error
-			 */
-			enableErrorTracking: function (filter, contextsAdder) {
-				errorManager.enableErrorTracking(filter, contextsAdder, addCommonContexts())
-			},
-
-			/**
-			 * Track unhandled exception.
-			 * This method supposed to be used inside try/catch block
-			 *
-			 * @param message string Message appeared in console
-			 * @param filename string Source file (not used)
-			 * @param lineno number Line number
-			 * @param colno number Column number (not used)
-			 * @param error Error error object (not present in all browsers)
-			 * @param contexts Array of custom contexts
-			 */
-			trackError: function (message, filename, lineno, colno, error, contexts) {
-				var enrichedContexts = addCommonContexts(contexts);
-				errorManager.trackError(message, filename, lineno, colno, error, enrichedContexts);
-			},
-
-			/**
-			 * Stop regenerating `pageViewId` (available from `web_page` context)
-			 */
-			preservePageViewId: function () {
-				preservePageViewId = true
+		/**
+		 * Get the domain session index also known as current memorized visit count.
+		 *
+		 * @return int Domain session index
+		 */
+		apiMethods.getDomainSessionIndex = function() {
+			return memorizedVisitCount;
+		};
+
+		/**
+		 * Get the page view ID as generated or provided by mutSnowplowState.pageViewId.
+		 *
+		 * @return string Page view ID
+		 */
+		apiMethods.getPageViewId = function () {
+			return getPageViewId();
+		};
+
+		/**
+		 * Expires current session and starts a new session.
+		 */
+		apiMethods.newSession = newSession;
+
+		/**
+		 * Get the cookie name as cookieNamePrefix + basename + . + domain.
+		 *
+		 * @return string Cookie name
+		 */
+		apiMethods.getCookieName = function(basename) {
+			return getSnowplowCookieName(basename);
+		};
+
+		/**
+		 * Get the current user ID (as set previously
+		 * with setUserId()).
+		 *
+		 * @return string Business-defined user ID
+		 */
+		apiMethods.getUserId = function () {
+			return businessUserId;
+		};
+
+		/**
+		 * Get visitor ID (from first party cookie)
+		 *
+		 * @return string Visitor ID in hexits (or null, if not yet known)
+		 */
+		apiMethods.getDomainUserId = function () {
+			return (loadDomainUserIdCookie())[1];
+		};
+
+		/**
+		 * Get the visitor information (from first party cookie)
+		 *
+		 * @return array
+		 */
+		apiMethods.getDomainUserInfo = function () {
+			return loadDomainUserIdCookie();
+		};
+
+		/**
+		 * Get the user fingerprint
+		 *
+		 * @return string The user fingerprint
+		 */
+		apiMethods.getUserFingerprint = function () {
+			return userFingerprint;
+		};
+
+		/**
+		 * Specify the app ID
+		 *
+		 * @param int|string appId
+		 */
+		apiMethods.setAppId = function (appId) {
+			helpers.warn('setAppId is deprecated. Instead add an "appId" field to the argmap argument of newTracker.');
+			core.setAppId(appId);
+		};
+
+		/**
+		 * Override referrer
+		 *
+		 * @param string url
+		 */
+		apiMethods.setReferrerUrl = function (url) {
+			customReferrer = url;
+		};
+
+		/**
+		 * Override url
+		 *
+		 * @param string url
+		 */
+		apiMethods.setCustomUrl = function (url) {
+			refreshUrl();
+			configCustomUrl = resolveRelativeReference(locationHrefAlias, url);
+		};
+
+		/**
+		 * Override document.title
+		 *
+		 * @param string title
+		 */
+		apiMethods.setDocumentTitle = function (title) {
+			// So we know what document.title was at the time of trackPageView
+			lastDocumentTitle = documentAlias.title;
+			lastConfigTitle = title;
+		};
+
+		/**
+		 * Strip hash tag (or anchor) from URL
+		 *
+		 * @param bool enableFilter
+		 */
+		apiMethods.discardHashTag = function (enableFilter) {
+			configDiscardHashTag = enableFilter;
+		};
+
+		/**
+		 * Set first-party cookie name prefix
+		 *
+		 * @param string cookieNamePrefix
+		 */
+		apiMethods.setCookieNamePrefix = function (cookieNamePrefix) {
+			helpers.warn('setCookieNamePrefix is deprecated. Instead add a "cookieName" field to the argmap argument of newTracker.');
+			configCookieNamePrefix = cookieNamePrefix;
+		};
+
+		/**
+		 * Set first-party cookie domain
+		 *
+		 * @param string domain
+		 */
+		apiMethods.setCookieDomain = function (domain) {
+			helpers.warn('setCookieDomain is deprecated. Instead add a "cookieDomain" field to the argmap argument of newTracker.');
+			configCookieDomain = helpers.fixupDomain(domain);
+			updateDomainHash();
+		};
+
+		/**
+		 * Set first-party cookie path
+		 *
+		 * @param string domain
+		 */
+		apiMethods.setCookiePath = function (path) {
+			configCookiePath = path;
+			updateDomainHash();
+		};
+
+		/**
+		 * Set visitor cookie timeout (in seconds)
+		 *
+		 * @param int timeout
+		 */
+		apiMethods.setVisitorCookieTimeout = function (timeout) {
+			configVisitorCookieTimeout = timeout;
+		};
+
+		/**
+		 * Set session cookie timeout (in seconds)
+		 *
+		 * @param int timeout
+		 */
+		apiMethods.setSessionCookieTimeout = function (timeout) {
+			helpers.warn('setSessionCookieTimeout is deprecated. Instead add a "sessionCookieTimeout" field to the argmap argument of newTracker.')
+			configSessionCookieTimeout = timeout;
+		};
+
+		/**
+		 * @param number seed The seed used for MurmurHash3
+		 */
+		apiMethods.setUserFingerprintSeed = function(seed) {
+			helpers.warn('setUserFingerprintSeed is deprecated. Instead add a "userFingerprintSeed" field to the argmap argument of newTracker.');
+			configUserFingerprintHashSeed = seed;
+			userFingerprint = detectors.detectSignature(configUserFingerprintHashSeed);
+		};
+
+		/**
+		 * Enable/disable user fingerprinting. User fingerprinting is enabled by default.
+		 * @param bool enable If false, turn off user fingerprinting
+		 */
+		apiMethods.enableUserFingerprint = function(enable) {
+			helpers.warn('enableUserFingerprintSeed is deprecated. Instead add a "userFingerprint" field to the argmap argument of newTracker.');
+			if (!enable) {
+				userFingerprint = '';
 			}
 		};
-	};
 
+		/**
+		 * Prevent tracking if user's browser has Do Not Track feature enabled,
+		 * where tracking is:
+		 * 1) Sending events to a collector
+		 * 2) Setting first-party cookies
+		 * @param bool enable If true and Do Not Track feature enabled, don't track.
+		 */
+		apiMethods.respectDoNotTrack = function (enable) {
+			helpers.warn('This usage of respectDoNotTrack is deprecated. Instead add a "respectDoNotTrack" field to the argmap argument of newTracker.');
+			var dnt = navigatorAlias.doNotTrack || navigatorAlias.msDoNotTrack;
+
+			configDoNotTrack = enable && (dnt === 'yes' || dnt === '1');
+		};
+
+		/**
+		 * Enable querystring decoration for links pasing a filter
+		 *
+		 * @param function crossDomainLinker Function used to determine which links to decorate
+		 */
+		apiMethods.crossDomainLinker = function (crossDomainLinkerCriterion) {
+			decorateLinks(crossDomainLinkerCriterion);
+		};
+
+		/**
+		 * Add click listener to a specific link element.
+		 * When clicked, Piwik will log the click automatically.
+		 *
+		 * @param DOMElement element
+		 * @param bool enable If true, use pseudo click-handler (mousedown+mouseup)
+		 */
+		apiMethods.addListener = function (element, pseudoClicks, context) {
+			addClickListener(element, pseudoClicks, context);
+		};
+
+		/**
+		 * Install link tracker
+		 *
+		 * The default behaviour is to use actual click events. However, some browsers
+		 * (e.g., Firefox, Opera, and Konqueror) don't generate click events for the middle mouse button.
+		 *
+		 * To capture more "clicks", the pseudo click-handler uses mousedown + mouseup events.
+		 * This is not industry standard and is vulnerable to false positives (e.g., drag events).
+		 *
+		 * There is a Safari/Chrome/Webkit bug that prevents tracking requests from being sent
+		 * by either click handler.  The workaround is to set a target attribute (which can't
+		 * be "_self", "_top", or "_parent").
+		 *
+		 * @see https://bugs.webkit.org/show_bug.cgi?id=54783
+		 *
+		 * @param object criterion Criterion by which it will be decided whether a link will be tracked
+		 * @param bool pseudoClicks If true, use pseudo click-handler (mousedown+mouseup)
+		 * @param bool trackContent Whether to track the innerHTML of the link element
+		 * @param array context Context for all link click events
+		 */
+		apiMethods.enableLinkClickTracking = function (criterion, pseudoClicks, trackContent, context) {
+			if (mutSnowplowState.hasLoaded) {
+				// the load event has already fired, add the click listeners now
+				linkTrackingManager.configureLinkClickTracking(criterion, pseudoClicks, trackContent, context);
+				linkTrackingManager.addClickListeners();
+			} else {
+				// defer until page has loaded
+				mutSnowplowState.registeredOnLoadHandlers.push(function () {
+					linkTrackingManager.configureLinkClickTracking(criterion, pseudoClicks, trackContent, context);
+					linkTrackingManager.addClickListeners();
+				});
+			}
+		};
+
+		/**
+		 * Add click event listeners to links which have been added to the page since the
+		 * last time enableLinkClickTracking or refreshLinkClickTracking was used
+		 */
+		apiMethods.refreshLinkClickTracking = function () {
+			if (mutSnowplowState.hasLoaded) {
+				linkTrackingManager.addClickListeners();
+			} else {
+				mutSnowplowState.registeredOnLoadHandlers.push(function () {
+					linkTrackingManager.addClickListeners();
+				});
+			}
+		};
+
+		/**
+		 * Enables page activity tracking (sends page
+		 * pings to the Collector regularly).
+		 *
+		 * @param int minimumVisitLength Seconds to wait before sending first page ping
+		 * @param int heartBeatDelay Seconds to wait between pings
+		 */
+		apiMethods.enableActivityTracking = function (minimumVisitLength, heartBeatDelay) {
+			if (minimumVisitLength === parseInt(minimumVisitLength, 10) &&
+				heartBeatDelay === parseInt(heartBeatDelay, 10)) {
+				activityTrackingEnabled = true;
+				configMinimumVisitTime = new Date().getTime() + minimumVisitLength * 1000;
+				configHeartBeatTimer = heartBeatDelay * 1000;
+			} else {
+				helpers.warn("Activity tracking not enabled, please provide integer values " +
+					"for minimumVisitLength and heartBeatDelay.")
+			}
+		};
+
+		/**
+		 * Triggers the activityHandler manually to allow external user defined
+		 * activity. i.e. While watching a video
+		 */
+		apiMethods.updatePageActivity = function () {
+			activityHandler();
+		};
+
+		/**
+		 * Enables automatic form tracking.
+		 * An event will be fired when a form field is changed or a form submitted.
+		 * This can be called multiple times: only forms not already tracked will be tracked.
+		 *
+		 * @param object config Configuration object determining which forms and fields to track.
+		 *                      Has two properties: "forms" and "fields"
+		 * @param array context Context for all form tracking events
+		 */
+		apiMethods.enableFormTracking = function (config, context) {
+			if (mutSnowplowState.hasLoaded) {
+				formTrackingManager.configureFormTracking(config);
+				formTrackingManager.addFormListeners(context);
+			} else {
+				mutSnowplowState.registeredOnLoadHandlers.push(function () {
+					formTrackingManager.configureFormTracking(config);
+					formTrackingManager.addFormListeners(context);
+				});
+			}
+		};
+
+		/**
+		 * Frame buster
+		 */
+		apiMethods.killFrame = function () {
+			if (windowAlias.location !== windowAlias.top.location) {
+				windowAlias.top.location = windowAlias.location;
+			}
+		};
+
+		/**
+		 * Redirect if browsing offline (aka file: buster)
+		 *
+		 * @param string url Redirect to this URL
+		 */
+		apiMethods.redirectFile = function (url) {
+			if (windowAlias.location.protocol === 'file:') {
+				windowAlias.location = url;
+			}
+		};
+
+		/**
+		 * Sets the opt out cookie.
+		 *
+		 * @param string name of the opt out cookie
+		 */
+		apiMethods.setOptOutCookie = function (name) {
+			configOptOutCookie = name;
+		};
+
+		/**
+		 * Count sites in pre-rendered state
+		 *
+		 * @param bool enable If true, track when in pre-rendered state
+		 */
+		apiMethods.setCountPreRendered = function (enable) {
+			configCountPreRendered = enable;
+		};
+
+		/**
+		 * Set the business-defined user ID for this user.
+		 *
+		 * @param string userId The business-defined user ID
+		 */
+		apiMethods.setUserId = function(userId) {
+			businessUserId = userId;
+		};
+
+		/**
+		 * Alias for setUserId.
+		 *
+		 * @param string userId The business-defined user ID
+		 */
+		apiMethods.identifyUser = function(userId) {
+			setUserId(userId);
+		};
+
+		/**
+		 * Set the business-defined user ID for this user using the location querystring.
+		 *
+		 * @param string queryName Name of a querystring name-value pair
+		 */
+		apiMethods.setUserIdFromLocation = function(querystringField) {
+			refreshUrl();
+			businessUserId = helpers.fromQuerystring(querystringField, locationHrefAlias);
+		};
+
+		/**
+		 * Set the business-defined user ID for this user using the referrer querystring.
+		 *
+		 * @param string queryName Name of a querystring name-value pair
+		 */
+		apiMethods.setUserIdFromReferrer = function(querystringField) {
+			refreshUrl();
+			businessUserId = helpers.fromQuerystring(querystringField, configReferrerUrl);
+		};
+
+		/**
+		 * Set the business-defined user ID for this user to the value of a cookie.
+		 *
+		 * @param string cookieName Name of the cookie whose value will be assigned to businessUserId
+		 */
+		apiMethods.setUserIdFromCookie = function(cookieName) {
+			businessUserId = cookie.cookie(cookieName);
+		};
+
+		/**
+		 * Configure this tracker to log to a CloudFront collector.
+		 *
+		 * @param string distSubdomain The subdomain on your CloudFront collector's distribution
+		 */
+		apiMethods.setCollectorCf = function (distSubdomain) {
+			configCollectorUrl = collectorUrlFromCfDist(distSubdomain);
+		};
+
+		/**
+		 *
+		 * Specify the Snowplow collector URL. No need to include HTTP
+		 * or HTTPS - we will add this.
+		 *
+		 * @param string rawUrl The collector URL minus protocol and /i
+		 */
+		apiMethods.setCollectorUrl = function (rawUrl) {
+			configCollectorUrl = asCollectorUrl(rawUrl);
+		};
+
+		/**
+		 * Specify the platform
+		 *
+		 * @param string platform Overrides the default tracking platform
+		 */
+		apiMethods.setPlatform = function(platform) {
+			helpers.warn('setPlatform is deprecated. Instead add a "platform" field to the argmap argument of newTracker.');
+			core.setPlatform(platform);
+		};
+
+		/**
+		 *
+		 * Enable Base64 encoding for self-describing event payload
+		 *
+		 * @param bool enabled A boolean value indicating if the Base64 encoding for self-describing events should be enabled or not
+		 */
+		apiMethods.encodeBase64 = function (enabled) {
+			helpers.warn('This usage of encodeBase64 is deprecated. Instead add an "encodeBase64" field to the argmap argument of newTracker.');
+			core.setBase64Encoding(enabled);
+		};
+
+		/**
+		 * Send all events in the outQueue
+		 * Use only when sending POSTs with a bufferSize of at least 2
+		 */
+		apiMethods.flushBuffer = function () {
+			outQueueManager.executeQueue();
+		};
+
+		/**
+		 * Add the geolocation context to all events
+		 */
+		apiMethods.enableGeolocationContext = enableGeolocationContext,
+
+		/**
+		 * Log visit to this page
+		 *
+		 * @param string customTitle
+		 * @param object Custom context relating to the event
+		 * @param object contextCallback Function returning an array of contexts
+		 * @param tstamp number or Timestamp object
+		 */
+		apiMethods.trackPageView = function (customTitle, context, contextCallback, tstamp) {
+			trackCallback(function () {
+				logPageView(customTitle, context, contextCallback, tstamp);
+			});
+		};
+
+		/**
+		 * Track a structured event happening on this page.
+		 *
+		 * Replaces trackEvent, making clear that the type
+		 * of event being tracked is a structured one.
+		 *
+		 * @param string category The name you supply for the group of objects you want to track
+		 * @param string action A string that is uniquely paired with each category, and commonly used to define the type of user interaction for the web object
+		 * @param string label (optional) An optional string to provide additional dimensions to the event data
+		 * @param string property (optional) Describes the object or the action performed on it, e.g. quantity of item added to basket
+		 * @param int|float|string value (optional) An integer that you can use to provide numerical data about the user event
+		 * @param object Custom context relating to the event
+		 * @param tstamp number or Timestamp object
+		 */
+		apiMethods.trackStructEvent = function (category, action, label, property, value, context, tstamp) {
+			trackCallback(function () {
+				core.trackStructEvent(category, action, label, property, value, addCommonContexts(context), tstamp);
+			});
+		};
+
+		/**
+		 * Track a self-describing event (previously unstructured event) happening on this page.
+		 *
+		 * @param object eventJson Contains the properties and schema location for the event
+		 * @param object context Custom context relating to the event
+		 * @param tstamp number or Timestamp object
+		 */
+		apiMethods.trackSelfDescribingEvent = function (eventJson, context, tstamp) {
+			trackCallback(function () {
+				core.trackSelfDescribingEvent(eventJson, addCommonContexts(context), tstamp);
+			});
+		};
+
+		/**
+		 * Alias for `trackSelfDescribingEvent`, left for compatibility
+		 */
+		apiMethods.trackUnstructEvent = function (eventJson, context, tstamp) {
+			trackCallback(function () {
+				core.trackSelfDescribingEvent(eventJson, addCommonContexts(context), tstamp);
+			});
+		};
+
+		/**
+		 * Track an ecommerce transaction
+		 *
+		 * @param string orderId Required. Internal unique order id number for this transaction.
+		 * @param string affiliation Optional. Partner or store affiliation.
+		 * @param string total Required. Total amount of the transaction.
+		 * @param string tax Optional. Tax amount of the transaction.
+		 * @param string shipping Optional. Shipping charge for the transaction.
+		 * @param string city Optional. City to associate with transaction.
+		 * @param string state Optional. State to associate with transaction.
+		 * @param string country Optional. Country to associate with transaction.
+		 * @param string currency Optional. Currency to associate with this transaction.
+		 * @param object context Optional. Context relating to the event.
+		 * @param tstamp number or Timestamp object
+		 */
+		apiMethods.addTrans = function(orderId, affiliation, total, tax, shipping, city, state, country, currency, context, tstamp) {
+			ecommerceTransaction.transaction = {
+				orderId: orderId,
+				affiliation: affiliation,
+				total: total,
+				tax: tax,
+				shipping: shipping,
+				city: city,
+				state: state,
+				country: country,
+				currency: currency,
+				context: context,
+				tstamp: tstamp
+			};
+		};
+
+		/**
+		 * Track an ecommerce transaction item
+		 *
+		 * @param string orderId Required Order ID of the transaction to associate with item.
+		 * @param string sku Required. Item's SKU code.
+		 * @param string name Optional. Product name.
+		 * @param string category Optional. Product category.
+		 * @param string price Required. Product price.
+		 * @param string quantity Required. Purchase quantity.
+		 * @param string currency Optional. Product price currency.
+		 * @param object context Optional. Context relating to the event.
+		 * @param tstamp number or Timestamp object
+		 */
+		apiMethods.addItem = function(orderId, sku, name, category, price, quantity, currency, context, tstamp) {
+			ecommerceTransaction.items.push({
+				orderId: orderId,
+				sku: sku,
+				name: name,
+				category: category,
+				price: price,
+				quantity: quantity,
+				currency: currency,
+				context: context,
+				tstamp: tstamp
+			});
+		};
+
+		/**
+		 * Commit the ecommerce transaction
+		 *
+		 * This call will send the data specified with addTrans,
+		 * addItem methods to the tracking server.
+		 */
+		apiMethods.trackTrans = function() {
+			trackCallback(function () {
+
+				logTransaction(
+					ecommerceTransaction.transaction.orderId,
+					ecommerceTransaction.transaction.affiliation,
+					ecommerceTransaction.transaction.total,
+					ecommerceTransaction.transaction.tax,
+					ecommerceTransaction.transaction.shipping,
+					ecommerceTransaction.transaction.city,
+					ecommerceTransaction.transaction.state,
+					ecommerceTransaction.transaction.country,
+					ecommerceTransaction.transaction.currency,
+					ecommerceTransaction.transaction.context,
+					ecommerceTransaction.transaction.tstamp
+				);
+				for (var i = 0; i < ecommerceTransaction.items.length; i++) {
+					var item = ecommerceTransaction.items[i];
+					logTransactionItem(
+						item.orderId,
+						item.sku,
+						item.name,
+						item.category,
+						item.price,
+						item.quantity,
+						item.currency,
+						item.context,
+						item.tstamp
+					);
+				}
+
+				ecommerceTransaction = ecommerceTransactionTemplate();
+			});
+		};
+
+		/**
+		 * Manually log a click from your own code
+		 *
+		 * @param string elementId
+		 * @param array elementClasses
+		 * @param string elementTarget
+		 * @param string targetUrl
+		 * @param string elementContent innerHTML of the element
+		 * @param object Custom context relating to the event
+		 * @param tstamp number or Timestamp object
+		 */
+		// TODO: break this into trackLink(destUrl) and trackDownload(destUrl)
+		apiMethods.trackLinkClick = function(targetUrl, elementId, elementClasses, elementTarget, elementContent, context, tstamp) {
+			trackCallback(function () {
+				core.trackLinkClick(targetUrl, elementId, elementClasses, elementTarget, elementContent, addCommonContexts(context), tstamp);
+			});
+		};
+
+		/**
+		 * Track an ad being served
+		 *
+		 * @param string impressionId Identifier for a particular ad impression
+		 * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'
+		 * @param number cost Cost
+		 * @param string bannerId Identifier for the ad banner displayed
+		 * @param string zoneId Identifier for the ad zone
+		 * @param string advertiserId Identifier for the advertiser
+		 * @param string campaignId Identifier for the campaign which the banner belongs to
+		 * @param object Custom context relating to the event
+		 * @param tstamp number or Timestamp object
+		 */
+		apiMethods.trackAdImpression = function(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, context, tstamp) {
+			trackCallback(function () {
+				core.trackAdImpression(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, addCommonContexts(context), tstamp);
+			});
+		};
+
+		/**
+		 * Track an ad being clicked
+		 *
+		 * @param string clickId Identifier for the ad click
+		 * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'
+		 * @param number cost Cost
+		 * @param string targetUrl (required) The link's target URL
+		 * @param string bannerId Identifier for the ad banner displayed
+		 * @param string zoneId Identifier for the ad zone
+		 * @param string impressionId Identifier for a particular ad impression
+		 * @param string advertiserId Identifier for the advertiser
+		 * @param string campaignId Identifier for the campaign which the banner belongs to
+		 * @param object Custom context relating to the event
+		 * @param tstamp number or Timestamp object
+		 */
+		apiMethods.trackAdClick = function(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, context, tstamp) {
+			trackCallback(function () {
+				core.trackAdClick(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, addCommonContexts(context), tstamp);
+			});
+		};
+
+		/**
+		 * Track an ad conversion event
+		 *
+		 * @param string conversionId Identifier for the ad conversion event
+		 * @param number cost Cost
+		 * @param string category The name you supply for the group of objects you want to track
+		 * @param string action A string that is uniquely paired with each category
+		 * @param string property Describes the object of the conversion or the action performed on it
+		 * @param number initialValue Revenue attributable to the conversion at time of conversion
+		 * @param string advertiserId Identifier for the advertiser
+		 * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'
+		 * @param string campaignId Identifier for the campaign which the banner belongs to
+		 * @param object Custom context relating to the event
+		 * @param tstamp number or Timestamp object
+		 */
+		apiMethods.trackAdConversion = function(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, context, tstamp) {
+			trackCallback(function () {
+				core.trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, addCommonContexts(context), tstamp);
+			});
+		};
+
+		/**
+		 * Track a social interaction event
+		 *
+		 * @param string action (required) Social action performed
+		 * @param string network (required) Social network
+		 * @param string target Object of the social action e.g. the video liked, the tweet retweeted
+		 * @param object Custom context relating to the event
+		 * @param tstamp number or Timestamp object
+		 */
+		apiMethods.trackSocialInteraction = function(action, network, target, context, tstamp) {
+			trackCallback(function () {
+				core.trackSocialInteraction(action, network, target, addCommonContexts(context), tstamp);
+			});
+		};
+
+		/**
+		 * Track an add-to-cart event
+		 *
+		 * @param string sku Required. Item's SKU code.
+		 * @param string name Optional. Product name.
+		 * @param string category Optional. Product category.
+		 * @param string unitPrice Optional. Product price.
+		 * @param string quantity Required. Quantity added.
+		 * @param string currency Optional. Product price currency.
+		 * @param array context Optional. Context relating to the event.
+		 * @param tstamp number or Timestamp object
+		 */
+		apiMethods.trackAddToCart = function(sku, name, category, unitPrice, quantity, currency, context, tstamp) {
+			trackCallback(function () {
+				core.trackAddToCart(sku, name, category, unitPrice, quantity, currency, addCommonContexts(context), tstamp);
+			});
+		};
+
+		/**
+		 * Track a remove-from-cart event
+		 *
+		 * @param string sku Required. Item's SKU code.
+		 * @param string name Optional. Product name.
+		 * @param string category Optional. Product category.
+		 * @param string unitPrice Optional. Product price.
+		 * @param string quantity Required. Quantity removed.
+		 * @param string currency Optional. Product price currency.
+		 * @param array context Optional. Context relating to the event.
+		 * @param tstamp Opinal number or Timestamp object
+		 */
+		apiMethods.trackRemoveFromCart = function(sku, name, category, unitPrice, quantity, currency, context, tstamp) {
+			trackCallback(function () {
+				core.trackRemoveFromCart(sku, name, category, unitPrice, quantity, currency, addCommonContexts(context), tstamp);
+			});
+		};
+
+		/**
+		 * Track an internal search event
+		 *
+		 * @param array terms Search terms
+		 * @param object filters Search filters
+		 * @param number totalResults Number of results
+		 * @param number pageResults Number of results displayed on page
+		 * @param array context Optional. Context relating to the event.
+		 * @param tstamp Opinal number or Timestamp object
+		 */
+		apiMethods.trackSiteSearch = function(terms, filters, totalResults, pageResults, context, tstamp) {
+			trackCallback(function () {
+				core.trackSiteSearch(terms, filters, totalResults, pageResults, addCommonContexts(context), tstamp);
+			});
+		};
+
+		/**
+		 * Track a timing event (such as the time taken for a resource to load)
+		 *
+		 * @param string category Required.
+		 * @param string variable Required.
+		 * @param number timing Required.
+		 * @param string label Optional.
+		 * @param array context Optional. Context relating to the event.
+		 * @param tstamp Opinal number or Timestamp object
+		 */
+		apiMethods.trackTiming = function (category, variable, timing, label, context, tstamp) {
+			trackCallback(function () {
+				core.trackSelfDescribingEvent({
+					schema: 'iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0',
+					data: {
+						category: category,
+						variable: variable,
+						timing: timing,
+						label: label
+					}
+				}, addCommonContexts(context), tstamp)
+			});
+		};
+
+		/**
+		 * Track a consent withdrawn action
+		 *
+		 * @param {boolean} all - Indicates user withdraws all consent regardless of context documents.
+		 * @param {string} [id] - Number associated with document.
+		 * @param {string} [version] - Document version number.
+		 * @param {string} [name] - Document name.
+		 * @param {string} [description] - Document description.
+		 * @param {array} [context] - Context relating to the event.
+		 * @param {number|Timestamp} [tstamp] - Number or Timestamp object.
+		 */
+		apiMethods.trackConsentWithdrawn = function (all, id, version, name, description, context, tstamp) {
+			trackCallback(function () {
+				core.trackConsentWithdrawn(all, id, version, name, description, addCommonContexts(context), tstamp);
+			});
+		};
+
+		/**
+		 * Track a consent granted action
+		 *
+		 * @param {string} id - ID number associated with document.
+		 * @param {string} version - Document version number.
+		 * @param {string} [name] - Document name.
+		 * @param {string} [description] - Document description.
+		 * @param {string} [expiry] - Date-time when consent document(s) expire.
+		 * @param {array} [context] - Context containing consent documents.
+		 * @param {Timestamp|number} [tstamp] - number or Timestamp object.
+		 */
+		apiMethods.trackConsentGranted = function (id, version, name, description, expiry, context, tstamp) {
+			trackCallback(function () {
+				core.trackConsentGranted(id, version, name, description, expiry, addCommonContexts(context), tstamp);
+			});
+		};
+
+		/**
+		 * Track a GA Enhanced Ecommerce Action with all stored
+		 * Enhanced Ecommerce contexts
+		 *
+		 * @param string action
+		 * @param array context Optional. Context relating to the event.
+		 * @param tstamp Opinal number or Timestamp object
+		 */
+		apiMethods.trackEnhancedEcommerceAction = function (action, context, tstamp) {
+			var combinedEnhancedEcommerceContexts = enhancedEcommerceContexts.concat(context || []);
+			enhancedEcommerceContexts.length = 0;
+
+			trackCallback(function () {
+				core.trackSelfDescribingEvent({
+					schema: 'iglu:com.google.analytics.enhanced-ecommerce/action/jsonschema/1-0-0',
+					data: {
+						action: action
+					}
+				}, addCommonContexts(combinedEnhancedEcommerceContexts), tstamp);
+			});
+		};
+
+		/**
+		 * Adds a GA Enhanced Ecommerce Action Context
+		 *
+		 * @param string id
+		 * @param string affiliation
+		 * @param number revenue
+		 * @param number tax
+		 * @param number shipping
+		 * @param string coupon
+		 * @param string list
+		 * @param integer step
+		 * @param string option
+		 * @param string currency
+		 */
+		apiMethods.addEnhancedEcommerceActionContext = function (id, affiliation, revenue, tax, shipping, coupon, list, step, option, currency) {
+			enhancedEcommerceContexts.push({
+				schema: 'iglu:com.google.analytics.enhanced-ecommerce/actionFieldObject/jsonschema/1-0-0',
+				data: {
+					id: id,
+					affiliation: affiliation,
+					revenue: helpers.parseFloat(revenue),
+					tax: helpers.parseFloat(tax),
+					shipping: helpers.parseFloat(shipping),
+					coupon: coupon,
+					list: list,
+					step: helpers.parseInt(step),
+					option: option,
+					currency: currency
+				}
+			});
+		};
+
+		/**
+		 * Adds a GA Enhanced Ecommerce Impression Context
+		 *
+		 * @param string id
+		 * @param string name
+		 * @param string list
+		 * @param string brand
+		 * @param string category
+		 * @param string variant
+		 * @param integer position
+		 * @param number price
+		 * @param string currency
+		 */
+		apiMethods.addEnhancedEcommerceImpressionContext = function (id, name, list, brand, category, variant, position, price, currency) {
+			enhancedEcommerceContexts.push({
+				schema: 'iglu:com.google.analytics.enhanced-ecommerce/impressionFieldObject/jsonschema/1-0-0',
+				data: {
+					id: id,
+					name: name,
+					list: list,
+					brand: brand,
+					category: category,
+					variant: variant,
+					position: helpers.parseInt(position),
+					price: helpers.parseFloat(price),
+					currency: currency
+				}
+			});
+		};
+
+		/**
+		 * Adds a GA Enhanced Ecommerce Product Context
+		 *
+		 * @param string id
+		 * @param string name
+		 * @param string list
+		 * @param string brand
+		 * @param string category
+		 * @param string variant
+		 * @param number price
+		 * @param integer quantity
+		 * @param string coupon
+		 * @param integer position
+		 * @param string currency
+		 */
+		apiMethods.addEnhancedEcommerceProductContext = function (id, name, list, brand, category, variant, price, quantity, coupon, position, currency) {
+			enhancedEcommerceContexts.push({
+				schema: 'iglu:com.google.analytics.enhanced-ecommerce/productFieldObject/jsonschema/1-0-0',
+				data: {
+					id: id,
+					name: name,
+					list: list,
+					brand: brand,
+					category: category,
+					variant: variant,
+					price: helpers.parseFloat(price),
+					quantity: helpers.parseInt(quantity),
+					coupon: coupon,
+					position: helpers.parseInt(position),
+					currency: currency
+				}
+			});
+		};
+
+		/**
+		 * Adds a GA Enhanced Ecommerce Promo Context
+		 *
+		 * @param string id
+		 * @param string name
+		 * @param string creative
+		 * @param string position
+		 * @param string currency
+		 */
+		apiMethods.addEnhancedEcommercePromoContext = function (id, name, creative, position, currency) {
+			enhancedEcommerceContexts.push({
+				schema: 'iglu:com.google.analytics.enhanced-ecommerce/promoFieldObject/jsonschema/1-0-0',
+				data: {
+					id: id,
+					name: name,
+					creative: creative,
+					position: position,
+					currency: currency
+				}
+			});
+		};
+
+		/**
+		 * All provided contexts will be sent with every event
+		 *
+		 * @param contexts Array<ContextPrimitive | ConditionalContextProvider>
+		 */
+		apiMethods.addGlobalContexts = function (contexts) { core.addGlobalContexts(contexts); };
+
+		/**
+		 * All provided contexts will no longer be sent with every event
+		 *
+		 * @param contexts Array<ContextPrimitive | ConditionalContextProvider>
+		 */
+		apiMethods.removeGlobalContexts = function (contexts) { core.removeGlobalContexts(contexts); };
+
+		/**
+		 * Clear all global contexts that are sent with events
+		 */
+		apiMethods.clearGlobalContexts = function () { core.clearGlobalContexts(); };
+
+		/**
+		 * Enable tracking of unhandled exceptions with custom contexts
+		 *
+		 * @param filter Function ErrorEvent => Bool to check whether error should be tracker
+		 * @param contextsAdder Function ErrorEvent => Array<Context> to add custom contexts with
+		 *		             internal state based on particular error
+		 */
+		apiMethods.enableErrorTracking = function (filter, contextsAdder) {
+			errorManager.enableErrorTracking(filter, contextsAdder, addCommonContexts())
+		};
+
+		/**
+		 * Track unhandled exception.
+		 * This method supposed to be used inside try/catch block
+		 *
+		 * @param message string Message appeared in console
+		 * @param filename string Source file (not used)
+		 * @param lineno number Line number
+		 * @param colno number Column number (not used)
+		 * @param error Error error object (not present in all browsers)
+		 * @param contexts Array of custom contexts
+		 */
+		apiMethods.trackError = function (message, filename, lineno, colno, error, contexts) {
+			var enrichedContexts = addCommonContexts(contexts);
+			errorManager.trackError(message, filename, lineno, colno, error, enrichedContexts);
+		};
+
+		/**
+		 * Stop regenerating `pageViewId` (available from `web_page` context)
+		 */
+		apiMethods.preservePageViewId = function () {
+			preservePageViewId = true
+		};
+
+		apiMethods.setDebug = function (isDebug) {
+			debug = Boolean(isDebug).valueOf();
+			updateReturnMethods();
+		};
+
+		// Create guarded methods from apiMethods,
+		// and set returnMethods to apiMethods or safeMethods depending on value of debug
+		safeMethods = productionize(apiMethods);
+		updateReturnMethods();
+
+		return returnMethods;
+	};
 }());
