@@ -35,9 +35,16 @@
 
 var object = typeof exports !== 'undefined' ? exports : this;
 
+object.ManagedError = function(message) {
+	Error.prototype.constructor.apply(this, arguments);
+	this.message = message;
+};
+
+object.ManagedError.prototype = new Error();
+
 function wrap(fn, value) {
 	// not all 'function's are actually functions!
-	if (typeof value === 'function' && /^function/.test(value.toString())) {
+	if (typeof value === 'function') {
 		return fn(value);
 	} else if (typeof value === 'object' && value !== null) {
 		for (var key in value) if (value.hasOwnProperty(key)) {
@@ -93,7 +100,7 @@ function quietGuard(fn) {
 		try {
 			return wrap(quietGuard, fn.apply(this, args));
 		} catch (e) {
-			if (e instanceof ManagedError) {
+			if (e instanceof object.ManagedError) {
 				//throw e;
 			}
 			// log error
