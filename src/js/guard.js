@@ -33,8 +33,7 @@
  */
 
 
-var object = typeof exports !== 'undefined' ? exports : this,
-	windowAlias = window;
+var object = typeof exports !== 'undefined' ? exports : this;
 
 function wrap(fn, value) {
 	// not all 'function's are actually functions!
