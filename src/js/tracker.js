@@ -46,7 +46,7 @@
 		errors = require('./errors'),
 		requestQueue = require('./out_queue'),
 		coreConstructor = require('snowplow-tracker-core').trackerCore,
-		guard = require('./guard').guard,
+		productionize = require('./guard').productionize,
 		uuid = require('uuid'),
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
@@ -2671,7 +2671,11 @@
 			preservePageViewId = true
 		};
 
-		return guard(publicObject, mutSnowplowState.debug);
+		if (mutSnowplowState.debug) {
+			productionize(publicObject);
+		}
+
+		return publicObject;
 	};
 
 }());

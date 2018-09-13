@@ -65,10 +65,10 @@ function unguard(fn) {
 				throw e;
 			}, 0);
 		}
-	};
+	}
 }
 
-function guard(fn) {
+function guard (fn) {
 	return function () {
 		// capture the arguments and unguard any functions
 		var args = Array.prototype.slice.call(arguments)
@@ -86,34 +86,13 @@ function guard(fn) {
 			// re-throw to halt execution
 			throw e;
 		}
-	};
+	}
 }
 
-function quietGuard(fn) {
-	return function () {
-		// capture the arguments and unguard any functions
-		var args = Array.prototype.slice.call(arguments)
-			.map(function (arg) {
-				return wrap(unguard, arg);
-			});
-
-		try {
-			return wrap(quietGuard, fn.apply(this, args));
-		} catch (e) {
-			if (e instanceof object.ManagedError) {
-				//throw e;
-			}
-			// log error
-			// re-throw to halt execution
-			//throw e;
+exports.productionize = function (value) {
+	if (typeof value === 'object' && value !== null) {
+		for (var key in value) if (value.hasOwnProperty(key) && typeof key === 'function') {
+			value[key] = guard(key);
 		}
-	};
-}
-
-exports.guard = function (fn, debug) {
-	if (debug) {
-		return guard(fn);
-	} else {
-		return quietGuard(fn);
 	}
 };
