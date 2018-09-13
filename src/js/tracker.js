@@ -95,6 +95,10 @@
 				sendRequest(payload, configTrackerPause);
 			}),
 
+			// Debug - whether to raise errors to console and log to console
+			// or silence all errors from public methods
+			debug = false,
+
 			// API functions of the tracker
 			apiMethods = {},
 
@@ -1666,6 +1670,16 @@
 			callback();
 		}
 
+        /**
+		 * Update the returned methods (public facing methods)
+         */
+		function updateReturnMethods() {
+			if (debug) {
+				returnMethods = apiMethods;
+			} else {
+				returnMethods = safeMethods;
+			}
+		}
 
 		/************************************************************
 		 * Constructor
@@ -1685,8 +1699,6 @@
 		/************************************************************
 		 * Public data and methods
 		 ************************************************************/
-
-
 
 		/**
 		 * Get the domain session index also known as current memorized visit count.
@@ -2678,14 +2690,16 @@
 			preservePageViewId = true
 		};
 
-		if (mutSnowplowState.debug) {
-			safeMethods = productionize(apiMethods);
-			returnMethods = safeMethods;
-		} else {
-			returnMethods = apiMethods;
-		}
+		apiMethods.setDebug = function (isDebug) {
+			debug = Boolean(isDebug).valueOf();
+			updateReturnMethods();
+		};
+
+		// Create guarded methods from apiMethods,
+		// and set returnMethods to apiMethods or safeMethods depending on value of debug
+        safeMethods = productionize(apiMethods);
+		updateReturnMethods();
 
 		return returnMethods;
 	};
-
 }());

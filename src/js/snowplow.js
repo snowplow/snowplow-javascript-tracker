@@ -108,10 +108,7 @@
 
 				/* pageViewId, which can changed by other trackers on page;
 				 * initialized by tracker sent first event */
-				pageViewId: null,
-
-				/* Whether to report errors to console */
-				debug: false
+				pageViewId: null
 			};
 
 		/************************************************************

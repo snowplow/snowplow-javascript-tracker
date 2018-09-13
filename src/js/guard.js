@@ -82,9 +82,6 @@ function guard (fn) {
 			if (e instanceof object.ManagedError) {
 				throw e;
 			}
-			// log error
-			// re-throw to halt execution
-			throw e;
 		}
 	}
 }
