@@ -90,9 +90,11 @@ function guard (fn) {
 }
 
 exports.productionize = function (value) {
+	var methods = {};
 	if (typeof value === 'object' && value !== null) {
 		for (var key in value) if (value.hasOwnProperty(key) && typeof key === 'function') {
-			value[key] = guard(key);
+			methods[key] = guard(key);
 		}
 	}
+	return methods;
 };
