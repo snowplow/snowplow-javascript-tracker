@@ -2698,7 +2698,11 @@
 		// Create guarded methods from apiMethods,
 		// and set returnMethods to apiMethods or safeMethods depending on value of debug
         safeMethods = productionize(apiMethods);
-		updateReturnMethods();
+		if (debug) {
+			returnMethods = apiMethods;
+		} else {
+			returnMethods = safeMethods;
+		}
 
 		return returnMethods;
 	};
