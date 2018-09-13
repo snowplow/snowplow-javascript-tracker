@@ -89,9 +89,11 @@ function guard (fn) {
 exports.productionize = function (value) {
 	var methods = {};
 	if (typeof value === 'object' && value !== null) {
-		for (var key in value) if (value.hasOwnProperty(key) && typeof value[key] === 'function') {
-			methods[key] = guard(key);
-		}
+        Object.getOwnPropertyNames(value).forEach(
+            function (val, idx, array) {
+                methods[val] = guard(value[val]);
+            }
+        );
 	}
 	return methods;
 };
