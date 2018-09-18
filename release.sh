@@ -12,7 +12,7 @@ fi
 echo "creating release for $VERSION release of Clarivage Snowplow fork"
 
 echo "create dist files using Snowplow Grunt build"
-rm -rf ./dist/*.tgz ./dist/*-clv.js
+rm -rf ./dist/*
 npx grunt
 
 echo "generate a zip file of ./dist/bundle.js for upload to AWS"

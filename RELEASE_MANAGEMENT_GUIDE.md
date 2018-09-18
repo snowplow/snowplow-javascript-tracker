@@ -78,6 +78,6 @@ Please follow these steps to release a new version of this library:
     # pass the version to be released (below is just an example)
     $ sh release.js 2.6.2
     ```
-1. Create [release notes](https://github.com/ThomsonReuters-IPS/snowplow-javascript-tracker/releases) in GitHub
-1. Create a PNAS ticket like ([example](https://jira.clarivate.io/browse/PNAS-2660)) and attach the zip file from ./dist/
-1. Update the filename in [webui-component-analytics](https://github.com/ThomsonReuters-IPS/webui-component-analytics/blob/master/src/modules/analytics/run/analytics-run.js#L44) and cut a new release of **webui-component-analytics**
+1. Create [release notes](https://github.com/ThomsonReuters-IPS/snowplow-javascript-tracker/releases) in GitHub (see this [example](https://github.com/ThomsonReuters-IPS/snowplow-javascript-tracker/releases/tag/2.6.2-clv))
+1. Create a PNAS ticket like ([example](https://jira.clarivate.io/browse/PNAS-4911)) and attach the zip file from ./dist/
+1. If application, update the filename in [vanilla-snowplow-demo](https://github.com/ThomsonReuters-IPS/vanilla-snowplow-demo/blob/master/src/snowplow-init.js#L42) and [webui-component-analytics](https://github.com/ThomsonReuters-IPS/webui-component-analytics/blob/master/src/modules/analytics/run/analytics-run.js#L44)
