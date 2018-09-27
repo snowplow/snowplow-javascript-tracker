@@ -714,7 +714,7 @@
 					configStateStorageStrategy != 'none') {
 				if (configStateStorageStrategy == 'localStorage') {
 					helpers.attemptWriteLocalStorage(idname, '');
-					helpers.attemptWriteLocalStorage(sesName, '');
+					helpers.attemptWriteLocalStorage(sesname, '');
 				} else if (configStateStorageStrategy == 'cookie' ||
 						configStateStorageStrategy == 'cookieAndLocalStorage') {
 					cookie.cookie(idname, '', -1, configCookiePath, configCookieDomain);
