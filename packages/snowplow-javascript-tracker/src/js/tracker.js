@@ -477,7 +477,12 @@
 			var now = new Date();
 
 			// Set to true if Opt-out cookie is defined
-			var toOptoutByCookie = !!cookie.cookie(configOptOutCookie);
+			var toOptoutByCookie;
+			if (configOptOutCookie) {
+				toOptoutByCookie = !!cookie.cookie(configOptOutCookie);
+			} else {
+				toOptoutByCookie = false;
+			}
 
 			if (!(configDoNotTrack || toOptoutByCookie)) {
 				outQueueManager.enqueueRequest(request.build(), configCollectorUrl);
@@ -729,7 +734,13 @@
 				lastVisitTs = id[5],
 				sessionIdFromCookie = id[6];
 
-			var toOptoutByCookie = !!cookie.cookie(configOptOutCookie);
+			var toOptoutByCookie;
+			if (configOptOutCookie) {
+				toOptoutByCookie = !!cookie.cookie(configOptOutCookie);
+			} else {
+				toOptoutByCookie = false;
+			}
+
 
 			if ((configDoNotTrack || toOptoutByCookie) &&
 					configStateStorageStrategy != 'none') {
