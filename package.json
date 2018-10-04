@@ -4,7 +4,6 @@
   "dependencies": {
     "browser-cookie-lite": "0.3.1",
     "jstimezonedetect": "1.0.5",
-    "lodash": "3.10.1",
     "snowplow-tracker-core": "0.6.1",
     "murmurhash": "0.0.2",
     "uuid": "2.0.3",
@@ -16,11 +15,10 @@
     "grunt-aws": "0.6.2",
     "grunt-browserify": "5.0.0",
     "grunt-contrib-concat": "0.5.1",
-    "grunt-lodash": "0.5.1",
     "grunt-yui-compressor": "git://github.com/snowplow/grunt-yui-compressor.git#fc70c3aa41bad8848b3569d6ea6ee70d270fd8a6",
+    "lodash": "^4.17.11",
     "intern": "3.3.2",
     "js-base64": "2.1.9",
-    "lodash-cli": "3.10.1",
     "semver": "4.3.2"
   },
   "contributors": [

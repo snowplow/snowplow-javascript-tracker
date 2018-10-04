@@ -35,7 +35,9 @@
 ;(function() {
 
 	var
-		lodash = require('./lib_managed/lodash'),
+		mapValues = require('lodash/mapValues'),
+		isString = require('lodash/isString'),
+		map = require('lodash/map'),
 		localStorageAccessible = require('./lib/detectors').localStorageAccessible,
 		helpers = require('./lib/helpers'),
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
@@ -82,7 +84,7 @@
 		}
 
 		// Initialize to and empty array if we didn't get anything out of localStorage
-		if (!lodash.isArray(outQueue)) {
+		if (!Array.isArray(outQueue)) {
 			outQueue = [];
 		}
 
@@ -130,7 +132,7 @@
 		 * Convert numeric fields to strings to match payload_data schema
 		 */
 		function getBody(request) {
-			var cleanedRequest = lodash.mapValues(request, function (v) {
+			var cleanedRequest = mapValues(request, function (v) {
 				return v.toString();
 			});
 			return {
@@ -214,7 +216,7 @@
 			}
 
 			// Let's check that we have a Url to ping
-			if (!lodash.isString(configCollectorUrl)) {
+			if (!isString(configCollectorUrl)) {
 				throw "No Snowplow collector configured, cannot track";
 			}
 
@@ -265,7 +267,7 @@
 					}
 				};
 
-				var batch = lodash.map(outQueue.slice(0, numberToSend), function (x) {
+				var batch = map(outQueue.slice(0, numberToSend), function (x) {
 					return x.evt;
 				});
 
