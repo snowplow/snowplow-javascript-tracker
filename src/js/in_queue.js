@@ -35,7 +35,9 @@
 ;(function() {
 
 	var
-		lodash = require('./lib_managed/lodash'),
+		map = require('lodash/map'),
+		isUndefined = require('lodash/isUndefined'),
+		isFunction = require('lodash/isFunction'),
 		helpers = require('./lib/helpers'),
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
@@ -60,7 +62,7 @@
 			var namedTrackers = [];
 
 			if (!names || names.length === 0) {
-				namedTrackers = lodash.map(trackerDictionary);
+				namedTrackers = map(trackerDictionary);
 			} else {
 				for (var i = 0; i < names.length; i++) {
 					if (trackerDictionary.hasOwnProperty(names[i])) {
@@ -92,7 +94,7 @@
 
 			var name;
 
-			if (lodash.isUndefined(namespace)) {
+			if (isUndefined(namespace)) {
 				name = 'sp';
 			} else {
 				name = namespace;
@@ -151,7 +153,7 @@
 				input = Array.prototype.shift.call(parameterArray);
 
 				// Custom callback rather than tracker method, called with trackerDictionary as the context
-				if (lodash.isFunction(input)) {
+				if (isFunction(input)) {
 					input.apply(trackerDictionary, parameterArray);
 					continue;
 				}
