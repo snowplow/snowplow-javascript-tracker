@@ -32,7 +32,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-var lodash = require('./lib_managed/lodash'),
+var isFunction = require('lodash/isFunction'),
     helpers = require('./lib/helpers'),
     object = typeof exports !== 'undefined' ? exports : this,
 	windowAlias = window;
@@ -75,7 +75,7 @@ object.errorManager = function (core) {
 	 */
 	function sendError(errorEvent, commonContexts, contextsAdder) {
 		var contexts;
-		if (lodash.isFunction(contextsAdder)) {
+		if (isFunction(contextsAdder)) {
 			contexts = commonContexts.concat(contextsAdder(errorEvent));
 		} else {
 			contexts = commonContexts;
@@ -116,7 +116,7 @@ object.errorManager = function (core) {
 			 * @param errorEvent ErrorEvent passed to event listener
 			 */
 			function captureError (errorEvent) {
-				if (lodash.isFunction(filter) && filter(errorEvent) || filter == null) {
+				if (isFunction(filter) && filter(errorEvent) || filter == null) {
 					sendError(errorEvent, contexts, contextsAdder)
 				}
 			}
