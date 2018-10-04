@@ -75,12 +75,12 @@ define([
 				if (lodash.isFunction(v)) { return v(other[k]); }
 				else { return lodash.isEqual(v, other[k]); }
 			});
-			return lodash.all(result);
+			return lodash.every(result);
 		}
 
 		function strip(logLine) {
 			var expectedKeys = lodash.keys(expected);
-			var stripped = lodash.pick(logLine, function (v, k) { return lodash.include(expectedKeys, k); });
+			var stripped = lodash.pickBy(logLine, function (v, k) { return lodash.includes(expectedKeys, k); });
 			if (lodash.keys(stripped).length !== expectedKeys.length) { return null; }
 			else { return stripped; }
 		}
@@ -88,7 +88,7 @@ define([
 		return lodash.some(log, function (logLine) {
 			var stripped = strip(logLine);
 			if (stripped == null) { return false; }
-			else { return lodash.isEqual(expected, stripped, compare); }
+			else { return lodash.isEqualWith(expected, stripped, compare); }
 		});
 	}
 
@@ -133,7 +133,12 @@ define([
 				cx: function (cx) {
 					var contexts = JSON.parse(decodeBase64(cx)).data;
 					return lodash.some(contexts,
-						{schema:"iglu:com.example_company/user/jsonschema/2-0-0",data:{userType:'tester'}}
+						lodash.matches({
+							schema:"iglu:com.example_company/user/jsonschema/2-0-0",
+							data:{
+								userType:'tester'
+							}
+						})
 					);
 				}
 			}), 'A page view should be detected');
