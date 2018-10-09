@@ -276,7 +276,7 @@
 					if (useBeacon) {
                         beaconStatus = navigator.sendBeacon(configCollectorUrl, encloseInPayloadDataEnvelope(attachStmToEvent(batch)));
 					}
-					if (!useBeacon || !! beaconStatus) {
+					if (!useBeacon || !beaconStatus) {
                         xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent(batch)));
                     }
 				}
