@@ -74,13 +74,14 @@
 	 * 12. useCookies, true
 	 * 13. sessionCookieTimeout, 1800
 	 * 14. contexts, {}
-	 * 15. post, false
-	 * 16. bufferSize, 1
-	 * 17. crossDomainLinker, false
-	 * 18. maxPostBytes, 40000
-	 * 19. discoverRootDomain, false
-	 * 20. cookieLifetime, 63072000
-	 * 21. stateStorageStrategy, 'cookieAndLocalStorage'
+	 * 15. beacon, false
+	 * 16. post, false
+	 * 17. bufferSize, 1
+	 * 18. crossDomainLinker, false
+	 * 19. maxPostBytes, 40000
+	 * 20. discoverRootDomain, false
+	 * 21. cookieLifetime, 63072000
+	 * 22. stateStorageStrategy, 'cookieAndLocalStorage'
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
 
@@ -277,6 +278,7 @@
 				mutSnowplowState,
 				configStateStorageStrategy == 'localStorage' ||
 					configStateStorageStrategy == 'cookieAndLocalStorage',
+                argmap.beacon,
 				argmap.post,
 				argmap.bufferSize,
 				argmap.maxPostBytes || 40000),
