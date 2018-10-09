@@ -57,16 +57,18 @@
 	 * @param int maxPostBytes Maximum combined size in bytes of the event JSONs in a POST request
 	 * @return object OutQueueManager instance
 	 */
-	object.OutQueueManager = function (functionName, namespace, mutSnowplowState, useLocalStorage, usePost, bufferSize, maxPostBytes) {
+	object.OutQueueManager = function (functionName, namespace, mutSnowplowState, useLocalStorage, useBeacon, usePost, bufferSize, maxPostBytes) {
 		var	queueName,
 			executingQueue = false,
 			configCollectorUrl,
 			outQueue;
 
+		useBeacon = useBeacon && navigator && navigator.sendBeacon;
+
 		// Fall back to GET for browsers which don't support CORS XMLHttpRequests (e.g. IE <= 9)
 		usePost = usePost && window.XMLHttpRequest && ('withCredentials' in new XMLHttpRequest());
 
-		var path = usePost ? '/com.snowplowanalytics.snowplow/tp2' : '/i';
+		var path = useBeacon || usePost ? '/com.snowplowanalytics.snowplow/tp2' : '/i';
 
 		bufferSize = (localStorageAccessible() && useLocalStorage && usePost && bufferSize) || 1;
 
@@ -223,7 +225,7 @@
 
 			var nextRequest = outQueue[0];
 
-			if (usePost) {
+			if (usePost || useBeacon) {
 
 				var xhr = initializeXMLHttpRequest(configCollectorUrl);
 
@@ -271,7 +273,14 @@
 				});
 
 				if (batch.length > 0) {
-					xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent(batch)));
+					var beaconStatus;
+
+					if (useBeacon) {
+						beaconStatus = navigator.sendBeacon(configCollectorUrl, encloseInPayloadDataEnvelope(attachStmToEvent(batch)));
+					}
+					if (!useBeacon || !beaconStatus) {
+						xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent(batch)));
+					}
 				}
 
 			} else {
