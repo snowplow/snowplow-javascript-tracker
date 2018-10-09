@@ -58,16 +58,18 @@
 	 * @param string postPath The path where events are to be posted
 	 * @return object OutQueueManager instance
 	 */
-	object.OutQueueManager = function (functionName, namespace, mutSnowplowState, useLocalStorage, usePost, postPath, bufferSize, maxPostBytes) {
+	object.OutQueueManager = function (functionName, namespace, mutSnowplowState, useLocalStorage, useBeacon, usePost, postPath, bufferSize, maxPostBytes) {
 		var	queueName,
 			executingQueue = false,
 			configCollectorUrl,
 			outQueue;
 
+		useBeacon = useBeacon && navigator && navigator.sendBeacon;
+
 		// Fall back to GET for browsers which don't support CORS XMLHttpRequests (e.g. IE <= 9)
 		usePost = usePost && window.XMLHttpRequest && ('withCredentials' in new XMLHttpRequest());
 
-		var path = usePost ? postPath : '/i';
+		var path = useBeacon || usePost ? postPath : '/i';
 
 		bufferSize = (localStorageAccessible() && useLocalStorage && usePost && bufferSize) || 1;
 
@@ -224,7 +226,7 @@
 
 			var nextRequest = outQueue[0];
 
-			if (usePost) {
+			if (usePost || useBeacon) {
 
 				var xhr = initializeXMLHttpRequest(configCollectorUrl);
 
@@ -272,7 +274,14 @@
 				});
 
 				if (batch.length > 0) {
-					xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent(batch)));
+					var beaconStatus;
+
+					if (useBeacon) {
+						beaconStatus = navigator.sendBeacon(configCollectorUrl, encloseInPayloadDataEnvelope(attachStmToEvent(batch)));
+					}
+					if (!useBeacon || !beaconStatus) {
+						xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent(batch)));
+					}
 				}
 
 			} else {
