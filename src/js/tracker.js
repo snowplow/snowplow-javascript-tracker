@@ -278,7 +278,7 @@
 				mutSnowplowState,
 				configStateStorageStrategy == 'localStorage' ||
 					configStateStorageStrategy == 'cookieAndLocalStorage',
-                argmap.beacon,
+				argmap.beacon,
 				argmap.post,
 				argmap.bufferSize,
 				argmap.maxPostBytes || 40000),

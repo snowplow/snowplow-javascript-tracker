@@ -61,7 +61,7 @@
 			configCollectorUrl,
 			outQueue;
 
-        useBeacon = useBeacon && navigator && navigator.sendBeacon;
+		useBeacon = useBeacon && navigator && navigator.sendBeacon;
 
 		// Fall back to GET for browsers which don't support CORS XMLHttpRequests (e.g. IE <= 9)
 		usePost = usePost && window.XMLHttpRequest && ('withCredentials' in new XMLHttpRequest());
@@ -274,11 +274,11 @@
 					var beaconStatus;
 
 					if (useBeacon) {
-                        beaconStatus = navigator.sendBeacon(configCollectorUrl, encloseInPayloadDataEnvelope(attachStmToEvent(batch)));
+						beaconStatus = navigator.sendBeacon(configCollectorUrl, encloseInPayloadDataEnvelope(attachStmToEvent(batch)));
 					}
 					if (!useBeacon || !beaconStatus) {
-                        xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent(batch)));
-                    }
+						xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent(batch)));
+					}
 				}
 
 			} else {
