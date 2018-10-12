@@ -37,7 +37,7 @@
 	var 
 		lodash = require('../lib_managed/lodash'),
 		murmurhash3_32_gc = require('murmurhash').v3,
-		tz = require('jstimezonedetect').jstz.determine(),
+		tz = require('./timezone')(),
 		cookie = require('browser-cookie-lite'),
 
 		object = typeof exports !== 'undefined' ? exports : this, // For eventual node.js environment support
@@ -143,7 +143,7 @@
 	 * Returns visitor timezone
 	 */
 	object.detectTimezone = function() {
-		return (typeof (tz) === 'undefined') ? '' : tz.name();
+		return (typeof (tz) === 'undefined') ? '' : tz;
 	};
 
 	/**
