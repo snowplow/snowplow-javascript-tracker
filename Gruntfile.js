@@ -33,6 +33,7 @@
 */
 
 var semver = require('semver');
+var CONFIG = require('./.snowplow/config.json');
 
 /*global module:false*/
 module.exports = function(grunt) {
@@ -93,6 +94,9 @@ module.exports = function(grunt) {
       main: {
         files: {
           'dist/bundle.js': ['src/js/init.js']
+        },
+        options: {
+          transform: ['uglifyify']
         }
       },
       test: {
@@ -101,6 +105,23 @@ module.exports = function(grunt) {
           'tests/pages/detectors.js': ['tests/scripts/detectors.js'],
           'tests/pages/snowplow.js': ['src/js/init.js']
         }
+      }
+    },
+
+    replace: {
+      dist: {
+          options: {
+              patterns: [{
+                  match: /false/g,
+                  replacement: CONFIG.FORM_TRACKING_ENABLED
+              }
+              ]
+          },
+          files: [{
+              expand: true,
+              src: '*.js',
+              dest: "./"
+          }]
       }
     },
 
@@ -199,6 +220,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('intern');
   grunt.loadNpmTasks('grunt-lodash');
+  grunt.loadNpmTasks('grunt-replace');
 
   grunt.registerTask('upload_setup', 'Read aws.json and configure upload tasks', function() {
     var aws = grunt.file.readJSON('aws.json');
@@ -266,7 +288,7 @@ module.exports = function(grunt) {
     });
   });
 
-  grunt.registerTask('default', 'Build lodash, Browserify, add banner, and minify', ['lodash', 'browserify:main', 'concat:deploy', 'min:deploy']);
+  grunt.registerTask('default', 'Build lodash, Browserify, add banner, and minify', ['lodash', 'replace', 'browserify:main', 'concat:deploy', 'min:deploy']);
   grunt.registerTask('publish', 'Upload to S3 and invalidate Cloudfront (full semantic version only)', ['upload_setup', 'lodash', 'browserify:main', 'concat:deploy', 'min:deploy', 's3:not_pinned', 'cloudfront:not_pinned']);
   grunt.registerTask('publish-pinned', 'Upload to S3 and invalidate Cloudfront (full semantic version and semantic major version)', ['upload_setup', 'lodash', 'browserify:main', 'concat:deploy', 'min:deploy', 's3', 'cloudfront']);
   grunt.registerTask('quick', 'Build snowplow.js, skipping building lodash and minifying', ['browserify:main', 'concat:deploy']);
