@@ -100,10 +100,11 @@ module.exports = function(grunt) {
           'dist/bundle.js': ['src/js/init.js']
         },
         options: {
+          debug: true,
           transform: [
             ['browserify-replace', {
               replace: [
-                { from: /__FORM_TRACKING_ENABLED__/g, to: CONFIG.FORM_TRACKING_ENABLED }
+                { from: /__OPTIMIZELY_ENABLED__/g, to: CONFIG.OPTIMIZELY_ENABLED }
               ]
             }],
             'uglifyify'
