@@ -664,7 +664,7 @@
     },
     "camelcase-keys": {
       "version": "2.1.0",
-      "resolved": "https://registry.npmjs.org/camelcase-keys/-/camelcase-keys-2.1.0.tgz",
+      "resolved": "http://registry.npmjs.org/camelcase-keys/-/camelcase-keys-2.1.0.tgz",
       "integrity": "sha1-MIvur/3ygRkFHvodkyITyRuPkuc=",
       "dev": true,
       "requires": {
@@ -1343,7 +1343,7 @@
     },
     "deep-eql": {
       "version": "0.1.3",
-      "resolved": "https://registry.npmjs.org/deep-eql/-/deep-eql-0.1.3.tgz",
+      "resolved": "http://registry.npmjs.org/deep-eql/-/deep-eql-0.1.3.tgz",
       "integrity": "sha1-71WKyrjeJSBs1xOQbXTlaTDrafI=",
       "dev": true,
       "requires": {
