@@ -41,7 +41,7 @@
 		cookie = require('browser-cookie-lite'),
 		detectors = require('./lib/detectors'),
 		sha1 = require('sha1'),
-		links = require('./links'),
+		forms = require('./forms'),
 		errors = require('./errors'),
 		requestQueue = require('./out_queue'),
 		coreConstructor = require('snowplow-tracker-core').trackerCore,
@@ -260,8 +260,8 @@
 			// Will be committed, sent and emptied by a call to trackTrans.
 			ecommerceTransaction = ecommerceTransactionTemplate(),
 
-			// Manager for automatic link click tracking
-			linkTrackingManager = links.getLinkTrackingManager(core, trackerId, addCommonContexts),
+			// Manager for automatic form tracking
+			formTrackingManager = forms.getFormTrackingManager(core, trackerId, addCommonContexts),
 
 			// Manager for tracking unhandled exceptions
 			errorManager = errors.errorManager(core),
@@ -1896,54 +1896,6 @@
 			},
 
 			/**
-			 * Install link tracker
-			 *
-			 * The default behaviour is to use actual click events. However, some browsers
-			 * (e.g., Firefox, Opera, and Konqueror) don't generate click events for the middle mouse button.
-			 *
-			 * To capture more "clicks", the pseudo click-handler uses mousedown + mouseup events.
-			 * This is not industry standard and is vulnerable to false positives (e.g., drag events).
-			 *
-			 * There is a Safari/Chrome/Webkit bug that prevents tracking requests from being sent
-			 * by either click handler.  The workaround is to set a target attribute (which can't
-			 * be "_self", "_top", or "_parent").
-			 *
-			 * @see https://bugs.webkit.org/show_bug.cgi?id=54783
-			 *
-			 * @param object criterion Criterion by which it will be decided whether a link will be tracked
-			 * @param bool pseudoClicks If true, use pseudo click-handler (mousedown+mouseup)
-			 * @param bool trackContent Whether to track the innerHTML of the link element
-			 * @param array context Context for all link click events
-			 */
-			enableLinkClickTracking: function (criterion, pseudoClicks, trackContent, context) {
-				if (mutSnowplowState.hasLoaded) {
-					// the load event has already fired, add the click listeners now
-					linkTrackingManager.configureLinkClickTracking(criterion, pseudoClicks, trackContent, context);
-					linkTrackingManager.addClickListeners();
-				} else {
-					// defer until page has loaded
-					mutSnowplowState.registeredOnLoadHandlers.push(function () {
-						linkTrackingManager.configureLinkClickTracking(criterion, pseudoClicks, trackContent, context);
-						linkTrackingManager.addClickListeners();
-					});
-				}
-			},
-
-			/**
-			 * Add click event listeners to links which have been added to the page since the
-			 * last time enableLinkClickTracking or refreshLinkClickTracking was used
-			 */
-			refreshLinkClickTracking: function () {
-				if (mutSnowplowState.hasLoaded) {
-					linkTrackingManager.addClickListeners();
-				} else {
-					mutSnowplowState.registeredOnLoadHandlers.push(function () {
-						linkTrackingManager.addClickListeners();
-					});
-				}
-			},
-
-			/**
 			 * Enables page activity tracking (sends page
 			 * pings to the Collector regularly).
 			 *
@@ -1968,6 +1920,27 @@
 			 */
 			updatePageActivity: function () {
 				activityHandler();
+			},
+
+			/**
+			 * Enables automatic form tracking.
+			 * An event will be fired when a form field is changed or a form submitted.
+			 * This can be called multiple times: only forms not already tracked will be tracked.
+			 *
+			 * @param object config Configuration object determining which forms and fields to track.
+			 *                      Has two properties: "forms" and "fields"
+			 * @param array context Context for all form tracking events
+			 */
+			enableFormTracking: function (config, context) {
+				if (mutSnowplowState.hasLoaded) {
+					formTrackingManager.configureFormTracking(config);
+					formTrackingManager.addFormListeners(context);
+				} else {
+					mutSnowplowState.registeredOnLoadHandlers.push(function () {
+						formTrackingManager.configureFormTracking(config);
+						formTrackingManager.addFormListeners(context);
+					});
+				}
 			},
 
 			/**
@@ -2643,28 +2616,58 @@
 			}
 	};
 
-	if ('__FORM_TRACKING_ENABLED__' === 'true') {
-			var formTrackingManager = require('./forms').getFormTrackingManager(core, trackerId, addCommonContexts);
-			/**
-			 * Enables automatic form tracking.
-			 * An event will be fired when a form field is changed or a form submitted.
-			 * This can be called multiple times: only forms not already tracked will be tracked.
-			 *
-			 * @param object config Configuration object determining which forms and fields to track.
-			 *                      Has two properties: "forms" and "fields"
-			 * @param array context Context for all form tracking events
-			 */
-			API.enableFormTracking = function (config, context) {
-					if (mutSnowplowState.hasLoaded) {
-							formTrackingManager.configureFormTracking(config);
-							formTrackingManager.addFormListeners(context);
-					} else {
-							mutSnowplowState.registeredOnLoadHandlers.push(function () {
-									formTrackingManager.configureFormTracking(config);
-									formTrackingManager.addFormListeners(context);
-							});
-					}
-			};
+		if ('__LINK_TRACKING_ENABLED__' === 'true') {
+			// Manager for automatic link click tracking
+			var linkTrackingManager = require('./links').getLinkTrackingManager(core, trackerId, addCommonContexts);
+
+      /**
+       * Install link tracker
+       *
+       * The default behaviour is to use actual click events. However, some browsers
+       * (e.g., Firefox, Opera, and Konqueror) don't generate click events for the middle mouse button.
+       *
+       * To capture more "clicks", the pseudo click-handler uses mousedown + mouseup events.
+       * This is not industry standard and is vulnerable to false positives (e.g., drag events).
+       *
+       * There is a Safari/Chrome/Webkit bug that prevents tracking requests from being sent
+       * by either click handler.  The workaround is to set a target attribute (which can't
+       * be "_self", "_top", or "_parent").
+       *
+       * @see https://bugs.webkit.org/show_bug.cgi?id=54783
+       *
+       * @param object criterion Criterion by which it will be decided whether a link will be tracked
+       * @param bool pseudoClicks If true, use pseudo click-handler (mousedown+mouseup)
+       * @param bool trackContent Whether to track the innerHTML of the link element
+       * @param array context Context for all link click events
+       */
+      API.enableLinkClickTracking = function (criterion, pseudoClicks, trackContent, context) {
+        if (mutSnowplowState.hasLoaded) {
+          // the load event has already fired, add the click listeners now
+          linkTrackingManager.configureLinkClickTracking(criterion, pseudoClicks, trackContent, context);
+          linkTrackingManager.addClickListeners();
+        } else {
+          // defer until page has loaded
+          mutSnowplowState.registeredOnLoadHandlers.push(function () {
+            linkTrackingManager.configureLinkClickTracking(criterion, pseudoClicks, trackContent, context);
+            linkTrackingManager.addClickListeners();
+          });
+        }
+      };
+
+      /**
+       * Add click event listeners to links which have been added to the page since the
+       * last time enableLinkClickTracking or refreshLinkClickTracking was used
+       */
+      API.refreshLinkClickTracking = function () {
+        if (mutSnowplowState.hasLoaded) {
+          linkTrackingManager.addClickListeners();
+        } else {
+          mutSnowplowState.registeredOnLoadHandlers.push(function () {
+            linkTrackingManager.addClickListeners();
+          });
+        }
+      };
+
 		}
 
 		return API;

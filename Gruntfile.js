@@ -103,7 +103,7 @@ module.exports = function(grunt) {
           transform: [
             ['browserify-replace', {
               replace: [
-                { from: /__FORM_TRACKING_ENABLED__/g, to: CONFIG.FORM_TRACKING_ENABLED }
+                { from: /__LINK_TRACKING_ENABLED__/g, to: CONFIG.LINK_TRACKING_ENABLED }
               ]
             }],
             'uglifyify'
