@@ -14,44 +14,45 @@
  */
 
 /*global module:false*/
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 
-  grunt.initConfig({
+    grunt.initConfig({
 
-    ts: {
-      default : {
-        tsconfig: true
-      }
-    },
+        ts: {
+            default: {
+                tsconfig: true
+            }
+        },
 
-    dtsGenerator: {
-        default: {
-            options: {
-                name: 'snowplow-tracker',
-                project: '.',
-                out: 'main.d.ts'
+        dtsGenerator: {
+            default: {
+                options: {
+                    name: 'snowplow-tracker',
+                    project: '.',
+                    out: 'main.d.ts'
+                }
+            }
+        },
+
+        intern: {
+            unit: {
+                options: {
+                    runType: 'client',
+                    config: 'tests/intern.js',
+                    suites: [
+                        'tests/unit/base64.js',
+                        'tests/unit/payload.js',
+                        'tests/unit/core.js',
+                        'tests/unit/contexts.js'
+                    ]
+                }
             }
         }
-    },
+    });
 
-    intern: {
-      unit: {
-        options: {
-          runType: 'client',
-          config: 'tests/intern.js',
-          suites: [
-            'tests/unit/base64.js',
-            'tests/unit/payload.js',
-            'tests/unit/core.js'
-            ]
-        }
-      }
-    }
-  });
+    grunt.loadNpmTasks('intern');
+    grunt.loadNpmTasks('grunt-ts');
+    grunt.loadNpmTasks('dts-generator');
 
-  grunt.loadNpmTasks('intern');
-  grunt.loadNpmTasks('grunt-ts');
-  grunt.loadNpmTasks('dts-generator');
-
-  grunt.registerTask('default', 'Compile and test', ['ts', 'dtsGenerator', 'intern']);
+    grunt.registerTask('default', 'Compile and test', ['ts', 'dtsGenerator', 'intern']);
 };
