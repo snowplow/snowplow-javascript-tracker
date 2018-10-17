@@ -17,7 +17,9 @@ import uuid = require('uuid');
 
 import * as payload from './payload';
 import {PayloadData} from "./payload";
-
+import {
+	contextModule as contextConstructor
+} from "./contexts";
 
 /**
  * Interface common for any Self-Describing JSON such as custom context or
@@ -27,7 +29,6 @@ export interface SelfDescribingJson extends Object {
 	schema: string
 	data: Object
 }
-
 
 /**
  * Algebraic datatype representing possible timestamp type choice
@@ -77,6 +78,17 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 	// Dictionary of key-value pairs which get added to every payload, e.g. tracker version
 	var payloadPairs = {};
 
+	let contextModule = contextConstructor();
+
+	/**
+	 * Gets all global contexts to be added to events
+	 *
+	 * @param event
+	 */
+	function getAllContexts(event: PayloadData) : Array<SelfDescribingJson> {
+		return contextModule.getApplicableContexts(event);
+	}
+
 	/**
 	 * Set a persistent key-value pair to be added to every payload
 	 *
@@ -121,6 +133,25 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 	}
 
 	/**
+	 * Adds all global contexts to a contexts array
+	 *
+	 * @param sb PayloadData
+	 * @param contexts Array<SelfDescribingJson>
+	 */
+	function attachGlobalContexts(sb: PayloadData,
+								  contexts?: Array<SelfDescribingJson>): Array<SelfDescribingJson> {
+		let globalContexts : Array<SelfDescribingJson> = getAllContexts(sb);
+		let returnedContexts : Array<SelfDescribingJson> = [];
+		if (contexts && contexts.length) {
+			returnedContexts.push(...contexts);
+		}
+        if (globalContexts && globalContexts.length) {
+			returnedContexts.push(...globalContexts);
+		}
+		return returnedContexts;
+	}
+
+	/**
 	 * Gets called by every trackXXX method
 	 * Adds context and payloadPairs name-value pairs to the payload
 	 * Applies the callback to the built payload
@@ -133,9 +164,10 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 	function track(sb: PayloadData, context?: Array<SelfDescribingJson>, tstamp?: Timestamp): PayloadData {
 		sb.addDict(payloadPairs);
 		sb.add('eid', uuid.v4());
-        var timestamp = getTimestamp(tstamp);
+		var timestamp = getTimestamp(tstamp);
 		sb.add(timestamp.type, timestamp.value.toString());
-		var wrappedContexts = completeContexts(context);
+		var allContexts = attachGlobalContexts(sb, context);
+		var wrappedContexts = completeContexts(allContexts);
 		if (wrappedContexts !== undefined) {
 			sb.addJson('cx', 'co', wrappedContexts);
 		}
@@ -312,7 +344,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 * Log the page view / visit
 		 *
 		 * @param pageUrl Current page URL
-         * @param pageTitle The user-defined page title to attach to this page view
+		 * @param pageTitle The user-defined page title to attach to this page view
 		 * @param referrer URL users came from
 		 * @param context Custom contexts relating to the event
 		 * @param tstamp TrackerTimestamp of the event
@@ -956,6 +988,18 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 					expiry: expiry,
 				})
 			}, context ? context.concat([documentJson]) : [documentJson], tstamp);
+		},
+
+		addGlobalContexts: function(contexts: Array<Object>) {
+			contextModule.addGlobalContexts(contexts);
+		},
+
+		clearGlobalContexts: function() {
+			contextModule.clearGlobalContexts();
+		},
+
+		removeGlobalContexts: function(contexts: Array<Object>) {
+			contextModule.removeGlobalContexts(contexts);
 		}
 	};
 }
