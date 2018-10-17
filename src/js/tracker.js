@@ -2635,6 +2635,25 @@
 			},
 
 			/**
+			 * All provided contexts will be sent with every event
+			 *
+			 * @param contexts Array<ContextPrimitive | ConditionalContextProvider>
+			 */
+			addGlobalContexts: function (contexts) { core.addGlobalContexts(contexts); },
+
+			/**
+			 * All provided contexts will no longer be sent with every event
+			 *
+			 * @param contexts Array<ContextPrimitive | ConditionalContextProvider>
+			 */
+			removeGlobalContexts: function (contexts) { core.removeGlobalContexts(contexts); },
+
+			/**
+			 * Clear all global contexts that are sent with events
+			 */
+			clearGlobalContexts: function () { core.clearGlobalContexts(); },
+
+			/**
 			 * Enable tracking of unhandled exceptions with custom contexts
 			 *
 			 * @param filter Function ErrorEvent => Bool to check whether error should be tracker
