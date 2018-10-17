@@ -1,20 +1,23 @@
 node_js:
-- 4.1.2
+- 8.12.0
 language: node_js
 install:
-- npm install -g npm@3.10.8
+- npm install -g npm@6.4.1
 - npm install -g grunt-cli
 
+# install packages and build core
 - cd core
-- npm install --only=dev --quiet
+- rm -rf node_modules
+- npm install
 - grunt ts
 - grunt dtsGenerator
-- cd ..
 
-- npm install --no-optional
-- npm install ./core --save # Must be cleaned from package.json before deploy
-- npm dedupe
-- npm shrinkwrap --also=dev
+# install packages for tracker
+- cd ..
+- rm -rf node_modules
+- npm install
+
+# get ngrok
 - wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
 - unzip ./ngrok-stable-linux-amd64.zip
 before_script:
