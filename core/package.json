@@ -2,14 +2,15 @@
   "name": "snowplow-tracker-core",
   "version": "0.6.1",
   "devDependencies": {
-    "grunt": "0.4.5",
-    "intern": "3.3.2",
-    "dts-generator": "^2.0.0",
-    "grunt-ts": "5.5.1",
-    "typescript": "2.2.2",
-    "@types/node": "^9.6.7",
     "@types/es6-shim": "0.31.34",
-    "@types/uuid": "^2.0.29"
+    "@types/node": "^9.6.7",
+    "@types/uuid": "^2.0.29",
+    "dts-generator": "^2.0.0",
+    "grunt": "0.4.5",
+    "grunt-ts": "5.5.1",
+    "intern": "3.3.2",
+    "lodash": "^4.17.11",
+    "typescript": "2.2.2"
   },
   "dependencies": {
     "uuid": "2.0.3"

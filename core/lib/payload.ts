@@ -39,6 +39,25 @@ function base64urlencode(data: string): string {
 	return enc.replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 }
 
+export function base64urldecode(data: string): string {
+	if (!data) {
+		return data;
+	}
+
+    var padding = 4 - data.length % 4;
+	switch (padding) {
+		case 2:
+			data += "==";
+			break;
+		case 3:
+			data += "=";
+			break;
+	}
+
+	var b64Data = data.replace(/-/g, '+').replace(/_/g, '/');
+	return base64.base64decode(b64Data);
+}
+
 /**
  * Is property a non-empty JSON?
  */
