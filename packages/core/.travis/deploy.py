@@ -114,12 +114,12 @@ def npm_credentials():
     if os.path.isfile(npmrc):
         os.remove(npmrc)
         print("WARNING! ~/.npmrc already exists. It should be deleted after each use")
-        print("Overrinding existing ~/.npmrc")
+        print("Overwriting existing ~/.npmrc")
     else:
         print("Creating ~/.npmrc")
 
     with open(npmrc, 'a') as f:
-        f.write("registry=http://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=" + NPM_AUTH_TOKEN)
+        f.write("registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=" + NPM_AUTH_TOKEN)
 
     yield
 
