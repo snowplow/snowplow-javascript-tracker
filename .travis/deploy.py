@@ -121,8 +121,6 @@ def npm_credentials():
     with open(npmrc, 'a') as f:
         f.write("registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=" + NPM_AUTH_TOKEN)
 
-    execute(['npm', 'config', 'set', 'registry', 'https://registry.npmjs.org/'])
-
     yield
 
     print("Deleting ~/.npmrc")
