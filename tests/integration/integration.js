@@ -115,7 +115,7 @@ define([
 		teardown: function () {
 			if (someTestsFailed(this)) {
 				console.log("Tests failed with following log:");
-				console.log(log, function (l) { console.log(l); });
+				lodash.forEach(log, function (l) { console.log(l); });
 			}
 			console.log("Cleaning log");
 			log = [];
