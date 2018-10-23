@@ -2,6 +2,7 @@
   "name": "snowplow-tracker",
   "version": "2.9.2",
   "dependencies": {
+    "@babel/runtime": "^7.1.2",
     "browser-cookie-lite": "0.3.1",
     "jstimezonedetect": "1.0.5",
     "murmurhash": "0.0.2",
@@ -11,6 +12,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.1.2",
+    "@babel/plugin-transform-runtime": "^7.1.0",
     "@babel/preset-env": "^7.1.0",
     "JSON": "1.0.0",
     "babel-cli": "^6.26.0",
