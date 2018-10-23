@@ -68,7 +68,7 @@ function getTimestamp(tstamp?: Timestamp): TimestampPayload {
  * @param callback Function applied to every payload dictionary object
  * @return Tracker core
  */
-export default function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
+export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 
 	// base 64 encoding should default to true
 	if (typeof base64 === 'undefined') {
