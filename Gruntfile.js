@@ -83,6 +83,12 @@ module.exports = function(grunt) {
       main: {
         files: {
           'dist/bundle.js': ['src/js/init.js']
+        },
+        options: {
+          transform: [['babelify', { presets: ["@babel/preset-env"] }]],
+          browserifyOptions: {
+            debug: true
+          }
         }
       },
       test: {
