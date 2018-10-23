@@ -47,7 +47,7 @@ define([
 	 * This must be increased when new tracking call added to
 	 * pages/integration-template.html
 	 */
-    var log = [];
+	var log = [];
 
 	function pageViewsHaveDifferentIds () {
 		var pageViews = lodash.filter(log, function (logLine) {

@@ -83,6 +83,9 @@ module.exports = function(grunt) {
       main: {
         files: {
           'dist/bundle.js': ['src/js/init.js']
+        },
+        options: {
+          transform: [['babelify', { presets: ["@babel/preset-env"] }]]
         }
       },
       test: {
@@ -90,6 +93,9 @@ module.exports = function(grunt) {
           'tests/pages/helpers.js': ['tests/scripts/helpers.js'],
           'tests/pages/detectors.js': ['tests/scripts/detectors.js'],
           'tests/pages/snowplow.js': ['src/js/init.js']
+        },
+        options: {
+          transform: [['babelify', { presets: ["@babel/preset-env"] }]]
         }
       }
     },

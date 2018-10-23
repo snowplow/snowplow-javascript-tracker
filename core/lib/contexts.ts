@@ -198,7 +198,7 @@ function getUsefulSchema(sb: SelfDescribingJson): string {
 }
 
 function getDecodedEvent(sb: SelfDescribingJson): SelfDescribingJson {
-    let decodedEvent = Object.assign({}, sb);
+    let decodedEvent = {...sb}; // spread operator, instantiates new object
     if (has(decodedEvent, 'ue_px')) {
         decodedEvent['ue_px'] = JSON.parse(base64url.base64urldecode(get(decodedEvent, ['ue_px'])));
     }
