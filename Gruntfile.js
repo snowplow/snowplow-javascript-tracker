@@ -85,10 +85,7 @@ module.exports = function(grunt) {
           'dist/bundle.js': ['src/js/init.js']
         },
         options: {
-          transform: [['babelify', { presets: ["@babel/preset-env"] }]],
-          browserifyOptions: {
-            debug: true
-          }
+          transform: [['babelify', { presets: ["@babel/preset-env"] }]]
         }
       },
       test: {
@@ -98,10 +95,7 @@ module.exports = function(grunt) {
           'tests/pages/snowplow.js': ['src/js/init.js']
         },
         options: {
-          transform: [['babelify', { presets: ["@babel/preset-env"] }]],
-          browserifyOptions: {
-            debug: true
-          }
+          transform: [['babelify', { presets: ["@babel/preset-env"] }]]
         }
       }
     },
