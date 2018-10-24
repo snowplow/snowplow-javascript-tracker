@@ -38,9 +38,6 @@
  * Get the name of the global input function
  */
 
-// Used for supporting older browsers
-require("@babel/polyfill");
-
 var snowplow = require('./snowplow'),
 	queueName,
 	queue,
