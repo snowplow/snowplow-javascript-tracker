@@ -24,6 +24,23 @@
 // Deprecated and removed in TypeScript
 declare function unescape(s: string): string;
 
+export function base64urldecode(data: string): string {
+    if (!data) {
+        return data;
+    }
+    var padding = 4 - data.length % 4;
+    switch (padding) {
+        case 2:
+            data += "==";
+            break;
+        case 3:
+            data += "=";
+            break;
+    }
+    var b64Data = data.replace(/-/g, '+').replace(/_/g, '/');
+    return base64decode(b64Data);
+}
+
 /**
  * Encode string as base64.
  * Any type can be passed, but will be stringified
