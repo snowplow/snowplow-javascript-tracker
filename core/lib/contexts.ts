@@ -1,6 +1,6 @@
 import { PayloadData, isNonEmptyJson } from "./payload";
 import { SelfDescribingJson } from "./core";
-import { base64url } from "base64url";
+import { base64urldecode } from "./base64";
 import isEqual = require('lodash/isEqual');
 import has = require('lodash/has');
 import get = require('lodash/get');
@@ -200,7 +200,7 @@ function getUsefulSchema(sb: SelfDescribingJson): string {
 function getDecodedEvent(sb: SelfDescribingJson): SelfDescribingJson {
     let decodedEvent = {...sb}; // spread operator, instantiates new object
     if (has(decodedEvent, 'ue_px')) {
-        decodedEvent['ue_px'] = JSON.parse(base64url.base64urldecode(get(decodedEvent, ['ue_px'])));
+        decodedEvent['ue_px'] = JSON.parse(base64urldecode(get(decodedEvent, ['ue_px'])));
     }
     return decodedEvent;
 }
@@ -221,7 +221,19 @@ export function contextModule() {
         if (isSelfDescribingJson(contextPrimitive)) {
             return <SelfDescribingJson> contextPrimitive;
         } else if (isContextGenerator(contextPrimitive)) {
-            return (contextPrimitive as ContextGenerator)(event, eventType, eventSchema);
+            let contextGeneratorResult : SelfDescribingJson | undefined = undefined;
+            // try to evaluate context generator
+            try {
+                contextGeneratorResult = (contextPrimitive as ContextGenerator)(event, eventType, eventSchema);
+            } catch (error) {
+                contextGeneratorResult = undefined;
+            }
+            // determine if the produced result is a valid SDJ
+            if (isSelfDescribingJson(contextGeneratorResult)){
+                return contextGeneratorResult;
+            }
+            // otherwise return nothing
+            return undefined;
         }
     }
 
@@ -239,7 +251,13 @@ export function contextModule() {
         for (let provider of conditionalProviders) {
             if (isFilterContextProvider(provider)) {
                 let filter : ContextFilter = (provider as FilterContextProvider)[0];
-                if (filter(event, eventType, eventSchema)) {
+                let filterResult = false;
+                try {
+                    filterResult = filter(event, eventType, eventSchema);
+                } catch(error) {
+                    filterResult = false;
+                }
+                if (filterResult) {
                     let generatedContext = generateContext((provider as FilterContextProvider)[1], event, eventType, eventSchema);
                     if (generatedContext) {
                         contexts = contexts.concat(generatedContext);

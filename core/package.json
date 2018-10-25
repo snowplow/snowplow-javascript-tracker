@@ -1,6 +1,6 @@
 {
   "name": "snowplow-tracker-core",
-  "version": "0.7.0-alpha.3",
+  "version": "0.7.0-alpha.4",
   "devDependencies": {
     "@types/es6-shim": "0.31.34",
     "@types/node": "^9.6.7",
@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "@types/uuid": "^2.0.29",
-    "base64url": "^3.0.0",
     "lodash": "^4.17.11",
     "uuid": "2.0.3"
   },
