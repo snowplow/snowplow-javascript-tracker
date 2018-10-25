@@ -1,8 +1,10 @@
-import {PayloadData, base64urldecode, isNonEmptyJson} from "./payload";
-import {SelfDescribingJson} from "./core";
+import { PayloadData, isNonEmptyJson } from "./payload";
+import { SelfDescribingJson } from "./core";
+import { base64url } from "base64url";
 import isEqual = require('lodash/isEqual');
 import has = require('lodash/has');
 import get = require('lodash/get');
+import isPlainObject = require('lodash/isPlainObject');
 
 /**
  * Datatypes (some algebraic) for representing context types
@@ -69,28 +71,26 @@ export function isEventJson(input: any) : boolean {
     return false;
 }
 
-export function isObject(input: any) : boolean {
-    return input && typeof input === 'object' && input.constructor === Object;
-}
-
 export function isRuleSet(input: any) : boolean {
-    let methodCount = 0;
-    if (isObject(input)) {
+    let ruleCount = 0;
+    if (isPlainObject(input)) {
         if (has(input, 'accept')) {
             if (isValidRuleSetArg(input['accept'])) {
-                methodCount += 1;
+                ruleCount += 1;
             } else {
                 return false;
             }
         }
         if (has(input, 'reject')) {
             if (isValidRuleSetArg(input['reject'])) {
-                methodCount += 1;
+                ruleCount += 1;
             } else {
                 return false;
             }
         }
-        return methodCount > 0; // if 'reject' or 'accept' exists, we have a valid ruleset
+        // if either 'reject' or 'accept' or both exists,
+        // we have a valid ruleset
+        return ruleCount > 0 && ruleCount <= 2;
     }
     return false;
 }
@@ -181,11 +181,11 @@ export function matchSchemaAgainstRuleSet(ruleSet: RuleSet, schema: string) : bo
     return matchCount > 0;
 }
 
-// Warning: below is a design decision, good to know for understanding this functionality.
-// Returns the "useful" schema, basically what would someone want to use to discern events.
+// Returns the "useful" schema, i.e. what would someone want to use to identify events.
 // The idea being that you can determine the event type from 'e', so getting the schema from
 // 'ue_px.schema'/'ue_pr.schema' would be redundant - it'll return the unstructured event schema.
 // Instead the schema nested inside the unstructured event is more useful!
+// This doesn't decode ue_px, it works because it's called by code that has already decoded it
 function getUsefulSchema(sb: SelfDescribingJson): string {
     if (typeof get(sb, 'ue_px.data.schema') === 'string') {
         return get(sb, 'ue_px.data.schema');
@@ -200,7 +200,7 @@ function getUsefulSchema(sb: SelfDescribingJson): string {
 function getDecodedEvent(sb: SelfDescribingJson): SelfDescribingJson {
     let decodedEvent = {...sb}; // spread operator, instantiates new object
     if (has(decodedEvent, 'ue_px')) {
-        decodedEvent['ue_px'] = JSON.parse(base64urldecode(get(decodedEvent, ['ue_px'])));
+        decodedEvent['ue_px'] = JSON.parse(base64url.base64urldecode(get(decodedEvent, ['ue_px'])));
     }
     return decodedEvent;
 }
