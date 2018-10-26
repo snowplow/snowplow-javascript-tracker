@@ -50,7 +50,17 @@
           return context;
         }
 
-        window.snowplow('addGlobalContexts', [eventTypeContextGenerator, geolocationContext]);
+		// A filter that will only attach contexts to structured events
+		function structuredEventFilter(payload, eventType, schema) {
+			return eventType === 'se';
+		}
+
+        function erroneousContextGenerator(payload, eventType, schema) {
+        	return {};
+		}
+
+		window.snowplow('addGlobalContexts', [erroneousContextGenerator]);
+		window.Snowplow('addGlobalContext', structuredEventFilter, [eventTypeContextGenerator, geolocationContext]);
 
 		window.snowplow('setUserId', 'Malcolm');
 		window.snowplow('trackPageView', 'My Title', [ // Auto-set page title; add page context
