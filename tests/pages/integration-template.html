@@ -60,7 +60,7 @@
 		}
 
 		window.snowplow('addGlobalContexts', [erroneousContextGenerator]);
-		window.Snowplow('addGlobalContext', structuredEventFilter, [eventTypeContextGenerator, geolocationContext]);
+		window.snowplow('addGlobalContexts', structuredEventFilter, [eventTypeContextGenerator, geolocationContext]);
 
 		window.snowplow('setUserId', 'Malcolm');
 		window.snowplow('trackPageView', 'My Title', [ // Auto-set page title; add page context
