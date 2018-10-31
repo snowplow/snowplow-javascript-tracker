@@ -327,11 +327,9 @@ export function contextModule() {
         let eventType = getEventType(event);
         let contexts : Array<SelfDescribingJson> = [];
         let generatedPrimitives = generatePrimitives(globalPrimitives, event, eventType, eventSchema);
-        console.log("Generated primitives: " + generatedPrimitives);
         contexts.push(...generatedPrimitives);
 
         let generatedConditionals = generateConditionals(conditionalProviders, event, eventType, eventSchema);
-        console.log("Generated conditionals: " + generatedConditionals);
         contexts.push(...generatedConditionals);
 
         return contexts;
