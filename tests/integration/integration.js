@@ -220,13 +220,13 @@ define([
 						lodash.filter(contexts,
 							lodash.overSome(
 								lodash.matches({
-									schema: "iglu:/com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1",
+									schema: "iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1",
 									data: {
 										osType: 'ubuntu'
 									}
 								}),
 								lodash.matches({
-									schema: 'iglu:/com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
+									schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
 									data: {
 										'latitude': '40.0',
 										'longitude': '55.1'
