@@ -22,12 +22,12 @@ declare module 'snowplow-tracker/lib/contexts' {
 	export type ContextGenerator = (payload: SelfDescribingJson, eventType: string, schema: string) => SelfDescribingJson;
 	export type ContextPrimitive = SelfDescribingJson | ContextGenerator;
 	export type ContextFilter = (payload: SelfDescribingJson, eventType: string, schema: string) => boolean;
-	export type FilterContextProvider = [ContextFilter, ContextPrimitive];
+	export type FilterContextProvider = [ContextFilter, Array<ContextPrimitive> | ContextPrimitive];
 	export interface RuleSet {
 	    accept?: string[] | string;
 	    reject?: string[] | string;
 	}
-	export type PathContextProvider = [RuleSet, ContextPrimitive];
+	export type PathContextProvider = [RuleSet, Array<ContextPrimitive> | ContextPrimitive];
 	export type ConditionalContextProvider = FilterContextProvider | PathContextProvider;
 	export function getSchemaParts(input: string): Array<string> | undefined;
 	export function isValidMatcher(input: any): boolean;

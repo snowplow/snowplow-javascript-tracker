@@ -5,6 +5,9 @@ import isEqual = require('lodash/isEqual');
 import has = require('lodash/has');
 import get = require('lodash/get');
 import isPlainObject = require('lodash/isPlainObject');
+import every = require('lodash/every');
+import compact = require('lodash/compact');
+import map = require('lodash/map');
 
 /**
  * Datatypes (some algebraic) for representing context types
@@ -12,12 +15,12 @@ import isPlainObject = require('lodash/isPlainObject');
 export type ContextGenerator = (payload: SelfDescribingJson, eventType: string, schema: string) => SelfDescribingJson;
 export type ContextPrimitive = SelfDescribingJson | ContextGenerator;
 export type ContextFilter = (payload: SelfDescribingJson, eventType: string, schema: string) => boolean;
-export type FilterContextProvider = [ContextFilter, ContextPrimitive];
+export type FilterContextProvider = [ContextFilter, Array<ContextPrimitive> | ContextPrimitive];
 export interface RuleSet {
     accept?: string[] | string;
     reject?: string[] | string;
 }
-export type PathContextProvider = [RuleSet, ContextPrimitive];
+export type PathContextProvider = [RuleSet, Array<ContextPrimitive> | ContextPrimitive];
 export type ConditionalContextProvider = FilterContextProvider | PathContextProvider;
 
 export function getSchemaParts(input: string): Array<string> | undefined {
@@ -116,6 +119,9 @@ export function isContextPrimitive(input: any) : boolean {
 export function isFilterContextProvider(input: any) : boolean {
     if (Array.isArray(input)) {
         if (input.length === 2) {
+            if (Array.isArray(input[1])) {
+                return isContextFilter(input[0]) && every(input[1], isContextPrimitive);
+            }
             return isContextFilter(input[0]) && isContextPrimitive(input[1]);
         }
     }
@@ -124,6 +130,9 @@ export function isFilterContextProvider(input: any) : boolean {
 
 export function isPathContextProvider(input: any) : boolean {
     if (Array.isArray(input) && input.length === 2) {
+        if (Array.isArray(input[1])) {
+            return isRuleSet(input[0]) && every(input[1], isContextPrimitive);
+        }
         return isRuleSet(input[0]) && isContextPrimitive(input[1]);
     }
     return false;
@@ -209,69 +218,122 @@ function getEventType(sb: {}): string {
     return get(sb, 'e', '');
 }
 
+function buildGenerator(generator: ContextGenerator,
+                        event: SelfDescribingJson,
+                        eventType: string,
+                        eventSchema: string) : SelfDescribingJson | Array<SelfDescribingJson> | undefined {
+    let contextGeneratorResult : SelfDescribingJson | Array<SelfDescribingJson> | undefined = undefined;
+    try {
+        // try to evaluate context generator
+        contextGeneratorResult = generator(event, eventType, eventSchema);
+        // determine if the produced result is a valid SDJ
+        if (isSelfDescribingJson(contextGeneratorResult)) {
+            return contextGeneratorResult;
+        } else if (Array.isArray(contextGeneratorResult) && every(contextGeneratorResult, isSelfDescribingJson)) {
+            return contextGeneratorResult;
+        } else {
+            return undefined;
+        }
+    } catch (error) {
+        contextGeneratorResult = undefined;
+    }
+    return contextGeneratorResult;
+}
+
+function normalizeToArray(input: any) : Array<any> {
+    if (Array.isArray(input)) {
+        return input;
+    }
+    return Array.of(input);
+}
+
+function generatePrimitives(contextPrimitives: Array<ContextPrimitive> | ContextPrimitive,
+                            event: SelfDescribingJson,
+                            eventType: string,
+                            eventSchema: string) : Array<SelfDescribingJson> {
+    let normalizedInputs : Array<ContextPrimitive> = normalizeToArray(contextPrimitives);
+    let partialEvaluate = (primitive) => {
+        let result = evaluatePrimitive(primitive, event, eventType, eventSchema);
+        if (result && result.length !== 0) {
+            return result;
+        }
+    };
+    let generatedContexts = map(normalizedInputs, partialEvaluate);
+    return [].concat(...compact(generatedContexts));
+}
+
+function evaluatePrimitive(contextPrimitive: ContextPrimitive,
+                           event: SelfDescribingJson,
+                           eventType: string,
+                           eventSchema: string) : Array<SelfDescribingJson> | undefined {
+    if (isSelfDescribingJson(contextPrimitive)) {
+        return [contextPrimitive as SelfDescribingJson];
+    } else if (isContextGenerator(contextPrimitive)) {
+        let generatorOutput = buildGenerator(contextPrimitive as ContextGenerator, event, eventType, eventSchema);
+        if (isSelfDescribingJson(generatorOutput)) {
+            return [generatorOutput as SelfDescribingJson];
+        } else if (Array.isArray(generatorOutput)) {
+            return generatorOutput;
+        }
+    }
+    return undefined;
+}
+
+function evaluateProvider(provider: ConditionalContextProvider,
+                          event: SelfDescribingJson,
+                          eventType: string,
+                          eventSchema: string): Array<SelfDescribingJson> {
+    if (isFilterContextProvider(provider)) {
+        let filter : ContextFilter = (provider as FilterContextProvider)[0];
+        let filterResult = false;
+        try {
+            filterResult = filter(event, eventType, eventSchema);
+        } catch(error) {
+            filterResult = false;
+        }
+        if (filterResult === true) {
+            console.log("Filter result is true!");
+            return generatePrimitives((provider as FilterContextProvider)[1], event, eventType, eventSchema);
+        }
+    } else if (isPathContextProvider(provider)) {
+        if (matchSchemaAgainstRuleSet((provider as PathContextProvider)[0], eventSchema)) {
+            return generatePrimitives((provider as PathContextProvider)[1], event, eventType, eventSchema);
+        }
+    }
+    return [];
+}
+
+function generateConditionals(providers: Array<ConditionalContextProvider> | ConditionalContextProvider,
+                              event: SelfDescribingJson,
+                              eventType: string,
+                              eventSchema: string) : Array<SelfDescribingJson> {
+    let normalizedInput : Array<ConditionalContextProvider> = normalizeToArray(providers);
+    let partialEvaluate = (provider) => {
+        let result = evaluateProvider(provider, event, eventType, eventSchema);
+        if (result && result.length !== 0) {
+            return result;
+        }
+    };
+    let generatedContexts = map(normalizedInput, partialEvaluate);
+    return [].concat(...compact(generatedContexts));
+}
+
 export function contextModule() {
     let globalPrimitives : Array<ContextPrimitive> = [];
     let conditionalProviders : Array<ConditionalContextProvider> = [];
-
-    function generateContext(contextPrimitive: ContextPrimitive,
-                             event: SelfDescribingJson,
-                             eventType: string,
-                             eventSchema: string) : SelfDescribingJson | undefined
-    {
-        if (isSelfDescribingJson(contextPrimitive)) {
-            return <SelfDescribingJson> contextPrimitive;
-        } else if (isContextGenerator(contextPrimitive)) {
-            let contextGeneratorResult : SelfDescribingJson | undefined = undefined;
-            // try to evaluate context generator
-            try {
-                contextGeneratorResult = (contextPrimitive as ContextGenerator)(event, eventType, eventSchema);
-            } catch (error) {
-                contextGeneratorResult = undefined;
-            }
-            // determine if the produced result is a valid SDJ
-            if (isSelfDescribingJson(contextGeneratorResult)){
-                return contextGeneratorResult;
-            }
-            // otherwise return nothing
-            return undefined;
-        }
-    }
 
     function assembleAllContexts(event: SelfDescribingJson) : Array<SelfDescribingJson> {
         let eventSchema = getUsefulSchema(event);
         let eventType = getEventType(event);
         let contexts : Array<SelfDescribingJson> = [];
-        for (let context of globalPrimitives) {
-            let generatedContext = generateContext(context, event, eventType, eventSchema);
-            if (generatedContext) {
-                contexts = contexts.concat(generatedContext);
-            }
-        }
+        let generatedPrimitives = generatePrimitives(globalPrimitives, event, eventType, eventSchema);
+        console.log("Generated primitives: " + generatedPrimitives);
+        contexts.push(...generatedPrimitives);
 
-        for (let provider of conditionalProviders) {
-            if (isFilterContextProvider(provider)) {
-                let filter : ContextFilter = (provider as FilterContextProvider)[0];
-                let filterResult = false;
-                try {
-                    filterResult = filter(event, eventType, eventSchema);
-                } catch(error) {
-                    filterResult = false;
-                }
-                if (filterResult) {
-                    let generatedContext = generateContext((provider as FilterContextProvider)[1], event, eventType, eventSchema);
-                    if (generatedContext) {
-                        contexts = contexts.concat(generatedContext);
-                    }
-                }
-            } else if (isPathContextProvider(provider)) {
-                if (matchSchemaAgainstRuleSet((provider as PathContextProvider)[0], eventSchema)) {
-                    let generatedContext = generateContext((provider as PathContextProvider)[1], event, eventType, eventSchema);
-                    if (generatedContext) {
-                        contexts = contexts.concat(generatedContext);
-                    }
-                }
-            }
-        }
+        let generatedConditionals = generateConditionals(conditionalProviders, event, eventType, eventSchema);
+        console.log("Generated conditionals: " + generatedConditionals);
+        contexts.push(...generatedConditionals);
+
         return contexts;
     }
 
@@ -280,10 +342,10 @@ export function contextModule() {
             let acceptedConditionalContexts : ConditionalContextProvider[] = [];
             let acceptedContextPrimitives : ContextPrimitive[] = [];
             for (let context of contexts) {
-                if (isContextPrimitive(context)) {
-                    acceptedContextPrimitives = acceptedContextPrimitives.concat(context);
-                } else if (isConditionalContextProvider(context)) {
-                    acceptedConditionalContexts = acceptedConditionalContexts.concat(context);
+                if (isConditionalContextProvider(context)) {
+                    acceptedConditionalContexts.push(context);
+                } else if (isContextPrimitive(context)) {
+                    acceptedContextPrimitives.push(context);
                 }
             }
             globalPrimitives = globalPrimitives.concat(acceptedContextPrimitives);
@@ -297,10 +359,10 @@ export function contextModule() {
 
         removeGlobalContexts: function (contexts: Array<any>) {
             for (let context of contexts) {
-                if (isContextPrimitive(context)) {
-                    globalPrimitives = globalPrimitives.filter(item => !isEqual(item, context));
-                } else if (isConditionalContextProvider(context)) {
+                if (isConditionalContextProvider(context)) {
                     conditionalProviders = conditionalProviders.filter(item => !isEqual(item, context));
+                } else if (isContextPrimitive(context)) {
+                    globalPrimitives = globalPrimitives.filter(item => !isEqual(item, context));
                 } else {
                     // error message here?
                 }

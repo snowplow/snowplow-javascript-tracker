@@ -138,13 +138,17 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 	 * @param sb PayloadData
 	 * @param contexts Array<SelfDescribingJson>
 	 */
-	function attachGlobalContexts(sb: PayloadData, contexts?: Array<SelfDescribingJson>): Array<SelfDescribingJson> | undefined{
-		var globalContexts = getAllContexts(sb);
+	function attachGlobalContexts(sb: PayloadData,
+								  contexts?: Array<SelfDescribingJson>): Array<SelfDescribingJson> {
+		let globalContexts : Array<SelfDescribingJson> = getAllContexts(sb);
+		let returnedContexts : Array<SelfDescribingJson> = [];
 		if (contexts && contexts.length) {
-			return contexts.concat(globalContexts);
-		} else {
-			return globalContexts;
+			returnedContexts.push(...contexts);
 		}
+        if (globalContexts && globalContexts.length) {
+			returnedContexts.push(...globalContexts);
+		}
+		return returnedContexts;
 	}
 
 	/**
@@ -163,6 +167,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		var timestamp = getTimestamp(tstamp);
 		sb.add(timestamp.type, timestamp.value.toString());
 		var allContexts = attachGlobalContexts(sb, context);
+		console.log("Here's all em: " + allContexts);
 		var wrappedContexts = completeContexts(allContexts);
 		if (wrappedContexts !== undefined) {
 			sb.addJson('cx', 'co', wrappedContexts);
