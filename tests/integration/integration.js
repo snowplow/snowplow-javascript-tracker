@@ -228,8 +228,8 @@ define([
 								lodash.matches({
 									schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
 									data: {
-										'latitude': '40.0',
-										'longitude': '55.1'
+										'latitude': 40.0,
+										'longitude': 55.1
 									}
 								})
 							)
