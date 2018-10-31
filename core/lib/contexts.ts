@@ -292,7 +292,6 @@ function evaluateProvider(provider: ConditionalContextProvider,
             filterResult = false;
         }
         if (filterResult === true) {
-            console.log("Filter result is true!");
             return generatePrimitives((provider as FilterContextProvider)[1], event, eventType, eventSchema);
         }
     } else if (isPathContextProvider(provider)) {

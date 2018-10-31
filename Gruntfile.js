@@ -89,7 +89,7 @@ module.exports = function(grunt) {
         files: {
           'tests/pages/helpers.js': ['tests/scripts/helpers.js'],
           'tests/pages/detectors.js': ['tests/scripts/detectors.js'],
-          'tests/pages/snowplow.js': ['src/js/init.js']
+          'tests/pages/bundle.js': ['src/js/init.js']
         }
       }
     },
@@ -101,6 +101,11 @@ module.exports = function(grunt) {
       dist: {
         files: {
           'dist/bundle-postbabel.js': 'dist/bundle.js'
+        }
+      },
+      test: {
+        files: {
+          'tests/pages/snowplow.js': 'tests/pages/bundle.js'
         }
       }
     },
@@ -258,7 +263,7 @@ module.exports = function(grunt) {
   grunt.registerTask('publish', 'Upload to S3 and invalidate Cloudfront (full semantic version only)', ['upload_setup', 'browserify:main', 'babel:dist', 'concat:deploy', 'uglify:deploy', 's3:not_pinned', 'cloudfront:not_pinned']);
   grunt.registerTask('publish-pinned', 'Upload to S3 and invalidate Cloudfront (full semantic version and semantic major version)', ['upload_setup', 'browserify:main', 'babel:dist', 'concat:deploy', 'uglify:deploy', 's3', 'cloudfront']);
   grunt.registerTask('quick', 'Build snowplow.js, skipping building and minifying', ['browserify:main', 'babel:dist', 'concat:deploy']);
-  grunt.registerTask('test', 'Intern tests', ['browserify:test', 'intern']);
-  grunt.registerTask('travis', 'Intern tests for Travis CI',  ['concat:test', 'browserify:test', 'intern']);
+  grunt.registerTask('test', 'Intern tests', ['browserify:test', 'babel:test', 'intern']);
+  grunt.registerTask('travis', 'Intern tests for Travis CI',  ['concat:test', 'browserify:test', 'babel:test', 'intern']);
   grunt.registerTask('tags', 'Minifiy the Snowplow invocation tag', ['uglify:tag', 'concat:tag']);
 };
