@@ -167,7 +167,6 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		var timestamp = getTimestamp(tstamp);
 		sb.add(timestamp.type, timestamp.value.toString());
 		var allContexts = attachGlobalContexts(sb, context);
-		console.log("Here's all em: " + allContexts);
 		var wrappedContexts = completeContexts(allContexts);
 		if (wrappedContexts !== undefined) {
 			sb.addJson('cx', 'co', wrappedContexts);
