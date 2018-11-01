@@ -113,6 +113,32 @@
 		// Must be called last to commit the transaction.
 		window.snowplow('trackTrans');
 
+		var testAcceptRuleset = {
+		  accept: ['iglu:com.acme_company/././.']
+		};
+		var testRejectRuleset = {
+		  reject: ['iglu:com.acme_company/././.']
+		};
+
+		// test context rulesets
+        window.snowplow('addGlobalContexts', [[testAcceptRuleset, [eventTypeContextGenerator, geolocationContext]]]);
+        window.snowplow('trackUnstructEvent', {
+          schema: 'iglu:com.acme_company/viewed_product/jsonschema/5-0-0',
+          data: {
+            productId: 'ASO01042'
+          }
+        }, [], { type: 'ttm', value: 1477401869 });
+
+        window.snowplow('removeGlobalContexts', [[testAcceptRuleset, [eventTypeContextGenerator, geolocationContext]]]);
+
+        window.snowplow('addGlobalContexts', [[testRejectRuleset, [eventTypeContextGenerator, geolocationContext]]]);
+        window.snowplow('trackUnstructEvent', {
+          schema: 'iglu:com.acme_company/viewed_product/jsonschema/5-0-0',
+          data: {
+            productId: 'ASO01041'
+          }
+        }, [], { type: 'ttm', value: 1477401868 });
+
 		// track unhandled exception
 		window.snowplow("enableErrorTracking");
 		function raiseException() { notExistentObject.notExistentProperty(); }
