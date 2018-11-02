@@ -161,18 +161,19 @@ export function matchSchemaAgainstRule(rule: string, schema: string) : boolean {
 }
 
 export function matchSchemaAgainstRuleSet(ruleSet: RuleSet, schema: string) : boolean {
-    let matchCount = 0;
+    let rejectCount = 0;
+    let acceptCount = 0;
     let acceptRules = get(ruleSet, 'accept');
     if (Array.isArray(acceptRules)) {
         if (!(ruleSet.accept as Array<string>).every((rule) => (matchSchemaAgainstRule(rule, schema)))) {
             return false;
         }
-        matchCount++;
+        acceptCount++;
     } else if (typeof(acceptRules) === 'string') {
         if (!matchSchemaAgainstRule(acceptRules, schema)) {
             return false;
         }
-        matchCount++;
+        acceptCount++;
     }
 
     let rejectRules = get(ruleSet, 'reject');
@@ -180,14 +181,19 @@ export function matchSchemaAgainstRuleSet(ruleSet: RuleSet, schema: string) : bo
         if (!(ruleSet.reject as Array<string>).every((rule) => (matchSchemaAgainstRule(rule, schema)))) {
             return false;
         }
-        matchCount++;
+        rejectCount++;
     } else if (typeof(rejectRules) === 'string') {
         if (!matchSchemaAgainstRule(rejectRules, schema)) {
             return false;
         }
-        matchCount++;
+        rejectCount++;
     }
-    return matchCount > 0;
+    if (rejectCount > 0) {
+        return false;
+    } else if (acceptCount > 0) {
+        return true;
+    }
+    return false;
 }
 
 // Returns the "useful" schema, i.e. what would someone want to use to identify events.
