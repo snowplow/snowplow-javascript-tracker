@@ -41,8 +41,22 @@ define([
 				return context;
 			}
 
+			var acceptRuleSet = {
+				accept: ['iglu:com.snowplowanalytics.snowplow/././.']
+			};
+
+			var rejectRuleSet = {
+				reject: ['iglu:com.snowplowanalytics.snowplow/././.']
+			};
+
+			var pageview_schema = 'iglu:com.snowplowanalytics.snowplow/pageview/jsonschema/1-0-1';
+
 			assert.isTrue(contexts.isContextPrimitive(geolocationContext), 'A context primitive should be identified');
 			assert.isTrue(contexts.isContextPrimitive(eventTypeContextGenerator), 'A context primitive should be identified');
+			assert.deepEqual(contexts.getSchemaParts(pageview_schema), ['com.snowplowanalytics.snowplow', 'pageview', 'jsonschema', '1-0-1'], 'Gets correct parts for schema');
+			assert.isTrue(contexts.matchSchemaAgainstRule('iglu:com.snowplowanalytics.snowplow/././.', pageview_schema), 'Matches schema against wildcarded rule');
+			assert.isTrue(contexts.matchSchemaAgainstRuleSet(acceptRuleSet, pageview_schema), 'Accept ruleset accepts matching schema');
+			assert.isFalse(contexts.matchSchemaAgainstRuleSet(rejectRuleSet, pageview_schema), 'Reject ruleset rejects matching schema');
 		}
 	});
 

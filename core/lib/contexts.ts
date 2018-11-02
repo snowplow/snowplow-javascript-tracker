@@ -24,10 +24,10 @@ export type PathContextProvider = [RuleSet, Array<ContextPrimitive> | ContextPri
 export type ConditionalContextProvider = FilterContextProvider | PathContextProvider;
 
 export function getSchemaParts(input: string): Array<string> | undefined {
-    let re = new RegExp('^iglu:([a-zA-Z0-9-_]+|\.)\/([a-zA-Z0-9-_]+|\.)\/([a-zA-Z0-9-_]+|\.)\/([0-9]+-[0-9]+-[0-9]|\.)$');
+    let re = new RegExp('^iglu:([a-zA-Z0-9-_.]+|\.)\/([a-zA-Z0-9-_]+|\.)\/([a-zA-Z0-9-_]+|\.)\/([0-9]+-[0-9]+-[0-9]+|\.)$');
     let matches = re.exec(input);
     if (matches !== null) {
-        return matches.slice(1, 5);
+        return matches.slice(1, 6);
     }
     return undefined;
 }
@@ -165,35 +165,27 @@ export function matchSchemaAgainstRuleSet(ruleSet: RuleSet, schema: string) : bo
     let acceptCount = 0;
     let acceptRules = get(ruleSet, 'accept');
     if (Array.isArray(acceptRules)) {
-        if (!(ruleSet.accept as Array<string>).every((rule) => (matchSchemaAgainstRule(rule, schema)))) {
-            return false;
+        if ((ruleSet.accept as Array<string>).some((rule) => (matchSchemaAgainstRule(rule, schema)))) {
+            acceptCount++;
         }
-        acceptCount++;
     } else if (typeof(acceptRules) === 'string') {
-        if (!matchSchemaAgainstRule(acceptRules, schema)) {
-            return false;
+        if (matchSchemaAgainstRule(acceptRules, schema)) {
+            acceptCount++;
         }
-        acceptCount++;
     }
 
     let rejectRules = get(ruleSet, 'reject');
     if (Array.isArray(rejectRules)) {
-        if (!(ruleSet.reject as Array<string>).every((rule) => (matchSchemaAgainstRule(rule, schema)))) {
-            return false;
+        if ((ruleSet.reject as Array<string>).some((rule) => (matchSchemaAgainstRule(rule, schema)))) {
+            rejectCount++;
         }
-        rejectCount++;
     } else if (typeof(rejectRules) === 'string') {
-        if (!matchSchemaAgainstRule(rejectRules, schema)) {
-            return false;
+        if (matchSchemaAgainstRule(rejectRules, schema)) {
+            rejectCount++;
         }
-        rejectCount++;
     }
-    if (rejectCount > 0) {
-        return false;
-    } else if (acceptCount > 0) {
-        return true;
-    }
-    return false;
+    console.log(acceptCount, rejectCount);
+    return (acceptCount - rejectCount) > 0;
 }
 
 // Returns the "useful" schema, i.e. what would someone want to use to identify events.
