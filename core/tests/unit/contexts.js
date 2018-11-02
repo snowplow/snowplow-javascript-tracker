@@ -49,10 +49,20 @@ define([
 				reject: ['iglu:com.snowplowanalytics.snowplow/././.']
 			};
 
+			var bothRuleSet = {
+				accept: ['iglu:com.snowplowanalytics.snowplow/././.'],
+				reject: ['iglu:com.snowplowanalytics.snowplow/././.']
+			};
+
 			var pageview_schema = 'iglu:com.snowplowanalytics.snowplow/pageview/jsonschema/1-0-1';
 
 			assert.isTrue(contexts.isContextPrimitive(geolocationContext), 'A context primitive should be identified');
 			assert.isTrue(contexts.isContextPrimitive(eventTypeContextGenerator), 'A context primitive should be identified');
+			assert.isTrue(contexts.isValidMatcher(acceptRuleSet.accept[0]), 'All rule elements are correctly identified as valid matchers');
+			assert.isTrue(contexts.isValidRuleSetArg(acceptRuleSet.accept), 'A rulset arg is correctly identified');
+			assert.isTrue(contexts.isRuleSet(acceptRuleSet), 'An accept ruleset is identified');
+			assert.isTrue(contexts.isRuleSet(rejectRuleSet), 'A reject ruleset is identified');
+			assert.isTrue(contexts.isRuleSet(bothRuleSet), 'A ruleset with both elements is identified');
 			assert.deepEqual(contexts.getSchemaParts(pageview_schema), ['com.snowplowanalytics.snowplow', 'pageview', 'jsonschema', '1-0-1'], 'Gets correct parts for schema');
 			assert.isTrue(contexts.matchSchemaAgainstRule('iglu:com.snowplowanalytics.snowplow/././.', pageview_schema), 'Matches schema against wildcarded rule');
 			assert.isTrue(contexts.matchSchemaAgainstRuleSet(acceptRuleSet, pageview_schema), 'Accept ruleset accepts matching schema');

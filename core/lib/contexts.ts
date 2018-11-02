@@ -49,7 +49,7 @@ export function isStringArray(input: any): boolean {
 
 export function isValidRuleSetArg(input: any): boolean{
     if (isStringArray(input)) {
-        input.every(function(i){ return isValidMatcher(i) });
+        return input.every((i) => { return isValidMatcher(i) });
     } else if (typeof input === 'string') {
         return isValidMatcher(input);
     }
@@ -184,8 +184,15 @@ export function matchSchemaAgainstRuleSet(ruleSet: RuleSet, schema: string) : bo
             rejectCount++;
         }
     }
-    console.log(acceptCount, rejectCount);
-    return (acceptCount - rejectCount) > 0;
+
+    if (acceptCount > 0 && rejectCount === 0) {
+        console.log('accepted ruleset!!');
+        return true;
+    } else if (acceptCount === 0 && rejectCount > 0) {
+        return false;
+    }
+
+    return false;
 }
 
 // Returns the "useful" schema, i.e. what would someone want to use to identify events.
