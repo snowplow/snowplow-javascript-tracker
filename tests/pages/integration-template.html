@@ -30,6 +30,9 @@
 			}
 		});
 
+		// track unhandled exception
+		window.snowplow("enableErrorTracking");
+
         // Add a global context
         var geolocationContext = {
           schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
@@ -122,6 +125,7 @@
 
 		// test context rulesets
         window.snowplow('addGlobalContexts', [[testAcceptRuleset, [eventTypeContextGenerator, geolocationContext]]]);
+
         window.snowplow('trackUnstructEvent', {
           schema: 'iglu:com.acme_company/viewed_product/jsonschema/5-0-0',
           data: {
@@ -139,8 +143,7 @@
           }
         }, [], { type: 'ttm', value: 1477401868 });
 
-		// track unhandled exception
-		window.snowplow("enableErrorTracking");
+		// Test for exception handling
 		function raiseException() { notExistentObject.notExistentProperty(); }
 		setTimeout(raiseException, 2500);
 
