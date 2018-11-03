@@ -186,7 +186,6 @@ export function matchSchemaAgainstRuleSet(ruleSet: RuleSet, schema: string) : bo
     }
 
     if (acceptCount > 0 && rejectCount === 0) {
-        console.log('accepted ruleset!!');
         return true;
     } else if (acceptCount === 0 && rejectCount > 0) {
         return false;
