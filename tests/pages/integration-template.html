@@ -30,9 +30,6 @@
 			}
 		});
 
-		// track unhandled exception
-		window.snowplow("enableErrorTracking");
-
         // Add a global context
         var geolocationContext = {
           schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
@@ -142,6 +139,9 @@
             productId: 'ASO01041'
           }
         }, [], { type: 'ttm', value: 1477401868 });
+
+		// track unhandled exception
+		window.snowplow("enableErrorTracking");
 
 		// Test for exception handling
 		function raiseException() { notExistentObject.notExistentProperty(); }
