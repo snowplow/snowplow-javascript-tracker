@@ -116,6 +116,9 @@ define([
 			if (someTestsFailed(this)) {
 				console.log("Tests failed with following log:");
 				lodash.forEach(log, function (l) { console.log(l); });
+			} else {
+				console.log("Tests passed with following log:");
+				lodash.forEach(log, function (l) { console.log(l); });
 			}
 			console.log("Cleaning log");
 			log = [];

@@ -22,7 +22,7 @@ define([
 	registerSuite({
 		name: "Global context tests",
 
-		"Identify primitive contexts": function () {
+		"Identify context primitives": function () {
 			var geolocationContext = {
 				schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
 				data: {
@@ -41,6 +41,11 @@ define([
 				return context;
 			}
 
+			assert.isTrue(contexts.isContextPrimitive(geolocationContext), 'A context primitive should be identified');
+			assert.isTrue(contexts.isContextPrimitive(eventTypeContextGenerator), 'A context primitive should be identified');
+		},
+
+		"Identify rulesets": function () {
 			var acceptRuleSet = {
 				accept: ['iglu:com.snowplowanalytics.snowplow/././.']
 			};
@@ -56,8 +61,6 @@ define([
 
 			var pageview_schema = 'iglu:com.snowplowanalytics.snowplow/pageview/jsonschema/1-0-1';
 
-			assert.isTrue(contexts.isContextPrimitive(geolocationContext), 'A context primitive should be identified');
-			assert.isTrue(contexts.isContextPrimitive(eventTypeContextGenerator), 'A context primitive should be identified');
 			assert.isTrue(contexts.isValidMatcher(acceptRuleSet.accept[0]), 'All rule elements are correctly identified as valid matchers');
 			assert.isTrue(contexts.isValidRuleSetArg(acceptRuleSet.accept), 'A rulset arg is correctly identified');
 			assert.isTrue(contexts.isRuleSet(acceptRuleSet), 'An accept ruleset is identified');
@@ -67,6 +70,30 @@ define([
 			assert.isTrue(contexts.matchSchemaAgainstRule('iglu:com.snowplowanalytics.snowplow/././.', pageview_schema), 'Matches schema against wildcarded rule');
 			assert.isTrue(contexts.matchSchemaAgainstRuleSet(acceptRuleSet, pageview_schema), 'Accept ruleset accepts matching schema');
 			assert.isFalse(contexts.matchSchemaAgainstRuleSet(rejectRuleSet, pageview_schema), 'Reject ruleset rejects matching schema');
+		},
+
+		"Identify filter functions": function () {
+
+		},
+
+		"Identify ruleset provider": function () {
+
+		},
+
+		"Identify filter provider": function () {
+
+		},
+
+		"Add global contexts": function () {
+
+		},
+
+		"Remove global contexts": function () {
+
+		},
+
+		"Clear global contexts": function () {
+
 		}
 	});
 
