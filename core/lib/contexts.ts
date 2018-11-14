@@ -15,62 +15,90 @@ import map = require('lodash/map');
 export type ContextGenerator = (payload: SelfDescribingJson, eventType: string, schema: string) => SelfDescribingJson;
 export type ContextPrimitive = SelfDescribingJson | ContextGenerator;
 export type ContextFilter = (payload: SelfDescribingJson, eventType: string, schema: string) => boolean;
-export type FilterContextProvider = [ContextFilter, Array<ContextPrimitive> | ContextPrimitive];
+export type FilterProvider = [ContextFilter, Array<ContextPrimitive> | ContextPrimitive];
 export interface RuleSet {
     accept?: string[] | string;
     reject?: string[] | string;
 }
-export type PathContextProvider = [RuleSet, Array<ContextPrimitive> | ContextPrimitive];
-export type ConditionalContextProvider = FilterContextProvider | PathContextProvider;
+export type RuleSetProvider = [RuleSet, Array<ContextPrimitive> | ContextPrimitive];
+export type ConditionalContextProvider = FilterProvider | RuleSetProvider;
 
 export function getSchemaParts(input: string): Array<string> | undefined {
-    let re = new RegExp('^iglu:([a-zA-Z0-9-_\.]+|\.)/([a-zA-Z0-9-_\.]+|\.)/([a-zA-Z0-9-_\.]+|\.)/([0-9]+-[0-9]+-[0-9]+|\.)$');
+    let re = new RegExp('^iglu:([a-zA-Z0-9-_\.]+)\/([a-zA-Z0-9-_]+)\/jsonschema\/([1-9][0-9]*)\-(0|[1-9][0-9]*)\-(0|[1-9][0-9]*)$');
     let matches = re.exec(input);
-    if (matches !== null) {
+    if (matches !== null)
         return matches.slice(1, 6);
-    }
     return undefined;
 }
 
-export function isValidMatcher(input: any): boolean {
-    let schemaParts = getSchemaParts(input);
-    if (schemaParts) {
-        return schemaParts.length === 4;
+export function validateVendorParts(parts: Array<string>): boolean {
+    if (parts[0] === '*' || parts[1] === '*') {
+        return false; // no wildcard in first or second part
+    }
+    if (parts.slice(2).length > 0) {
+        let asterisk = false;
+        for (let part of parts.slice(2)) {
+            if (part === '*') // mark when we've found a wildcard
+                asterisk = true;
+            else if (asterisk) // invalid if alpha parts come after wildcard
+                return false;
+        }
+        return true;
+    } else if (parts.length == 2)
+        return true;
+
+    return false;
+}
+
+export function validateVendor(input: string): boolean {
+    let parts = input.split('.');
+    if (parts && parts.length > 1)
+        return validateVendorParts(parts);
+    return false;
+}
+
+export function getRuleParts(input: string): Array<string> | undefined {
+    const regex = /^iglu:((?:(?:[a-zA-Z0-9-_]+|\*)\.)+(?:[a-zA-Z0-9-_]+|\*))\/([a-zA-Z0-9-_.]+|\*)\/jsonschema\/([1-9][0-9]*|\*)-(0|[1-9][0-9]*|\*)-(0|[1-9][0-9]*|\*)$/;
+    let matches = regex.exec(input);
+    if (matches !== null && validateVendor(matches[1]))
+        return matches.slice(1,6);
+    return undefined;
+}
+
+export function isValidRule(input: any): boolean {
+    let ruleParts = getRuleParts(input);
+    if (ruleParts) {
+        let vendor = ruleParts[0];
+        return ruleParts.length === 5 && validateVendor(vendor);
     }
     return false;
 }
 
 export function isStringArray(input: any): boolean {
-    if (Array.isArray(input)) {
+    if (Array.isArray(input))
         return input.every(function(i){ return typeof i === 'string' });
-    }
     return false;
 }
 
-export function isValidRuleSetArg(input: any): boolean{
-    if (isStringArray(input)) {
-        return input.every((i) => { return isValidMatcher(i) });
-    } else if (typeof input === 'string') {
-        return isValidMatcher(input);
-    }
+export function isValidRuleSetArg(input: any): boolean {
+    if (isStringArray(input))
+        return input.every((i) => { return isValidRule(i) });
+    else if (typeof input === 'string')
+        return isValidRule(input);
     return false;
 }
 
 export function isSelfDescribingJson(input: any) : boolean {
-    if (isNonEmptyJson(input)) {
-        if ('schema' in input && 'data' in input) {
+    if (isNonEmptyJson(input))
+        if ('schema' in input && 'data' in input)
             return (typeof(input.schema) === 'string' && typeof(input.data) === 'object');
-        }
-    }
     return false;
 }
 
 export function isEventJson(input: any) : boolean {
-    if (isNonEmptyJson(input)) {
-        if ('e' in input) {
+    if (isNonEmptyJson(input))
+        if ('e' in input)
             return (typeof(input.e) === 'string');
-        }
-    }
     return false;
 }
 
@@ -116,7 +144,7 @@ export function isContextPrimitive(input: any) : boolean {
     return (isContextGenerator(input) || isSelfDescribingJson(input));
 }
 
-export function isFilterContextProvider(input: any) : boolean {
+export function isFilterProvider(input: any) : boolean {
     if (Array.isArray(input)) {
         if (input.length === 2) {
             if (Array.isArray(input[1])) {
@@ -128,7 +156,7 @@ export function isFilterContextProvider(input: any) : boolean {
     return false;
 }
 
-export function isPathContextProvider(input: any) : boolean {
+export function isRuleSetProvider(input: any) : boolean {
     if (Array.isArray(input) && input.length === 2) {
         if (Array.isArray(input[1])) {
             return isRuleSet(input[0]) && every(input[1], isContextPrimitive);
@@ -139,25 +167,47 @@ export function isPathContextProvider(input: any) : boolean {
 }
 
 export function isConditionalContextProvider(input: any) : boolean {
-    return isFilterContextProvider(input) || isPathContextProvider(input);
+    return isFilterProvider(input) || isRuleSetProvider(input);
 }
 
 export function matchSchemaAgainstRule(rule: string, schema: string) : boolean {
-    let ruleParts = getSchemaParts(rule);
-    let schemaParts = getSchemaParts(schema);
-    if (ruleParts === undefined || schemaParts === undefined ||
-        ruleParts.length !== 4 || schemaParts.length !== 4) {
+    if (!isValidRule(rule))
         return false;
-    }
-    let matchCount = 0;
-    for (let i = 0; i <= 3; i++) {
-        if (ruleParts[0] === schemaParts[0] || ruleParts[0] === '.') {
-            matchCount++;
-        } else {
+    let ruleParts = getRuleParts(rule);
+    let schemaParts = getSchemaParts(schema);
+    if (ruleParts && schemaParts) {
+        if (!matchVendor(ruleParts[0], schemaParts[0]))
             return false;
+        for (let i=1; i<5; i++) {
+            if (!matchPart(ruleParts[i], schemaParts[i]))
+                return false;
         }
+        return true; // if it hasn't failed, it passes
     }
-    return matchCount === 4;
+    return false;
+}
+
+export function matchVendor(rule: string, vendor: string): boolean {
+    // rule and vendor must have same number of elements
+    let vendorParts = vendor.split('.');
+    let ruleParts = rule.split('.');
+    if (vendorParts && ruleParts) {
+        if (vendorParts.length !== ruleParts.length)
+            return false;
+        for (let i=0; i<ruleParts.length; i++) {
+            if (!matchPart(vendorParts[i], ruleParts[i]))
+                return false;
+        }
+        return true;
+    }
+    return false;
+}
+
+export function matchPart(rule: string, schema: string): boolean {
+    // parts should be the string nested between slashes in the URI: /example/
+    if (rule && schema && rule === '*' || rule === schema)
+            return true;
+    return false;
 }
 
 export function matchSchemaAgainstRuleSet(ruleSet: RuleSet, schema: string) : boolean {
@@ -199,30 +249,32 @@ export function matchSchemaAgainstRuleSet(ruleSet: RuleSet, schema: string) : bo
 // 'ue_px.schema'/'ue_pr.schema' would be redundant - it'll return the unstructured event schema.
 // Instead the schema nested inside the unstructured event is more useful!
 // This doesn't decode ue_px, it works because it's called by code that has already decoded it
-function getUsefulSchema(sb: SelfDescribingJson): string {
-    if (typeof get(sb, 'ue_px.data.schema') === 'string') {
-        return get(sb, 'ue_px.data.schema');
-    } else if (typeof get(sb, 'ue_pr.data.schema') === 'string') {
-        return get(sb, 'ue_pr.data.schema');
+export function getUsefulSchema(sb: SelfDescribingJson): string {
+    if (typeof get(sb, 'ue_px.schema') === 'string') {
+        return get(sb, 'ue_px.schema');
+    } else if (typeof get(sb, 'ue_pr.schema') === 'string') {
+        return get(sb, 'ue_pr.schema');
     } else if (typeof get(sb, 'schema') === 'string') {
         return get(sb, 'schema');
     }
     return '';
 }
 
-function getDecodedEvent(sb: SelfDescribingJson): SelfDescribingJson {
+export function getDecodedEvent(sb: SelfDescribingJson): SelfDescribingJson {
     let decodedEvent = {...sb}; // spread operator, instantiates new object
-    if (has(decodedEvent, 'ue_px')) {
-        decodedEvent['ue_px'] = JSON.parse(base64urldecode(get(decodedEvent, ['ue_px'])));
-    }
+    try {
+        if (has(decodedEvent, 'ue_px')) {
+            decodedEvent['ue_px'] = JSON.parse(base64urldecode(get(decodedEvent, ['ue_px'])));
+        }
+    } catch(e) {}
     return decodedEvent;
 }
 
-function getEventType(sb: {}): string {
+export function getEventType(sb: {}): string {
     return get(sb, 'e', '');
 }
 
-function buildGenerator(generator: ContextGenerator,
+export function buildGenerator(generator: ContextGenerator,
                         event: SelfDescribingJson,
                         eventType: string,
                         eventSchema: string) : SelfDescribingJson | Array<SelfDescribingJson> | undefined {
@@ -244,14 +296,14 @@ function buildGenerator(generator: ContextGenerator,
     return contextGeneratorResult;
 }
 
-function normalizeToArray(input: any) : Array<any> {
+export function normalizeToArray(input: any) : Array<any> {
     if (Array.isArray(input)) {
         return input;
     }
     return Array.of(input);
 }
 
-function generatePrimitives(contextPrimitives: Array<ContextPrimitive> | ContextPrimitive,
+export function generatePrimitives(contextPrimitives: Array<ContextPrimitive> | ContextPrimitive,
                             event: SelfDescribingJson,
                             eventType: string,
                             eventSchema: string) : Array<SelfDescribingJson> {
@@ -266,7 +318,7 @@ function generatePrimitives(contextPrimitives: Array<ContextPrimitive> | Context
     return [].concat(...compact(generatedContexts));
 }
 
-function evaluatePrimitive(contextPrimitive: ContextPrimitive,
+export function evaluatePrimitive(contextPrimitive: ContextPrimitive,
                            event: SelfDescribingJson,
                            eventType: string,
                            eventSchema: string) : Array<SelfDescribingJson> | undefined {
@@ -283,12 +335,12 @@ function evaluatePrimitive(contextPrimitive: ContextPrimitive,
     return undefined;
 }
 
-function evaluateProvider(provider: ConditionalContextProvider,
+export function evaluateProvider(provider: ConditionalContextProvider,
                           event: SelfDescribingJson,
                           eventType: string,
                           eventSchema: string): Array<SelfDescribingJson> {
-    if (isFilterContextProvider(provider)) {
-        let filter : ContextFilter = (provider as FilterContextProvider)[0];
+    if (isFilterProvider(provider)) {
+        let filter : ContextFilter = (provider as FilterProvider)[0];
         let filterResult = false;
         try {
             filterResult = filter(event, eventType, eventSchema);
@@ -296,17 +348,17 @@ function evaluateProvider(provider: ConditionalContextProvider,
             filterResult = false;
         }
         if (filterResult === true) {
-            return generatePrimitives((provider as FilterContextProvider)[1], event, eventType, eventSchema);
+            return generatePrimitives((provider as FilterProvider)[1], event, eventType, eventSchema);
         }
-    } else if (isPathContextProvider(provider)) {
-        if (matchSchemaAgainstRuleSet((provider as PathContextProvider)[0], eventSchema)) {
-            return generatePrimitives((provider as PathContextProvider)[1], event, eventType, eventSchema);
+    } else if (isRuleSetProvider(provider)) {
+        if (matchSchemaAgainstRuleSet((provider as RuleSetProvider)[0], eventSchema)) {
+            return generatePrimitives((provider as RuleSetProvider)[1], event, eventType, eventSchema);
         }
     }
     return [];
 }
 
-function generateConditionals(providers: Array<ConditionalContextProvider> | ConditionalContextProvider,
+export function generateConditionals(providers: Array<ConditionalContextProvider> | ConditionalContextProvider,
                               event: SelfDescribingJson,
                               eventType: string,
                               eventSchema: string) : Array<SelfDescribingJson> {
@@ -339,6 +391,14 @@ export function contextModule() {
     }
 
     return {
+        getGlobalPrimitives: function () {
+            return globalPrimitives;
+        },
+
+        getConditionalProviders: function () {
+            return conditionalProviders;
+        },
+
         addGlobalContexts: function (contexts: Array<any>) {
             let acceptedConditionalContexts : ConditionalContextProvider[] = [];
             let acceptedContextPrimitives : ContextPrimitive[] = [];
@@ -353,7 +413,7 @@ export function contextModule() {
             conditionalProviders = conditionalProviders.concat(acceptedConditionalContexts);
         },
 
-        clearAllContexts: function () {
+        clearGlobalContexts: function () {
             conditionalProviders = [];
             globalPrimitives = [];
         },

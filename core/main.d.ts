@@ -22,15 +22,18 @@ declare module 'snowplow-tracker/lib/contexts' {
 	export type ContextGenerator = (payload: SelfDescribingJson, eventType: string, schema: string) => SelfDescribingJson;
 	export type ContextPrimitive = SelfDescribingJson | ContextGenerator;
 	export type ContextFilter = (payload: SelfDescribingJson, eventType: string, schema: string) => boolean;
-	export type FilterContextProvider = [ContextFilter, Array<ContextPrimitive> | ContextPrimitive];
+	export type FilterProvider = [ContextFilter, Array<ContextPrimitive> | ContextPrimitive];
 	export interface RuleSet {
 	    accept?: string[] | string;
 	    reject?: string[] | string;
 	}
-	export type PathContextProvider = [RuleSet, Array<ContextPrimitive> | ContextPrimitive];
-	export type ConditionalContextProvider = FilterContextProvider | PathContextProvider;
+	export type RuleSetProvider = [RuleSet, Array<ContextPrimitive> | ContextPrimitive];
+	export type ConditionalContextProvider = FilterProvider | RuleSetProvider;
 	export function getSchemaParts(input: string): Array<string> | undefined;
-	export function isValidMatcher(input: any): boolean;
+	export function validateVendorParts(parts: Array<string>): boolean;
+	export function validateVendor(input: string): boolean;
+	export function getRuleParts(input: string): Array<string> | undefined;
+	export function isValidRule(input: any): boolean;
 	export function isStringArray(input: any): boolean;
 	export function isValidRuleSetArg(input: any): boolean;
 	export function isSelfDescribingJson(input: any): boolean;
@@ -39,14 +42,27 @@ declare module 'snowplow-tracker/lib/contexts' {
 	export function isContextGenerator(input: any): boolean;
 	export function isContextFilter(input: any): boolean;
 	export function isContextPrimitive(input: any): boolean;
-	export function isFilterContextProvider(input: any): boolean;
-	export function isPathContextProvider(input: any): boolean;
+	export function isFilterProvider(input: any): boolean;
+	export function isRuleSetProvider(input: any): boolean;
 	export function isConditionalContextProvider(input: any): boolean;
 	export function matchSchemaAgainstRule(rule: string, schema: string): boolean;
+	export function matchVendor(rule: string, vendor: string): boolean;
+	export function matchPart(rule: string, schema: string): boolean;
 	export function matchSchemaAgainstRuleSet(ruleSet: RuleSet, schema: string): boolean;
+	export function getUsefulSchema(sb: SelfDescribingJson): string;
+	export function getDecodedEvent(sb: SelfDescribingJson): SelfDescribingJson;
+	export function getEventType(sb: {}): string;
+	export function buildGenerator(generator: ContextGenerator, event: SelfDescribingJson, eventType: string, eventSchema: string): SelfDescribingJson | Array<SelfDescribingJson> | undefined;
+	export function normalizeToArray(input: any): Array<any>;
+	export function generatePrimitives(contextPrimitives: Array<ContextPrimitive> | ContextPrimitive, event: SelfDescribingJson, eventType: string, eventSchema: string): Array<SelfDescribingJson>;
+	export function evaluatePrimitive(contextPrimitive: ContextPrimitive, event: SelfDescribingJson, eventType: string, eventSchema: string): Array<SelfDescribingJson> | undefined;
+	export function evaluateProvider(provider: ConditionalContextProvider, event: SelfDescribingJson, eventType: string, eventSchema: string): Array<SelfDescribingJson>;
+	export function generateConditionals(providers: Array<ConditionalContextProvider> | ConditionalContextProvider, event: SelfDescribingJson, eventType: string, eventSchema: string): Array<SelfDescribingJson>;
 	export function contextModule(): {
+	    getGlobalPrimitives: () => ContextPrimitive[];
+	    getConditionalProviders: () => ConditionalContextProvider[];
 	    addGlobalContexts: (contexts: any[]) => void;
-	    clearAllContexts: () => void;
+	    clearGlobalContexts: () => void;
 	    removeGlobalContexts: (contexts: any[]) => void;
 	    getApplicableContexts: (event: PayloadData) => SelfDescribingJson[];
 	};

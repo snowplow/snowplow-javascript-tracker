@@ -995,7 +995,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		},
 
 		clearGlobalContexts: function() {
-			contextModule.clearAllContexts();
+			contextModule.clearGlobalContexts();
 		},
 
 		removeGlobalContexts: function(contexts: Array<Object>) {
