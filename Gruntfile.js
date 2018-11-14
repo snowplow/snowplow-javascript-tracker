@@ -107,6 +107,11 @@ module.exports = function(grunt) {
         files: {
           'tests/pages/snowplow.js': 'tests/pages/bundle.js'
         }
+      },
+      local: {
+        files: {
+          'tests/local/serve/snowplow.js': 'tests/pages/bundle.js'
+        }
       }
     },
 
@@ -133,6 +138,15 @@ module.exports = function(grunt) {
         },
         src: ['tests/pages/integration-template.html'],
         dest: 'tests/pages/integration.html'
+      },
+      local: {
+        options: {
+          'process': function(src, filepath) {
+            return src.replace(/'\<\%= subdomain \%\>' \+ '\.ngrok\.io'/g, '\'127.0.0.1:8000\'');
+          }
+        },
+        src: ['tests/pages/integration-template.html'],
+        dest: 'tests/local/serve/integration.html'
       }
     },
 
@@ -266,4 +280,5 @@ module.exports = function(grunt) {
   grunt.registerTask('test', 'Intern tests', ['browserify:test', 'babel:test', 'intern']);
   grunt.registerTask('travis', 'Intern tests for Travis CI',  ['concat:test', 'browserify:test', 'babel:test', 'intern']);
   grunt.registerTask('tags', 'Minifiy the Snowplow invocation tag', ['uglify:tag', 'concat:tag']);
+  grunt.registerTask('local', 'Builds and places files read to serve and test locally', ['browserify:test', 'concat:local', 'babel:local']);
 };
