@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Integration test page</title>
+  <title>Integration test page</title>
 </head>
 <body>
 <p id="title">Page for sending requests to request_recorder</p>
@@ -20,9 +20,9 @@
 
   // Taken from a random environment variable
 
-  var subdomain = '<%= subdomain %>';
+  var collector_endpoint = '<%= subdomain %>' + '.ngrok.io';
 
-  window.snowplow('newTracker', 'cf', subdomain + '.ngrok.io', {
+  window.snowplow('newTracker', 'cf', collector_endpoint, {
     encodeBase64: true,
     appId: 'CFe23a',
     platform: 'mob',
