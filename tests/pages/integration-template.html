@@ -114,10 +114,10 @@
 		window.snowplow('trackTrans');
 
 		var testAcceptRuleSet = {
-		  accept: ['iglu:com.acme_company/././.']
+		  accept: ['iglu:com.acme_company/*/jsonschema/*-*-*']
 		};
 		var testRejectRuleSet = {
-		  reject: ['iglu:com.acme_company/././.']
+		  reject: ['iglu:com.acme_company/*/jsonschema/*-*-*']
 		};
 
 		// test context rulesets
