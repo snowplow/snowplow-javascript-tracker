@@ -8,6 +8,7 @@ import isPlainObject = require('lodash/isPlainObject');
 import every = require('lodash/every');
 import compact = require('lodash/compact');
 import map = require('lodash/map');
+import {decode} from "punycode";
 
 /**
  * Datatypes (some algebraic) for representing context types
@@ -58,8 +59,10 @@ export function validateVendor(input: string): boolean {
 }
 
 export function getRuleParts(input: string): Array<string> | undefined {
+    console.log("here's hte rule: ", input);
     const regex = /^iglu:((?:(?:[a-zA-Z0-9-_]+|\*)\.)+(?:[a-zA-Z0-9-_]+|\*))\/([a-zA-Z0-9-_.]+|\*)\/jsonschema\/([1-9][0-9]*|\*)-(0|[1-9][0-9]*|\*)-(0|[1-9][0-9]*|\*)$/;
     let matches = regex.exec(input);
+    console.log("heres the matches: ", matches);
     if (matches !== null && validateVendor(matches[1]))
         return matches.slice(1,6);
     return undefined;
@@ -67,6 +70,7 @@ export function getRuleParts(input: string): Array<string> | undefined {
 
 export function isValidRule(input: any): boolean {
     let ruleParts = getRuleParts(input);
+    console.log('is valid rule part', ruleParts);
     if (ruleParts) {
         let vendor = ruleParts[0];
         return ruleParts.length === 5 && validateVendor(vendor);
@@ -158,15 +162,17 @@ export function isFilterProvider(input: any) : boolean {
 
 export function isRuleSetProvider(input: any) : boolean {
     if (Array.isArray(input) && input.length === 2) {
-        if (Array.isArray(input[1])) {
-            return isRuleSet(input[0]) && every(input[1], isContextPrimitive);
-        }
-        return isRuleSet(input[0]) && isContextPrimitive(input[1]);
+        if (!isRuleSet(input[0]))
+            return false;
+        if (Array.isArray(input[1]))
+            return every(input[1], isContextPrimitive);
+        return isContextPrimitive(input[1]);
     }
     return false;
 }
 
 export function isConditionalContextProvider(input: any) : boolean {
+    console.log("is rule set provider: ", isRuleSetProvider(input));
     return isFilterProvider(input) || isRuleSetProvider(input);
 }
 
@@ -175,6 +181,7 @@ export function matchSchemaAgainstRule(rule: string, schema: string) : boolean {
         return false;
     let ruleParts = getRuleParts(rule);
     let schemaParts = getSchemaParts(schema);
+    console.log("parts!!! : ", ruleParts, schemaParts);
     if (ruleParts && schemaParts) {
         if (!matchVendor(ruleParts[0], schemaParts[0]))
             return false;
@@ -182,6 +189,7 @@ export function matchSchemaAgainstRule(rule: string, schema: string) : boolean {
             if (!matchPart(ruleParts[i], schemaParts[i]))
                 return false;
         }
+        console.log('True schema match!');
         return true; // if it hasn't failed, it passes
     }
     return false;
@@ -214,6 +222,7 @@ export function matchSchemaAgainstRuleSet(ruleSet: RuleSet, schema: string) : bo
     let rejectCount = 0;
     let acceptCount = 0;
     let acceptRules = get(ruleSet, 'accept');
+    console.log('this works');
     if (Array.isArray(acceptRules)) {
         if ((ruleSet.accept as Array<string>).some((rule) => (matchSchemaAgainstRule(rule, schema)))) {
             acceptCount++;
@@ -250,13 +259,12 @@ export function matchSchemaAgainstRuleSet(ruleSet: RuleSet, schema: string) : bo
 // Instead the schema nested inside the unstructured event is more useful!
 // This doesn't decode ue_px, it works because it's called by code that has already decoded it
 export function getUsefulSchema(sb: SelfDescribingJson): string {
-    if (typeof get(sb, 'ue_px.schema') === 'string') {
-        return get(sb, 'ue_px.schema');
-    } else if (typeof get(sb, 'ue_pr.schema') === 'string') {
-        return get(sb, 'ue_pr.schema');
-    } else if (typeof get(sb, 'schema') === 'string') {
+    if (typeof get(sb, 'ue_px.data.schema') === 'string')
+        return get(sb, 'ue_px.data.schema');
+    else if (typeof get(sb, 'ue_pr.data.schema') === 'string')
+        return get(sb, 'ue_pr.data.schema');
+    else if (typeof get(sb, 'schema') === 'string')
         return get(sb, 'schema');
-    }
     return '';
 }
 
@@ -339,6 +347,7 @@ export function evaluateProvider(provider: ConditionalContextProvider,
                           event: SelfDescribingJson,
                           eventType: string,
                           eventSchema: string): Array<SelfDescribingJson> {
+    console.log('evaluating providers');
     if (isFilterProvider(provider)) {
         let filter : ContextFilter = (provider as FilterProvider)[0];
         let filterResult = false;
@@ -378,7 +387,9 @@ export function contextModule() {
     let conditionalProviders : Array<ConditionalContextProvider> = [];
 
     function assembleAllContexts(event: SelfDescribingJson) : Array<SelfDescribingJson> {
+        console.log(globalPrimitives, conditionalProviders);
         let eventSchema = getUsefulSchema(event);
+        console.log(eventSchema);
         let eventType = getEventType(event);
         let contexts : Array<SelfDescribingJson> = [];
         let generatedPrimitives = generatePrimitives(globalPrimitives, event, eventType, eventSchema);
@@ -434,6 +445,7 @@ export function contextModule() {
             const builtEvent = event.build();
             if (isEventJson(builtEvent)) {
                 const decodedEvent = getDecodedEvent(builtEvent as SelfDescribingJson);
+                console.log(assembleAllContexts(decodedEvent));
                 return assembleAllContexts(decodedEvent);
             } else {
                 return [];

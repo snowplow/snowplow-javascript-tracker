@@ -289,7 +289,7 @@ define([
 			}
 
 			let unstructuredEventRuleset = {
-				accept: ['iglu:com.snowplowanalytics.snowplow/unstructured_event/jsonschema/*-*-*']
+				accept: ['iglu:com.acme_company/*/jsonschema/*-*-*']
 			};
 
 			let filterFunction = function (payload, eventType, schema) {
@@ -304,7 +304,8 @@ define([
 				ue_px: {
 					schema: 'iglu:com.snowplowanalytics.snowplow/unstructured_event/jsonschema/1-0-0',
 					data: {
-						something: 'some_value'
+						schema: 'iglu:com.acme_company/some_event/jsonschema/1-0-0',
+						data: {}
 					}
 				}
 			};
