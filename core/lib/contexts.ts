@@ -58,8 +58,8 @@ export function validateVendor(input: string): boolean {
 }
 
 export function getRuleParts(input: string): Array<string> | undefined {
-    const regex = /^iglu:((?:(?:[a-zA-Z0-9-_]+|\*)\.)+(?:[a-zA-Z0-9-_]+|\*))\/([a-zA-Z0-9-_.]+|\*)\/jsonschema\/([1-9][0-9]*|\*)-(0|[1-9][0-9]*|\*)-(0|[1-9][0-9]*|\*)$/;
-    let matches = regex.exec(input);
+    const re = new RegExp('^iglu:((?:(?:[a-zA-Z0-9-_]+|\\*)\.)+(?:[a-zA-Z0-9-_]+|\\*))\/([a-zA-Z0-9-_.]+|\\*)\/jsonschema\/([1-9][0-9]*|\\*)-(0|[1-9][0-9]*|\\*)-(0|[1-9][0-9]*|\\*)$');
+    let matches = re.exec(input);
     if (matches !== null && validateVendor(matches[1]))
         return matches.slice(1,6);
     return undefined;
