@@ -8,7 +8,6 @@ import isPlainObject = require('lodash/isPlainObject');
 import every = require('lodash/every');
 import compact = require('lodash/compact');
 import map = require('lodash/map');
-import {decode} from "punycode";
 
 /**
  * Datatypes (some algebraic) for representing context types
