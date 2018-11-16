@@ -133,6 +133,15 @@ module.exports = function(grunt) {
         },
         src: ['tests/pages/integration-template.html'],
         dest: 'tests/pages/integration.html'
+      },
+      local: {
+        options: {
+          'process': function(src, filepath) {
+            return src.replace(/'\<\%= subdomain \%\>' \+ '\.ngrok\.io'/g, '\'127.0.0.1:8000\'');
+          }
+        },
+        src: ['tests/pages/integration-template.html'],
+        dest: 'tests/pages/integration-local.html'
       }
     },
 
