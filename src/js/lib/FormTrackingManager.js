@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker for Snowplow: forms.js
+ * JavaScript tracker for Snowplow: FormTrackingManager.js
  * 
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
  * 2012-2014 Snowplow Analytics Ltd. All rights reserved. 
@@ -31,79 +31,107 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+ 
+import helpers from './Helpers';
 
-var forEach = require('lodash/forEach'),
-	filter = require('lodash/filter'),
-	find = require('lodash/find'),
-	helpers = require('./lib/helpers'),
-	object = typeof exports !== 'undefined' ? exports : this;
+// Symbols for private methods
+const getFormElementName = Symbol('getFormElementName');
+const getParentFormName = Symbol('getParentFormName');
+const getInnerFormElements = Symbol('getInnerFormElements');
+const getFormChangeListener = Symbol('getFormChangeListener');
+const getFormSubmissionListener = Symbol('getFormSubmissionListener');
 
-/**
- * Object for handling automatic form tracking
- *
- * @param object core The tracker core
- * @param string trackerId Unique identifier for the tracker instance, used to mark tracked elements
- * @param function contextAdder Function to add common contexts like PerformanceTiming to all events
- * @return object formTrackingManager instance
- */
-object.getFormTrackingManager = function (core, trackerId, contextAdder) {
+class FormTrackingManager {
 
-	// Tag names of mutable elements inside a form
-	var innerElementTags = ['textarea', 'input', 'select'];
-
-	// Used to mark elements with event listeners
-	var trackingMarker = trackerId + 'form';
-
-	// Filter to determine which forms should be tracked
-	var formFilter = function () { return true };
-
-	// Filter to determine which form fields should be tracked
-	var fieldFilter = function () { return true };
-
-	// Default function applied to all elements, optionally overridden by transform field
-	var fieldTransform = function (x) { return x };
-
-	/*
-	 * Get an identifier for a form, input, textarea, or select element
+	/**
+	 * Object for handling automatic form tracking
+	 *
+	 * @param {Object} core - The tracker core
+	 * @param {String} trackerId - Unique identifier for the tracker instance, used to mark tracked elements
+	 * @param {Function} contextAdder - Function to add common contexts like PerformanceTiming to all events
+	 * @returns {Object} - formTrackingManager instance
 	 */
-	function getFormElementName(elt) {
-		return elt[find(['name', 'id', 'type', 'nodeName'], function (propName) {
+	constructor(core, trackerId, contextAdder) {
+		this.core = core;
+		this.trackerId = trackerId;
+		this.contextAdder = contextAdder;
+		this.innerElementTags = ['textarea', 'input', 'select'];
+		this.propNames = ['name', 'id', 'type', 'nodeName'];
+		this.trackingMarker = `${trackerId}form`;
 
+		/**
+		 * Filter to determine which forms should be tracked
+		 */
+		this.formFilter = () => { true; };
+
+		/**
+		 * Filter to determine which form fields should be tracked
+		 */
+		this.fieldFilter = () => { true };
+
+		/**
+		 *  Default function applied to all elements, optionally overridden by transform field
+		 * 
+		 * @param {any} x 
+		 */
+		this.fieldTransform = (x) => { x };
+	}
+
+	/**
+	 * 
+	 * Private Methods
+	 * 
+	 */
+
+	/**
+	 * Get an identifier for a form, input, textarea, or select element
+	 * 
+	 * @param {HTMLElement} elt - HTMLElement to identify
+	 * @returns {String} - the identifier
+	 */
+	[getFormElementName](elt) {
+		return elt[this.propNames.find(propName => {
 			// If elt has a child whose name is "id", that element will be returned
 			// instead of the actual id of elt unless we ensure that a string is returned
 			return elt[propName] && typeof elt[propName] === 'string';
 		})];
 	}
 
-	/*
+	/**
 	 * Identifies the parent form in which an element is contained
+	 * 
+	 * @param {HTMLElement} elt - HTMLElement to check
+	 * @returns {String} - the identifier
 	 */
-	function getParentFormName(elt) {
+	[getParentFormName](elt) {
 		while (elt && elt.nodeName && elt.nodeName.toUpperCase() !== 'HTML' && elt.nodeName.toUpperCase() !== 'FORM') {
 			elt = elt.parentNode;
 		}
 		if (elt && elt.nodeName && elt.nodeName.toUpperCase() === 'FORM') {
-			return getFormElementName(elt);
+			return this[getFormElementName](elt);
 		}
 	}
 
-	/*
+	/**
 	 * Returns a list of the input, textarea, and select elements inside a form along with their values
+	 * 
+	 * @param {HTMLElement} elt - parent HTMLElement to get form inputs for
+	 * @returns {HTMLElement[]} - Array of HTMLElements contained in the parent
 	 */
-	function getInnerFormElements(elt) {
+	[getInnerFormElements](elt) {
 		var innerElements = [];
-		forEach(innerElementTags, function (tagname) {
+		this.innerElementTags.forEach(tagname => {
 
-			var trackedChildren = filter(elt.getElementsByTagName(tagname), function (child) {
-				return child.hasOwnProperty(trackingMarker);
+			const trackedChildren = elt.getElementsByTagName(tagname).filter(child => {
+				return child.hasOwnProperty(this.trackingMarker);
 			});
 
-			forEach(trackedChildren, function (child) {
+			trackedChildren.forEach(child => {
 				if (child.type === 'submit') {
 					return;
 				}
 				var elementJson = {
-					name: getFormElementName(child),
+					name: this[getFormElementName](child),
 					value: child.value,
 					nodeName: child.nodeName
 				};
@@ -121,69 +149,81 @@ object.getFormTrackingManager = function (core, trackerId, contextAdder) {
 		return innerElements;
 	}
 
-	/*
+	/**
 	 * Return function to handle form field change event
+	 * 
+	 * @param {Object} context - dynamic context object
+	 * @returns {Function} - the handler for the field change event
 	 */
-	function getFormChangeListener(event_type, context) {
-		return function (e) {
+
+	[getFormChangeListener](event_type, context) {
+		return e => {
 			var elt = e.target;
 			var type = (elt.nodeName && elt.nodeName.toUpperCase() === 'INPUT') ? elt.type : null;
-			var value = (elt.type === 'checkbox' && !elt.checked) ? null : fieldTransform(elt.value);
+			var value = (elt.type === 'checkbox' && !elt.checked) ? null : this.fieldTransform(elt.value);
 			if (event_type === 'change_form' || (type !== 'checkbox' && type !== 'radio')) {
-				core.trackFormFocusOrChange(event_type, getParentFormName(elt), getFormElementName(elt), elt.nodeName, type, helpers.getCssClasses(elt), value, contextAdder(helpers.resolveDynamicContexts(context, elt, type, value)));
+				this.core.trackFormChange(this[getParentFormName](elt), this[getFormElementName](elt), elt.nodeName, type, helpers.getCssClasses(elt), value, this.contextAdder(helpers.resolveDynamicContexts(context, elt, type, value)));
 			}
 		};
 	}
 
-	/*
+
+	/**
 	 * Return function to handle form submission event
+	 * 
+	 * @param {Object} context  - dynamic context object
+	 * @returns {Function} - the handler for the form submission event
 	 */
-	function getFormSubmissionListener(context) {
-		return function (e) {
+	[getFormSubmissionListener](context) {
+		return e => {
 			var elt = e.target;
-			var innerElements = getInnerFormElements(elt);
-			forEach(innerElements, function (innerElement) {
-				innerElement.value = fieldTransform(innerElement.value);
+			var innerElements = this[getInnerFormElements](elt);
+			innerElements.forEach((innerElement)=>{
+				innerElement.value = this.fieldTransform(innerElement.value);
 			});
-			core.trackFormSubmission(getFormElementName(elt), helpers.getCssClasses(elt), innerElements, contextAdder(helpers.resolveDynamicContexts(context, elt, innerElements)));
+			this.core.trackFormSubmission(this[getFormElementName](elt), helpers.getCssClasses(elt), innerElements, this.contextAdder(helpers.resolveDynamicContexts(context, elt, innerElements)));
 		};
 	}
 
-	return {
+	/**
+	 * 
+	 * Public Methods
+	 * 
+	 */
 
-		/*
-		 * Configures form tracking: which forms and fields will be tracked, and the context to attach
-		 */
-		configureFormTracking: function (config) {
-			if (config) {
-				formFilter = helpers.getFilter(config.forms, true);
-				fieldFilter = helpers.getFilter(config.fields, false);
-				fieldTransform = helpers.getTransform(config.fields);
-			}
-		},
-
-		/*
-		 * Add submission event listeners to all form elements
-		 * Add value change event listeners to all mutable inner form elements
-		 */
-		addFormListeners: function (context) {
-			forEach(document.getElementsByTagName('form'), function (form) {
-				if (formFilter(form) && !form[trackingMarker]) {
-
-					forEach(innerElementTags, function (tagname) {
-						forEach(form.getElementsByTagName(tagname), function (innerElement) {
-							if (fieldFilter(innerElement) && !innerElement[trackingMarker] && innerElement.type.toLowerCase() !== 'password') {
-								helpers.addEventListener(innerElement, 'focus', getFormChangeListener('focus_form', context), false);
-								helpers.addEventListener(innerElement, 'change', getFormChangeListener('change_form', context), false);
-								innerElement[trackingMarker] = true;
-							}
-						});
-					});
-
-					helpers.addEventListener(form, 'submit', getFormSubmissionListener(context));
-					form[trackingMarker] = true;
-				}
-			});
+	/**
+	 * Configures form tracking: which forms and fields will be tracked, and the context to attach
+	 * @param {Object} config - the configuration options object
+	 */
+	configureFormTracking(config) {
+		if (config) {
+			this.formFilter = helpers.getFilter(config.forms, true);
+			this.fieldFilter = helpers.getFilter(config.fields, false);
+			this.fieldTransform = helpers.getTransform(config.fields);
 		}
-	};
-};
+	}
+
+	/**
+	 * Add submission event listeners to all form elements
+	 * Add value change event listeners to all mutable inner form elements
+	 * 
+	 * @param {Object} context - dynamic context object
+	 */
+	addFormListeners(context) {
+		document.getElementsByTagName('form').forEach(form => {
+			if (this.formFilter(form) && !form[this.trackingMarker]) {
+				this.innerElementTags.forEach(tagname => {
+					form.getElementsByTagName(tagname).forEach( innerElement => {
+						if (this.fieldFilter(innerElement) && !innerElement[this.trackingMarker] && innerElement.type.toLowerCase() !== 'password') {
+							helpers.addEventListener(innerElement, 'change', this[getFormChangeListener](context), false);
+							innerElement[this.trackingMarker] = true;						}
+					});
+				});
+				helpers.addEventListener(form, 'submit', this[getFormSubmissionListener](context));
+				form[this.trackingMarker] = true;
+			}
+		});
+	}
+}
+
+export default FormTrackingManager;
