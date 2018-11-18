@@ -32,28 +32,36 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-var isFunction = require('lodash/isFunction'),
-    helpers = require('./lib/helpers'),
-    object = typeof exports !== 'undefined' ? exports : this,
-    windowAlias = window;
+import {isFunction} from 'lodash';
+import {addEventListener} from './Helpers';
+const windowAlias = window;
+
+class ErrorManager {
+
+    /**
+     * Creates a new ErrorManager object.
+     * 
+     * @param {trackerCore} core  - the Snowplow trackerCore object to use.
+     */
+    constructor(core) {
+        this.core = core;
+    }
 
 
-object.errorManager = function (core) {
-
-	/**
-	 * Send error as self-describing event
-	 *
-	 * @param message string Message appeared in console
-	 * @param filename string Source file (not used)
-	 * @param lineno number Line number
-	 * @param colno number Column number (not used)
-	 * @param error Error error object (not present in all browsers)
-	 * @param contexts Array of custom contexts
-	 */
-    function track(message, filename, lineno, colno, error, contexts) {
+    /**
+    * Send error as self-describing event
+    * 
+    * @param {String} message - Message appeared in console
+    * @param {String} filename - Source file (not used)
+    * @param {Number} lineno - Line number
+    * @param {Number} colno  - Column number (not used)
+    * @param {Error} error - error object (not present in all browsers)
+    * @param {Object[]} contexts - Array of custom contexts
+    */
+    track(message, filename, lineno, colno, error, contexts) {
         var stack = (error && error.stack) ? error.stack : null;
 
-        core.trackSelfDescribingEvent({
+        this.core.trackSelfDescribingEvent({
             schema: 'iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1',
             data: {
                 programmingLanguage: "JAVASCRIPT",
@@ -66,40 +74,48 @@ object.errorManager = function (core) {
         }, contexts)
     }
 
-	/**
-	 * Attach custom contexts using `contextAdder`
-	 *
-	 * 
-	 * @param contextsAdder function to get details from internal browser state
-	 * @returns {Array} custom contexts
-	 */
-	function sendError(errorEvent, commonContexts, contextsAdder) {
-		var contexts;
-		if (isFunction(contextsAdder)) {
-			contexts = commonContexts.concat(contextsAdder(errorEvent));
-		} else {
-			contexts = commonContexts;
-		}
 
-        track(errorEvent.message, errorEvent.filename, errorEvent.lineno, errorEvent.colno, errorEvent.error, contexts)
+    /**
+     * Sends an error as a self describing event. 
+     * Attach custom contexts using `contextAdder`
+     * 
+     * @param {Event} errorEvent - Error event to send.
+     * @param {Object[]} commonContexts  - Array of custom contexts
+     * @param {Function} contextsAdder - function to get details from internal browser state
+     */
+    sendError(errorEvent, commonContexts, contextsAdder) {
+        var contexts;
+        if (isFunction(contextsAdder)) {
+            contexts = commonContexts.concat(contextsAdder(errorEvent));
+        } else {
+            contexts = commonContexts;
+        }
+
+        this.track(errorEvent.message, errorEvent.filename, errorEvent.lineno, errorEvent.colno, errorEvent.error, contexts)
     }
 
-    return {
+   
+    /**
+     * Curried function to enable tracking of unhandled exceptions.
+     * Listen for `error` event and send to tracker.
+     * 
+     * @param {Function} filter - ErrorEvent => Bool to check whether error should be tracked
+     * @param {Function} contextsAdder - ErrorEvent => Array<Context> to add custom contexts with internal state based on particular error
+     * @param {Object[]} contexts - Array of custtom contexts
+     */
+    enableErrorTracking(filter, contextsAdder, contexts) {
+         /**
+          * Closure callback to filter, contextualize and track unhandled exceptions
+          * @param {ErrorEvent} errorEvent - ErrorEvent passed to event listener
+          */
+        function captureError(errorEvent) {
+            if (isFunction(filter) && filter(errorEvent) || filter == null) {
+                this.sendError(errorEvent, contexts, contextsAdder)
+            }
+        }
 
-		/**
-		 * Track unhandled exception.
-		 * This method supposed to be used inside try/catch block or with window.onerror
-		 * (contexts won't be attached), but NOT with `addEventListener` - use
-		 * `enableErrorTracker` for this
-		 *
-		 * @param message string Message appeared in console
-		 * @param filename string Source file (not used)
-		 * @param lineno number Line number
-		 * @param colno number Column number (not used)
-		 * @param error Error error object (not present in all browsers)
-		 * @param contexts Array of custom contexts
-		 */
-        trackError: track,
+        addEventListener(windowAlias, 'error', captureError, true);
+    }
 
 		/**
          * Curried function to enable tracking of unhandled exceptions.
@@ -121,7 +137,22 @@ object.errorManager = function (core) {
 				}
 			}
 
-            helpers.addEventListener(windowAlias, 'error', captureError, true);
-        }
+    /**
+      * Track unhandled exception.
+      * This method supposed to be used inside try/catch block or with window.onerror
+      * (contexts won't be attached), but NOT with `addEventListener` - use
+      * `enableErrorTracker` for this
+      * 
+      * @param {String} message - Message appeared in console
+      * @param {String} filename - Source file (not used)
+      * @param {Number} lineno - Line number
+      * @param {Number} colno - Column number (not used)
+      * @param {Error} error - error object (not present in all browsers)
+      * @param {Object[]} contexts - Array of custom contexts
+      */
+    trackError(message, filename, lineno, colno, error, contexts) {
+        return this.track(message, filename, lineno, colno, error, contexts);
     }
-};
+}
+
+export default ErrorManager;
