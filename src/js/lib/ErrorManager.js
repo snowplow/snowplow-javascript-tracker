@@ -35,7 +35,7 @@
 var isFunction = require('lodash/isFunction'),
     helpers = require('./lib/helpers'),
     object = typeof exports !== 'undefined' ? exports : this,
-	windowAlias = window;
+    windowAlias = window;
 
 
 object.errorManager = function (core) {
@@ -50,21 +50,21 @@ object.errorManager = function (core) {
 	 * @param error Error error object (not present in all browsers)
 	 * @param contexts Array of custom contexts
 	 */
-	function track(message, filename, lineno, colno, error, contexts) {
-		var stack = (error && error.stack) ? error.stack : null;
+    function track(message, filename, lineno, colno, error, contexts) {
+        var stack = (error && error.stack) ? error.stack : null;
 
-		core.trackSelfDescribingEvent({
-			schema: 'iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1',
-			data: {
-				programmingLanguage: "JAVASCRIPT",
-				message: message || "JS Exception. Browser doesn't support ErrorEvent API",
-				stackTrace: stack,
-				lineNumber: lineno,
-				lineColumn: colno,
-				fileName: filename
-			}
-		}, contexts)
-	}
+        core.trackSelfDescribingEvent({
+            schema: 'iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1',
+            data: {
+                programmingLanguage: "JAVASCRIPT",
+                message: message || "JS Exception. Browser doesn't support ErrorEvent API",
+                stackTrace: stack,
+                lineNumber: lineno,
+                lineColumn: colno,
+                fileName: filename
+            }
+        }, contexts)
+    }
 
 	/**
 	 * Attach custom contexts using `contextAdder`
@@ -81,10 +81,10 @@ object.errorManager = function (core) {
 			contexts = commonContexts;
 		}
 
-		track(errorEvent.message, errorEvent.filename, errorEvent.lineno, errorEvent.colno, errorEvent.error, contexts)
-	}
+        track(errorEvent.message, errorEvent.filename, errorEvent.lineno, errorEvent.colno, errorEvent.error, contexts)
+    }
 
-	return {
+    return {
 
 		/**
 		 * Track unhandled exception.
@@ -99,7 +99,7 @@ object.errorManager = function (core) {
 		 * @param error Error error object (not present in all browsers)
 		 * @param contexts Array of custom contexts
 		 */
-	    trackError: track,
+        trackError: track,
 
 		/**
          * Curried function to enable tracking of unhandled exceptions.
@@ -109,7 +109,7 @@ object.errorManager = function (core) {
 		 * @param contextsAdder Function ErrorEvent => Array<Context> to add custom contexts with
 		 *                     internal state based on particular error
 		 */
-		enableErrorTracking: function (filter, contextsAdder, contexts) {
+        enableErrorTracking: function (filter, contextsAdder, contexts) {
 			/**
 			 * Closure callback to filter, contextualize and track unhandled exceptions
 			 *
@@ -121,7 +121,7 @@ object.errorManager = function (core) {
 				}
 			}
 
-			helpers.addEventListener(windowAlias, 'error', captureError, true);
-		}
-	}
+            helpers.addEventListener(windowAlias, 'error', captureError, true);
+        }
+    }
 };

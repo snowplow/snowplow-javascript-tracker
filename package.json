@@ -1,18 +1,18 @@
 {
   "name": "snowplow-tracker",
-  "version": "2.10.0",
+  "version": "2.11.0-ALPHA",
   "dependencies": {
     "@babel/polyfill": "^7.0.0",
     "@babel/runtime": "^7.2.0",
-    "browser-cookie-lite": "0.3.1",
+    "browser-cookie-lite": "1.0.4",
     "core-js": "^2.6.0",
     "handlebars": "^4.0.12",
-    "jstimezonedetect": "1.0.5",
+    "jstimezonedetect": "1.0.6",
     "murmurhash": "0.0.2",
     "sha1": "git://github.com/pvorb/node-sha1.git#910081c83f3661507d9d89e66e3f38d8b59d5559",
     "snowplow-tracker-core": "file:./core",
     "uglify-js": "^3.4.9",
-    "uuid": "2.0.3"
+    "uuid": "3.3.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.0",
@@ -20,13 +20,15 @@
     "@babel/plugin-transform-runtime": "^7.2.0",
     "@babel/preset-env": "^7.1.0",
     "JSON": "1.0.0",
+    "eslint": "^5.9.0",
+    "eslint-plugin-import": "^2.14.0",
     "grunt": "^1.0.3",
     "grunt-aws": "0.6.2",
     "intern": "3.3.2",
     "js-base64": "^2.4.9",
     "lodash": "^4.17.11",
     "npm-run-all": "^4.1.5",
-    "semver": "4.3.2"
+    "semver": "5.6.0"
   },
   "scripts": {
     "test:local": "npm run localtest.sh",
