@@ -19,9 +19,9 @@ declare module 'snowplow-tracker/lib/payload' {
 declare module 'snowplow-tracker/lib/contexts' {
 	import { PayloadData } from 'snowplow-tracker/lib/payload';
 	import { SelfDescribingJson } from 'snowplow-tracker/lib/core';
-	export type ContextGenerator = (payload: SelfDescribingJson, eventType: string, schema: string) => SelfDescribingJson;
+	export type ContextGenerator = (args?: Object) => SelfDescribingJson;
 	export type ContextPrimitive = SelfDescribingJson | ContextGenerator;
-	export type ContextFilter = (payload: SelfDescribingJson, eventType: string, schema: string) => boolean;
+	export type ContextFilter = (args?: Object) => boolean;
 	export type FilterProvider = [ContextFilter, Array<ContextPrimitive> | ContextPrimitive];
 	export interface RuleSet {
 	    accept?: string[] | string;

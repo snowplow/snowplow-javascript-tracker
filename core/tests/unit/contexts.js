@@ -32,13 +32,13 @@ define([
 				}
 			};
 
-			function eventTypeContextGenerator(payload, eventType, schema) {
+			function eventTypeContextGenerator(args) {
 				let context = {};
 				context['schema'] = 'iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1';
 				context['data']['osType'] = 'ubuntu';
 				context['data']['osVersion'] = '2018.04';
 				context['data']['deviceManufacturer'] = 'ASUS';
-				context['data']['deviceModel'] = String(eventType);
+				context['data']['deviceModel'] = String(args[eventType]);
 				return context;
 			}
 
@@ -84,8 +84,8 @@ define([
 		},
 
 		"Identify filter function": function () {
-			let filterFunction = function (payload, eventType, schema) {
-				return eventType === 'ue';
+			let filterFunction = function (args) {
+				return args['eventType'] === 'ue';
 			};
 
 			assert.isTrue(contexts.isContextFilter(filterFunction), 'A valid filter function is identified');
@@ -105,13 +105,13 @@ define([
 				}
 			};
 
-			function eventTypeContextGenerator(payload, eventType, schema) {
-				var context = {};
+			function eventTypeContextGenerator(args) {
+				let context = {};
 				context['schema'] = 'iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1';
 				context['data']['osType'] = 'ubuntu';
 				context['data']['osVersion'] = '2018.04';
 				context['data']['deviceManufacturer'] = 'ASUS';
-				context['data']['deviceModel'] = String(eventType);
+				context['data']['deviceModel'] = String(args[eventType]);
 				return context;
 			}
 
@@ -120,8 +120,8 @@ define([
 		},
 
 		"Identify filter provider": function () {
-			let filterFunction = function (payload, eventType, schema) {
-				return eventType === 'ue';
+			let filterFunction = function (args) {
+				return args['eventType'] === 'ue';
 			};
 
 			let geolocationContext = {
@@ -132,13 +132,13 @@ define([
 				}
 			};
 
-			function eventTypeContextGenerator(payload, eventType, schema) {
+			function eventTypeContextGenerator(args) {
 				let context = {};
 				context['schema'] = 'iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1';
 				context['data']['osType'] = 'ubuntu';
 				context['data']['osVersion'] = '2018.04';
 				context['data']['deviceManufacturer'] = 'ASUS';
-				context['data']['deviceModel'] = String(eventType);
+				context['data']['deviceModel'] = String(args[eventType]);
 				return context;
 			}
 
@@ -155,13 +155,13 @@ define([
 				}
 			};
 
-			function eventTypeContextGenerator(payload, eventType, schema) {
+			function eventTypeContextGenerator(args) {
 				let context = {};
 				context['schema'] = 'iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1';
 				context['data']['osType'] = 'ubuntu';
 				context['data']['osVersion'] = '2018.04';
 				context['data']['deviceManufacturer'] = 'ASUS';
-				context['data']['deviceModel'] = String(eventType);
+				context['data']['deviceModel'] = String(args[eventType]);
 				return context;
 			}
 
@@ -170,8 +170,8 @@ define([
 				reject: ['iglu:com.snowplowanalytics.snowplow/*/jsonschema/*-*-*']
 			};
 
-			let filterFunction = function (payload, eventType, schema) {
-				return eventType === 'ue';
+			let filterFunction = function (args) {
+				return args['eventType'] === 'ue';
 			};
 
 			let filterProvider = [filterFunction, [geolocationContext, eventTypeContextGenerator]];
@@ -196,13 +196,13 @@ define([
 				}
 			};
 
-			function eventTypeContextGenerator(payload, eventType, schema) {
+			function eventTypeContextGenerator(args) {
 				let context = {};
 				context['schema'] = 'iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1';
 				context['data']['osType'] = 'ubuntu';
 				context['data']['osVersion'] = '2018.04';
 				context['data']['deviceManufacturer'] = 'ASUS';
-				context['data']['deviceModel'] = String(eventType);
+				context['data']['deviceModel'] = String(args[eventType]);
 				return context;
 			}
 
@@ -211,8 +211,8 @@ define([
 				reject: ['iglu:com.snowplowanalytics.snowplow/*/jsonschema/*-*-*']
 			};
 
-			let filterFunction = function (payload, eventType, schema) {
-				return eventType === 'ue';
+			let filterFunction = function (args) {
+				return args['eventType'] === 'ue';
 			};
 
 			let filterProvider = [filterFunction, [geolocationContext, eventTypeContextGenerator]];
@@ -236,13 +236,13 @@ define([
 				}
 			};
 
-			function eventTypeContextGenerator(payload, eventType, schema) {
+			function eventTypeContextGenerator(args) {
 				let context = {};
 				context['schema'] = 'iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1';
 				context['data']['osType'] = 'ubuntu';
 				context['data']['osVersion'] = '2018.04';
 				context['data']['deviceManufacturer'] = 'ASUS';
-				context['data']['deviceModel'] = String(eventType);
+				context['data']['deviceModel'] = String(args[eventType]);
 				return context;
 			}
 
@@ -251,8 +251,8 @@ define([
 				reject: ['iglu:com.snowplowanalytics.snowplow/*/jsonschema/*-*-*']
 			};
 
-			let filterFunction = function (payload, eventType, schema) {
-				return eventType === 'ue';
+			let filterFunction = function (args) {
+				return args['eventType'] === 'ue';
 			};
 
 			let filterProvider = [filterFunction, [geolocationContext, eventTypeContextGenerator]];
@@ -277,14 +277,14 @@ define([
 				}
 			};
 
-			function eventTypeContextGenerator(payload, eventType, schema) {
+			function eventTypeContextGenerator(args) {
 				let context = {};
 				context['schema'] = 'iglu:com.snowplowanalytics.snowplow/some_context/jsonschema/1-0-1';
 				context['data'] = {};
 				context['data']['osType'] = 'ubuntu';
 				context['data']['osVersion'] = '2018.04';
 				context['data']['deviceManufacturer'] = 'ASUS';
-				context['data']['eventType'] = String(eventType);
+				context['data']['eventType'] = String(args['eventType']);
 				return context;
 			}
 
@@ -292,8 +292,8 @@ define([
 				accept: ['iglu:com.acme_company/*/jsonschema/*-*-*']
 			};
 
-			let filterFunction = function (payload, eventType, schema) {
-				return eventType === 'ue';
+			let filterFunction = function (args) {
+				return args['eventType'] === 'ue';
 			};
 
 			let filterProvider = [filterFunction, [geolocationContext, eventTypeContextGenerator]];

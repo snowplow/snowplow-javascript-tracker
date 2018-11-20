@@ -51,20 +51,20 @@
 		}
 	};
 
-	function eventTypeContextGenerator(payload, eventType, schema) {
+	function eventTypeContextGenerator(args) {
 		var context = {};
 		context['schema'] = 'iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1';
 		context['data'] = {};
 		context['data']['osType'] = 'ubuntu';
 		context['data']['osVersion'] = '2018.04';
 		context['data']['deviceManufacturer'] = 'ASUS';
-		context['data']['deviceModel'] = String(eventType);
+		context['data']['deviceModel'] = String(args['eventType']);
 		return context;
 	}
 
 	// A filter that will only attach contexts to structured events
-	function structuredEventFilter(payload, eventType, schema) {
-		return eventType === 'se';
+	function structuredEventFilter(args) {
+		return args['eventType'] === 'se';
 	}
 
 	function erroneousContextGenerator(payload, eventType, schema) {

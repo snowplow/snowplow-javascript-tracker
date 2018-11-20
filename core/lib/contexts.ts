@@ -12,9 +12,9 @@ import map = require('lodash/map');
 /**
  * Datatypes (some algebraic) for representing context types
  */
-export type ContextGenerator = (payload: SelfDescribingJson, eventType: string, schema: string) => SelfDescribingJson;
+export type ContextGenerator = (args?: Object) => SelfDescribingJson;
 export type ContextPrimitive = SelfDescribingJson | ContextGenerator;
-export type ContextFilter = (payload: SelfDescribingJson, eventType: string, schema: string) => boolean;
+export type ContextFilter = (args?: Object) => boolean;
 export type FilterProvider = [ContextFilter, Array<ContextPrimitive> | ContextPrimitive];
 export interface RuleSet {
     accept?: string[] | string;
@@ -127,17 +127,11 @@ export function isRuleSet(input: any) : boolean {
 }
 
 export function isContextGenerator(input: any) : boolean {
-    if (typeof(input) === 'function') {
-        return input.length === 3;
-    }
-    return false;
+    return typeof(input) === 'function' && input.length <= 1;
 }
 
 export function isContextFilter(input: any) : boolean {
-    if (typeof(input) === 'function') {
-        return input.length === 3;
-    }
-    return false;
+    return typeof(input) === 'function' && input.length <= 1;
 }
 
 export function isContextPrimitive(input: any) : boolean {
@@ -279,7 +273,12 @@ export function buildGenerator(generator: ContextGenerator,
     let contextGeneratorResult : SelfDescribingJson | Array<SelfDescribingJson> | undefined = undefined;
     try {
         // try to evaluate context generator
-        contextGeneratorResult = generator(event, eventType, eventSchema);
+        let args = {
+            event: event,
+            eventType: eventType,
+            eventSchema: eventSchema
+        };
+        contextGeneratorResult = generator(args);
         // determine if the produced result is a valid SDJ
         if (isSelfDescribingJson(contextGeneratorResult)) {
             return contextGeneratorResult;
@@ -341,7 +340,12 @@ export function evaluateProvider(provider: ConditionalContextProvider,
         let filter : ContextFilter = (provider as FilterProvider)[0];
         let filterResult = false;
         try {
-            filterResult = filter(event, eventType, eventSchema);
+            let args = {
+                event: event,
+                eventType: eventType,
+                eventSchema: eventSchema
+            };
+            filterResult = filter(args);
         } catch(error) {
             filterResult = false;
         }
