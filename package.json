@@ -1,6 +1,6 @@
 {
   "name": "snowplow-tracker",
-  "version": "2.10.0-alpha.4",
+  "version": "2.10.0-alpha.5",
   "dependencies": {
     "browser-cookie-lite": "0.3.1",
     "jstimezonedetect": "1.0.5",
@@ -30,7 +30,8 @@
     "Simon Andersson",
     "Anthon Pang",
     "Fred Blundun",
-    "Joshua Beemster"
+    "Joshua Beemster",
+    "Michael Hadam"
   ],
   "description": "JavaScript tracker for Snowplow",
   "repository": {
