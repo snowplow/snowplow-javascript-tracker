@@ -40,7 +40,7 @@ module.exports = function(grunt) {
   var pkg = grunt.file.readJSON('package.json');
   var semVer = semver.parse(pkg.version);
   pkg.pinnedVersion = semVer.major;
-  var banner = "/*!" +
+  var banner = "/*\n" +
   " * Snowplow - The world's most powerful web analytics platform\n" +
   " *\n" +
   " * @description <%= pkg.description %>\n" +
@@ -48,28 +48,19 @@ module.exports = function(grunt) {
   " * @author      " + pkg.contributors.join(', ') +"\n" +
   " * @copyright   Anthon Pang, Snowplow Analytics Ltd\n" +
   " * @license     <%= pkg.license %>\n" +
-  " */\n\n" +
-  "/*\n" +
+  " *\n" +
   " * For technical documentation:\n" +
   " * https://github.com/snowplow/snowplow/wiki/javascript-tracker\n" +
   " *\n" +
   " * For the setup guide:\n" +
   " * https://github.com/snowplow/snowplow/wiki/javascript-tracker-setup\n" +
-  " * /\n" +
-  "\n" +
-  "/*\n" +
-  " * Browser [In]Compatibility\n" +
-  " * - minimum required ECMAScript: ECMA-262, edition 3\n" +
   " *\n" +
-  " * Incompatible with these (and earlier) versions of:\n" +
-  " * - IE4 - try..catch and for..in introduced in IE5\n" +
-  " *- IE5 - named anonymous functions, array.push, encodeURIComponent, decodeURIComponent, and getElementsByTagName introduced in IE5.5\n" +
-  " * - Firefox 1.0 and Netscape 8.x - FF1.5 adds array.indexOf, among other things\n" +
-  " * - Mozilla 1.7 and Netscape 6.x-7.x\n" +
-  " * - Netscape 4.8\n" +
-  " * - Opera 6 - Error object (and Presto) introduced in Opera 7\n" +
-  " * - Opera 7\n" +
-  " */\n\n";
+  " * Minimum supported browsers:\n" +
+  " * - Firefox 27 \n" +
+  " * - Chrome 32 \n" +
+  " * - IE 9 \n" +
+  " * - Safari 8 \n" +
+  " */\n";
 
   grunt.initConfig({
 
@@ -119,7 +110,6 @@ module.exports = function(grunt) {
       deploy: {
         options: {
           'report': 'gzip',
-          'banner': '<%= banner %>',
           'process': true
         },
         src: ['dist/bundle-postbabel.js'],
@@ -152,6 +142,9 @@ module.exports = function(grunt) {
 
     uglify: {
       deploy: {
+        options: {
+          'banner': '<%= banner %>'
+        },
         files: {
           'dist/sp.js': ['dist/snowplow.js']
         }
