@@ -29,7 +29,8 @@
     "Simon Andersson",
     "Anthon Pang",
     "Fred Blundun",
-    "Joshua Beemster"
+    "Joshua Beemster",
+    "Michael Hadam"
   ],
   "description": "JavaScript tracker for Snowplow",
   "repository": {
