@@ -1,91 +1,91 @@
 /*
  * JavaScript tracker for Snowplow: Snowplow.js
- * 
- * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
- * 2012-2014 Snowplow Analytics Ltd. All rights reserved. 
- * 
- * Redistribution and use in source and binary forms, with or without 
- * modification, are permitted provided that the following conditions are 
- * met: 
  *
- * * Redistributions of source code must retain the above copyright 
- *   notice, this list of conditions and the following disclaimer. 
+ * Significant portions copyright 2010 Anthon Pang. Remainder copyright
+ * 2012-2014 Snowplow Analytics Ltd. All rights reserved.
  *
- * * Redistributions in binary form must reproduce the above copyright 
- *   notice, this list of conditions and the following disclaimer in the 
- *   documentation and/or other materials provided with the distribution. 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
  *
  * * Neither the name of Anthon Pang nor Snowplow Analytics Ltd nor the
  *   names of their contributors may be used to endorse or promote products
- *   derived from this software without specific prior written permission. 
+ *   derived from this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import cookie from 'browser-cookie-lite';
-import {isString, isUndefined, isArray, isObject, map} from 'lodash';
+import { cookie } from 'browser-cookie-lite'
+import { isString, isUndefined, isArray, isObject, map } from 'lodash-es'
 
 /**
  * Cleans up the page title
- * 
+ *
  * @param {String} title - page title to clean up
  * @returns {String} - cleaned up page title
  */
-const fixupTitle = (title) => {
-	if (!isString(title)) {
-		title = title.text || '';
+export const fixupTitle = title => {
+    if (!isString(title)) {
+        title = title.text || ''
 
-		var tmp = document.getElementsByTagName('title');
-		if (tmp && !isUndefined(tmp[0])) {
-			title = tmp[0].text;
-		}
-	}
-	return title;
-};
+        var tmp = document.getElementsByTagName('title')
+        if (tmp && !isUndefined(tmp[0])) {
+            title = tmp[0].text
+        }
+    }
+    return title
+}
 
 /**
  * Extract hostname from URL
- * 
- * @param {String} url - the url to extract the hostname from 
+ *
+ * @param {String} url - the url to extract the hostname from
  * @returns {String} - the hostname
  */
-const getHostName = (url) => {
-	// scheme : // [username [: password] @] hostname [: port] [/ [path] [? query] [# fragment]]
-	var e = new RegExp('^(?:(?:https?|ftp):)/*(?:[^@]+@)?([^:/#]+)'),
-		matches = e.exec(url);
+export const getHostName = url => {
+    // scheme : // [username [: password] @] hostname [: port] [/ [path] [? query] [# fragment]]
+    var e = new RegExp('^(?:(?:https?|ftp):)/*(?:[^@]+@)?([^:/#]+)'),
+        matches = e.exec(url)
 
-	return matches ? matches[1] : url;
-};
+    return matches ? matches[1] : url
+}
 
 /**
  * Fix-up domain
- * 
+ *
  * @param {String} domain - domain to fix up
  * @returns {String} - fixed up domain
  */
-const fixupDomain = (domain) => {
-	var dl = domain.length;
+export const fixupDomain = domain => {
+    var dl = domain.length
 
-	// remove trailing '.'
-	if (domain.charAt(--dl) === '.') {
-		domain = domain.slice(0, dl);
-	}
-	// remove leading '*'
-	if (domain.slice(0, 2) === '*.') {
-		domain = domain.slice(1);
-	}
-	return domain;
-};
+    // remove trailing '.'
+    if (domain.charAt(--dl) === '.') {
+        domain = domain.slice(0, dl)
+    }
+    // remove leading '*'
+    if (domain.slice(0, 2) === '*.') {
+        domain = domain.slice(1)
+    }
+    return domain
+}
 
 /**
  * Get page referrer. In the case of a single-page app,
@@ -96,136 +96,140 @@ const fixupDomain = (domain) => {
  * @param {String} oldLocation  - optional.
  * @returns {String} - the referrer
  */
-const getReferrer = (oldLocation) => {
+export const getReferrer = (oldLocation) => {
+    var referrer = ''
 
-	var referrer = '';
+    var fromQs =
+        fromQuerystring('referrer', window.location.href) ||
+        fromQuerystring('referer', window.location.href)
 
-	var fromQs = this.fromQuerystring('referrer', window.location.href) ||
-		this.fromQuerystring('referer', window.location.href);
+    // Short-circuit
+    if (fromQs) {
+        return fromQs
+    }
 
-	// Short-circuit
-	if (fromQs) {
-		return fromQs;
-	}
+    // In the case of a single-page app, return the old URL
+    if (oldLocation) {
+        return oldLocation
+    }
 
-	// In the case of a single-page app, return the old URL
-	if (oldLocation) {
-		return oldLocation;
-	}
-
-	try {
-		referrer = window.top.document.referrer;
-	} catch (e) {
-		if (window.parent) {
-			try {
-				referrer = window.parent.document.referrer;
-			} catch (e2) {
-				referrer = '';
-			}
-		}
-	}
-	if (referrer === '') {
-		referrer = document.referrer;
-	}
-	return referrer;
-};
+    try {
+        referrer = window.top.document.referrer
+    } catch (e) {
+        if (window.parent) {
+            try {
+                referrer = window.parent.document.referrer
+            } catch (e2) {
+                referrer = ''
+            }
+        }
+    }
+    if (referrer === '') {
+        referrer = document.referrer
+    }
+    return referrer
+}
 
 /**
  * Cross-browser helper function to add event handler
- * 
+ *
  * @param {HTMLElement} element - the element to add the event to
  * @param {eventType} eventType - the type of event to listen to
  * @param {Function} eventHandler - the function to attach
  * @param {Boolean} useCapture - set to true to enable "capture mode"
  * @returns {Boolean} - returns the result of adding the listner, should always be true.
  */
-const addEventListener = (element, eventType, eventHandler, useCapture) => {
-	if (element.addEventListener) {
-		element.addEventListener(eventType, eventHandler, useCapture);
-		return true;
-	}
+export const addEventListener = (element, eventType, eventHandler, useCapture) => {
+    if (element.addEventListener) {
+        element.addEventListener(eventType, eventHandler, useCapture)
+        return true
+    }
 
-	if (element.attachEvent) {
-		return element.attachEvent('on' + eventType, eventHandler);
-	}
+    if (element.attachEvent) {
+        return element.attachEvent('on' + eventType, eventHandler)
+    }
 
-	element['on' + eventType] = eventHandler;
-	return true;
-};
+    element['on' + eventType] = eventHandler
+    return true
+}
 
 /**
  * Return value from name-value pair in querystring
- * 
+ *
  * @param {String} field - query string field to get value from
  * @param {String} url - the url to get the query string from
  * @returns {String} - the value of the field in the query string
  */
-const fromQuerystring = (field, url) => {
-	var match = new RegExp('^[^#]*[?&]' + field + '=([^&#]*)').exec(url);
-	if (!match) {
-		return null;
-	}
-	return decodeURIComponent(match[1].replace(/\+/g, ' '));
-};
+export const fromQuerystring = (field, url) => {
+    var match = new RegExp('^[^#]*[?&]' + field + '=([^&#]*)').exec(url)
+    if (!match) {
+        return null
+    }
+    return decodeURIComponent(match[1].replace(/\+/g, ' '))
+}
 
 /**
-* Find dynamic context generating functions and merge their results into the static contexts
-* Combine an array of unchanging contexts with the result of a context-creating function
-* @param {(object|function(...*): ?object)[]} dynamicOrStaticContexts - Array of custom context Objects or custom context generating functions
-* @param {...any} callbackParameters - Parameters to pass to dynamic callbacks
-*/
-const resolveDynamicContexts = (dynamicOrStaticContexts, ...callbackParameters) => {
-	//var params = Array.prototype.slice.call(arguments, 1);
-	return map(dynamicOrStaticContexts, function (context) {
-		if (typeof context === 'function') {
-			try {
-				return context.apply(null, callbackParameters);
-			} catch (e) {
-				this.warn('Exception thrown in dynamic context generator: ' + e);
-			}
-		} else {
-			return context;
-		}
-	});
-};
+ * Find dynamic context generating functions and merge their results into the static contexts
+ * Combine an array of unchanging contexts with the result of a context-creating function
+ * @param {(object|function(...*): ?object)[]} dynamicOrStaticContexts - Array of custom context Objects or custom context generating functions
+ * @param {...any} callbackParameters - Parameters to pass to dynamic callbacks
+ */
+export const resolveDynamicContexts = (
+    dynamicOrStaticContexts,
+    ...callbackParameters
+) => {
+    //var params = Array.prototype.slice.call(arguments, 1);
+    return map(dynamicOrStaticContexts, function(context) {
+        if (typeof context === 'function') {
+            try {
+                return context.apply(null, callbackParameters)
+            } catch (e) {
+                warn('Exception thrown in dynamic context generator: ' + e)
+            }
+        } else {
+            return context
+        }
+    })
+}
 
 /**
  * Only log deprecation warnings if they won't cause an error
- * 
+ *
  * @param {String} message - the warning message
  */
-const warn = (message) => {
-	if (typeof window.console !== 'undefined') {
-		window.console.warn('Snowplow: ' + message);
-	}
-};
+export const warn = message => {
+    if (typeof window.console !== 'undefined') {
+        window.console.warn('Snowplow: ' + message)
+    }
+}
 
 /**
  * List the classes of a DOM element without using elt.classList (for compatibility with IE 9)
- * 
+ *
  * @param {HTMLElement} element - The HTMLElement object to search
  * @returns {String[]} - an array of the classes on the element
  */
-const getCssClasses = (element) => {
-	return element.className.match(/\S+/g) || [];
-};
+export const getCssClasses = element => {
+    return element.className.match(/\S+/g) || []
+}
 
 /**
  * Check whether an element has at least one class from a given list
- * 
+ *
  * @param {*} element - The HTMLElement object to search
  * @param {Object} classList - hashtable of class name strings to check
  * @returns {Boolean} - true if the element contains any of the classes in the array
  */
-const checkClass = (element, classList) => {
-	let classes = this.getCssClasses(element), i;
+export const checkClass = (element, classList) => {
+    let classes = getCssClasses(element),
+        i
 
-	for (i = 0; i < classes.length; i++) {
-		if (classList[classes[i]]) {
-			return true;
-		}
-	}
-	return false;
+    for (i = 0; i < classes.length; i++) {
+        if (classList[classes[i]]) {
+            return true
+        }
+    }
+    return false
 }
 
 /**
@@ -238,40 +242,40 @@ const checkClass = (element, classList) => {
  *                        		or name attribute (for fields)
  * @returns {Function} - resultant filter function
  */
-const getFilter = (criterion, byClass) => {
-	// If the criterion argument is not an object, add listeners to all elements
-	if (isArray(criterion) || !isObject(criterion)) {
-		return function () {
-			return true;
-		};
-	}
+export const getFilter = (criterion, byClass) => {
+    // If the criterion argument is not an object, add listeners to all elements
+    if (isArray(criterion) || !isObject(criterion)) {
+        return function() {
+            return true
+        }
+    }
 
-	if (criterion.hasOwnProperty('filter')) {
-		return criterion.filter;
-	} else {
-		var inclusive = criterion.hasOwnProperty('whitelist');
-		var specifiedClasses = criterion.whitelist || criterion.blacklist;
-		if (!isArray(specifiedClasses)) {
-			specifiedClasses = [specifiedClasses];
-		}
+    if (criterion.hasOwnProperty('filter')) {
+        return criterion.filter
+    } else {
+        var inclusive = criterion.hasOwnProperty('whitelist')
+        var specifiedClasses = criterion.whitelist || criterion.blacklist
+        if (!isArray(specifiedClasses)) {
+            specifiedClasses = [specifiedClasses]
+        }
 
-		// Convert the array of classes to an object of the form {class1: true, class2: true, ...}
-		var specifiedClassesSet = {};
-		for (var i = 0; i < specifiedClasses.length; i++) {
-			specifiedClassesSet[specifiedClasses[i]] = true;
-		}
+        // Convert the array of classes to an object of the form {class1: true, class2: true, ...}
+        var specifiedClassesSet = {}
+        for (var i = 0; i < specifiedClasses.length; i++) {
+            specifiedClassesSet[specifiedClasses[i]] = true
+        }
 
-		if (byClass) {
-			return function (elt) {
-				return checkClass(elt, specifiedClassesSet) === inclusive;
-			};
-		} else {
-			return function (elt) {
-				return elt.name in specifiedClassesSet === inclusive;
-			};
-		}
-	}
-};
+        if (byClass) {
+            return function(elt) {
+                return checkClass(elt, specifiedClassesSet) === inclusive
+            }
+        } else {
+            return function(elt) {
+                return elt.name in specifiedClassesSet === inclusive
+            }
+        }
+    }
+}
 
 /**
  * Convert a criterion object to a transform function
@@ -279,14 +283,15 @@ const getFilter = (criterion, byClass) => {
  * @param {Object} criterion  - {transform: function (elt) {return the result of transform function applied to element}
  * @returns {Function} - the resultant transform function
  */
-const getTransform = (criterion) => {
+export const getTransform = criterion => {
+    if (isObject(criterion) && criterion.hasOwnProperty('transform')) {
+        return criterion.transform
+    }
 
-	if (isObject(criterion) && criterion.hasOwnProperty('transform')) {
-		return criterion.transform;
-	}
-
-	return function (x) { return x };
-};
+    return function(x) {
+        return x
+    }
+}
 
 /**
  * Add a name-value pair to the querystring of a URL
@@ -296,34 +301,34 @@ const getTransform = (criterion) => {
  * @param {String} value  - Value of the querystring pair
  * @returns {String} - resultant url
  */
-const decorateQuerystring = (url, name, value) => {
-	var initialQsParams = name + '=' + value;
-	var hashSplit = url.split('#');
-	var qsSplit = hashSplit[0].split('?');
-	var beforeQuerystring = qsSplit.shift();
-	// Necessary because a querystring may contain multiple question marks
-	var querystring = qsSplit.join('?');
-	if (!querystring) {
-		querystring = initialQsParams;
-	} else {
-		// Whether this is the first time the link has been decorated
-		var initialDecoration = true;
-		var qsFields = querystring.split('&');
-		for (var i = 0; i < qsFields.length; i++) {
-			if (qsFields[i].substr(0, name.length + 1) === name + '=') {
-				initialDecoration = false;
-				qsFields[i] = initialQsParams;
-				querystring = qsFields.join('&');
-				break;
-			}
-		}
-		if (initialDecoration) {
-			querystring = initialQsParams + '&' + querystring;
-		}
-	}
-	hashSplit[0] = beforeQuerystring + '?' + querystring;
-	return hashSplit.join('#');
-};
+export const decorateQuerystring = (url, name, value) => {
+    var initialQsParams = name + '=' + value
+    var hashSplit = url.split('#')
+    var qsSplit = hashSplit[0].split('?')
+    var beforeQuerystring = qsSplit.shift()
+    // Necessary because a querystring may contain multiple question marks
+    var querystring = qsSplit.join('?')
+    if (!querystring) {
+        querystring = initialQsParams
+    } else {
+        // Whether this is the first time the link has been decorated
+        var initialDecoration = true
+        var qsFields = querystring.split('&')
+        for (var i = 0; i < qsFields.length; i++) {
+            if (qsFields[i].substr(0, name.length + 1) === name + '=') {
+                initialDecoration = false
+                qsFields[i] = initialQsParams
+                querystring = qsFields.join('&')
+                break
+            }
+        }
+        if (initialDecoration) {
+            querystring = initialQsParams + '&' + querystring
+        }
+    }
+    hashSplit[0] = beforeQuerystring + '?' + querystring
+    return hashSplit.join('#')
+}
 
 /**
  * Attempt to get a value from localStorage
@@ -331,13 +336,13 @@ const decorateQuerystring = (url, name, value) => {
  * @param {String} key - the key to read from localStorage
  * @returns {String|undefined} The value obtained from localStorage, or undefined if localStorage is inaccessible
  */
-const attemptGetLocalStorage = (key) => {
-	try {
-		return localStorage.getItem(key);
-	} catch(e){
-		//The try is to prevent an error, but it is OK to swallow it here as that is expected behaviour
-	}
-};
+export const attemptGetLocalStorage = key => {
+    try {
+        return localStorage.getItem(key)
+    } catch (e) {
+        //The try is to prevent an error, but it is OK to swallow it here as that is expected behaviour
+    }
+}
 
 /**
  * Attempt to write a value to localStorage
@@ -346,47 +351,46 @@ const attemptGetLocalStorage = (key) => {
  * @param {String} value - the value to write to localStorage
  * @returns {Boolean} true if the operation was successful
  */
-const attemptWriteLocalStorage = (key, value) => {
-	try {
-		localStorage.setItem(key, value);
-		return true;
-	} catch (e) {
-		return false;
-	}
-};
+export const attemptWriteLocalStorage = (key, value) => {
+    try {
+        localStorage.setItem(key, value)
+        return true
+    } catch (e) {
+        return false
+    }
+}
 
 /**
  * Finds the root domain. Attempts to use cookies, or defaults to the hostname
- * 
+ *
  * @returns {String}  - the root domain of the page
  */
-const findRootDomain = () => {
-	var cookiePrefix = '_sp_root_domain_test_';
-	var cookieName = cookiePrefix + new Date().getTime();
-	var cookieValue = '_test_value_' + new Date().getTime();
+export const findRootDomain = () => {
+    var cookiePrefix = '_sp_root_domain_test_'
+    var cookieName = cookiePrefix + new Date().getTime()
+    var cookieValue = '_test_value_' + new Date().getTime()
 
-	var split = window.location.hostname.split('.');
-	var position = split.length - 1;
-	while (position >= 0) {
-		var currentDomain = split.slice(position, split.length).join('.');
-		cookie.cookie(cookieName, cookieValue, 0, '/', currentDomain);
-		if (cookie.cookie(cookieName) === cookieValue) {
+    var split = window.location.hostname.split('.')
+    var position = split.length - 1
+    while (position >= 0) {
+        var currentDomain = split.slice(position, split.length).join('.')
+        cookie.cookie(cookieName, cookieValue, 0, '/', currentDomain)
+        if (cookie.cookie(cookieName) === cookieValue) {
+            // Clean up created cookie(s)
+            deleteCookie(cookieName, currentDomain)
+            var cookieNames = getCookiesWithPrefix(cookiePrefix)
+            for (var i = 0; i < cookieNames.length; i++) {
+                deleteCookie(cookieNames[i], currentDomain)
+            }
 
-			// Clean up created cookie(s)
-			this.deleteCookie(cookieName, currentDomain);
-			var cookieNames = this.getCookiesWithPrefix(cookiePrefix);
-			for (var i = 0; i < cookieNames.length; i++) {
-				this.deleteCookie(cookieNames[i], currentDomain);
-			}
+            return currentDomain
+        }
+        position -= 1
+    }
 
-			return currentDomain;
-		}
-		position -= 1;
-	}
-
-	// Cookies cannot be read
-	return window.location.hostname;
-};
+    // Cookies cannot be read
+    return window.location.hostname
+}
 
 /**
  * Checks whether a value is present within an array
@@ -395,14 +399,14 @@ const findRootDomain = () => {
  * @param {Array} array - The array to check within
  * @returns {Boolean}  - Whether it exists
  */
-const isValueInArray = (val, array) => {
-	for (var i = 0; i < array.length; i++) {
-		if (array[i] === val) {
-			return true;
-		}
-	}
-	return false;
-};
+export const isValueInArray = (val, array) => {
+    for (var i = 0; i < array.length; i++) {
+        if (array[i] === val) {
+            return true
+        }
+    }
+    return false
+}
 
 /**
  * Deletes an arbitrary cookie by setting the expiration date to the past
@@ -410,9 +414,9 @@ const isValueInArray = (val, array) => {
  * @param {String} cookieName -  The name of the cookie to delete
  * @param {String} domainName  - The domain the cookie is in
  */
-const deleteCookie = (cookieName, domainName) => {
-	cookie.cookie(cookieName, '', -1, '/', domainName);
-};
+export const deleteCookie = (cookieName, domainName) => {
+    cookie.cookie(cookieName, '', -1, '/', domainName)
+}
 
 /**
  * Fetches the name of all cookies beginning with a certain prefix
@@ -420,16 +424,16 @@ const deleteCookie = (cookieName, domainName) => {
  * @param {String} cookiePrefix - The prefix to check for
  * @returns {Array} an array of the cookies that begin with the prefix
  */
-const getCookiesWithPrefix = function (cookiePrefix) {
-	var cookies = document.cookie.split("; ");
-	var cookieNames = [];
-	for (var i = 0; i < cookies.length; i++) {
-		if (cookies[i].substring(0, cookiePrefix.length) === cookiePrefix) {
-			cookieNames.push(cookies[i]);
-		}
-	}
-	return cookieNames;
-};
+export const getCookiesWithPrefix = function(cookiePrefix) {
+    var cookies = document.cookie.split('; ')
+    var cookieNames = []
+    for (var i = 0; i < cookies.length; i++) {
+        if (cookies[i].substring(0, cookiePrefix.length) === cookiePrefix) {
+            cookieNames.push(cookies[i])
+        }
+    }
+    return cookieNames
+}
 
 /**
  * Parses an object and returns either the
@@ -438,10 +442,10 @@ const getCookiesWithPrefix = function (cookiePrefix) {
  * @param {any} obj - The object to parse
  * @returns {Number|undefined} - the result of the parse operation
  */
-const parseInt = function (obj) {
-	var result = parseInt(obj);
-	return isNaN(result) ? undefined : result;
-};
+export const pInt = function(obj) {
+    var result = parseInt(obj)
+    return isNaN(result) ? undefined : result
+}
 
 /**
  * Parses an object and returns either the
@@ -450,30 +454,31 @@ const parseInt = function (obj) {
  * @param {any} obj -  The object to parse
  * @returns {Number|undefined} the result of the parse operation
  */
-const parseFloat = function (obj) {
-	var result = parseFloat(obj);
-	return isNaN(result) ? undefined : result;
+export const pFloat = function(obj) {
+    var result = parseFloat(obj)
+    return isNaN(result) ? undefined : result
 }
 
-export default {
-	addEventListener,
-	attemptGetLocalStorage,
-	attemptWriteLocalStorage,
-	decorateQuerystring,
-	deleteCookie,
-	findRootDomain,
-	fixupDomain,
-	fixupTitle,
-	fromQuerystring,	
-	getCookiesWithPrefix,
-	getCssClasses,
-	getFilter,
-	getHostName,
-	getReferrer,
-	getTransform,
-	isValueInArray,
-	parseFloat,
-	parseInt,
-	resolveDynamicContexts,
-	warn
+const helpers = {
+    addEventListener,
+    attemptGetLocalStorage,
+    attemptWriteLocalStorage,
+    decorateQuerystring,
+    deleteCookie,
+    findRootDomain,
+    fixupDomain,
+    fixupTitle,
+    fromQuerystring,
+    getCookiesWithPrefix,
+    getCssClasses,
+    getFilter,
+    getHostName,
+    getReferrer,
+    getTransform,
+    isValueInArray,
+    parseFloat,
+    parseInt,
+    resolveDynamicContexts,
+    warn,
 }
+export default helpers
