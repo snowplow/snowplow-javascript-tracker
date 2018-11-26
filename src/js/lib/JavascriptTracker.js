@@ -33,6 +33,7 @@
  */
 
 import {
+    addEventListener,
     attemptGetLocalStorage,
     attemptWriteLocalStorage,
     decorateQuerystring,
@@ -63,7 +64,6 @@ import OutQueueManager from './OutQueueManager'
 import { trackerCore as coreConstructor } from 'snowplow-tracker-core'
 import uuid from 'uuid'
 import ConfigManager from './ConfigManager'
-import { each, forEach, map } from 'lodash-es'
 import LinkTrackingManager from './LinkTrackingManager'
 
 // Symbols for private methods
@@ -154,7 +154,7 @@ class JavascriptTracker {
     constructor(functionName, namespace, version, mutSnowplowState, argmap) {
         this.configManager = new ConfigManager(argmap || {})
         const config = (this.config = this.configManager.config)
-        const _this = this;
+        const _this = this
         /************************************************************
          * * Private members
          * ************************************************************/
@@ -234,10 +234,7 @@ class JavascriptTracker {
                 return config.forceSecureTracker
             },
             get forceUnsecureTracker() {
-                return (
-                    !this.forceSecureTracker &&
-                    config.forceUnsecureTracker
-                )
+                return !this.forceSecureTracker && config.forceUnsecureTracker
             },
             get browserLanguage() {
                 return (
@@ -270,7 +267,7 @@ class JavascriptTracker {
             domainUserId: null,
             memorizedSessionId: 1,
             businessUserId: null,
-            ecommerceTransaction: _this[ecommerceTransactionTemplate],
+            ecommerceTransaction: _this[ecommerceTransactionTemplate](),
             geolocationContextAdded: false,
             commonContexts: [],
             enhancedEcommerceContexts: [],
@@ -279,7 +276,7 @@ class JavascriptTracker {
         }
 
         // Tracker core
-        this.core = coreConstructor(true, function(payload) {
+        this.core = coreConstructor(true, payload => {
             this[addBrowserData](payload)
             this[sendRequest](payload, config.pageUnloadTimer)
         })
@@ -389,11 +386,11 @@ class JavascriptTracker {
      *
      * @param event e The event targeting the link
      */
-    [linkDecorationHandler]() {
+    [linkDecorationHandler](e) {
         const _timestamp = new Date().getTime()
-        if (this.href) {
-            this.href = decorateQuerystring(
-                this.href,
+        if (e.target.href) {
+            e.target.href = decorateQuerystring(
+                e.target.href,
                 '_sp',
                 `${this.state.domainUserId}.${_timestamp}`
             )
@@ -414,13 +411,13 @@ class JavascriptTracker {
                 addEventListener(
                     elt,
                     'click',
-                    this[linkDecorationHandler],
+                    (e)=>{this[linkDecorationHandler](e)},
                     true
                 )
                 addEventListener(
                     elt,
                     'mousedown',
-                    this[linkDecorationHandler],
+                    (e)=>{this[linkDecorationHandler](e)},
                     true
                 )
 
@@ -502,7 +499,7 @@ class JavascriptTracker {
         if (!(this.config.doNotTrack || toOptoutByCookie)) {
             this.outQueueManager.enqueueRequest(
                 request.build(),
-                this.state.collectorUrl
+                this.config.collectorUrl
             )
             this.mutSnowplowState.expireDateTime = now.getTime() + delay
         }
@@ -512,7 +509,7 @@ class JavascriptTracker {
      * Get cookie name with prefix and domain hash
      */
     [getSnowplowCookieName](baseName) {
-        return `${this.config.cookieNamePrefix}${baseName}.${
+        return `${this.config.cookieName}${baseName}.${
             this.state.domainHash
         }`
     }
@@ -569,9 +566,9 @@ class JavascriptTracker {
     [getPageOffsets]() {
         var iebody =
             this.state.documentAlias.compatMode &&
-            this.state.documentAlia.compatMode !== 'BackCompat'
-                ? this.state.documentAlia.documentElement
-                : this.state.documentAlia.body
+            this.state.documentAlias.compatMode !== 'BackCompat'
+                ? this.state.documentAlias.documentElement
+                : this.state.documentAlias.body
         return [
             iebody.scrollLeft || this.state.windowAlias.pageXOffset,
             iebody.scrollTop || this.state.windowAlias.pageYOffset,
@@ -942,12 +939,12 @@ class JavascriptTracker {
             userContexts || []
         )
 
-        if (this.state.autoContexts.webPage) {
+        if (this.config.contexts.webPage) {
             combinedContexts.push(this[getWebPageContext]())
         }
 
         // Add PerformanceTiming Context
-        if (this.state.autoContexts.performanceTiming) {
+        if (this.config.contexts.performanceTiming) {
             const performanceTimingContext = this[getPerformanceTimingContext]()
             if (performanceTimingContext) {
                 combinedContexts.push(performanceTimingContext)
@@ -956,25 +953,25 @@ class JavascriptTracker {
 
         // Add Optimizely Contexts
         if (this.state.windowAlias.optimizely) {
-            if (this.state.autoContexts.optimizelySummary) {
+            if (this.config.contexts.optimizelySummary) {
                 const activeExperiments = this[getOptimizelySummaryContexts]()
-                each(activeExperiments, function(e) {
+                activeExperiments.forEach(function(e) {
                     combinedContexts.push(e)
                 })
             }
 
-            if (this.state.autoContexts.optimizelyXSummary) {
+            if (this.config.contexts.optimizelyXSummary) {
                 const activeExperiments = this[getOptimizelyXSummaryContexts]()
-                each(activeExperiments, function(e) {
+                activeExperiments.forEach(function(e) {
                     combinedContexts.push(e)
                 })
             }
 
-            if (this.state.autoContexts.optimizelyExperiments) {
+            if (this.config.contexts.optimizelyExperiments) {
                 const experimentContexts = this[
                     getOptimizelyExperimentContexts
                 ]()
-                each(experimentContexts, function(e) {
+                experimentContexts.forEach(function(e) {
                     combinedContexts.push(e)
                 })
                 // for (var i = 0; i < experimentContexts.length; i++) {
@@ -982,9 +979,9 @@ class JavascriptTracker {
                 // }
             }
 
-            if (this.state.autoContexts.optimizelyStates) {
+            if (this.config.contexts.optimizelyStates) {
                 const stateContexts = this[getOptimizelyStateContexts]()
-                each(stateContexts, function(e) {
+                stateContexts.forEach(function(e) {
                     combinedContexts.push(e)
                 })
                 // for (var i = 0; i < stateContexts.length; i++) {
@@ -992,9 +989,9 @@ class JavascriptTracker {
                 // }
             }
 
-            if (this.state.autoContexts.optimizelyVariations) {
+            if (this.config.contexts.optimizelyVariations) {
                 const variationContexts = this[getOptimizelyVariationContexts]()
-                each(variationContexts, function(e) {
+                variationContexts.forEach(function(e) {
                     combinedContexts.push(e)
                 })
                 // for (var i = 0; i < variationContexts.length; i++) {
@@ -1002,23 +999,23 @@ class JavascriptTracker {
                 // }
             }
 
-            if (this.state.autoContexts.optimizelyVisitor) {
+            if (this.config.contexts.optimizelyVisitor) {
                 const optimizelyVisitorContext = getOptimizelyVisitorContext()
                 if (optimizelyVisitorContext) {
                     combinedContexts.push(optimizelyVisitorContext)
                 }
             }
 
-            if (this.state.autoContexts.optimizelyAudiences) {
+            if (this.config.contexts.optimizelyAudiences) {
                 const audienceContexts = getOptimizelyAudienceContexts()
                 for (var i = 0; i < audienceContexts.length; i++) {
                     combinedContexts.push(audienceContexts[i])
                 }
             }
 
-            if (this.state.autoContexts.optimizelyDimensions) {
+            if (this.config.contexts.optimizelyDimensions) {
                 var dimensionContexts = getOptimizelyDimensionContexts()
-                each(dimensionContexts, function(e) {
+                dimensionContexts.forEach(function(e) {
                     combinedContexts.push(e)
                 })
                 // for (var i = 0; i < dimensionContexts.length; i++) {
@@ -1028,7 +1025,7 @@ class JavascriptTracker {
         }
 
         // Add Augur Context
-        if (this.state.autoContexts.augurIdentityLite) {
+        if (this.config.contexts.augurIdentityLite) {
             const augurIdentityLiteContext = this[getAugurIdentityLiteContext]()
             if (augurIdentityLiteContext) {
                 combinedContexts.push(augurIdentityLiteContext)
@@ -1036,7 +1033,7 @@ class JavascriptTracker {
         }
 
         //Add Parrable Context
-        if (this.state.autoContexts.parrable) {
+        if (this.config.contexts.parrable) {
             var parrableContext = this[getParrableContext]()
             if (parrableContext) {
                 combinedContexts.push(parrableContext)
@@ -1206,7 +1203,7 @@ class JavascriptTracker {
         var state = this[getOptimizelyData]('state')
         var experiments = this[getOptimizelyData]('experiments')
 
-        return map(state && experiments && state.activeExperiments, function(
+        return (state && experiments && state.activeExperiments).map(function(
             activeExperiment
         ) {
             var current = experiments[activeExperiment]
@@ -1234,7 +1231,7 @@ class JavascriptTracker {
         //const experiments = this[getOptimizelyXData]('data', 'experiments')
         const visitor = this[getOptimizelyXData]('visitor')
 
-        return map(experiment_ids, function(activeExperiment) {
+        return experiment_ids.map(activeExperiment => {
             const variation = state.getVariationMap()[activeExperiment]
             const variationName = variation.name
             const variationId = variation.id
@@ -1454,7 +1451,7 @@ class JavascriptTracker {
      * @returns Array of custom contexts
      */
     [getOptimizelySummaryContexts]() {
-        return map(this[getOptimizelySummary](), function(experiment) {
+        return this[getOptimizelySummary]().map(experiment => {
             return {
                 schema:
                     'iglu:com.optimizely.snowplow/optimizely_summary/jsonschema/1-0-0',
@@ -1470,7 +1467,7 @@ class JavascriptTracker {
      * @returns Array of custom contexts
      */
     [getOptimizelyXSummaryContexts]() {
-        return map(this[getOptimizelyXSummary](), function(experiment) {
+        return this[getOptimizelyXSummary]().map(experiment => {
             return {
                 schema:
                     'iglu:com.optimizely.optimizelyx/summary/jsonschema/1-0-0',
@@ -1601,9 +1598,9 @@ class JavascriptTracker {
             this.state.navigatorAlias.geolocation.getCurrentPosition
         ) {
             this.state.geolocationContextAdded = true
-            this.state.navigatorAlias.geolocation.getCurrentPosition(function(
+            this.state.navigatorAlias.geolocation.getCurrentPosition((
                 position
-            ) {
+            )=>{
                 var coords = position.coords
                 var geolocationContext = {
                     schema:
@@ -1630,16 +1627,21 @@ class JavascriptTracker {
      * @return object GA cookies context
      */
     [getGaCookiesContext]() {
-        var gaCookieData = {}
-        forEach(
-            ['__utma', '__utmb', '__utmc', '__utmv', '__utmz', '_ga'],
-            function(cookieType) {
-                var value = window.cookie(cookieType)
-                if (value) {
-                    gaCookieData[cookieType] = value
-                }
+        const gaCookieData = {}
+        const gaCookies = [
+            '__utma',
+            '__utmb',
+            '__utmc',
+            '__utmv',
+            '__utmz',
+            '_ga',
+        ]
+        gaCookies.forEach(function(cookieType) {
+            var value = window.cookie(cookieType)
+            if (value) {
+                gaCookieData[cookieType] = value
             }
-        )
+        })
         return {
             schema: 'iglu:com.google.analytics/cookies/jsonschema/1-0-0',
             data: gaCookieData,
@@ -1755,15 +1757,15 @@ class JavascriptTracker {
                 addEventListener(
                     this.state.documentAlias,
                     wheelEvent,
-                    activityHandler,
+                    () => {
+                        this[activityHandler]
+                    },
                     { passive: true }
                 )
             } else {
-                addEventListener(
-                    this.state.documentAlias,
-                    wheelEvent,
-                    activityHandler
-                )
+                addEventListener(this.state.documentAlias, wheelEvent, () => {
+                    this[activityHandler]
+                })
             }
 
             // Capture our initial scroll points
@@ -1771,42 +1773,44 @@ class JavascriptTracker {
 
             // Add event handlers; cross-browser compatibility here varies significantly
             // @see http://quirksmode.org/dom/events
-            addEventListener(this.state.documentAlias, 'click', activityHandler)
-            addEventListener(
-                this.state.documentAlias,
-                'mouseup',
-                activityHandler
-            )
-            addEventListener(
-                this.state.documentAlias,
-                'mousedown',
-                activityHandler
-            )
-            addEventListener(
-                this.state.documentAlias,
-                'mousemove',
-                activityHandler
-            )
-            addEventListener(this.state.windowAlias, 'scroll', scrollHandler) // Will updateMaxScrolls() for us
-            addEventListener(
-                this.state.documentAlias,
-                'keypress',
-                activityHandler
-            )
-            addEventListener(
-                this.state.documentAlias,
-                'keydown',
-                activityHandler
-            )
-            addEventListener(this.state.documentAlias, 'keyup', activityHandler)
-            addEventListener(this.state.windowAlias, 'resize', activityHandler)
-            addEventListener(this.state.windowAlias, 'focus', activityHandler)
-            addEventListener(this.state.windowAlias, 'blur', activityHandler)
+            addEventListener(this.state.documentAlias, 'click', () => {
+                this[activityHandler]
+            })
+            addEventListener(this.state.documentAlias, 'mouseup', () => {
+                this[activityHandler]
+            })
+            addEventListener(this.state.documentAlias, 'mousedown', () => {
+                this[activityHandler]
+            })
+            addEventListener(this.state.documentAlias, 'mousemove', () => {
+                this[activityHandler]
+            })
+            addEventListener(this.state.windowAlias, 'scroll', () => {
+                this[scrollHandler]
+            }) // Will updateMaxScrolls() for us
+            addEventListener(this.state.documentAlias, 'keypress', () => {
+                this[activityHandler]
+            })
+            addEventListener(this.state.documentAlias, 'keydown', () => {
+                this[activityHandler]
+            })
+            addEventListener(this.state.documentAlias, 'keyup', () => {
+                this[activityHandler]
+            })
+            addEventListener(this.state.windowAlias, 'resize', () => {
+                this[activityHandler]
+            })
+            addEventListener(this.state.windowAlias, 'focus', () => {
+                this[activityHandler]
+            })
+            addEventListener(this.state.windowAlias, 'blur', () => {
+                this[activityHandler]
+            })
 
             // Periodic check for activity.
             this.state.lastActivityTime = now.getTime()
             clearInterval(this.state.pagePingInterval)
-            this.state.pagePingInterval = setInterval(function heartBeat() {
+            this.state.pagePingInterval = setInterval(() => {
                 var now = new Date()
 
                 // There was activity during the heart beat period;
@@ -1853,7 +1857,7 @@ class JavascriptTracker {
             this[cleanOffset](this.state.maxYOffset),
             this[addCommonContexts](context)
         )
-        resetMaxScrolls()
+        this[resetMaxScrolls]()
     }
 
     /**
@@ -1998,20 +2002,22 @@ class JavascriptTracker {
             }
         }
 
+        const eventHandler = ()=>{
+            this.state.documentAlias.removeEventListener(
+                prefix + 'visibilitychange',
+                eventHandler,
+                false
+            )
+            callback()
+        }
+
         // Implies configCountPreRendered = false
         if (isPreRendered) {
             // note: the event name doesn't follow the same naming convention as vendor properties
             addEventListener(
                 this.state.documentAlias,
                 prefix + 'visibilitychange',
-                function ready() {
-                    this.state.documentAlias.removeEventListener(
-                        prefix + 'visibilitychange',
-                        ready,
-                        false
-                    )
-                    callback()
-                }
+                eventHandler
             )
             return
         }
@@ -2046,7 +2052,7 @@ class JavascriptTracker {
     }
 
     /**
-     * Get the cookie name as cookieNamePrefix + basename + . + domain.
+     * Get the cookie name as cookieName + basename + . + domain.
      *
      * @return string Cookie name
      */
@@ -2148,13 +2154,13 @@ class JavascriptTracker {
     /**
      * Set first-party cookie name prefix
      *
-     * @param string cookieNamePrefix
+     * @param string cookieName
      */
     setCookieNamePrefix(cookieNamePrefix) {
         warn(
             'setCookieNamePrefix is deprecated. Instead add a "cookieName" field to the argmap argument of newTracker.'
         )
-        this.config.cookieNamePrefix = cookieNamePrefix
+        this.config.cookieName = cookieNamePrefix
     }
 
     /**
@@ -2287,7 +2293,7 @@ class JavascriptTracker {
             LinkTrackingManager.addClickListeners()
         } else {
             // defer until page has loaded
-            this.mutSnowplowState.registeredOnLoadHandlers.push(function() {
+            this.mutSnowplowState.registeredOnLoadHandlers.push(() => {
                 this.linkTrackingManager.configureLinkClickTracking(
                     criterion,
                     pseudoClicks,
@@ -2359,7 +2365,7 @@ class JavascriptTracker {
             this.formTrackingManager.configureFormTracking(config)
             this.formTrackingManager.addFormListeners(context)
         } else {
-            this.mutSnowplowState.registeredOnLoadHandlers.push(function() {
+            this.mutSnowplowState.registeredOnLoadHandlers.push(()=> {
                 this.formTrackingManager.configureFormTracking(config)
                 this.formTrackingManager.addFormListeners(context)
             })
@@ -2556,7 +2562,7 @@ class JavascriptTracker {
         context,
         tstamp
     ) {
-        trackCallback(function() {
+        this[trackCallback](()=> {
             this.core.trackStructEvent(
                 category,
                 action,
@@ -2577,7 +2583,7 @@ class JavascriptTracker {
      * @param tstamp number or Timestamp object
      */
     trackSelfDescribingEvent(eventJson, context, tstamp) {
-        trackCallback(function() {
+        this[trackCallback](()=> {
             this.core.trackSelfDescribingEvent(
                 eventJson,
                 this[addCommonContexts](context),
@@ -2590,7 +2596,7 @@ class JavascriptTracker {
      * Alias for `trackSelfDescribingEvent`, left for compatibility
      */
     trackUnstructEvent(eventJson, context, tstamp) {
-        trackCallback(function() {
+        this[trackCallback](()=>{
             this.core.trackSelfDescribingEvent(
                 eventJson,
                 this[addCommonContexts](context),
@@ -2686,8 +2692,8 @@ class JavascriptTracker {
      * addItem methods to the tracking server.
      */
     trackTrans() {
-        trackCallback(function() {
-            logTransaction(
+        this[trackCallback](()=>{
+            this[logTransaction](
                 this.state.ecommerceTransaction.transaction.orderId,
                 this.state.ecommerceTransaction.transaction.affiliation,
                 this.state.ecommerceTransaction.transaction.total,
@@ -2706,7 +2712,7 @@ class JavascriptTracker {
                 i++
             ) {
                 var item = this.state.ecommerceTransaction.items[i]
-                logTransactionItem(
+                this[logTransactionItem](
                     item.orderId,
                     item.sku,
                     item.name,
@@ -2719,7 +2725,7 @@ class JavascriptTracker {
                 )
             }
 
-            this.state.ecommerceTransaction = ecommerceTransactionTemplate()
+            this.state.ecommerceTransaction = this[ecommerceTransactionTemplate]()
         })
     }
 
@@ -2744,7 +2750,7 @@ class JavascriptTracker {
         context,
         tstamp
     ) {
-        trackCallback(function() {
+        this[trackCallback](()=> {
             this.core.trackLinkClick(
                 targetUrl,
                 elementId,
@@ -2782,7 +2788,7 @@ class JavascriptTracker {
         context,
         tstamp
     ) {
-        trackCallback(function() {
+        this[trackCallback](()=>{
             this.core.trackAdImpression(
                 impressionId,
                 costModel,
@@ -2826,7 +2832,7 @@ class JavascriptTracker {
         context,
         tstamp
     ) {
-        trackCallback(function() {
+        this[trackCallback](()=>{
             this.core.trackAdClick(
                 targetUrl,
                 clickId,
@@ -2871,7 +2877,7 @@ class JavascriptTracker {
         context,
         tstamp
     ) {
-        trackCallback(function() {
+        this[trackCallback](()=>{
             this.core.trackAdConversion(
                 conversionId,
                 costModel,
@@ -2898,7 +2904,7 @@ class JavascriptTracker {
      * @param tstamp number or Timestamp object
      */
     trackSocialInteraction(action, network, target, context, tstamp) {
-        trackCallback(function() {
+        this[trackCallback](()=>{
             this.core.trackSocialInteraction(
                 action,
                 network,
@@ -2931,7 +2937,7 @@ class JavascriptTracker {
         context,
         tstamp
     ) {
-        trackCallback(function() {
+        this[trackCallback](()=>{
             this.core.trackAddToCart(
                 sku,
                 name,
@@ -2967,7 +2973,7 @@ class JavascriptTracker {
         context,
         tstamp
     ) {
-        trackCallback(function() {
+        this[trackCallback](()=>{
             this.core.trackRemoveFromCart(
                 sku,
                 name,
@@ -2999,7 +3005,7 @@ class JavascriptTracker {
         context,
         tstamp
     ) {
-        trackCallback(function() {
+        this[trackCallback](()=>{
             this.core.trackSiteSearch(
                 terms,
                 filters,
@@ -3022,7 +3028,7 @@ class JavascriptTracker {
      * @param tstamp Opinal number or Timestamp object
      */
     trackTiming(category, variable, timing, label, context, tstamp) {
-        trackCallback(function() {
+        this[trackCallback](()=>{
             this.core.trackSelfDescribingEvent(
                 {
                     schema:
@@ -3060,7 +3066,7 @@ class JavascriptTracker {
         context,
         tstamp
     ) {
-        trackCallback(function() {
+        this[trackCallback](()=>{
             this.core.trackConsentWithdrawn(
                 all,
                 id,
@@ -3093,7 +3099,7 @@ class JavascriptTracker {
         context,
         tstamp
     ) {
-        trackCallback(function() {
+        this[trackCallback](()=>{
             this.core.trackConsentGranted(
                 id,
                 version,
@@ -3120,7 +3126,7 @@ class JavascriptTracker {
         )
         this.state.enhancedEcommerceContexts.length = 0
 
-        trackCallback(function() {
+        this[trackCallback](()=>{
             this.core.trackSelfDescribingEvent(
                 {
                     schema:

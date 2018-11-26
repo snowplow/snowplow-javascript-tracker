@@ -34,7 +34,9 @@
 
 import { attemptWriteLocalStorage, warn } from './Helpers'
 import { localStorageAccessible } from './Detectors'
-import { mapValues, isString, isArray } from 'lodash-es'
+import mapValues from 'lodash-es/mapValues'
+import isString from 'lodash-es/isString'
+import isArray from 'lodash-es/isArray'
 
 // Symbols for private methods
 const getQuerystring = Symbol('getQuerystring')
@@ -120,8 +122,7 @@ class OutQueueManager {
         if (!isArray(this.outQueue)) {
             this.outQueue = []
         }
-
-        window.console.log(this.mutSnowplowState)
+        
         // Used by pageUnloadGuard
         this.mutSnowplowState.outQueues.push(this.outQueue)
 
@@ -323,7 +324,7 @@ class OutQueueManager {
      * Stops processing when we run out of queued requests, or we get an error.
      */
     executeQueue() {
-        function chooseHowManyToExecute(q) {
+        const chooseHowManyToExecute= (q) => {
             var numberToSend = 0
             var byteCount = 0
             while (numberToSend < q.length) {
@@ -364,7 +365,7 @@ class OutQueueManager {
             var xhr = this[initializeXMLHttpRequest](this.configCollectorUrl)
 
             // Time out POST requests after 5 seconds
-            var xhrTimeout = setTimeout(function() {
+            var xhrTimeout = setTimeout(()=> {
                 xhr.abort()
                 this.executingQueue = false
             }, 5000)
@@ -372,7 +373,7 @@ class OutQueueManager {
             // Keep track of number of events to delete from queue
             var numberToSend = chooseHowManyToExecute(this.outQueue)
 
-            xhr.onreadystatechange = function() {
+            xhr.onreadystatechange = () => {
                 if (
                     xhr.readyState === 4 &&
                     xhr.status >= 200 &&
@@ -422,7 +423,7 @@ class OutQueueManager {
         } else {
             var image = new Image(1, 1)
 
-            image.onload = function() {
+            image.onload = ()=> {
                 this.outQueue.shift()
                 if (this.useLocalStorage) {
                     attemptWriteLocalStorage(
@@ -433,7 +434,7 @@ class OutQueueManager {
                 this.executeQueue()
             }
 
-            image.onerror = function() {
+            image.onerror = ()=> {
                 this.executingQueue = false
             }
 

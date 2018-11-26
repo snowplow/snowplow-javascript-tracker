@@ -1,8 +1,8 @@
 /*
- * JavaScript tracker for Snowplow: tests/functional/detectors.js
+ * JavaScript tracker for Snowplow: StateManager.js
  *
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright
- * 2012-2014 Snowplow Analytics Ltd. All rights reserved.
+ * 2012-2016 Snowplow Analytics Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -32,16 +32,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-define(['intern!object'], function(registerSuite) {
-    registerSuite({
-        name: 'Integration setup',
+class StateManager {}
 
-        'Set up the page and send some events to request_recorder': function() {
-            return this.remote
-                .get(require.toUrl('tests/pages/integration.html'))
-                .setFindTimeout(5000)
-                .findByCssSelector('body.loaded')
-                .sleep(15000) // Time for requests to get written
-        },
-    })
-})
+export default StateManager

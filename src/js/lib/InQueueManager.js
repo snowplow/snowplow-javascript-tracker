@@ -33,7 +33,7 @@
  */
 
 import { warn } from './Helpers'
-import { isFunction } from 'lodash-es'
+import isFunction from 'lodash-es/isFunction'
 
 // Symbols for private methods
 const getNamedTrackers = Symbol('getNamedTrackers')

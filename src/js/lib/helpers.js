@@ -33,7 +33,11 @@
  */
 
 import { cookie } from 'browser-cookie-lite'
-import { isString, isUndefined, isArray, isObject, map } from 'lodash-es'
+import isString from 'lodash-es/isString'
+import isUndefined from 'lodash-es/isUndefined'
+import isArray from 'lodash-es/isArray'
+import isObject from 'lodash-es/isObject'
+
 
 /**
  * Cleans up the page title
@@ -179,7 +183,7 @@ export const resolveDynamicContexts = (
     ...callbackParameters
 ) => {
     //var params = Array.prototype.slice.call(arguments, 1);
-    return map(dynamicOrStaticContexts, function(context) {
+    return dynamicOrStaticContexts.map(function(context) {
         if (typeof context === 'function') {
             try {
                 return context.apply(null, callbackParameters)

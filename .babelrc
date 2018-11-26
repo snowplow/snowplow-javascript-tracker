@@ -1,7 +1,6 @@
 {
     "ignore": [],
     "plugins": [
-        "@babel/plugin-syntax-dynamic-import", 
         "@babel/plugin-proposal-object-rest-spread"
     ],
     "presets": [
@@ -10,9 +9,11 @@
             {
                 "modules": false,
                 "useBuiltIns": "usage",
-                "debug": false,
-                "loose": false
+                "debug": true,
+                "loose": false,
+                "spec": true
             }
+           
         ]
     ]
 }

@@ -248,33 +248,36 @@ class FormTrackingManager {
      * @param {Object} context - dynamic context object
      */
     addFormListeners(context) {
-        document.getElementsByTagName('form').forEach(form => {
-            if (this.formFilter(form) && !form[this.trackingMarker]) {
-                this.innerElementTags.forEach(tagname => {
-                    form.getElementsByTagName(tagname).forEach(innerElement => {
-                        if (
-                            this.fieldFilter(innerElement) &&
-                            !innerElement[this.trackingMarker] &&
-                            innerElement.type.toLowerCase() !== 'password'
-                        ) {
-                            addEventListener(
-                                innerElement,
-                                'change',
-                                this[getFormChangeListener](context),
-                                false
-                            )
-                            innerElement[this.trackingMarker] = true
-                        }
+        Array.prototype.forEach.call(
+            document.getElementsByTagName('form'),
+            form => {
+                if (this.formFilter(form) && !form[this.trackingMarker]) {
+                    this.innerElementTags.forEach(tagname => {
+                        form.getElementsByTagName(tagname).forEach(innerElement => {
+                            if (
+                                this.fieldFilter(innerElement) &&
+                                !innerElement[this.trackingMarker] &&
+                                innerElement.type.toLowerCase() !== 'password'
+                            ) {
+                                addEventListener(
+                                    innerElement,
+                                    'change',
+                                    this[getFormChangeListener](context),
+                                    false
+                                )
+                                innerElement[this.trackingMarker] = true
+                            }
+                        })
                     })
-                })
-                addEventListener(
-                    form,
-                    'submit',
-                    this[getFormSubmissionListener](context)
-                )
-                form[this.trackingMarker] = true
+                    addEventListener(
+                        form,
+                        'submit',
+                        this[getFormSubmissionListener](context)
+                    )
+                    form[this.trackingMarker] = true
+                }
             }
-        })
+        )
     }
 }
 

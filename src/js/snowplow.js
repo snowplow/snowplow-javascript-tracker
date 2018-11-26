@@ -32,7 +32,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import {each as forEach, filter} from 'lodash-es'
 import { addEventListener } from './lib/Helpers'
 import InQueueManager from './lib/InQueueManager'
 import JavascriptTracker from './lib/JavascriptTracker'
@@ -78,7 +77,7 @@ class SnowplowTracker {
             var now
 
             // Flush all POST queues
-            forEach(this.mutSnowplowState.bufferFlushers, function(flusher) {
+            this.mutSnowplowState.bufferFlushers.forEach(function(flusher) {
                 flusher()
             })
 
@@ -92,7 +91,7 @@ class SnowplowTracker {
                 do {
                     now = new Date()
                     if (
-                        filter(this.mutSnowplowState.outQueues, function(
+                        this.mutSnowplowState.outQueues.filter(function(
                             queue
                         ) {
                             return queue.length > 0

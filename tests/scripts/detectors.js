@@ -32,7 +32,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-var detectors = require('../../src/js/lib/detectors.js');
+var detectors = require('../../src/js/lib/Detectors.js');
 
 document.getElementById('detectViewport').innerHTML = detectors.detectViewport();
 document.getElementById('detectDocumentDimensions').innerHTML = detectors.detectDocumentSize();

@@ -33,7 +33,6 @@
  */
 
 import cookie from 'browser-cookie-lite'
-import { isUndefined, isFunction } from 'lodash-es'
 import { v3 as murmurhash3_32_gc } from 'murmurhash'
 import jstz from 'jstimezonedetect'
 
@@ -102,7 +101,7 @@ export const localStorageAccessible = () => {
 export const hasCookies = testCookieName => {
     var cookieName = testCookieName || 'testcookie'
 
-    if (isUndefined(navigatorAlias.cookieEnabled)) {
+    if (navigatorAlias.cookieEnabled === undefined) {
         cookie.cookie(cookieName, '1')
         return cookie.cookie(cookieName) === '1' ? '1' : '0'
     }
@@ -256,14 +255,14 @@ export const detectBrowserFeatures = (useCookies, testCookieName) => {
     if (
         navigatorAlias.constructor === window.Navigator &&
         typeof navigatorAlias.javaEnabled !== undefined &&
-        !isUndefined(navigatorAlias.javaEnabled) &&
+        navigatorAlias.javaEnabled!==undefined &&
         navigatorAlias.javaEnabled()
     ) {
         features.java = '1'
     }
 
     // Firefox
-    if (isFunction(windowAlias.GearsFactory)) {
+    if (typeof windowAlias.GearsFactory == 'function') {
         features.gears = '1'
     }
 

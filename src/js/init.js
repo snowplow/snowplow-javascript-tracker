@@ -37,11 +37,10 @@
 /*
  * Get the name of the global input function
  */
-
 import SnowplowTracker from './snowplow'
-let queueName,
-    queue,
-    windowAlias = window
+
+let queueName, queue
+const windowAlias = window
 
 if (
     windowAlias.GlobalSnowplowNamespace &&

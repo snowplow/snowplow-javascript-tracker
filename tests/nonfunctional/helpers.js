@@ -33,124 +33,140 @@
  */
 
 define([
-	"intern!object",
-	"intern/chai!assert",
-	"intern/dojo/node!../../src/js/lib/helpers"
-], function (registerSuite, assert, helpers) {
+    'intern!object',
+    'intern/chai!assert',
+    'intern/dojo/node!../../src/js/lib/helpers',
+], function(registerSuite, assert, helpers) {
+    var decorateQuerystring = helpers.decorateQuerystring
+    var resolveDynamicContexts = helpers.resolveDynamicContexts
 
-	var decorateQuerystring = helpers.decorateQuerystring;
-	var resolveDynamicContexts = helpers.resolveDynamicContexts;
+    registerSuite({
+        name: 'decorateQuerystring test',
+        'Decorate a URL with no querystring or fragment': function() {
+            var url = 'http://www.example.com'
+            var expected = 'http://www.example.com?_sp=a.b'
+            var actual = decorateQuerystring(url, '_sp', 'a.b')
+            assert.equal(actual, expected)
+        },
 
-	registerSuite({
-		name: "decorateQuerystring test",
-		"Decorate a URL with no querystring or fragment": function () {
-			var url = 'http://www.example.com';
-			var expected = 'http://www.example.com?_sp=a.b';
-			var actual = decorateQuerystring(url, '_sp', 'a.b');
-			assert.equal(actual, expected);
-		},
+        'Decorate a URL with a fragment but no querystring': function() {
+            var url = 'http://www.example.com#fragment'
+            var expected = 'http://www.example.com?_sp=a.b#fragment'
+            var actual = decorateQuerystring(url, '_sp', 'a.b')
+            assert.equal(actual, expected)
+        },
 
-		"Decorate a URL with a fragment but no querystring": function () {
-			var url = 'http://www.example.com#fragment';
-			var expected = 'http://www.example.com?_sp=a.b#fragment';
-			var actual = decorateQuerystring(url, '_sp', 'a.b');
-			assert.equal(actual, expected);
-		},
+        'Decorate a URL with an empty querystring': function() {
+            var url = 'http://www.example.com?'
+            var expected = 'http://www.example.com?_sp=a.b'
+            var actual = decorateQuerystring(url, '_sp', 'a.b')
+            assert.equal(actual, expected)
+        },
 
-		"Decorate a URL with an empty querystring": function () {
-			var url = 'http://www.example.com?';
-			var expected = 'http://www.example.com?_sp=a.b';
-			var actual = decorateQuerystring(url, '_sp', 'a.b');
-			assert.equal(actual, expected);
-		},
+        'Decorate a URL with a nonempty querystring': function() {
+            var url = 'http://www.example.com?name=value'
+            var expected = 'http://www.example.com?_sp=a.b&name=value'
+            var actual = decorateQuerystring(url, '_sp', 'a.b')
+            assert.equal(actual, expected)
+        },
 
-		"Decorate a URL with a nonempty querystring": function () {
-			var url = 'http://www.example.com?name=value';
-			var expected = 'http://www.example.com?_sp=a.b&name=value';
-			var actual = decorateQuerystring(url, '_sp', 'a.b');
-			assert.equal(actual, expected);
-		},
+        'Override an existing field': function() {
+            var url = 'http://www.example.com?_sp=outdated'
+            var expected = 'http://www.example.com?_sp=a.b'
+            var actual = decorateQuerystring(url, '_sp', 'a.b')
+            assert.equal(actual, expected)
+        },
 
-		"Override an existing field": function () {
-			var url = 'http://www.example.com?_sp=outdated';
-			var expected = 'http://www.example.com?_sp=a.b';
-			var actual = decorateQuerystring(url, '_sp', 'a.b');
-			assert.equal(actual, expected);
-		},
+        'Decorate a URL whose querystring contains multiple question marks': function() {
+            var url = 'http://www.example.com?test=working?&name=value'
+            var expected =
+                'http://www.example.com?_sp=a.b&test=working?&name=value'
+            var actual = decorateQuerystring(url, '_sp', 'a.b')
+            assert.equal(actual, expected)
+        },
 
-		"Decorate a URL whose querystring contains multiple question marks": function () {
-			var url = 'http://www.example.com?test=working?&name=value';
-			var expected = 'http://www.example.com?_sp=a.b&test=working?&name=value';
-			var actual = decorateQuerystring(url, '_sp', 'a.b');
-			assert.equal(actual, expected);
-		},
+        'Override a field in a querystring containing a question mark': function() {
+            var url = 'http://www.example.com?test=working?&_sp=outdated'
+            var expected = 'http://www.example.com?test=working?&_sp=a.b'
+            var actual = decorateQuerystring(url, '_sp', 'a.b')
+            assert.equal(actual, expected)
+        },
 
-		"Override a field in a querystring containing a question mark": function () {
-			var url = 'http://www.example.com?test=working?&_sp=outdated';
-			var expected = 'http://www.example.com?test=working?&_sp=a.b';
-			var actual = decorateQuerystring(url, '_sp', 'a.b');
-			assert.equal(actual, expected);
-		},
+        'Decorate a querystring with multiple ?s and #s': function() {
+            var url =
+                'http://www.example.com?test=working?&_sp=outdated?&?name=value#fragment?#?#'
+            var expected =
+                'http://www.example.com?test=working?&_sp=a.b&?name=value#fragment?#?#'
+            var actual = decorateQuerystring(url, '_sp', 'a.b')
+            assert.equal(actual, expected)
+        },
+    })
 
-		"Decorate a querystring with multiple ?s and #s": function () {
-			var url = 'http://www.example.com?test=working?&_sp=outdated?&?name=value#fragment?#?#';
-			var expected = 'http://www.example.com?test=working?&_sp=a.b&?name=value#fragment?#?#';
-			var actual = decorateQuerystring(url, '_sp', 'a.b');
-			assert.equal(actual, expected);
-		},
-	});
+    registerSuite({
+        name: 'getCssClasses test',
+        'Tokenize a DOM element\'s className field': function() {
+            var element = {
+                className:
+                    '   the  quick   brown_fox-jumps/over\nthe\t\tlazy   dog  ',
+            }
+            var expected = [
+                'the',
+                'quick',
+                'brown_fox-jumps/over',
+                'the',
+                'lazy',
+                'dog',
+            ]
+            var actual = helpers.getCssClasses(element)
+            assert.deepEqual(actual, expected)
+        },
+    })
 
-	registerSuite({
-		name: "getCssClasses test",
-		"Tokenize a DOM element's className field": function () {
-			var element = {
-				className: '   the  quick   brown_fox-jumps/over\nthe\t\tlazy   dog  '
-			};
-			var expected = ['the', 'quick', 'brown_fox-jumps/over', 'the', 'lazy', 'dog'];
-			var actual = helpers.getCssClasses(element);
-			assert.deepEqual(actual, expected);
-		},
-	});
+    registerSuite({
+        name: 'resolveDynamicContexts tests',
+        'Resolves context generators and static contexts': function() {
+            var contextGenerator = function() {
+                return {
+                    schema:
+                        'iglu:com.acme.marketing/some_event/jsonschema/1-0-0',
+                    data: { test: 1 },
+                }
+            }
+            var staticContext = {
+                schema: 'iglu:com.acme.marketing/some_event/jsonschema/1-0-0',
+                data: { test: 1 },
+            }
+            var expected = [contextGenerator(), staticContext]
+            var actual = resolveDynamicContexts([
+                contextGenerator,
+                staticContext,
+            ])
+            assert.deepEqual(actual, expected)
+        },
 
-  registerSuite({
-    name: "resolveDynamicContexts tests",
-    "Resolves context generators and static contexts": function () {
-      var contextGenerator = function () {
-      	return {
-      		'schema': 'iglu:com.acme.marketing/some_event/jsonschema/1-0-0',
-					'data': {'test': 1}
-      	}
-			};
-      var staticContext = {
-        'schema': 'iglu:com.acme.marketing/some_event/jsonschema/1-0-0',
-				'data': {'test': 1}
-      };
-      var expected = [contextGenerator(), staticContext];
-      var actual = resolveDynamicContexts([contextGenerator, staticContext]);
-      assert.deepEqual(actual, expected);
-    },
-
-    "Resolves context generators with arguments": function () {
-      var contextGenerator = function (argOne, argTwo) {
-        return {
-          'schema': 'iglu:com.acme.marketing/some_event/jsonschema/1-0-0',
-          'data': {
-          	'firstVal': argOne,
-						'secondVal': argTwo
-          }
-        }
-      };
-      var expected = [
-      	{
-					'schema': 'iglu:com.acme.marketing/some_event/jsonschema/1-0-0',
-					'data': {
-						'firstVal': 1,
-						'secondVal': 2
-					}
-      	}
-      ];
-      var actual = resolveDynamicContexts([contextGenerator], 1, 2);
-      assert.deepEqual(actual, expected);
-    },
-  });
-});
+        'Resolves context generators with arguments': function() {
+            var contextGenerator = function(argOne, argTwo) {
+                return {
+                    schema:
+                        'iglu:com.acme.marketing/some_event/jsonschema/1-0-0',
+                    data: {
+                        firstVal: argOne,
+                        secondVal: argTwo,
+                    },
+                }
+            }
+            var expected = [
+                {
+                    schema:
+                        'iglu:com.acme.marketing/some_event/jsonschema/1-0-0',
+                    data: {
+                        firstVal: 1,
+                        secondVal: 2,
+                    },
+                },
+            ]
+            var actual = resolveDynamicContexts([contextGenerator], 1, 2)
+            assert.deepEqual(actual, expected)
+        },
+    })
+})

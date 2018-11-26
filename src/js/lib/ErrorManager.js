@@ -32,7 +32,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { isFunction } from 'lodash-es'
+import isFunction from 'lodash-es/isFunction'
 import { addEventListener } from './Helpers'
 const windowAlias = window
 
