@@ -37,6 +37,7 @@
 		isString = require('lodash/isString'),
 		isUndefined = require('lodash/isUndefined'),
 		isObject = require('lodash/isObject'),
+		map = require('lodash/map'),
 		cookie = require('browser-cookie-lite'),
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
@@ -150,6 +151,28 @@
 			return null;
 		}
 		return decodeURIComponent(match[1].replace(/\+/g, ' '));
+	};
+
+	/*
+	 * Find dynamic context generating functions and merge their results into the static contexts
+	 * Combine an array of unchanging contexts with the result of a context-creating function
+	 *
+	 * @param {(object|function(...*): ?object)[]} dynamicOrStaticContexts Array of custom context Objects or custom context generating functions
+	 * @param {...*} Parameters to pass to dynamic callbacks
+	 */
+	object.resolveDynamicContexts = function (dynamicOrStaticContexts) {
+		let params = Array.prototype.slice.call(arguments, 1);
+		return map(dynamicOrStaticContexts, function(context) {
+			if (typeof context === 'function') {
+				try {
+					return context.apply(null, params);
+				} catch (e) {
+					//TODO: provide warning
+				}
+			} else {
+				return context;
+			}
+		});
 	};
 
 	/**
