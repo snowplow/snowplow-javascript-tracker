@@ -2,7 +2,7 @@
   "name": "snowplow-tracker",
   "version": "2.10.0",
   "dependencies": {
-    "snowplow-tracker-core": "0.7.0",
+    "snowplow-tracker-core": "file:./core",
     "browser-cookie-lite": "0.3.1",
     "jstimezonedetect": "1.0.5",
     "murmurhash": "0.0.2",
