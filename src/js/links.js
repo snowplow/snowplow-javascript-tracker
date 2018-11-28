@@ -97,7 +97,7 @@ object.getLinkTrackingManager = function (core, trackerId, contextAdder) {
 
 				// decodeUrl %xx
 				sourceHref = unescape(sourceHref);
-				core.trackLinkClick(sourceHref, elementId, elementClasses, elementTarget, elementContent, contextAdder(context));
+				core.trackLinkClick(sourceHref, elementId, elementClasses, elementTarget, elementContent, contextAdder(helpers.resolveDynamicContexts(context, sourceElement)));
 			}
 		}
 	}
