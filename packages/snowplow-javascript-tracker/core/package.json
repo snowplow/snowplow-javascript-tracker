@@ -1,6 +1,6 @@
 {
   "name": "snowplow-tracker-core",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "devDependencies": {
     "@types/es6-shim": "0.31.34",
     "@types/node": "^9.6.7",
