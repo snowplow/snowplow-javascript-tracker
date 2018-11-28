@@ -820,6 +820,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		/**
 		 * Track the value of a form field changing or receiving focus
 		 *
+		 * @param schema The schema type of the event
 		 * @param formId The parent form ID
 		 * @param elementId ID of the changed element
 		 * @param nodeName "INPUT", "TEXTAREA", or "SELECT"
@@ -843,8 +844,14 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			context?: Array<SelfDescribingJson>,
 			tstamp?: Timestamp): PayloadData {
 
+			let event_schema = '';
+			if (schema === 'change_form'){
+				event_schema = 'iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0';
+			} else if (schema === 'focus_form') {
+				event_schema = 'iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0';
+			}
 			return trackSelfDescribingEvent({
-				schema: 'iglu:com.snowplowanalytics.snowplow/' + schema + '/jsonschema/1-0-0',
+				schema: event_schema,
 				data: removeEmptyProperties({
 					formId: formId,
 					elementId: elementId,
