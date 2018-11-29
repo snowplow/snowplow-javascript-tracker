@@ -78,8 +78,8 @@ module.exports = function(grunt) {
       },
       test: {
         files: {
-          'tests/pages/helpers.js': ['tests/scripts/helpers.js'],
-          'tests/pages/detectors.js': ['tests/scripts/detectors.js'],
+          'tests/pages/helpers.bundle.js': ['tests/scripts/helpers.js'],
+          'tests/pages/detectors.bundle.js': ['tests/scripts/detectors.js'],
           'tests/pages/bundle.js': ['src/js/init.js']
         }
       }
@@ -96,6 +96,8 @@ module.exports = function(grunt) {
       },
       test: {
         files: {
+          'tests/pages/helpers.js': 'tests/pages/helpers.bundle.js',
+          'tests/pages/detectors.js': 'tests/pages/detectors.bundle.js',
           'tests/pages/snowplow.js': 'tests/pages/bundle.js'
         }
       },
