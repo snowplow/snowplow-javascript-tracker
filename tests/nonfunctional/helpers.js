@@ -39,6 +39,7 @@ define([
 ], function (registerSuite, assert, helpers) {
 
 	var decorateQuerystring = helpers.decorateQuerystring;
+	var resolveDynamicContexts = helpers.resolveDynamicContexts;
 
 	registerSuite({
 		name: "decorateQuerystring test",
@@ -110,4 +111,46 @@ define([
 			assert.deepEqual(actual, expected);
 		},
 	});
+
+  registerSuite({
+    name: "resolveDynamicContexts tests",
+    "Resolves context generators and static contexts": function () {
+      var contextGenerator = function () {
+      	return {
+      		'schema': 'iglu:com.acme.marketing/some_event/jsonschema/1-0-0',
+					'data': {'test': 1}
+      	}
+			};
+      var staticContext = {
+        'schema': 'iglu:com.acme.marketing/some_event/jsonschema/1-0-0',
+				'data': {'test': 1}
+      };
+      var expected = [contextGenerator(), staticContext];
+      var actual = resolveDynamicContexts([contextGenerator, staticContext]);
+      assert.deepEqual(actual, expected);
+    },
+
+    "Resolves context generators with arguments": function () {
+      var contextGenerator = function (argOne, argTwo) {
+        return {
+          'schema': 'iglu:com.acme.marketing/some_event/jsonschema/1-0-0',
+          'data': {
+          	'firstVal': argOne,
+						'secondVal': argTwo
+          }
+        }
+      };
+      var expected = [
+      	{
+					'schema': 'iglu:com.acme.marketing/some_event/jsonschema/1-0-0',
+					'data': {
+						'firstVal': 1,
+						'secondVal': 2
+					}
+      	}
+      ];
+      var actual = resolveDynamicContexts([contextGenerator], 1, 2);
+      assert.deepEqual(actual, expected);
+    },
+  });
 });
