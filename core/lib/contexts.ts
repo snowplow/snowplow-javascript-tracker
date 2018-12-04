@@ -15,7 +15,7 @@
 
 import { PayloadData, isNonEmptyJson } from "./payload";
 import { SelfDescribingJson } from "./core";
-import { base64urldecode } from "./base64";
+import base64url from "base64url";
 import isEqual = require('lodash/isEqual');
 import has = require('lodash/has');
 import get = require('lodash/get');
@@ -303,7 +303,7 @@ export function getDecodedEvent(sb: SelfDescribingJson): SelfDescribingJson {
     let decodedEvent = {...sb}; // spread operator, instantiates new object
     try {
         if (has(decodedEvent, 'ue_px')) {
-            decodedEvent['ue_px'] = JSON.parse(base64urldecode(get(decodedEvent, ['ue_px'])));
+            decodedEvent['ue_px'] = JSON.parse(base64url.decode(get(decodedEvent, ['ue_px'])));
         }
     } catch(e) {}
     return decodedEvent;

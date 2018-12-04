@@ -13,7 +13,7 @@
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
 
-import * as base64 from './base64';
+import base64url from "base64url";
 
 /**
  * Interface for mutable object encapsulating tracker payload
@@ -23,20 +23,6 @@ export interface PayloadData {
 	addDict: (dict: Object) => void,
 	addJson: (keyIfEncoded: string, keyIfNotEncoded: string, json: Object) => void,
 	build: () => Object;
-}
-
-/**
- * Bas64 encode data with URL and Filename Safe Alphabet (base64url)
- *
- * See: http://tools.ietf.org/html/rfc4648#page-7
- */
-function base64urlencode(data: string): string {
-	if (!data) {
-		return data;
-	}
-
-	var enc = base64.base64encode(data);
-	return enc.replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 }
 
 /**
@@ -94,7 +80,7 @@ export function payloadBuilder(base64Encode: boolean): PayloadData {
 		if (isNonEmptyJson(json)) {
 			var str = JSON.stringify(json);
 			if (base64Encode) {
-				add(keyIfEncoded, base64urlencode(str));
+				add(keyIfEncoded, base64url.encode(str));
 			} else {
 				add(keyIfNotEncoded, str);
 			}
