@@ -40,7 +40,6 @@ module.exports = function (grunt) {
                     runType: 'client',
                     config: 'tests/intern.js',
                     suites: [
-                        'tests/unit/base64.js',
                         'tests/unit/payload.js',
                         'tests/unit/core.js',
                         'tests/unit/contexts.js'

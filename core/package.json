@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@types/uuid": "^2.0.29",
+    "base64url": "^3.0.1",
     "lodash": "^4.17.11",
     "uuid": "2.0.3"
   },
