@@ -1,2 +1,4 @@
 tests/
 Gruntfile.js
+tsconfig.json
+src

@@ -18,22 +18,6 @@ module.exports = function (grunt) {
 
     grunt.initConfig({
 
-        ts: {
-            default: {
-                tsconfig: true
-            }
-        },
-
-        dtsGenerator: {
-            default: {
-                options: {
-                    name: 'snowplow-tracker',
-                    project: '.',
-                    out: 'main.d.ts'
-                }
-            }
-        },
-
         intern: {
             unit: {
                 options: {
@@ -50,8 +34,6 @@ module.exports = function (grunt) {
     });
 
     grunt.loadNpmTasks('intern');
-    grunt.loadNpmTasks('grunt-ts');
-    grunt.loadNpmTasks('dts-generator');
 
-    grunt.registerTask('default', 'Compile and test', ['ts', 'dtsGenerator', 'intern']);
+    grunt.registerTask('default', 'Test', ['intern']);
 };

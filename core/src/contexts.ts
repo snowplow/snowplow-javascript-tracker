@@ -15,14 +15,8 @@
 
 import { PayloadData, isNonEmptyJson } from "./payload";
 import { SelfDescribingJson } from "./core";
-import base64url from "base64url";
-import isEqual = require('lodash/isEqual');
-import has = require('lodash/has');
-import get = require('lodash/get');
-import isPlainObject = require('lodash/isPlainObject');
-import every = require('lodash/every');
-import compact = require('lodash/compact');
-import map = require('lodash/map');
+import { decode } from "universal-base64url";
+import { isEqual, has, get, isPlainObject, every, compact, map } from 'lodash';
 
 /**
  * Datatypes (some algebraic) for representing context types
@@ -130,7 +124,7 @@ export function isStringArray(input: any): boolean {
 
 export function isValidRuleSetArg(input: any): boolean {
     if (isStringArray(input))
-        return input.every((x) => { return isValidRule(x) });
+        return input.every((x: string) => { return isValidRule(x) });
     else if (typeof input === 'string')
         return isValidRule(input);
     return false;
@@ -300,10 +294,10 @@ export function getUsefulSchema(sb: SelfDescribingJson): string {
 }
 
 export function getDecodedEvent(sb: SelfDescribingJson): SelfDescribingJson {
-    let decodedEvent = {...sb}; // spread operator, instantiates new object
+    let decodedEvent : SelfDescribingJson = {...sb}; // spread operator, instantiates new object
     try {
         if (has(decodedEvent, 'ue_px')) {
-            decodedEvent['ue_px'] = JSON.parse(base64url.decode(get(decodedEvent, ['ue_px'])));
+          (decodedEvent as any)['ue_px'] = JSON.parse(decode(get(decodedEvent, ['ue_px'])));
         }
     } catch(e) {}
     return decodedEvent;
@@ -352,14 +346,14 @@ export function generatePrimitives(contextPrimitives: Array<ContextPrimitive> | 
                             eventType: string,
                             eventSchema: string) : Array<SelfDescribingJson> {
     let normalizedInputs : Array<ContextPrimitive> = normalizeToArray(contextPrimitives);
-    let partialEvaluate = (primitive) => {
+    let partialEvaluate = (primitive: ContextPrimitive) => {
         let result = evaluatePrimitive(primitive, event, eventType, eventSchema);
         if (result && result.length !== 0) {
             return result;
         }
     };
     let generatedContexts = map(normalizedInputs, partialEvaluate);
-    return [].concat(...compact(generatedContexts));
+    return ([] as SelfDescribingJson[]).concat(...compact(generatedContexts));
 }
 
 export function evaluatePrimitive(contextPrimitive: ContextPrimitive,
@@ -412,14 +406,14 @@ export function generateConditionals(providers: Array<ConditionalContextProvider
                               eventType: string,
                               eventSchema: string) : Array<SelfDescribingJson> {
     let normalizedInput : Array<ConditionalContextProvider> = normalizeToArray(providers);
-    let partialEvaluate = (provider) => {
+    let partialEvaluate = (provider: ConditionalContextProvider) => {
         let result = evaluateProvider(provider, event, eventType, eventSchema);
         if (result && result.length !== 0) {
             return result;
         }
     };
     let generatedContexts = map(normalizedInput, partialEvaluate);
-    return [].concat(...compact(generatedContexts));
+    return ([] as SelfDescribingJson[]).concat(...compact(generatedContexts));
 }
 
 export function contextModule() {

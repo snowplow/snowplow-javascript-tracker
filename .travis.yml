@@ -9,8 +9,7 @@ install:
 - cd core
 - rm -rf node_modules
 - npm install
-- grunt ts
-- grunt dtsGenerator
+- npm publish
 
 # install packages for tracker
 - cd ..

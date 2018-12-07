@@ -1,4 +1,5 @@
-index.js
-lib/*.js
-lib/*.js.map
+dist/
+src/*.js
+src/*.js.map
+lib/*
 .tscache

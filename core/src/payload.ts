@@ -13,7 +13,7 @@
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
 
-import base64url from "base64url";
+import { encode } from "universal-base64url";
 
 /**
  * Interface for mutable object encapsulating tracker payload
@@ -28,11 +28,11 @@ export interface PayloadData {
 /**
  * Is property a non-empty JSON?
  */
-export function isNonEmptyJson(property): boolean {
-	if (!isJson(property)) {
+export function isNonEmptyJson(property: Object | undefined): boolean {
+	if (typeof property === 'undefined' || !isJson(property)) {
 		return false;
 	}
-	for (var key in property) {
+	for (let key in property) {
 		if (property.hasOwnProperty(key)) {
 			return true;
 		}
@@ -43,11 +43,18 @@ export function isNonEmptyJson(property): boolean {
 /**
  * Is property a JSON?
  */
-export function isJson(property: Object): boolean {
+export function isJson(property: Object | undefined): boolean {
 	return (typeof property !== 'undefined' && property !== null &&
 	(property.constructor === {}.constructor || property.constructor === [].constructor));
 }
 
+export interface PayloadDict {
+	[key: string]: PayloadDict | string
+}
+
+export interface StringDict {
+	[key: string]: string
+}
 
 /**
  * A helper to build a Snowplow request string from an
@@ -60,27 +67,27 @@ export function isJson(property: Object): boolean {
  * @return object The request string builder, with add, addRaw and build methods
  */
 export function payloadBuilder(base64Encode: boolean): PayloadData {
-	var dict = {};
+	let dict: PayloadDict = {};
 
-	var add = function (key: string, value?: string): void {
+	let add = function (key: string, value?: string): void {
 		if (value != null && value !== '') {  // null also checks undefined
 			dict[key] = value;
 		}
 	};
 
-	var addDict = function (dict: Object) {
-		for (var key in dict) {
-			if (dict.hasOwnProperty(key)) {
-				add(key, dict[key]);
+	let addDict = function (dict: Object) {
+		for (let key in dict) {
+			if (dict.hasOwnProperty(key) && typeof key === 'string' && typeof (dict as PayloadDict)[key] === 'string') {
+				add(key, (dict as StringDict)[key]);
 			}
 		}
 	};
 
-	var addJson = function (keyIfEncoded: string, keyIfNotEncoded: string, json?: Object) {
+	let addJson = function (keyIfEncoded: string, keyIfNotEncoded: string, json?: Object) {
 		if (isNonEmptyJson(json)) {
-			var str = JSON.stringify(json);
+			let str = JSON.stringify(json);
 			if (base64Encode) {
-				add(keyIfEncoded, base64url.encode(str));
+				add(keyIfEncoded, encode(str));
 			} else {
 				add(keyIfNotEncoded, str);
 			}

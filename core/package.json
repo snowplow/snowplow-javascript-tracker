@@ -2,26 +2,41 @@
   "name": "snowplow-tracker-core",
   "version": "0.7.0",
   "devDependencies": {
-    "@types/es6-shim": "0.31.34",
+    "@babel/cli": "^7.1.2",
+    "@babel/core": "^7.1.2",
+    "@babel/plugin-proposal-class-properties": "^7.1.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/preset-typescript": "^7.1.0",
     "@types/node": "^9.6.7",
-    "dts-generator": "^2.0.0",
+    "babel-plugin-lodash": "^3.3.4",
     "grunt": "0.4.5",
-    "grunt-ts": "5.5.1",
     "intern": "3.3.2",
-    "typescript": "2.2.2"
+    "typescript": "^3.1.5"
   },
   "dependencies": {
+    "@types/lodash": "^4.14.119",
     "@types/uuid": "^2.0.29",
-    "base64url": "^3.0.1",
+    "core-js": "^2.6.0",
     "lodash": "^4.17.11",
+    "universal-base64url": "^1.0.0",
     "uuid": "2.0.3"
+  },
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "npm run type-check -- --watch",
+    "build": "npm run build:types && npm run build:js",
+    "build:types": "tsc --emitDeclarationOnly",
+    "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
+    "prepublishOnly": "build"
   },
   "contributors": [
     "Alex Dean",
     "Simon Andersson",
     "Fred Blundun"
   ],
-  "types": "./main.d.ts",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
   "description": "Core functionality for the Snowplow JavaScript trackers (browser JavaScript; Node.js; Segment.io server-side)",
   "repository": {
     "type": "git",

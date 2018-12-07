@@ -1,0 +1,25 @@
+{
+    "presets": [
+        ["@babel/env",
+            {
+                "useBuiltIns": "usage",
+                "targets": {
+                    "browsers": [
+                        "chrome >= 32",
+                        "ie >= 9",
+                        "firefox >= 27",
+                        "safari >= 8"
+                    ]
+                },
+                "debug": true
+            }
+        ],
+        "@babel/typescript"
+    ],
+    "plugins": [
+        "@babel/plugin-transform-runtime",
+        "lodash",
+        "@babel/proposal-class-properties",
+        "@babel/proposal-object-rest-spread"
+    ]
+}

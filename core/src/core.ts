@@ -13,10 +13,9 @@
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
 
-import uuid = require('uuid');
-
+import uuid from 'uuid';
 import * as payload from './payload';
-import {PayloadData} from "./payload";
+import {PayloadData, PayloadDict, StringDict} from "./payload";
 import {
 	contextModule as contextConstructor
 } from "./contexts";
@@ -68,7 +67,7 @@ function getTimestamp(tstamp?: Timestamp): TimestampPayload {
  * @param callback Function applied to every payload dictionary object
  * @return Tracker core
  */
-export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
+export function trackerCore(base64: boolean, callback?: (payload: PayloadData) => void) {
 
 	// base 64 encoding should default to true
 	if (typeof base64 === 'undefined') {
@@ -76,7 +75,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 	}
 
 	// Dictionary of key-value pairs which get added to every payload, e.g. tracker version
-	var payloadPairs = {};
+	let payloadPairs : StringDict = {};
 
 	let contextModule = contextConstructor();
 
@@ -107,11 +106,11 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 	 * @return A cleaned copy of eventJson
 	 */
 	function removeEmptyProperties(eventJson: Object, exemptFields?: Object) {
-		var ret = {};
+		let ret = {};
 		exemptFields = exemptFields || {};
-		for (var k in eventJson) {
-			if (exemptFields[k] || (eventJson[k] !== null && typeof eventJson[k] !== 'undefined')) {
-				ret[k] = eventJson[k];
+		for (let k in eventJson) {
+			if ((exemptFields as any)[k] || ((eventJson as any)[k] !== null && typeof (eventJson as any)[k] !== 'undefined')) {
+				(ret as any)[k] = (eventJson as any)[k];
 			}
 		}
 		return ret;
@@ -220,8 +219,8 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 */
 		addPayloadDict: function (dict: Object) {
 			for (var key in dict) {
-				if (dict.hasOwnProperty(key)) {
-					payloadPairs[key] = dict[key];
+				if (typeof key === 'string' && dict.hasOwnProperty(key) && typeof (dict as StringDict)[key] === 'string') {
+					payloadPairs[key] = (dict as StringDict)[key];
 				}
 			}
 		},
@@ -232,7 +231,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 * @param dict object New dictionary
 		 */
 		resetPayloadPairs: function (dict: Object) {
-			payloadPairs = payload.isJson(dict) ? dict : {};
+			payloadPairs = payload.isJson(dict) ? (dict as StringDict) : ({} as StringDict);
 		},
 
 		/**

@@ -40,73 +40,10 @@ module.exports = function(grunt) {
   var pkg = grunt.file.readJSON('package.json');
   var semVer = semver.parse(pkg.version);
   pkg.pinnedVersion = semVer.major;
-  var banner = "/*\n" +
-  " * Snowplow - The world's most powerful web analytics platform\n" +
-  " *\n" +
-  " * @description <%= pkg.description %>\n" +
-  " * @version     <%= pkg.version %>\n" +
-  " * @author      " + pkg.contributors.join(', ') +"\n" +
-  " * @copyright   Anthon Pang, Snowplow Analytics Ltd\n" +
-  " * @license     <%= pkg.license %>\n" +
-  " *\n" +
-  " * For technical documentation:\n" +
-  " * https://github.com/snowplow/snowplow/wiki/javascript-tracker\n" +
-  " *\n" +
-  " * For the setup guide:\n" +
-  " * https://github.com/snowplow/snowplow/wiki/javascript-tracker-setup\n" +
-  " *\n" +
-  " * Minimum supported browsers:\n" +
-  " * - Firefox 27 \n" +
-  " * - Chrome 32 \n" +
-  " * - IE 9 \n" +
-  " * - Safari 8 \n" +
-  " */\n";
 
   grunt.initConfig({
 
-    banner: banner,
-
     pkg: pkg,
-
-    subdomain: process.env.SUBDOMAIN,
-
-    browserify: {
-      main: {
-        files: {
-          'dist/bundle.js': ['src/js/init.js']
-        }
-      },
-      test: {
-        files: {
-          'tests/pages/helpers.bundle.js': ['tests/scripts/helpers.js'],
-          'tests/pages/detectors.bundle.js': ['tests/scripts/detectors.js'],
-          'tests/pages/bundle.js': ['src/js/init.js']
-        }
-      }
-    },
-
-    babel: {
-      options: {
-        presets: ['@babel/preset-env']
-      },
-      dist: {
-        files: {
-          'dist/bundle-postbabel.js': 'dist/bundle.js'
-        }
-      },
-      test: {
-        files: {
-          'tests/pages/helpers.js': 'tests/pages/helpers.bundle.js',
-          'tests/pages/detectors.js': 'tests/pages/detectors.bundle.js',
-          'tests/pages/snowplow.js': 'tests/pages/bundle.js'
-        }
-      },
-      local: {
-        files: {
-          'tests/local/serve/snowplow.js': 'tests/pages/bundle.js'
-        }
-      }
-    },
 
     concat: {
       deploy: {

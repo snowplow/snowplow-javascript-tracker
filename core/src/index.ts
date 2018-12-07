@@ -13,4 +13,4 @@
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
 
-export {trackerCore} from "./lib/core";
+export {trackerCore} from "./core";

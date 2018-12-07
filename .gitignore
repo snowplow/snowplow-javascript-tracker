@@ -32,3 +32,7 @@ aws.json
 VERSION
 
 src/js/lib_managed
+build/
+template/filled/
+dist/
+core/lib/

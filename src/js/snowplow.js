@@ -72,7 +72,6 @@
 */
 
 ;(function() {
-
 	// Load all our modules (at least until we fully modularize & remove grunt-concat)
 	var
 		uuid = require('uuid'),
@@ -91,7 +90,7 @@
 			windowAlias = window,
 
 			/* Tracker identifier with version */
-			version = 'js-' + '<%= pkg.version %>', // Update banner.js too
+			version = 'js-2.10.0', // Update banner.js too
 
 			/* Contains four variables that are shared with tracker.js and must be passed by reference */
 			mutSnowplowState = {

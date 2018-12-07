@@ -1,0 +1,20 @@
+{
+    "presets": [
+        [
+            "@babel/preset-env",
+        {
+            "useBuiltIns": false,
+            "targets": {
+                "browsers": [
+                    "chrome >= 32",
+                    "ie >= 9",
+                    "firefox >= 27",
+                    "safari >= 8"
+                ]
+            },
+            "debug": true
+        }
+        ]
+    ],
+    "sourceType": "script"
+}
