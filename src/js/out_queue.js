@@ -53,7 +53,7 @@
 	 * @param int bufferSize How many events to batch in localStorage before sending them all.
 	 *                       Only applies when sending POST requests and when localStorage is available.
 	 * @param int maxPostBytes Maximum combined size in bytes of the event JSONs in a POST request
-	 * @param string path The path
+	 * @param string postPath The path where events are to be posted
 	 * @return object OutQueueManager instance
 	 */
 	object.OutQueueManager = function (functionName, namespace, mutSnowplowState, useLocalStorage, usePost, postPath, bufferSize, maxPostBytes) {
