@@ -121,6 +121,9 @@
 			// Snowplow collector URL
 			configCollectorUrl,
 
+			// Custom path for post requests (to get around adblockers)
+			configPostPath = argmap.hasOwnProperty('postPath') ? argmap.postPath : '/com.snowplowanalytics.snowplow/tp2',
+
 			// Site ID
 			configTrackerSiteId = argmap.hasOwnProperty('appId') ? argmap.appId : '', // Updated for Snowplow
 
@@ -278,6 +281,7 @@
 				configStateStorageStrategy == 'localStorage' ||
 					configStateStorageStrategy == 'cookieAndLocalStorage',
 				argmap.post,
+				configPostPath,
 				argmap.bufferSize,
 				argmap.maxPostBytes || 40000),
 
