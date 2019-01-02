@@ -76,8 +76,8 @@
 	 * 12. useCookies, true
 	 * 13. sessionCookieTimeout, 1800
 	 * 14. contexts, {}
-	 * 15. beacon, false
-	 * 16. post, false
+	 * 15. eventMethod, 'beacon'
+	 * 16. post, false *DEPRECATED use eventMethod instead*
 	 * 17. bufferSize, 1
 	 * 18. crossDomainLinker, false
 	 * 19. maxPostBytes, 40000
@@ -90,7 +90,17 @@
 		/************************************************************
 		 * Private members
 		 ************************************************************/
-		var
+		 
+		 var argmap = argmap || {};
+		 
+		 //use POST if that property is present on the argmap
+		 if(argmap.hasOwnProperty('post')) {
+			 argmap.eventMethod = argmap.post === true ? 'post' : 'get';
+		 } else {
+			 argmap.eventMethod = argmap.eventMethod || 'beacon'
+		 }
+
+		 var
 			// Tracker core
 			core = coreConstructor(true, function(payload) {
 				addBrowserData(payload);
@@ -126,8 +136,6 @@
 			pagePingInterval,
 
 			customReferrer,
-
-			argmap = argmap || {},
 
 			// Request method is always GET for Snowplow
 			configRequestMethod = 'GET',
@@ -294,8 +302,7 @@
 				mutSnowplowState,
 				configStateStorageStrategy == 'localStorage' ||
 					configStateStorageStrategy == 'cookieAndLocalStorage',
-				argmap.beacon,
-				argmap.post,
+				argmap.eventMethod,
 				argmap.bufferSize,
 				argmap.maxPostBytes || 40000),
 
