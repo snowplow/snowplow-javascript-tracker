@@ -35,8 +35,7 @@
 import { addEventListener } from './lib/Helpers'
 import InQueueManager from './lib/InQueueManager'
 import JavascriptTracker from './lib/JavascriptTracker'
-import pkg from '../../package.json'
-
+import { version } from '../../package.json'
 class SnowplowTracker {
     constructor(asynchronousQueue, functionName) {
 
@@ -47,7 +46,7 @@ class SnowplowTracker {
         this.documentAlias = document
         this.windowAlias = window
         /* Tracker identifier with version */
-        this.version = `js-${pkg.version}` // Update banner.js too
+        this.version = `js-${version}` // Update banner.js too
         /* Contains four variables that are shared with tracker.js and must be passed by reference */
         this.mutSnowplowState = {
             /* List of request queues - one per Tracker instance */

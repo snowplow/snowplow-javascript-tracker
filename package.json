@@ -5,10 +5,12 @@
     "browser-cookie-lite": "1.0.4",
     "core-js": "^2.6.0",
     "handlebars": "^4.0.12",
+    "express": "^4.16.4",
     "jstimezonedetect": "1.0.6",
     "murmurhash": "0.0.2",
     "randombytes": "^2.0.6",
     "rollup": "^0.67.3",
+    "rollup-plugin-json": "^3.1.0",
     "rollup-plugin-replace": "^2.1.0",
     "rollup-plugin-terser": "^3.0.0",
     "sha1": "git://github.com/pvorb/node-sha1.git#910081c83f3661507d9d89e66e3f38d8b59d5559",
@@ -25,6 +27,8 @@
     "@babel/polyfill": "^7.0.0",
     "@babel/preset-env": "^7.1.6",
     "@babel/runtime": "^7.2.0",
+    "@babel/register": "^7.0.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
     "babel-preset-minify": "^0.5.0",
     "JSON": "1.0.0",
     "eslint": "^5.9.0",
@@ -35,10 +39,16 @@
     "js-base64": "^2.4.9",
     "lodash": "^4.17.11",
     "lodash-es": "^4.17.11",
+    "mocha": "^5.2.0",
+    "rewiremock": "^3.12.3",
     "rollup-plugin-babel": "^4.0.3",
     "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-conditional": "^2.2.0",
     "rollup-plugin-node-resolve": "^3.4.0",
-    "semver": "5.6.0"
+    "semver": "5.6.0",
+    "sinon": "^7.2.2",
+    "systemjs": "0.21.4",
+    "systemjs-plugin-babel": "0.0.25"
   },
   "scripts": {
     "test:local": "npm run localtest.sh",
@@ -63,7 +73,12 @@
     "tags": "minify:tags",
     "dirs": "mkdir -p dist/babel dist/bundles dist/min dist/zipped",
     "clean": "rm -rf dist/babel dist/bundles dist/min dist/zipped",
-    "build:main": "npm-run-all clean dirs templates babel:main browserify:main babel:last minify concat gzip"
+    "build:main": "npm-run-all clean dirs templates babel:main browserify:main babel:last minify concat gzip",
+    "test:mocha": "BABEL_ENV=test mocha --require @babel/register",
+    "testing-server:start": "node bin/testServer.js",
+    "bundle:watch": "rollup -c --watch",
+    "bundle:dev": "rollup -c",
+    "bundle:dist": "rollup -c --environment buildTarget:PROD"
   },
   "contributors": [
     "Alex Dean",

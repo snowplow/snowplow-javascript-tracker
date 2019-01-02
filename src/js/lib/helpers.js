@@ -33,11 +33,6 @@
  */
 
 import { cookie } from 'browser-cookie-lite'
-import isString from 'lodash-es/isString'
-import isUndefined from 'lodash-es/isUndefined'
-import isArray from 'lodash-es/isArray'
-import isObject from 'lodash-es/isObject'
-
 
 /**
  * Cleans up the page title
@@ -100,7 +95,7 @@ export const fixupDomain = domain => {
  * @param {String} oldLocation  - optional.
  * @returns {String} - the referrer
  */
-export const getReferrer = (oldLocation) => {
+export const getReferrer = oldLocation => {
     var referrer = ''
 
     var fromQs =
@@ -143,7 +138,12 @@ export const getReferrer = (oldLocation) => {
  * @param {Boolean} useCapture - set to true to enable "capture mode"
  * @returns {Boolean} - returns the result of adding the listner, should always be true.
  */
-export const addEventListener = (element, eventType, eventHandler, useCapture) => {
+export const addEventListener = (
+    element,
+    eventType,
+    eventHandler,
+    useCapture
+) => {
     if (element.addEventListener) {
         element.addEventListener(eventType, eventHandler, useCapture)
         return true
@@ -183,17 +183,19 @@ export const resolveDynamicContexts = (
     ...callbackParameters
 ) => {
     //var params = Array.prototype.slice.call(arguments, 1);
-    return dynamicOrStaticContexts.map(function(context) {
-        if (typeof context === 'function') {
-            try {
-                return context.apply(null, callbackParameters)
-            } catch (e) {
-                warn('Exception thrown in dynamic context generator: ' + e)
+    if (dynamicOrStaticContexts) {
+        return dynamicOrStaticContexts.map(function(context) {
+            if (typeof context === 'function') {
+                try {
+                    return context.apply(null, callbackParameters)
+                } catch (e) {
+                    warn('Exception thrown in dynamic context generator: ' + e)
+                }
+            } else {
+                return context
             }
-        } else {
-            return context
-        }
-    })
+        })
+    }
 }
 
 /**
@@ -246,7 +248,7 @@ export const checkClass = (element, classList) => {
  *                        		or name attribute (for fields)
  * @returns {Function} - resultant filter function
  */
-export const getFilter = (criterion, byClass) => {
+export const getFilter = function(criterion, byClass) {
     // If the criterion argument is not an object, add listeners to all elements
     if (isArray(criterion) || !isObject(criterion)) {
         return function() {
@@ -463,6 +465,27 @@ export const pFloat = function(obj) {
     return isNaN(result) ? undefined : result
 }
 
+export const isFunction = function(toTest) {
+    return typeof toTest == 'function'
+}
+
+export const isString = function(toTest) {
+    return typeof toTest == 'string'
+}
+
+export const isUndefined = function(toTest) {
+    return toTest === undefined
+}
+
+export const isArray = function(toTest) {
+    return Array.isArray(toTest)
+}
+
+export const isObject = function(toTest) {
+    var testedType = typeof toTest
+    return testedType != null && (testedType == 'object' || testedType == 'function')
+}
+
 const helpers = {
     addEventListener,
     attemptGetLocalStorage,
@@ -479,6 +502,11 @@ const helpers = {
     getHostName,
     getReferrer,
     getTransform,
+    isArray,
+    isFunction,
+    isObject,
+    isString,
+    isUndefined,
     isValueInArray,
     parseFloat,
     parseInt,

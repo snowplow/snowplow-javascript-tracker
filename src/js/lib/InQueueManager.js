@@ -32,8 +32,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { warn } from './Helpers'
-import isFunction from 'lodash-es/isFunction'
+import { warn, isFunction} from './Helpers'
 
 // Symbols for private methods
 const getNamedTrackers = Symbol('getNamedTrackers')

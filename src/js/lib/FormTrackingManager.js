@@ -32,7 +32,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import {getCssClasses, resolveDynamicContexts, getFilter, getTransform, addEventListener} from './Helpers'
+import {
+    getCssClasses,
+    resolveDynamicContexts,
+    getFilter,
+    getTransform,
+    addEventListener,
+} from './Helpers'
 
 // Symbols for private methods
 const getFormElementName = Symbol('getFormElementName')
@@ -240,7 +246,7 @@ class FormTrackingManager {
             this.fieldTransform = getTransform(config.fields)
         }
     }
-
+    
     /**
      * Add submission event listeners to all form elements
      * Add value change event listeners to all mutable inner form elements
@@ -251,23 +257,33 @@ class FormTrackingManager {
         Array.prototype.forEach.call(
             document.getElementsByTagName('form'),
             form => {
+                window.console.log(form)
+                window.console.log(this.innerElementTags)
+                window.console.log(this.formFilter)
+                window.console.log(this.formFilter(form))
                 if (this.formFilter(form) && !form[this.trackingMarker]) {
                     this.innerElementTags.forEach(tagname => {
-                        form.getElementsByTagName(tagname).forEach(innerElement => {
-                            if (
-                                this.fieldFilter(innerElement) &&
-                                !innerElement[this.trackingMarker] &&
-                                innerElement.type.toLowerCase() !== 'password'
-                            ) {
-                                addEventListener(
-                                    innerElement,
-                                    'change',
-                                    this[getFormChangeListener](context),
-                                    false
-                                )
-                                innerElement[this.trackingMarker] = true
+                        window.console.log(tagname)
+                        Array.prototype.forEach.call(
+                            form.getElementsByTagName(tagname),
+                            innerElement => {
+                                window.console.log(innerElement)
+                                if (
+                                    this.fieldFilter(innerElement) &&
+                                    !innerElement[this.trackingMarker] &&
+                                    innerElement.type.toLowerCase() !==
+                                        'password'
+                                ) {
+                                    addEventListener(
+                                        innerElement,
+                                        'change',
+                                        this[getFormChangeListener](context),
+                                        false
+                                    )
+                                    innerElement[this.trackingMarker] = true
+                                }
                             }
-                        })
+                        )
                     })
                     addEventListener(
                         form,

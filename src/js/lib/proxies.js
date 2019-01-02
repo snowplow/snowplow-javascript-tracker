@@ -34,19 +34,15 @@
 
 import { getHostName, fromQuerystring } from './Helpers'
 
-const IPRegExp = new RegExp(
-    '^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$'
-)
-
 /**
  * Test whether a string is an IP address
  *
  * @param {String} string - The string to test
  * @returns {Boolean} - true if the string is an IP address
  */
-const isIpAddress = string => {
-    IPRegExp.test(string)
-}
+export const isIpAddress = string => 
+    /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(string)
+
 
 /**
  * If the hostname is an IP address, look for text indicating that the page is cached by Yahoo
@@ -56,7 +52,6 @@ const isIpAddress = string => {
  */
 const isYahooCachedPage = hostName => {
     let initialDivText, cachedIndicator
-
     if (isIpAddress(hostName)) {
         try {
             initialDivText =
