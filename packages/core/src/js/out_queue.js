@@ -51,21 +51,29 @@
 	 * @param object mutSnowplowState Gives the pageUnloadGuard a reference to the outbound queue
 	 *                                so it can unload the page when all queues are empty
 	 * @param boolean useLocalStorage Whether to use localStorage at all
-	 * @param boolean usePost Whether to send events by POST or GET
+	 * @param string eventMethod if null will use 'beacon' otherwise can be set to 'post', 'get', or 'beacon' to force. 
 	 * @param int bufferSize How many events to batch in localStorage before sending them all.
 	 *                       Only applies when sending POST requests and when localStorage is available.
 	 * @param int maxPostBytes Maximum combined size in bytes of the event JSONs in a POST request
 	 * @param string postPath The path where events are to be posted
 	 * @return object OutQueueManager instance
 	 */
-	object.OutQueueManager = function (functionName, namespace, mutSnowplowState, useLocalStorage, useBeacon, usePost, postPath, bufferSize, maxPostBytes) {
+	object.OutQueueManager = function (functionName, namespace, mutSnowplowState, useLocalStorage, eventMethod, postPath, bufferSize, maxPostBytes) {
 		var	queueName,
 			executingQueue = false,
 			configCollectorUrl,
 			outQueue;
+		
+		//Force to lower case if its a string
+		eventMethod = eventMethod.toLowerCase ? eventMethod.toLowerCase() : eventMethod;
+		
+		//Use the Beacon API if eventMethod is set null, true, or 'beacon'. 
+		var enableBeacon = (eventMethod === null || eventMethod === true || eventMethod === "beacon" || eventMethod === "true") ? true : false;
+		// Fall back to POST or GET for browsers which don't support Beacon API
+		useBeacon = enableBeacon && navigator && navigator.sendBeacon;
 
-		useBeacon = useBeacon && navigator && navigator.sendBeacon;
-
+		//Use POST if specified, or beacon is unavailable. 
+		var usePost = (eventMethod === "post" || (enableBeacon && !useBeacon)) ? true : false;
 		// Fall back to GET for browsers which don't support CORS XMLHttpRequests (e.g. IE <= 9)
 		usePost = usePost && window.XMLHttpRequest && ('withCredentials' in new XMLHttpRequest());
 
