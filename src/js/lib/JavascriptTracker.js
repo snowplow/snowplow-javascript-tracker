@@ -40,6 +40,7 @@ import {
     findRootDomain,
     fixupDomain,
     fixupTitle,
+    fixupUrl,
     fromQuerystring,
     getHostName,
     getReferrer,
@@ -47,8 +48,7 @@ import {
     pFloat,
     pInt,
     warn,
-} from './Helpers'
-import { fixupUrl } from './Proxies'
+} from './Utilities'
 import 'browser-cookie-lite'
 import {
     detectSignature,
@@ -56,7 +56,7 @@ import {
     detectBrowserFeatures,
     detectViewport,
     detectDocumentSize,
-} from './Detectors'
+} from './Detect'
 import sha1 from 'sha1'
 import FormTrackingManager from './FormTrackingManager'
 import ErrorManager from './ErrorManager'
@@ -106,8 +106,7 @@ const getOptimizelyData = Symbol('getOptimizelyData')
 const getOptimizelyXData = Symbol('getOptimizelyXData')
 const getOptimizelySummary = Symbol('getOptimizelySummary')
 const getOptimizelyXSummary = Symbol('getOptimizelyXSummary')
-const getOptimizelyExperimentContexts =
-    Symbol['getOptimizelyExperimentContexts']
+const getOptimizelyExperimentContexts = Symbol['getOptimizelyExperimentContexts']
 const getOptimizelyStateContexts = Symbol('getOptimizelyStateContexts')
 const getOptimizelyVariationContexts = Symbol('getOptimizelyVariationContexts')
 const getOptimizelyVisitorContext = Symbol('getOptimizelyVisitorContext')
@@ -129,11 +128,6 @@ const logTransaction = Symbol('logTransaction')
 const logTransactionItem = Symbol('logTransactionItem')
 const prefixPropertyName = Symbol('prefixPropertyName')
 const trackCallback = Symbol('trackCallback')
-
-// const refreshUrl = Symbol('refreshUrl')
-// const refreshUrl = Symbol('refreshUrl')
-// const refreshUrl = Symbol('refreshUrl')
-// const refreshUrl = Symbol('refreshUrl')
 
 /**
  * Snowplow Tracker class
@@ -411,13 +405,17 @@ class JavascriptTracker {
                 addEventListener(
                     elt,
                     'click',
-                    (e)=>{this[linkDecorationHandler](e)},
+                    e => {
+                        this[linkDecorationHandler](e)
+                    },
                     true
                 )
                 addEventListener(
                     elt,
                     'mousedown',
-                    (e)=>{this[linkDecorationHandler](e)},
+                    e => {
+                        this[linkDecorationHandler](e)
+                    },
                     true
                 )
 
@@ -494,7 +492,12 @@ class JavascriptTracker {
         var now = new Date()
 
         // Set to true if Opt-out cookie is defined
-        const toOptoutByCookie = !!window.cookie(this.config.optOutCookie)
+        let toOptoutByCookie
+        if (this.state.optOutCookie) {
+            toOptoutByCookie = !!window.cookie(this.state.optOutCookie)
+        } else {
+            toOptoutByCookie = false
+        }
 
         if (!(this.config.doNotTrack || toOptoutByCookie)) {
             this.outQueueManager.enqueueRequest(
@@ -509,9 +512,7 @@ class JavascriptTracker {
      * Get cookie name with prefix and domain hash
      */
     [getSnowplowCookieName](baseName) {
-        return `${this.config.cookieName}${baseName}.${
-            this.state.domainHash
-        }`
+        return `${this.config.cookieName}${baseName}.${this.state.domainHash}`
     }
 
     /*
@@ -796,7 +797,12 @@ class JavascriptTracker {
             lastVisitTs = id[5],
             sessionIdFromCookie = id[6]
 
-        const toOptoutByCookie = !!window.cookie(this.config.optOutCookie)
+        let toOptoutByCookie
+        if (this.state.optOutCookie) {
+            toOptoutByCookie = !!window.cookie(this.state.optOutCookie)
+        } else {
+            toOptoutByCookie = false
+        }
 
         if (
             (this.config.doNotTrack || toOptoutByCookie) &&
@@ -1598,26 +1604,26 @@ class JavascriptTracker {
             this.state.navigatorAlias.geolocation.getCurrentPosition
         ) {
             this.state.geolocationContextAdded = true
-            this.state.navigatorAlias.geolocation.getCurrentPosition((
-                position
-            )=>{
-                var coords = position.coords
-                var geolocationContext = {
-                    schema:
-                        'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
-                    data: {
-                        latitude: coords.latitude,
-                        longitude: coords.longitude,
-                        latitudeLongitudeAccuracy: coords.accuracy,
-                        altitude: coords.altitude,
-                        altitudeAccuracy: coords.altitudeAccuracy,
-                        bearing: coords.heading,
-                        speed: coords.speed,
-                        timestamp: Math.round(position.timestamp),
-                    },
+            this.state.navigatorAlias.geolocation.getCurrentPosition(
+                position => {
+                    var coords = position.coords
+                    var geolocationContext = {
+                        schema:
+                            'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
+                        data: {
+                            latitude: coords.latitude,
+                            longitude: coords.longitude,
+                            latitudeLongitudeAccuracy: coords.accuracy,
+                            altitude: coords.altitude,
+                            altitudeAccuracy: coords.altitudeAccuracy,
+                            bearing: coords.heading,
+                            speed: coords.speed,
+                            timestamp: Math.round(position.timestamp),
+                        },
+                    }
+                    this.state.commonContexts.push(geolocationContext)
                 }
-                this.state.commonContexts.push(geolocationContext)
-            })
+            )
         }
     }
 
@@ -2002,7 +2008,7 @@ class JavascriptTracker {
             }
         }
 
-        const eventHandler = ()=>{
+        const eventHandler = () => {
             this.state.documentAlias.removeEventListener(
                 prefix + 'visibilitychange',
                 eventHandler,
@@ -2365,7 +2371,7 @@ class JavascriptTracker {
             this.formTrackingManager.configureFormTracking(config)
             this.formTrackingManager.addFormListeners(context)
         } else {
-            this.mutSnowplowState.registeredOnLoadHandlers.push(()=> {
+            this.mutSnowplowState.registeredOnLoadHandlers.push(() => {
                 this.formTrackingManager.configureFormTracking(config)
                 this.formTrackingManager.addFormListeners(context)
             })
@@ -2562,7 +2568,7 @@ class JavascriptTracker {
         context,
         tstamp
     ) {
-        this[trackCallback](()=> {
+        this[trackCallback](() => {
             this.core.trackStructEvent(
                 category,
                 action,
@@ -2583,7 +2589,7 @@ class JavascriptTracker {
      * @param tstamp number or Timestamp object
      */
     trackSelfDescribingEvent(eventJson, context, tstamp) {
-        this[trackCallback](()=> {
+        this[trackCallback](() => {
             this.core.trackSelfDescribingEvent(
                 eventJson,
                 this[addCommonContexts](context),
@@ -2596,7 +2602,7 @@ class JavascriptTracker {
      * Alias for `trackSelfDescribingEvent`, left for compatibility
      */
     trackUnstructEvent(eventJson, context, tstamp) {
-        this[trackCallback](()=>{
+        this[trackCallback](() => {
             this.core.trackSelfDescribingEvent(
                 eventJson,
                 this[addCommonContexts](context),
@@ -2692,7 +2698,7 @@ class JavascriptTracker {
      * addItem methods to the tracking server.
      */
     trackTrans() {
-        this[trackCallback](()=>{
+        this[trackCallback](() => {
             this[logTransaction](
                 this.state.ecommerceTransaction.transaction.orderId,
                 this.state.ecommerceTransaction.transaction.affiliation,
@@ -2725,7 +2731,9 @@ class JavascriptTracker {
                 )
             }
 
-            this.state.ecommerceTransaction = this[ecommerceTransactionTemplate]()
+            this.state.ecommerceTransaction = this[
+                ecommerceTransactionTemplate
+            ]()
         })
     }
 
@@ -2750,7 +2758,7 @@ class JavascriptTracker {
         context,
         tstamp
     ) {
-        this[trackCallback](()=> {
+        this[trackCallback](() => {
             this.core.trackLinkClick(
                 targetUrl,
                 elementId,
@@ -2788,7 +2796,7 @@ class JavascriptTracker {
         context,
         tstamp
     ) {
-        this[trackCallback](()=>{
+        this[trackCallback](() => {
             this.core.trackAdImpression(
                 impressionId,
                 costModel,
@@ -2832,7 +2840,7 @@ class JavascriptTracker {
         context,
         tstamp
     ) {
-        this[trackCallback](()=>{
+        this[trackCallback](() => {
             this.core.trackAdClick(
                 targetUrl,
                 clickId,
@@ -2877,7 +2885,7 @@ class JavascriptTracker {
         context,
         tstamp
     ) {
-        this[trackCallback](()=>{
+        this[trackCallback](() => {
             this.core.trackAdConversion(
                 conversionId,
                 costModel,
@@ -2904,7 +2912,7 @@ class JavascriptTracker {
      * @param tstamp number or Timestamp object
      */
     trackSocialInteraction(action, network, target, context, tstamp) {
-        this[trackCallback](()=>{
+        this[trackCallback](() => {
             this.core.trackSocialInteraction(
                 action,
                 network,
@@ -2937,7 +2945,7 @@ class JavascriptTracker {
         context,
         tstamp
     ) {
-        this[trackCallback](()=>{
+        this[trackCallback](() => {
             this.core.trackAddToCart(
                 sku,
                 name,
@@ -2973,7 +2981,7 @@ class JavascriptTracker {
         context,
         tstamp
     ) {
-        this[trackCallback](()=>{
+        this[trackCallback](() => {
             this.core.trackRemoveFromCart(
                 sku,
                 name,
@@ -3005,7 +3013,7 @@ class JavascriptTracker {
         context,
         tstamp
     ) {
-        this[trackCallback](()=>{
+        this[trackCallback](() => {
             this.core.trackSiteSearch(
                 terms,
                 filters,
@@ -3028,7 +3036,7 @@ class JavascriptTracker {
      * @param tstamp Opinal number or Timestamp object
      */
     trackTiming(category, variable, timing, label, context, tstamp) {
-        this[trackCallback](()=>{
+        this[trackCallback](() => {
             this.core.trackSelfDescribingEvent(
                 {
                     schema:
@@ -3066,7 +3074,7 @@ class JavascriptTracker {
         context,
         tstamp
     ) {
-        this[trackCallback](()=>{
+        this[trackCallback](() => {
             this.core.trackConsentWithdrawn(
                 all,
                 id,
@@ -3099,7 +3107,7 @@ class JavascriptTracker {
         context,
         tstamp
     ) {
-        this[trackCallback](()=>{
+        this[trackCallback](() => {
             this.core.trackConsentGranted(
                 id,
                 version,
@@ -3126,7 +3134,7 @@ class JavascriptTracker {
         )
         this.state.enhancedEcommerceContexts.length = 0
 
-        this[trackCallback](()=>{
+        this[trackCallback](() => {
             this.core.trackSelfDescribingEvent(
                 {
                     schema:

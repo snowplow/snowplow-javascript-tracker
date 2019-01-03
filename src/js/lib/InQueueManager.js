@@ -32,7 +32,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { warn, isFunction} from './Helpers'
+import { warn, isFunction} from './Utilities'
 
 // Symbols for private methods
 const getNamedTrackers = Symbol('getNamedTrackers')

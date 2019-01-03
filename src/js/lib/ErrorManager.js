@@ -33,7 +33,7 @@
  */
 
 import isFunction from 'lodash-es/isFunction'
-import { addEventListener } from './Helpers'
+import { addEventListener } from './Utilities'
 const windowAlias = window
 
 /**

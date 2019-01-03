@@ -2,7 +2,7 @@ var assert = require('assert')
 var describe = require('mocha').describe
 var it = require('mocha').it
 
-const helpers = require('../../src/js/lib/Helpers.js')
+const utilities = require('../../src/js/lib/Utilities.js')
 
 module.exports = (function () {
     describe('Helpers', function() {
@@ -12,7 +12,7 @@ module.exports = (function () {
             it('should return null if the url doesnt have a querystring', function() {
                 var url = 'http://www.example.com'
                 var expected = null
-                var actual = helpers.fromQuerystring('test', url)
+                var actual = utilities.fromQuerystring('test', url)
                 assert.equal(actual, expected)
             })
 
@@ -20,7 +20,7 @@ module.exports = (function () {
                 var url = 'http://www.example.com?test=working?&_sp=outdated?&?name=value#fragment?#?#'
                 var expected = null
                 
-                var actual = helpers.fromQuerystring('invalid', url)
+                var actual = utilities.fromQuerystring('invalid', url)
                 assert.equal(actual, expected)
             })
 
@@ -28,7 +28,7 @@ module.exports = (function () {
                 var url = 'http://www.example.com?test=working'
                 var expected = 'working'
                 
-                var actual = helpers.fromQuerystring('test', url)
+                var actual = utilities.fromQuerystring('test', url)
                 assert.equal(actual, expected)
             })
 
@@ -39,14 +39,14 @@ module.exports = (function () {
             it('should decorate a URL with no querystring or fragment', function(){
                 var url = 'http://www.example.com'
                 var expected = 'http://www.example.com?_sp=a.b'
-                var actual = helpers.decorateQuerystring(url, '_sp', 'a.b')
+                var actual = utilities.decorateQuerystring(url, '_sp', 'a.b')
                 assert.equal(actual, expected)
             })
             
             it('should decorate a URL with a fragment but no querystring',function() {
                 var url = 'http://www.example.com#fragment'
                 var expected = 'http://www.example.com?_sp=a.b#fragment'
-                var actual = helpers.decorateQuerystring(url, '_sp', 'a.b')
+                var actual = utilities.decorateQuerystring(url, '_sp', 'a.b')
                 assert.equal(actual, expected)
             })
 
@@ -54,21 +54,21 @@ module.exports = (function () {
             it('should decorate a URL with an empty querystring', function() {
                 var url = 'http://www.example.com?'
                 var expected = 'http://www.example.com?_sp=a.b'
-                var actual = helpers.decorateQuerystring(url, '_sp', 'a.b')
+                var actual = utilities.decorateQuerystring(url, '_sp', 'a.b')
                 assert.equal(actual, expected)
             })
         
             it('should decorate a URL with a nonempty querystring', function() {
                 var url = 'http://www.example.com?name=value'
                 var expected = 'http://www.example.com?_sp=a.b&name=value'
-                var actual = helpers.decorateQuerystring(url, '_sp', 'a.b')
+                var actual = utilities.decorateQuerystring(url, '_sp', 'a.b')
                 assert.equal(actual, expected)
             })
         
             it('should override an existing field', function() {
                 var url = 'http://www.example.com?_sp=outdated'
                 var expected = 'http://www.example.com?_sp=a.b'
-                var actual = helpers.decorateQuerystring(url, '_sp', 'a.b')
+                var actual = utilities.decorateQuerystring(url, '_sp', 'a.b')
                 assert.equal(actual, expected)
             })
         
@@ -76,14 +76,14 @@ module.exports = (function () {
                 var url = 'http://www.example.com?test=working?&name=value'
                 var expected =
                     'http://www.example.com?_sp=a.b&test=working?&name=value'
-                var actual = helpers.decorateQuerystring(url, '_sp', 'a.b')
+                var actual = utilities.decorateQuerystring(url, '_sp', 'a.b')
                 assert.equal(actual, expected)
             })
         
             it('should override a field in a querystring containing a question mark', function() {
                 var url = 'http://www.example.com?test=working?&_sp=outdated'
                 var expected = 'http://www.example.com?test=working?&_sp=a.b'
-                var actual = helpers.decorateQuerystring(url, '_sp', 'a.b')
+                var actual = utilities.decorateQuerystring(url, '_sp', 'a.b')
                 assert.equal(actual, expected)
             })
         
@@ -92,7 +92,7 @@ module.exports = (function () {
                     'http://www.example.com?test=working?&_sp=outdated?&?name=value#fragment?#?#'
                 var expected =
                     'http://www.example.com?test=working?&_sp=a.b&?name=value#fragment?#?#'
-                var actual = helpers.decorateQuerystring(url, '_sp', 'a.b')
+                var actual = utilities.decorateQuerystring(url, '_sp', 'a.b')
                 assert.equal(actual, expected)
             })
 
@@ -115,7 +115,7 @@ module.exports = (function () {
                     'lazy',
                     'dog',
                 ]
-                var actual = helpers.getCssClasses(element)
+                var actual = utilities.getCssClasses(element)
                 assert.deepEqual(actual, expected)
             })
 

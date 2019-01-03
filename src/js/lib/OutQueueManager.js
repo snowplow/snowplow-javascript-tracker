@@ -32,8 +32,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { attemptWriteLocalStorage, warn } from './Helpers'
-import { localStorageAccessible } from './Detectors'
+import { attemptWriteLocalStorage, warn } from './Utilities'
+import { localStorageAccessible } from './Detect'
 import mapValues from 'lodash-es/mapValues'
 import isString from 'lodash-es/isString'
 import isArray from 'lodash-es/isArray'
@@ -89,9 +89,9 @@ class OutQueueManager {
             window.XMLHttpRequest &&
             'withCredentials' in new XMLHttpRequest()
 
-        this.useBeacon = useBeacon && navigator && navigator.sendBeacon;
+        this.useBeacon = useBeacon && navigator && navigator.sendBeacon
         this.usePost = usePost
-        this.path = this.useBeacon || this.usePost ? '/com.snowplowanalytics.snowplow/tp2' : '/i';
+        this.path = this.useBeacon || this.usePost ? '/com.snowplowanalytics.snowplow/tp2' : '/i'
 
         bufferSize =
             (localStorageAccessible() &&
@@ -405,13 +405,13 @@ class OutQueueManager {
             })
 
             if (batch.length > 0) {
-                let beaconStatus;
+                let beaconStatus
 
                 if (this.useBeacon) {
-                    beaconStatus = navigator.sendBeacon(this.configCollectorUrl, encloseInPayloadDataEnvelope(attachStmToEvent(batch)));
+                    beaconStatus = navigator.sendBeacon(this.configCollectorUrl, encloseInPayloadDataEnvelope(attachStmToEvent(batch)))
                 }
                 if (!this.useBeacon || !beaconStatus) {
-                    xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent(batch)));
+                    xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent(batch)))
                 }
 
                 xhr.send(

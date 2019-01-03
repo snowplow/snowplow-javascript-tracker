@@ -4,7 +4,7 @@ var beforeEach = require('mocha').beforeEach
 //var afterEach = require('mocha').afterEach
 var it = require('mocha').it
 
-const proxies = require('../../src/js/lib/proxies')
+const utilities = require('../../src/js/lib/Utilities')
 
 module.exports = (function() {
 
@@ -49,7 +49,7 @@ module.exports = (function() {
                     'href',
                     'http://referrer.com',
                 ],
-                fixedupLocationArray = proxies.fixupUrl.apply(
+                fixedupLocationArray = utilities.fixupUrl.apply(
                     null,
                     initialLocationArray
                 ),
@@ -70,7 +70,7 @@ module.exports = (function() {
                     'http://translate.googleusercontent.com/translate?hl=en&sl=fr&u=http:www.francais.fr/path',
                     '',
                 ],
-                fixedupLocationArray = proxies.fixupUrl.apply(
+                fixedupLocationArray = utilities.fixupUrl.apply(
                     null,
                     initialLocationArray
                 ),
@@ -95,7 +95,7 @@ module.exports = (function() {
                     'http://cc.bingj.com/cache.aspx?q=example.com&d=4870936571937837&mkt=en-GB&setlang=en-GB&w=QyOPD1fo3C2nC9sXMLmUUs81Jt78MYIp',
                     'http://referrer.com',
                 ],
-                fixedupLocationArray = proxies.fixupUrl.apply(
+                fixedupLocationArray = utilities.fixupUrl.apply(
                     null,
                     initialLocationArray
                 ),
@@ -120,7 +120,7 @@ module.exports = (function() {
                     'http://webcache.googleusercontent.com/search?q=cache:http://example.com/#fragment',
                     'http://referrer.com',
                 ],
-                fixedupLocationArray = proxies.fixupUrl.apply(
+                fixedupLocationArray = utilities.fixupUrl.apply(
                     null,
                     initialLocationArray
                 ),
@@ -142,8 +142,8 @@ module.exports = (function() {
         it('should detect ip addresses properly', function() {
             var ipAddress = '10.10.10.10'
             var notIpAddress = 'any.other.host.name'
-            assert(proxies.isIpAddress(ipAddress))
-            assert(!proxies.isIpAddress(notIpAddress))
+            assert(utilities.isIpAddress(ipAddress))
+            assert(!utilities.isIpAddress(notIpAddress))
         })
 
         it('should on a page cached by Yahoo, get the original URL from the first link', function() {
@@ -152,7 +152,7 @@ module.exports = (function() {
                     'http://98.139.21.31/search/srpcache',
                     'http://referrer.com',
                 ],
-                fixedupLocationArray = proxies.fixupUrl.apply(
+                fixedupLocationArray = utilities.fixupUrl.apply(
                     null,
                     initialLocationArray
                 ),

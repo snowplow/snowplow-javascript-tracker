@@ -36,7 +36,7 @@
 // 	helpers = require('./lib/helpers'),
 // 	object = typeof exports !== 'undefined' ? exports : this;
 
-import helpers from './Helpers'
+import helpers from './Utilities'
 
 // Symbols for private methods
 const processClick = Symbol('processClick')

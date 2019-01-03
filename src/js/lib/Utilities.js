@@ -442,6 +442,88 @@ export const getCookiesWithPrefix = function(cookiePrefix) {
 }
 
 /**
+ * Test whether a string is an IP address
+ *
+ * @param {String} string - The string to test
+ * @returns {Boolean} - true if the string is an IP address
+ */
+export const isIpAddress = string => 
+    /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(string)
+
+
+/**
+ * If the hostname is an IP address, look for text indicating that the page is cached by Yahoo
+ *
+ * @param {String} hostName  - host name to check
+ * @returns {Boolean} - true if the page is cached by Yahoo
+ */
+export const isYahooCachedPage = hostName => {
+    let initialDivText, cachedIndicator
+    if (isIpAddress(hostName)) {
+        try {
+            initialDivText =
+                document.body.children[0].children[0].children[0].children[0]
+                    .children[0].children[0].innerHTML
+            cachedIndicator = 'You have reached the cached page for'
+            return (
+                initialDivText.slice(0, cachedIndicator.length) ===
+                cachedIndicator
+            )
+        } catch (e) {
+            return false
+        }
+    }
+}
+
+/**
+ * Extract parameter from URL
+ *
+ * @param {String} url - url to extract the parameter from
+ * @param {String} name - name of the parameter to extract
+ * @returns {String} - string value of the extracted parameter
+ */
+export const getParameter = (url, name) => {
+    // scheme : // [username [: password] @] hostname [: port] [/ [path] [? query] [# fragment]]
+    var e = new RegExp('^(?:https?|ftp)(?::/*(?:[^?]+))([?][^#]+)'),
+        matches = e.exec(url),
+        result = fromQuerystring(name, matches[1])
+
+    return result
+}
+
+/**
+ * Fix-up URL when page rendered from search engine cache or translated page.
+ *
+ * @param {String} hostName - the host name of the server
+ * @param {String} href - the href of the page
+ * @param {String} referrer - the referrer of the page
+ */
+export const fixupUrl = (hostName, href, referrer) => {
+    //TODO: it would be nice to generalise this and/or move into the ETL phase.
+
+    const _host = isYahooCachedPage(hostName) ? 'yahoo' : hostName
+
+    switch (_host) {
+    case 'translate.googleusercontent.com':
+        if (referrer === '') {
+            referrer = href
+        }
+        href = getParameter(href, 'u')
+        hostName = getHostName(href)
+        break
+
+    case 'cc.bingj.com':
+    case 'webcache.googleusercontent.com':
+    case 'yahoo':
+        href = document.links[0].href
+        hostName = getHostName(href)
+        break
+    }
+
+    return [hostName, href, referrer]
+}
+
+/**
  * Parses an object and returns either the
  * integer or undefined.
  *
@@ -495,19 +577,23 @@ const helpers = {
     findRootDomain,
     fixupDomain,
     fixupTitle,
+    fixupUrl,
     fromQuerystring,
     getCookiesWithPrefix,
     getCssClasses,
     getFilter,
     getHostName,
+    getParameter,
     getReferrer,
     getTransform,
     isArray,
     isFunction,
+    isIpAddress,
     isObject,
     isString,
     isUndefined,
     isValueInArray,
+    isYahooCachedPage,
     parseFloat,
     parseInt,
     resolveDynamicContexts,

@@ -32,7 +32,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { addEventListener } from './lib/Helpers'
+import { addEventListener } from './lib/Utilities'
 import InQueueManager from './lib/InQueueManager'
 import JavascriptTracker from './lib/JavascriptTracker'
 import { version } from '../../package.json'

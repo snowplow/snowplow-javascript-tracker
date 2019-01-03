@@ -38,7 +38,7 @@ import {
     getFilter,
     getTransform,
     addEventListener,
-} from './Helpers'
+} from './Utilities'
 
 // Symbols for private methods
 const getFormElementName = Symbol('getFormElementName')
@@ -208,24 +208,42 @@ class FormTrackingManager {
     /**
      * Return function to handle form submission event
      *
+     * @param {String} event_type - type of event being tracked
      * @param {Object} context  - dynamic context object
      * @returns {Function} - the handler for the form submission event
      */
-    [getFormSubmissionListener](context) {
+    [getFormChangeListener](event_type, context) {
         return e => {
             var elt = e.target
-            var innerElements = this[getInnerFormElements](elt)
-            innerElements.forEach(innerElement => {
-                innerElement.value = this.fieldTransform(innerElement.value)
-            })
-            this.core.trackFormSubmission(
-                this[getFormElementName](elt),
-                getCssClasses(elt),
-                innerElements,
-                this.contextAdder(
-                    resolveDynamicContexts(context, elt, innerElements)
+            var type =
+                elt.nodeName && elt.nodeName.toUpperCase() === 'INPUT'
+                    ? elt.type
+                    : null
+            var value =
+                elt.type === 'checkbox' && !elt.checked
+                    ? null
+                    : this.fieldTransform(elt.value)
+            if (
+                event_type === 'change_form' ||
+                (type !== 'checkbox' && type !== 'radio')
+            ) {
+                this.core.trackFormChange(
+                    this[getParentFormName](elt),
+                    this[getFormElementName](elt),
+                    elt.nodeName,
+                    type,
+                    getCssClasses(elt),
+                    value,
+                    this.contextAdder(
+                        resolveDynamicContexts(
+                            context,
+                            elt,
+                            type,
+                            value
+                        )
+                    )
                 )
-            )
+            }
         }
     }
 
@@ -246,7 +264,7 @@ class FormTrackingManager {
             this.fieldTransform = getTransform(config.fields)
         }
     }
-    
+
     /**
      * Add submission event listeners to all form elements
      * Add value change event listeners to all mutable inner form elements
@@ -276,10 +294,22 @@ class FormTrackingManager {
                                 ) {
                                     addEventListener(
                                         innerElement,
-                                        'change',
-                                        this[getFormChangeListener](context),
+                                        'focus',
+                                        getFormChangeListener(
+                                            'focus_form',
+                                            context
+                                        ),
                                         false
                                     )
+                                    addEventListener(
+                                        innerElement,
+                                        'change',
+                                        getFormChangeListener(
+                                            'change_form',
+                                            context
+                                        ),
+                                        false
+                                    )                                   
                                     innerElement[this.trackingMarker] = true
                                 }
                             }
