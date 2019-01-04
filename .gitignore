@@ -1,3 +1,10 @@
+packages/snowplow-tracker-core/index.js
+packages/snowplow-tracker-core/lib/*
+packages/snowplow-tracker-core/src/*.js.map
+packages/snowplow-tracker-core/src/*.js
+**/dist
+.tscache
+
 # Tests suite
 ngrok
 
@@ -16,6 +23,7 @@ logs
 results
 
 npm-debug.log
+**/node_modules
 node_modules
 
 **/lodash.js
@@ -34,5 +42,5 @@ VERSION
 src/js/lib_managed
 build/
 template/filled/
-dist/
-core/lib/
+templates/filled/
+temp/*

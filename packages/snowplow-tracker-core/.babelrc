@@ -2,15 +2,7 @@
     "presets": [
         ["@babel/env",
             {
-                "useBuiltIns": "usage",
-                "targets": {
-                    "browsers": [
-                        "chrome >= 32",
-                        "ie >= 9",
-                        "firefox >= 27",
-                        "safari >= 8"
-                    ]
-                },
+                "useBuiltIns": "usage",                
                 "debug": true
             }
         ],
