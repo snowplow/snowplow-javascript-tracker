@@ -119,7 +119,13 @@ module.exports = (function () {
                 assert.deepEqual(actual, expected)
             })
 
-
+            it('should return an empty array when there are no classes on an element', function() {
+                var element = { className: '' }
+                
+                var expected = []
+                var actual = utilities.getCssClasses(element)
+                assert.deepEqual(actual, expected)
+            })
         })
 
     })

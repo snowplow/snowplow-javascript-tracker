@@ -216,6 +216,7 @@ export const warn = message => {
  * @returns {String[]} - an array of the classes on the element
  */
 export const getCssClasses = element => {
+   
     return element.className.match(/\S+/g) || []
 }
 
