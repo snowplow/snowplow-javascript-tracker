@@ -1,20 +1,26 @@
 node_js:
-- 8.12.0
+- 10.15.0
 language: node_js
 install:
 - npm install -g npm@6
 - npm install -g grunt-cli
 
-# install packages and build core
-- cd core
-- rm -rf node_modules
+# bootstrap lerna repository
 - npm install
-- npm publish
+
+# install packages and build core
+#- cd core
+#- rm -rf node_modules
+#- npm install
+#- npm publish
 
 # install packages for tracker
-- cd ..
-- rm -rf node_modules
-- npm install
+#- cd ..
+#- rm -rf node_modules
+#- npm install
+
+# build lerna repository
+- npm run build
 
 # get ngrok
 - wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
@@ -23,7 +29,9 @@ before_script:
 - export SUBDOMAIN=$RANDOM$RANDOM
 - ./ngrok http -authtoken $NGROK_AUTH -subdomain $SUBDOMAIN -log=stdout 8500 > /dev/null &
 script:
-- cd core && grunt intern && cd ..
+#- cd core && grunt intern && cd ..
+- lerna run test --scope=@snowplow/tracker-core --stream
+- cd snowplow-javascript-tracker
 - grunt travis
 deploy:
 - provider: script
