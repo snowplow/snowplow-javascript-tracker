@@ -16,7 +16,7 @@
 define([
 	'intern!object',
 	'intern/chai!assert',
-	'intern/dojo/node!../../lib/payload.js'
+	'intern/dojo/node!../../lib/cjs/payload.js'
 ], function (registerSuite, assert, payload) {
 
 

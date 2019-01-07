@@ -20,7 +20,8 @@ module.exports = function(api) {
                 ],
             },
             development: {
-                ignore: [],
+                ignore:  [/\/node_modules\//],
+                exclude: [/\/core-js\//, /\/lodash\//, /\/lodash-es\//, /\/node-modules\//],
                 plugins: ['@babel/plugin-proposal-object-rest-spread'],
                 presets: [
                     [
@@ -32,7 +33,7 @@ module.exports = function(api) {
                             loose: false,
                             spec: false,
                         },
-                    ],
+                    ],                    
                 ],
             },
         },

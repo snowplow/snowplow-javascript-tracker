@@ -18,18 +18,21 @@
   "scripts": {
     "type-check": "tsc --noEmit",
     "type-check:watch": "npm run type-check -- --watch",
-    "build": "npm run build:types && npm run build:js",
+    "test": "intern-client config=tests/intern",
+    "build": "npm run build:types && npm run build:js && npm run build:es",
     "build:types": "tsc --emitDeclarationOnly",
-    "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
-    "prepublishOnly": "build"
+    "build:js": "BABEL_ENV=cjs babel src --out-dir lib/cjs --extensions \".ts,.tsx\" --source-maps inline",
+    "build:es": "BABEL_ENV=mjs babel src --out-dir lib/mjs --extensions \".ts,.tsx\" --source-maps inline",
+    "prepublishOnly": "npm run build"
   },
   "contributors": [
     "Alex Dean",
     "Simon Andersson",
     "Fred Blundun"
   ],
-  "main": "./lib/index.js",
+  "main": "./lib/cjs/index.js",
   "types": "./lib/index.d.ts",
+  "module": "./lib/mjs/index.js",
   "description": "Core functionality for the Snowplow JavaScript trackers (browser JavaScript; Node.js; Segment.io server-side)",
   "repository": {
     "type": "git",

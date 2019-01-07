@@ -80,13 +80,13 @@ export const hasLocalStorage = () => {
  * @returns {Boolean} - true if localStorage is accessible
  */
 export const localStorageAccessible = () => {
-    var mod = 'modernizr'
+    const testKeyValue = 'spt'
     if (!hasLocalStorage()) {
         return false
     }
     try {
-        windowAlias.localStorage.setItem(mod, mod)
-        windowAlias.localStorage.removeItem(mod)
+        windowAlias.localStorage.setItem(testKeyValue, testKeyValue)
+        windowAlias.localStorage.removeItem(testKeyValue)
         return true
     } catch (e) {
         return false
@@ -96,11 +96,10 @@ export const localStorageAccessible = () => {
 /**
  * Does browser have cookies enabled (for this site)?
  *
- * @returns {Boolran} - true if the cookies are enabled
+ * @returns {Boolean} - true if the cookies are enabled
  */
 export const hasCookies = testCookieName => {
     var cookieName = testCookieName || 'testcookie'
-
     if (navigatorAlias.cookieEnabled === undefined) {
         cookie.cookie(cookieName, '1')
         return cookie.cookie(cookieName) === '1' ? '1' : '0'

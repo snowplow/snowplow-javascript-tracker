@@ -8,6 +8,9 @@ import conditional from 'rollup-plugin-conditional'
 
 const isProduction = process.env.buildTarget === 'PROD'
 
+
+
+
 export default {
     input: 'src/js/init.js',
     output: {
@@ -40,9 +43,9 @@ export default {
                 jstimezonedetect: ['jstz'],
                 murmurhash: ['v3'],
             },
-        }),
+        }),       
         babel({
-            exclude: 'node_modules/**', // only transpile our source code
+            //exclude: ['**/node_modules/**', 'node_modules/**'], // only transpile our source code
         }),
         conditional(isProduction, [
             terser({

@@ -17,8 +17,8 @@ define([
 	"intern!object",
 	"intern/chai!assert",
 	"intern/chai!expect",
-	"intern/dojo/node!../../lib/contexts.js",
-	"intern/dojo/node!../../lib/payload.js"
+	"intern/dojo/node!../../lib/cjs/contexts.js",
+	"intern/dojo/node!../../lib/cjs/payload.js"
 ], function (registerSuite, assert, expect, contexts, payload) {
 	registerSuite({
 		name: "Global context tests",

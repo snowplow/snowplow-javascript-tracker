@@ -72,12 +72,7 @@
     "testing-server:start": "node bin/testServer.js",
     "bundle:watch": "rollup -c --watch",
     "bundle:dev": "rollup -c",
-    "bundle:dist": "rollup -c --environment buildTarget:PROD"
-  },
-  "browserslist": [
-    "last 1 version",
-    "> 2%",
-    "not dead",
-    "not ie <= 10"
-  ]
+    "bundle:dist": "rollup -c --environment buildTarget:PROD",
+    "build": "rollup -c --environment buildTarget:PROD"
+  }
 }
