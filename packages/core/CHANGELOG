@@ -1,3 +1,8 @@
+Version 2.9.3 (2019-01-09)
+--------------------------
+Add option to set a custom POST request path (#696)
+Refresh npm authentication token (#688)
+
 Version 2.9.2 (2018-07-24)
 --------------------------
 Remove wheel and passive event listener feature flags (#661)
