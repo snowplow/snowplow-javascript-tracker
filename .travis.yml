@@ -31,7 +31,7 @@ before_script:
 script:
 #- cd core && grunt intern && cd ..
 - lerna run test --scope=@snowplow/tracker-core --stream
-- cd packages/nowplow-javascript-tracker
+- cd packages/snowplow-javascript-tracker
 - grunt travis
 deploy:
 - provider: script

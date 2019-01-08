@@ -36,256 +36,273 @@ import cookie from 'browser-cookie-lite'
 import { v3 as murmurhash3_32_gc } from 'murmurhash'
 import jstz from 'jstimezonedetect'
 
-const tz = jstz.determine(),
-    windowAlias = window,
-    navigatorAlias = navigator,
-    screenAlias = screen,
-    documentAlias = document
+class BrowserFeatureDetector {
 
-/**
- * Checks whether sessionStorage is available, in a way that
- * does not throw a SecurityError in Firefox if "always ask"
- * is enabled for cookies (https://github.com/snowplow/snowplow/issues/163).
- *
- * @returns {Boolean} - true if user agent supports sessionStorage
- */
-export const hasSessionStorage = () => {
-    try {
-        return !!windowAlias.sessionStorage
-    } catch (e) {
-        return true // SecurityError when referencing it means it exists
-    }
-}
-
-/**
- * Checks whether localStorage is available, in a way that
- * does not throw a SecurityError in Firefox if "always ask"
- * is enabled for cookies (https://github.com/snowplow/snowplow/issues/163).
- *
- * @returns {Boolean} - true if user agent supports localStorage
- */
-export const hasLocalStorage = () => {
-    try {
-        return !!windowAlias.localStorage
-    } catch (e) {
-        return true // SecurityError when referencing it means it exists
-    }
-}
-
-/**
- * Checks whether localStorage is accessible
- * sets and removes an item to handle private IOS5 browsing
- * (http://git.io/jFB2Xw)
- *
- * @returns {Boolean} - true if localStorage is accessible
- */
-export const localStorageAccessible = () => {
-    const testKeyValue = 'spt'
-    if (!hasLocalStorage()) {
-        return false
-    }
-    try {
-        windowAlias.localStorage.setItem(testKeyValue, testKeyValue)
-        windowAlias.localStorage.removeItem(testKeyValue)
-        return true
-    } catch (e) {
-        return false
-    }
-}
-
-/**
- * Does browser have cookies enabled (for this site)?
- *
- * @returns {Boolean} - true if the cookies are enabled
- */
-export const hasCookies = testCookieName => {
-    var cookieName = testCookieName || 'testcookie'
-    if (navigatorAlias.cookieEnabled === undefined) {
-        cookie.cookie(cookieName, '1')
-        return cookie.cookie(cookieName) === '1' ? '1' : '0'
+    /**
+     * Creates a new browser feature detector class. 
+     * 
+     * @param {*} window 
+     * @param {*} navigator 
+     * @param {*} screen 
+     * @param {*} document 
+     */
+    constructor(window, navigator, screen, document) {
+        this.windowAlias = window,
+        this.navigatorAlias = navigator,
+        this.screenAlias = screen,
+        this.documentAlias = document
     }
 
-    return navigatorAlias.cookieEnabled ? '1' : '0'
-}
+    /**
+     * Checks whether sessionStorage is available, in a way that
+     * does not throw a SecurityError in Firefox if "always ask"
+     * is enabled for cookies (https://github.com/snowplow/snowplow/issues/163).
+     *
+     * @returns {Boolean} - true if user agent supports sessionStorage
+     */
+    hasSessionStorage() {
+        try {
+            return !!this.windowAlias.sessionStorage
+        } catch (e) {
+            return true // SecurityError when referencing it means it exists
+        }
+    }
 
-/**
- * JS Implementation for browser fingerprint.
- * Does not require any external resources.
- * Based on https://github.com/carlo/jquery-browser-fingerprint
- *
- * @returns {number} 32-bit positive integer hash
- */
-export const detectSignature = hashSeed => {
-    var fingerprint = [
-        navigatorAlias.userAgent,
-        [screenAlias.height, screenAlias.width, screenAlias.colorDepth].join(
-            'x'
-        ),
-        new Date().getTimezoneOffset(),
-        hasSessionStorage(),
-        hasLocalStorage(),
-    ]
+    /**
+     * Checks whether localStorage is available, in a way that
+     * does not throw a SecurityError in Firefox if "always ask"
+     * is enabled for cookies (https://github.com/snowplow/snowplow/issues/163).
+     *
+     * @returns {Boolean} - true if user agent supports localStorage
+     */
+    hasLocalStorage() {
+        try {
+            return !!this.windowAlias.localStorage
+        } catch (e) {
+            return true // SecurityError when referencing it means it exists
+        }
+    }
 
-    var plugins = []
-    if (navigatorAlias.plugins) {
-        for (var i = 0; i < navigatorAlias.plugins.length; i++) {
-            if (navigatorAlias.plugins[i]) {
-                var mt = []
-                for (var j = 0; j < navigatorAlias.plugins[i].length; j++) {
-                    mt.push([
-                        navigatorAlias.plugins[i][j].type,
-                        navigatorAlias.plugins[i][j].suffixes,
+    /**
+     * Checks whether localStorage is accessible
+     * sets and removes an item to handle private IOS5 browsing
+     * (http://git.io/jFB2Xw)
+     *
+     * @returns {Boolean} - true if localStorage is accessible
+     */
+    localStorageAccessible() {
+        const testKeyValue = 'spt'
+        if (!this.hasLocalStorage()) {
+            return false
+        }
+        try {
+            this.windowAlias.localStorage.setItem(testKeyValue, testKeyValue)
+            this.windowAlias.localStorage.removeItem(testKeyValue)
+            return true
+        } catch (e) {
+            return false
+        }
+    }
+
+    /**
+     * Does browser have cookies enabled (for this site)?
+     *
+     * @returns {Boolean} - true if the cookies are enabled
+     */
+    hasCookies(testCookieName) {
+        var cookieName = testCookieName || 'testcookie'
+        if (this.navigatorAlias.cookieEnabled === undefined) {
+            cookie.cookie(cookieName, '1')
+            return cookie.cookie(cookieName) === '1' ? '1' : '0'
+        }
+
+        return this.navigatorAlias.cookieEnabled ? '1' : '0'
+    }
+
+    /**
+     * JS Implementation for browser fingerprint.
+     * Does not require any external resources.
+     * Based on https://github.com/carlo/jquery-browser-fingerprint
+     *
+     * @returns {number} 32-bit positive integer hash
+     */
+    detectSignature(hashSeed) {
+        var fingerprint = [
+            this.navigatorAlias.userAgent,
+            [this.screenAlias.height, this.screenAlias.width, this.screenAlias.colorDepth].join(
+                'x'
+            ),
+            new Date().getTimezoneOffset(),
+            this.hasSessionStorage(),
+            this.asLocalStorage(),
+        ]
+
+        var plugins = []
+        if (this.navigatorAlias.plugins) {
+            for (var i = 0; i < this.navigatorAlias.plugins.length; i++) {
+                if (this.navigatorAlias.plugins[i]) {
+                    var mt = []
+                    for (var j = 0; j < this.navigatorAlias.plugins[i].length; j++) {
+                        mt.push([
+                            this.navigatorAlias.plugins[i][j].type,
+                            this.navigatorAlias.plugins[i][j].suffixes,
+                        ])
+                    }
+                    plugins.push([
+                        this.navigatorAlias.plugins[i].name +
+                            '::' +
+                            this.navigatorAlias.plugins[i].description,
+                        mt.join('~'),
                     ])
                 }
-                plugins.push([
-                    navigatorAlias.plugins[i].name +
-                        '::' +
-                        navigatorAlias.plugins[i].description,
-                    mt.join('~'),
-                ])
             }
         }
+        return murmurhash3_32_gc(
+            fingerprint.join('###') + '###' + plugins.sort().join(';'),
+            hashSeed
+        )
     }
-    return murmurhash3_32_gc(
-        fingerprint.join('###') + '###' + plugins.sort().join(';'),
-        hashSeed
-    )
-}
 
-/**
- * Returns visitor timezone
- *
- * @returns {String} - the visitors timezone
- */
-export const detectTimezone = () => {
-    tz ? tz.name() : ''
-}
-
-/**
- * Gets the current viewport.
- *
- * Code based on:
- * - http://andylangton.co.uk/articles/javascript/get-viewport-size-javascript/
- * - http://responsejs.com/labs/dimensions/
- *
- * @returns {String|null} - the current viewport in the format width x height or null
- */
-export const detectViewport = () => {
-    let e = windowAlias,
-        a = 'inner'
-    if (!('innerWidth' in windowAlias)) {
-        a = 'client'
-        e = documentAlias.documentElement || documentAlias.body
+    /**
+     * Returns visitor timezone
+     *
+     * @returns {String} - the visitors timezone
+     */
+    detectTimezone() {
+        const tz = jstz.determine()
+        return tz ? tz.name() : ''
     }
-    const width = e[a + 'Width']
-    const height = e[a + 'Height']
-    if (width >= 0 && height >= 0) {
-        return `${width}x${height}`
-    } else {
-        return null
-    }
-}
 
-/**
- * Gets the dimensions of the current
- * document.
- *
- * Code based on:
- * - http://andylangton.co.uk/articles/javascript/get-viewport-size-javascript/
- *
- * @returns {String} - the current document size in the format width x height or empty string
- */
-export const detectDocumentSize = () => {
-    const de = documentAlias.documentElement, // Alias
-        be = documentAlias.body,
-        // document.body may not have rendered, so check whether be.offsetHeight is null
-        bodyHeight = be ? Math.max(be.offsetHeight, be.scrollHeight) : 0
-    const w = Math.max(de.clientWidth, de.offsetWidth, de.scrollWidth)
-    const h = Math.max(
-        de.clientHeight,
-        de.offsetHeight,
-        de.scrollHeight,
-        bodyHeight
-    )
-    return isNaN(w) || isNaN(h) ? '' : `${w}x${h}`
-}
-
-/**
- * Returns browser features (plugins, resolution, cookies)
- *
- * @param {Boolean} useCookies - Whether to test for cookies
- * @param {String} testCookieName - Name to use for the test cookie
- * @returns {Object} - object containing browser features
- */
-export const detectBrowserFeatures = (useCookies, testCookieName) => {
-    let i, mimeType
-    const pluginMap = {
-            // document types
-            pdf: 'application/pdf',
-
-            // media players
-            qt: 'video/quicktime',
-            realp: 'audio/x-pn-realaudio-plugin',
-            wma: 'application/x-mplayer2',
-
-            // interactive multimedia
-            dir: 'application/x-director',
-            fla: 'application/x-shockwave-flash',
-
-            // RIA
-            java: 'application/x-java-vm',
-            gears: 'application/x-googlegears',
-            ag: 'application/x-silverlight',
-        },
-        features = {}
-
-    // General plugin detection
-    if (navigatorAlias.mimeTypes && navigatorAlias.mimeTypes.length) {
-        for (i in pluginMap) {
-            if (Object.prototype.hasOwnProperty.call(pluginMap, i)) {
-                mimeType = navigatorAlias.mimeTypes[pluginMap[i]]
-                features[i] = mimeType && mimeType.enabledPlugin ? '1' : '0'
-            }
+    /**
+     * Gets the current viewport.
+     *
+     * Code based on:
+     * - http://andylangton.co.uk/articles/javascript/get-viewport-size-javascript/
+     * - http://responsejs.com/labs/dimensions/
+     *
+     * @returns {String|null} - the current viewport in the format width x height or null
+     */
+    detectViewport() {
+        let e = this.windowAlias,
+            a = 'inner'
+        if (!('innerWidth' in this.windowAlias)) {
+            a = 'client'
+            e = this.documentAlias.documentElement || this.documentAlias.body
+        }
+        const width = e[a + 'Width']
+        const height = e[a + 'Height']
+        if (width >= 0 && height >= 0) {
+            return `${width}x${height}`
+        } else {
+            return null
         }
     }
 
-    // Safari and Opera
-    // IE6/IE7 navigator.javaEnabled can't be aliased, so test directly
-    if (
-        navigatorAlias.constructor === window.Navigator &&
-        typeof navigatorAlias.javaEnabled !== undefined &&
-        navigatorAlias.javaEnabled!==undefined &&
-        navigatorAlias.javaEnabled()
-    ) {
-        features.java = '1'
+    /**
+     * Gets the dimensions of the current
+     * document.
+     *
+     * Code based on:
+     * - http://andylangton.co.uk/articles/javascript/get-viewport-size-javascript/
+     *
+     * @returns {String} - the current document size in the format width x height or empty string
+     */
+    detectDocumentSize() {
+        const de = this.documentAlias.documentElement, // Alias
+            be = this.documentAlias.body,
+            // document.body may not have rendered, so check whether be.offsetHeight is null
+            bodyHeight = be ? Math.max(be.offsetHeight, be.scrollHeight) : 0
+        const w = Math.max(de.clientWidth, de.offsetWidth, de.scrollWidth)
+        const h = Math.max(
+            de.clientHeight,
+            de.offsetHeight,
+            de.scrollHeight,
+            bodyHeight
+        )
+        return isNaN(w) || isNaN(h) ? '' : `${w}x${h}`
     }
 
-    // Firefox
-    if (typeof windowAlias.GearsFactory == 'function') {
-        features.gears = '1'
+    /**
+     * Returns browser features (plugins, resolution, cookies)
+     *
+     * @param {Boolean} useCookies - Whether to test for cookies
+     * @param {String} testCookieName - Name to use for the test cookie
+     * @returns {Object} - object containing browser features
+     */
+    detectBrowserFeatures(useCookies, testCookieName) {
+        let i, mimeType
+        const pluginMap = {
+                // document types
+                pdf: 'application/pdf',
+
+                // media players
+                qt: 'video/quicktime',
+                realp: 'audio/x-pn-realaudio-plugin',
+                wma: 'application/x-mplayer2',
+
+                // interactive multimedia
+                dir: 'application/x-director',
+                fla: 'application/x-shockwave-flash',
+
+                // RIA
+                java: 'application/x-java-vm',
+                gears: 'application/x-googlegears',
+                ag: 'application/x-silverlight',
+            },
+            features = {}
+
+        // General plugin detection
+
+        if (this.navigatorAlias.mimeTypes && this.navigatorAlias.mimeTypes.length) {
+            for (i in pluginMap) {
+                if (Object.prototype.hasOwnProperty.call(pluginMap, i)) {
+                    mimeType = this.navigatorAlias.mimeTypes[pluginMap[i]]
+                    features[i] = mimeType && mimeType.enabledPlugin ? '1' : '0'
+                }
+            }
+        }
+
+        // Safari and Opera
+        // IE6/IE7 navigator.javaEnabled can't be aliased, so test directly
+        if (
+            this.navigatorAlias.constructor === window.Navigator &&
+            typeof this.navigatorAlias.javaEnabled !== undefined &&
+            this.navigatorAlias.javaEnabled!==undefined &&
+            this.navigatorAlias.javaEnabled()
+        ) {
+            features.java = '1'
+        }
+
+        // Firefox
+        if (typeof this.navigatorAlias.GearsFactory == 'function') {
+            features.gears = '1'
+        }
+
+        // Other browser features
+        features.res = this.screenAlias.width + 'x' + this.screenAlias.height
+        features.cd = this.screenAlias.colorDepth
+        if (useCookies) {
+            features.cookie = this.hasCookies(testCookieName)
+        }
+
+        return features
     }
 
-    // Other browser features
-    features.res = screenAlias.width + 'x' + screenAlias.height
-    features.cd = screenAlias.colorDepth
-    if (useCookies) {
-        features.cookie = hasCookies(testCookieName)
-    }
-
-    return features
 }
 
-export default {
-    hasLocalStorage,
-    detectBrowserFeatures,
-    detectSignature,
-    detectTimezone,
-    detectViewport,
-    hasCookies,
-    detectDocumentSize,
-    hasSessionStorage,
-    localStorageAccessible,
-    navigatorAlias,
-    screenAlias,
-    windowAlias,
-}
+export default BrowserFeatureDetector
+
+// export default {
+//     hasLocalStorage,
+//     detectBrowserFeatures,
+//     detectSignature,
+//     detectTimezone,
+//     detectViewport,
+//     hasCookies,
+//     detectDocumentSize,
+//     hasSessionStorage,
+//     localStorageAccessible,
+//     navigatorAlias,
+//     screenAlias,
+//     windowAlias,
+// }

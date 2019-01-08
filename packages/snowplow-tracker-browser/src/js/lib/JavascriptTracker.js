@@ -50,13 +50,7 @@ import {
     warn,
 } from './Utilities'
 import 'browser-cookie-lite'
-import {
-    detectSignature,
-    detectTimezone,
-    detectBrowserFeatures,
-    detectViewport,
-    detectDocumentSize,
-} from './Detect'
+import BrowserFeatureDetector from './Detect'
 import sha1 from 'sha1'
 import FormTrackingManager from './FormTrackingManager'
 import ErrorManager from './ErrorManager'
@@ -128,6 +122,8 @@ const logTransaction = Symbol('logTransaction')
 const logTransactionItem = Symbol('logTransactionItem')
 const prefixPropertyName = Symbol('prefixPropertyName')
 const trackCallback = Symbol('trackCallback')
+
+const Detector = new BrowserFeatureDetector(window, navigator, screen, document)
 
 /**
  * Snowplow Tracker class
@@ -237,7 +233,7 @@ class JavascriptTracker {
                 )
             },
             get browserFeatures() {
-                return detectBrowserFeatures(
+                return Detector.detectBrowserFeatures(
                     config.stateStorageStrategy == 'cookie' ||
                         config.stateStorageStrategy == 'cookieAndLocalStorage',
                     _this[getSnowplowCookieName]('testcookie')
@@ -246,7 +242,7 @@ class JavascriptTracker {
             get userFingerprint() {
                 return config.userFingerprint === false
                     ? ''
-                    : detectSignature(config.userFingerprintSeed)
+                    : Detector.detectSignature(config.userFingerprintSeed)
             },
             trackerId: `${functionName}_${namespace}`,
             activityTrackingInstalled: false,
@@ -324,7 +320,7 @@ class JavascriptTracker {
         this.core.setTrackerNamespace(namespace)
         this.core.setAppId(config.appId)
         this.core.setPlatform(config.platform)
-        this.core.setTimezone(detectTimezone())
+        this.core.setTimezone(Detector.detectTimezone())
         this.core.addPayloadPair('lang', this.state.browserLanguage)
         this.core.addPayloadPair('cs', this.state.documentCharset)
 
@@ -861,8 +857,8 @@ class JavascriptTracker {
         }
 
         // Build out the rest of the request
-        sb.add('vp', detectViewport())
-        sb.add('ds', detectDocumentSize())
+        sb.add('vp', Detector.detectViewport())
+        sb.add('ds', Detector.detectDocumentSize())
         sb.add('vid', this.state.memorizedVisitCount)
         sb.add('sid', this.state.memorizedSessionId)
         sb.add('duid', _domainUserId) // Set to our local variable
@@ -2221,7 +2217,7 @@ class JavascriptTracker {
             'setUserFingerprintSeed is deprecated. Instead add a "userFingerprintSeed" field to the argmap argument of newTracker.'
         )
         this.config.userFingerprintSeed = seed
-        this.state.userFingerprint = detectSignature(
+        this.state.userFingerprint = Detector.detectSignature(
             this.config.userFingerprintSeed
         )
     }
