@@ -30,9 +30,9 @@ before_script:
 - ./ngrok http -authtoken $NGROK_AUTH -subdomain $SUBDOMAIN -log=stdout 8500 > /dev/null &
 script:
 #- cd core && grunt intern && cd ..
-- lerna run test --scope=@snowplow/tracker-core --stream
-- cd packages/snowplow-javascript-tracker
-- grunt travis
+- lerna run test
+#- cd packages/snowplow-tracker-browser
+#- grunt travis
 deploy:
 - provider: script
   skip_cleanup: true
