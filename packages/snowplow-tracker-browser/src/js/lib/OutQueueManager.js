@@ -33,7 +33,7 @@
  */
 
 import { attemptWriteLocalStorage, warn } from './Utilities'
-import { localStorageAccessible } from './Detect'
+import BrowserFeatureDetector from './Detect'
 import mapValues from 'lodash-es/mapValues'
 import isString from 'lodash-es/isString'
 import isArray from 'lodash-es/isArray'
@@ -72,6 +72,7 @@ class OutQueueManager {
         bufferSize,
         maxPostBytes
     ) {
+        this.detector = new BrowserFeatureDetector(window, navigator, screen, document)
         this.functionName = functionName
         this.namespace = namespace
         this.mutSnowplowState = mutSnowplowState
@@ -94,7 +95,7 @@ class OutQueueManager {
         this.path = this.useBeacon || this.usePost ? '/com.snowplowanalytics.snowplow/tp2' : '/i'
 
         bufferSize =
-            (localStorageAccessible() &&
+            (this.detector.localStorageAccessible() &&
                 useLocalStorage &&
                 usePost &&
                 bufferSize) ||

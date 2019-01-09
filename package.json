@@ -3,8 +3,9 @@
     "private": true,
     "license": "Simplified BSD",
     "scripts": {
-        "postinstall": "lerna bootstrap --hoist",
-        "build": "lerna run build"
+        "postinstall": "lerna bootstrap --hoist --stream",
+        "build": "lerna run build --stream",
+        "test": "lerna run test --stream"
     },
     "devDependencies": {
         "@babel/cli": "^7.2.2",
@@ -26,7 +27,6 @@
         "express": "^4.16.4",
         "grunt": "^1.0.3",
         "grunt-aws": "0.6.2",
-        "intern": "3.3.2",
         "js-base64": "^2.4.9",
         "jsdom": "^13.1.0",
         "lerna": "^3.8.4",

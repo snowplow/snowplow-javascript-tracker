@@ -1,6 +1,9 @@
 var assert = require('assert')
 var describe = require('mocha').describe
 var it = require('mocha').it
+const JSDOM = require('jsdom').JSDOM
+const before = require('mocha').before
+const after = require('mocha').after
 
 const utilities = require('../../src/js/lib/Utilities.js')
 
@@ -171,6 +174,59 @@ module.exports = (function () {
                 assert.deepEqual(actual, expected)
             })
 
+        })
+
+        describe('Browser Helpers', function() {
+
+            before(function(){
+                delete this.testBrowser
+                //This makes it easier to stub functions that exist in a browser and/or use real browser functions in tests
+                this.testBrowser = new JSDOM('<html><body><title>Helpers Tests</title><div id=click_me></div></body></html>', {
+                    url: 'https://example.org/?name=value&referrer=previous#fragment',
+                    referrer: 'https://example.com/',
+                    contentType: 'text/html',
+                    storageQuota: 10000000,
+                    runScripts: 'outside-only',
+                })
+            })
+
+            after(function(){
+                delete this.testBrowser
+            })
+
+            it('Get page title', function () {
+                global.document = this.testBrowser.window.document
+                global.window = this.testBrowser.window
+                const detectedTitle = utilities.fixupTitle(0)
+                assert.strictEqual(detectedTitle, 'Helpers Tests', 'Get the page title')                    
+            })
+
+            it('Get host name', function () {                
+                global.document = this.testBrowser.window.document
+                global.window = this.testBrowser.window
+                const detectedHostName = utilities.getHostName(this.testBrowser.window.location.href)
+                assert.strictEqual(detectedHostName, 'example.org', 'Get the host name')                  
+            })
+
+            it('Get referrer from querystring', function () {
+                global.document = this.testBrowser.window.document
+                global.window = this.testBrowser.window
+                const detectedReferrer = utilities.getReferrer()
+                assert.strictEqual(detectedReferrer, 'previous', 'Get the referrer from the querystring')
+            })
+
+            it('Add event listener', function () {
+                global.document = this.testBrowser.window.document
+                global.window = this.testBrowser.window
+                global.window.hasBeenClicked = false           
+                utilities.addEventListener(this.testBrowser.window.document.getElementById('click_me'), 'click', function() {
+                    window.hasBeenClicked = true                    
+                })
+                this.testBrowser.window.document.getElementById('click_me').click()
+
+                assert.strictEqual(this.testBrowser.window.hasBeenClicked, true, 'Add a click event listener')
+                    
+            })
         })
     })
 

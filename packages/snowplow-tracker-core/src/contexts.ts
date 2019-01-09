@@ -338,7 +338,7 @@ export function normalizeToArray(input: any) : Array<any> {
     if (Array.isArray(input)) {
         return input;
     }
-    return Array.of(input);
+    return [input];
 }
 
 export function generatePrimitives(contextPrimitives: Array<ContextPrimitive> | ContextPrimitive,

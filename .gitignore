@@ -44,3 +44,5 @@ build/
 template/filled/
 templates/filled/
 temp/*
+
+.nyc_output/

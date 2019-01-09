@@ -1,35 +1,35 @@
 module.exports = {
     env: {
         cjs: {
-            "presets": [
-                ["@babel/env",
+            'presets': [
+                ['@babel/env',
                     {
-                        "useBuiltIns": "usage",
-                        "debug": true,
-                        "modules": "cjs"
+                        'useBuiltIns': 'usage',
+                        'debug': true,
+                        'modules': 'cjs'
                     }
                 ],
-                "@babel/typescript"
+                '@babel/typescript'
             ],
-            "plugins": [
-                "@babel/plugin-transform-runtime",
-                "lodash",
-                "@babel/proposal-class-properties",
-                "@babel/proposal-object-rest-spread"
+            'plugins': [
+                '@babel/plugin-transform-runtime',
+                'lodash',
+                '@babel/proposal-class-properties',
+                '@babel/proposal-object-rest-spread'
             ],
-            "exclude": [/\/core-js\//]
+            'exclude': [/\/core-js\//]
         },
         mjs: {
-            "presets": [
-               "@babel/typescript"
+            'presets': [
+               '@babel/typescript'
             ],
-            "plugins": [
-                //"@babel/plugin-transform-runtime",
-                "lodash",
-                //"@babel/proposal-class-properties",
-                //"@babel/proposal-object-rest-spread"
+            'plugins': [
+                //'@babel/plugin-transform-runtime',
+                'lodash',
+                //'@babel/proposal-class-properties',
+                //'@babel/proposal-object-rest-spread'
             ],
-            "exclude": [/\/core-js\//]
+            'exclude': [/\/core-js\//]
         },
     },
 }

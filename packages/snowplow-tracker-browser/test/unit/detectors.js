@@ -2,6 +2,7 @@ const assert = require('assert')
 const describe = require('mocha').describe
 const beforeEach = require('mocha').beforeEach
 const before = require('mocha').before
+const after = require('mocha').after
 const afterEach = require('mocha').afterEach
 const it = require('mocha').it
 const JSDOM = require('jsdom').JSDOM
@@ -21,6 +22,10 @@ module.exports = (function() {
                 contentType: 'text/html',
                 storageQuota: 10000000
             })
+        })
+
+        after(function(){
+            delete this.testBrowser
         })
     
         beforeEach(function(){

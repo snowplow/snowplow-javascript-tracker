@@ -6,8 +6,24 @@ module.exports = wallaby => {
             'packages/snowplow-tracker-browser/src/*.js',
             'packages/snowplow-tracker-browser/src/**/*.js',
             'packages/snowplow-tracker-browser/test/mocks/*.js',
+            // {
+            //     pattern: 'packages/snowplow-tracker-core/src/*.js',
+            //     instrument: true,
+            //     load: true,
+            //     ignore: false,
+            // },
+            {
+                pattern: 'packages/snowplow-tracker-core/src/*.ts',
+                instrument: true,
+                load: true,
+                ignore: false,
+            },
         ],
-        tests: ['packages/snowplow-tracker-browser/test/unit/*.js'],
+        tests: [
+            'packages/snowplow-tracker-browser/test/unit/*.js',
+            'packages/snowplow-tracker-core/test/unit/*.ts',
+            'packages/snowplow-tracker-core/test/unit/*.js',
+        ],
         env: {
             type: 'node',
             runner: 'node',
@@ -30,7 +46,14 @@ module.exports = wallaby => {
                     ],
                 ],
             }),
+            '**/*.ts?(x)': wallaby.compilers.typeScript({
+                target: 'es5',
+                module: 'commonjs',
+                moduleResolution: 'node',
+                allowSyntheticDefaultImports: true,
+                esModuleInterop: true,
+            }),
         },
-        debug: false
+        debug: false,
     }
 }

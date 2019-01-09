@@ -302,10 +302,10 @@ export function trackerCore(base64: boolean, callback?: (payload: PayloadData) =
 		/**
 		 * Set the color depth
 		 *
-		 * @param depth number
+		 * @param depth string
 		 */
 		setColorDepth: function (depth: string) {
-			addPayloadPair('cd', depth);
+			addPayloadPair('cd', `${depth}`);
 		},
 
 		/**
@@ -361,6 +361,8 @@ export function trackerCore(base64: boolean, callback?: (payload: PayloadData) =
 			sb.add('url', pageUrl);
 			sb.add('page', pageTitle);
 			sb.add('refr', referrer);
+
+			
 
 			return track(sb, context, tstamp);
 		},

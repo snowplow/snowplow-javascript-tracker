@@ -26,9 +26,9 @@
     "@babel/cli": "^7.2.2",
     "grunt": "^1.0.3",
     "grunt-aws": "0.6.2",
-    "intern": "3.3.2",
     "mocha": "^5.2.0",
-    "rollup": "^1.0.0"
+    "rollup": "^1.0.0",
+    "nyc": "13.1.0"
   },
   "dependencies": {
     "browser-cookie-lite": "1.0.4",
@@ -45,6 +45,8 @@
     "uuid": "3.3.2"
   },
   "scripts": {
+    "test": "BABEL_ENV=test mocha --require @babel/register",
+    "build": "rollup -c --environment buildTarget:PROD",
     "test:local": "npm run localtest.sh",
     "babel:tests:helpers": "babel dist/bundles/helpers.js -o tests/pages/helpers.js",
     "babel:tests:detectors": "babel dist/bundles/detectors.js -o tests/pages/detectors.js",
@@ -72,7 +74,6 @@
     "testing-server:start": "node bin/testServer.js",
     "bundle:watch": "rollup -c --watch",
     "bundle:dev": "rollup -c",
-    "bundle:dist": "rollup -c --environment buildTarget:PROD",
-    "build": "rollup -c --environment buildTarget:PROD"
+    "bundle:dist": "rollup -c --environment buildTarget:PROD"
   }
 }

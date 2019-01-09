@@ -3,9 +3,11 @@
   "version": "0.7.0",
   "devDependencies": {
     "@babel/cli": "^7.2.2",
-    "grunt": "^1.0.3",
-    "intern": "3.3.2",
-    "typescript": "^3.1.5"
+    "mocha": "^5.2.0",
+    "typescript": "3.2.2",
+    "ts-node": "7.0.1",
+    "nyc": "13.1.0",
+    "source-map-support": "0.5.9"
   },
   "dependencies": {
     "@types/lodash": "^4.14.119",
@@ -18,12 +20,28 @@
   "scripts": {
     "type-check": "tsc --noEmit",
     "type-check:watch": "npm run type-check -- --watch",
-    "test": "intern-client config=tests/intern",
+    "test": "BABEL_ENV=test nyc mocha --require ts-node/register --require @babel/register",
     "build": "npm run build:types && npm run build:js && npm run build:es",
     "build:types": "tsc --emitDeclarationOnly",
-    "build:js": "BABEL_ENV=cjs babel src --out-dir lib/cjs --extensions \".ts,.tsx\" --source-maps inline",
-    "build:es": "BABEL_ENV=mjs babel src --out-dir lib/mjs --extensions \".ts,.tsx\" --source-maps inline",
-    "prepublishOnly": "npm run build"
+    "build:js": "BABEL_ENV=cjs babel src --out-dir lib/cjs --extensions \".ts,.tsx\" --source-maps true",
+    "build:es": "BABEL_ENV=mjs babel src --out-dir lib/mjs --extensions \".ts,.tsx\" --source-maps true",
+    "prepublishOnly": "npm run build",
+    "test:mocha": "BABEL_ENV=test mocha --require ts-node/register --require @babel/register --require source-map-support/register"
+  },
+  "nyc": {
+    "extension": [
+      ".ts",
+      ".tsx"
+    ],
+    "exclude": [
+      "**/*.d.ts",
+      "rollup.config.js",
+      ".babelrc.js",
+      "**/lib/*",
+      "**/test/*",
+      "src/index.ts"
+    ],
+    "all": true  
   },
   "contributors": [
     "Alex Dean",
