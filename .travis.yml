@@ -3,7 +3,12 @@ node_js:
 language: node_js
 install:
 - npm install -g npm@6
-- npm install -g grunt-cli
+#- npm install -g grunt-cli
+- rm -rf node_modules
+- rm -rf packages/snowplow-tracker-browser/node_modules
+- rm -rf packages/snowplow-tracker-core/node_modules
+- rm -rf packages/snowplow-tracker-browser/package-lock.json
+- rm -rf packages/snowplow-tracker-core/package-lock.json
 
 # bootstrap lerna repository
 - npm install
