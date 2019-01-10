@@ -36,8 +36,10 @@ before_script:
 script:
 #- cd core && grunt intern && cd ..
 
+# bootstrap lerna repository
+- npm run bootstrap
 # run tests
-- lerna run test
+- npm run test
 # build libraries
 - npm run build
 
