@@ -3,7 +3,7 @@
     "private": true,
     "license": "Simplified BSD",
     "scripts": {
-        "postinstall": "lerna bootstrap --hoist",
+        "postinstall": "lerna bootstrap --ci --hoist",
         "build": "lerna run build --stream",
         "test": "lerna run test --stream"
     },
@@ -47,7 +47,9 @@
         "systemjs": "0.21.4",
         "systemjs-plugin-babel": "0.0.25",
         "tslib": "^1.9.3",
-        "typescript": "3.2.2"
+        "ts-node": "7.0.1",
+        "nyc": "13.1.0",
+        "source-map-support": "0.5.9"
     },
     "browserslist": [
         "chrome >= 32",
