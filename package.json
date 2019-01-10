@@ -3,7 +3,7 @@
     "private": true,
     "license": "Simplified BSD",
     "scripts": {
-        "bootstrap": "lerna bootstrap --ci --hoist",
+        "bootstrap": "lerna bootstrap --no-ci --hoist",
         "build": "lerna run build --stream",
         "test": "lerna run test --stream"
     },
