@@ -7,7 +7,7 @@ const afterEach = require('mocha').afterEach
 const it = require('mocha').it
 const JSDOM = require('jsdom').JSDOM
 const sinon = require('sinon')
-const BrowserFeatureDetector = require('../../src/js/lib/Detect').default
+const BrowserFeatureDetector = require('../../src/lib/BrowserFeatureDetector').default
 
 module.exports = (function() {
 

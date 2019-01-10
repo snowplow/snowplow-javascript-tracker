@@ -33,7 +33,7 @@
  */
 
 import { attemptWriteLocalStorage, warn } from './Utilities'
-import BrowserFeatureDetector from './Detect'
+import BrowserFeatureDetector from './BrowserFeatureDetector'
 import mapValues from 'lodash-es/mapValues'
 import isString from 'lodash-es/isString'
 import isArray from 'lodash-es/isArray'

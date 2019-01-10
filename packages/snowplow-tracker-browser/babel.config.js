@@ -29,7 +29,7 @@ module.exports = function(api) {
                         {
                             modules: false,
                             useBuiltIns: 'usage',
-                            debug: true,
+                            debug: false,
                             loose: false,
                             spec: false,
                         },

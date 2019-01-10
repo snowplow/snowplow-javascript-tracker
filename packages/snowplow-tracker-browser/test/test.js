@@ -1,6 +1,5 @@
 const unitTest = {}
 
-unitTest.helpers = require('./unit/helpers')
-unitTest.inQueue = require('./unit/inQueue')
-unitTest.proxies = require('./unit/proxies')
-unitTest.detectors = require('./unit/detectors')
+unitTest.helpers = require('./unit/Utilities.spec')
+unitTest.inQueue = require('./unit/InQueueManager.spec')
+unitTest.detectors = require('./unit/BrowserFeatureDetector.spec')

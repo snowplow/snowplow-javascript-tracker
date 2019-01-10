@@ -5,7 +5,7 @@ module.exports = {
                 ['@babel/env',
                     {
                         'useBuiltIns': 'usage',
-                        'debug': true,
+                        'debug': false,
                         'modules': 'cjs'
                     }
                 ],

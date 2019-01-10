@@ -8,7 +8,7 @@ var it = require('mocha').it
 var sinon = require('sinon')
 
 const tracker = require('../mocks/tracker').default
-const InQueueManager = require('../../src/js/lib/InQueueManager').default
+const InQueueManager = require('../../src/lib/InQueueManager').default
 
 module.exports = (function() {
     before(function() {

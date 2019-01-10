@@ -19,8 +19,8 @@ install:
 #- rm -rf node_modules
 #- npm install
 
-# build lerna repository
-- npm run build
+
+
 
 # get ngrok
 - wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
@@ -30,7 +30,12 @@ before_script:
 - ./ngrok http -authtoken $NGROK_AUTH -subdomain $SUBDOMAIN -log=stdout 8500 > /dev/null &
 script:
 #- cd core && grunt intern && cd ..
+
+# run tests
 - lerna run test
+# build libraries
+- npm run build
+
 #- cd packages/snowplow-tracker-browser
 #- grunt travis
 deploy:

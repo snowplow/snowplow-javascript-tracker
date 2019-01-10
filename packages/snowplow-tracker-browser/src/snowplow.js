@@ -35,7 +35,7 @@
 import { addEventListener } from './lib/Utilities'
 import InQueueManager from './lib/InQueueManager'
 import JavascriptTracker from './lib/JavascriptTracker'
-import { version } from '../../package.json'
+import { version } from '../package.json'
 class SnowplowTracker {
     constructor(asynchronousQueue, functionName) {
 

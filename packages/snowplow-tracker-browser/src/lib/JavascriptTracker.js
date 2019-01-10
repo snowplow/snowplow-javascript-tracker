@@ -50,7 +50,7 @@ import {
     warn,
 } from './Utilities'
 import 'browser-cookie-lite'
-import BrowserFeatureDetector from './Detect'
+import BrowserFeatureDetector from './BrowserFeatureDetector'
 import sha1 from 'sha1'
 import FormTrackingManager from './FormTrackingManager'
 import ErrorManager from './ErrorManager'
