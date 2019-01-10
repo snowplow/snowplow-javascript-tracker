@@ -46,3 +46,4 @@ templates/filled/
 temp/*
 
 .nyc_output/
+/package-lock.json
