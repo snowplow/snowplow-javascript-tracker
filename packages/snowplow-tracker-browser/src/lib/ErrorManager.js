@@ -32,8 +32,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import isFunction from 'lodash-es/isFunction'
-import { addEventListener } from './Utilities'
+import { isFunction, addEventListener } from './Utilities'
 const windowAlias = window
 
 /**
@@ -121,7 +120,7 @@ class ErrorManager {
          * Closure callback to filter, contextualize and track unhandled exceptions
          * @param {ErrorEvent} errorEvent - ErrorEvent passed to event listener
          */
-        function captureError(errorEvent) {
+        const captureError = (errorEvent) => {
             if ((isFunction(filter) && filter(errorEvent)) || filter == null) {
                 this.sendError(errorEvent, contexts, contextsAdder)
             }

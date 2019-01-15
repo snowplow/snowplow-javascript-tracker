@@ -34,7 +34,7 @@
 
 import cookie from 'browser-cookie-lite'
 import { v3 as murmurhash3_32_gc } from 'murmurhash'
-import jstz from 'jstimezonedetect'
+import jstz from '@mmathias01/jstz'
 
 class BrowserFeatureDetector {
 
@@ -134,7 +134,7 @@ class BrowserFeatureDetector {
             ),
             new Date().getTimezoneOffset(),
             this.hasSessionStorage(),
-            this.asLocalStorage(),
+            this.hasLocalStorage(),
         ]
 
         var plugins = []

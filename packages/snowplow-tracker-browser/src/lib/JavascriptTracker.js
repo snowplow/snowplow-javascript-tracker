@@ -49,7 +49,7 @@ import {
     pInt,
     warn,
 } from './Utilities'
-import 'browser-cookie-lite'
+//import 'browser-cookie-lite'
 import BrowserFeatureDetector from './BrowserFeatureDetector'
 import sha1 from 'sha1'
 import FormTrackingManager from './FormTrackingManager'
@@ -61,67 +61,67 @@ import ConfigManager from './ConfigManager'
 import LinkTrackingManager from './LinkTrackingManager'
 
 // Symbols for private methods
-const refreshUrl = Symbol('refreshUrl')
-const linkDecorationHandler = Symbol('linkDecorationHandler')
-const decorateLinks = Symbol('decorateLinks')
-const ecommerceTransactionTemplate = Symbol('ecommerceTransactionTemplate')
-const purify = Symbol('purify')
-const getProtocolScheme = Symbol('getProtocolScheme')
-const resolveRelativeReference = Symbol('resolveRelativeReference')
-const sendRequest = Symbol('sendRequest')
-const getSnowplowCookieName = Symbol('getSnowplowCookieName')
-const getSnowplowCookieValue = Symbol('getSnowplowCookieValue')
-const updateDomainHash = Symbol('updateDomainHash')
-const activityHandler = Symbol('activityHandler')
-const scrollHandler = Symbol('scrollHandler')
-const getPageOffsets = Symbol('getPageOffsets')
-const resetMaxScrolls = Symbol('resetMaxScrolls')
-const cleanOffset = Symbol('cleanOffset')
-const updateMaxScrolls = Symbol('updateMaxScrolls')
-const setSessionCookie = Symbol('setSessionCookie')
-const setDomainUserIdCookie = Symbol('setDomainUserIdCookie')
-const setCookie = Symbol('setCookie')
-const createNewDomainUserId = Symbol('createNewDomainUserId')
-const initializeIdsAndCookies = Symbol('initializeIdsAndCookies')
-const loadDomainUserIdCookie = Symbol('loadDomainUserIdCookie')
-const addBrowserData = Symbol('addBrowserData')
+const refreshUrl = Symbol()
+const linkDecorationHandler = Symbol()
+const decorateLinks = Symbol()
+const ecommerceTransactionTemplate = Symbol()
+const purify = Symbol()
+const getProtocolScheme = Symbol()
+const resolveRelativeReference = Symbol()
+const sendRequest = Symbol()
+const getSnowplowCookieName = Symbol()
+const getSnowplowCookieValue = Symbol()
+const updateDomainHash = Symbol()
+const activityHandler = Symbol()
+const scrollHandler = Symbol()
+const getPageOffsets = Symbol()
+const resetMaxScrolls = Symbol()
+const cleanOffset = Symbol()
+const updateMaxScrolls = Symbol()
+const setSessionCookie = Symbol()
+const setDomainUserIdCookie = Symbol()
+const setCookie = Symbol()
+const createNewDomainUserId = Symbol()
+const initializeIdsAndCookies = Symbol()
+const loadDomainUserIdCookie = Symbol()
+const addBrowserData = Symbol()
 
-const collectorUrlFromCfDist = Symbol('collectorUrlFromCfDist')
+const collectorUrlFromCfDist = Symbol()
 
-const asCollectorUrl = Symbol('asCollectorUrl')
-const addCommonContexts = Symbol('addCommonContexts')
-const resetPageView = Symbol('resetPageView')
-const getPageViewId = Symbol('getPageViewId')
+const asCollectorUrl = Symbol()
+const addCommonContexts = Symbol()
+const resetPageView = Symbol()
+const getPageViewId = Symbol()
 
-const getWebPageContext = Symbol('getWebPageContext')
-const getPerformanceTimingContext = Symbol('getPerformanceTimingContext')
+const getWebPageContext = Symbol()
+const getPerformanceTimingContext = Symbol()
 
-const getOptimizelyData = Symbol('getOptimizelyData')
-const getOptimizelyXData = Symbol('getOptimizelyXData')
-const getOptimizelySummary = Symbol('getOptimizelySummary')
-const getOptimizelyXSummary = Symbol('getOptimizelyXSummary')
-const getOptimizelyExperimentContexts = Symbol['getOptimizelyExperimentContexts']
-const getOptimizelyStateContexts = Symbol('getOptimizelyStateContexts')
-const getOptimizelyVariationContexts = Symbol('getOptimizelyVariationContexts')
-const getOptimizelyVisitorContext = Symbol('getOptimizelyVisitorContext')
-const getOptimizelyAudienceContexts = Symbol('getOptimizelyAudienceContexts')
-const getOptimizelyDimensionContexts = Symbol('getOptimizelyDimensionContexts')
-const getOptimizelySummaryContexts = Symbol('getOptimizelySummaryContexts')
-const getOptimizelyXSummaryContexts = Symbol('getOptimizelyXSummaryContexts')
+const getOptimizelyData = Symbol()
+const getOptimizelyXData = Symbol()
+const getOptimizelySummary = Symbol()
+const getOptimizelyXSummary = Symbol()
+const getOptimizelyExperimentContexts = Symbol()
+const getOptimizelyStateContexts = Symbol()
+const getOptimizelyVariationContexts = Symbol()
+const getOptimizelyVisitorContext = Symbol()
+const getOptimizelyAudienceContexts = Symbol()
+const getOptimizelyDimensionContexts = Symbol()
+const getOptimizelySummaryContexts = Symbol()
+const getOptimizelyXSummaryContexts = Symbol()
 
-const getAugurIdentityLiteContext = Symbol('getAugurIdentityLiteContext')
-const getParrableContext = Symbol('getParrableContext')
+const getAugurIdentityLiteContext = Symbol()
+const getParrableContext = Symbol()
 
-const newSession = Symbol('newSession')
-const enableGeolocationContext = Symbol('enableGeolocationContext')
-const getGaCookiesContext = Symbol('getGaCookiesContext')
-const finalizeContexts = Symbol('finalizeContexts')
-const logPageView = Symbol('logPageView')
-const logPagePing = Symbol('logPagePing')
-const logTransaction = Symbol('logTransaction')
-const logTransactionItem = Symbol('logTransactionItem')
-const prefixPropertyName = Symbol('prefixPropertyName')
-const trackCallback = Symbol('trackCallback')
+const newSession = Symbol()
+const enableGeolocationContext = Symbol()
+const getGaCookiesContext = Symbol()
+const finalizeContexts = Symbol()
+const logPageView = Symbol()
+const logPagePing = Symbol()
+const logTransaction = Symbol()
+const logTransactionItem = Symbol()
+const prefixPropertyName = Symbol()
+const trackCallback = Symbol()
 
 const Detector = new BrowserFeatureDetector(window, navigator, screen, document)
 
@@ -142,6 +142,21 @@ class JavascriptTracker {
      * @returns {JavascriptTracker} - an isntance of the SnowplowTracker
      */
     constructor(functionName, namespace, version, mutSnowplowState, argmap) {
+        window.cookie = function(name, value, ttl, path, domain, secure) {
+            if (arguments.length > 1) {
+                return (document.cookie =
+                    name +
+                    '=' +
+                    encodeURIComponent(value) +
+                    (ttl ? '; expires=' + new Date(+new Date() + ttl * 1000).toUTCString() : '') +
+                    (path ? '; path=' + path : '') +
+                    (domain ? '; domain=' + domain : '') +
+                    (secure ? '; secure' : ''))
+            }
+
+            return decodeURIComponent((('; ' + document.cookie).split('; ' + name + '=')[1] || '').split(';')[0])
+        }
+
         this.configManager = new ConfigManager(argmap || {})
         const config = (this.config = this.configManager.config)
         const _this = this
@@ -170,11 +185,7 @@ class JavascriptTracker {
             windowAlias: window,
             navigatorAlias: navigator,
             get locationArray() {
-                return fixupUrl(
-                    this.documentAlias.domain,
-                    this.windowAlias.location.href,
-                    getReferrer()
-                )
+                return fixupUrl(this.documentAlias.domain, this.windowAlias.location.href, getReferrer())
             },
             get domainAlias() {
                 return fixupDomain(this.locationArray[0])
@@ -198,27 +209,15 @@ class JavascriptTracker {
             discardHashTag: false,
             cookiePath: '/',
             get dnt() {
-                return (
-                    this.navigatorAlias.doNotTrack ||
-                    this.navigatorAlias.msDoNotTrack ||
-                    this.windowAlias.doNotTrack
-                )
+                return this.navigatorAlias.doNotTrack || this.navigatorAlias.msDoNotTrack || this.windowAlias.doNotTrack
             },
             get doNotTrack() {
-                return (
-                    config.respectDoNotTrack &&
-                    (this.dnt === 'yes' ||
-                        this.dnt === '1' ||
-                        this.dnt === true)
-                )
+                return config.respectDoNotTrack && (this.dnt === 'yes' || this.dnt === '1' || this.dnt === true)
             },
             optOutCookie: false,
             countPreRendered: false,
             get documentCharset() {
-                return (
-                    this.documentAlias.characterSet ||
-                    this.documentAlias.charset
-                )
+                return this.documentAlias.characterSet || this.documentAlias.charset
             },
             get forceSecureTracker() {
                 return config.forceSecureTracker
@@ -227,22 +226,16 @@ class JavascriptTracker {
                 return !this.forceSecureTracker && config.forceUnsecureTracker
             },
             get browserLanguage() {
-                return (
-                    this.navigatorAlias.userLanguage ||
-                    this.navigatorAlias.language
-                )
+                return this.navigatorAlias.userLanguage || this.navigatorAlias.language
             },
             get browserFeatures() {
                 return Detector.detectBrowserFeatures(
-                    config.stateStorageStrategy == 'cookie' ||
-                        config.stateStorageStrategy == 'cookieAndLocalStorage',
+                    config.stateStorageStrategy == 'cookie' || config.stateStorageStrategy == 'cookieAndLocalStorage',
                     _this[getSnowplowCookieName]('testcookie')
                 )
             },
             get userFingerprint() {
-                return config.userFingerprint === false
-                    ? ''
-                    : Detector.detectSignature(config.userFingerprintSeed)
+                return config.userFingerprint === false ? '' : Detector.detectSignature(config.userFingerprintSeed)
             },
             trackerId: `${functionName}_${namespace}`,
             activityTrackingInstalled: false,
@@ -272,18 +265,10 @@ class JavascriptTracker {
         })
 
         // Manager for automatic link click tracking
-        this.linkTrackingManager = new LinkTrackingManager(
-            this.core,
-            this.state.trackerId,
-            this[addCommonContexts]
-        )
+        this.linkTrackingManager = new LinkTrackingManager(this.core, this.state.trackerId, this[addCommonContexts])
 
         // Manager for automatic form tracking
-        this.formTrackingManager = new FormTrackingManager(
-            this.core,
-            this.state.trackerId,
-            this[addCommonContexts]
-        )
+        this.formTrackingManager = new FormTrackingManager(this.core, this.state.trackerId, this[addCommonContexts])
 
         // Manager for tracking unhandled exceptions
         this.errorManager = new ErrorManager(this.core)
@@ -293,8 +278,8 @@ class JavascriptTracker {
             functionName,
             namespace,
             mutSnowplowState,
-            config.stateStorageStrategy == 'localStorage' ||
-                config.stateStorageStrategy == 'cookieAndLocalStorage',
+            config.stateStorageStrategy == 'localStorage' || config.stateStorageStrategy == 'cookieAndLocalStorage',
+            config.beacon,
             config.post,
             config.bufferSize,
             config.maxPostBytes
@@ -379,11 +364,7 @@ class JavascriptTracker {
     [linkDecorationHandler](e) {
         const _timestamp = new Date().getTime()
         if (e.target.href) {
-            e.target.href = decorateQuerystring(
-                e.target.href,
-                '_sp',
-                `${this.state.domainUserId}.${_timestamp}`
-            )
+            e.target.href = decorateQuerystring(e.target.href, '_sp', `${this.state.domainUserId}.${_timestamp}`)
         }
     }
 
@@ -464,9 +445,7 @@ class JavascriptTracker {
         }
 
         if (url.slice(0, 1) === '/') {
-            return `${this[getProtocolScheme](baseUrl)}://${getHostName(
-                baseUrl
-            )}${url}`
+            return `${this[getProtocolScheme](baseUrl)}://${getHostName(baseUrl)}${url}`
         }
 
         baseUrl = this[purify](baseUrl)
@@ -496,10 +475,7 @@ class JavascriptTracker {
         }
 
         if (!(this.config.doNotTrack || toOptoutByCookie)) {
-            this.outQueueManager.enqueueRequest(
-                request.build(),
-                this.config.collectorUrl
-            )
+            this.outQueueManager.enqueueRequest(request.build(), this.config.collectorUrl)
             this.mutSnowplowState.expireDateTime = now.getTime() + delay
         }
     }
@@ -518,10 +494,7 @@ class JavascriptTracker {
         var fullName = this[getSnowplowCookieName](cookieName)
         if (this.config.stateStorageStrategy == 'localStorage') {
             return attemptGetLocalStorage(fullName)
-        } else if (
-            this.config.stateStorageStrategy == 'cookie' ||
-            this.config.stateStorageStrategy == 'cookieAndLocalStorage'
-        ) {
+        } else if (this.config.stateStorageStrategy == 'cookie' || this.config.stateStorageStrategy == 'cookieAndLocalStorage') {
             return window.cookie(fullName)
         }
     }
@@ -531,12 +504,7 @@ class JavascriptTracker {
      */
     [updateDomainHash]() {
         this[refreshUrl]()
-        this.state.domainHash = this.state
-            .hash(
-                (this.config.cookieDomain || this.state.domainAlias) +
-                    (this.state.cookiePath || '/')
-            )
-            .slice(0, 4) // 4 hexits = 16 bits
+        this.state.domainHash = this.state.hash((this.config.cookieDomain || this.state.domainAlias) + (this.state.cookiePath || '/')).slice(0, 4) // 4 hexits = 16 bits
     }
 
     /*
@@ -562,14 +530,10 @@ class JavascriptTracker {
      */
     [getPageOffsets]() {
         var iebody =
-            this.state.documentAlias.compatMode &&
-            this.state.documentAlias.compatMode !== 'BackCompat'
+            this.state.documentAlias.compatMode && this.state.documentAlias.compatMode !== 'BackCompat'
                 ? this.state.documentAlias.documentElement
                 : this.state.documentAlias.body
-        return [
-            iebody.scrollLeft || this.state.windowAlias.pageXOffset,
-            iebody.scrollTop || this.state.windowAlias.pageYOffset,
-        ]
+        return [iebody.scrollLeft || this.state.windowAlias.pageXOffset, iebody.scrollTop || this.state.windowAlias.pageYOffset]
     }
 
     /*
@@ -626,43 +590,17 @@ class JavascriptTracker {
     [setSessionCookie]() {
         const cookieName = this[getSnowplowCookieName]('ses')
         const cookieValue = '*'
-        this[setCookie](
-            cookieName,
-            cookieValue,
-            this.config.sessionCookieTimeout
-        )
+        this[setCookie](cookieName, cookieValue, this.config.sessionCookieTimeout)
     }
 
     /*
      * Sets the Visitor ID cookie: either the first time loadDomainUserIdCookie is called
      * or when there is a new visit or a new page view
      */
-    [setDomainUserIdCookie](
-        _domainUserId,
-        createTs,
-        visitCount,
-        nowTs,
-        lastVisitTs,
-        sessionId
-    ) {
+    [setDomainUserIdCookie](_domainUserId, createTs, visitCount, nowTs, lastVisitTs, sessionId) {
         var cookieName = this[getSnowplowCookieName]('id')
-        var cookieValue =
-            _domainUserId +
-            '.' +
-            createTs +
-            '.' +
-            visitCount +
-            '.' +
-            nowTs +
-            '.' +
-            lastVisitTs +
-            '.' +
-            sessionId
-        this[setCookie](
-            cookieName,
-            cookieValue,
-            this.config.sessionCookieTimeout
-        )
+        var cookieValue = _domainUserId + '.' + createTs + '.' + visitCount + '.' + nowTs + '.' + lastVisitTs + '.' + sessionId
+        this[setCookie](cookieName, cookieValue, this.config.sessionCookieTimeout)
     }
 
     /*
@@ -674,17 +612,8 @@ class JavascriptTracker {
     [setCookie](name, value, timeout) {
         if (this.config.stateStorageStrategy == 'localStorage') {
             attemptWriteLocalStorage(name, value)
-        } else if (
-            this.config.stateStorageStrategy == 'cookie' ||
-            this.config.stateStorageStrategy == 'cookieAndLocalStorage'
-        ) {
-            window.cookie(
-                name,
-                value,
-                timeout,
-                this.config.cookiePath,
-                this.config.cookieDomain
-            )
+        } else if (this.config.stateStorageStrategy == 'cookie' || this.config.stateStorageStrategy == 'cookieAndLocalStorage') {
+            window.cookie(name, value, timeout, this.config.cookiePath, this.config.cookieDomain)
         }
     }
 
@@ -700,9 +629,7 @@ class JavascriptTracker {
      * Set the cookies (if cookies are enabled)
      */
     [initializeIdsAndCookies]() {
-        const sesCookieSet =
-            this.config.stateStorageStrategy != 'none' &&
-            !!this[getSnowplowCookieValue]('ses')
+        const sesCookieSet = this.config.stateStorageStrategy != 'none' && !!this[getSnowplowCookieValue]('ses')
         const idCookieComponents = this[loadDomainUserIdCookie]()
 
         if (idCookieComponents[1]) {
@@ -800,31 +727,13 @@ class JavascriptTracker {
             toOptoutByCookie = false
         }
 
-        if (
-            (this.config.doNotTrack || toOptoutByCookie) &&
-            this.config.stateStorageStrategy != 'none'
-        ) {
+        if ((this.config.doNotTrack || toOptoutByCookie) && this.config.stateStorageStrategy != 'none') {
             if (this.config.stateStorageStrategy == 'localStorage') {
                 attemptWriteLocalStorage(idname, '')
                 attemptWriteLocalStorage(sesname, '')
-            } else if (
-                this.config.stateStorageStrategy == 'cookie' ||
-                this.config.stateStorageStrategy == 'cookieAndLocalStorage'
-            ) {
-                window.cookie(
-                    idname,
-                    '',
-                    -1,
-                    this.config.cookiePath,
-                    this.config.cookieDomain
-                )
-                window.cookie(
-                    sesname,
-                    '',
-                    -1,
-                    this.config.cookiePath,
-                    this.config.cookieDomain
-                )
+            } else if (this.config.stateStorageStrategy == 'cookie' || this.config.stateStorageStrategy == 'cookieAndLocalStorage') {
+                window.cookie(idname, '', -1, this.config.cookiePath, this.config.cookieDomain)
+                window.cookie(sesname, '', -1, this.config.cookiePath, this.config.cookieDomain)
             }
             return
         }
@@ -847,10 +756,7 @@ class JavascriptTracker {
 
             // Otherwise, a new session starts if configSessionCookieTimeout seconds have passed since the last event
         } else {
-            if (
-                new Date().getTime() - this.state.lastEventTime >
-                this.config.sessionCookieTimeout * 1000
-            ) {
+            if (new Date().getTime() - this.state.lastEventTime > this.config.sessionCookieTimeout * 1000) {
                 this.state.memorizedSessionId = uuid.v4()
                 this.state.memorizedVisitCount++
             }
@@ -867,29 +773,14 @@ class JavascriptTracker {
 
         this[refreshUrl]()
 
-        sb.add(
-            'refr',
-            this[purify](this.config.customReferrer || this.state.referrerUrl)
-        )
+        sb.add('refr', this[purify](this.config.customReferrer || this.state.referrerUrl))
 
         // Add the page URL last as it may take us over the IE limit (and we don't always need it)
-        sb.add(
-            'url',
-            this[purify](
-                this.config.customReferrer || this.state.locationHrefAlias
-            )
-        )
+        sb.add('url', this[purify](this.config.customReferrer || this.state.locationHrefAlias))
 
         // Update cookies
         if (this.config.stateStorageStrategy != 'none') {
-            this[setDomainUserIdCookie](
-                _domainUserId,
-                createTs,
-                this.state.memorizedVisitCount,
-                nowTs,
-                lastVisitTs,
-                this.state.memorizedSessionId
-            )
+            this[setDomainUserIdCookie](_domainUserId, createTs, this.state.memorizedVisitCount, nowTs, lastVisitTs, this.state.memorizedSessionId)
             this[setSessionCookie]()
         }
 
@@ -922,11 +813,7 @@ class JavascriptTracker {
         if (this.state.forceUnsecureTracker) {
             return `http://${rawUrl}`
         }
-        return (
-            ('https:' === this.state.documentAlias.location.protocol
-                ? 'https'
-                : 'http') + `://${rawUrl}`
-        )
+        return ('https:' === this.state.documentAlias.location.protocol ? 'https' : 'http') + `://${rawUrl}`
     }
 
     /**
@@ -937,9 +824,7 @@ class JavascriptTracker {
      * @return userContexts combined with commonContexts
      */
     [addCommonContexts](userContexts) {
-        var combinedContexts = this.state.commonContexts.concat(
-            userContexts || []
-        )
+        var combinedContexts = this.state.commonContexts.concat(userContexts || [])
 
         if (this.config.contexts.webPage) {
             combinedContexts.push(this[getWebPageContext]())
@@ -970,9 +855,7 @@ class JavascriptTracker {
             }
 
             if (this.config.contexts.optimizelyExperiments) {
-                const experimentContexts = this[
-                    getOptimizelyExperimentContexts
-                ]()
+                const experimentContexts = this[getOptimizelyExperimentContexts]()
                 experimentContexts.forEach(function(e) {
                     combinedContexts.push(e)
                 })
@@ -1049,10 +932,7 @@ class JavascriptTracker {
      * Should be called when `trackPageView` is invoked
      */
     [resetPageView]() {
-        if (
-            !this.state.preservePageViewId ||
-            this.mutSnowplowState.pageViewId == null
-        ) {
+        if (!this.state.preservePageViewId || this.mutSnowplowState.pageViewId == null) {
             this.mutSnowplowState.pageViewId = uuid.v4()
         }
     }
@@ -1075,8 +955,7 @@ class JavascriptTracker {
      */
     [getWebPageContext]() {
         return {
-            schema:
-                'iglu:com.snowplowanalytics.snowplow/web_page/jsonschema/1-0-0',
+            schema: 'iglu:com.snowplowanalytics.snowplow/web_page/jsonschema/1-0-0',
             data: {
                 id: this[getPageViewId](),
             },
@@ -1127,10 +1006,7 @@ class JavascriptTracker {
             // performance.timing so we cannot copy them using lodash.clone
             let performanceTiming = {}
             for (var field in performance.timing) {
-                if (
-                    isValueInArray(field, allowedKeys) &&
-                    performance.timing[field] !== null
-                ) {
+                if (isValueInArray(field, allowedKeys) && performance.timing[field] !== null) {
                     performanceTiming[field] = performance.timing[field]
                 }
             }
@@ -1142,13 +1018,9 @@ class JavascriptTracker {
             if (
                 this.state.windowAlias.chrome &&
                 this.state.windowAlias.chrome.loadTimes &&
-                typeof this.state.windowAlias.chrome.loadTimes()
-                    .firstPaintTime === 'number'
+                typeof this.state.windowAlias.chrome.loadTimes().firstPaintTime === 'number'
             ) {
-                performanceTiming.chromeFirstPaint = Math.round(
-                    this.state.windowAlias.chrome.loadTimes().firstPaintTime *
-                        1000
-                )
+                performanceTiming.chromeFirstPaint = Math.round(this.state.windowAlias.chrome.loadTimes().firstPaintTime * 1000)
             }
 
             return {
@@ -1167,10 +1039,7 @@ class JavascriptTracker {
      */
     [getOptimizelyData](property, snd) {
         var data
-        if (
-            this.state.windowAlias.optimizely &&
-            this.state.windowAlias.optimizely.data
-        ) {
+        if (this.state.windowAlias.optimizely && this.state.windowAlias.optimizely.data) {
             data = this.state.windowAlias.optimizely.data[property]
             if (typeof snd !== 'undefined' && data !== undefined) {
                 data = data[snd]
@@ -1205,16 +1074,12 @@ class JavascriptTracker {
         var state = this[getOptimizelyData]('state')
         var experiments = this[getOptimizelyData]('experiments')
 
-        return (state && experiments && state.activeExperiments).map(function(
-            activeExperiment
-        ) {
+        return (state && experiments && state.activeExperiments).map(function(activeExperiment) {
             var current = experiments[activeExperiment]
             return {
                 activeExperimentId: activeExperiment.toString(),
                 // User can be only in one variation (don't know why is this array)
-                variation: state.variationIdsMap[
-                    activeExperiment
-                ][0].toString(),
+                variation: state.variationIdsMap[activeExperiment][0].toString(),
                 conditional: current && current.conditional,
                 manual: current && current.manual,
                 name: current && current.name,
@@ -1269,8 +1134,7 @@ class JavascriptTracker {
                     context.variationIds = experiment.variation_ids
 
                     contexts.push({
-                        schema:
-                            'iglu:com.optimizely/experiment/jsonschema/1-0-0',
+                        schema: 'iglu:com.optimizely/experiment/jsonschema/1-0-0',
                         data: context,
                     })
                 }
@@ -1305,19 +1169,13 @@ class JavascriptTracker {
                 var experimentId = experimentIds[i]
                 var context = {}
                 context.experimentId = experimentId
-                context.isActive = isValueInArray(
-                    experimentIds[i],
-                    activeExperiments
-                )
+                context.isActive = isValueInArray(experimentIds[i], activeExperiments)
                 var variationMap = state.variationMap || {}
                 context.variationIndex = variationMap[experimentId]
                 var variationNamesMap = state.variationNamesMap || {}
                 context.variationName = variationNamesMap[experimentId]
                 var variationIdsMap = state.variationIdsMap || {}
-                if (
-                    variationIdsMap[experimentId] &&
-                    variationIdsMap[experimentId].length === 1
-                ) {
+                if (variationIdsMap[experimentId] && variationIdsMap[experimentId].length === 1) {
                     context.variationId = variationIdsMap[experimentId][0]
                 }
 
@@ -1350,8 +1208,7 @@ class JavascriptTracker {
                     context.code = variation.code
 
                     contexts.push({
-                        schema:
-                            'iglu:com.optimizely/variation/jsonschema/1-0-0',
+                        schema: 'iglu:com.optimizely/variation/jsonschema/1-0-0',
                         data: context,
                     })
                 }
@@ -1409,8 +1266,7 @@ class JavascriptTracker {
                     var context = { id: key, isMember: audienceIds[key] }
 
                     contexts.push({
-                        schema:
-                            'iglu:com.optimizely/visitor_audience/jsonschema/1-0-0',
+                        schema: 'iglu:com.optimizely/visitor_audience/jsonschema/1-0-0',
                         data: context,
                     })
                 }
@@ -1435,8 +1291,7 @@ class JavascriptTracker {
                     var context = { id: key, value: dimensionIds[key] }
 
                     contexts.push({
-                        schema:
-                            'iglu:com.optimizely/visitor_dimension/jsonschema/1-0-0',
+                        schema: 'iglu:com.optimizely/visitor_dimension/jsonschema/1-0-0',
                         data: context,
                     })
                 }
@@ -1455,8 +1310,7 @@ class JavascriptTracker {
     [getOptimizelySummaryContexts]() {
         return this[getOptimizelySummary]().map(experiment => {
             return {
-                schema:
-                    'iglu:com.optimizely.snowplow/optimizely_summary/jsonschema/1-0-0',
+                schema: 'iglu:com.optimizely.snowplow/optimizely_summary/jsonschema/1-0-0',
                 data: experiment,
             }
         })
@@ -1471,8 +1325,7 @@ class JavascriptTracker {
     [getOptimizelyXSummaryContexts]() {
         return this[getOptimizelyXSummary]().map(experiment => {
             return {
-                schema:
-                    'iglu:com.optimizely.optimizelyx/summary/jsonschema/1-0-0',
+                schema: 'iglu:com.optimizely.optimizelyx/summary/jsonschema/1-0-0',
                 data: experiment,
             }
         })
@@ -1514,20 +1367,9 @@ class JavascriptTracker {
         if (parrable) {
             var context = { encryptedId: null, optout: null }
             context['encryptedId'] = parrable.browserid
-            var regex = new RegExp(
-                    '(?:^|;)\\s?' +
-                        '_parrable_hawk_optout'.replace(
-                            /([.*+?^=!:${}()|[\]/\\])/g,
-                            '\\$1'
-                        ) +
-                        '=(.*?)(?:;|$)',
-                    'i'
-                ),
+            var regex = new RegExp('(?:^|;)\\s?' + '_parrable_hawk_optout'.replace(/([.*+?^=!:${}()|[\]/\\])/g, '\\$1') + '=(.*?)(?:;|$)', 'i'),
                 match = document.cookie.match(regex)
-            context['optout'] =
-                match && decodeURIComponent(match[1])
-                    ? match && decodeURIComponent(match[1])
-                    : 'false'
+            context['optout'] = match && decodeURIComponent(match[1]) ? match && decodeURIComponent(match[1]) : 'false'
             return {
                 schema: 'iglu:com.parrable/encrypted_payload/jsonschema/1-0-0',
                 data: context,
@@ -1576,14 +1418,7 @@ class JavascriptTracker {
 
         // Update cookies
         if (this.config.stateStorageStrategy != 'none') {
-            setDomainUserIdCookie(
-                _domainUserId,
-                createTs,
-                this.state.memorizedVisitCount,
-                nowTs,
-                lastVisitTs,
-                this.state.memorizedSessionId
-            )
+            setDomainUserIdCookie(_domainUserId, createTs, this.state.memorizedVisitCount, nowTs, lastVisitTs, this.state.memorizedSessionId)
             setSessionCookie()
         }
 
@@ -1594,32 +1429,25 @@ class JavascriptTracker {
      * Attempts to create a context using the geolocation API and add it to commonContexts
      */
     [enableGeolocationContext]() {
-        if (
-            !this.state.geolocationContextAdded &&
-            this.state.navigatorAlias.geolocation &&
-            this.state.navigatorAlias.geolocation.getCurrentPosition
-        ) {
+        if (!this.state.geolocationContextAdded && this.state.navigatorAlias.geolocation && this.state.navigatorAlias.geolocation.getCurrentPosition) {
             this.state.geolocationContextAdded = true
-            this.state.navigatorAlias.geolocation.getCurrentPosition(
-                position => {
-                    var coords = position.coords
-                    var geolocationContext = {
-                        schema:
-                            'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
-                        data: {
-                            latitude: coords.latitude,
-                            longitude: coords.longitude,
-                            latitudeLongitudeAccuracy: coords.accuracy,
-                            altitude: coords.altitude,
-                            altitudeAccuracy: coords.altitudeAccuracy,
-                            bearing: coords.heading,
-                            speed: coords.speed,
-                            timestamp: Math.round(position.timestamp),
-                        },
-                    }
-                    this.state.commonContexts.push(geolocationContext)
+            this.state.navigatorAlias.geolocation.getCurrentPosition(position => {
+                var coords = position.coords
+                var geolocationContext = {
+                    schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
+                    data: {
+                        latitude: coords.latitude,
+                        longitude: coords.longitude,
+                        latitudeLongitudeAccuracy: coords.accuracy,
+                        altitude: coords.altitude,
+                        altitudeAccuracy: coords.altitudeAccuracy,
+                        bearing: coords.heading,
+                        speed: coords.speed,
+                        timestamp: Math.round(position.timestamp),
+                    },
                 }
-            )
+                this.state.commonContexts.push(geolocationContext)
+            })
         }
     }
 
@@ -1630,14 +1458,7 @@ class JavascriptTracker {
      */
     [getGaCookiesContext]() {
         const gaCookieData = {}
-        const gaCookies = [
-            '__utma',
-            '__utmb',
-            '__utmc',
-            '__utmv',
-            '__utmz',
-            '_ga',
-        ]
+        const gaCookies = ['__utma', '__utmb', '__utmc', '__utmv', '__utmz', '_ga']
         gaCookies.forEach(function(cookieType) {
             var value = window.cookie(cookieType)
             if (value) {
@@ -1657,9 +1478,7 @@ class JavascriptTracker {
      * @param contextCallback Function returning an array of contexts
      */
     [finalizeContexts](staticContexts, contextCallback) {
-        return (staticContexts || []).concat(
-            contextCallback ? contextCallback() : []
-        )
+        return (staticContexts || []).concat(contextCallback ? contextCallback() : [])
     }
 
     /**
@@ -1684,37 +1503,27 @@ class JavascriptTracker {
         this.state.lastConfigTitle = customTitle
 
         // Fixup page title
-        var pageTitle = fixupTitle(
-            this.state.lastConfigTitle || this.state.lastDocumentTitle
-        )
+        var pageTitle = fixupTitle(this.state.lastConfigTitle || this.state.lastDocumentTitle)
 
         // Log page view
         this.core.trackPageView(
             this[purify](this.config.customUrl || this.state.locationHrefAlias),
             pageTitle,
             this[purify](this.state.customReferrer || this.state.referrerUrl),
-            this[addCommonContexts](
-                this[finalizeContexts](context, contextCallback)
-            ),
+            this[addCommonContexts](this[finalizeContexts](context, contextCallback)),
             tstamp
         )
 
         // Send ping (to log that user has stayed on page)
         var now = new Date()
 
-        if (
-            this.state.activityTrackingEnabled &&
-            !this.state.activityTrackingInstalled
-        ) {
+        if (this.state.activityTrackingEnabled && !this.state.activityTrackingInstalled) {
             this.state.activityTrackingInstalled = true
 
             // Add mousewheel event handler, detect passive event listeners for performance
             var detectPassiveEvents = {
                 update: function update() {
-                    if (
-                        typeof window !== 'undefined' &&
-                        typeof window.addEventListener === 'function'
-                    ) {
+                    if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
                         var passive = false
                         var options = Object.defineProperty({}, 'passive', {
                             get: function() {
@@ -1726,16 +1535,8 @@ class JavascriptTracker {
                         // when providing a null callback.
                         // https://github.com/rafrex/detect-passive-events/pull/3
                         var noop = function noop() {}
-                        window.addEventListener(
-                            'testPassiveEventSupport',
-                            noop,
-                            options
-                        )
-                        window.removeEventListener(
-                            'testPassiveEventSupport',
-                            noop,
-                            options
-                        )
+                        window.addEventListener('testPassiveEventSupport', noop, options)
+                        window.removeEventListener('testPassiveEventSupport', noop, options)
                         detectPassiveEvents.hasSupport = passive
                     }
                 },
@@ -1750,12 +1551,7 @@ class JavascriptTracker {
                         ? 'mousewheel' // Webkit and IE support at least "mousewheel"
                         : 'DOMMouseScroll' // let's assume that remaining browsers are older Firefox
 
-            if (
-                Object.prototype.hasOwnProperty.call(
-                    detectPassiveEvents,
-                    'hasSupport'
-                )
-            ) {
+            if (Object.prototype.hasOwnProperty.call(detectPassiveEvents, 'hasSupport')) {
                 addEventListener(
                     this.state.documentAlias,
                     wheelEvent,
@@ -1817,15 +1613,10 @@ class JavascriptTracker {
 
                 // There was activity during the heart beat period;
                 // on average, this is going to overstate the visitDuration by configHeartBeatTimer/2
-                if (
-                    this.state.lastActivityTime + this.config.heartBeatTimer >
-                    now.getTime()
-                ) {
+                if (this.state.lastActivityTime + this.config.heartBeatTimer > now.getTime()) {
                     // Send ping if minimum visit time has elapsed
                     if (this.state.minimumVisitTime < now.getTime()) {
-                        this[logPagePing](
-                            this[finalizeContexts](context, contextCallback)
-                        ) // Grab the min/max globals
+                        this[logPagePing](this[finalizeContexts](context, contextCallback)) // Grab the min/max globals
                     }
                 }
             }, this.config.heartBeatTimer)
@@ -1849,9 +1640,7 @@ class JavascriptTracker {
         }
         this.core.trackPagePing(
             this[purify](this.config.customUrl || this.state.locationHrefAlias),
-            fixupTitle(
-                this.state.lastConfigTitle || this.state.lastDocumentTitle
-            ),
+            fixupTitle(this.state.lastConfigTitle || this.state.lastDocumentTitle),
             this[purify](this.config.customReferrer || this.config.referrerUrl),
             this[cleanOffset](this.state.minXOffset),
             this[cleanOffset](this.state.maxXOffset),
@@ -1877,19 +1666,7 @@ class JavascriptTracker {
      * @param object context Custom context relating to the event
      * @param tstamp number or Timestamp object
      */
-    [logTransaction](
-        orderId,
-        affiliation,
-        total,
-        tax,
-        shipping,
-        city,
-        state,
-        country,
-        currency,
-        context,
-        tstamp
-    ) {
+    [logTransaction](orderId, affiliation, total, tax, shipping, city, state, country, currency, context, tstamp) {
         this.core.trackEcommerceTransaction(
             orderId,
             affiliation,
@@ -1917,28 +1694,8 @@ class JavascriptTracker {
      * @param string currency The currency the price is expressed in
      * @param object context Custom context relating to the event
      */
-    [logTransactionItem](
-        orderId,
-        sku,
-        name,
-        category,
-        price,
-        quantity,
-        currency,
-        context,
-        tstamp
-    ) {
-        this.core.trackEcommerceTransactionItem(
-            orderId,
-            sku,
-            name,
-            category,
-            price,
-            quantity,
-            currency,
-            this[addCommonContexts](context),
-            tstamp
-        )
+    [logTransactionItem](orderId, sku, name, category, price, quantity, currency, context, tstamp) {
+        this.core.trackEcommerceTransactionItem(orderId, sku, name, category, price, quantity, currency, this[addCommonContexts](context), tstamp)
     }
 
     /**
@@ -1948,11 +1705,7 @@ class JavascriptTracker {
      */
     [prefixPropertyName](prefix, propertyName) {
         if (prefix !== '') {
-            return (
-                prefix +
-                propertyName.charAt(0).toUpperCase() +
-                propertyName.slice(1)
-            )
+            return prefix + propertyName.charAt(0).toUpperCase() + propertyName.slice(1)
         }
 
         return propertyName
@@ -1980,47 +1733,27 @@ class JavascriptTracker {
                 prefix = prefixes[i]
 
                 // does this browser support the page visibility API? (drop this check along with IE9 and iOS6)
-                if (
-                    this.state.documentAlias[
-                        this[prefixPropertyName](prefix, 'hidden')
-                    ]
-                ) {
+                if (this.state.documentAlias[this[prefixPropertyName](prefix, 'hidden')]) {
                     // if pre-rendered, then defer callback until page visibility changes
-                    if (
-                        this.state.documentAlias[
-                            this[prefixPropertyName](prefix, 'visibilityState')
-                        ] === 'prerender'
-                    ) {
+                    if (this.state.documentAlias[this[prefixPropertyName](prefix, 'visibilityState')] === 'prerender') {
                         isPreRendered = true
                     }
                     break
-                } else if (
-                    this.state.documentAlias[
-                        this[prefixPropertyName](prefix, 'hidden')
-                    ] === false
-                ) {
+                } else if (this.state.documentAlias[this[prefixPropertyName](prefix, 'hidden')] === false) {
                     break
                 }
             }
         }
 
         const eventHandler = () => {
-            this.state.documentAlias.removeEventListener(
-                prefix + 'visibilitychange',
-                eventHandler,
-                false
-            )
+            this.state.documentAlias.removeEventListener(prefix + 'visibilitychange', eventHandler, false)
             callback()
         }
 
         // Implies configCountPreRendered = false
         if (isPreRendered) {
             // note: the event name doesn't follow the same naming convention as vendor properties
-            addEventListener(
-                this.state.documentAlias,
-                prefix + 'visibilitychange',
-                eventHandler
-            )
+            addEventListener(this.state.documentAlias, prefix + 'visibilitychange', eventHandler)
             return
         }
 
@@ -2105,9 +1838,7 @@ class JavascriptTracker {
      * @param int|string appId
      */
     setAppId(appId) {
-        warn(
-            'setAppId is deprecated. Instead add an "appId" field to the argmap argument of newTracker.'
-        )
+        warn('setAppId is deprecated. Instead add an "appId" field to the argmap argument of newTracker.')
         this.core.setAppId(appId)
     }
 
@@ -2127,10 +1858,7 @@ class JavascriptTracker {
      */
     setCustomUrl(url) {
         this[refreshUrl]()
-        this.config.customUrl = this[resolveRelativeReference](
-            this.state.locationHrefAlias,
-            url
-        )
+        this.config.customUrl = this[resolveRelativeReference](this.state.locationHrefAlias, url)
     }
 
     /**
@@ -2159,9 +1887,7 @@ class JavascriptTracker {
      * @param string cookieName
      */
     setCookieNamePrefix(cookieNamePrefix) {
-        warn(
-            'setCookieNamePrefix is deprecated. Instead add a "cookieName" field to the argmap argument of newTracker.'
-        )
+        warn('setCookieNamePrefix is deprecated. Instead add a "cookieName" field to the argmap argument of newTracker.')
         this.config.cookieName = cookieNamePrefix
     }
 
@@ -2171,9 +1897,7 @@ class JavascriptTracker {
      * @param string domain
      */
     setCookieDomain(domain) {
-        warn(
-            'setCookieDomain is deprecated. Instead add a "cookieDomain" field to the argmap argument of newTracker.'
-        )
+        warn('setCookieDomain is deprecated. Instead add a "cookieDomain" field to the argmap argument of newTracker.')
         this.config.cookieDomain = fixupDomain(domain)
         this[updateDomainHash]()
     }
@@ -2203,9 +1927,7 @@ class JavascriptTracker {
      * @param int timeout
      */
     setSessionCookieTimeout(timeout) {
-        warn(
-            'setSessionCookieTimeout is deprecated. Instead add a "sessionCookieTimeout" field to the argmap argument of newTracker.'
-        )
+        warn('setSessionCookieTimeout is deprecated. Instead add a "sessionCookieTimeout" field to the argmap argument of newTracker.')
         this.config.sessionCookieTimeout = timeout
     }
 
@@ -2213,13 +1935,9 @@ class JavascriptTracker {
      * @param number seed The seed used for MurmurHash3
      */
     setUserFingerprintSeed(seed) {
-        warn(
-            'setUserFingerprintSeed is deprecated. Instead add a "userFingerprintSeed" field to the argmap argument of newTracker.'
-        )
+        warn('setUserFingerprintSeed is deprecated. Instead add a "userFingerprintSeed" field to the argmap argument of newTracker.')
         this.config.userFingerprintSeed = seed
-        this.state.userFingerprint = Detector.detectSignature(
-            this.config.userFingerprintSeed
-        )
+        this.state.userFingerprint = Detector.detectSignature(this.config.userFingerprintSeed)
     }
 
     /**
@@ -2227,9 +1945,7 @@ class JavascriptTracker {
      * @param bool enable If false, turn off user fingerprinting
      */
     enableUserFingerprint(enable) {
-        warn(
-            'enableUserFingerprintSeed is deprecated. Instead add a "userFingerprint" field to the argmap argument of newTracker.'
-        )
+        warn('enableUserFingerprintSeed is deprecated. Instead add a "userFingerprint" field to the argmap argument of newTracker.')
         if (!enable) {
             this.config.userFingerprint = false
             this.state.userFingerprint = ''
@@ -2244,12 +1960,8 @@ class JavascriptTracker {
      * @param bool enable If true and Do Not Track feature enabled, don't track.
      */
     respectDoNotTrack(enable) {
-        warn(
-            'This usage of respectDoNotTrack is deprecated. Instead add a "respectDoNotTrack" field to the argmap argument of newTracker.'
-        )
-        var dnt =
-            this.state.navigatorAlias.doNotTrack ||
-            this.state.navigatorAlias.msDoNotTrack
+        warn('This usage of respectDoNotTrack is deprecated. Instead add a "respectDoNotTrack" field to the argmap argument of newTracker.')
+        var dnt = this.state.navigatorAlias.doNotTrack || this.state.navigatorAlias.msDoNotTrack
 
         this.config.doNotTrack = enable && (dnt === 'yes' || dnt === '1')
     }
@@ -2286,22 +1998,12 @@ class JavascriptTracker {
     enableLinkClickTracking(criterion, pseudoClicks, trackContent, context) {
         if (this.mutSnowplowState.hasLoaded) {
             // the load event has already fired, add the click listeners now
-            this.linkTrackingManager.configureLinkClickTracking(
-                criterion,
-                pseudoClicks,
-                trackContent,
-                context
-            )
+            this.linkTrackingManager.configureLinkClickTracking(criterion, pseudoClicks, trackContent, context)
             LinkTrackingManager.addClickListeners()
         } else {
             // defer until page has loaded
             this.mutSnowplowState.registeredOnLoadHandlers.push(() => {
-                this.linkTrackingManager.configureLinkClickTracking(
-                    criterion,
-                    pseudoClicks,
-                    trackContent,
-                    context
-                )
+                this.linkTrackingManager.configureLinkClickTracking(criterion, pseudoClicks, trackContent, context)
                 this.linkTrackingManager.addClickListeners()
             })
         }
@@ -2329,19 +2031,12 @@ class JavascriptTracker {
      * @param int heartBeatDelay Seconds to wait between pings
      */
     enableActivityTracking(minimumVisitLength, heartBeatDelay) {
-        if (
-            minimumVisitLength === pInt(minimumVisitLength, 10) &&
-            heartBeatDelay === pInt(heartBeatDelay, 10)
-        ) {
+        if (minimumVisitLength === pInt(minimumVisitLength, 10) && heartBeatDelay === pInt(heartBeatDelay, 10)) {
             this.state.activityTrackingEnabled = true
-            this.config.minimumVisitTime =
-                new Date().getTime() + minimumVisitLength * 1000
+            this.config.minimumVisitTime = new Date().getTime() + minimumVisitLength * 1000
             this.config.heartBeatTimer = heartBeatDelay * 1000
         } else {
-            warn(
-                'Activity tracking not enabled, please provide integer values ' +
-                    'for minimumVisitLength and heartBeatDelay.'
-            )
+            warn('Activity tracking not enabled, please provide integer values ' + 'for minimumVisitLength and heartBeatDelay.')
         }
     }
 
@@ -2378,10 +2073,7 @@ class JavascriptTracker {
      * Frame buster
      */
     killFrame() {
-        if (
-            this.state.windowAlias.location !==
-            this.state.windowAlias.top.location
-        ) {
+        if (this.state.windowAlias.location !== this.state.windowAlias.top.location) {
             this.state.windowAlias.top.location = this.state.windowAlias.location
         }
     }
@@ -2440,10 +2132,7 @@ class JavascriptTracker {
      */
     setUserIdFromLocation(querystringField) {
         this[refreshUrl]()
-        this.state.businessUserId = fromQuerystring(
-            querystringField,
-            this.state.locationHrefAlias
-        )
+        this.state.businessUserId = fromQuerystring(querystringField, this.state.locationHrefAlias)
     }
 
     /**
@@ -2453,10 +2142,7 @@ class JavascriptTracker {
      */
     setUserIdFromReferrer(querystringField) {
         refreshUrl()
-        this.state.businessUserId = fromQuerystring(
-            querystringField,
-            this.config.referrerUrl
-        )
+        this.state.businessUserId = fromQuerystring(querystringField, this.config.referrerUrl)
     }
 
     /**
@@ -2494,9 +2180,7 @@ class JavascriptTracker {
      * @param string platform Overrides the default tracking platform
      */
     setPlatform(platform) {
-        warn(
-            'setPlatform is deprecated. Instead add a "platform" field to the argmap argument of newTracker.'
-        )
+        warn('setPlatform is deprecated. Instead add a "platform" field to the argmap argument of newTracker.')
         this.core.setPlatform(platform)
     }
 
@@ -2507,9 +2191,7 @@ class JavascriptTracker {
      * @param bool enabled A boolean value indicating if the Base64 encoding for self-describing events should be enabled or not
      */
     encodeBase64(enabled) {
-        warn(
-            'This usage of encodeBase64 is deprecated. Instead add an "encodeBase64" field to the argmap argument of newTracker.'
-        )
+        warn('This usage of encodeBase64 is deprecated. Instead add an "encodeBase64" field to the argmap argument of newTracker.')
         this.core.setBase64Encoding(enabled)
     }
 
@@ -2555,25 +2237,9 @@ class JavascriptTracker {
      * @param object Custom context relating to the event
      * @param tstamp number or Timestamp object
      */
-    trackStructEvent(
-        category,
-        action,
-        label,
-        property,
-        value,
-        context,
-        tstamp
-    ) {
+    trackStructEvent(category, action, label, property, value, context, tstamp) {
         this[trackCallback](() => {
-            this.core.trackStructEvent(
-                category,
-                action,
-                label,
-                property,
-                value,
-                this[addCommonContexts](context),
-                tstamp
-            )
+            this.core.trackStructEvent(category, action, label, property, value, this[addCommonContexts](context), tstamp)
         })
     }
 
@@ -2586,11 +2252,7 @@ class JavascriptTracker {
      */
     trackSelfDescribingEvent(eventJson, context, tstamp) {
         this[trackCallback](() => {
-            this.core.trackSelfDescribingEvent(
-                eventJson,
-                this[addCommonContexts](context),
-                tstamp
-            )
+            this.core.trackSelfDescribingEvent(eventJson, this[addCommonContexts](context), tstamp)
         })
     }
 
@@ -2599,11 +2261,7 @@ class JavascriptTracker {
      */
     trackUnstructEvent(eventJson, context, tstamp) {
         this[trackCallback](() => {
-            this.core.trackSelfDescribingEvent(
-                eventJson,
-                this[addCommonContexts](context),
-                tstamp
-            )
+            this.core.trackSelfDescribingEvent(eventJson, this[addCommonContexts](context), tstamp)
         })
     }
 
@@ -2622,19 +2280,7 @@ class JavascriptTracker {
      * @param object context Optional. Context relating to the event.
      * @param tstamp number or Timestamp object
      */
-    addTrans(
-        orderId,
-        affiliation,
-        total,
-        tax,
-        shipping,
-        city,
-        state,
-        country,
-        currency,
-        context,
-        tstamp
-    ) {
+    addTrans(orderId, affiliation, total, tax, shipping, city, state, country, currency, context, tstamp) {
         this.state.ecommerceTransaction.transaction = {
             orderId: orderId,
             affiliation: affiliation,
@@ -2663,17 +2309,7 @@ class JavascriptTracker {
      * @param object context Optional. Context relating to the event.
      * @param tstamp number or Timestamp object
      */
-    addItem(
-        orderId,
-        sku,
-        name,
-        category,
-        price,
-        quantity,
-        currency,
-        context,
-        tstamp
-    ) {
+    addItem(orderId, sku, name, category, price, quantity, currency, context, tstamp) {
         this.state.ecommerceTransaction.items.push({
             orderId: orderId,
             sku: sku,
@@ -2708,28 +2344,12 @@ class JavascriptTracker {
                 this.state.ecommerceTransaction.transaction.context,
                 this.state.ecommerceTransaction.transaction.tstamp
             )
-            for (
-                var i = 0;
-                i < this.state.ecommerceTransaction.items.length;
-                i++
-            ) {
+            for (var i = 0; i < this.state.ecommerceTransaction.items.length; i++) {
                 var item = this.state.ecommerceTransaction.items[i]
-                this[logTransactionItem](
-                    item.orderId,
-                    item.sku,
-                    item.name,
-                    item.category,
-                    item.price,
-                    item.quantity,
-                    item.currency,
-                    item.context,
-                    item.tstamp
-                )
+                this[logTransactionItem](item.orderId, item.sku, item.name, item.category, item.price, item.quantity, item.currency, item.context, item.tstamp)
             }
 
-            this.state.ecommerceTransaction = this[
-                ecommerceTransactionTemplate
-            ]()
+            this.state.ecommerceTransaction = this[ecommerceTransactionTemplate]()
         })
     }
 
@@ -2745,25 +2365,9 @@ class JavascriptTracker {
      * @param tstamp number or Timestamp object
      */
     // TODO: break this into trackLink(destUrl) and trackDownload(destUrl)
-    trackLinkClick(
-        targetUrl,
-        elementId,
-        elementClasses,
-        elementTarget,
-        elementContent,
-        context,
-        tstamp
-    ) {
+    trackLinkClick(targetUrl, elementId, elementClasses, elementTarget, elementContent, context, tstamp) {
         this[trackCallback](() => {
-            this.core.trackLinkClick(
-                targetUrl,
-                elementId,
-                elementClasses,
-                elementTarget,
-                elementContent,
-                this[addCommonContexts](context),
-                tstamp
-            )
+            this.core.trackLinkClick(targetUrl, elementId, elementClasses, elementTarget, elementContent, this[addCommonContexts](context), tstamp)
         })
     }
 
@@ -2780,18 +2384,7 @@ class JavascriptTracker {
      * @param object Custom context relating to the event
      * @param tstamp number or Timestamp object
      */
-    trackAdImpression(
-        impressionId,
-        costModel,
-        cost,
-        targetUrl,
-        bannerId,
-        zoneId,
-        advertiserId,
-        campaignId,
-        context,
-        tstamp
-    ) {
+    trackAdImpression(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId, context, tstamp) {
         this[trackCallback](() => {
             this.core.trackAdImpression(
                 impressionId,
@@ -2823,19 +2416,7 @@ class JavascriptTracker {
      * @param object Custom context relating to the event
      * @param tstamp number or Timestamp object
      */
-    trackAdClick(
-        targetUrl,
-        clickId,
-        costModel,
-        cost,
-        bannerId,
-        zoneId,
-        impressionId,
-        advertiserId,
-        campaignId,
-        context,
-        tstamp
-    ) {
+    trackAdClick(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId, context, tstamp) {
         this[trackCallback](() => {
             this.core.trackAdClick(
                 targetUrl,
@@ -2868,19 +2449,7 @@ class JavascriptTracker {
      * @param object Custom context relating to the event
      * @param tstamp number or Timestamp object
      */
-    trackAdConversion(
-        conversionId,
-        costModel,
-        cost,
-        category,
-        action,
-        property,
-        initialValue,
-        advertiserId,
-        campaignId,
-        context,
-        tstamp
-    ) {
+    trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId, context, tstamp) {
         this[trackCallback](() => {
             this.core.trackAdConversion(
                 conversionId,
@@ -2909,13 +2478,7 @@ class JavascriptTracker {
      */
     trackSocialInteraction(action, network, target, context, tstamp) {
         this[trackCallback](() => {
-            this.core.trackSocialInteraction(
-                action,
-                network,
-                target,
-                this[addCommonContexts](context),
-                tstamp
-            )
+            this.core.trackSocialInteraction(action, network, target, this[addCommonContexts](context), tstamp)
         })
     }
 
@@ -2931,27 +2494,9 @@ class JavascriptTracker {
      * @param array context Optional. Context relating to the event.
      * @param tstamp number or Timestamp object
      */
-    trackAddToCart(
-        sku,
-        name,
-        category,
-        unitPrice,
-        quantity,
-        currency,
-        context,
-        tstamp
-    ) {
+    trackAddToCart(sku, name, category, unitPrice, quantity, currency, context, tstamp) {
         this[trackCallback](() => {
-            this.core.trackAddToCart(
-                sku,
-                name,
-                category,
-                unitPrice,
-                quantity,
-                currency,
-                this[addCommonContexts](context),
-                tstamp
-            )
+            this.core.trackAddToCart(sku, name, category, unitPrice, quantity, currency, this[addCommonContexts](context), tstamp)
         })
     }
 
@@ -2967,27 +2512,9 @@ class JavascriptTracker {
      * @param array context Optional. Context relating to the event.
      * @param tstamp Opinal number or Timestamp object
      */
-    trackRemoveFromCart(
-        sku,
-        name,
-        category,
-        unitPrice,
-        quantity,
-        currency,
-        context,
-        tstamp
-    ) {
+    trackRemoveFromCart(sku, name, category, unitPrice, quantity, currency, context, tstamp) {
         this[trackCallback](() => {
-            this.core.trackRemoveFromCart(
-                sku,
-                name,
-                category,
-                unitPrice,
-                quantity,
-                currency,
-                this[addCommonContexts](context),
-                tstamp
-            )
+            this.core.trackRemoveFromCart(sku, name, category, unitPrice, quantity, currency, this[addCommonContexts](context), tstamp)
         })
     }
 
@@ -3001,23 +2528,9 @@ class JavascriptTracker {
      * @param array context Optional. Context relating to the event.
      * @param tstamp Opinal number or Timestamp object
      */
-    trackSiteSearch(
-        terms,
-        filters,
-        totalResults,
-        pageResults,
-        context,
-        tstamp
-    ) {
+    trackSiteSearch(terms, filters, totalResults, pageResults, context, tstamp) {
         this[trackCallback](() => {
-            this.core.trackSiteSearch(
-                terms,
-                filters,
-                totalResults,
-                pageResults,
-                this[addCommonContexts](context),
-                tstamp
-            )
+            this.core.trackSiteSearch(terms, filters, totalResults, pageResults, this[addCommonContexts](context), tstamp)
         })
     }
 
@@ -3035,8 +2548,7 @@ class JavascriptTracker {
         this[trackCallback](() => {
             this.core.trackSelfDescribingEvent(
                 {
-                    schema:
-                        'iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0',
+                    schema: 'iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0',
                     data: {
                         category: category,
                         variable: variable,
@@ -3061,25 +2573,9 @@ class JavascriptTracker {
      * @param {array} [context] - Context relating to the event.
      * @param {number|Timestamp} [tstamp] - Number or Timestamp object.
      */
-    trackConsentWithdrawn(
-        all,
-        id,
-        version,
-        name,
-        description,
-        context,
-        tstamp
-    ) {
+    trackConsentWithdrawn(all, id, version, name, description, context, tstamp) {
         this[trackCallback](() => {
-            this.core.trackConsentWithdrawn(
-                all,
-                id,
-                version,
-                name,
-                description,
-                this[addCommonContexts](context),
-                tstamp
-            )
+            this.core.trackConsentWithdrawn(all, id, version, name, description, this[addCommonContexts](context), tstamp)
         })
     }
 
@@ -3094,25 +2590,9 @@ class JavascriptTracker {
      * @param {array} [context] - Context containing consent documents.
      * @param {Timestamp|number} [tstamp] - number or Timestamp object.
      */
-    trackConsentGranted(
-        id,
-        version,
-        name,
-        description,
-        expiry,
-        context,
-        tstamp
-    ) {
+    trackConsentGranted(id, version, name, description, expiry, context, tstamp) {
         this[trackCallback](() => {
-            this.core.trackConsentGranted(
-                id,
-                version,
-                name,
-                description,
-                expiry,
-                this[addCommonContexts](context),
-                tstamp
-            )
+            this.core.trackConsentGranted(id, version, name, description, expiry, this[addCommonContexts](context), tstamp)
         })
     }
 
@@ -3125,16 +2605,13 @@ class JavascriptTracker {
      * @param tstamp Opinal number or Timestamp object
      */
     trackEnhancedEcommerceAction(action, context, tstamp) {
-        var combinedEnhancedEcommerceContexts = this.state.enhancedEcommerceContexts.concat(
-            context || []
-        )
+        var combinedEnhancedEcommerceContexts = this.state.enhancedEcommerceContexts.concat(context || [])
         this.state.enhancedEcommerceContexts.length = 0
 
         this[trackCallback](() => {
             this.core.trackSelfDescribingEvent(
                 {
-                    schema:
-                        'iglu:com.google.analytics.enhanced-ecommerce/action/jsonschema/1-0-0',
+                    schema: 'iglu:com.google.analytics.enhanced-ecommerce/action/jsonschema/1-0-0',
                     data: {
                         action: action,
                     },
@@ -3159,21 +2636,9 @@ class JavascriptTracker {
      * @param string option
      * @param string currency
      */
-    addEnhancedEcommerceActionContext(
-        id,
-        affiliation,
-        revenue,
-        tax,
-        shipping,
-        coupon,
-        list,
-        step,
-        option,
-        currency
-    ) {
+    addEnhancedEcommerceActionContext(id, affiliation, revenue, tax, shipping, coupon, list, step, option, currency) {
         this.state.enhancedEcommerceContexts.push({
-            schema:
-                'iglu:com.google.analytics.enhanced-ecommerce/actionFieldObject/jsonschema/1-0-0',
+            schema: 'iglu:com.google.analytics.enhanced-ecommerce/actionFieldObject/jsonschema/1-0-0',
             data: {
                 id: id,
                 affiliation: affiliation,
@@ -3202,20 +2667,9 @@ class JavascriptTracker {
      * @param number price
      * @param string currency
      */
-    addEnhancedEcommerceImpressionContext(
-        id,
-        name,
-        list,
-        brand,
-        category,
-        variant,
-        position,
-        price,
-        currency
-    ) {
+    addEnhancedEcommerceImpressionContext(id, name, list, brand, category, variant, position, price, currency) {
         this.state.enhancedEcommerceContexts.push({
-            schema:
-                'iglu:com.google.analytics.enhanced-ecommerce/impressionFieldObject/jsonschema/1-0-0',
+            schema: 'iglu:com.google.analytics.enhanced-ecommerce/impressionFieldObject/jsonschema/1-0-0',
             data: {
                 id: id,
                 name: name,
@@ -3245,22 +2699,9 @@ class JavascriptTracker {
      * @param integer position
      * @param string currency
      */
-    addEnhancedEcommerceProductContext(
-        id,
-        name,
-        list,
-        brand,
-        category,
-        variant,
-        price,
-        quantity,
-        coupon,
-        position,
-        currency
-    ) {
+    addEnhancedEcommerceProductContext(id, name, list, brand, category, variant, price, quantity, coupon, position, currency) {
         this.state.enhancedEcommerceContexts.push({
-            schema:
-                'iglu:com.google.analytics.enhanced-ecommerce/productFieldObject/jsonschema/1-0-0',
+            schema: 'iglu:com.google.analytics.enhanced-ecommerce/productFieldObject/jsonschema/1-0-0',
             data: {
                 id: id,
                 name: name,
@@ -3288,8 +2729,7 @@ class JavascriptTracker {
      */
     addEnhancedEcommercePromoContext(id, name, creative, position, currency) {
         this.state.enhancedEcommerceContexts.push({
-            schema:
-                'iglu:com.google.analytics.enhanced-ecommerce/promoFieldObject/jsonschema/1-0-0',
+            schema: 'iglu:com.google.analytics.enhanced-ecommerce/promoFieldObject/jsonschema/1-0-0',
             data: {
                 id: id,
                 name: name,
@@ -3301,6 +2741,31 @@ class JavascriptTracker {
     }
 
     /**
+     * All provided contexts will be sent with every event
+     *
+     * @param contexts Array<ContextPrimitive | ConditionalContextProvider>
+     */
+    addGlobalContexts(contexts) {
+        this.core.addGlobalContexts(contexts)
+    }
+
+    /**
+     * All provided contexts will no longer be sent with every event
+     *
+     * @param contexts Array<ContextPrimitive | ConditionalContextProvider>
+     */
+    removeGlobalContexts(contexts) {
+        this.core.removeGlobalContexts(contexts)
+    }
+
+    /**
+     * Clear all global contexts that are sent with events
+     */
+    clearGlobalContexts() {
+        this.core.clearGlobalContexts()
+    }
+
+    /**
      * Enable tracking of unhandled exceptions with custom contexts
      *
      * @param filter Function ErrorEvent => Bool to check whether error should be tracker
@@ -3308,11 +2773,7 @@ class JavascriptTracker {
      *		             internal state based on particular error
      */
     enableErrorTracking(filter, contextsAdder) {
-        this.errorManager.enableErrorTracking(
-            filter,
-            contextsAdder,
-            this[addCommonContexts]()
-        )
+        this.errorManager.enableErrorTracking(filter, contextsAdder, this[addCommonContexts]())
     }
 
     /**
@@ -3328,14 +2789,7 @@ class JavascriptTracker {
      */
     trackError(message, filename, lineno, colno, error, contexts) {
         var enrichedContexts = addCommonContexts(contexts)
-        this.errorManager.trackError(
-            message,
-            filename,
-            lineno,
-            colno,
-            error,
-            enrichedContexts
-        )
+        this.errorManager.trackError(message, filename, lineno, colno, error, enrichedContexts)
     }
 
     /**

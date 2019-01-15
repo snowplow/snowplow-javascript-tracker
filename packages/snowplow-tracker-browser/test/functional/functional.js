@@ -1,26 +1,28 @@
-/* globals Buffer, __dirname, browser */
+/* globals Buffer */
 const describe = require('mocha').describe
-//const beforeEach = require('mocha').beforeEach
 const before = require('mocha').before
-const after = require('mocha').after
-//const afterEach = require('mocha').afterEach
 const it = require('mocha').it
 const assert = require('chai').assert
 const jsBase64 = require('js-base64')
 const lodash = require('lodash')
-const Express = require('express')
-const express = Express()
-const path = require('path')
 const url = require('url')
-const integrationTestPage = require('../mocks/testPages').integrationTestPage
-express.use(Express.static('../temp/'))
-let server
+const jsdom = require('jsdom')
+const JSDOM = jsdom.JSDOM
+
 /**
  * Expected amount of request for each browser
  * This must be increased when new tracking call added to
  * pages/integration-template.html
  */
-var log = [] 
+const log = []
+
+class MockImageLoader extends jsdom.ResourceLoader {
+    fetch(incomingUrl) {
+        var payload = url.parse(incomingUrl, true).query
+        log.push(payload)
+        return Promise.resolve(Buffer.from('47494638396101000100800000dbdfef00000021f90401000000002c00000000010001000002024401003b', 'hex'))
+    }
+}
 
 function pageViewsHaveDifferentIds() {
     var pageViews = lodash.filter(log, function(logLine) {
@@ -77,82 +79,188 @@ function checkExistenceOfExpectedQuerystring(expected) {
     })
 }
 
-function someTestsFailed(suite) {
-    return lodash.some(suite.tests, function(test) {
-        return test.error !== null
-    })
-}
+const mockTag = function(p, l, o, w, i/*, n, g*/) {
+    'p:nomunge, l:nomunge, o:nomunge, w:nomunge, i:nomunge, n:nomunge, g:nomunge'
 
-const setupMockCollector = () => {
-    return new Promise((resolve, reject) => {
+    // Stop if the Snowplow namespace i already exists
+    if (!p[i]) {
+        // Initialise the 'GlobalSnowplowNamespace' array
+        p['GlobalSnowplowNamespace'] = p['GlobalSnowplowNamespace'] || []
 
-        express.get('/i', function (req, res) {
-            //if (req.method === 'GET') {
-            var payload = url.parse(req.url, true).query
-            log.push(payload)
-            //}
-            res.status(200).type('gif').send(new Buffer.from('47494638396101000100800000dbdfef00000021f90401000000002c00000000010001000002024401003b', 'hex'))
-        })
+        // Add the new Snowplow namespace to the global array so sp.js can find it
+        p['GlobalSnowplowNamespace'].push(i)
 
-        express.use('/js', Express.static(path.join(__dirname, '../../dist/min')))
-        
-        express.get('/', function (req, res) {
-            res.status(200).type('html').send(integrationTestPage)
-        })
-
-        try {
-            server = express.listen(8181, () => {            
-                resolve()
-            })
-        } catch(e) {
-            reject(e)
+        // Create the Snowplow function
+        p[i] = function() {
+            (p[i].q = p[i].q || []).push(arguments)
         }
-    })
+
+        // Initialise the asynchronous queue
+        p[i].q = p[i].q || []
+
+        // Create a new script element
+        //n = l.createElement(o)
+
+        // Get the first script on the page
+        //g = l.getElementsByTagName(o)[0]
+
+        // The new script should load asynchronously
+        //n.async = 1
+
+        // Load Snowplow
+        //n.src = w
+
+        // Insert the Snowplow script before every other script so it executes as soon as possible
+        //g.parentNode.insertBefore(n, g)
+    }
 }
 
-// const shutdownExpress = () => {
-//     return new Promise((resolve)=>{
-//         server.close(()=>{
-//             resolve()
-//         })
-//     })
-// }
+const mockSnowplowRequests = function() {
+    window.snowplow('newTracker', 'cf', '127.0.0.1:8181', {
+        encodeBase64: true,
+        appId: 'CFe23a',
+        platform: 'mob',
+        contexts: {
+            webPage: true,
+        },
+    })
+    // Add a global context
+    var geolocationContext = {
+        schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
+        data: {
+            latitude: 40.0,
+            longitude: 55.1,
+        },
+    }
+    function eventTypeContextGenerator(args) {
+        var context = {}
+        context['schema'] = 'iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1'
+        context['data'] = {}
+        context['data']['osType'] = 'ubuntu'
+        context['data']['osVersion'] = '2018.04'
+        context['data']['deviceManufacturer'] = 'ASUS'
+        context['data']['deviceModel'] = String(args['eventType'])
+        return context
+    }
+    // A filter that will only attach contexts to structured events
+    function structuredEventFilter(args) {
+        return args['eventType'] === 'se'
+    }
+    function erroneousContextGenerator() {
+        return {}
+    }
+    window.snowplow('addGlobalContexts', [erroneousContextGenerator])
+    window.snowplow('addGlobalContexts', [[structuredEventFilter, [eventTypeContextGenerator, geolocationContext]]])
+    window.snowplow('setUserId', 'Malcolm')
+    window.snowplow('trackPageView', 'My Title', [
+        // Auto-set page title; add page context
+        {
+            schema: 'iglu:com.example_company/user/jsonschema/2-0-0',
+            data: {
+                userType: 'tester',
+            },
+        },
+    ])
+
+    // This should have different pageViewId in web_page context
+    window.snowplow('trackPageView')
+    window.snowplow('trackStructEvent', 'Mixes', 'Play', 'MRC/fabric-0503-mix', '', '0.0')
+    window.snowplow(
+        'trackUnstructEvent',
+        {
+            schema: 'iglu:com.acme_company/viewed_product/jsonschema/5-0-0',
+            data: {
+                productId: 'ASO01043',
+            },
+        },
+        [],
+        { type: 'ttm', value: 1477401868 }
+    )
+    var orderId = 'order-123'
+    window.snowplow('addTrans', orderId, 'acme', '8000', '100', '50', 'phoenix', 'arizona', 'USA', 'JPY')
+
+    // addItem might be called for each item in the shopping cart,
+    // or not at all.
+    window.snowplow('addItem', orderId, '1001', 'Blue t-shirt', 'clothing', '2000', '2', 'JPY')
+
+    // trackTrans sends the transaction to Snowplow tracking servers.
+    // Must be called last to commit the transaction.
+    window.snowplow('trackTrans')
+
+    var testAcceptRuleSet = {
+        accept: ['iglu:com.acme_company/*/jsonschema/*-*-*'],
+    }
+    var testRejectRuleSet = {
+        reject: ['iglu:com.acme_company/*/jsonschema/*-*-*'],
+    }
+    // test context rulesets
+    window.snowplow('addGlobalContexts', [[testAcceptRuleSet, [eventTypeContextGenerator, geolocationContext]]])
+
+    window.snowplow(
+        'trackUnstructEvent',
+        {
+            schema: 'iglu:com.acme_company/viewed_product/jsonschema/5-0-0',
+            data: {
+                productId: 'ASO01042',
+            },
+        },
+        [],
+        { type: 'ttm', value: 1477401869 }
+    )
+
+    window.snowplow('removeGlobalContexts', [[testAcceptRuleSet, [eventTypeContextGenerator, geolocationContext]]])
+    window.snowplow('addGlobalContexts', [[testRejectRuleSet, [eventTypeContextGenerator, geolocationContext]]])
+    window.snowplow(
+        'trackUnstructEvent',
+        {
+            schema: 'iglu:com.acme_company/viewed_product/jsonschema/5-0-0',
+            data: {
+                productId: 'ASO01041',
+            },
+        },
+        [],
+        { type: 'ttm', value: 1477401868 }
+    )
+
+    // track unhandled exception
+    window.snowplow('enableErrorTracking')
+
+    // Test for exception handling
+    function raiseException() {
+        window.notExistentObject.notExistentProperty()
+    }
+    window.setTimeout(raiseException, 100)
+}
 
 const decodeBase64 = jsBase64.Base64.fromBase64
 
 describe('Test that request_recorder logs meet expectations', function() {
-
     before(async function() {
+        const resourceLoader = new MockImageLoader({
+            proxy: 'http://127.0.0.1:9001',
+            strictSSL: false,
+            userAgent: 'Mellblomenator/9000',
+        })
 
-        try {
-            await setupMockCollector()
-        } catch(e){
-            throw(e)
-        }
+        const browser = new JSDOM('<html><body></body></html>', {
+            url: 'http://example.org/',
+            referrer: 'http://example.com/',
+            //domain:'example.com',
+            contentType: 'text/html',
+            storageQuota: 10000000,
+            pretendToBeVisual: true,
+            resources: resourceLoader,
+        })
 
-        // const browser = await remote({
-        //     logLevel: 'error',
-        //     path: '/',
-        //     capabilities: {
-        //         browserName: 'chrome',
-        //         // chromeOptions: {
-        //         //     args: ['--headless', '--disable-gpu', '--window-size=1280,800']
-        //         // }
-        //     },
-        //     port: 9515,
-        //     services: ['selenium-standalone'],
-        //     chromeDriverArgs: ['--port=9515'],
-        // })
-        // global.browser = browser
+        global.window = browser.window
+        global.navigator = browser.window.navigator
+        global.screen = browser.window.screen
+        global.document = browser.window.document
+        global.document.domain = 'example.com'
 
-       
-        await browser.url('http://127.0.0.1:8181/')
-        await browser.pause(300)
-    })
-
-    after(async function() {
-        //await global.browser.deleteSession()
-        //await shutdownExpress()
+        mockTag(window, document, 'script', '//d1fc8wv8zag5ca.cloudfront.net/2/sp.js', 'snowplow')
+        require('../../src/init')
+        mockSnowplowRequests()
     })
 
     it('Check existence of page view in log', function() {
@@ -178,7 +286,7 @@ describe('Test that request_recorder logs meet expectations', function() {
                 },
             }),
             'A page view should be detected'
-        )        
+        )
     })
 
     it('Check nonexistence of nonexistent event types in log', function() {
@@ -188,7 +296,6 @@ describe('Test that request_recorder logs meet expectations', function() {
             }),
             'No nonexistent event type should be detected'
         )
-        
     })
 
     it('Check a structured event was sent', function() {
@@ -202,7 +309,6 @@ describe('Test that request_recorder logs meet expectations', function() {
             }),
             'A structured event should be detected'
         )
-        
     })
 
     it('Check an unstructured event with true timestamp was sent', function() {
@@ -215,7 +321,6 @@ describe('Test that request_recorder logs meet expectations', function() {
             }),
             'An unstructured event should be detected'
         )
-        
     })
 
     it('Check a transaction event was sent', function() {
@@ -233,7 +338,6 @@ describe('Test that request_recorder logs meet expectations', function() {
             }),
             'A transaction event should be detected'
         )
-        
     })
 
     it('Check a transaction item event was sent', function() {
@@ -250,7 +354,6 @@ describe('Test that request_recorder logs meet expectations', function() {
             }),
             'A transaction item event should be detected'
         )
-        
     })
 
     it('Check an unhandled exception was sent', function() {
@@ -258,7 +361,7 @@ describe('Test that request_recorder logs meet expectations', function() {
             checkExistenceOfExpectedQuerystring({
                 ue_px: function(ue) {
                     var event = JSON.parse(decodeBase64(ue)).data
-                   
+
                     // We cannot test more because implementations vary much in old browsers (FF27,IE9)
                     return (
                         event.schema === 'iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1' &&
@@ -268,7 +371,6 @@ describe('Test that request_recorder logs meet expectations', function() {
                 },
             })
         )
-        
     })
 
     it('Check pageViewId is regenerated for each trackPageView', function() {
@@ -280,7 +382,7 @@ describe('Test that request_recorder logs meet expectations', function() {
             checkExistenceOfExpectedQuerystring({
                 e: 'se',
                 cx: function(cx) {
-                    var contexts = JSON.parse(decodeBase64(cx)).data 
+                    var contexts = JSON.parse(decodeBase64(cx)).data
                     return (
                         2 ===
                         lodash.size(
@@ -307,7 +409,6 @@ describe('Test that request_recorder logs meet expectations', function() {
                 },
             })
         )
-        
     })
 
     it('Check an unstructured event with global context from accept ruleset', function() {
@@ -352,7 +453,6 @@ describe('Test that request_recorder logs meet expectations', function() {
             }),
             'An unstructured event with global contexts should be detected'
         )
-        
     })
 
     it('Check an unstructured event missing global context from reject ruleset', function() {
@@ -397,6 +497,5 @@ describe('Test that request_recorder logs meet expectations', function() {
             }),
             'An unstructured event without global contexts should be detected'
         )
-        
     })
 })

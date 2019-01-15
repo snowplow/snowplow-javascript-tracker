@@ -4,6 +4,7 @@ import commonjs from 'rollup-plugin-commonjs'
 import babel from 'rollup-plugin-babel'
 import { terser } from 'rollup-plugin-terser'
 import json from 'rollup-plugin-json'
+import analyze from 'rollup-plugin-analyzer'
 import banner from './tools/banner'
 
 const inputFile = 'src/init.js'
@@ -20,7 +21,8 @@ const basePlugins = [
             jstimezonedetect: ['jstz'],
             murmurhash: ['v3'],
         },
-    })
+    }),
+    analyze({hideDeps: true, limit: 20})
 ]
 
 const transpile = [
@@ -67,6 +69,12 @@ const minify = [terser({
         unused: true,
         passes: 4,
     },
+    //We cannot mangle because of the way that snowplow calls functions
+    // mangle: {
+    //     toplevel: false,
+    //     module: false,
+    //     properties: false
+    // },
     output: {
         beautify: false,
         preamble: banner
@@ -90,7 +98,8 @@ export default [
             file: 'dist/snowplow.js',
             format: 'umd',
             name: 'snowplow',
-            banner
+            banner,
+            sourcemap: 'inline'
         },
         treeshake: {
             propertyReadSideEffects: false,

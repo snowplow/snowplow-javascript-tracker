@@ -18,6 +18,7 @@
  * @property {Number} sessionCookieTimeout - defaults to 1800
  * @property {Object} contexts - defaults to {}
  * @property {Boolean} post - defaults to false
+ * @property {Boolean} beacon - defaults to false
  * @property {Numner} bufferSize - defaults to 1
  * @property {Boolean} crossDomainLinker - defaults to false
  * @property {Number} maxPostBytes - defaults to 40000
@@ -46,6 +47,7 @@ export const ConfigDefaults = {
     sessionCookieTimeout: 1800,
     contexts: {},
     post: false,
+    beacon: false,
     bufferSize: 1,
     crossDomainLinker: false,
     maxPostBytes: 40000,

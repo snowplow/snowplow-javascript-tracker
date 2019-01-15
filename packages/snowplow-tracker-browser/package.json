@@ -24,17 +24,20 @@
   ],
   "devDependencies": {
     "@babel/cli": "^7.2.2",
+    "chromedriver": "^2.45.0",
     "grunt": "^1.0.3",
     "grunt-aws": "0.6.2",
     "mocha": "^5.2.0",
     "rollup": "^1.0.0",
-    "nyc": "13.1.0"
+    "nyc": "13.1.0",
+    "wdio-chromedriver-service": "^0.1.5",
+    "@wdio/cli": "^5.3.0"
   },
   "dependencies": {
     "browser-cookie-lite": "1.0.4",
     "core-js": "^2.6.0",
     "handlebars": "^4.0.12",
-    "jstimezonedetect": "1.0.6",
+    "@mmathias01/jstz": "3.0.0",
     "lodash": "^4.17.11",
     "lodash-es": "^4.17.11",
     "murmurhash": "0.0.2",
@@ -46,6 +49,7 @@
   },
   "scripts": {
     "test": "BABEL_ENV=test mocha --require @babel/register",
+    "test:integration": "wdio wdio.conf.js",
     "clean": "rm -rf dist/babel dist/bundles dist/min dist/zipped",
     "build": "rollup -c --environment buildTarget:PROD",
     "test:local": "npm run localtest.sh",

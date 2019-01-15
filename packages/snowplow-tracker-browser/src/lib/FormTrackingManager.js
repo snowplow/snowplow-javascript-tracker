@@ -32,20 +32,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import {
-    getCssClasses,
-    resolveDynamicContexts,
-    getFilter,
-    getTransform,
-    addEventListener,
-} from './Utilities'
+import { getCssClasses, resolveDynamicContexts, getFilter, getTransform, addEventListener } from './Utilities'
 
 // Symbols for private methods
-const getFormElementName = Symbol('getFormElementName')
-const getParentFormName = Symbol('getParentFormName')
-const getInnerFormElements = Symbol('getInnerFormElements')
-const getFormChangeListener = Symbol('getFormChangeListener')
-const getFormSubmissionListener = Symbol('getFormSubmissionListener')
+const getFormElementName = Symbol()
+const getParentFormName = Symbol()
+const getInnerFormElements = Symbol()
+const getFormChangeListener = Symbol()
+const getFormSubmissionListener = Symbol()
 
 /**
  * @class FormTrackingManager
@@ -120,12 +114,7 @@ class FormTrackingManager {
      * @returns {String} - the identifier
      */
     [getParentFormName](elt) {
-        while (
-            elt &&
-            elt.nodeName &&
-            elt.nodeName.toUpperCase() !== 'HTML' &&
-            elt.nodeName.toUpperCase() !== 'FORM'
-        ) {
+        while (elt && elt.nodeName && elt.nodeName.toUpperCase() !== 'HTML' && elt.nodeName.toUpperCase() !== 'FORM') {
             elt = elt.parentNode
         }
         if (elt && elt.nodeName && elt.nodeName.toUpperCase() === 'FORM') {
@@ -142,11 +131,9 @@ class FormTrackingManager {
     [getInnerFormElements](elt) {
         var innerElements = []
         this.innerElementTags.forEach(tagname => {
-            const trackedChildren = elt
-                .getElementsByTagName(tagname)
-                .filter(child => {
-                    return child.hasOwnProperty(this.trackingMarker)
-                })
+            const trackedChildren = elt.getElementsByTagName(tagname).filter(child => {
+                return child.hasOwnProperty(this.trackingMarker)
+            })
 
             trackedChildren.forEach(child => {
                 if (child.type === 'submit') {
@@ -161,10 +148,7 @@ class FormTrackingManager {
                     elementJson.type = child.type
                 }
 
-                if (
-                    (child.type === 'checkbox' || child.type === 'radio') &&
-                    !child.checked
-                ) {
+                if ((child.type === 'checkbox' || child.type === 'radio') && !child.checked) {
                     elementJson.value = null
                 }
                 innerElements.push(elementJson)
@@ -174,36 +158,28 @@ class FormTrackingManager {
         return innerElements
     }
 
-    /**
-     * Return function to handle form field change event
-     *
-     * @param {Object} context - dynamic context object
-     * @returns {Function} - the handler for the field change event
-     */
-    [getFormChangeListener](context) {
-        return e => {
-            var elt = e.target
-            var type =
-                elt.nodeName && elt.nodeName.toUpperCase() === 'INPUT'
-                    ? elt.type
-                    : null
-            var value =
-                elt.type === 'checkbox' && !elt.checked
-                    ? null
-                    : this.fieldTransform(elt.value)
-            this.core.trackFormChange(
-                this[getParentFormName](elt),
-                this[getFormElementName](elt),
-                elt.nodeName,
-                type,
-                getCssClasses(elt),
-                value,
-                this.contextAdder(
-                    resolveDynamicContexts(context, elt, type, value)
-                )
-            )
-        }
-    }
+    // /**
+    //  * Return function to handle form field change event
+    //  *
+    //  * @param {Object} context - dynamic context object
+    //  * @returns {Function} - the handler for the field change event
+    //  */
+    // [getFormChangeListener](context) {
+    //     return e => {
+    //         var elt = e.target
+    //         var type = elt.nodeName && elt.nodeName.toUpperCase() === 'INPUT' ? elt.type : null
+    //         var value = elt.type === 'checkbox' && !elt.checked ? null : this.fieldTransform(elt.value)
+    //         this.core.trackFormChange(
+    //             this[getParentFormName](elt),
+    //             this[getFormElementName](elt),
+    //             elt.nodeName,
+    //             type,
+    //             getCssClasses(elt),
+    //             value,
+    //             this.contextAdder(resolveDynamicContexts(context, elt, type, value))
+    //         )
+    //     }
+    // }
 
     /**
      * Return function to handle form submission event
@@ -215,33 +191,18 @@ class FormTrackingManager {
     [getFormChangeListener](event_type, context) {
         return e => {
             var elt = e.target
-            var type =
-                elt.nodeName && elt.nodeName.toUpperCase() === 'INPUT'
-                    ? elt.type
-                    : null
-            var value =
-                elt.type === 'checkbox' && !elt.checked
-                    ? null
-                    : this.fieldTransform(elt.value)
-            if (
-                event_type === 'change_form' ||
-                (type !== 'checkbox' && type !== 'radio')
-            ) {
-                this.core.trackFormChange(
+            var type = elt.nodeName && elt.nodeName.toUpperCase() === 'INPUT' ? elt.type : null
+            var value = elt.type === 'checkbox' && !elt.checked ? null : this.fieldTransform(elt.value)
+            if (event_type === 'change_form' || (type !== 'checkbox' && type !== 'radio')) {
+                this.core.trackFormFocusOrChange(
+                    event_type,
                     this[getParentFormName](elt),
                     this[getFormElementName](elt),
                     elt.nodeName,
                     type,
                     getCssClasses(elt),
                     value,
-                    this.contextAdder(
-                        resolveDynamicContexts(
-                            context,
-                            elt,
-                            type,
-                            value
-                        )
-                    )
+                    this.contextAdder(resolveDynamicContexts(context, elt, type, value))
                 )
             }
         }
@@ -272,58 +233,27 @@ class FormTrackingManager {
      * @param {Object} context - dynamic context object
      */
     addFormListeners(context) {
-        Array.prototype.forEach.call(
-            document.getElementsByTagName('form'),
-            form => {
-                window.console.log(form)
-                window.console.log(this.innerElementTags)
-                window.console.log(this.formFilter)
-                window.console.log(this.formFilter(form))
-                if (this.formFilter(form) && !form[this.trackingMarker]) {
-                    this.innerElementTags.forEach(tagname => {
-                        window.console.log(tagname)
-                        Array.prototype.forEach.call(
-                            form.getElementsByTagName(tagname),
-                            innerElement => {
-                                window.console.log(innerElement)
-                                if (
-                                    this.fieldFilter(innerElement) &&
-                                    !innerElement[this.trackingMarker] &&
-                                    innerElement.type.toLowerCase() !==
-                                        'password'
-                                ) {
-                                    addEventListener(
-                                        innerElement,
-                                        'focus',
-                                        getFormChangeListener(
-                                            'focus_form',
-                                            context
-                                        ),
-                                        false
-                                    )
-                                    addEventListener(
-                                        innerElement,
-                                        'change',
-                                        getFormChangeListener(
-                                            'change_form',
-                                            context
-                                        ),
-                                        false
-                                    )                                   
-                                    innerElement[this.trackingMarker] = true
-                                }
-                            }
-                        )
+        Array.prototype.forEach.call(document.getElementsByTagName('form'), form => {
+            window.console.log(form)
+            window.console.log(this.innerElementTags)
+            window.console.log(this.formFilter)
+            window.console.log(this.formFilter(form))
+            if (this.formFilter(form) && !form[this.trackingMarker]) {
+                this.innerElementTags.forEach(tagname => {
+                    window.console.log(tagname)
+                    Array.prototype.forEach.call(form.getElementsByTagName(tagname), innerElement => {
+                        window.console.log(innerElement)
+                        if (this.fieldFilter(innerElement) && !innerElement[this.trackingMarker] && innerElement.type.toLowerCase() !== 'password') {
+                            addEventListener(innerElement, 'focus', getFormChangeListener('focus_form', context), false)
+                            addEventListener(innerElement, 'change', getFormChangeListener('change_form', context), false)
+                            innerElement[this.trackingMarker] = true
+                        }
                     })
-                    addEventListener(
-                        form,
-                        'submit',
-                        this[getFormSubmissionListener](context)
-                    )
-                    form[this.trackingMarker] = true
-                }
+                })
+                addEventListener(form, 'submit', this[getFormSubmissionListener](context))
+                form[this.trackingMarker] = true
             }
-        )
+        })
     }
 }
 

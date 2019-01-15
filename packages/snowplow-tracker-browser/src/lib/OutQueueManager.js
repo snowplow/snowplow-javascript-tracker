@@ -32,11 +32,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { attemptWriteLocalStorage, warn } from './Utilities'
+import { attemptWriteLocalStorage, warn, isString, isArray} from './Utilities'
 import BrowserFeatureDetector from './BrowserFeatureDetector'
-import mapValues from 'lodash-es/mapValues'
-import isString from 'lodash-es/isString'
-import isArray from 'lodash-es/isArray'
+import mapValues from 'lodash'
 
 // Symbols for private methods
 const getQuerystring = Symbol('getQuerystring')
@@ -422,7 +420,7 @@ class OutQueueManager {
                 )
             }
         } else {
-            var image = new Image(1, 1)
+            var image = document.createElement('img', {height: 1, width: 1}) //new window.Image(1, 1)
 
             image.onload = ()=> {
                 this.outQueue.shift()
@@ -442,6 +440,7 @@ class OutQueueManager {
             image.src =
                 this.configCollectorUrl +
                 nextRequest.replace('?', '?stm=' + new Date().getTime() + '&')
+        
         }
     }
 }

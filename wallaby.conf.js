@@ -18,9 +18,28 @@ module.exports = wallaby => {
                 load: true,
                 ignore: false,
             },
+            // {
+            //     pattern: 'packages/snowplow-tracker-browser/test/temp/*.js',
+            //     instrument: false,
+            //     load: true,
+            //     ignore: false,
+            // },
+            // {
+            //     pattern: 'packages/snowplow-tracker-browser/test/temp/*.html',
+            //     instrument: false,
+            //     load: true,
+            //     ignore: false,
+            // },
+            {
+                pattern: 'packages/snowplow-tracker-browser/package.json',
+                instrument: false,
+                load: true,
+                ignore: false,
+            },
         ],
         tests: [
             'packages/snowplow-tracker-browser/test/unit/*.js',
+            'packages/snowplow-tracker-browser/test/functional/*.js',
             'packages/snowplow-tracker-core/test/unit/*.ts',
             'packages/snowplow-tracker-core/test/unit/*.js',
         ],
@@ -54,6 +73,6 @@ module.exports = wallaby => {
                 esModuleInterop: true,
             }),
         },
-        debug: false,
+        debug: true,
     }
 }
