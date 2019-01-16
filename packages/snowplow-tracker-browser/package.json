@@ -47,8 +47,14 @@
     "uglify-js": "^3.4.9",
     "uuid": "3.3.2"
   },
+  "nyc": {
+    "include": [
+      "src/**"
+    ],
+    "all": true  
+  },
   "scripts": {
-    "test": "BABEL_ENV=test mocha --require @babel/register",
+    "test": "BABEL_ENV=test nyc mocha --opts mocha.opts './test/{,!(mocks|browser)/**/}*.js'",
     "test:integration": "wdio wdio.conf.js",
     "clean": "rm -rf dist/babel dist/bundles dist/min dist/zipped",
     "build": "rollup -c --environment buildTarget:PROD",

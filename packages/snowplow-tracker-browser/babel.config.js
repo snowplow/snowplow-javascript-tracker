@@ -4,6 +4,7 @@ module.exports = function(api) {
         env: {
             test: {
                 ignore: [],
+                sourceMaps: true,
                 presets: [
                     [
                         '@babel/preset-env',

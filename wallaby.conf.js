@@ -3,43 +3,39 @@ process.env.BABEL_ENV = 'test'
 module.exports = wallaby => {
     return {
         files: [
-            'packages/snowplow-tracker-browser/src/*.js',
-            'packages/snowplow-tracker-browser/src/**/*.js',
-            'packages/snowplow-tracker-browser/test/mocks/*.js',
-            // {
-            //     pattern: 'packages/snowplow-tracker-core/src/*.js',
-            //     instrument: true,
-            //     load: true,
-            //     ignore: false,
-            // },
             {
                 pattern: 'packages/snowplow-tracker-core/src/*.ts',
                 instrument: true,
                 load: true,
                 ignore: false,
             },
-            // {
-            //     pattern: 'packages/snowplow-tracker-browser/test/temp/*.js',
-            //     instrument: false,
-            //     load: true,
-            //     ignore: false,
-            // },
-            // {
-            //     pattern: 'packages/snowplow-tracker-browser/test/temp/*.html',
-            //     instrument: false,
-            //     load: true,
-            //     ignore: false,
-            // },
+            {
+                pattern: 'packages/snowplow-tracker-core/src/*.ts',
+                instrument: true,
+                load: true,
+                ignore: false,
+            },
             {
                 pattern: 'packages/snowplow-tracker-browser/package.json',
                 instrument: false,
                 load: true,
                 ignore: false,
             },
+            {
+                pattern: 'packages/snowplow-tracker-browser/src/**/*.js',
+                instrument: true,
+                load: true,
+                ignore: false,
+            },
+            {
+                pattern: 'packages/snowplow-tracker-browser/test/mocks/*.js',
+                instrument: true,
+                load: true,
+                ignore: false,
+            },
         ],
         tests: [
-            'packages/snowplow-tracker-browser/test/unit/*.js',
-            'packages/snowplow-tracker-browser/test/functional/*.js',
+            'packages/snowplow-tracker-browser/test/{,!(mocks|browser)/**/}*.js',
             'packages/snowplow-tracker-core/test/unit/*.ts',
             'packages/snowplow-tracker-core/test/unit/*.js',
         ],
@@ -73,6 +69,10 @@ module.exports = wallaby => {
                 esModuleInterop: true,
             }),
         },
-        debug: true,
+        debug: false,
+        setup: function (w) {
+            var mocha = w.testFramework
+            mocha.allowUncaught()
+        }
     }
 }

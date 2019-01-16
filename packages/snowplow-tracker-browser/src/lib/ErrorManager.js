@@ -121,6 +121,7 @@ class ErrorManager {
          * @param {ErrorEvent} errorEvent - ErrorEvent passed to event listener
          */
         const captureError = (errorEvent) => {
+            
             if ((isFunction(filter) && filter(errorEvent)) || filter == null) {
                 this.sendError(errorEvent, contexts, contextsAdder)
             }

@@ -35,14 +35,14 @@
 import { warn, isFunction} from './Utilities'
 
 // Symbols for private methods
-const getNamedTrackers = Symbol('getNamedTrackers')
-const applyAsyncFunction = Symbol('applyAsyncFunction')
-const legacyCreateNewNamespace = Symbol('legacyCreateNewNamespace')
-const createNewNamespace = Symbol('createNewNamespace')
-const parseInputString = Symbol('parseInputString')
+const getNamedTrackers = Symbol()
+const applyAsyncFunction = Symbol()
+const legacyCreateNewNamespace = Symbol()
+const createNewNamespace = Symbol()
+const parseInputString = Symbol()
 
 // Page view ID should be shared between all tracker instances
-let trackerDictionary = {}
+//let trackerDictionary = {}
 
 class InQueueManager {
     /**
@@ -66,6 +66,7 @@ class InQueueManager {
         this.mutSnowplowState = mutSnowplowState
         this.asyncQueue = asyncQueue
         this.functionName = functionName
+        this.trackerDictionary = {}
 
         // We need to manually apply any events collected before this initialization
         for (var i = 0; i < asyncQueue.length; i++) {
@@ -89,11 +90,11 @@ class InQueueManager {
         var namedTrackers = []
 
         if (!names || names.length === 0) {
-            namedTrackers = Object.keys(trackerDictionary).map(tracker=>trackerDictionary[tracker])
+            namedTrackers = Object.keys(this.trackerDictionary).map(tracker=>this.trackerDictionary[tracker])
         } else {
             for (var i = 0; i < names.length; i++) {
-                if (trackerDictionary.hasOwnProperty(names[i])) {
-                    namedTrackers.push(trackerDictionary[names[i]])
+                if (this.trackerDictionary.hasOwnProperty(names[i])) {
+                    namedTrackers.push(this.trackerDictionary[names[i]])
                 } else {
                     warn(
                         'Warning: Tracker namespace "' +
@@ -134,7 +135,7 @@ class InQueueManager {
         }
 
         this[createNewNamespace](name)
-        trackerDictionary[name][f](endpoint)
+        this.trackerDictionary[name][f](endpoint)
     }
 
     /**
@@ -146,15 +147,15 @@ class InQueueManager {
     [createNewNamespace](namespace, endpoint, argmap) {
         argmap = argmap || {}
 
-        if (!trackerDictionary.hasOwnProperty(namespace)) {
-            trackerDictionary[namespace] = new this.TrackerConstructor(
+        if (!this.trackerDictionary.hasOwnProperty(namespace)) {
+            this.trackerDictionary[namespace] = new this.TrackerConstructor(
                 this.functionName,
                 namespace,
                 this.version,
                 this.mutSnowplowState,
                 argmap
             )
-            trackerDictionary[namespace].setCollectorUrl(endpoint)
+            this.trackerDictionary[namespace].setCollectorUrl(endpoint)
         } else {
             warn('Tracker namespace ' + namespace + ' already exists.')
         }
@@ -195,7 +196,7 @@ class InQueueManager {
 
             // Custom callback rather than tracker method, called with trackerDictionary as the context
             if (isFunction(input)) {
-                input.apply(trackerDictionary, parameterArray)
+                input.apply(this.trackerDictionary, parameterArray)
                 continue
             }
 

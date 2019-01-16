@@ -2,49 +2,30 @@ node_js:
 - 10.15.0
 language: node_js
 install:
-- npm install -g npm@6
-#- npm install -g grunt-cli
-- rm -rf node_modules
-- rm -rf packages/snowplow-tracker-browser/node_modules
-- rm -rf packages/snowplow-tracker-core/node_modules
-- rm -rf packages/snowplow-tracker-browser/package-lock.json
-- rm -rf packages/snowplow-tracker-core/package-lock.json
+# clean old node_modules
+# - rm -rf node_modules
+# - rm -rf packages/snowplow-tracker-browser/node_modules
+# - rm -rf packages/snowplow-tracker-core/node_modules
+# - rm -rf packages/snowplow-tracker-browser/package-lock.json
+# - rm -rf packages/snowplow-tracker-core/package-lock.json
 
-# bootstrap lerna repository
+# base npm install
 - npm install
 
-# install packages and build core
-#- cd core
-#- rm -rf node_modules
-#- npm install
-#- npm publish
-
-# install packages for tracker
-#- cd ..
-#- rm -rf node_modules
-#- npm install
-
-
-
-
-# get ngrok
-- wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
-- unzip ./ngrok-stable-linux-amd64.zip
 before_script:
-- export SUBDOMAIN=$RANDOM$RANDOM
-- ./ngrok http -authtoken $NGROK_AUTH -subdomain $SUBDOMAIN -log=stdout 8500 > /dev/null &
-script:
-#- cd core && grunt intern && cd ..
-
 # bootstrap lerna repository
 - npm run bootstrap
-# run tests
+
+script:
+# run pre-build tests
 - npm run test
+
 # build libraries
 - npm run build
 
-#- cd packages/snowplow-tracker-browser
-#- grunt travis
+# attempt running post build browser tests
+- npm run test:integration
+
 deploy:
 - provider: script
   skip_cleanup: true

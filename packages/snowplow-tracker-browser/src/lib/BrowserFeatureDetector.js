@@ -32,9 +32,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import cookie from 'browser-cookie-lite'
 import { v3 as murmurhash3_32_gc } from 'murmurhash'
 import jstz from '@mmathias01/jstz'
+import { cookie } from './Utilities'
 
 class BrowserFeatureDetector {
 
@@ -112,8 +112,8 @@ class BrowserFeatureDetector {
     hasCookies(testCookieName) {
         var cookieName = testCookieName || 'testcookie'
         if (this.navigatorAlias.cookieEnabled === undefined) {
-            cookie.cookie(cookieName, '1')
-            return cookie.cookie(cookieName) === '1' ? '1' : '0'
+            cookie(cookieName, '1')
+            return cookie(cookieName) === '1' ? '1' : '0'
         }
 
         return this.navigatorAlias.cookieEnabled ? '1' : '0'

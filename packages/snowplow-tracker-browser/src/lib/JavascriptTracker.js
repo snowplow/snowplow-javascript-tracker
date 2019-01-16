@@ -36,6 +36,7 @@ import {
     addEventListener,
     attemptGetLocalStorage,
     attemptWriteLocalStorage,
+    cookie,
     decorateQuerystring,
     findRootDomain,
     fixupDomain,
@@ -49,7 +50,7 @@ import {
     pInt,
     warn,
 } from './Utilities'
-//import 'browser-cookie-lite'
+
 import BrowserFeatureDetector from './BrowserFeatureDetector'
 import sha1 from 'sha1'
 import FormTrackingManager from './FormTrackingManager'
@@ -142,20 +143,7 @@ class JavascriptTracker {
      * @returns {JavascriptTracker} - an isntance of the SnowplowTracker
      */
     constructor(functionName, namespace, version, mutSnowplowState, argmap) {
-        window.cookie = function(name, value, ttl, path, domain, secure) {
-            if (arguments.length > 1) {
-                return (document.cookie =
-                    name +
-                    '=' +
-                    encodeURIComponent(value) +
-                    (ttl ? '; expires=' + new Date(+new Date() + ttl * 1000).toUTCString() : '') +
-                    (path ? '; path=' + path : '') +
-                    (domain ? '; domain=' + domain : '') +
-                    (secure ? '; secure' : ''))
-            }
-
-            return decodeURIComponent((('; ' + document.cookie).split('; ' + name + '=')[1] || '').split(';')[0])
-        }
+       
 
         this.configManager = new ConfigManager(argmap || {})
         const config = (this.config = this.configManager.config)
@@ -469,7 +457,7 @@ class JavascriptTracker {
         // Set to true if Opt-out cookie is defined
         let toOptoutByCookie
         if (this.state.optOutCookie) {
-            toOptoutByCookie = !!window.cookie(this.state.optOutCookie)
+            toOptoutByCookie = !!cookie(this.state.optOutCookie)
         } else {
             toOptoutByCookie = false
         }
@@ -495,7 +483,7 @@ class JavascriptTracker {
         if (this.config.stateStorageStrategy == 'localStorage') {
             return attemptGetLocalStorage(fullName)
         } else if (this.config.stateStorageStrategy == 'cookie' || this.config.stateStorageStrategy == 'cookieAndLocalStorage') {
-            return window.cookie(fullName)
+            return cookie(fullName)
         }
     }
 
@@ -613,7 +601,7 @@ class JavascriptTracker {
         if (this.config.stateStorageStrategy == 'localStorage') {
             attemptWriteLocalStorage(name, value)
         } else if (this.config.stateStorageStrategy == 'cookie' || this.config.stateStorageStrategy == 'cookieAndLocalStorage') {
-            window.cookie(name, value, timeout, this.config.cookiePath, this.config.cookieDomain)
+            cookie(name, value, timeout, this.config.cookiePath, this.config.cookieDomain)
         }
     }
 
@@ -722,7 +710,7 @@ class JavascriptTracker {
 
         let toOptoutByCookie
         if (this.state.optOutCookie) {
-            toOptoutByCookie = !!window.cookie(this.state.optOutCookie)
+            toOptoutByCookie = !!cookie(this.state.optOutCookie)
         } else {
             toOptoutByCookie = false
         }
@@ -732,8 +720,8 @@ class JavascriptTracker {
                 attemptWriteLocalStorage(idname, '')
                 attemptWriteLocalStorage(sesname, '')
             } else if (this.config.stateStorageStrategy == 'cookie' || this.config.stateStorageStrategy == 'cookieAndLocalStorage') {
-                window.cookie(idname, '', -1, this.config.cookiePath, this.config.cookieDomain)
-                window.cookie(sesname, '', -1, this.config.cookiePath, this.config.cookieDomain)
+                cookie(idname, '', -1, this.config.cookiePath, this.config.cookieDomain)
+                cookie(sesname, '', -1, this.config.cookiePath, this.config.cookieDomain)
             }
             return
         }
@@ -1460,7 +1448,7 @@ class JavascriptTracker {
         const gaCookieData = {}
         const gaCookies = ['__utma', '__utmb', '__utmc', '__utmv', '__utmz', '_ga']
         gaCookies.forEach(function(cookieType) {
-            var value = window.cookie(cookieType)
+            var value = cookie(cookieType)
             if (value) {
                 gaCookieData[cookieType] = value
             }
@@ -2151,7 +2139,7 @@ class JavascriptTracker {
      * @param string cookieName Name of the cookie whose value will be assigned to businessUserId
      */
     setUserIdFromCookie(cookieName) {
-        this.state.businessUserId = window.cookie(cookieName)
+        this.state.businessUserId = cookie(cookieName)
     }
 
     /**

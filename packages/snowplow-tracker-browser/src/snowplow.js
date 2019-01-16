@@ -132,12 +132,14 @@ class SnowplowTracker {
                     this.documentAlias,
                     'DOMContentLoaded',
                     function ready() {
-                        this.documentAlias.removeEventListener(
-                            'DOMContentLoaded',
-                            ready,
-                            false
-                        )
-                        loadHandler()
+                        if (this.documentAlias && this.documentAlias.removeEventListener) {
+                            this.documentAlias.removeEventListener(
+                                'DOMContentLoaded',
+                                ready,
+                                false
+                            )
+                            loadHandler()
+                        }
                     }
                 )
             } else if (this.documentAlias.attachEvent) {

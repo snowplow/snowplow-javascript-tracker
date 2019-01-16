@@ -139,7 +139,7 @@ const integrationTestPage = `<!DOCTYPE html>
             function raiseException() {
                 notExistentObject.notExistentProperty()
             }
-            setTimeout(raiseException, 100)
+            setTimeout(raiseException, 200)
         </script>
     </body>
 </html>`

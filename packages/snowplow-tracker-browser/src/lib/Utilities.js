@@ -32,8 +32,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { cookie } from 'browser-cookie-lite'
-
 /**
  * Cleans up the page title
  *
@@ -155,6 +153,21 @@ export const addEventListener = (
 
     element['on' + eventType] = eventHandler
     return true
+}
+
+export const cookie = function(name, value, ttl, path, domain, secure) {
+    if (arguments.length > 1) {
+        return (document.cookie =
+            name +
+            '=' +
+            encodeURIComponent(value) +
+            (ttl ? '; expires=' + new Date(+new Date() + ttl * 1000).toUTCString() : '') +
+            (path ? '; path=' + path : '') +
+            (domain ? '; domain=' + domain : '') +
+            (secure ? '; secure' : ''))
+    }
+
+    return decodeURIComponent((('; ' + document.cookie).split('; ' + name + '=')[1] || '').split(';')[0])
 }
 
 /**
@@ -381,8 +394,8 @@ export const findRootDomain = () => {
     var position = split.length - 1
     while (position >= 0) {
         var currentDomain = split.slice(position, split.length).join('.')
-        cookie.cookie(cookieName, cookieValue, 0, '/', currentDomain)
-        if (cookie.cookie(cookieName) === cookieValue) {
+        cookie(cookieName, cookieValue, 0, '/', currentDomain)
+        if (cookie(cookieName) === cookieValue) {
             // Clean up created cookie(s)
             deleteCookie(cookieName, currentDomain)
             var cookieNames = getCookiesWithPrefix(cookiePrefix)
@@ -422,7 +435,7 @@ export const isValueInArray = (val, array) => {
  * @param {String} domainName  - The domain the cookie is in
  */
 export const deleteCookie = (cookieName, domainName) => {
-    cookie.cookie(cookieName, '', -1, '/', domainName)
+    cookie(cookieName, '', -1, '/', domainName)
 }
 
 /**
