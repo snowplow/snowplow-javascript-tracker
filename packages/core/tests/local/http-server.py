@@ -50,9 +50,9 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_header("Content-type", "image/gif")
         self.end_headers()
         self.wfile.write(''.encode())
-        #content_len = int(self.headers.get('content-length', 0))
-        #post_body = self.rfile.read(content_len)
-        #pprint(post_body)
+        content_len = int(self.headers.get('content-length', 0))
+        post_body = self.rfile.read(content_len)
+        pprint(post_body)
 
     def do_OPTIONS(self):
         self.send_response(200)

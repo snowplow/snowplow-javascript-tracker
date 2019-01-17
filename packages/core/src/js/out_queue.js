@@ -67,17 +67,24 @@
 		//Force to lower case if its a string
 		eventMethod = eventMethod.toLowerCase ? eventMethod.toLowerCase() : eventMethod;
 		
-		//Use the Beacon API if eventMethod is set null, true, or 'beacon'. 
-		var enableBeacon = (eventMethod === null || eventMethod === true || eventMethod === "beacon" || eventMethod === "true") ? true : false;
+		// Use the Beacon API if eventMethod is set null, true, or 'beacon'.
+		var isBeaconRequested = (eventMethod === null) || (eventMethod === true) || (eventMethod === "beacon") || (eventMethod === "true");
 		// Fall back to POST or GET for browsers which don't support Beacon API
-		useBeacon = enableBeacon && navigator && navigator.sendBeacon;
+		var isBeaconAvailable = Boolean(isBeaconRequested && navigator && navigator.sendBeacon);
+		var useBeacon = (isBeaconAvailable && isBeaconRequested);
 
-		//Use POST if specified, or beacon is unavailable. 
-		var usePost = (eventMethod === "post" || (enableBeacon && !useBeacon)) ? true : false;
-		// Fall back to GET for browsers which don't support CORS XMLHttpRequests (e.g. IE <= 9)
-		usePost = usePost && window.XMLHttpRequest && ('withCredentials' in new XMLHttpRequest());
+		// Use GET if specified
+		var isGetRequested = (eventMethod === "get");
 
-		var path = useBeacon || usePost ? postPath : '/i';
+		// Use POST if specified
+		var isPostRequested = (eventMethod === "post");
+		// usePost acts like a catch all for POST methods - Beacon or XHR
+		var usePost = (isPostRequested || useBeacon) && !isGetRequested;
+		// Don't use POST for browsers which don't support CORS XMLHttpRequests (e.g. IE <= 9)
+		usePost = usePost && Boolean(window.XMLHttpRequest && ('withCredentials' in new XMLHttpRequest()));
+
+		// Resolve all options and capabilities and decide path
+		var path = usePost ? postPath : '/i';
 
 		bufferSize = (localStorageAccessible() && useLocalStorage && usePost && bufferSize) || 1;
 
@@ -234,7 +241,7 @@
 
 			var nextRequest = outQueue[0];
 
-			if (usePost || useBeacon) {
+			if (usePost) {
 
 				var xhr = initializeXMLHttpRequest(configCollectorUrl);
 
@@ -285,7 +292,9 @@
 					var beaconStatus;
 
 					if (useBeacon) {
-						beaconStatus = navigator.sendBeacon(configCollectorUrl, encloseInPayloadDataEnvelope(attachStmToEvent(batch)));
+						const headers = { type: 'application/json' };
+						const blob = new Blob([encloseInPayloadDataEnvelope(attachStmToEvent(batch))], headers);
+						beaconStatus = navigator.sendBeacon(configCollectorUrl, blob);
 					}
 					if (!useBeacon || !beaconStatus) {
 						xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent(batch)));
@@ -293,7 +302,6 @@
 				}
 
 			} else {
-
 				var image = new Image(1, 1);
 
 				image.onload = function () {
