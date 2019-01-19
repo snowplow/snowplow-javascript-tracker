@@ -24,7 +24,7 @@ script:
 - npm run test
 
 # attempt running post build browser tests
-- npm run test:integration
+#- npm run test:integration
 
 deploy:
 - provider: script
