@@ -32,17 +32,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { attemptWriteLocalStorage, warn, isString, isArray} from './Utilities'
+import { attemptWriteLocalStorage, warn, isString, isArray, mapValues} from './Utilities'
 import BrowserFeatureDetector from './BrowserFeatureDetector'
-import mapValues from 'lodash'
 
 // Symbols for private methods
-const getQuerystring = Symbol('getQuerystring')
-const getBody = Symbol('getBody')
-const getUTF8Length = Symbol('getUTF8Length')
-const initializeXMLHttpRequest = Symbol('initializeXMLHttpRequest')
-const encloseInPayloadDataEnvelope = Symbol('encloseInPayloadDataEnvelope')
-const attachStmToEvent = Symbol('attachStmToEvent')
+const getQuerystring = Symbol()
+const getBody = Symbol()
+const getUTF8Length = Symbol()
+const initializeXMLHttpRequest = Symbol()
+const encloseInPayloadDataEnvelope = Symbol()
+const attachStmToEvent = Symbol()
 
 class OutQueueManager {
     /**
@@ -278,6 +277,7 @@ class OutQueueManager {
      */
     enqueueRequest(request, url) {
         this.configCollectorUrl = `${url}${this.path}`
+
         if (this.usePost) {
             var body = this[getBody](request)
             if (body.bytes >= this.maxPostBytes) {

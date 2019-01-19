@@ -96,9 +96,7 @@ export const fixupDomain = domain => {
 export const getReferrer = oldLocation => {
     var referrer = ''
 
-    var fromQs =
-        fromQuerystring('referrer', window.location.href) ||
-        fromQuerystring('referer', window.location.href)
+    var fromQs = fromQuerystring('referrer', window.location.href) || fromQuerystring('referer', window.location.href)
 
     // Short-circuit
     if (fromQs) {
@@ -136,12 +134,7 @@ export const getReferrer = oldLocation => {
  * @param {Boolean} useCapture - set to true to enable "capture mode"
  * @returns {Boolean} - returns the result of adding the listner, should always be true.
  */
-export const addEventListener = (
-    element,
-    eventType,
-    eventHandler,
-    useCapture
-) => {
+export const addEventListener = (element, eventType, eventHandler, useCapture) => {
     if (element.addEventListener) {
         element.addEventListener(eventType, eventHandler, useCapture)
         return true
@@ -191,10 +184,7 @@ export const fromQuerystring = (field, url) => {
  * @param {(object|function(...*): ?object)[]} dynamicOrStaticContexts - Array of custom context Objects or custom context generating functions
  * @param {...any} callbackParameters - Parameters to pass to dynamic callbacks
  */
-export const resolveDynamicContexts = (
-    dynamicOrStaticContexts,
-    ...callbackParameters
-) => {
+export const resolveDynamicContexts = (dynamicOrStaticContexts, ...callbackParameters) => {
     //var params = Array.prototype.slice.call(arguments, 1);
     if (dynamicOrStaticContexts) {
         return dynamicOrStaticContexts.map(function(context) {
@@ -229,7 +219,6 @@ export const warn = message => {
  * @returns {String[]} - an array of the classes on the element
  */
 export const getCssClasses = element => {
-   
     return element.className.match(/\S+/g) || []
 }
 
@@ -461,9 +450,10 @@ export const getCookiesWithPrefix = function(cookiePrefix) {
  * @param {String} string - The string to test
  * @returns {Boolean} - true if the string is an IP address
  */
-export const isIpAddress = string => 
-    /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(string)
-
+export const isIpAddress = string =>
+    /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(
+        string
+    )
 
 /**
  * If the hostname is an IP address, look for text indicating that the page is cached by Yahoo
@@ -475,14 +465,9 @@ export const isYahooCachedPage = hostName => {
     let initialDivText, cachedIndicator
     if (isIpAddress(hostName)) {
         try {
-            initialDivText =
-                document.body.children[0].children[0].children[0].children[0]
-                    .children[0].children[0].innerHTML
+            initialDivText = document.body.children[0].children[0].children[0].children[0].children[0].children[0].innerHTML
             cachedIndicator = 'You have reached the cached page for'
-            return (
-                initialDivText.slice(0, cachedIndicator.length) ===
-                cachedIndicator
-            )
+            return initialDivText.slice(0, cachedIndicator.length) === cachedIndicator
         } catch (e) {
             return false
         }
@@ -582,6 +567,66 @@ export const isObject = function(toTest) {
     return testedType != null && (testedType == 'object' || testedType == 'function')
 }
 
+export const mapValues = (obj, iteree) => {
+    return Object.entries(obj).reduce((a, [key, value]) => {
+        a[key] = iteree(value)
+        return a
+    }, {})
+}
+
+export const murmurhash = (key, seed) => {
+    let remainder, bytes, h1, h1b, c1, c1b, c2, c2b, k1, i
+
+    remainder = key.length & 3 // key.length % 4
+    bytes = key.length - remainder
+    h1 = seed
+    c1 = 0xcc9e2d51
+    c2 = 0x1b873593
+    i = 0
+
+    while (i < bytes) {
+        k1 = (key.charCodeAt(i) & 0xff) | ((key.charCodeAt(++i) & 0xff) << 8) | ((key.charCodeAt(++i) & 0xff) << 16) | ((key.charCodeAt(++i) & 0xff) << 24)
+        ++i
+
+        k1 = ((k1 & 0xffff) * c1 + ((((k1 >>> 16) * c1) & 0xffff) << 16)) & 0xffffffff
+        k1 = (k1 << 15) | (k1 >>> 17)
+        k1 = ((k1 & 0xffff) * c2 + ((((k1 >>> 16) * c2) & 0xffff) << 16)) & 0xffffffff
+
+        h1 ^= k1
+        h1 = (h1 << 13) | (h1 >>> 19)
+        h1b = ((h1 & 0xffff) * 5 + ((((h1 >>> 16) * 5) & 0xffff) << 16)) & 0xffffffff
+        h1 = (h1b & 0xffff) + 0x6b64 + ((((h1b >>> 16) + 0xe654) & 0xffff) << 16)
+    }
+
+    k1 = 0
+
+    switch (remainder) {
+    case 3:
+        k1 ^= (key.charCodeAt(i + 2) & 0xff) << 1
+        // eslint-disable-next-line no-fallthrough
+    case 2:
+        k1 ^= (key.charCodeAt(i + 1) & 0xff) << 8
+        // eslint-disable-next-line no-fallthrough
+    case 1:
+        k1 ^= key.charCodeAt(i) & 0xff
+
+        k1 = ((k1 & 0xffff) * c1 + ((((k1 >>> 16) * c1) & 0xffff) << 16)) & 0xffffffff
+        k1 = (k1 << 15) | (k1 >>> 17)
+        k1 = ((k1 & 0xffff) * c2 + ((((k1 >>> 16) * c2) & 0xffff) << 16)) & 0xffffffff
+        h1 ^= k1
+    }
+
+    h1 ^= key.length
+
+    h1 ^= h1 >>> 16
+    h1 = ((h1 & 0xffff) * 0x85ebca6b + ((((h1 >>> 16) * 0x85ebca6b) & 0xffff) << 16)) & 0xffffffff
+    h1 ^= h1 >>> 13
+    h1 = ((h1 & 0xffff) * 0xc2b2ae35 + ((((h1 >>> 16) * 0xc2b2ae35) & 0xffff) << 16)) & 0xffffffff
+    h1 ^= h1 >>> 16
+
+    return h1 >>> 0
+}
+
 const helpers = {
     addEventListener,
     attemptGetLocalStorage,
@@ -608,6 +653,8 @@ const helpers = {
     isUndefined,
     isValueInArray,
     isYahooCachedPage,
+    mapValues,
+    murmurhash,
     parseFloat,
     parseInt,
     resolveDynamicContexts,

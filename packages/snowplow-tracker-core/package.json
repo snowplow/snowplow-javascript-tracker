@@ -1,6 +1,6 @@
 {
   "name": "@snowplow/tracker-core",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "devDependencies": {
     "@babel/cli": "^7.2.2",
     "mocha": "^5.2.0",
@@ -11,20 +11,19 @@
   },
   "dependencies": {
     "@types/lodash": "^4.14.119",
-    "@types/uuid": "^2.0.29",
+    "@types/uuid": "3.4.4",
     "core-js": "^2.6.0",
-    "lodash": "^4.17.11",
     "universal-base64url": "^1.0.0",
     "uuid": "3.3.2"
   },
   "scripts": {
     "type-check": "tsc --noEmit",
     "type-check:watch": "npm run type-check -- --watch",
-    "test": "BABEL_ENV=test nyc mocha --opts mocha.opts",
+    "test": "BABEL_ENV=test nyc mocha --opts test/mocha.opts './test/{,!(mocks|utils)/**/}*.js'",
     "build": "npm run build:types && npm run build:js && npm run build:es",
     "build:types": "tsc --emitDeclarationOnly",
-    "build:js": "BABEL_ENV=cjs babel src --out-dir lib/cjs --extensions \".ts,.tsx\" --source-maps true",
-    "build:es": "BABEL_ENV=mjs babel src --out-dir lib/mjs --extensions \".ts,.tsx\" --source-maps true",
+    "build:js": "BABEL_ENV=cjs babel src --root-mode upward --out-dir lib/cjs --extensions \".ts,.tsx\" --source-maps true",
+    "build:es": "BABEL_ENV=mjs babel src --root-mode upward --out-dir lib/mjs --extensions \".ts,.tsx\" --source-maps true",
     "prepublishOnly": "npm run build"
   },
   "nyc": {

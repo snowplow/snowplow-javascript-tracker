@@ -32,9 +32,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { v3 as murmurhash3_32_gc } from 'murmurhash'
 import jstz from '@mmathias01/jstz'
-import { cookie } from './Utilities'
+import { cookie, murmurhash as murmurhash3_32_gc } from './Utilities'
 
 class BrowserFeatureDetector {
 

@@ -16,7 +16,83 @@
 import { PayloadData, isNonEmptyJson } from "./payload";
 import { SelfDescribingJson } from "./core";
 import { decode } from "universal-base64url";
-import { isEqual, has, get, isPlainObject, every, compact, map } from 'lodash';
+
+
+const get = (o:any, p:Array<string>|string, d?:any) =>{
+p = Array.isArray(p) ? p : p.split('.')
+return p.reduce((xs, x) => (xs && xs[x]) ? xs[x] : d, o)
+}
+
+const has = (o:any, p:Array<string>|string) => !!get(o, p)
+
+function isEqual(a:any, b:any) {
+    if (a === b) return true;
+
+    var isArray = Array.isArray;
+    var keyList = Object.keys;
+    var hasProp = Object.prototype.hasOwnProperty;
+
+    if (a && b && typeof a == 'object' && typeof b == 'object') {
+        var arrA = isArray(a)
+            , arrB = isArray(b)
+            , i
+            , length
+            , key;
+
+        if (arrA && arrB) {
+            length = a.length;
+            if (length != b.length) return false;
+            for (i = length; i-- !== 0;)
+                if (!isEqual(a[i], b[i])) return false;
+            return true;
+        }
+
+        if (arrA != arrB) return false;
+
+        var dateA = a instanceof Date
+            , dateB = b instanceof Date;
+        if (dateA != dateB) return false;
+        if (dateA && dateB) return a.getTime() == b.getTime();
+
+        var regexpA = a instanceof RegExp
+            , regexpB = b instanceof RegExp;
+        if (regexpA != regexpB) return false;
+        if (regexpA && regexpB) return a.toString() == b.toString();
+
+        var keys = keyList(a);
+        length = keys.length;
+
+        if (length !== keyList(b).length)
+            return false;
+
+        for (i = length; i-- !== 0;)
+            if (!hasProp.call(b, keys[i])) return false;
+
+        for (i = length; i-- !== 0;) {
+            key = keys[i];
+            if (!isEqual(a[key], b[key])) return false;
+        }
+
+        return true;
+    }
+
+    return a !== a && b !== b;
+}
+
+const isObject = (obj:any) => {
+    const inputType = typeof obj
+    return inputType != null && (inputType == 'object' || inputType == 'function') === true
+}
+
+function isPlainObject(obj:any) {
+    if(!isObject(obj)) return false
+    if (typeof obj.constructor !== 'function') return false
+    if (!isObject(obj.constructor.prototype)) return false
+    if (!obj.constructor.prototype.hasOwnProperty('isPrototypeOf')) return false
+    
+    return true;
+};
+
 
 /**
  * Datatypes (some algebraic) for representing context types
@@ -183,7 +259,7 @@ export function isFilterProvider(input: any) : boolean {
     if (Array.isArray(input)) {
         if (input.length === 2) {
             if (Array.isArray(input[1])) {
-                return isContextFilter(input[0]) && every(input[1], isContextPrimitive);
+                return isContextFilter(input[0]) && input[1].every(isContextPrimitive);
             }
             return isContextFilter(input[0]) && isContextPrimitive(input[1]);
         }
@@ -196,7 +272,7 @@ export function isRuleSetProvider(input: any) : boolean {
         if (!isRuleSet(input[0]))
             return false;
         if (Array.isArray(input[1]))
-            return every(input[1], isContextPrimitive);
+            return input[1].every(isContextPrimitive);
         return isContextPrimitive(input[1]);
     }
     return false;
@@ -323,7 +399,7 @@ export function buildGenerator(generator: ContextGenerator,
         // determine if the produced result is a valid SDJ
         if (isSelfDescribingJson(contextGeneratorResult)) {
             return contextGeneratorResult;
-        } else if (Array.isArray(contextGeneratorResult) && every(contextGeneratorResult, isSelfDescribingJson)) {
+        } else if (Array.isArray(contextGeneratorResult) && contextGeneratorResult.every(isSelfDescribingJson)) {
             return contextGeneratorResult;
         } else {
             return undefined;
@@ -352,8 +428,8 @@ export function generatePrimitives(contextPrimitives: Array<ContextPrimitive> | 
             return result;
         }
     };
-    let generatedContexts = map(normalizedInputs, partialEvaluate);
-    return ([] as SelfDescribingJson[]).concat(...compact(generatedContexts));
+    let generatedContexts = normalizedInputs.map(input => partialEvaluate(input)!).filter(Boolean);
+    return ([] as SelfDescribingJson[]).concat(...generatedContexts!);
 }
 
 export function evaluatePrimitive(contextPrimitive: ContextPrimitive,
@@ -412,8 +488,8 @@ export function generateConditionals(providers: Array<ConditionalContextProvider
             return result;
         }
     };
-    let generatedContexts = map(normalizedInput, partialEvaluate);
-    return ([] as SelfDescribingJson[]).concat(...compact(generatedContexts));
+    let generatedContexts = normalizedInput.map(input=>partialEvaluate(input)!).filter(Boolean)
+    return ([] as SelfDescribingJson[]).concat(...generatedContexts);
 }
 
 export function contextModule() {

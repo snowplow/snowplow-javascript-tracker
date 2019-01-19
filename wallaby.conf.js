@@ -35,7 +35,7 @@ module.exports = wallaby => {
             },
         ],
         tests: [
-            'packages/snowplow-tracker-browser/test/{,!(mocks|browser)/**/}*.js',
+            'packages/snowplow-tracker-browser/test/{,!(mocks|browser)/**/}{,!(wdio.conf)}.js',
             'packages/snowplow-tracker-core/test/unit/*.ts',
             'packages/snowplow-tracker-core/test/unit/*.js',
         ],

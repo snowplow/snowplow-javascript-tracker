@@ -17,11 +17,11 @@ before_script:
 - npm run bootstrap
 
 script:
-# run pre-build tests
-- npm run test
-
 # build libraries
 - npm run build
+
+# run post-build local tests
+- npm run test
 
 # attempt running post build browser tests
 - npm run test:integration

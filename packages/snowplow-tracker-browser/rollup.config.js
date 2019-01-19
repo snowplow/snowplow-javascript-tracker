@@ -15,40 +15,16 @@ const basePlugins = [
     resolve({
         browser: true,
     }),
-    commonjs({
-        namedExports: {
-            'browser-cookie-lite': ['cookie'],
-            jstimezonedetect: ['jstz'],
-            murmurhash: ['v3'],
-        },
-    }),
-    analyze({hideDeps: true, limit: 20})
+    commonjs()
 ]
 
-const transpile = [
+const transpileBundle = [
     babel({
-        //exclude: ['**/node_modules/**', 'node_modules/**'], // only transpile our source code
+        rootMode: 'upward'
     })
 ]
 
-const transpileNoBuiltIns = [
-    babel({
-        presets: [
-            [
-                '@babel/preset-env',
-                {
-                    modules: false,
-                    useBuiltIns: 'false',
-                    debug: false,
-                    loose: false,
-                    spec: false,
-                },
-            ],                    
-        ],
-    })
-]
-
-const minify = [terser({
+const minifyBundle = [terser({
     parse: {
         // parse options
     },
@@ -58,6 +34,9 @@ const minify = [terser({
         hoist_funs: true,
         arguments: true,
         booleans: true,
+        reduce_funcs: true,
+        collapse_vars: true,
+        reduce_vars: true,
         booleans_as_integers: false,
         unsafe: true,
         unsafe_arrows: true,
@@ -67,28 +46,37 @@ const minify = [terser({
         unsafe_proto: true,
         unsafe_regexp: true,
         unused: true,
-        passes: 4,
+        passes: 10,
+        keep_fnames: true
     },
     //We cannot mangle because of the way that snowplow calls functions
-    // mangle: {
-    //     toplevel: false,
-    //     module: false,
-    //     properties: false
-    // },
+    mangle: {
+        toplevel: true,
+        module: true,
+        // properties: {
+        //     //regex: /^this.state/,
+        //     //keep_quoted: true
+        // },
+        keep_fnames: true
+    },
     output: {
         beautify: false,
         preamble: banner
     },
-    ecma: 5,
+    ecma: 6,
     keep_classnames: false,
     keep_fnames: false,
     ie8: false,
-    module: false,
+    module: true,
     nameCache: null,
     safari10: false,
     toplevel: true,
     warnings: true,
 })]
+
+const analyzeBundle = [
+    analyze({hideDeps: false, limit: 40})
+]
 
 export default [
     //Unminified, Bundled, Transpiled. 
@@ -96,7 +84,7 @@ export default [
         input: inputFile,
         output: {
             file: 'dist/snowplow.js',
-            format: 'umd',
+            format: 'iife',
             name: 'snowplow',
             banner,
             sourcemap: 'inline'
@@ -106,30 +94,15 @@ export default [
             pureExternalModules: true,
         },
 
-        plugins: [...basePlugins, ...transpile],
+        plugins: [...basePlugins, ...transpileBundle],
     },
-    //Unminified, Bundled, Transpiled w/o Builtins. 
-    {
-        input: inputFile,
-        output: {
-            file: 'dist/snowplow-nobuiltins.js',
-            format: 'umd',
-            name: 'snowplow',
-            banner
-        },
-        treeshake: {
-            propertyReadSideEffects: false,
-            pureExternalModules: true,
-        },
-
-        plugins: [...basePlugins, ...transpileNoBuiltIns],
-    },
+    
     //Bundled, Transpiled, Minified
     {
         input: inputFile,
         output: {
             file: 'dist/min/sp.js',
-            format: 'umd', 
+            format: 'iife', 
             name: 'snowplow'
         },
         treeshake: {
@@ -137,24 +110,9 @@ export default [
             pureExternalModules: true,
         },
 
-        plugins: [...basePlugins, ...transpile, ...minify],
+        plugins: [...basePlugins, transpileBundle, ...minifyBundle, ...analyzeBundle],
     },
-    //Bundled, Transpiled w/o Builtins, Minified
-    {
-        input: inputFile,
-        output: {
-            file: 'dist/min/sp-nobuiltins.js',
-            format: 'umd',
-            name: 'snowplow'
-        },
-        treeshake: {
-            propertyReadSideEffects: false,
-            pureExternalModules: true,
-        },
-
-        plugins: [...basePlugins, ...transpileNoBuiltIns, ...minify],
-    },
-
+    
     //TAG: Minified
     {
         input: inputFileTag,
@@ -166,12 +124,7 @@ export default [
             compress: {
                 unused: false,
             },
-            mangle: {
-                reserved: ['p', 'l', 'o', 'w', 'i', 'n', 'g'],
-                properties: {                    
-                    reserved: ['p', 'l', 'o', 'w', 'i', 'n', 'g']
-                },
-            },
+            mangle: false,
             output: {
                 beautify: false,
                 preamble: banner,

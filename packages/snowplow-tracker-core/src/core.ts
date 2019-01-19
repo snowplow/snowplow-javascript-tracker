@@ -13,7 +13,7 @@
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
 
-import uuid from 'uuid';
+import uuid from 'uuid/v4';
 import * as payload from './payload';
 import {PayloadData, PayloadDict, StringDict} from "./payload";
 import {
@@ -162,7 +162,7 @@ export function trackerCore(base64: boolean, callback?: (payload: PayloadData) =
 	 */
 	function track(sb: PayloadData, context?: Array<SelfDescribingJson>, tstamp?: Timestamp): PayloadData {
 		sb.addDict(payloadPairs);
-		sb.add('eid', uuid.v4());
+		sb.add('eid', uuid());
 		var timestamp = getTimestamp(tstamp);
 		sb.add(timestamp.type, timestamp.value.toString());
 		var allContexts = attachGlobalContexts(sb, context);

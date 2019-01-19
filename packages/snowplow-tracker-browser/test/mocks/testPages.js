@@ -26,7 +26,7 @@ const integrationTestPage = `<!DOCTYPE html>
                     g.parentNode.insertBefore(n, g)
                 }
             })(window, document, 'script', './js/sp.js', 'snowplow')
-            window.snowplow('newTracker', 'cf', '127.0.0.1:8181', {
+            window.snowplow('newTracker', 'cf', '127.0.0.1:8081', {
                 encodeBase64: true,
                 appId: 'CFe23a',
 				platform: 'mob',
@@ -87,15 +87,15 @@ const integrationTestPage = `<!DOCTYPE html>
                 { type: 'ttm', value: 1477401868 }
             )
             var orderId = 'order-123'
-            window.snowplow('addTrans', orderId, 'acme', '8000', '100', '50', 'phoenix', 'arizona', 'USA', 'JPY')
+            //window.snowplow('addTrans', orderId, 'acme', '8000', '100', '50', 'phoenix', 'arizona', 'USA', 'JPY')
 
             // addItem might be called for each item in the shopping cart,
             // or not at all.
-            window.snowplow('addItem', orderId, '1001', 'Blue t-shirt', 'clothing', '2000', '2', 'JPY')
+            //window.snowplow('addItem', orderId, '1001', 'Blue t-shirt', 'clothing', '2000', '2', 'JPY')
 
             // trackTrans sends the transaction to Snowplow tracking servers.
             // Must be called last to commit the transaction.
-            window.snowplow('trackTrans')
+            //window.snowplow('trackTrans')
 
             var testAcceptRuleSet = {
                 accept: ['iglu:com.acme_company/*/jsonschema/*-*-*'],
@@ -134,12 +134,15 @@ const integrationTestPage = `<!DOCTYPE html>
 
             // track unhandled exception
             window.snowplow('enableErrorTracking')
-
+            //window.onerror = function(){
+                //document.body.classList.add('finished')
+                //return false;
+            //}
             // Test for exception handling
             function raiseException() {
                 notExistentObject.notExistentProperty()
             }
-            setTimeout(raiseException, 200)
+            setTimeout(raiseException, 1000)
         </script>
     </body>
 </html>`

@@ -158,28 +158,6 @@ class FormTrackingManager {
         return innerElements
     }
 
-    // /**
-    //  * Return function to handle form field change event
-    //  *
-    //  * @param {Object} context - dynamic context object
-    //  * @returns {Function} - the handler for the field change event
-    //  */
-    // [getFormChangeListener](context) {
-    //     return e => {
-    //         var elt = e.target
-    //         var type = elt.nodeName && elt.nodeName.toUpperCase() === 'INPUT' ? elt.type : null
-    //         var value = elt.type === 'checkbox' && !elt.checked ? null : this.fieldTransform(elt.value)
-    //         this.core.trackFormChange(
-    //             this[getParentFormName](elt),
-    //             this[getFormElementName](elt),
-    //             elt.nodeName,
-    //             type,
-    //             getCssClasses(elt),
-    //             value,
-    //             this.contextAdder(resolveDynamicContexts(context, elt, type, value))
-    //         )
-    //     }
-    // }
 
     /**
      * Return function to handle form submission event
@@ -234,15 +212,9 @@ class FormTrackingManager {
      */
     addFormListeners(context) {
         Array.prototype.forEach.call(document.getElementsByTagName('form'), form => {
-            window.console.log(form)
-            window.console.log(this.innerElementTags)
-            window.console.log(this.formFilter)
-            window.console.log(this.formFilter(form))
             if (this.formFilter(form) && !form[this.trackingMarker]) {
                 this.innerElementTags.forEach(tagname => {
-                    window.console.log(tagname)
                     Array.prototype.forEach.call(form.getElementsByTagName(tagname), innerElement => {
-                        window.console.log(innerElement)
                         if (this.fieldFilter(innerElement) && !innerElement[this.trackingMarker] && innerElement.type.toLowerCase() !== 'password') {
                             addEventListener(innerElement, 'focus', getFormChangeListener('focus_form', context), false)
                             addEventListener(innerElement, 'change', getFormChangeListener('change_form', context), false)

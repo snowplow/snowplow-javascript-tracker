@@ -32,16 +32,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-// var lodash = require('./lib_managed/lodash'),
-// 	helpers = require('./lib/helpers'),
-// 	object = typeof exports !== 'undefined' ? exports : this;
-
 import helpers from './Utilities'
 
 // Symbols for private methods
-const processClick = Symbol('processClick')
-const getClickHandler = Symbol('getClickHandler')
-const addClickListener = Symbol('addClickListener')
+const processClick = Symbol()
+const getClickHandler = Symbol()
+const addClickListener = Symbol()
 
 class LinkTrackingManager {
     /**

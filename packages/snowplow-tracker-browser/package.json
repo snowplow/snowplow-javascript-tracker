@@ -24,27 +24,18 @@
   ],
   "devDependencies": {
     "@babel/cli": "^7.2.2",
-    "chromedriver": "^2.45.0",
-    "grunt": "^1.0.3",
-    "grunt-aws": "0.6.2",
     "mocha": "^5.2.0",
     "rollup": "^1.0.0",
     "nyc": "13.1.0",
-    "wdio-chromedriver-service": "^0.1.5",
     "@wdio/cli": "^5.3.0"
   },
   "dependencies": {
-    "browser-cookie-lite": "1.0.4",
     "core-js": "^2.6.0",
     "handlebars": "^4.0.12",
     "@mmathias01/jstz": "3.0.0",
-    "lodash": "^4.17.11",
-    "lodash-es": "^4.17.11",
-    "murmurhash": "0.0.2",
     "randombytes": "^2.0.6",
     "sha1": "git://github.com/pvorb/node-sha1.git#910081c83f3661507d9d89e66e3f38d8b59d5559",
-    "@snowplow/tracker-core": "0.7.0",
-    "uglify-js": "^3.4.9",
+    "@snowplow/tracker-core": "0.8.0",
     "uuid": "3.3.2"
   },
   "nyc": {
@@ -54,8 +45,8 @@
     "all": true  
   },
   "scripts": {
-    "test": "BABEL_ENV=test nyc mocha --opts mocha.opts './test/{,!(mocks|browser)/**/}*.js'",
-    "test:integration": "wdio wdio.conf.js",
+    "test": "BABEL_ENV=test nyc mocha --opts test/mocha.opts './test/{,!(mocks|browser|utils)/**/}*.js'",
+    "test:integration": "wdio test/wdio.conf.js",
     "clean": "rm -rf dist/babel dist/bundles dist/min dist/zipped",
     "build": "rollup -c --environment buildTarget:PROD",
     "test:local": "npm run localtest.sh",

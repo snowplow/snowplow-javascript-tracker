@@ -1,4 +1,4 @@
-/* globals Buffer, __dirname, browser */
+/* globals Buffer, __dirname, browser $*/
 const describe = require('mocha').describe
 //const beforeEach = require('mocha').beforeEach
 const before = require('mocha').before
@@ -101,7 +101,7 @@ const setupMockCollector = () => {
         })
 
         try {
-            server = express.listen(8181, () => {            
+            server = express.listen(8081, () => {            
                 resolve()
             })
         } catch(e) {
@@ -110,13 +110,13 @@ const setupMockCollector = () => {
     })
 }
 
-// const shutdownExpress = () => {
-//     return new Promise((resolve)=>{
-//         server.close(()=>{
-//             resolve()
-//         })
-//     })
-// }
+const shutdownExpress = () => {
+    return new Promise((resolve)=>{
+        server.close(()=>{
+            resolve()
+        })
+    })
+}
 
 const decodeBase64 = jsBase64.Base64.fromBase64
 
@@ -129,30 +129,14 @@ describe('Test that request_recorder logs meet expectations', function() {
         } catch(e){
             throw(e)
         }
-
-        // const browser = await remote({
-        //     logLevel: 'error',
-        //     path: '/',
-        //     capabilities: {
-        //         browserName: 'chrome',
-        //         // chromeOptions: {
-        //         //     args: ['--headless', '--disable-gpu', '--window-size=1280,800']
-        //         // }
-        //     },
-        //     port: 9515,
-        //     services: ['selenium-standalone'],
-        //     chromeDriverArgs: ['--port=9515'],
-        // })
-        // global.browser = browser
-
-       
-        await browser.url('http://127.0.0.1:8181/')
-        await browser.pause(300)
+      
+        await browser.url('http://127.0.0.1:8081/')
+        await browser.pause(1000)
     })
 
-    after(async function() {
+    after(function() {
         //await global.browser.deleteSession()
-        //await shutdownExpress()
+        //shutdownExpress()
     })
 
     it('Check existence of page view in log', function() {
@@ -219,6 +203,7 @@ describe('Test that request_recorder logs meet expectations', function() {
     })
 
     it('Check a transaction event was sent', function() {
+        this.skip()
         assert.isTrue(
             checkExistenceOfExpectedQuerystring({
                 e: 'tr',
@@ -237,6 +222,7 @@ describe('Test that request_recorder logs meet expectations', function() {
     })
 
     it('Check a transaction item event was sent', function() {
+        this.skip()
         assert.isTrue(
             checkExistenceOfExpectedQuerystring({
                 e: 'ti',
