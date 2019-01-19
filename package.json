@@ -5,7 +5,8 @@
     "scripts": {
         "bootstrap": "lerna bootstrap --no-ci --hoist",
         "build": "lerna run build --stream",
-        "test": "lerna run test --stream"
+        "test": "lerna run test --stream",
+        "test:integration": "lerna run test:integration --stream"
     },
     "devDependencies": {
         "@babel/cli": "^7.2.2",
