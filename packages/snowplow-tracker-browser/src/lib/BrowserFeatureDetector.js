@@ -32,8 +32,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import jstz from '@mmathias01/jstz'
-import { cookie, murmurhash as murmurhash3_32_gc } from './Utilities'
+
+import { cookie, murmurhash as murmurhash3_32_gc, isFunction } from './Utilities'
 
 class BrowserFeatureDetector {
 
@@ -168,8 +168,27 @@ class BrowserFeatureDetector {
      * @returns {String} - the visitors timezone
      */
     detectTimezone() {
-        const tz = jstz.determine()
-        return tz ? tz.name() : ''
+        if (Intl && Intl.DateTimeFormat() && Intl.DateTimeFormat().resolvedOptions()) {
+            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
+            if (tz && (tz.indexOf('/') > -1 || tz === 'UTC') && tz.indexOf('Etc') != 0) {
+                return tz
+            }
+        }
+
+        //If this is a legacy browser fall back to a user loaded TZ library (either moment-timezone, or jstz)
+        //User will need to make sure the library is loaded and available before snowplow loads. 
+        if(this.windowAlias.moment && this.windowAlias.moment.tz && isFunction(this.windowAlias.moment.tz.guess)) {
+            return this.windowAlias.moment.tz.guess()
+        }
+    
+        if(this.windowAlias.jstz && isFunction(this.windowAlias.jstz.determine)) {
+            const tz =  this.windowAlias.jstz.determine()
+            if(tz) {
+                return tz.name()
+            }
+        }
+
+        return 'Unknown/Unknown'
     }
 
     /**
@@ -290,18 +309,3 @@ class BrowserFeatureDetector {
 }
 
 export default BrowserFeatureDetector
-
-// export default {
-//     hasLocalStorage,
-//     detectBrowserFeatures,
-//     detectSignature,
-//     detectTimezone,
-//     detectViewport,
-//     hasCookies,
-//     detectDocumentSize,
-//     hasSessionStorage,
-//     localStorageAccessible,
-//     navigatorAlias,
-//     screenAlias,
-//     windowAlias,
-// }

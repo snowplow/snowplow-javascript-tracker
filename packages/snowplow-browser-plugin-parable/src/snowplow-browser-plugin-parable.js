@@ -1,3 +1,6 @@
+export default function snowplowBrowserPluginParable() {
+    // TODO
+}
 //const getParrableContext = Symbol()
 
 //  /**

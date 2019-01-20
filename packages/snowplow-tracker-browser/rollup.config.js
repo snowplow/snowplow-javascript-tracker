@@ -5,6 +5,7 @@ import babel from 'rollup-plugin-babel'
 import { terser } from 'rollup-plugin-terser'
 import json from 'rollup-plugin-json'
 import analyze from 'rollup-plugin-analyzer'
+import gzip from 'rollup-plugin-gzip'
 import banner from './tools/banner'
 
 const inputFile = 'src/init.js'
@@ -74,6 +75,8 @@ const minifyBundle = [terser({
     warnings: true,
 })]
 
+const gzipBundle = [gzip()]
+
 const analyzeBundle = [
     analyze({hideDeps: false, limit: 40})
 ]
@@ -94,7 +97,7 @@ export default [
             pureExternalModules: true,
         },
 
-        plugins: [...basePlugins, ...transpileBundle],
+        plugins: [...basePlugins, ...transpileBundle, ...gzipBundle],
     },
     
     //Bundled, Transpiled, Minified
@@ -110,7 +113,7 @@ export default [
             pureExternalModules: true,
         },
 
-        plugins: [...basePlugins, transpileBundle, ...minifyBundle, ...analyzeBundle],
+        plugins: [...basePlugins, transpileBundle, ...minifyBundle, ...analyzeBundle, ...gzipBundle],
     },
     
     //TAG: Minified

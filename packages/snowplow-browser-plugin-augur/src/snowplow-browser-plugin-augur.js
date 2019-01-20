@@ -1,3 +1,6 @@
+export default function snowplowBrowserPluginAugur() {
+    // TODO
+}
 //const getAugurIdentityLiteContext = Symbol()
 
 

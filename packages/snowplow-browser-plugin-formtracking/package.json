@@ -1,0 +1,27 @@
+{
+  "name": "snowplow-browser-plugin-formtracking",
+  "version": "0.0.1",
+  "description": "> TODO: description",
+  "author": "Matt Mathias <mmathias01@gmail.com>",
+  "homepage": "https://github.com/snowplow/snowplow-javascript-tracker#readme",
+  "license": "MIT",
+  "main": "dist/snowplow-browser-plugin-formtracking.js",
+  "module": "dist/snowplow-browser-plugin-formtracking.module.js",
+  "directories": {
+    "lib": "dist",
+    "test": "test"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/snowplow/snowplow-javascript-tracker.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/snowplow/snowplow-javascript-tracker/issues"
+  }
+}

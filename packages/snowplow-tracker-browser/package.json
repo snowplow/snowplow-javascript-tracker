@@ -24,25 +24,24 @@
   ],
   "devDependencies": {
     "@babel/cli": "^7.2.2",
+    "@wdio/cli": "^5.3.0",
     "mocha": "^5.2.0",
-    "rollup": "^1.0.0",
     "nyc": "13.1.0",
-    "@wdio/cli": "^5.3.0"
+    "rollup": "^1.0.0"
   },
   "dependencies": {
+    "@snowplow/tracker-core": "0.8.0",
     "core-js": "^2.6.0",
     "handlebars": "^4.0.12",
-    "@mmathias01/jstz": "3.0.0",
     "randombytes": "^2.0.6",
     "sha1": "git://github.com/pvorb/node-sha1.git#910081c83f3661507d9d89e66e3f38d8b59d5559",
-    "@snowplow/tracker-core": "0.8.0",
     "uuid": "3.3.2"
   },
   "nyc": {
     "include": [
       "src/**"
     ],
-    "all": true  
+    "all": true
   },
   "scripts": {
     "test": "BABEL_ENV=test nyc mocha --opts test/mocha.opts './test/{,!(mocks|browser|utils)/**/}*.js'",
@@ -54,6 +53,6 @@
     "template:integration": "node scripts/integration-template.js",
     "gzip:main": "gzip --best -c dist/min/sp.js > dist/zipped/sp.js",
     "dirs": "mkdir -p dist/babel dist/bundles dist/min dist/zipped",
-    "bundle:watch": "rollup -c --watch"    
+    "bundle:watch": "rollup -c --watch"
   }
 }

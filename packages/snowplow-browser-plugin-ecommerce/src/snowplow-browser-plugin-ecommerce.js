@@ -1,3 +1,6 @@
+export default function snowplowBrowserPluginEcommerce() {
+    // TODO
+}
 
 //const ecommerceTransactionTemplate = Symbol()
 // const logTransaction = Symbol()

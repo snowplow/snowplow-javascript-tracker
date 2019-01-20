@@ -627,6 +627,51 @@ export const murmurhash = (key, seed) => {
     return h1 >>> 0
 }
 
+// [loadScript]() {
+//     if (!this.scriptPromise) {
+//         this.scriptPromise = new Promise(resolve => {
+//             const body = document.getElementsByTagName('body')[0]
+//             const script = document.createElement('script')
+//             script.type = 'text/javascript'
+//             script.onload = function() {
+//                 GoogleCharts.api = window.google
+//                 GoogleCharts.api.charts.load('current', {
+//                     packages: ['corechart', 'table'],
+//                 })
+//                 GoogleCharts.api.charts.setOnLoadCallback(() => {
+//                     resolve()
+//                 })
+//             }
+//             script.src = 'https://www.gstatic.com/charts/loader.js'
+//             body.appendChild(script)
+//         })
+//     }
+//     return this.scriptPromise
+// }
+
+// load(callback, type) {
+//     return this[loadScript]().then(() => {
+//         if (type) {
+//             let config = {}
+//             if (type instanceof Object) {
+//                 config = type
+//             } else if (Array.isArray(type)) {
+//                 config = { packages: type }
+//             } else {
+//                 config = { packages: [type] }
+//             }
+//             this.api.charts.load('current', config)
+//             this.api.charts.setOnLoadCallback(callback)
+//         } else {
+//             if(typeof callback != 'function') {
+//                 throw('callback must be a function');
+//             } else {
+//                 callback()               
+//             }
+//         }
+//     })
+// }
+
 const helpers = {
     addEventListener,
     attemptGetLocalStorage,

@@ -45,7 +45,6 @@ describe('Detectors', function() {
         it('should not detect localStorage if it does not exist', function(done) {
             const localStorageGetterStub = sinon.stub().returns(undefined)
             sinon.stub(this.testBrowser.window, 'localStorage').get(localStorageGetterStub)
-            global.window = this.testBrowser.window
             const Detectors = new BrowserFeatureDetector(this.testBrowser.window)
             const isLocalStorageAccessible = Detectors.localStorageAccessible()
             done(assert.strictEqual(isLocalStorageAccessible, false, 'localStorage is not accessible if its undefined'))
@@ -62,7 +61,6 @@ describe('Detectors', function() {
                 .throwsException(new Error())
                 .returns(localStorageStub)
             sinon.stub(this.testBrowser.window, 'localStorage').get(localStorageGetterStub)
-            global.window = this.testBrowser.window
             const Detectors = new BrowserFeatureDetector(this.testBrowser.window)
             const isLocalStorageAccessible = Detectors.localStorageAccessible()
             done(assert.strictEqual(isLocalStorageAccessible, true, 'failed to handle an error when accessing localStorage'))
@@ -75,7 +73,6 @@ describe('Detectors', function() {
             const localStorageStub = sinon.stub(this.testBrowser.window, 'localStorage')
             const localStorageGetterStub = sinon.stub().returns(localStorageStub)
             sinon.stub(this.testBrowser.window, 'localStorage').get(localStorageGetterStub)
-            global.window = this.testBrowser.window
             const Detectors = new BrowserFeatureDetector(this.testBrowser.window)
             const isLocalStorageAccessible = Detectors.localStorageAccessible()
             done(assert.strictEqual(isLocalStorageAccessible, true, 'failed to detect localStorage when there was no error'))
@@ -89,7 +86,6 @@ describe('Detectors', function() {
             const localStorageStub = sinon.stub(this.testBrowser.window, 'localStorage')
             const localStorageGetterStub = sinon.stub().returns(localStorageStub)
             sinon.stub(this.testBrowser.window, 'localStorage').get(localStorageGetterStub)
-            global.window = this.testBrowser.window
             const Detectors = new BrowserFeatureDetector(this.testBrowser.window)
             const isLocalStorageAccessible = Detectors.localStorageAccessible()
             done(assert.strictEqual(isLocalStorageAccessible, false, 'Setting an item failed, localStorage is not accessible'))
@@ -103,7 +99,6 @@ describe('Detectors', function() {
             const localStorageStub = sinon.stub(this.testBrowser.window, 'localStorage')
             const localStorageGetterStub = sinon.stub().returns(localStorageStub)
             sinon.stub(this.testBrowser.window, 'localStorage').get(localStorageGetterStub)
-            global.window = this.testBrowser.window
             const Detectors = new BrowserFeatureDetector(this.testBrowser.window)
             const isLocalStorageAccessible = Detectors.localStorageAccessible()
             done(assert.strictEqual(isLocalStorageAccessible, false, 'Removing an item failed, localStorage is not accessible'))
@@ -183,6 +178,61 @@ describe('Detectors', function() {
             const detectedTimeZone = Detectors.detectTimezone()
             assert.equal(localTimeZone, detectedTimeZone, 'time zone should match the timezone of the test machine')
         })
+
+        it('should detect UTC timezone', function() {
+            const DateTimeFormatStub = sinon.stub().returns(()=>{ return {resolvedOptions: ()=>{ return {timeZone: 'UTC'}}}})
+            sinon.stub(Intl, 'DateTimeFormat').get(DateTimeFormatStub)
+            const Detectors = new BrowserFeatureDetector({}, {}, {}, {})
+            const detectedTimeZone = Detectors.detectTimezone()
+            assert.equal('UTC', detectedTimeZone, 'time zone should be unknown when its UTC')
+        })
+
+        it('should detect the time zone using moment as a fallback', function() {            
+            const localTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+            const mockMoment = {tz:{guess:()=>{return localTimeZone}}}
+            const mockWindow = {moment: mockMoment}
+            sinon.stub(Intl, 'DateTimeFormat')
+            
+            
+            const Detectors = new BrowserFeatureDetector(mockWindow, {}, {}, {})
+            const detectedTimeZone = Detectors.detectTimezone()
+            assert.equal(localTimeZone, detectedTimeZone, 'time zone should match the timezone of the test machine')
+        })
+
+        it('should detect the time zone using jstz as a fallback', function() {            
+            const localTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+            const mockJstz = { determine: () => { return { name: () => localTimeZone } }}
+            const mockWindow = {jstz: mockJstz }
+            sinon.stub(Intl, 'DateTimeFormat')
+            
+            
+            const Detectors = new BrowserFeatureDetector(mockWindow, {}, {}, {})
+            const detectedTimeZone = Detectors.detectTimezone()
+            assert.equal(localTimeZone, detectedTimeZone, 'time zone should match the timezone of the test machine')
+        })
+
+        it('should report Unknown/Unknown when it cannot detect a timezone', function() {            
+            sinon.stub(Intl, 'DateTimeFormat')
+            const Detectors = new BrowserFeatureDetector({}, {}, {}, {})
+            const detectedTimeZone = Detectors.detectTimezone()
+            assert.equal('Unknown/Unknown', detectedTimeZone, 'time zone should be unknown when its not detectable')
+        })
+
+        it('should not detect invalid timezones without trying fallback', function() {
+            const DateTimeFormatStub = sinon.stub().returns(()=>{ return {resolvedOptions: ()=>{ return {timeZone: 'BadTimeZone'}}}})
+            sinon.stub(Intl, 'DateTimeFormat').get(DateTimeFormatStub)
+            const Detectors = new BrowserFeatureDetector({}, {}, {}, {})
+            const detectedTimeZone = Detectors.detectTimezone()
+            assert.equal('Unknown/Unknown', detectedTimeZone, 'time zone should be unknown when its not detectable')
+        })
+
+        it('should not detect Etc timezones without trying fallback', function() {
+            const DateTimeFormatStub = sinon.stub().returns(()=>{ return {resolvedOptions: ()=>{ return {timeZone: 'Etc/GMT'}}}})
+            sinon.stub(Intl, 'DateTimeFormat').get(DateTimeFormatStub)
+            const Detectors = new BrowserFeatureDetector({}, {}, {}, {})
+            const detectedTimeZone = Detectors.detectTimezone()
+            assert.equal('Unknown/Unknown', detectedTimeZone, 'time zone should be unknown when its Etc')
+        })
     })
 
     describe('Browser features', function() {
@@ -201,7 +251,7 @@ describe('Detectors', function() {
             const mockNavigator = { mimeTypes: mockMimeTypes }
 
             const Detectors = new BrowserFeatureDetector({}, mockNavigator, mockScreen, {})
-            const detectedFeatures = Detectors.detectBrowserFeatures() /*?*/
+            const detectedFeatures = Detectors.detectBrowserFeatures()
 
             assert.equal('1', detectedFeatures.java, 'Detect a feature that exists')
             assert.equal('0', detectedFeatures.fla, 'Detect a feature that does not exist')

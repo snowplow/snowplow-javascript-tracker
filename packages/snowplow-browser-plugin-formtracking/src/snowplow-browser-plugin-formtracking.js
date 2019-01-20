@@ -1,3 +1,6 @@
+export default function snowplowBrowserPluginFormtracking() {
+    // TODO
+}
 //   /**
 //      * Enables automatic form tracking.
 //      * An event will be fired when a form field is changed or a form submitted.

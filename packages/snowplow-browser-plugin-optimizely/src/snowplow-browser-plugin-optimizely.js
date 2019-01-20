@@ -1,3 +1,6 @@
+export default function snowplowBrowserPluginOptimizely() {
+    // TODO
+}
    
 // const getOptimizelyData = Symbol()
 // const getOptimizelyXData = Symbol()
