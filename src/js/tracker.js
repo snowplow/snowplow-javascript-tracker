@@ -1004,11 +1004,6 @@
 				// Old Chrome versions add an unwanted requestEnd field
 				delete performanceTiming.requestEnd;
 
-				// Add the Chrome firstPaintTime to the performance if it exists
-				if (windowAlias.chrome && windowAlias.chrome.loadTimes && typeof windowAlias.chrome.loadTimes().firstPaintTime === 'number') {
-					performanceTiming.chromeFirstPaint = Math.round(windowAlias.chrome.loadTimes().firstPaintTime * 1000);
-				}
-
 				return {
 					schema: 'iglu:org.w3/PerformanceTiming/jsonschema/1-0-0',
 					data: performanceTiming
