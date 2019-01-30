@@ -51,14 +51,16 @@
 	 * @param object mutSnowplowState Gives the pageUnloadGuard a reference to the outbound queue
 	 *                                so it can unload the page when all queues are empty
 	 * @param boolean useLocalStorage Whether to use localStorage at all
-	 * @param string eventMethod if null will use 'beacon' otherwise can be set to 'post', 'get', or 'beacon' to force. 
+	 * @param string eventMethod if null will use 'beacon' otherwise can be set to 'post', 'get', or 'beacon' to force.
+	 * @param string postPath The path where events are to be posted
 	 * @param int bufferSize How many events to batch in localStorage before sending them all.
 	 *                       Only applies when sending POST requests and when localStorage is available.
 	 * @param int maxPostBytes Maximum combined size in bytes of the event JSONs in a POST request
-	 * @param string postPath The path where events are to be posted
+	 * @param boolean useStm Whether to add timestamp to events
+	 *
 	 * @return object OutQueueManager instance
 	 */
-	object.OutQueueManager = function (functionName, namespace, mutSnowplowState, useLocalStorage, eventMethod, postPath, bufferSize, maxPostBytes) {
+	object.OutQueueManager = function (functionName, namespace, mutSnowplowState, useLocalStorage, eventMethod, postPath, bufferSize, maxPostBytes, useStm) {
 		var	queueName,
 			executingQueue = false,
 			configCollectorUrl,
@@ -316,7 +318,12 @@
 					executingQueue = false;
 				};
 
-				image.src = configCollectorUrl + nextRequest.replace('?', '?stm=' + new Date().getTime() + '&');
+				// note: this currently on applies to GET requests
+				if (useStm) {
+					image.src = configCollectorUrl + nextRequest.replace('?', '?stm=' + new Date().getTime() + '&');
+				} else {
+					image.src = configCollectorUrl + nextRequest;
+				}
 			}
 		}
 
