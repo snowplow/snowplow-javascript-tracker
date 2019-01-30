@@ -79,29 +79,35 @@
 	 * 15. eventMethod, 'beacon'
 	 * 16. post, false *DEPRECATED use eventMethod instead*
 	 * 17. postPath, null
-	 * 18. bufferSize, 1
-	 * 19. crossDomainLinker, false
-	 * 20. maxPostBytes, 40000
-	 * 21. discoverRootDomain, false
-	 * 22. cookieLifetime, 63072000
-	 * 23. stateStorageStrategy, 'cookieAndLocalStorage'
+	 * 18. useStm, true
+	 * 19. bufferSize, 1
+	 * 20. crossDomainLinker, false
+	 * 21. maxPostBytes, 40000
+	 * 22. discoverRootDomain, false
+	 * 23. cookieLifetime, 63072000
+	 * 24. stateStorageStrategy, 'cookieAndLocalStorage'
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
 
 		/************************************************************
 		 * Private members
 		 ************************************************************/
-		 
-		 var argmap = argmap || {};
-		 
-		 //use POST if that property is present on the argmap
-		 if(argmap.hasOwnProperty('post')) {
-			 argmap.eventMethod = argmap.post === true ? 'post' : 'get';
-		 } else {
-			 argmap.eventMethod = argmap.eventMethod || 'beacon'
-		 }
 
-		 var
+		var argmap = argmap || {};
+
+		//use POST if that property is present on the argmap
+		if(argmap.hasOwnProperty('post')) {
+			argmap.eventMethod = argmap.post === true ? 'post' : 'get';
+		} else {
+			argmap.eventMethod = argmap.eventMethod || 'beacon'
+		}
+
+		// attach stm to GET requests by default
+		if(!argmap.hasOwnProperty('useStm')) {
+			argmap.useStm = true;
+		}
+
+		var
 			// Tracker core
 			core = coreConstructor(true, function(payload) {
 				addBrowserData(payload);
@@ -309,7 +315,8 @@
 				argmap.eventMethod,
 				configPostPath,
 				argmap.bufferSize,
-				argmap.maxPostBytes || 40000),
+				argmap.maxPostBytes || 40000,
+				argmap.useStm),
 
 			// Flag to prevent the geolocation context being added multiple times
 			geolocationContextAdded = false,
