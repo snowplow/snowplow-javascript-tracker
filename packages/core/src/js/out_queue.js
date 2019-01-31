@@ -296,7 +296,13 @@
 					if (useBeacon) {
 						const headers = { type: 'application/json' };
 						const blob = new Blob([encloseInPayloadDataEnvelope(attachStmToEvent(batch))], headers);
-						beaconStatus = navigator.sendBeacon(configCollectorUrl, blob);
+						try {
+							beaconStatus = navigator.sendBeacon(configCollectorUrl, blob);
+						}
+						catch(error) {
+							beaconStatus = false;
+						}
+
 					}
 					if (!useBeacon || !beaconStatus) {
 						xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent(batch)));
