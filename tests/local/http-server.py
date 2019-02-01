@@ -3,13 +3,20 @@ import sys
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from http.client import NO_CONTENT
 from pprint import pprint
-
+import subprocess
+import json
+import signal
+import time
+import datetime
 
 gif_string = b'GIF87a\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff\xff\xff\xff,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;'
 file_path = os.path.dirname(__file__)
 
 def get_serve(file):
     return os.path.join(file_path, 'serve', file)
+
+def decode_get(request):
+    pass
 
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
@@ -52,7 +59,12 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(''.encode())
         content_len = int(self.headers.get('content-length', 0))
         post_body = self.rfile.read(content_len)
-        pprint(post_body)
+        with open("log_output.txt", "a") as myfile:
+            myfile.write('New request - ' + datetime.datetime.now().isoformat(' '))
+            myfile.write('\n')
+            myfile.write(post_body.decode())
+            myfile.write('\n')
+
 
     def do_OPTIONS(self):
         self.send_response(200)
@@ -63,9 +75,20 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
 
-httpd = HTTPServer(('127.0.0.1', 8000), SimpleHTTPRequestHandler)
-try:
-    httpd.serve_forever()
-except KeyboardInterrupt:
-    print('User closed server with Ctrl-c')
-    sys.exit(0)
+import http.server
+
+
+class StoppableHTTPServer(http.server.HTTPServer):
+    def run(self):
+        try:
+            self.serve_forever()
+        except KeyboardInterrupt:
+            pass
+        finally:
+            # Clean-up server (close socket, etc.)
+            self.server_close()
+
+if __name__ == '__main__':
+    httpd = StoppableHTTPServer(('127.0.0.1', 8000), SimpleHTTPRequestHandler)
+    httpd.run()
+    print("Program ended gracefully")
