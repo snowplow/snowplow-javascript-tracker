@@ -1,5 +1,11 @@
+Version 2.10.1 (2019-02-01)
+---------------------------
+Catch Beacon safelist exception for Chrome (#706)
+Add flag for disabling stm event parameter (#705)
+Remove chromeFirstPaint from PerformanceTiming context (#635)
+
 Version 2.10.0 (2019-01-17)
---------------------------
+---------------------------
 Transpile helpers.js and detectors.js (#693)
 Allow dynamic context callbacks for link and form tracking (#585)
 Fix default configOptOutCookie value (#672)
