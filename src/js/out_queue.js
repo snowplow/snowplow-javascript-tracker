@@ -270,16 +270,22 @@
 				// Keep track of number of events to delete from queue
 				var numberToSend = chooseHowManyToExecute(outQueue);
 
+				// The events (`numberToSend` of them), have been sent, so we remove them from the outQueue
+				// We also call executeQueue() again, to let executeQueue() check if we should keep running through the queue
+				function onPostSuccess(numberToSend) {
+					for (var deleteCount = 0; deleteCount < numberToSend; deleteCount++) {
+						outQueue.shift();
+					}
+					if (useLocalStorage) {
+						helpers.attemptWriteLocalStorage(queueName, JSON.stringify(outQueue));
+					}
+					executeQueue();
+				}
+
 				xhr.onreadystatechange = function () {
 					if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status < 400) {
-						for (var deleteCount = 0; deleteCount < numberToSend; deleteCount++) {
-							outQueue.shift();
-						}
-						if (useLocalStorage) {
-							helpers.attemptWriteLocalStorage(queueName, JSON.stringify(outQueue));
-						}
 						clearTimeout(xhrTimeout);
-						executeQueue();
+						onPostSuccess(numberToSend);
 					} else if (xhr.readyState === 4 && xhr.status >= 400) {
 						clearTimeout(xhrTimeout);
 						executingQueue = false;
@@ -304,6 +310,12 @@
 						}
 
 					}
+					// When beaconStatus is true, we can't _guarantee_ that it was successful (beacon queues asynchronously)
+					// but the browser has taken it out of our hands, so we want to flush the queue assuming it will do its job
+					if (beaconStatus === true) {
+						onPostSuccess(numberToSend);
+					}
+
 					if (!useBeacon || !beaconStatus) {
 						xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent(batch)));
 					}
