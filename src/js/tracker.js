@@ -183,6 +183,9 @@
 			// Disallow hash tags in URL. TODO: Should this be set to true by default?
 			configDiscardHashTag,
 
+			// Disallow brace in URL.
+			configDiscardBrace,
+
 			// First-party cookie name prefix
 			configCookieNamePrefix = argmap.hasOwnProperty('cookieName') ? argmap.cookieName : '_sp_',
 
@@ -442,7 +445,12 @@
 
 			if (configDiscardHashTag) {
 				targetPattern = new RegExp('#.*');
-				return url.replace(targetPattern, '');
+				url = url.replace(targetPattern, '');
+			}
+
+			if (configDiscardBrace) {
+				targetPattern = new RegExp('[{}]', 'g');
+				url = url.replace(targetPattern, ''); 
 			}
 			return url;
 		}
@@ -1844,6 +1852,15 @@
 		 */
 		apiMethods.discardHashTag = function (enableFilter) {
 			configDiscardHashTag = enableFilter;
+		};
+
+		/**
+		 * Strip braces from URL
+		 *
+		 * @param bool enableFilter
+		 */
+		apiMethods.discardBrace = function(enableFilter) {
+			configDiscardBrace = enableFilter;
 		};
 
 		/**
