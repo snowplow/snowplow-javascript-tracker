@@ -76,7 +76,7 @@
 	 * 12. useCookies, true
 	 * 13. sessionCookieTimeout, 1800
 	 * 14. contexts, {}
-	 * 15. eventMethod, 'beacon'
+	 * 15. eventMethod, 'post'
 	 * 16. post, false *DEPRECATED use eventMethod instead*
 	 * 17. postPath, null
 	 * 18. useStm, true
@@ -99,7 +99,7 @@
 		if(argmap.hasOwnProperty('post')) {
 			argmap.eventMethod = argmap.post === true ? 'post' : 'get';
 		} else {
-			argmap.eventMethod = argmap.eventMethod || 'beacon'
+			argmap.eventMethod = argmap.eventMethod || 'post'
 		}
 
 		// attach stm to GET requests by default
