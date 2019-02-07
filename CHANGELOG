@@ -1,3 +1,10 @@
+Version 2.10.2 (2019-02-07)
+---------------------------
+Update integration template to set eventMethod arg to get (#713)
+Make POST default instead of Beacon API (#712)
+Fix Beacon tracking to flush to OutQueue (#708)
+Add method to disallow braces in URL (#711)
+
 Version 2.10.1 (2019-02-01)
 ---------------------------
 Catch Beacon safelist exception for Chrome (#706)
