@@ -1,6 +1,6 @@
 {
   "name": "snowplow-tracker",
-  "version": "2.10.1",
+  "version": "2.10.2",
   "dependencies": {
     "snowplow-tracker-core": "0.7.0",
     "browser-cookie-lite": "0.3.1",
