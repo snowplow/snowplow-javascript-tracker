@@ -47,7 +47,7 @@ define([
 	 * This must be increased when new tracking call added to
 	 * pages/integration-template.html
 	 */
-    var log = [];
+	var log = [];
 
 	function pageViewsHaveDifferentIds () {
 		var pageViews = lodash.filter(log, function (logLine) {
@@ -75,12 +75,12 @@ define([
 				if (lodash.isFunction(v)) { return v(other[k]); }
 				else { return lodash.isEqual(v, other[k]); }
 			});
-			return lodash.all(result);
+			return lodash.every(result);
 		}
 
 		function strip(logLine) {
 			var expectedKeys = lodash.keys(expected);
-			var stripped = lodash.pick(logLine, function (v, k) { return lodash.include(expectedKeys, k); });
+			var stripped = lodash.pickBy(logLine, function (v, k) { return lodash.includes(expectedKeys, k); });
 			if (lodash.keys(stripped).length !== expectedKeys.length) { return null; }
 			else { return stripped; }
 		}
@@ -88,7 +88,7 @@ define([
 		return lodash.some(log, function (logLine) {
 			var stripped = strip(logLine);
 			if (stripped == null) { return false; }
-			else { return lodash.isEqual(expected, stripped, compare); }
+			else { return lodash.isEqualWith(expected, stripped, compare); }
 		});
 	}
 
@@ -115,7 +115,7 @@ define([
 		teardown: function () {
 			if (someTestsFailed(this)) {
 				console.log("Tests failed with following log:");
-				console.log(log, function (l) { console.log(l); });
+				lodash.forEach(log, function (l) { console.log(l); });
 			}
 			console.log("Cleaning log");
 			log = [];
@@ -133,7 +133,12 @@ define([
 				cx: function (cx) {
 					var contexts = JSON.parse(decodeBase64(cx)).data;
 					return lodash.some(contexts,
-						{schema:"iglu:com.example_company/user/jsonschema/2-0-0",data:{userType:'tester'}}
+						lodash.matches({
+							schema:"iglu:com.example_company/user/jsonschema/2-0-0",
+							data:{
+								userType:'tester'
+							}
+						})
 					);
 				}
 			}), 'A page view should be detected');
@@ -202,10 +207,114 @@ define([
 			}));
 		},
 
+		'Check pageViewId is regenerated for each trackPageView': function () {
+			assert.isTrue(pageViewsHaveDifferentIds());
+		},
 
-	    'Check pageViewId is regenerated for each trackPageView': function () {
-		    assert.isTrue(pageViewsHaveDifferentIds());
-	    }
+		'Check global contexts are for structured events': function () {
+			assert.isTrue(checkExistenceOfExpectedQuerystring({
+				e: 'se',
+				cx: function (cx) {
+					var contexts = JSON.parse(decodeBase64(cx)).data;
+					return 2 === lodash.size(
+						lodash.filter(contexts,
+							lodash.overSome(
+								lodash.matches({
+									schema: "iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1",
+									data: {
+										osType: 'ubuntu'
+									}
+								}),
+								lodash.matches({
+									schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
+									data: {
+										'latitude': 40.0,
+										'longitude': 55.1
+									}
+								})
+							)
+						)
+					);
+				}
+			}));
+		},
 
+    'Check an unstructured event with global context from accept ruleset': function () {
+      assert.isTrue(checkExistenceOfExpectedQuerystring({
+        e: 'ue',
+        ue_px: function (ue_px) {
+          var event = JSON.parse(decodeBase64(ue_px)).data;
+          return lodash.isMatch(event,
+            {
+              schema:"iglu:com.acme_company/viewed_product/jsonschema/5-0-0",
+              data:{
+                productId: 'ASO01042'
+              }
+            }
+          );
+        },
+        cx: function (cx) {
+          var contexts = JSON.parse(decodeBase64(cx)).data;
+          return 2 === lodash.size(
+            lodash.filter(contexts,
+              lodash.overSome(
+                lodash.matches({
+                  schema: "iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1",
+                  data: {
+                    osType: 'ubuntu'
+                  }
+                }),
+                lodash.matches({
+                  schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
+                  data: {
+                    'latitude': 40.0,
+                    'longitude': 55.1
+                  }
+                })
+              )
+            )
+          );
+        }
+      }), 'An unstructured event with global contexts should be detected');
+    },
+
+    'Check an unstructured event missing global context from reject ruleset': function () {
+      assert.isTrue(checkExistenceOfExpectedQuerystring({
+        e: 'ue',
+        ue_px: function (ue_px) {
+          var event = JSON.parse(decodeBase64(ue_px)).data;
+          return lodash.isMatch(event,
+						{
+              schema:"iglu:com.acme_company/viewed_product/jsonschema/5-0-0",
+              data:{
+                productId: 'ASO01041'
+              }
+            }
+          );
+				},
+        cx: function (cx) {
+          var contexts = JSON.parse(decodeBase64(cx)).data;
+          return 0 === lodash.size(
+            lodash.filter(contexts,
+              lodash.overSome(
+                lodash.matches({
+                  schema: "iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1",
+                  data: {
+                    osType: 'ubuntu'
+                  }
+                }),
+                lodash.matches({
+                  schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
+                  data: {
+                    'latitude': 40.0,
+                    'longitude': 55.1
+                  }
+                })
+              )
+            )
+          );
+        }
+      }), 'An unstructured event without global contexts should be detected');
+    }
 	});
 });

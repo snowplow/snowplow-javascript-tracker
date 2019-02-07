@@ -35,7 +35,9 @@
 ;(function() {
 
 	var
-		lodash = require('./lib_managed/lodash'),
+		mapValues = require('lodash/mapValues'),
+		isString = require('lodash/isString'),
+		map = require('lodash/map'),
 		localStorageAccessible = require('./lib/detectors').localStorageAccessible,
 		helpers = require('./lib/helpers'),
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
@@ -49,22 +51,42 @@
 	 * @param object mutSnowplowState Gives the pageUnloadGuard a reference to the outbound queue
 	 *                                so it can unload the page when all queues are empty
 	 * @param boolean useLocalStorage Whether to use localStorage at all
-	 * @param boolean usePost Whether to send events by POST or GET
+	 * @param string eventMethod if null will use 'beacon' otherwise can be set to 'post', 'get', or 'beacon' to force.
+	 * @param string postPath The path where events are to be posted
 	 * @param int bufferSize How many events to batch in localStorage before sending them all.
 	 *                       Only applies when sending POST requests and when localStorage is available.
 	 * @param int maxPostBytes Maximum combined size in bytes of the event JSONs in a POST request
+	 * @param boolean useStm Whether to add timestamp to events
+	 *
 	 * @return object OutQueueManager instance
 	 */
-	object.OutQueueManager = function (functionName, namespace, mutSnowplowState, useLocalStorage, usePost, bufferSize, maxPostBytes) {
+	object.OutQueueManager = function (functionName, namespace, mutSnowplowState, useLocalStorage, eventMethod, postPath, bufferSize, maxPostBytes, useStm) {
 		var	queueName,
 			executingQueue = false,
 			configCollectorUrl,
 			outQueue;
+		
+		//Force to lower case if its a string
+		eventMethod = eventMethod.toLowerCase ? eventMethod.toLowerCase() : eventMethod;
+		
+		// Use the Beacon API if eventMethod is set null, true, or 'beacon'.
+		var isBeaconRequested = (eventMethod === null) || (eventMethod === true) || (eventMethod === "beacon") || (eventMethod === "true");
+		// Fall back to POST or GET for browsers which don't support Beacon API
+		var isBeaconAvailable = Boolean(isBeaconRequested && navigator && navigator.sendBeacon);
+		var useBeacon = (isBeaconAvailable && isBeaconRequested);
 
-		// Fall back to GET for browsers which don't support CORS XMLHttpRequests (e.g. IE <= 9)
-		usePost = usePost && window.XMLHttpRequest && ('withCredentials' in new XMLHttpRequest());
+		// Use GET if specified
+		var isGetRequested = (eventMethod === "get");
 
-		var path = usePost ? '/com.snowplowanalytics.snowplow/tp2' : '/i';
+		// Use POST if specified
+		var isPostRequested = (eventMethod === "post");
+		// usePost acts like a catch all for POST methods - Beacon or XHR
+		var usePost = (isPostRequested || useBeacon) && !isGetRequested;
+		// Don't use POST for browsers which don't support CORS XMLHttpRequests (e.g. IE <= 9)
+		usePost = usePost && Boolean(window.XMLHttpRequest && ('withCredentials' in new XMLHttpRequest()));
+
+		// Resolve all options and capabilities and decide path
+		var path = usePost ? postPath : '/i';
 
 		bufferSize = (localStorageAccessible() && useLocalStorage && usePost && bufferSize) || 1;
 
@@ -81,7 +103,7 @@
 		}
 
 		// Initialize to and empty array if we didn't get anything out of localStorage
-		if (!lodash.isArray(outQueue)) {
+		if (!Array.isArray(outQueue)) {
 			outQueue = [];
 		}
 
@@ -129,7 +151,7 @@
 		 * Convert numeric fields to strings to match payload_data schema
 		 */
 		function getBody(request) {
-			var cleanedRequest = lodash.mapValues(request, function (v) {
+			var cleanedRequest = mapValues(request, function (v) {
 				return v.toString();
 			});
 			return {
@@ -213,7 +235,7 @@
 			}
 
 			// Let's check that we have a Url to ping
-			if (!lodash.isString(configCollectorUrl)) {
+			if (!isString(configCollectorUrl)) {
 				throw "No Snowplow collector configured, cannot track";
 			}
 
@@ -264,16 +286,30 @@
 					}
 				};
 
-				var batch = lodash.map(outQueue.slice(0, numberToSend), function (x) {
+				var batch = map(outQueue.slice(0, numberToSend), function (x) {
 					return x.evt;
 				});
 
 				if (batch.length > 0) {
-					xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent(batch)));
+					var beaconStatus;
+
+					if (useBeacon) {
+						const headers = { type: 'application/json' };
+						const blob = new Blob([encloseInPayloadDataEnvelope(attachStmToEvent(batch))], headers);
+						try {
+							beaconStatus = navigator.sendBeacon(configCollectorUrl, blob);
+						}
+						catch(error) {
+							beaconStatus = false;
+						}
+
+					}
+					if (!useBeacon || !beaconStatus) {
+						xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent(batch)));
+					}
 				}
 
 			} else {
-
 				var image = new Image(1, 1);
 
 				image.onload = function () {
@@ -288,7 +324,12 @@
 					executingQueue = false;
 				};
 
-				image.src = configCollectorUrl + nextRequest.replace('?', '?stm=' + new Date().getTime() + '&');
+				// note: this currently on applies to GET requests
+				if (useStm) {
+					image.src = configCollectorUrl + nextRequest.replace('?', '?stm=' + new Date().getTime() + '&');
+				} else {
+					image.src = configCollectorUrl + nextRequest;
+				}
 			}
 		}
 
