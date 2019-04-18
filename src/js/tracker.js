@@ -215,6 +215,9 @@
 			// Life of the session cookie (in seconds)
 			configSessionCookieTimeout = argmap.hasOwnProperty('sessionCookieTimeout') ? argmap.sessionCookieTimeout : 1800, // 30 minutes
 
+			// If data transferer between storage types enabled
+			configIsStorageCompatibilityEnabled = argmap.hasOwnProperty('isStorageCompatibilityEnabled') ? true : false,
+
 			// Default hash seed for MurmurHash3 in detectors.detectSignature
 			configUserFingerprintHashSeed = argmap.hasOwnProperty('userFingerprintSeed') ? argmap.userFingerprintSeed : 123412414,
 
@@ -526,10 +529,18 @@
 		function getSnowplowCookieValue(cookieName) {
 			var fullName = getSnowplowCookieName(cookieName);
 			if (configStateStorageStrategy == 'localStorage') {
-				return helpers.attemptGetLocalStorage(fullName);
+				var value = helpers.attemptGetLocalStorage(fullName);
+				if (configIsStorageCompatibilityEnabled && !value) {
+					value = cookie.cookie(fullName);
+				}
+				return value;
 			} else if (configStateStorageStrategy == 'cookie' ||
 					configStateStorageStrategy == 'cookieAndLocalStorage') {
-				return cookie.cookie(fullName);
+				var value = cookie.cookie(fullName)
+				if (configIsStorageCompatibilityEnabled && !value) {
+					value = helpers.attemptGetLocalStorage(fullName);
+				}
+				return value;
 			}
 		}
 
@@ -622,7 +633,7 @@
 		 */
 		function setSessionCookie() {
 			var cookieName = getSnowplowCookieName('ses');
-			var cookieValue = '*';
+			var cookieValue = (new Date().getTime() + configSessionCookieTimeout * 1000).toString();
 			setCookie(cookieName, cookieValue, configSessionCookieTimeout);
 		}
 
@@ -646,8 +657,12 @@
 		function setCookie(name, value, timeout) {
 			if (configStateStorageStrategy == 'localStorage') {
 				helpers.attemptWriteLocalStorage(name, value);
-			} else if (configStateStorageStrategy == 'cookie' ||
-					configStateStorageStrategy == 'cookieAndLocalStorage') {
+			} else if (configStateStorageStrategy == 'cookie') {
+				cookie.cookie(name, value, timeout, configCookiePath, configCookieDomain);
+			} else if (configStateStorageStrategy == 'cookieAndLocalStorage') {
+				if (configIsStorageCompatibilityEnabled) {
+					helpers.attemptWriteLocalStorage(name, value);
+				}
 				cookie.cookie(name, value, timeout, configCookiePath, configCookieDomain);
 			}
 		}
@@ -665,7 +680,7 @@
 		 */
 		function initializeIdsAndCookies() {
 			var sesCookieSet =
-				configStateStorageStrategy != 'none' && !!getSnowplowCookieValue('ses');
+				configStateStorageStrategy != 'none' && isValidSession(getSnowplowCookieValue('ses'));
 			var idCookieComponents = loadDomainUserIdCookie();
 
 			if (idCookieComponents[1]) {
@@ -738,6 +753,12 @@
 			return tmpContainer;
 		}
 
+		function isValidSession(ses) {
+			return !!ses && (
+				ses === '*'
+				|| (!isNaN(ses) && Number(ses) >= new Date().getTime()));
+		}
+
 		/*
 		 * Attaches common web fields to every request
 		 * (resolution, url, referrer, etc.)
@@ -770,8 +791,14 @@
 				if (configStateStorageStrategy == 'localStorage') {
 					helpers.attemptWriteLocalStorage(idname, '');
 					helpers.attemptWriteLocalStorage(sesname, '');
-				} else if (configStateStorageStrategy == 'cookie' ||
-						configStateStorageStrategy == 'cookieAndLocalStorage') {
+				} else if (configStateStorageStrategy == 'cookie') {
+					cookie.cookie(idname, '', -1, configCookiePath, configCookieDomain);
+					cookie.cookie(sesname, '', -1, configCookiePath, configCookieDomain);
+				} else if (configStateStorageStrategy == 'cookieAndLocalStorage') {
+					if (configIsStorageCompatibilityEnabled) {
+						helpers.attemptWriteLocalStorage(idname, '');
+						helpers.attemptWriteLocalStorage(sesname, '');
+					}
 					cookie.cookie(idname, '', -1, configCookiePath, configCookieDomain);
 					cookie.cookie(sesname, '', -1, configCookiePath, configCookieDomain);
 				}
@@ -783,7 +810,7 @@
 				memorizedSessionId = sessionIdFromCookie;
 
 				// New session?
-				if (!ses && configStateStorageStrategy != 'none') {
+				if (!isValidSession(ses) && configStateStorageStrategy != 'none') {
 					// New session (aka new visit)
 					visitCount++;
 					// Update the last visit timestamp
@@ -1379,7 +1406,6 @@
 		function newSession() {
 			// If cookies are enabled, base visit count and session ID on the cookies
 			var nowTs = Math.round(new Date().getTime() / 1000),
-				ses = getSnowplowCookieValue('ses'),
 				id = loadDomainUserIdCookie(),
 				cookiesDisabled = id[0],
 				_domainUserId = id[1], // We could use the global (domainUserId) but this is better etiquette
