@@ -13,7 +13,7 @@
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
 
-import uuid = require('uuid');
+import * as uuid from 'uuid'; 
 
 import * as payload from './payload';
 import {PayloadData} from "./payload";
