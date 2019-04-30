@@ -16,13 +16,13 @@
 import { PayloadData, isNonEmptyJson } from "./payload";
 import { SelfDescribingJson } from "./core";
 import { base64urldecode } from "./base64";
-import isEqual = require('lodash/isEqual');
-import has = require('lodash/has');
-import get = require('lodash/get');
-import isPlainObject = require('lodash/isPlainObject');
-import every = require('lodash/every');
-import compact = require('lodash/compact');
-import map = require('lodash/map');
+import isEqual from "lodash/isEqual";
+import has from "lodash/has";
+import get from "lodash/get";
+import isPlainObject from "lodash/isPlainObject";
+import every from "lodash/every";
+import compact from "lodash/compact";
+import map from "lodash/map";
 
 /**
  * Datatypes (some algebraic) for representing context types
