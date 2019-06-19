@@ -61,6 +61,8 @@
     return {};
   }
 
+  window.snowplow('enableGdprBasisContext', 'consent', 'someId', '0.1.0', 'this document is a test');
+
   window.snowplow('addGlobalContexts', [erroneousContextGenerator]);
   window.snowplow('addGlobalContexts', [[structuredEventFilter, [eventTypeContextGenerator, geolocationContext]]]);
 

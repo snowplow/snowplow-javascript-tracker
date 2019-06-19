@@ -107,6 +107,15 @@
 			argmap.useStm = true;
 		}
 
+		// Enum for accpted values of the gdprBasisContext's basisForProcessing argument
+		const gdprBasisEnum = Object.freeze({
+			consent: 'consent',
+			contract: 'contract',
+			legalObligation: 'legal_obligation',
+			vitalInterest: 'vital_interest',
+			publicTask: 'public_task',
+			legitimateInterests: 'legitimate_interests'});
+
 		var
 			// Tracker core
 			core = coreConstructor(true, function(payload) {
@@ -339,6 +348,9 @@
 			// Whether first trackPageView was fired and pageViewId should not be changed anymore until reload
 			pageViewSent = false;
 
+		// Object to house gdpr Basis context values
+		let gdprBasisData = {};
+
 		if (argmap.hasOwnProperty('discoverRootDomain') && argmap.discoverRootDomain) {
 			configCookieDomain = helpers.findRootDomain();
 		}
@@ -450,7 +462,7 @@
 
 			if (configDiscardBrace) {
 				targetPattern = new RegExp('[{}]', 'g');
-				url = url.replace(targetPattern, ''); 
+				url = url.replace(targetPattern, '');
 			}
 			return url;
 		}
@@ -954,6 +966,13 @@
 					combinedContexts.push(parrableContext);
 				}
 			}
+
+			if (autoContexts.gdprBasis && gdprBasisData.gdprBasis) {
+				var gdprBasisContext = getGdprBasisContext();
+				if (gdprBasisContext) {
+					combinedContexts.push(gdprBasisContext);
+				}
+			}
 			return combinedContexts;
 		}
 
@@ -1369,6 +1388,23 @@
 				return {
 					schema: 'iglu:com.parrable/encrypted_payload/jsonschema/1-0-0',
 					data: context
+				};
+			}
+		}
+
+		/* Creates GDPR context Self-describing JSON object
+		*/
+
+		function getGdprBasisContext() {
+			if (gdprBasisData.gdprBasis) {
+				return {
+					schema: 'iglu:com.snowplowanalytics.snowplow/gdpr/jsonschema/1-0-0',
+					data: {
+						basisForProcessing: gdprBasisData.gdprBasis, // Needs to reference local storage
+						documentId: gdprBasisData.gdprDocId || null,
+						documentVersion: gdprBasisData.gdprDocVer || null,
+						documentDescription: gdprBasisData.gdprDocDesc || null
+					}
 				};
 			}
 		}
@@ -2689,6 +2725,24 @@
 				}
 			});
 		};
+
+		/* Adds GDPR context to all events.
+		* basisForProcessing is a required enum, accepted values are:
+		* consent, contract, legalObligation, vitalInterest, publicTask or legitimateInterests
+		* All other arguments are strings
+		*/
+
+		apiMethods.enableGdprContext = function(basisForProcessing, documentId=null, documentVersion=null, documentDescription=null) {
+			let basis = gdprBasisEnum[basisForProcessing];
+
+			if (!basis) {
+				helpers.warn('enableGdprContext failed. basisForProcessing must be set to one of: consent, legalObligation, vitalInterest publicTask, legitimateInterests')
+				return;
+			} else {
+				autoContexts.gdprBasis = true;
+				gdprBasisData = { gdprBasis: basis, gdprDocId: documentId, gdprDocVer: documentVersion, gdprDocDesc: documentDescription}
+			}
+		}
 
 		/**
 		 * All provided contexts will be sent with every event

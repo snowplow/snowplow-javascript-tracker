@@ -66,6 +66,18 @@ define([
 		return lodash.uniq(ids).length >= 2;
 	}
 
+	function allEventsHaveGdprContext () {
+		let lenEvents = log.length;
+		let withGdpr = lodash.filter(log, function (logLine) {
+			let data = JSON.parse(decodeBase64(logLine.cx)).data;
+			return lodash.find(data, function (context) {
+				return context.schema === 'iglu:com.snowplowanalytics.snowplow/gdpr/jsonschema/1-0-0';
+			});
+		});
+		let lenGdpr = withGdpr.length;
+		return lenEvents === lenGdpr;
+	}
+
 	/**
 	 * Check if expected payload exists in `log`
      */
@@ -315,6 +327,33 @@ define([
           );
         }
       }), 'An unstructured event without global contexts should be detected');
-    }
+    },
+
+		'Check a GDPR context': function () {
+      assert.isTrue(checkExistenceOfExpectedQuerystring({
+        cx: function (cx) {
+          var contexts = JSON.parse(decodeBase64(cx)).data;
+          return 1 === lodash.size(
+            lodash.filter(contexts,
+              lodash.overSome(
+                lodash.matches({
+									schema: "iglu:com.snowplowanalytics.snowplow/gdpr/jsonschema/1-0-0",
+									data: {
+										'basisForProcessing': 'consent',
+										'documentId': 'someId',
+										'documentVersion': '0.1.0',
+										'documentDescription': 'this document is a test'
+									}
+                })
+              )
+            )
+          );
+        }
+      }), 'An event with GDPR context should be detected');
+    },
+
+		'Check that all events have a GDPR context attached': function() {
+			assert.isTrue(allEventsHaveGdprContext ());
+		}
 	});
 });
