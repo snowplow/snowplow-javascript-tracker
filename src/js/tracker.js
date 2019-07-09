@@ -1116,10 +1116,10 @@
 			var visitor = getOptimizelyXData('visitor');
 
 			return map(experiment_ids, function(activeExperiment) {
-				variation = state.getVariationMap()[activeExperiment];
-				variationName = variation.name;
-				variationId = variation.id;
-				visitorId = visitor.visitorId;
+				var variation = state.getVariationMap()[activeExperiment];
+				var variationName = variation.name;
+				var variationId = variation.id;
+				var visitorId = visitor.visitorId;
 				return {
 					experimentId: parseInt(activeExperiment),
 					variationName: variationName,
