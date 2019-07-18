@@ -845,21 +845,29 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			tstamp?: Timestamp): PayloadData {
 
 			let event_schema = '';
+			let event_data = {};
 			if (schema === 'change_form'){
 				event_schema = 'iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0';
-			} else if (schema === 'focus_form') {
-				event_schema = 'iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0';
-			}
-			return trackSelfDescribingEvent({
-				schema: event_schema,
-				data: removeEmptyProperties({
+				event_data = {
 					formId: formId,
 					elementId: elementId,
 					nodeName: nodeName,
 					type: type,
 					elementClasses: elementClasses,
-					value: value
-				}, {value: true})
+					value: value};
+			} else if (schema === 'focus_form') {
+				event_schema = 'iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0';
+				event_data = {
+					formId: formId,
+					elementId: elementId,
+					nodeName: nodeName,
+					elementType: type,
+					elementClasses: elementClasses,
+					value: value};
+			}
+			return trackSelfDescribingEvent({
+				schema: event_schema,
+				data: removeEmptyProperties(event_data, {value: true})
 			}, context, tstamp);
 		},
 
