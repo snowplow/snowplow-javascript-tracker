@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
         "http://www.w3.org/TR/html4/loose.dtd">
-<!-- 
+<!--
  ! Copyright (c) 2012-2013 Snowplow Analytics Ltd. All rights reserved.
  !
  ! This program is licensed to you under the Apache License Version 2.0,
@@ -19,7 +19,7 @@
 
     <!-- Snowplow starts plowing -->
     <script type="text/javascript">
-    var spSrc = ('https:' == document.location.protocol ? 'https' : 'http') + '://d1fc8wv8zag5ca.cloudfront.net/2.10.2/sp.js';
+    var spSrc = ('https:' == document.location.protocol ? 'https' : 'http') + '://d1fc8wv8zag5ca.cloudfront.net/2.11.0/sp.js';
     document.write(unescape("%3Cscript src='" + spSrc + "' type='text/javascript'%3E%3C/script%3E"));
     </script>
     <script type="text/javascript">
@@ -41,7 +41,7 @@
         }
         function addProduct() {
             alert("Adding a product to basket");
-            snowplowTracker.trackStructEvent('Checkout', 'Add', 'ASO01043', 'blue:xxl', '2.0');      
+            snowplowTracker.trackStructEvent('Checkout', 'Add', 'ASO01043', 'blue:xxl', '2.0');
         }
         function viewProduct() {
             alert("Viewing a product");
