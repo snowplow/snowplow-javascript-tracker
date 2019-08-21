@@ -44,7 +44,7 @@ deploy:
 - provider: releases
   api_key:
     secure: juUw//XdoRAb494NvxNTghZC7TBJLBx8WdAZsrSGp+6Sf7yPZ6skDt/+qU2VgrG/4RBWUwl3lnAWobiY6ZQQSD95lQDyVM9IdC9JHchhVav1nHBrcJWubEKN/R0Ri/3XjLFJ/LFlkdOteYYPVZR6MGehRR9Gsnazavk9+0x6c1A=
-  file: dist/sp.js
+  file: ./dist/sp.js
   on:
     condition: '"$(.travis/is_tracker_release_tag.sh $TRAVIS_TAG)" == "" && $? == 0'
     tags: true
