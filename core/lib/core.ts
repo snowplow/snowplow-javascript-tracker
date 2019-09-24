@@ -336,6 +336,15 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			addPayloadPair('ip', ip);
 		},
 
+		/**
+		 * Set the Useragent
+		 *
+		 * @param useragent string
+		 */
+		setUseragent: function (useragent: string) {
+			addPayloadPair('ua', useragent);
+		},
+
 		trackUnstructEvent: trackSelfDescribingEvent,
 
 		trackSelfDescribingEvent: trackSelfDescribingEvent,
