@@ -33,6 +33,7 @@ coreInstance.setPlatform('web');
 coreInstance.setUserId('user-321');
 coreInstance.setColorDepth(24);
 coreInstance.setViewport(600, 400);
+coreInstance.setUseragent('Snowplow/0.0.1');
 
 // Track a page view with URL and title
 var pageViewPayload = coreInstance.trackPageView('http://www.example.com', 'landing page');
