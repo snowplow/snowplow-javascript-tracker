@@ -26,18 +26,28 @@ before_script:
 script:
 - cd core && grunt intern && cd ..
 - grunt travis
+before_deploy:
+- grunt default
 deploy:
 - provider: script
   skip_cleanup: true
   script: ./.travis/deploy.py
   on:
-    condition: '"$(.travis/is_core_release_tag.sh $TRAVIS_TAG)" == "" && $? == 0'
+    condition: '"$(.travis/is_correct_core_release_tag.sh $TRAVIS_TAG)" == "" && $? == 0'
     tags: true
-- provider: script
+# - provider: script
+#  skip_cleanup: true
+#  script: ./.travis/deploy.py
+#  on:
+#    condition: '"$(.travis/is_tracker_release_tag.sh $TRAVIS_TAG)" == "" && $? == 0'
+#    tags: true
+- provider: releases
   skip_cleanup: true
-  script: ./.travis/deploy.py
+  api_key:
+    secure: juUw//XdoRAb494NvxNTghZC7TBJLBx8WdAZsrSGp+6Sf7yPZ6skDt/+qU2VgrG/4RBWUwl3lnAWobiY6ZQQSD95lQDyVM9IdC9JHchhVav1nHBrcJWubEKN/R0Ri/3XjLFJ/LFlkdOteYYPVZR6MGehRR9Gsnazavk9+0x6c1A=
+  file: $TRAVIS_BUILD_DIR/dist/sp.js
   on:
-    condition: '"$(.travis/is_tracker_release_tag.sh $TRAVIS_TAG)" == "" && $? == 0'
+    condition: '"$(.travis/is_correct_tracker_release_tag.sh $TRAVIS_TAG)" == "" && $? == 0'
     tags: true
 env:
   global:
@@ -52,7 +62,7 @@ env:
   # AWS_SECRET_KEY
   - secure: C+PTon3PsELG2bFlAZ5qfinWVih8XxlZV45Gk2W5i2CK1AROJ60lnfhgYZM4YidIRcA/V/zbm8tDgZbA8i/MVKcO5f1qbD5Skyo2fEFRlXoSWhtwaScViihN338U/SsEviKThIGSSLgdfsQ0CW7TYxvetFSwXFyZPPrYrenF3dk=
   # NPM_AUTH_TOKEN
-  - secure: Dtc3aFnUfquuC+E3ZOvs57SZy3Sp+3QdXQHR0xjekvpF4FgaKvDpISBfLTCs1ODuHZ+K1pPn9/i4yGNE7ei8z3VTbRY4nYPM5VG7jlqwP1iaFqRopnQmpV9c7yhMSHKhXrSWj/Gwo/9UHpia6muQUSK4hbPvhZMf0Rd3s06Z07M=
+  - secure: PwIU7BHXhpHUhFh/sxRO1o9awiTKJ5PNrSgeTytp2CcE22q0yx/q5cKJp/gPWiY0l0sKSrNjcV/s0hifg3d8q4YcTa3JEK6Ap71ehOsCIJQD897cgTMqgawkdspeyZL8OPPAs0hMwHFAASm7RDTe4zz1rYMFs2+DYLbIKu0Ki8I=
   - AWS_S3_BUCKET=snowplow-static-js
   - AWS_REGION=eu-west-1
   - AWS_CF_DISTRIBUTION=E1RICD7QD0F2KE
