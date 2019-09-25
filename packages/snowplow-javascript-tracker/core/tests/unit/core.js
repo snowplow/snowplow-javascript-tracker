@@ -1,6 +1,6 @@
 /*
  * JavaScript tracker core for Snowplow: tests/integration.js
- * 
+ *
  * Copyright (c) 2014-2016 Snowplow Analytics Ltd. All rights reserved.
  *
  * This program is licensed to you under the Apache License Version 2.0,
@@ -220,7 +220,7 @@ define([
 				schema: 'iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0',
 				data: {
 					impressionId: impressionId,
-					costModel: costModel,						
+					costModel: costModel,
 					cost: cost,
 					targetUrl: targetUrl,
 					bannerId: bannerId,
@@ -291,14 +291,14 @@ define([
 				schema: 'iglu:com.snowplowanalytics.snowplow/ad_conversion/jsonschema/1-0-0',
 				data: {
 					conversionId: conversionId,
-					costModel: costModel,					
+					costModel: costModel,
 					cost: cost,
 					category: category,
 					action: action,
 					property: property,
 					initialValue: initialValue,
 					advertiserId: advertiserId,
-					campaignId: campaignId			
+					campaignId: campaignId
 				}
 			};
 			var expected = {
@@ -414,9 +414,9 @@ define([
 					formId: formId,
 					elementId: elementId,
 					nodeName: nodeName,
-					type: type,
 					elementClasses: elementClasses,
-					value: value
+					value: value,
+					elementType: type
 				}
 			};
 
@@ -445,9 +445,9 @@ define([
 					formId: formId,
 					elementId: elementId,
 					nodeName: nodeName,
-					type: type,
 					elementClasses: elementClasses,
-					value: value
+					value: value,
+					type: type
 				}
 			};
 
@@ -743,5 +743,5 @@ define([
 			assert(!('ttm' in result), 'ttm should absent');
 		}
 	});
-	
+
 });
