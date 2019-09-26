@@ -34,6 +34,7 @@
 ;(function () {
 
 	var
+		filter = require('lodash/filter'),
 		isString = require('lodash/isString'),
 		isUndefined = require('lodash/isUndefined'),
 		isObject = require('lodash/isObject'),
@@ -162,17 +163,19 @@
 	 */
 	object.resolveDynamicContexts = function (dynamicOrStaticContexts) {
 		let params = Array.prototype.slice.call(arguments, 1);
-		return map(dynamicOrStaticContexts, function(context) {
-			if (typeof context === 'function') {
-				try {
-					return context.apply(null, params);
-				} catch (e) {
-					//TODO: provide warning
+		return filter(
+			map(dynamicOrStaticContexts, function(context) {
+				if (typeof context === 'function') {
+					try {
+						return context.apply(null, params);
+					} catch (e) {
+						//TODO: provide warning
+					}
+				} else {
+					return context;
 				}
-			} else {
-				return context;
-			}
-		});
+			})
+		);
 	};
 
 	/**
