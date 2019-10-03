@@ -33,12 +33,15 @@
  */
 
 define([
-	'intern!object'
-], function(registerSuite) {
+	'intern!object',
+	'intern/dojo/node!../micro'
+], function(registerSuite, micro) {
 
 	registerSuite({
 
 		name: 'Integration setup',
+
+		setup: micro.reset,
 
 		'Set up the page and send some events to request_recorder': function() {
 
