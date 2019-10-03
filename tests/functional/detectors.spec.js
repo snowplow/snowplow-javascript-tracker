@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker for Snowplow: tests/functional/detectors.js
+ * JavaScript tracker for Snowplow: tests/functional/detectors.spec.js
  *
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright
  * 2012-2014 Snowplow Analytics Ltd. All rights reserved.
@@ -32,24 +32,53 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-define([
-	'intern!object',
-	'intern/dojo/node!../micro'
-], function(registerSuite, micro) {
+import moment from 'moment-timezone'
 
-	registerSuite({
+describe('Detectors test', () => {
+  beforeAll(() => {
+    browser.url('/detectors.html')
+    $('body.loaded').waitForExist()
+  })
 
-		name: 'Integration setup',
+  it('Returns a value for user fingerprint', () => {
+    expect($('#detectSignature').getText()).toBeTruthy()
+  })
 
-		setup: micro.reset,
+  it('Returns a value for document dimensions', () => {
+    const value = $('#detectDocumentDimensions').getText()
+    const [reportedWidth, reportedHeight] = value.split('x')
+    expect(+reportedWidth).toBeGreaterThan(1)
+    expect(+reportedHeight).toBeGreaterThan(1)
+  })
 
-		'Set up the page and send some events to request_recorder': function() {
+  it('Retuens a value for viewport dimensions', () => {
+    const value = $('#detectViewport').getText()
+    const [reportedWidth, reportedHeight] = value.split('x')
+    expect(+reportedWidth).toBeGreaterThan(1)
+    expect(+reportedHeight).toBeGreaterThan(1)
+  })
 
-			return this.remote
-				.get(require.toUrl('tests/pages/integration.html'))
-				.setFindTimeout(5000)
-				.findByCssSelector('body.loaded')
-				.sleep(15000);	// Time for requests to get written
-		}
-	});
-});
+  it('Check localStorage availability', () => {
+    expect($('#localStorageAccessible').getText()).toBe('true')
+  })
+
+  it('Check sessionStorage availability', () => {
+    expect($('#hasSessionStorage').getText()).toBe('true')
+  })
+
+  it('Check whether cookies are enabled', () => {
+    expect($('#hasCookies').getText()).toBe('1')
+  })
+
+  it('Detect timezone', () => {
+    const value = $('#detectTimezone').getText()
+    expect(moment.tz.names().includes(value)).toBeTruthy()
+  })
+
+  it('Browser features', () => {
+    const value = $('#detectBrowserFeatures').getText()
+    const { cd } = JSON.parse(value)
+    // The only feature which is the same for all tested browsers
+    expect(cd).toBe(24)
+  })
+})
