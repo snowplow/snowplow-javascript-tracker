@@ -69,9 +69,9 @@
   window.snowplow('setUserId', 'Malcolm');
   window.snowplow('trackPageView', 'My Title', [ // Auto-set page title; add page context
     {
-      schema: "iglu:com.example_company/user/jsonschema/2-0-0",
+      schema: "iglu:org.schema/WebPage/jsonschema/1-0-0",
       data: {
-        userType: 'tester'
+        keywords: ['tester']
       }
     }
   ]);
@@ -81,9 +81,9 @@
 
   window.snowplow('trackStructEvent', 'Mixes', 'Play', 'MRC/fabric-0503-mix', '', '0.0');
   window.snowplow('trackUnstructEvent', {
-    schema: 'iglu:com.acme_company/viewed_product/jsonschema/5-0-0',
+    schema: 'iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0',
     data: {
-      productId: 'ASO01043'
+      bannerId: 'ASO01043'
     }
   }, [], {type: 'ttm', value: 1477401868});
 
@@ -118,19 +118,19 @@
   window.snowplow('trackTrans');
 
   var testAcceptRuleSet = {
-    accept: ['iglu:com.acme_company/*/jsonschema/*-*-*']
+    accept: ['iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/*-*-*']
   };
   var testRejectRuleSet = {
-    reject: ['iglu:com.acme_company/*/jsonschema/*-*-*']
+    reject: ['iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/*-*-*']
   };
 
   // test context rulesets
   window.snowplow('addGlobalContexts', [[testAcceptRuleSet, [eventTypeContextGenerator, geolocationContext]]]);
 
   window.snowplow('trackUnstructEvent', {
-    schema: 'iglu:com.acme_company/viewed_product/jsonschema/5-0-0',
+    schema: 'iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0',
     data: {
-      productId: 'ASO01042'
+      bannerId: 'ASO01042'
     }
   }, [], {type: 'ttm', value: 1477401869});
 
@@ -138,9 +138,9 @@
 
   window.snowplow('addGlobalContexts', [[testRejectRuleSet, [eventTypeContextGenerator, geolocationContext]]]);
   window.snowplow('trackUnstructEvent', {
-    schema: 'iglu:com.acme_company/viewed_product/jsonschema/5-0-0',
+    schema: 'iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0',
     data: {
-      productId: 'ASO01041'
+      bannerId: 'ASO01041'
     }
   }, [], {type: 'ttm', value: 1477401868});
 
