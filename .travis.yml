@@ -20,7 +20,14 @@ install:
 - rm -rf node_modules
 - npm install
 
+- docker run --mount type=bind,source=$(pwd)/micro-config,destination=/config -p 9090:9090 snowplow/snowplow-micro:latest --collector-config /config/micro.conf --iglu /config/iglu.json > /dev/null 2>&1  &
+
+# get ngrok
+- wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
+- unzip ./ngrok-stable-linux-amd64.zip
 before_script:
+- export SUBDOMAIN=$RANDOM$RANDOM
+- ./ngrok http -authtoken $NGROK_AUTH -subdomain $SUBDOMAIN -log=stdout 9090 > /dev/null 2>&1 &
 script:
 - cd core && grunt intern && cd ..
 - grunt travis && npm run test:unit && npm run test:e2e:sauce
