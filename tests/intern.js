@@ -44,6 +44,7 @@ define({
 		{ browserName: 'internet explorer', version: '9', platform: 'Windows 7' },
 		{ browserName: 'firefox', version: '27', platform: [ 'Windows 7', 'Linux' ] },
 		{ browserName: 'chrome', version: '32', platform: [ 'Windows 7', 'Linux' ] },
+		{ browserName: 'MicrosoftEdge', platform: 'Windows 10' },
 		{ browserName: 'safari', version: '8', platform: 'OS X 10.10' },
 		{ browserName: 'safari', version: '10', platform: 'OS X 10.11' }
 	],
