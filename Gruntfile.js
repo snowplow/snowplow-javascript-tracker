@@ -128,17 +128,21 @@ module.exports = function(grunt) {
         options: {
           'process': true
         },
-        src: ['tests/pages/integration-template.html'],
-        dest: 'tests/pages/integration.html'
+        files: {
+          'tests/pages/integration.html': 'tests/pages/integration-template.html',
+          'tests/micro.js': 'tests/micro-template.js'
+        }
       },
       local: {
         options: {
           'process': function(src, filepath) {
-            return src.replace(/'\<\%= subdomain \%\>' \+ '\.ngrok\.io'/g, '\'127.0.0.1:8000\'');
+            return src.replace(/'\<\%= subdomain \%\>' \+ '\.ngrok\.io'/g, '\'127.0.0.1:9090\'');
           }
         },
-        src: ['tests/pages/integration-template.html'],
-        dest: 'tests/local/serve/integration.html'
+        files: {
+          'tests/pages/integration.html': 'tests/pages/integration-template.html',
+          'tests/micro.js': 'tests/micro-template.js'
+        }
       }
     },
 
@@ -188,7 +192,7 @@ module.exports = function(grunt) {
           runType: 'runner',
           functionalSuites: [
             'tests/integration/setup.js',       // required prior to integration.js
-            'tests/integration/integration.js' 	// request_recorder and ngrok need to be running
+            'tests/integration/integration.js'	// request_recorder and ngrok need to be running
           ]
         }
       }
@@ -275,5 +279,6 @@ module.exports = function(grunt) {
   grunt.registerTask('test', 'Intern tests', ['browserify:test', 'babel:test', 'intern']);
   grunt.registerTask('travis', 'Intern tests for Travis CI',  ['concat:test', 'browserify:test', 'babel:test', 'intern']);
   grunt.registerTask('tags', 'Minifiy the Snowplow invocation tag', ['uglify:tag', 'concat:tag']);
-  grunt.registerTask('local', 'Builds and places files read to serve and test locally', ['browserify:test', 'concat:local', 'babel:local']);
+  grunt.registerTask('local', 'Builds and places files read to serve and test locally', ['browserify:test', 'babel:test',
+    'babel:local', 'concat:local']);
 };
