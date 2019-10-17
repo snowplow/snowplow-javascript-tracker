@@ -123,26 +123,6 @@ module.exports = function(grunt) {
         },
         src: ['tags/tag.min.js'],
         dest: 'tags/tag.min.js'
-      },
-      test: {
-        options: {
-          'process': true
-        },
-        files: {
-          'tests/pages/integration.html': 'tests/pages/integration-template.html',
-          'tests/micro.js': 'tests/micro-template.js'
-        }
-      },
-      local: {
-        options: {
-          'process': function(src, filepath) {
-            return src.replace(/'\<\%= subdomain \%\>' \+ '\.ngrok\.io'/g, '\'127.0.0.1:9090\'');
-          }
-        },
-        files: {
-          'tests/pages/integration.html': 'tests/pages/integration-template.html',
-          'tests/micro.js': 'tests/micro-template.js'
-        }
       }
     },
 
@@ -158,42 +138,6 @@ module.exports = function(grunt) {
       tag: {
         files: {
           'tags/tag.min.js': ['tags/tag.js']
-        }
-      }
-    },
-
-    intern: {
-      // Common
-      options: {
-        config: 'tests/intern.js'
-      },
-
-      nonfunctional: {
-        options: {
-          runType: 'client',
-          suites: [
-            'tests/nonfunctional/helpers.js',
-            'tests/nonfunctional/in_queue.js',
-            'tests/nonfunctional/proxies.js'
-          ]
-        }
-      },
-      functional: {
-        options: {
-          runType: 'runner',
-          functionalSuites: [
-            'tests/functional/detectors.js',
-            'tests/functional/helpers.js'
-          ]
-        }
-      },
-      integration: {
-        options: {
-          runType: 'runner',
-          functionalSuites: [
-            'tests/integration/setup.js',       // required prior to integration.js
-            'tests/integration/integration.js'	// request_recorder and ngrok need to be running
-          ]
         }
       }
     }
