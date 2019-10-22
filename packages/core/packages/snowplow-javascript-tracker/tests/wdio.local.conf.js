@@ -12,6 +12,7 @@ exports.config = {
       },
     },
   ],
+  specFileRetries: 0,
   logLevel: 'debug',
   specFileRetries: 0,
   bail: 1,
