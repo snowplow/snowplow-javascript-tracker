@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Acitvity calllback test page</title>
+  </head>
+  <body style="width: 2000px; height: 2000px; position: relative;">
+      <div id="init"></div>
+      <div id="numEvents"></div>
+      <div id="middle" style="position: absolute; top: 50%; left: 50%;">Middle</div>
+      <div id="bottomRight" style="position: absolute; bottom: 0; right: 0;">Bottom right</div>
+    <script>
+      ;(function(p,l,o,w,i,n,g){if(!p[i]){p.GlobalSnowplowNamespace=p.GlobalSnowplowNamespace||[];
+        p.GlobalSnowplowNamespace.push(i);p[i]=function(){(p[i].q=p[i].q||[]).push(arguments)
+        };p[i].q=p[i].q||[];n=l.createElement(o);g=l.getElementsByTagName(o)[0];n.async=1;
+        n.src=w;g.parentNode.insertBefore(n,g)}}(window,document,"script","./snowplow.js","snowplow"));
+
+      snowplow('newTracker', 'cf', 'snowplow-js-tracker.local:9090');
+      snowplow(function() {
+        document.getElementById('init').innerText = 'true';
+      });
+
+      var events = [];
+
+      snowplow('enableActivityTrackingCallback', 1, 2, function(e) {
+        events.push(e);
+        document.getElementById('numEvents').innerText = events.length;
+      });
+
+      function createMaxFinder(key) {
+        return function() {
+          var i = 0;
+          var max = 0;
+          for (;i < events.length; i++) {
+            if (events[i][key] > max) {
+              max = events[i][key];
+            }
+          }
+
+          return max;
+        }
+      }
+
+      var findMaxY = createMaxFinder('maxYOffset');
+      var findMaxX = createMaxFinder('maxXOffset');
+
+      function findLastEventForPageViewId(id) {
+        var found;
+        var i = 0;
+        for(;i < events.length; i++) {
+          if (events[i].pageViewId === id) {
+            found = events[i];
+          }
+        }
+        return found;
+      }
+
+      function trackPageView() {
+        snowplow('trackPageView');
+      }
+
+      function getCurrentPageViewId(cb) {
+        snowplow(function() {
+          cb(this.cf.getPageViewId())
+        });
+      }
+
+      snowplow('trackPageView')
+    </script>
+</html>
