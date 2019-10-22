@@ -31,17 +31,23 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-import util from 'util'
+
 import F from 'lodash/fp'
 import { reset, fetchResults, start, stop } from '../micro'
-
-const dumpLog = log => console.log(util.inspect(log, true, null, true))
 
 const isMatchWithCB = F.isMatchWith((lt, rt) =>
   F.isFunction(rt) ? rt(lt) : undefined
 )
 
-describe('Test that request_recorder logs meet expectations', () => {
+describe('Activity tracking should send page pings', () => {
+  if (
+    F.isMatch(
+      { version: '12604.5.6.1.1', browserName: 'safari' },
+      browser.capabilities
+    )
+  ) {
+    fit('skipping in safari 11 (saucelabs)', () => {})
+  }
   if (
     F.isMatch(
       { version: '12603.3.8', browserName: 'safari' },
@@ -51,7 +57,7 @@ describe('Test that request_recorder logs meet expectations', () => {
     // the safari driver sauce uses for safari 10 doesnt support
     // setting cookies, so this whole suite fails
     // https://github.com/webdriverio/webdriverio/issues/2004
-    fit('skipping in safari 10', () => {})
+    fit('skipping in safari 10 (saucelabs)', () => {})
   }
 
   let log = []
@@ -75,13 +81,11 @@ describe('Test that request_recorder logs meet expectations', () => {
     })
     browser.url('/index.html')
     browser.setCookies({ name: 'container', value: containerUrl })
-    browser.url('/session-integration.html')
-    browser.pause(15000) // Time for requests to get written
-    browser.call(() =>
-      fetchResults(containerUrl).then(r => {
-        log = r
-        return Promise.resolve()
-      })
+    browser.url('/activity-tracking.html')
+    browser.waitUntil(
+      () => $('#init').getText() === 'true',
+      5000,
+      'expected init after 5s'
     )
   })
 
@@ -92,47 +96,33 @@ describe('Test that request_recorder logs meet expectations', () => {
     })
   })
 
-  it('should count sessions using cookies', () => {
+  it('sends at least one ping in the expected interval', () => {
+    $('#bottomRight').scrollIntoView()
+    // time for activity to register and request to arrive
+    browser.pause(5000)
+    browser.call(() =>
+      fetchResults(containerUrl).then(r => {
+        log = r
+        return Promise.resolve()
+      })
+    )
+
+    const gtZero = F.compose(
+      F.negate(F.gt(0)),
+      F.toNumber
+    )
+
     expect(
       logContains({
         event: {
           parameters: {
-            e: 'pv',
-            tna: 'cookieSessionTracker',
-            vid: '2',
+            e: 'pp',
+            aid: 'ppAppId',
+            pp_max: gtZero,
+            pp_may: gtZero,
           },
         },
       })
     ).toBe(true)
-  })
-
-  it('should count sessions using local storage', () => {
-    expect(
-      logContains({
-        event: {
-          parameters: {
-            e: 'pv',
-            tna: 'localStorageSessionTracker',
-            vid: '2',
-          },
-        },
-      })
-    ).toBe(true)
-  })
-
-  it('should only increment vid outside of session timeout (local storage)', () => {
-    const withSingleVid = ev =>
-      F.get('event.parameters.tna', ev) === 'localStorageSessionTracker' &&
-      F.get('event.parameters.vid', ev) === '1'
-
-    expect(F.size(F.filter(withSingleVid, log))).toBe(2)
-  })
-
-  it('should only increment vid outside of session timeout (cookie storage)', () => {
-    const withSingleVid = ev =>
-      F.get('event.parameters.tna', ev) === 'cookieSessionTracker' &&
-      F.get('event.parameters.vid', ev) === '1'
-
-    expect(F.size(F.filter(withSingleVid, log))).toBe(2)
   })
 })

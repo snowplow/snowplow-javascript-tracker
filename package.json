@@ -30,6 +30,7 @@
     "grunt-contrib-concat": "^1.0.1",
     "grunt-contrib-uglify": "^4.0.1",
     "jest": "^24.9.0",
+    "jest-date-mock": "^1.0.7",
     "jest-dev-server": "^4.3.0",
     "js-base64": "^2.4.9",
     "lodash": "^4.17.15",
@@ -66,5 +67,8 @@
     "test:unit": "jest tests/unit/*.spec.js",
     "test:e2e:sauce": "docker pull snowplow/snowplow-micro && wdio tests/wdio.sauce.conf.js",
     "test:e2e:local": "docker pull snowplow/snowplow-micro && wdio tests/wdio.local.conf.js"
+  },
+  "jest": {
+    "setupFiles": ["jest-date-mock"]
   }
 }

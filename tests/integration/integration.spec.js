@@ -78,7 +78,6 @@ describe('Test that request_recorder logs meet expectations', () => {
     // setting cookies, so this whole suite fails
     // https://github.com/webdriverio/webdriverio/issues/2004
     fit('skipping in safari 10', () => {})
-    return
   }
 
   let log = []
