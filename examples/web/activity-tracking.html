@@ -1,0 +1,419 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--
+ ! Copyright (c) 2012-2013 Snowplow Analytics Ltd. All rights reserved.
+ !
+ ! This program is licensed to you under the Apache License Version 2.0,
+ ! and you may not use this file except in compliance with the Apache License Version 2.0.
+ ! You may obtain a copy of the Apache License Version 2.0 at http://www.apache.org/licenses/LICENSE-2.0.
+ !
+ ! Unless required by applicable law or agreed to in writing,
+ ! software distributed under the Apache License Version 2.0 is distributed on an
+ ! "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ! See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
+ -->
+<html>
+  <head>
+    <title>Small asynchronous website/webapp examples for snowplow.js</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script src="https://cdn.jsdelivr.net/g/lodash@4(lodash.min.js+lodash.fp.min.js)"></script>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- Snowplow starts plowing -->
+    <script type="text/javascript">
+        ;(function(p,l,o,w,i,n,g){if(!p[i]){p.GlobalSnowplowNamespace=p.GlobalSnowplowNamespace||[];
+        p.GlobalSnowplowNamespace.push(i);p[i]=function(){(p[i].q=p[i].q||[]).push(arguments)
+        };p[i].q=p[i].q||[];n=l.createElement(o);g=l.getElementsByTagName(o)[0];n.async=1;
+        n.src=w;g.parentNode.insertBefore(n,g)}}(window,document,"script","//d1fc8wv8zag5ca.cloudfront.net/2.12.0/sp.js","snowplow"));
+
+      window.snowplow('newTracker', 'cf', 'd3rkrsqld9gmqf.cloudfront.net', { // Initialise a tracker
+        // Initialise a tracker
+        encodeBase64: false, // Default is true
+        appId: 'CFe23a', // Site ID can be anything you want. Set it if you're tracking more than one site in this account
+        platform: 'mob',
+        contexts: {
+          webPage: true,
+        },
+      })
+
+      // Set up the activity callback to append each event to a global variable
+      var events = []
+      function activityCallback(event) {
+        events.push(event)
+      }
+
+      function newPage() {
+        window.snowplow('trackPageView')
+      }
+
+      window.snowplow('enableActivityTrackingCallback', 2, 5, activityCallback) // Ping every 5 seconds after 2 seconds
+      window.snowplow('trackPageView')
+
+      function showExampleModal() {
+        var rawEventExample = _.join('\n', [
+          "window.snowplow('trackSelfDescribingEvent', {",
+          "  schema: 'iglu:com.examplecompany/activity_tracking/jsonschema/1-0-0'",
+          '  data: { events: DATA }',
+          '});',
+        ])
+        var aggregateEventExample = _.join('\n', [
+          "window.snowplow('trackSelfDescribingEvent', {",
+          "  schema: 'iglu:com.examplecompany/activity_tracking/jsonschema/1-0-0'",
+          '  data: DATA',
+          '});',
+        ])
+
+        $('#visibilityModal').modal()
+        var raw = rawEventExample.replace(
+          'DATA',
+          JSON.stringify(events, null, '  ')
+        )
+        $('#exampleRaw').text(raw)
+        var agg = rawEventExample.replace(
+          'DATA',
+          JSON.stringify(aggregateForSending(events), null, '  ')
+        )
+        $('#exampleAggregate').text(agg)
+      }
+
+      window.addEventListener('visibilitychange', function(e) {
+        if (document.hidden) {
+          showExampleModal()
+          events = []
+        }
+      })
+
+      function maxMin(events) {
+        return {
+          minYOffset: _.min(_.map(_.get('minYOffset'), events)),
+          maxYOffset: _.max(_.map(_.get('maxYOffset'), events)),
+          numEvents: _.size(events),
+        }
+      }
+
+      /*
+       * Aggregates a list of activity events, given:
+       * [
+       *  { pageViewId: 'pageid1', minYOffset: 0, maxYOffset: 10 },
+       *  { pageViewId: 'pageid1', minYOffset: 10, maxYOffset: 20 },
+       *  { pageViewId: 'pageid2', minYOffset: 20, maxYOffset: 1000 }
+       * ]
+       *
+       * Will return:
+       * {
+       *  'pageid1': { minYOffset: 0, maxYOffset: 20, numEvents: 2 },
+       *  'pageid2': { minYOffset: 20, maxYOffset: 1000, numEvents: 1 }
+       * }
+       */
+      function aggregate(events) {
+        return _.mapValues(maxMin, _.groupBy('pageViewId', events))
+      }
+
+      /*
+       * Given:
+       * {
+       *  'pageid1': { minYOffset: 0, maxYOffset: 20, numEvents: 2 },
+       *  'pageid2': { minYOffset: 20, maxYOffset: 1000, numEvents: 1 }
+       * }
+       * Will return: [
+       *  { pageViewId: 'pageid1', minYOffset: 0, maxYOffset: 20, numEvents: 2 },
+       *  { pageViewId: 'pageid2', minYOffset: 20, maxYOffset: 1000, numEvents: 1 },
+       * ]
+       */
+      function aggregateForSending(events) {
+        return _.map(function(entry) {
+          return _.assign(entry[1], { pageViewId: entry[0] })
+        }, _.toPairs(aggregate(events)))
+      }
+
+      function makeTable(aggregatedEvents) {
+        return _.join(
+          '',
+          _.map(function(pageView) {
+            return _.join('', [
+              '<tr><td>',
+              pageView[0],
+              '</td><td>',
+              pageView[1].minYOffset,
+              '</td><td>',
+              pageView[1].maxYOffset,
+              '</td><td>',
+              pageView[1].numEvents,
+              '</td></tr>',
+            ])
+          }, _.toPairs(aggregatedEvents))
+        )
+      }
+
+      // simple loop to aggregate and display results
+      setInterval(function() {
+        document.getElementById('output').innerHTML = makeTable(
+          aggregate(events)
+        )
+      }, 2000)
+    </script>
+    <!-- Snowplow stops plowing -->
+  </head>
+
+  <body class="container">
+    <div
+      style="position: fixed; right: 0; background: white; width: 50%;"
+      class="shadow-sm p-3 mb-5 bg-white rounded"
+    >
+      <h3>Collected events</h3>
+      <table class="table table-dark">
+        <thead>
+          <tr>
+            <th>PageId</th>
+            <th>Y min</th>
+            <th>Y max</th>
+            <th>Events</th>
+          </tr>
+        </thead>
+        <tbody id="output"></tbody>
+      </table>
+      <button class="btn btn-primary" onclick="newPage()">
+        Trigger page view
+      </button>
+    </div>
+
+    <div style="width: 40%;">
+      <h1>Small asynchronous examples for snowplow</h1>
+
+      <p>
+        This page provides examples of using
+        <code>enableActivityTrackingCallback</code>.
+      </p>
+      <p>Scroll to trigger activity events.</p>
+      <p>
+        Trigger a page visibility event (select another tab in your browser then
+        come back) for data collection examples.
+      </p>
+    </div>
+
+    <hr />
+
+    <div id="visibilityModal" class="modal" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Visibility change detected</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>
+              Here we could empty the queue of events and trigger a
+              <code>trackSelfDescribingEvent</code> with the results.
+            </p>
+            <p>Either all the events:</p>
+            <pre><code id="exampleRaw"></code></pre>
+            <p>Or perhaps an aggregate:</p>
+            <pre><code id="exampleAggregate"></code></pre>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2>Setup</h2>
+    <pre><code>
+// Assuming only one trackPageView per page load we can track
+// values as globals. View page source for an example allowing for multiple trackPageView calls
+var aggregatedEvents = {
+	pageViewId: null,
+	minXOffset: null,
+	maxXOffset: null,
+	minYOffset: null,
+	maxYOffset: null,
+	numEvents: 0
+};
+window.snowplow('enableActivityTrackingCallback', 2, 5, function (event) {
+	aggregatedEvents = {
+		pageViewId: event.pageViewId,
+		minXOffset: aggregatedEvents.minXOffset < event.minXOffset ? aggregatedEvents.minXOffset : event.minXOffset,
+		maxYOffset: aggregatedEvents.maxYOffset > event.maxYOffset ? aggregatedEvents.maxYOffset : event.maxYOffset,
+		minYOffset: aggregatedEvents.minYOffset < event.minYOffset ? aggregatedEvents.minYOffset : event.minYOffset,
+		maxYOffset: aggregatedEvents.maxYOffset > event.maxYOffset ? aggregatedEvents.maxYOffset : event.maxYOffset,
+		numEvents: event.numEvents + 1
+	};
+}) // Call callback every 5 seconds after 2 seconds
+
+// Must call trackPageView to start tracking
+window.snowplow('trackPageView')
+		</code></pre>
+
+    <p>
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+      tempor incididunt ut labore et dolore magna aliqua. Eget arcu dictum
+      varius duis at consectetur lorem donec. Posuere urna nec tincidunt
+      praesent semper feugiat. Lacus sed turpis tincidunt id aliquet risus.
+      Augue lacus viverra vitae congue eu consequat. Viverra aliquet eget sit
+      amet tellus cras adipiscing enim. Diam sit amet nisl suscipit adipiscing
+      bibendum est ultricies. Elementum curabitur vitae nunc sed velit
+      dignissim. Ipsum nunc aliquet bibendum enim facilisis gravida. Id donec
+      ultrices tincidunt arcu non sodales neque. Neque gravida in fermentum et
+      sollicitudin ac orci phasellus egestas. In egestas erat imperdiet sed
+      euismod nisi porta lorem mollis. Tristique senectus et netus et. Accumsan
+      tortor posuere ac ut consequat semper. Rhoncus urna neque viverra justo
+      nec ultrices dui sapien. Proin nibh nisl condimentum id. Ultricies leo
+      integer malesuada nunc. Amet nisl suscipit adipiscing bibendum. Tristique
+      senectus et netus et malesuada fames ac turpis. Rutrum quisque non tellus
+      orci ac auctor augue.
+    </p>
+
+    <p>
+      Ornare arcu dui vivamus arcu felis bibendum ut. Nunc congue nisi vitae
+      suscipit tellus mauris a. Iaculis urna id volutpat lacus laoreet non.
+      Sagittis id consectetur purus ut faucibus. Vestibulum lorem sed risus
+      ultricies tristique nulla aliquet. Eget lorem dolor sed viverra ipsum nunc
+      aliquet bibendum. Vitae congue mauris rhoncus aenean. Sit amet nisl
+      suscipit adipiscing bibendum est ultricies integer. Elit eget gravida cum
+      sociis natoque. Tempus iaculis urna id volutpat lacus laoreet non
+      curabitur gravida. Senectus et netus et malesuada.
+    </p>
+
+    <p>
+      Cras sed felis eget velit. Sed viverra ipsum nunc aliquet bibendum enim
+      facilisis gravida neque. Mattis enim ut tellus elementum sagittis vitae
+      et. Velit sed ullamcorper morbi tincidunt ornare massa eget egestas. Nec
+      nam aliquam sem et tortor consequat. Curabitur vitae nunc sed velit
+      dignissim sodales ut. Id cursus metus aliquam eleifend mi in nulla. Et
+      sollicitudin ac orci phasellus egestas tellus. Nullam eget felis eget nunc
+      lobortis mattis aliquam faucibus. Placerat orci nulla pellentesque
+      dignissim enim sit.
+    </p>
+
+    <p>
+      Congue eu consequat ac felis donec et odio. Imperdiet massa tincidunt nunc
+      pulvinar sapien et ligula. Eu ultrices vitae auctor eu augue ut. Cursus
+      metus aliquam eleifend mi in nulla. Est velit egestas dui id ornare arcu
+      odio ut sem. Est pellentesque elit ullamcorper dignissim cras tincidunt
+      lobortis feugiat. Tempor orci dapibus ultrices in iaculis nunc. Tincidunt
+      tortor aliquam nulla facilisi. Faucibus pulvinar elementum integer enim
+      neque. Commodo quis imperdiet massa tincidunt nunc. Nec dui nunc mattis
+      enim ut tellus elementum sagittis vitae. Diam in arcu cursus euismod quis
+      viverra nibh cras pulvinar. Morbi tempus iaculis urna id volutpat lacus
+      laoreet. Pulvinar elementum integer enim neque volutpat ac. Diam sit amet
+      nisl suscipit adipiscing bibendum est ultricies. Ut aliquam purus sit amet
+      luctus venenatis lectus. Turpis tincidunt id aliquet risus feugiat in ante
+      metus. Sit amet volutpat consequat mauris nunc congue nisi. Quam vulputate
+      dignissim suspendisse in est. Est ullamcorper eget nulla facilisi etiam
+      dignissim diam quis enim.
+    </p>
+
+    <p>
+      Amet mattis vulputate enim nulla aliquet porttitor lacus luctus. Amet
+      mauris commodo quis imperdiet massa tincidunt. Maecenas ultricies mi eget
+      mauris pharetra et ultrices. Egestas fringilla phasellus faucibus
+      scelerisque eleifend donec pretium vulputate. Egestas quis ipsum
+      suspendisse ultrices gravida dictum fusce ut. Facilisi nullam vehicula
+      ipsum a arcu cursus vitae congue. Nunc congue nisi vitae suscipit. Pretium
+      lectus quam id leo in vitae. In est ante in nibh mauris cursus mattis.
+      Tellus in metus vulputate eu scelerisque felis imperdiet. Hac habitasse
+      platea dictumst vestibulum rhoncus est pellentesque.
+    </p>
+
+    <p>
+      Erat pellentesque adipiscing commodo elit at imperdiet dui accumsan sit.
+      Nibh praesent tristique magna sit amet purus gravida. Metus vulputate eu
+      scelerisque felis imperdiet proin fermentum. Sed vulputate mi sit amet
+      mauris. Egestas purus viverra accumsan in nisl nisi scelerisque eu.
+      Viverra vitae congue eu consequat ac felis donec et. Et netus et malesuada
+      fames ac turpis egestas maecenas pharetra. Nibh cras pulvinar mattis nunc
+      sed blandit libero. Pulvinar mattis nunc sed blandit libero volutpat sed
+      cras. Id aliquet risus feugiat in ante metus. Penatibus et magnis dis
+      parturient montes nascetur ridiculus. Faucibus purus in massa tempor nec
+      feugiat nisl. Sit amet volutpat consequat mauris. Sodales ut etiam sit
+      amet.
+    </p>
+
+    <p>
+      Cursus eget nunc scelerisque viverra mauris in aliquam. Est ante in nibh
+      mauris cursus mattis molestie a iaculis. Amet nisl purus in mollis nunc
+      sed id. Ultricies mi quis hendrerit dolor magna eget est lorem. Feugiat
+      nisl pretium fusce id velit ut tortor pretium. Sed risus pretium quam
+      vulputate dignissim suspendisse in est. Sodales neque sodales ut etiam sit
+      amet nisl purus in. Tristique sollicitudin nibh sit amet commodo nulla.
+      Iaculis eu non diam phasellus vestibulum lorem sed risus. Risus pretium
+      quam vulputate dignissim suspendisse in est ante. Justo eget magna
+      fermentum iaculis eu non diam phasellus vestibulum.
+    </p>
+
+    <p>
+      Cursus vitae congue mauris rhoncus aenean vel. Donec et odio pellentesque
+      diam volutpat commodo. Id semper risus in hendrerit gravida rutrum
+      quisque. Cras sed felis eget velit. Pharetra et ultrices neque ornare.
+      Felis eget velit aliquet sagittis id consectetur purus ut. Metus aliquam
+      eleifend mi in nulla posuere sollicitudin aliquam ultrices. Mauris cursus
+      mattis molestie a iaculis. Sodales ut eu sem integer vitae justo eget
+      magna fermentum. Amet volutpat consequat mauris nunc congue nisi. Interdum
+      posuere lorem ipsum dolor sit amet consectetur adipiscing elit. Mauris
+      commodo quis imperdiet massa tincidunt nunc pulvinar sapien et. Id
+      consectetur purus ut faucibus pulvinar elementum integer enim. Sed viverra
+      tellus in hac habitasse platea dictumst vestibulum. Quisque egestas diam
+      in arcu cursus euismod quis viverra. Sit amet venenatis urna cursus eget
+      nunc scelerisque. Tempus quam pellentesque nec nam.
+    </p>
+
+    <p>
+      Ornare quam viverra orci sagittis eu. Ut faucibus pulvinar elementum
+      integer enim neque volutpat ac tincidunt. Sapien et ligula ullamcorper
+      malesuada proin libero. Morbi blandit cursus risus at ultrices mi tempus
+      imperdiet. Vulputate mi sit amet mauris commodo quis imperdiet massa
+      tincidunt. Vitae ultricies leo integer malesuada nunc vel risus commodo
+      viverra. Ipsum nunc aliquet bibendum enim facilisis gravida neque
+      convallis a. Id semper risus in hendrerit gravida rutrum quisque non. Orci
+      dapibus ultrices in iaculis nunc sed. Pulvinar mattis nunc sed blandit
+      libero volutpat sed. Purus faucibus ornare suspendisse sed nisi lacus.
+      Tristique senectus et netus et malesuada fames ac turpis egestas. Ac ut
+      consequat semper viverra nam libero. Mauris pharetra et ultrices neque
+      ornare aenean. Tincidunt praesent semper feugiat nibh sed pulvinar. Sed
+      tempus urna et pharetra pharetra massa massa ultricies.
+    </p>
+
+    <p>
+      Ut tellus elementum sagittis vitae et leo duis. Vivamus arcu felis
+      bibendum ut tristique et egestas quis ipsum. Ut lectus arcu bibendum at
+      varius vel pharetra vel. Laoreet sit amet cursus sit amet. Sollicitudin
+      nibh sit amet commodo nulla. Ullamcorper velit sed ullamcorper morbi
+      tincidunt ornare. Sit amet consectetur adipiscing elit duis tristique
+      sollicitudin. Morbi blandit cursus risus at ultrices mi tempus imperdiet
+      nulla. Duis convallis convallis tellus id interdum velit laoreet id donec.
+      Massa vitae tortor condimentum lacinia.
+    </p>
+  </body>
+</html>
