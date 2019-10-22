@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Integration test page (activity tracking)</title>
+</head>
+<body style="width: 2000px; height: 2000px; position: relative;">
+  <div id="init"></div>
+  <div id="bottomRight" style="position: absolute; bottom: 0; right: 0;">Bottom right</div>
+  <script>
+    var collector_endpoint = document.cookie.split('container=')[1].split(';')[0]
+    document.body.className += ' loaded';
+
+    ;(function(p,l,o,w,i,n,g){if(!p[i]){p.GlobalSnowplowNamespace=p.GlobalSnowplowNamespace||[];
+      p.GlobalSnowplowNamespace.push(i);p[i]=function(){(p[i].q=p[i].q||[]).push(arguments)
+      };p[i].q=p[i].q||[];n=l.createElement(o);g=l.getElementsByTagName(o)[0];n.async=1;
+      n.src=w;g.parentNode.insertBefore(n,g)}}(window,document,"script","./snowplow.js","snowplow"));
+
+    document.write(collector_endpoint)
+
+    snowplow('newTracker', 'cf', collector_endpoint, {
+      appId: 'ppAppId',
+      eventMethod: 'get',
+    });
+    snowplow(function() {
+      document.getElementById('init').innerText = 'true';
+    });
+
+    snowplow('enableActivityTracking', 1, 2);
+
+    snowplow('trackPageView');
+
+  </script>
+
+</body>
+</html>
