@@ -31,7 +31,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
+import F from 'lodash/fp'
 import moment from 'moment-timezone'
 
 describe('Detectors test', () => {
@@ -59,7 +59,8 @@ describe('Detectors test', () => {
   })
 
   it('Check localStorage availability', () => {
-    expect($('#localStorageAccessible').getText()).toBe('true')
+    const supportsLocalStorage = !F.isMatch( { version: '12603.3.8', browserName: 'safari' }, browser.capabilities)
+    expect($('#localStorageAccessible').getText()).toBe(String(supportsLocalStorage))
   })
 
   it('Check sessionStorage availability', () => {

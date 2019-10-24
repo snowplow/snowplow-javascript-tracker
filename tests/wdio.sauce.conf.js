@@ -52,29 +52,24 @@ exports.config = {
       platformName: 'macOS 10.14',
       'sauce:options': { seleniumVersion: '3.14.0' },
     },
-    /* this fails on a click handler in helpers.js
     {
       browserName: 'safari',
       browserVersion: '13.0',
       platformName: 'macOS 10.13',
       'sauce:options': { seleniumVersion: '3.14.0' },
     },
-    */
     {
       browserName: 'safari',
       browserVersion: '11.0',
       platformName: 'macOS 10.12',
       'sauce:options': { seleniumVersion: '3.14.0' },
     },
-    /* this combo seems to have a problem with the cookie
-     * approach to set collector endpoint. Might be one
-     * we want to drop anyway
     {
       browserName: 'safari',
       platformName: 'macOS 10.12',
       browserVersion: '10.1',
       'sauce:options': { seleniumVersion: '3.14.0' },
-    },*/
+    },
     // and back to platform again
     {
       browserName: 'safari',
