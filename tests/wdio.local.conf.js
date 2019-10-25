@@ -13,6 +13,7 @@ exports.config = {
     },
   ],
   logLevel: 'debug',
+  specFileRetries: 0,
   bail: 1,
   services: ['chromedriver', 'static-server'],
 }

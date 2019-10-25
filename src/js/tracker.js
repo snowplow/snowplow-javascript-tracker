@@ -657,7 +657,7 @@
 		 */
 		function setCookie(name, value, timeout) {
 			if (configStateStorageStrategy == 'localStorage') {
-				helpers.attemptWriteLocalStorage(name, value);
+				helpers.attemptWriteLocalStorage(name, value, timeout);
 			} else if (configStateStorageStrategy == 'cookie' ||
 					configStateStorageStrategy == 'cookieAndLocalStorage') {
 				cookie.cookie(name, value, timeout, configCookiePath, configCookieDomain);
