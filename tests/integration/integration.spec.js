@@ -31,9 +31,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
+import util from 'util'
 import F from 'lodash/fp'
 import { reset, fetchResults, start, stop } from '../micro'
+
+const dumpLog = log => console.log(util.inspect(log, true, null, true))
 
 const isMatchWithCB = F.isMatchWith((lt, rt) =>
   F.isFunction(rt) ? rt(lt) : undefined
@@ -246,7 +248,9 @@ describe('Test that request_recorder logs meet expectations', () => {
 
   it('Check pageViewId is regenerated for each trackPageView', () => {
     const pageViews = F.filter(
-      ev => F.get('event.parameters.e', ev) === 'pv',
+      ev =>
+        F.get('event.parameters.e', ev) === 'pv' &&
+        F.get('event.parameters.tna', ev) === 'cf',
       log
     )
 
@@ -298,7 +302,14 @@ describe('Test that request_recorder logs meet expectations', () => {
       F.get('contexts')
     )
 
-    const numberWithoutGdpr = F.size(F.filter(withoutGdprContext, log))
+    const fromCfTracker = F.compose(
+      F.eq('cf'),
+      F.get('event.parameters.tna')
+    )
+
+    const numberWithoutGdpr = F.size(
+      F.filter(ev => withoutGdprContext(ev) && fromCfTracker(ev), log)
+    )
 
     expect(numberWithoutGdpr).toBe(0)
   })
