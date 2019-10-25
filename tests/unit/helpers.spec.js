@@ -153,4 +153,15 @@ describe('resolveDynamicContexts', () => {
     const actual = resolveDynamicContexts([contextGenerator], 1, 2)
     expect(actual).toEqual(expected)
   })
+
+  it('Context generators which return empty are ignored', () => {
+    const contextGenerator = () => null;
+    const staticContext = {
+      schema: 'iglu:com.acme.marketing/some_event/jsonschema/1-0-0',
+      data: { test: 1 },
+    }
+    const expected = [staticContext]
+    const actual = resolveDynamicContexts([contextGenerator, staticContext])
+    expect(actual).toEqual(expected)
+  })
 })
