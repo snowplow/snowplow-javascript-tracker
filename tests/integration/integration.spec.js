@@ -105,10 +105,10 @@ describe('Test that request_recorder logs meet expectations', () => {
       value: containerUrl,
     })
     if (browser.setNetworkConditions) {
-      browser.setNetworkConditions({}, 'GPRS') 
+      browser.setNetworkConditions({}, 'Regular 2G') 
     }
     browser.url('/integration.html')
-    browser.pause(15000) // Time for requests to get written
+    browser.pause(10000) // Time for requests to get written
     browser.call(() =>
       fetchResults(containerUrl).then(r => {
         log = r
