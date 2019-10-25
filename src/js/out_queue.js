@@ -323,8 +323,11 @@
 
 			} else {
 				var image = new Image(1, 1);
-
+				var loading = true;
+				
 				image.onload = function () {
+					if (!loading) return;
+					loading = false;
 					outQueue.shift();
 					if (useLocalStorage) {
 						helpers.attemptWriteLocalStorage(queueName, JSON.stringify(outQueue));
@@ -333,6 +336,8 @@
 				};
 
 				image.onerror = function () {
+					if (!loading) return;
+					loading = false;
 					executingQueue = false;
 				};
 
@@ -342,6 +347,12 @@
 				} else {
 					image.src = configCollectorUrl + nextRequest;
 				}
+				setTimeout(function () {
+					if (loading && executingQueue) {
+						loading = false;
+						executeQueue();	
+					}
+				}, 5000);
 			}
 		}
 
