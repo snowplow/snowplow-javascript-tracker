@@ -57,10 +57,11 @@
 	 *                       Only applies when sending POST requests and when localStorage is available.
 	 * @param int maxPostBytes Maximum combined size in bytes of the event JSONs in a POST request
 	 * @param boolean useStm Whether to add timestamp to events
+	 * @param int maxLocalStorageQueueSize Maximum number of queued events we will attempt to store in local storage.
 	 *
 	 * @return object OutQueueManager instance
 	 */
-	object.OutQueueManager = function (functionName, namespace, mutSnowplowState, useLocalStorage, eventMethod, postPath, bufferSize, maxPostBytes, useStm) {
+	object.OutQueueManager = function (functionName, namespace, mutSnowplowState, useLocalStorage, eventMethod, postPath, bufferSize, maxPostBytes, useStm, maxLocalStorageQueueSize) {
 		var	queueName,
 			executingQueue = false,
 			configCollectorUrl,
@@ -210,7 +211,7 @@
 			}
 			var savedToLocalStorage = false;
 			if (useLocalStorage) {
-				savedToLocalStorage = helpers.attemptWriteLocalStorage(queueName, JSON.stringify(outQueue));
+				savedToLocalStorage = helpers.attemptWriteLocalStorage(queueName, JSON.stringify(outQueue.slice(0, maxLocalStorageQueueSize)));
 			}
 
 			if (!executingQueue && (!savedToLocalStorage || outQueue.length >= bufferSize)) {
@@ -277,7 +278,7 @@
 						outQueue.shift();
 					}
 					if (useLocalStorage) {
-						helpers.attemptWriteLocalStorage(queueName, JSON.stringify(outQueue));
+						helpers.attemptWriteLocalStorage(queueName, JSON.stringify(outQueue.slice(0, maxLocalStorageQueueSize)));
 					}
 					executeQueue();
 				}
@@ -327,7 +328,7 @@
 				image.onload = function () {
 					outQueue.shift();
 					if (useLocalStorage) {
-						helpers.attemptWriteLocalStorage(queueName, JSON.stringify(outQueue));
+						helpers.attemptWriteLocalStorage(queueName, JSON.stringify(outQueue.slice(0, maxLocalStorageQueueSize)));
 					}
 					executeQueue();
 				};
