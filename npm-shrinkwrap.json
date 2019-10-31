@@ -1,6 +1,6 @@
 {
   "name": "snowplow-tracker",
-  "version": "2.11.0",
+  "version": "2.12.0",
   "lockfileVersion": 1,
   "requires": true,
   "dependencies": {
@@ -11451,9 +11451,9 @@
       }
     },
     "snowplow-tracker-core": {
-      "version": "0.7.1",
-      "resolved": "https://registry.npmjs.org/snowplow-tracker-core/-/snowplow-tracker-core-0.7.1.tgz",
-      "integrity": "sha512-rEvGXIGytwkXI73BtX/U23MLR14JU8g5sT6kzBNN8j95Oy1y+tCP712lREk4lsr66kMty7ydi7QYGKvNHyarcg==",
+      "version": "0.7.2-beta1",
+      "resolved": "https://registry.npmjs.org/snowplow-tracker-core/-/snowplow-tracker-core-0.7.2-beta1.tgz",
+      "integrity": "sha512-NYGHrctYzLUoJgoxKpEPw43bdACK0v6ck1OnKK/7/cbIY4nJKK3wwAY4OES6syOSphyLc7mMuLtjy2stddUS+w==",
       "requires": {
         "@types/uuid": "^2.0.29",
         "lodash": "^4.17.11",
