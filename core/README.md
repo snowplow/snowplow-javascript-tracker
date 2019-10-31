@@ -13,7 +13,7 @@ npm install snowplow-tracker-core
 ## Example
 
 ```js
-var core = require('snowplow-tracker-core');
+var core = require('snowplow-tracker-core').trackerCore;
 
 // Create an instance with base 64 encoding set to false (it defaults to true)
 var coreInstance = core(false);
@@ -38,7 +38,7 @@ coreInstance.setUseragent('Snowplow/0.0.1');
 // Track a page view with URL and title
 var pageViewPayload = coreInstance.trackPageView('http://www.example.com', 'landing page');
 
-console.log(pageViewPayload);
+console.log(pageViewPayload.build());
 /*
 {
 	'e': 'pv',
@@ -52,6 +52,7 @@ console.log(pageViewPayload);
 	'p': 'web',
 	'cd': 24,
 	'vp': '600x400',
+	'ua': 'Snowplow/0.0.1',
 	'dtm': 1406879959702,                          // timestamp
 	'eid': '0718a85a-45dc-4f71-a949-27870442ed7d'  // UUID
 }
@@ -69,7 +70,7 @@ var unstructEventPayload = coreInstance.trackUnstructEvent({
 	}
 });
 
-console.log(unstructEventPayload);
+console.log(unstructEventPayload.build());
 /*
 {
 	'e': 'ue',
