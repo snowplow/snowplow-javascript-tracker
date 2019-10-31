@@ -1,6 +1,6 @@
 {
   "name": "snowplow-tracker",
-  "version": "2.12.0",
+  "version": "2.12.0-rc1",
   "dependencies": {
     "browser-cookie-lite": "^1.0.4",
     "jstimezonedetect": "1.0.5",
