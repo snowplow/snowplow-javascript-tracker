@@ -1,8 +1,6 @@
 /*
- * JavaScript tracker for Snowplow: tests/functional/detectors.js
- *
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright
- * 2012-2014 Snowplow Analytics Ltd. All rights reserved.
+ * 2012-2016 Snowplow Analytics Ltd. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -32,21 +30,37 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-define([
-	'intern!object'
-], function(registerSuite) {
+const {
+  attemptGetLocalStorage,
+  attemptWriteLocalStorage
+} = require('../../src/js/lib/helpers')
 
-	registerSuite({
+describe('local storage', () => {
 
-		name: 'Integration setup',
+  beforeAll(() => {
+    localStorage.clear()
+  })
 
-		'Set up the page and send some events to request_recorder': function() {
+  it('should work for pre existing values with no expiry', () => {
+    const value = 'value'
+    localStorage.setItem('key', value)
+    const retrieved = attemptGetLocalStorage('key')
+    expect(retrieved).toBe(value)
+  })
 
-			return this.remote
-				.get(require.toUrl('tests/pages/integration.html'))
-				.setFindTimeout(5000)
-				.findByCssSelector('body.loaded')
-				.sleep(15000);	// Time for requests to get written
-		}
-	});
-});
+  it('should return values', () => {
+    const value = 'value'
+    const ttl = 1
+    attemptWriteLocalStorage('key', value, ttl)
+    const retrieved = attemptGetLocalStorage('key')
+    expect(retrieved).toBe(value)
+  })
+
+  it('should not return expired values', () => {
+    const value = 'value'
+    const ttl = -1
+    attemptWriteLocalStorage('key', value, ttl)
+    const retrieved = attemptGetLocalStorage('key')
+    expect(retrieved).toBeUndefined()
+  })
+})

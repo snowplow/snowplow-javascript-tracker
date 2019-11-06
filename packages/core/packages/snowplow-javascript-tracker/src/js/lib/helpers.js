@@ -34,6 +34,7 @@
 ;(function () {
 
 	var
+		filter = require('lodash/filter'),
 		isString = require('lodash/isString'),
 		isUndefined = require('lodash/isUndefined'),
 		isObject = require('lodash/isObject'),
@@ -162,17 +163,19 @@
 	 */
 	object.resolveDynamicContexts = function (dynamicOrStaticContexts) {
 		let params = Array.prototype.slice.call(arguments, 1);
-		return map(dynamicOrStaticContexts, function(context) {
-			if (typeof context === 'function') {
-				try {
-					return context.apply(null, params);
-				} catch (e) {
-					//TODO: provide warning
+		return filter(
+			map(dynamicOrStaticContexts, function(context) {
+				if (typeof context === 'function') {
+					try {
+						return context.apply(null, params);
+					} catch (e) {
+						//TODO: provide warning
+					}
+				} else {
+					return context;
 				}
-			} else {
-				return context;
-			}
-		});
+			})
+		);
 	};
 
 	/**
@@ -315,7 +318,14 @@
 	 */
 	object.attemptGetLocalStorage = function (key) {
 		try {
-			return localStorage.getItem(key);
+			const exp = localStorage.getItem(key + '.expires');
+			if (exp === null || +exp > Date.now()) {
+				return localStorage.getItem(key);
+			} else {
+				localStorage.removeItem(key);
+				localStorage.removeItem(key + '.expires');
+			}
+			return undefined;
 		} catch(e) {}
 	};
 
@@ -324,10 +334,13 @@
 	 *
 	 * @param string key
 	 * @param string value
+	 * @param number ttl Time to live in seconds, defaults to 2 years from Date.now()
 	 * @return boolean Whether the operation succeeded
 	 */
-	object.attemptWriteLocalStorage = function (key, value) {
+	object.attemptWriteLocalStorage = function (key, value, ttl = 63072000) {
 		try {
+			const t = Date.now() + ttl*1000;
+			localStorage.setItem(`${key}.expires`, t);
 			localStorage.setItem(key, value);
 			return true;
 		} catch(e) {
