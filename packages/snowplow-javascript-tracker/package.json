@@ -1,28 +1,44 @@
 {
   "name": "snowplow-tracker",
-  "version": "2.11.0",
+  "version": "2.12.0",
   "dependencies": {
-    "snowplow-tracker-core": "0.7.1",
-    "browser-cookie-lite": "0.3.1",
+    "browser-cookie-lite": "^1.0.4",
     "jstimezonedetect": "1.0.5",
     "murmurhash": "0.0.2",
     "sha1": "git://github.com/pvorb/node-sha1.git#910081c83f3661507d9d89e66e3f38d8b59d5559",
-    "uuid": "2.0.3"
+    "snowplow-tracker-core": "^0.7.2",
+    "uuid": "^3.3.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.1.2",
-    "@babel/preset-env": "^7.1.0",
+    "@babel/core": "^7.6.2",
+    "@babel/preset-env": "^7.6.2",
+    "@babel/register": "^7.6.2",
+    "@wdio/cli": "^5.15.0",
+    "@wdio/jasmine-framework": "^5.15.0",
+    "@wdio/local-runner": "^5.15.0",
+    "@wdio/sauce-service": "^5.14.0",
+    "@wdio/spec-reporter": "^5.14.5",
+    "@wdio/static-server-service": "^5.14.4",
+    "@wdio/sync": "^5.14.4",
     "JSON": "1.0.0",
-    "grunt": "^1.0.3",
-    "grunt-aws": "0.6.2",
+    "chromedriver": "^77.0.0",
+    "dockerode": "^3.0.2",
+    "grunt": "^1.0.4",
+    "grunt-aws": "^0.7.1",
     "grunt-babel": "^8.0.0",
-    "lodash": "^4.17.11",
     "grunt-browserify": "^5.3.0",
     "grunt-contrib-concat": "^1.0.1",
-    "grunt-contrib-uglify": "^4.0.0",
-    "intern": "3.3.2",
+    "grunt-contrib-uglify": "^4.0.1",
+    "jest": "^24.9.0",
+    "jest-dev-server": "^4.3.0",
     "js-base64": "^2.4.9",
-    "semver": "4.3.2"
+    "lodash": "^4.17.15",
+    "moment-timezone": "^0.5.26",
+    "npm-check": "^5.9.0",
+    "prettier": "^1.18.2",
+    "saucelabs": "^3.0.0",
+    "semver": "^6.3.0",
+    "wdio-chromedriver-service": "^5.0.2"
   },
   "contributors": [
     "Alex Dean",
@@ -45,5 +61,10 @@
     "open source"
   ],
   "license": "Simplified BSD",
-  "private": true
+  "private": true,
+  "scripts": {
+    "test:unit": "jest tests/unit/*.spec.js",
+    "test:e2e:sauce": "docker pull snowplow/snowplow-micro && wdio tests/wdio.sauce.conf.js",
+    "test:e2e:local": "docker pull snowplow/snowplow-micro && wdio tests/wdio.local.conf.js"
+  }
 }

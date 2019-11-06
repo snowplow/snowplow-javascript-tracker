@@ -86,6 +86,7 @@
 	 * 22. discoverRootDomain, false
 	 * 23. cookieLifetime, 63072000
 	 * 24. stateStorageStrategy, 'cookieAndLocalStorage'
+	 * 25. maxLocalStorageQueueSize, 1000
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
 
@@ -328,7 +329,8 @@
 				configPostPath,
 				argmap.bufferSize,
 				argmap.maxPostBytes || 40000,
-				argmap.useStm),
+				argmap.useStm,
+				argmap.maxLocalStorageQueueSize || 1000),
 
 			// Flag to prevent the geolocation context being added multiple times
 			geolocationContextAdded = false,
@@ -657,7 +659,7 @@
 		 */
 		function setCookie(name, value, timeout) {
 			if (configStateStorageStrategy == 'localStorage') {
-				helpers.attemptWriteLocalStorage(name, value);
+				helpers.attemptWriteLocalStorage(name, value, timeout);
 			} else if (configStateStorageStrategy == 'cookie' ||
 					configStateStorageStrategy == 'cookieAndLocalStorage') {
 				cookie.cookie(name, value, timeout, configCookiePath, configCookieDomain);
@@ -1114,10 +1116,10 @@
 			var visitor = getOptimizelyXData('visitor');
 
 			return map(experiment_ids, function(activeExperiment) {
-				variation = state.getVariationMap()[activeExperiment];
-				variationName = variation.name;
-				variationId = variation.id;
-				visitorId = visitor.visitorId;
+				var variation = state.getVariationMap()[activeExperiment];
+				var variationName = variation.name;
+				var variationId = variation.id;
+				var visitorId = visitor.visitorId;
 				return {
 					experimentId: parseInt(activeExperiment),
 					variationName: variationName,

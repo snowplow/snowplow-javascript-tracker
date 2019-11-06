@@ -697,6 +697,7 @@ define([
 			tracker.setColorDepth(24);
 			tracker.setTimezone('Europe London');
 			tracker.setIpAddress('37.151.33.154');
+			tracker.setUseragent('SnowplowJavascript/0.0.1');
 			var url = 'http://www.example.com';
 			var page = 'title page';
 			var expected = {
@@ -712,7 +713,8 @@ define([
 				vp: '500x800',
 				cd: 24,
 				tz: 'Europe London',
-				ip: '37.151.33.154'
+				ip: '37.151.33.154',
+				ua: 'SnowplowJavascript/0.0.1'
 			};
 
 			compare(tracker.trackPageView(url, page), expected, 'setXXX methods should work correctly');

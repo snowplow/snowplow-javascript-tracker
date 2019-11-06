@@ -1,3 +1,6 @@
+addons:
+  hosts:
+    - snowplow-js-tracker.local
 node_js:
 - 8.12.0
 language: node_js
@@ -17,15 +20,10 @@ install:
 - rm -rf node_modules
 - npm install
 
-# get ngrok
-- wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
-- unzip ./ngrok-stable-linux-amd64.zip
 before_script:
-- export SUBDOMAIN=$RANDOM$RANDOM
-- ./ngrok http -authtoken $NGROK_AUTH -subdomain $SUBDOMAIN -log=stdout 8500 > /dev/null &
 script:
 - cd core && grunt intern && cd ..
-- grunt travis
+- grunt travis && npm run test:unit && npm run test:e2e:sauce
 before_deploy:
 - grunt default
 deploy:
@@ -53,7 +51,7 @@ env:
   global:
   # SAUCE_USERNAME
   - secure: S/6Ild1n9SmW8xYqarjkigDqmyFgWS4Hi0M07e/ryPeS1MNQdiS5+WuSmlSTevM/wU/oSCvzXnKhO9W/1tvz4qj/BMQYxYWFjwWAXJrkjJPvWoa5ogYkR3ETSYrqdhkT+8LVof8iLPlpHjS1y2fozyJbYf1YNSkcVCLxMdIwnk0=
-  # SAUCE_AUTH_KEY
+  # SAUCE_ACCESS_KEY
   - secure: bkmtL2PXFGdOB6YNfWw6thEyVAbX/l7Q99pfT2jHmfzhTDf4/FT1CprsAacf0JeYkwMg5UQDMqAcZSojjO6GeAY8rhC94Tor5hKoEwCL4wg5NatXBUUI+WWaoBSg2KWYG2MfkPxtGJyNk1LPQoV+nUUzwEGejV8lJvaHVxkBsqA=
   # NGROK_AUTH
   - secure: JwP5MuqZ6k8FlHg8AnzYTrCZByJLnlu0to2srEwfVOhW1efGTEmtWf/SLlplYHcdelsFakdiSbD3BkZyEqpe/2/AIb56KLAqtE2Ng3WS8Vz/80yknxII0xcSPzAZdhZYRUJlbIrA1Ua3XGgirBenjn7ILFXNX/qLgvwJ1uLKCPo=

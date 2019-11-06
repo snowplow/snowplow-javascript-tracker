@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker for Snowplow: tests/intern.js
+ * JavaScript tracker for Snowplow: tests/functional/helpers.spec.js
  *
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright
  * 2012-2014 Snowplow Analytics Ltd. All rights reserved.
@@ -31,32 +31,46 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+import F from 'lodash/fp'
 
-define({
+describe('Helpers test', () => {
+  // I think failure on click handlers are related to the following, skipping on effected browser/os combo
+  // https://support.saucelabs.com/hc/en-us/articles/115003957233-Safari-11-with-Selenium-3-x-not-Handling-Click-Events-on-Option-Elements
+  if (
+    F.isMatch(
+      { browserVersion: '13.0.1', 'safari:platformVersion': '10.13.6' },
+      browser.capabilities
+    )
+  ) {
+    fit('skipping in safari 13 on osx 10.13 (webdriver issue)', () => {})
+  }
 
-	capabilities: {
-		'selenium-version': '2.48.0'
-	},
+  it('Gets page title', () => {
+    browser.url('/helpers.html')
+    $('body.loaded').waitForExist()
+    const value = $('#title').getText()
+    expect(value).toBe('Helpers test page')
+  })
 
-	environments: [
-		{ browserName: 'internet explorer', version: '11', platform: 'Windows 8.1' },
-		{ browserName: 'internet explorer', version: '10', platform: 'Windows 8' },
-		{ browserName: 'internet explorer', version: '9', platform: 'Windows 7' },
-		{ browserName: 'firefox', version: '27', platform: [ 'Windows 7', 'Linux' ] },
-		{ browserName: 'chrome', version: '32', platform: [ 'Windows 7', 'Linux' ] },
-		{ browserName: 'safari', version: '8', platform: 'OS X 10.10' },
-		{ browserName: 'safari', version: '10', platform: 'OS X 10.11' }
-	],
+  it('Gets host name', () => {
+    browser.url('/helpers.html')
+    $('body.loaded').waitForExist()
+    const value = $('#hostname').getText()
+    expect(value).toBe('snowplow-js-tracker.local')
+  })
 
-	maxConcurrency: 1,
+  it('Gets referrer from querystring', () => {
+    browser.url('/helpers.html' + '?name=value&referrer=previous#fragment')
+    $('body.loaded').waitForExist()
+    const value = $('#referrer').getText()
+    expect(value).toBe('previous')
+  })
 
-	tunnel: 'SauceLabsTunnel',
-	tunnelOptions: {
-		scVersion: '4.4.12',
-		logFile: process.cwd() + '/SauceLabsTunnel.log'
-	},
-
-	// A regular expression matching URLs to files that should not be included in code coverage analysis
-	excludeInstrumentation: /^(?:tests|node_modules)\//
-
-});
+  it('Can add an even listener', () => {
+    browser.url('/helpers.html')
+    $('body.loaded').waitForExist()
+    $('#click').click()
+    const value = $('#click').getText()
+    expect(value).toBe('clicked')
+  })
+})
