@@ -123,22 +123,6 @@ module.exports = function(grunt) {
         },
         src: ['tags/tag.min.js'],
         dest: 'tags/tag.min.js'
-      },
-      test: {
-        options: {
-          'process': true
-        },
-        src: ['tests/pages/integration-template.html'],
-        dest: 'tests/pages/integration.html'
-      },
-      local: {
-        options: {
-          'process': function(src, filepath) {
-            return src.replace(/'\<\%= subdomain \%\>' \+ '\.ngrok\.io'/g, '\'127.0.0.1:8000\'');
-          }
-        },
-        src: ['tests/pages/integration-template.html'],
-        dest: 'tests/local/serve/integration.html'
       }
     },
 
@@ -156,49 +140,12 @@ module.exports = function(grunt) {
           'tags/tag.min.js': ['tags/tag.js']
         }
       }
-    },
-
-    intern: {
-      // Common
-      options: {
-        config: 'tests/intern.js'
-      },
-
-      nonfunctional: {
-        options: {
-          runType: 'client',
-          suites: [
-            'tests/nonfunctional/helpers.js',
-            'tests/nonfunctional/in_queue.js',
-            'tests/nonfunctional/proxies.js'
-          ]
-        }
-      },
-      functional: {
-        options: {
-          runType: 'runner',
-          functionalSuites: [
-            'tests/functional/detectors.js',
-            'tests/functional/helpers.js'
-          ]
-        }
-      },
-      integration: {
-        options: {
-          runType: 'runner',
-          functionalSuites: [
-            'tests/integration/setup.js',       // required prior to integration.js
-            'tests/integration/integration.js' 	// request_recorder and ngrok need to be running
-          ]
-        }
-      }
     }
   });
 
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-aws');
   grunt.loadNpmTasks('grunt-browserify');
-  grunt.loadNpmTasks('intern');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-babel');
 
@@ -272,8 +219,9 @@ module.exports = function(grunt) {
   grunt.registerTask('publish', 'Upload to S3 and invalidate Cloudfront (full semantic version only)', ['upload_setup', 'browserify:main', 'babel:dist', 'concat:deploy', 'uglify:deploy', 's3:not_pinned', 'cloudfront:not_pinned']);
   grunt.registerTask('publish-pinned', 'Upload to S3 and invalidate Cloudfront (full semantic version and semantic major version)', ['upload_setup', 'browserify:main', 'babel:dist', 'concat:deploy', 'uglify:deploy', 's3', 'cloudfront']);
   grunt.registerTask('quick', 'Build snowplow.js, skipping building and minifying', ['browserify:main', 'babel:dist', 'concat:deploy']);
-  grunt.registerTask('test', 'Intern tests', ['browserify:test', 'babel:test', 'intern']);
-  grunt.registerTask('travis', 'Intern tests for Travis CI',  ['concat:test', 'browserify:test', 'babel:test', 'intern']);
+  grunt.registerTask('test', 'Intern tests', ['browserify:test', 'babel:test']);
+  grunt.registerTask('travis', 'Intern tests for Travis CI',  ['browserify:test', 'babel:test']);
   grunt.registerTask('tags', 'Minifiy the Snowplow invocation tag', ['uglify:tag', 'concat:tag']);
-  grunt.registerTask('local', 'Builds and places files read to serve and test locally', ['browserify:test', 'concat:local', 'babel:local']);
+  grunt.registerTask('local', 'Builds and places files read to serve and test locally', ['browserify:test', 'babel:test',
+    'babel:local', 'concat:local']);
 };
