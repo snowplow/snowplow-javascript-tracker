@@ -86,6 +86,7 @@
 	 * 23. cookieLifetime, 63072000
 	 * 24. stateStorageStrategy, 'cookieAndLocalStorage'
 	 * 25. maxLocalStorageQueueSize, 1000
+	 * 26. resetActivityTrackingOnPageView, true
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
 
@@ -181,14 +182,8 @@
 			// Maximum delay to wait for web bug image to be fetched (in milliseconds)
 			configTrackerPause = argmap.hasOwnProperty('pageUnloadTimer') ? argmap.pageUnloadTimer : 500,
 
-			// Whether appropriate values have been supplied to enableActivityTracking
-			activityTrackingEnabled = false,
-
-			// Minimum visit time after initial page view (in milliseconds)
-			configMinimumVisitTime,
-
-			// Recurring heart beat after initial ping (in milliseconds)
-			configHeartBeatTimer,
+			// Controls whether activity tracking page ping event timers are reset on page view events
+			resetActivityTrackingOnPageView = argmap.hasOwnProperty('resetActivityTrackingOnPageView') ? argmap.resetActivityTrackingOnPageView : true,
 
 			// Disallow hash tags in URL. TODO: Should this be set to true by default?
 			configDiscardHashTag,
@@ -1511,9 +1506,11 @@
 
 			// Send ping (to log that user has stayed on page)
 			var now = new Date();
+			var installingActivityTracking = false;
 
 			if ((activityTrackingConfig.activityTrackingEnabled || activityTrackingCallbackConfig.activityTrackingEnabled) && !activityTrackingInstalled) {
 				activityTrackingInstalled = true;
+				installingActivityTracking = true;
 
 				// Add mousewheel event handler, detect passive event listeners for performance
 				var detectPassiveEvents = {
@@ -1566,26 +1563,44 @@
 				helpers.addEventListener(windowAlias, 'resize', activityHandler);
 				helpers.addEventListener(windowAlias, 'focus', activityHandler);
 				helpers.addEventListener(windowAlias, 'blur', activityHandler);
+			}
 
+			if (resetActivityTrackingOnPageView || ((activityTrackingConfig.activityTrackingEnabled || activityTrackingCallbackConfig.activityTrackingEnabled) && installingActivityTracking)) {
 				// Periodic check for activity.
 				lastActivityTime = now.getTime();
-			}
 
-			if (activityTrackingConfig.activityTrackingEnabled && pagePingInterval === null && activityTrackingInstalled) {
-				pagePingInterval = activityInterval({
-					...activityTrackingConfig,
-					callback: args => logPagePing({ context: finalizeContexts(context, contextCallback), ...args }) // Grab the min/max globals
-				});
-			}
+				//Clear page ping heartbeat on new page view
+				if (pagePingInterval !== null) {
+					clearTimeout(pagePingInterval);
+					pagePingInterval = null;
+				}
 
-			if (activityTrackingCallbackConfig.activityTrackingEnabled && pagePingCallbackInterval === null && activityTrackingInstalled) {
-				pagePingCallbackInterval = activityInterval(activityTrackingCallbackConfig);
+				if (activityTrackingConfig.activityTrackingEnabled && activityTrackingInstalled) {
+					pagePingInterval = activityInterval({
+						...activityTrackingConfig,
+						configMinimumVisitTime: lastActivityTime + activityTrackingConfig.configMinimumVisitLength * 1000,
+						callback: args => logPagePing({ context: finalizeContexts(context, contextCallback), ...args }) // Grab the min/max globals
+					});
+				}
+
+				//Clear page ping heartbeat on new page view
+				if (pagePingCallbackInterval !== null) {
+					clearTimeout(pagePingCallbackInterval);
+					pagePingCallbackInterval = null;
+				}
+
+				if (activityTrackingCallbackConfig.activityTrackingEnabled && activityTrackingInstalled) {
+					pagePingCallbackInterval = activityInterval({
+						...activityTrackingCallbackConfig,
+						configMinimumVisitTime: lastActivityTime + activityTrackingCallbackConfig.configMinimumVisitLength * 1000
+					});
+				}
 			}
 		}
 
 		function activityInterval({ activityTrackingEnabled, configHeartBeatTimer, configMinimumVisitTime, callback }) {
 			if (!activityTrackingEnabled) return;
-
+			
 			return setInterval(function heartBeat() {
 				var now = new Date();
 
@@ -2026,7 +2041,7 @@
 				heartBeatDelay === parseInt(heartBeatDelay, 10)) {
 				activityTrackingConfig = {
 					activityTrackingEnabled: true,
-					configMinimumVisitTime: new Date().getTime() + minimumVisitLength * 1000,
+					configMinimumVisitLength: minimumVisitLength,
 					configHeartBeatTimer: heartBeatDelay * 1000
 				}
 			} else {
@@ -2047,7 +2062,7 @@
 				heartBeatDelay === parseInt(heartBeatDelay, 10)) {
 				activityTrackingCallbackConfig = {
 					activityTrackingEnabled: true,
-					configMinimumVisitTime: new Date().getTime() + minimumVisitLength * 1000,
+					configMinimumVisitLength: minimumVisitLength,
 					configHeartBeatTimer: heartBeatDelay * 1000,
 					callback
 				}
