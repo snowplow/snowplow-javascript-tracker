@@ -85,6 +85,8 @@ describe('Activity tracking with callbacks', () => {
       'expected init after 5s'
     )
 
+    browser.execute(() => window.scrollTo(0,0))
+
     const firstPageViewId = browser.execute(() => {
       var pid
       getCurrentPageViewId(function(id) {
