@@ -86,6 +86,7 @@
 	 * 23. cookieLifetime, 63072000
 	 * 24. stateStorageStrategy, 'cookieAndLocalStorage'
 	 * 25. maxLocalStorageQueueSize, 1000
+	 * 26. resetActivityTrackingOnPageView, true
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
 
@@ -181,14 +182,8 @@
 			// Maximum delay to wait for web bug image to be fetched (in milliseconds)
 			configTrackerPause = argmap.hasOwnProperty('pageUnloadTimer') ? argmap.pageUnloadTimer : 500,
 
-			// Whether appropriate values have been supplied to enableActivityTracking
-			activityTrackingEnabled = false,
-
-			// Minimum visit time after initial page view (in milliseconds)
-			configMinimumVisitTime,
-
-			// Recurring heart beat after initial ping (in milliseconds)
-			configHeartBeatTimer,
+			// Controls whether activity tracking page ping event timers are reset on page view events
+			resetActivityTrackingOnPageView = argmap.hasOwnProperty('resetActivityTrackingOnPageView') ? argmap.resetActivityTrackingOnPageView : true,
 
 			// Disallow hash tags in URL. TODO: Should this be set to true by default?
 			configDiscardHashTag,
@@ -266,9 +261,6 @@
 			// Unique ID for the tracker instance used to mark links which are being tracked
 			trackerId = functionName + '_' + namespace,
 
-			// Guard against installing the activity tracker more than once per Tracker instance
-			activityTrackingInstalled = false,
-
 			// Last activity timestamp
 			lastActivityTime,
 
@@ -345,8 +337,11 @@
 			pageViewSent = false,
 
 			// Activity tracking config for callback and pacge ping variants
-			activityTrackingConfig = {},
-			activityTrackingCallbackConfig = {};
+			activityTrackingConfig = {
+				enabled: false,
+				installed: false, // Guard against installing the activity tracker more than once per Tracker instance
+				configurations: {}
+			};
 
 		// Object to house gdpr Basis context values
 		let gdprBasisData = {};
@@ -1511,9 +1506,11 @@
 
 			// Send ping (to log that user has stayed on page)
 			var now = new Date();
+			var installingActivityTracking = false;
 
-			if ((activityTrackingConfig.activityTrackingEnabled || activityTrackingCallbackConfig.activityTrackingEnabled) && !activityTrackingInstalled) {
-				activityTrackingInstalled = true;
+			if (activityTrackingConfig.enabled && !activityTrackingConfig.installed) {
+				activityTrackingConfig.installed = true;
+				installingActivityTracking = true;
 
 				// Add mousewheel event handler, detect passive event listeners for performance
 				var detectPassiveEvents = {
@@ -1566,30 +1563,30 @@
 				helpers.addEventListener(windowAlias, 'resize', activityHandler);
 				helpers.addEventListener(windowAlias, 'focus', activityHandler);
 				helpers.addEventListener(windowAlias, 'blur', activityHandler);
+			}
 
+			if (activityTrackingConfig.enabled && (resetActivityTrackingOnPageView || installingActivityTracking)) {
 				// Periodic check for activity.
 				lastActivityTime = now.getTime();
-			}
 
-			if (activityTrackingConfig.activityTrackingEnabled && pagePingInterval === null && activityTrackingInstalled) {
-				pagePingInterval = activityInterval({
-					...activityTrackingConfig,
-					callback: args => logPagePing({ context: finalizeContexts(context, contextCallback), ...args }) // Grab the min/max globals
-				});
-			}
+				for (var key in activityTrackingConfig.configurations) {
+					if (activityTrackingConfig.configurations.hasOwnProperty(key)) {
+						const config = activityTrackingConfig.configurations[key];
 
-			if (activityTrackingCallbackConfig.activityTrackingEnabled && pagePingCallbackInterval === null && activityTrackingInstalled) {
-				pagePingCallbackInterval = activityInterval({
-					...activityTrackingCallbackConfig,
-					configMinimumVisitTime: lastActivityTime + activityTrackingCallbackConfig.configMinimumVisitLength * 1000,
-					callback: args => activityTrackingCallbackConfig.callback({ context: finalizeContexts(context, contextCallback), ...args })
-				});
+						//Clear page ping heartbeat on new page view
+						clearInterval(config.activityInterval);
+
+						config.activityInterval = activityInterval({
+							...config,
+							configLastActivityTime: lastActivityTime,
+							context: finalizeContexts(context, contextCallback)
+						});
+					}
+				}
 			}
 		}
 
-		function activityInterval({ activityTrackingEnabled, configHeartBeatTimer, configMinimumVisitTime, callback }) {
-			if (!activityTrackingEnabled) return;
-
+		function activityInterval({ configHeartBeatTimer, configMinimumVisitLength, configLastActivityTime, callback, context }) {
 			return setInterval(function heartBeat() {
 				var now = new Date();
 
@@ -1597,14 +1594,37 @@
 				// on average, this is going to overstate the visitDuration by configHeartBeatTimer/2
 				if ((lastActivityTime + configHeartBeatTimer) > now.getTime()) {
 					// Send ping if minimum visit time has elapsed
-					if (configMinimumVisitTime < now.getTime()) {
+					if (configLastActivityTime + configMinimumVisitLength * 1000 < now.getTime()) {
 						refreshUrl();
-						callback({ pageViewId: getPageViewId(), minXOffset, minYOffset, maxXOffset, maxYOffset });
+						callback({ context, pageViewId: getPageViewId(), minXOffset, minYOffset, maxXOffset, maxYOffset });
 						resetMaxScrolls();
 					}
 				}
 			}, configHeartBeatTimer);
 		}
+
+		/**
+		 * Configure the activity tracking and
+		 * ensures good values for min visit and heartbeat
+		 *
+		 * @param {int} [minimumVisitLength] The minimum length of a visit before the first page ping
+		 * @param {int} [heartBeatDelay] The length between checks to see if we should send a page ping
+		 * @param {function} [callback] A callback function to execute
+		 */
+		function configureActivityTracking(minimumVisitLength, heartBeatDelay, callback) {
+			if (minimumVisitLength === parseInt(minimumVisitLength, 10) &&
+				heartBeatDelay === parseInt(heartBeatDelay, 10)) {
+				return {
+					configMinimumVisitLength: minimumVisitLength,
+					configHeartBeatTimer: heartBeatDelay * 1000,
+					activityInterval: null,
+					callback
+				}
+			}
+
+			helpers.warn('Activity tracking not enabled, please provide integer values for minimumVisitLength and heartBeatDelay.')
+			return {};			
+		};
 
 		/**
 		 * Log that a user is still viewing a given page
@@ -1754,6 +1774,9 @@
 		/************************************************************
 		 * Public data and methods
 		 ************************************************************/
+
+		const userFingerprintingWarning = 'User Fingerprinting is no longer supported. This function will be removed in a future release.';
+		const argmapDeprecationWarning = ' is deprecated. Instead use the argmap argument on tracker initialisation: ';
 
 		/**
 		 * Get the domain session index also known as current memorized visit count.
@@ -2026,17 +2049,8 @@
 		 * @param int heartBeatDelay Seconds to wait between pings
 		 */
 		apiMethods.enableActivityTracking = function (minimumVisitLength, heartBeatDelay) {
-			if (minimumVisitLength === parseInt(minimumVisitLength, 10) &&
-				heartBeatDelay === parseInt(heartBeatDelay, 10)) {
-				activityTrackingConfig = {
-					activityTrackingEnabled: true,
-					configMinimumVisitTime: new Date().getTime() + minimumVisitLength * 1000,
-					configHeartBeatTimer: heartBeatDelay * 1000
-				}
-			} else {
-				helpers.warn("Activity tracking not enabled, please provide integer values " +
-					"for minimumVisitLength and heartBeatDelay.")
-			}
+			activityTrackingConfig.enabled = true;
+			activityTrackingConfig.configurations.pagePing = configureActivityTracking(minimumVisitLength, heartBeatDelay, logPagePing);
 		};
 
 		/**
@@ -2047,18 +2061,8 @@
 		 * @param function callback function called with ping data
 		 */
 		apiMethods.enableActivityTrackingCallback = function (minimumVisitLength, heartBeatDelay, callback) {
-			if (minimumVisitLength === parseInt(minimumVisitLength, 10) &&
-				heartBeatDelay === parseInt(heartBeatDelay, 10)) {
-				activityTrackingCallbackConfig = {
-					activityTrackingEnabled: true,
-					configMinimumVisitTime: new Date().getTime() + minimumVisitLength * 1000,
-					configHeartBeatTimer: heartBeatDelay * 1000,
-					callback
-				}
-			} else {
-				helpers.warn("Activity tracking not enabled, please provide integer values " +
-					"for minimumVisitLength and heartBeatDelay.")
-			}
+			activityTrackingConfig.enabled = true;
+			activityTrackingConfig.configurations.callback = configureActivityTracking(minimumVisitLength, heartBeatDelay, callback);
 		};
 
 		/**
