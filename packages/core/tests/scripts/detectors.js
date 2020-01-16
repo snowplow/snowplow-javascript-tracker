@@ -40,5 +40,4 @@ document.getElementById('localStorageAccessible').innerHTML = detectors.localSto
 document.getElementById('hasSessionStorage').innerHTML = detectors.hasSessionStorage();
 document.getElementById('hasCookies').innerHTML = detectors.hasCookies();
 document.getElementById('detectTimezone').innerHTML = detectors.detectTimezone();
-document.getElementById('detectSignature').innerHTML = detectors.detectSignature();
 document.getElementById('detectBrowserFeatures').innerHTML = JSON.stringify(detectors.detectBrowserFeatures(), undefined, 2);
