@@ -68,7 +68,6 @@
 	 * 4. appId, ''
 	 * 5. platform, 'web'
 	 * 6. respectDoNotTrack, false
-	 * 7. userFingerprintSeed, 123412414
 	 * 8. pageUnloadTimer, 500
 	 * 9. forceSecureTracker, false
 	 * 10. forceUnsecureTracker, false
@@ -226,9 +225,6 @@
 			// Life of the session cookie (in seconds)
 			configSessionCookieTimeout = argmap.hasOwnProperty('sessionCookieTimeout') ? argmap.sessionCookieTimeout : 1800, // 30 minutes
 
-			// Default hash seed for MurmurHash3 in detectors.detectSignature
-			configUserFingerprintHashSeed = argmap.hasOwnProperty('userFingerprintSeed') ? argmap.userFingerprintSeed : 123412414,
-
 			// Document character set
 			documentCharset = documentAlias.characterSet || documentAlias.charset,
 
@@ -266,9 +262,6 @@
 				configStateStorageStrategy == 'cookie' ||
 					configStateStorageStrategy == 'cookieAndLocalStorage',
 				getSnowplowCookieName('testcookie')),
-
-			// Visitor fingerprint
-			userFingerprint = (argmap.userFingerprint === false) ? '' : detectors.detectSignature(configUserFingerprintHashSeed),
 
 			// Unique ID for the tracker instance used to mark links which are being tracked
 			trackerId = functionName + '_' + namespace,
@@ -672,7 +665,7 @@
 		}
 
 		/**
-		 * Generate a pseudo-unique ID to fingerprint this user
+		 * Generate a pseudo-unique ID to identify this user
 		 */
 		function createNewDomainUserId() {
 			return uuid.v4();
@@ -783,7 +776,6 @@
 				toOptoutByCookie = false;
 			}
 
-
 			if ((configDoNotTrack || toOptoutByCookie) &&
 					configStateStorageStrategy != 'none') {
 				if (configStateStorageStrategy == 'localStorage') {
@@ -827,7 +819,6 @@
 			sb.add('vid', memorizedVisitCount);
 			sb.add('sid', memorizedSessionId);
 			sb.add('duid', _domainUserId); // Set to our local variable
-			sb.add('fp', userFingerprint);
 			sb.add('uid', businessUserId);
 
 			refreshUrl();
@@ -955,14 +946,6 @@
 					for (var i = 0; i < dimensionContexts.length; i++) {
 						combinedContexts.push(dimensionContexts[i]);
 					}
-				}
-			}
-
-			// Add Augur Context
-			if (autoContexts.augurIdentityLite) {
-				var augurIdentityLiteContext = getAugurIdentityLiteContext();
-				if (augurIdentityLiteContext) {
-					combinedContexts.push(augurIdentityLiteContext);
 				}
 			}
 
@@ -1352,32 +1335,6 @@
 					data: experiment
 				};
 			});
-		}
-
-		/**
-		 * Creates a context from the window['augur'] object
-		 *
-		 * @return object The IdentityLite context
-		 */
-		function getAugurIdentityLiteContext() {
-			var augur = windowAlias.augur;
-			if (augur) {
-				var context = { consumer: {}, device: {} };
-				var consumer = augur.consumer || {};
-				context.consumer.UUID = consumer.UID;
-				var device = augur.device || {};
-				context.device.ID = device.ID;
-				context.device.isBot = device.isBot;
-				context.device.isProxied = device.isProxied;
-				context.device.isTor = device.isTor;
-				var fingerprint = device.fingerprint || {};
-				context.device.isIncognito = fingerprint.browserHasIncognitoEnabled;
-
-				return {
-					schema: 'iglu:io.augur.snowplow/identity_lite/jsonschema/1-0-0',
-					data: context
-				};
-			}
 		}
 
 		/**
@@ -1860,7 +1817,8 @@
 		 * @return string The user fingerprint
 		 */
 		apiMethods.getUserFingerprint = function () {
-			return userFingerprint;
+			helpers.warn('User Fingerprinting is no longer supported. This function will be removed in a future release.');
+			return 0;
 		};
 
 		/**
@@ -1974,21 +1932,15 @@
 		/**
 		 * @param number seed The seed used for MurmurHash3
 		 */
-		apiMethods.setUserFingerprintSeed = function(seed) {
-			helpers.warn('setUserFingerprintSeed is deprecated. Instead add a "userFingerprintSeed" field to the argmap argument of newTracker.');
-			configUserFingerprintHashSeed = seed;
-			userFingerprint = detectors.detectSignature(configUserFingerprintHashSeed);
+		apiMethods.setUserFingerprintSeed = function() {
+			helpers.warn('User Fingerprinting is no longer supported. This function will be removed in a future release.');
 		};
 
 		/**
 		 * Enable/disable user fingerprinting. User fingerprinting is enabled by default.
-		 * @param bool enable If false, turn off user fingerprinting
 		 */
-		apiMethods.enableUserFingerprint = function(enable) {
-			helpers.warn('enableUserFingerprintSeed is deprecated. Instead add a "userFingerprint" field to the argmap argument of newTracker.');
-			if (!enable) {
-				userFingerprint = '';
-			}
+		apiMethods.enableUserFingerprint = function() {
+			helpers.warn('User Fingerprinting is no longer supported. This function will be removed in a future release.');
 		};
 
 		/**

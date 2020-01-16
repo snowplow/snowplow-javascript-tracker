@@ -40,10 +40,6 @@ describe('Detectors test', () => {
     $('body.loaded').waitForExist()
   })
 
-  it('Returns a value for user fingerprint', () => {
-    expect($('#detectSignature').getText()).toBeTruthy()
-  })
-
   it('Returns a value for document dimensions', () => {
     const value = $('#detectDocumentDimensions').getText()
     const [reportedWidth, reportedHeight] = value.split('x')
