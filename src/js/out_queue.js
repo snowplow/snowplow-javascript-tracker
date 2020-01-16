@@ -300,7 +300,7 @@
 				if (batch.length > 0) {
 					var beaconStatus;
 
-					if (useBeacon) {
+					if (useBeacon && helpers.attemptGetSessionStorage('sp_corsPreflight')) {
 						const headers = { type: 'application/json' };
 						const blob = new Blob([encloseInPayloadDataEnvelope(attachStmToEvent(batch))], headers);
 						try {
@@ -319,6 +319,7 @@
 
 					if (!useBeacon || !beaconStatus) {
 						xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent(batch)));
+						helpers.attemptWriteSessionStorage('sp_corsPreflight', true);
 					}
 				}
 
