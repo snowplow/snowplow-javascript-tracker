@@ -348,6 +348,37 @@
 		}
 	};
 
+		/**
+	 * Attempt to get a value from sessionStorage
+	 *
+	 * @param string key
+	 * @return string The value obtained from sessionStorage, or
+	 *                undefined if sessionStorage is inaccessible
+	 */
+	object.attemptGetSessionStorage = function (key) {
+		try {
+			return sessionStorage.getItem(key);
+		} catch(e) {
+			return undefined;
+		}
+	};
+
+	/**
+	 * Attempt to write a value to localStorage
+	 *
+	 * @param string key
+	 * @param string value
+	 * @return boolean Whether the operation succeeded
+	 */
+	object.attemptWriteSessionStorage = function (key, value) {
+		try {
+			sessionStorage.setItem(key, value);
+			return true;
+		} catch(e) {
+			return false;
+		}
+	};
+
 	/**
 	 * Finds the root domain
 	 */

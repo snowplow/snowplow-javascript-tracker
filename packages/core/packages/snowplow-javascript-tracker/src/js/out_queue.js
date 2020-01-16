@@ -65,7 +65,9 @@
 		var	queueName,
 			executingQueue = false,
 			configCollectorUrl,
-			outQueue;
+			outQueue,
+			preflightName,
+			beaconPreflight;
 		
 		//Force to lower case if its a string
 		eventMethod = eventMethod.toLowerCase ? eventMethod.toLowerCase() : eventMethod;
@@ -92,7 +94,9 @@
 		bufferSize = (localStorageAccessible() && useLocalStorage && usePost && bufferSize) || 1;
 
 		// Different queue names for GET and POST since they are stored differently
-		queueName = ['snowplowOutQueue', functionName, namespace, usePost ? 'post2' : 'get'].join('_');
+		queueName = `snowplowOutQueue_${functionName}_${namespace}_${usePost ? 'post2' : 'get'}`;
+		// Storage name for checking if preflight POST has been sent for Beacon API
+		preflightName = `spBeaconPreflight_${functionName}_${namespace}`;
 
 		if (useLocalStorage) {
 			// Catch any JSON parse errors or localStorage that might be thrown
@@ -286,6 +290,9 @@
 				xhr.onreadystatechange = function () {
 					if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status < 400) {
 						clearTimeout(xhrTimeout);
+						if (useBeacon && !beaconPreflight) {
+							helpers.attemptWriteSessionStorage(preflightName, true);
+						}
 						onPostSuccess(numberToSend);
 					} else if (xhr.readyState === 4 && xhr.status >= 400) {
 						clearTimeout(xhrTimeout);
@@ -300,7 +307,10 @@
 				if (batch.length > 0) {
 					var beaconStatus;
 
-					if (useBeacon) {
+					//If using Beacon, check we have sent at least one request using POST as Safari doesn't preflight Beacon
+					beaconPreflight = beaconPreflight || (useBeacon && helpers.attemptGetSessionStorage(preflightName));
+
+					if (beaconPreflight) {
 						const headers = { type: 'application/json' };
 						const blob = new Blob([encloseInPayloadDataEnvelope(attachStmToEvent(batch))], headers);
 						try {
