@@ -1,6 +1,6 @@
 {
   "name": "snowplow-tracker",
-  "version": "2.13.0-M1",
+  "version": "2.13.0-M2",
   "dependencies": {
     "browser-cookie-lite": "^1.0.4",
     "jstimezonedetect": "1.0.5",
@@ -69,6 +69,8 @@
     "test:e2e:local": "docker pull snowplow/snowplow-micro && wdio tests/wdio.local.conf.js"
   },
   "jest": {
-    "setupFiles": ["jest-date-mock"]
+    "setupFiles": [
+      "jest-date-mock"
+    ]
   }
 }

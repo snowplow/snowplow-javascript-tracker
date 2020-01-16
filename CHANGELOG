@@ -1,6 +1,7 @@
-Version 2.13.0 (2019-11-21)
+Version 2.13.0 (2019-01-16)
 ---------------------------
 Add activity tracking callback mechanism (#774)
+Update beacon support to handle "gotchas" (#716)
 
 Version 2.12.0 (2019-10-31)
 ---------------------------
