@@ -1,6 +1,6 @@
 {
   "name": "snowplow-tracker",
-  "version": "2.13.0-M1",
+  "version": "2.13.0-M2",
   "lockfileVersion": 1,
   "requires": true,
   "dependencies": {
