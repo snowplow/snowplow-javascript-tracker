@@ -37,7 +37,6 @@
 	var
 		isFunction = require('lodash/isFunction'),
 		isUndefined = require('lodash/isUndefined'),
-		murmurhash3_32_gc = require('murmurhash').v3,
 		tz = require('jstimezonedetect').jstz.determine(),
 		cookie = require('browser-cookie-lite'),
 
@@ -105,39 +104,6 @@
 		}
 
 		return navigatorAlias.cookieEnabled ? '1' : '0';
-	};
-
-	/**
-	 * JS Implementation for browser fingerprint.
-	 * Does not require any external resources.
-	 * Based on https://github.com/carlo/jquery-browser-fingerprint
-	 * @return {number} 32-bit positive integer hash 
-	 */
-	object.detectSignature = function(hashSeed) {
-
-		var fingerprint = [
-			navigatorAlias.userAgent,
-			[ screenAlias.height, screenAlias.width, screenAlias.colorDepth ].join("x"),
-			( new Date() ).getTimezoneOffset(),
-			object.hasSessionStorage(),
-			object.hasLocalStorage()
-		];
-
-		var plugins = [];
-		if (navigatorAlias.plugins)
-		{
-			for(var i = 0; i < navigatorAlias.plugins.length; i++)
-			{
-				if (navigatorAlias.plugins[i]) {
-					var mt = [];
-					for(var j = 0; j < navigatorAlias.plugins[i].length; j++) {
-						mt.push([navigatorAlias.plugins[i][j].type, navigatorAlias.plugins[i][j].suffixes]);
-					}
-					plugins.push([navigatorAlias.plugins[i].name + "::" + navigatorAlias.plugins[i].description, mt.join("~")]);
-				}
-			}
-		}
-		return murmurhash3_32_gc(fingerprint.join("###") + "###" + plugins.sort().join(";"), hashSeed);
 	};
 
 	/*
