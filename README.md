@@ -3,7 +3,6 @@
 [![Build Status][travis-image]][travis]
 [![Selenium Test Status][saucelabs-button-image]][saucelabs]
 [![Code Climate][codeclimate-image]][codeclimate]
-[![Built with Grunt][grunt-image]][grunt]
 [![License][license-image]][bsd]
 [![jsDelivr Hits](https://data.jsdelivr.com/v1/package/gh/snowplow/snowplow-javascript-tracker/badge?style=rounded)](https://www.jsdelivr.com/package/gh/snowplow/snowplow-javascript-tracker)
 
@@ -27,16 +26,16 @@ client-side tier of your websites and web apps.
 
 ### Contributing quickstart
 
-Assuming git, [Vagrant][vagrant-install] and [VirtualBox][virtualbox-install] installed:
+Assuming git and [Docker][docker-install] installed:
 
 ```
  host$ git clone https://github.com/snowplow/snowplow-javascript-tracker.git
  host$ cd snowplow-javascript-tracker
- host$ vagrant up && vagrant ssh
-guest$ cd /vagrant
-guest$ sudo npm install
-guest$ cd core
-guest$ sudo npm install
+ host$ docker build -t tracker .
+ host$ docker run tracker grunt
+ host$ cd core
+ host$ docker build -t core .
+ host$ docker run core grunt
 ```
 
 Set up an `./aws.json` file using the example `./aws.sample.json`. If you just want to concat +
@@ -61,8 +60,7 @@ Licensed under the [Simplified BSD][bsd] license.
 
 [snowplow]: http://snowplowanalytics.com/
 
-[vagrant-install]: http://docs.vagrantup.com/v2/installation/index.html
-[virtualbox-install]: https://www.virtualbox.org/wiki/Downloads
+[docker-install]: https://docs.docker.com/install/
 
 [piwik]: http://piwik.org/
 [piwikjs]: https://github.com/piwik/piwik/blob/master/js/piwik.js
