@@ -154,8 +154,15 @@
 
 				// Custom callback rather than tracker method, called with trackerDictionary as the context
 				if (isFunction(input)) {
-					input.apply(trackerDictionary, parameterArray);
-					continue;
+					try {
+						input.apply(trackerDictionary, parameterArray);
+					} 
+					catch(e) {
+						helpers.warn(`Custom callback error - ${e}`);
+					} 
+					finally {
+						continue;
+					}
 				}
 
 				parsedString = parseInputString(input);
