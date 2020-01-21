@@ -111,4 +111,14 @@ describe('InQueueManager', () => {
     ])
     expect(callbackExecuted).toBe(true)
   })
+
+  it('Executing a custom callback that errors should not throw', () => {
+    expect(() => {
+      asyncQueue.push([
+        function() {
+          throw 'caught error'
+        },
+      ])
+    }).not.toThrow()
+  })
 })
