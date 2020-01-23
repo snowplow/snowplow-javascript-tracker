@@ -65,7 +65,8 @@
 		var	queueName,
 			executingQueue = false,
 			configCollectorUrl,
-			outQueue;
+			outQueue,
+			beaconPreflight;
 		
 		//Force to lower case if its a string
 		eventMethod = eventMethod.toLowerCase ? eventMethod.toLowerCase() : eventMethod;
@@ -286,6 +287,9 @@
 				xhr.onreadystatechange = function () {
 					if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status < 400) {
 						clearTimeout(xhrTimeout);
+						if (useBeacon && !beaconPreflight) {
+							helpers.attemptWriteSessionStorage('sp_beaconPreflight', true);
+						}
 						onPostSuccess(numberToSend);
 					} else if (xhr.readyState === 4 && xhr.status >= 400) {
 						clearTimeout(xhrTimeout);
@@ -300,7 +304,10 @@
 				if (batch.length > 0) {
 					var beaconStatus;
 
-					if (useBeacon && helpers.attemptGetSessionStorage('sp_corsPreflight')) {
+					//If using Beacon, check we have sent at least one request using POST as Safari doesn't preflight Beacon
+					beaconPreflight = beaconPreflight || (useBeacon && helpers.attemptGetSessionStorage('sp_beaconPreflight'));
+
+					if (beaconPreflight) {
 						const headers = { type: 'application/json' };
 						const blob = new Blob([encloseInPayloadDataEnvelope(attachStmToEvent(batch))], headers);
 						try {
@@ -319,7 +326,6 @@
 
 					if (!useBeacon || !beaconStatus) {
 						xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent(batch)));
-						helpers.attemptWriteSessionStorage('sp_corsPreflight', true);
 					}
 				}
 
