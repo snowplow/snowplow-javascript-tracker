@@ -1,7 +1,11 @@
-Version 2.13.0 (2019-01-16)
+Version 2.13.0 (2019-01-23)
 ---------------------------
 Add activity tracking callback mechanism (#774)
 Update beacon support to handle "gotchas" (#716)
+Remove user_fingerprint (#549)
+Change setup process to use Docker (#782)
+Handle errors in tracker callback (#784)
+Reset activity on page view (#750) 
 
 Version 2.12.0 (2019-10-31)
 ---------------------------
