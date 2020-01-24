@@ -1049,14 +1049,14 @@
 		}
 
 		/**
-		 * Check that *both* optimizely and optimizely.data exist
+		 * Check that *both* optimizely and optimizely.get exist
 		 *
 		 * @param property optimizely data property
 		 * @param snd optional nested property
 		 */
 		function getOptimizelyXData(property, snd) {
 			var data;
-			if (windowAlias.optimizely) {
+			if (windowAlias.optimizely && typeof windowAlias.optimizely.get === 'function') {
 				data = windowAlias.optimizely.get(property);
 				if (typeof snd !== 'undefined' && data !== undefined) {
 					data = data[snd]
