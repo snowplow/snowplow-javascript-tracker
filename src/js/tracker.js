@@ -1095,21 +1095,21 @@
 		function getOptimizelyXSummary() {
 			var state = getOptimizelyXData('state');
 			var experiment_ids = state.getActiveExperimentIds();
-			var experiments = getOptimizelyXData('data', 'experiments');
+			var variationMap = state.getVariationMap();
 			var visitor = getOptimizelyXData('visitor');
 
 			return map(experiment_ids, function(activeExperiment) {
-				var variation = state.getVariationMap()[activeExperiment];
-				var variationName = variation.name;
-				var variationId = variation.id;
-				var visitorId = visitor.visitorId;
+				var variation = variationMap[activeExperiment];
+				var variationName = (variation && variation.name && variation.name.toString()) || null;
+				var variationId = variation && variation.id;
+				var visitorId = (visitor && visitor.visitorId && visitor.visitorId.toString()) || null;
 				return {
-					experimentId: parseInt(activeExperiment),
+					experimentId: parseInt(activeExperiment) || null,
 					variationName: variationName,
-					variation: parseInt(variationId),
+					variation: parseInt(variationId) || null,
 					visitorId: visitorId
 				}
-			})
+			});
 		}
 
 		/**
