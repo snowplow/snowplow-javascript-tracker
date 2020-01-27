@@ -1,3 +1,16 @@
+Version 2.13.0 (2019-02-07)
+---------------------------
+Add activity tracking callback mechanism (#774)
+Reset activity on page view (#750)
+Update beacon support to handle "gotchas" (#716)
+Remove user_fingerprint (#549)
+Change setup process to use Docker (#782)
+Handle errors in tracker callback (#784)
+Fix al.optimizely.get is not a function error (#619)
+Further harden the Optimizely integrations (#654)
+Use local sp.js for example pages (#790) 
+Change deprecation strings to constants and reuse (close #791)
+
 Version 2.12.0 (2019-10-31)
 ---------------------------
 Core: Add function to allow setting Useragent (#744)
