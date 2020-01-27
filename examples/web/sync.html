@@ -19,17 +19,16 @@
 
     <!-- Snowplow starts plowing -->
     <script type="text/javascript">
-    var spSrc = ('https:' == document.location.protocol ? 'https' : 'http') + '://d1fc8wv8zag5ca.cloudfront.net/2.11.0/sp.js';
-    document.write(unescape("%3Cscript src='" + spSrc + "' type='text/javascript'%3E%3C/script%3E"));
+    document.write(unescape("%3Cscript src='../sp.js' type='text/javascript'%3E%3C/script%3E"));
     </script>
     <script type="text/javascript">
     try {
     var snowplowTracker = Snowplow.getTrackerCf('d3rkrsqld9gmqf');
-    snowplowTracker.enableLinkTracking();
-    // snowplowTracker.enableActivityTracking(10, 10); Doesn't work yet, see https://github.com/snowplow/snowplow/issues/233
+    snowplowTracker.enableLinkClickTracking();
+    snowplowTracker.enableActivityTracking(10, 10);
     snowplowTracker.encodeBase64(false); // Default is true
     snowplowTracker.trackPageView();
-    } catch ( err ) {}
+    } catch ( err ) { }
     </script>
     <!-- Snowplow stops plowing -->
 
