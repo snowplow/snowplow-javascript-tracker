@@ -1844,7 +1844,7 @@
 		 * @return string The user fingerprint
 		 */
 		apiMethods.getUserFingerprint = function () {
-			helpers.warn('User Fingerprinting is no longer supported. This function will be removed in a future release.');
+			helpers.warn(userFingerprintingWarning);
 			return 0;
 		};
 
@@ -1854,7 +1854,7 @@
 		 * @param int|string appId
 		 */
 		apiMethods.setAppId = function (appId) {
-			helpers.warn('setAppId is deprecated. Instead add an "appId" field to the argmap argument of newTracker.');
+			helpers.warn('setAppId' + argmapDeprecationWarning + 'appId');
 			core.setAppId(appId);
 		};
 
@@ -1912,7 +1912,7 @@
 		 * @param string cookieNamePrefix
 		 */
 		apiMethods.setCookieNamePrefix = function (cookieNamePrefix) {
-			helpers.warn('setCookieNamePrefix is deprecated. Instead add a "cookieName" field to the argmap argument of newTracker.');
+			helpers.warn('setCookieNamePrefix' + argmapDeprecationWarning + 'cookieName');
 			configCookieNamePrefix = cookieNamePrefix;
 		};
 
@@ -1922,7 +1922,7 @@
 		 * @param string domain
 		 */
 		apiMethods.setCookieDomain = function (domain) {
-			helpers.warn('setCookieDomain is deprecated. Instead add a "cookieDomain" field to the argmap argument of newTracker.');
+			helpers.warn('setCookieDomain' + argmapDeprecationWarning + 'cookieDomain');
 			configCookieDomain = helpers.fixupDomain(domain);
 			updateDomainHash();
 		};
@@ -1952,7 +1952,7 @@
 		 * @param int timeout
 		 */
 		apiMethods.setSessionCookieTimeout = function (timeout) {
-			helpers.warn('setSessionCookieTimeout is deprecated. Instead add a "sessionCookieTimeout" field to the argmap argument of newTracker.')
+			helpers.warn('setSessionCookieTimeout' + argmapDeprecationWarning + 'sessionCookieTimeout');
 			configSessionCookieTimeout = timeout;
 		};
 
@@ -1960,14 +1960,14 @@
 		 * @param number seed The seed used for MurmurHash3
 		 */
 		apiMethods.setUserFingerprintSeed = function() {
-			helpers.warn('User Fingerprinting is no longer supported. This function will be removed in a future release.');
+			helpers.warn(userFingerprintingWarning);
 		};
 
 		/**
 		 * Enable/disable user fingerprinting. User fingerprinting is enabled by default.
 		 */
 		apiMethods.enableUserFingerprint = function() {
-			helpers.warn('User Fingerprinting is no longer supported. This function will be removed in a future release.');
+			helpers.warn(userFingerprintingWarning);
 		};
 
 		/**
@@ -1978,7 +1978,7 @@
 		 * @param bool enable If true and Do Not Track feature enabled, don't track.
 		 */
 		apiMethods.respectDoNotTrack = function (enable) {
-			helpers.warn('This usage of respectDoNotTrack is deprecated. Instead add a "respectDoNotTrack" field to the argmap argument of newTracker.');
+			helpers.warn('respectDoNotTrack' + argmapDeprecationWarning + 'respectDoNotTrack');
 			var dnt = navigatorAlias.doNotTrack || navigatorAlias.msDoNotTrack;
 
 			configDoNotTrack = enable && (dnt === 'yes' || dnt === '1');
@@ -2205,7 +2205,7 @@
 		 * @param string platform Overrides the default tracking platform
 		 */
 		apiMethods.setPlatform = function(platform) {
-			helpers.warn('setPlatform is deprecated. Instead add a "platform" field to the argmap argument of newTracker.');
+			helpers.warn('setPlatform' + argmapDeprecationWarning + 'platform');
 			core.setPlatform(platform);
 		};
 
@@ -2216,7 +2216,7 @@
 		 * @param bool enabled A boolean value indicating if the Base64 encoding for self-describing events should be enabled or not
 		 */
 		apiMethods.encodeBase64 = function (enabled) {
-			helpers.warn('This usage of encodeBase64 is deprecated. Instead add an "encodeBase64" field to the argmap argument of newTracker.');
+			helpers.warn('encodeBase64' + argmapDeprecationWarning + 'encodeBase64');
 			core.setBase64Encoding(enabled);
 		};
 
