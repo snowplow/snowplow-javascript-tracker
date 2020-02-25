@@ -39,7 +39,6 @@
 		map = require('lodash/map'),
 		helpers = require('./lib/helpers'),
 		proxies = require('./lib/proxies'),
-		cookie = require('browser-cookie-lite'),
 		detectors = require('./lib/detectors'),
 		sha1 = require('sha1'),
 		links = require('./links'),
@@ -201,6 +200,12 @@
 			// First-party cookie path
 			// Default is user agent defined.
 			configCookiePath = '/',
+
+			// First-party cookie samesite attribute
+			configCookieSameSite = argmap.hasOwnProperty('cookieSameSite') ? argmap.cookieSameSite : 'None',
+
+			// First-party cookie secure attribute
+			configCookieSecure = argmap.hasOwnProperty('cookieSecure') ? argmap.cookieSecure : true,
 
 			// Do Not Track browser feature
 			dnt = navigatorAlias.doNotTrack || navigatorAlias.msDoNotTrack || windowAlias.doNotTrack,
@@ -509,7 +514,7 @@
 			// Set to true if Opt-out cookie is defined
 			var toOptoutByCookie;
 			if (configOptOutCookie) {
-				toOptoutByCookie = !!cookie.cookie(configOptOutCookie);
+				toOptoutByCookie = !!helpers.cookie(configOptOutCookie);
 			} else {
 				toOptoutByCookie = false;
 			}
@@ -536,7 +541,7 @@
 				return helpers.attemptGetLocalStorage(fullName);
 			} else if (configStateStorageStrategy == 'cookie' ||
 					configStateStorageStrategy == 'cookieAndLocalStorage') {
-				return cookie.cookie(fullName);
+				return helpers.cookie(fullName);
 			}
 		}
 
@@ -655,7 +660,7 @@
 				helpers.attemptWriteLocalStorage(name, value, timeout);
 			} else if (configStateStorageStrategy == 'cookie' ||
 					configStateStorageStrategy == 'cookieAndLocalStorage') {
-				cookie.cookie(name, value, timeout, configCookiePath, configCookieDomain);
+				helpers.cookie(name, value, timeout, configCookiePath, configCookieDomain, configCookieSameSite, configCookieSecure);
 			}
 		}
 
@@ -766,7 +771,7 @@
 
 			var toOptoutByCookie;
 			if (configOptOutCookie) {
-				toOptoutByCookie = !!cookie.cookie(configOptOutCookie);
+				toOptoutByCookie = !!helpers.cookie(configOptOutCookie);
 			} else {
 				toOptoutByCookie = false;
 			}
@@ -778,8 +783,8 @@
 					helpers.attemptWriteLocalStorage(sesname, '');
 				} else if (configStateStorageStrategy == 'cookie' ||
 						configStateStorageStrategy == 'cookieAndLocalStorage') {
-					cookie.cookie(idname, '', -1, configCookiePath, configCookieDomain);
-					cookie.cookie(sesname, '', -1, configCookiePath, configCookieDomain);
+					helpers.cookie(idname, '', -1, configCookiePath, configCookieDomain, configCookieSameSite, configCookieSecure);
+					helpers.cookie(sesname, '', -1, configCookiePath, configCookieDomain, configCookieSameSite, configCookieSecure);
 				}
 				return;
 			}
@@ -1452,7 +1457,7 @@
 		function getGaCookiesContext() {
 			var gaCookieData = {};
 			forEach(['__utma', '__utmb', '__utmc', '__utmv', '__utmz', '_ga'], function (cookieType) {
-				var value = cookie.cookie(cookieType);
+				var value = helpers.cookie(cookieType);
 				if (value) {
 					gaCookieData[cookieType] = value;
 				}
@@ -2176,7 +2181,7 @@
 		 * @param string cookieName Name of the cookie whose value will be assigned to businessUserId
 		 */
 		apiMethods.setUserIdFromCookie = function(cookieName) {
-			businessUserId = cookie.cookie(cookieName);
+			businessUserId = helpers.cookie(cookieName);
 		};
 
 		/**
