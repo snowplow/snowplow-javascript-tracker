@@ -2885,11 +2885,6 @@
       "integrity": "sha1-EsJe/kCkXjwyPrhnWgoM5XsiNx8=",
       "dev": true
     },
-    "browser-cookie-lite": {
-      "version": "1.0.4",
-      "resolved": "https://registry.npmjs.org/browser-cookie-lite/-/browser-cookie-lite-1.0.4.tgz",
-      "integrity": "sha1-JFUm+YH6/sZbjfIb7Cl3H1RsAWA="
-    },
     "browser-pack": {
       "version": "6.1.0",
       "resolved": "https://registry.npmjs.org/browser-pack/-/browser-pack-6.1.0.tgz",

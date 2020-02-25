@@ -39,7 +39,6 @@
 		isUndefined = require('lodash/isUndefined'),
 		isObject = require('lodash/isObject'),
 		map = require('lodash/map'),
-		cookie = require('browser-cookie-lite'),
 
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
@@ -391,8 +390,8 @@
 		var position = split.length - 1;
 		while (position >= 0) {
 			var currentDomain = split.slice(position, split.length).join('.');
-			cookie.cookie(cookieName, cookieValue, 0, '/', currentDomain);
-			if (cookie.cookie(cookieName) === cookieValue) {
+			object.cookie(cookieName, cookieValue, 0, '/', currentDomain);
+			if (object.cookie(cookieName) === cookieValue) {
 
 				// Clean up created cookie(s)
 				object.deleteCookie(cookieName, currentDomain);
@@ -433,7 +432,7 @@
 	 * @param domainName The domain the cookie is in
 	 */
 	object.deleteCookie = function (cookieName, domainName) {
-		cookie.cookie(cookieName, '', -1, '/', domainName);
+		object.cookie(cookieName, '', -1, '/', domainName);
 	};
 
 	/**
@@ -452,6 +451,33 @@
 		}
 		return cookieNames;
 	};
+
+	/**
+	 * Get and set the cookies associated with the current document in browser
+	 * This implementation always returns a string, returns the cookie value if only name is specified
+	 *
+	 * @param name The cookie name (required)
+	 * @param value The cookie value
+	 * @param ttl The cookie Time To Live (seconds)
+	 * @param path The cookies path
+	 * @param domain The cookies domain
+	 * @param samesite The cookies samesite attribute
+	 * @param secure Boolean to specify if cookie should be secure
+	 * @return string The cookies value
+	 */
+	object.cookie = function(name, value, ttl, path, domain, samesite, secure) {
+
+		if (arguments.length > 1) {
+			return document.cookie = name + "=" + encodeURIComponent(value) +
+				(ttl ? "; Expires=" + new Date(+new Date()+(ttl*1000)).toUTCString() : "") +
+				(path   ? "; Path=" + path : "") +
+				(domain ? "; Domain=" + domain : "") +
+				(samesite ? "; SameSite=" + samesite : "") +
+				(secure ? "; Secure" : "");
+		}
+	
+		return decodeURIComponent((("; "+document.cookie).split("; "+name+"=")[1]||"").split(";")[0]);
+	}
 
 	/**
 	 * Parses an object and returns either the
