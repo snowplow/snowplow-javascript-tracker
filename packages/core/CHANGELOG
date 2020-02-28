@@ -1,4 +1,8 @@
-Version 2.13.0 (2019-02-07)
+Version 2.14.0 (2020-02-28)
+---------------------------
+ Fix SameSite cookie warning for storage Cookies (#795)
+
+Version 2.13.0 (2020-02-07)
 ---------------------------
 Add activity tracking callback mechanism (#774)
 Reset activity on page view (#750)
