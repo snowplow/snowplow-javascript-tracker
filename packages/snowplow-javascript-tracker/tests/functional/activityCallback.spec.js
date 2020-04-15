@@ -126,7 +126,7 @@ describe('Activity tracking with callbacks', () => {
     expect(firstPageViewId).not.toEqual(secondPageViewId)
 
     const first = browser.execute(id => {
-      return findLastEventForPageViewId(id)
+      return findFirstEventForPageViewId(id)
     }, firstPageViewId)
     const second = browser.execute(id => {
       return findLastEventForPageViewId(id)
