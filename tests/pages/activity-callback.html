@@ -21,7 +21,7 @@
 
       var events = [];
 
-      snowplow('enableActivityTrackingCallback', 1, 2, function(e) {
+      snowplow('enableActivityTrackingCallback', 2, 2, function(e) {
         events.push(e);
         document.getElementById('numEvents').innerText = events.length;
       });
@@ -43,10 +43,18 @@
       var findMaxY = createMaxFinder('maxYOffset');
       var findMaxX = createMaxFinder('maxXOffset');
 
+      function findFirstEventForPageViewId(id) {
+        for(var i = 0; i < events.length; i++) {
+          if (events[i].pageViewId === id) {
+            return events[i];
+          }
+        }
+        return null;
+      }
+
       function findLastEventForPageViewId(id) {
-        var found;
-        var i = 0;
-        for(;i < events.length; i++) {
+        var found = null;
+        for(var i = 0; i < events.length; i++) {
           if (events[i].pageViewId === id) {
             found = events[i];
           }
