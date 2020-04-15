@@ -58,7 +58,7 @@ describe('Activity tracker behaviour', () => {
     advanceBy(1000)
     t.updatePageActivity()
     advanceBy(4000)
-    jest.advanceTimersByTime(5000)
+    jest.advanceTimersByTime(5000) // 1
 
     // page ping timer starts tracking
     advanceBy(1000)
@@ -70,11 +70,11 @@ describe('Activity tracker behaviour', () => {
     advanceBy(1000)
     t.updatePageActivity()
     advanceBy(4000)
-    jest.advanceTimersByTime(5000)
+    jest.advanceTimersByTime(5000) // 2
     // window for page ping ticks
 
     expect(callbacks).toBe(3)
-    expect(F.size(getPPEvents(outQueues))).toBe(1)
+    expect(F.size(getPPEvents(outQueues))).toBe(2)
   })
 
   it('maintains current static context behaviour', () => {
@@ -106,9 +106,9 @@ describe('Activity tracker behaviour', () => {
     const pageOneTime = Date.now()
 
     advanceBy(1000)
-    jest.advanceTimersByTime(1000)
+    jest.advanceTimersByTime(1000) 
     t.updatePageActivity()
-    advanceBy(1000)
+    advanceBy(100)
     jest.advanceTimersByTime(1000)
 
     // page two with new static context, time has moved on 2 seconds by now
@@ -130,7 +130,7 @@ describe('Activity tracker behaviour', () => {
 
     // current behaviour is to capture context on the first trackPageView after enabling
     // event tracking. This might not be ideal, but lets make sure it stays this way
-    // unless we mean it to change.
+    // unless we mean it to change when resetActivityTrackingOnPageView = false.
 
     const extractSchemas = F.map(
       F.compose(
@@ -192,6 +192,13 @@ describe('Activity tracker behaviour', () => {
     t.updatePageActivity()
     advanceBy(1000)
 
+    advanceBy(15000)
+    jest.advanceTimersByTime(15000)
+
+    // activity on page one
+    t.updatePageActivity()
+    advanceBy(1000)
+
     // shift to page two and trigger tick
     t.trackPageView()
     advanceBy(14000)
@@ -231,6 +238,13 @@ describe('Activity tracker behaviour', () => {
     t.updatePageActivity()
     advanceBy(1000)
 
+    advanceBy(15000)
+    jest.advanceTimersByTime(15000)
+
+    // activity on page one
+    t.updatePageActivity()
+    advanceBy(1000)
+
     // shift to page two and trigger tick
     t.trackPageView()
     advanceBy(14000)
@@ -241,7 +255,7 @@ describe('Activity tracker behaviour', () => {
 
     const pps = getPPEvents(outQueues)
 
-    expect(F.size(pps)).toBe(0)
+    expect(F.size(pps)).toBe(1)
   })
 
   it('fires initial delayed activity tracking on first pageview and second pageview', () => {
@@ -269,20 +283,20 @@ describe('Activity tracker behaviour', () => {
 
     // callback timer starts tracking
     advanceBy(1000)
-    t.updatePageActivity()
+    t.updatePageActivity() 
     advanceBy(4000)
-    jest.advanceTimersByTime(5000)
+    jest.advanceTimersByTime(5000) // 1
 
     // page ping timer starts tracking
     advanceBy(1000)
     t.updatePageActivity()
     advanceBy(4000)
-    jest.advanceTimersByTime(5000)
+    jest.advanceTimersByTime(5000) // 2
 
     advanceBy(1000)
-    t.updatePageActivity()
+    t.updatePageActivity() 
     advanceBy(4000)
-    jest.advanceTimersByTime(5000)
+    jest.advanceTimersByTime(5000) // 3
 
     t.trackPageView()
     const secondPageId = t.getPageViewId()
@@ -293,26 +307,25 @@ describe('Activity tracker behaviour', () => {
     advanceBy(1000)
     t.updatePageActivity()
     advanceBy(4000)
-    jest.advanceTimersByTime(5000)
+    jest.advanceTimersByTime(5000) // 4
 
     // window for page ping ticks
     advanceBy(1000)
-    t.updatePageActivity()
+    t.updatePageActivity() 
     advanceBy(4000)
-    jest.advanceTimersByTime(5000)
+    jest.advanceTimersByTime(5000) // 5
 
     // Activity began tracking on the first page and tracked two page pings in 16 seconds.
     // Activity tracking only fires one further event over next 11 seconds as a page view event occurs, resetting timer back to 10 seconds.
 
     const pps = getPPEvents(outQueues)
 
-    expect(F.size(pps)).toBe(3)
+    expect(F.size(pps)).toBe(5)
 
     const pph = F.head(pps)
     const ppl = F.last(pps)
 
     expect(firstPageId).toBe(extractPageId(pph))
     expect(secondPageId).toBe(extractPageId(ppl))
-
   })
 })
