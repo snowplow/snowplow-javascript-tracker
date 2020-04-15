@@ -1591,23 +1591,57 @@
 			}
 		}
 
-		function activityInterval({ configHeartBeatTimer, configMinimumVisitLength, configLastActivityTime, callback, context }) {
-			return setInterval(function heartBeat() {
+		function activityInterval({
+      configHeartBeatTimer,
+      configMinimumVisitLength,
+      configLastActivityTime,
+      callback,
+      context,
+    }) {
+			const METHOD = configHeartBeatTimer > configMinimumVisitLength * 1000 ? setTimeout : setInterval;
+
+      return METHOD(function heartBeat(method) {
 				var now = new Date();
-
-				// There was activity during the heart beat period;
-				// on average, this is going to overstate the visitDuration by configHeartBeatTimer/2
-				if ((lastActivityTime + configHeartBeatTimer) > now.getTime()) {
-					// Send ping if minimum visit time has elapsed
-					if (configLastActivityTime + configMinimumVisitLength * 1000 < now.getTime()) {
-						refreshUrl();
-						callback({ context, pageViewId: getPageViewId(), minXOffset, minYOffset, maxXOffset, maxYOffset });
-						resetMaxScrolls();
-					}
+				
+				const EXECUTE_PAGE_PING = () => {
+						refreshUrl()
+						callback({
+							context,
+							pageViewId: getPageViewId(),
+							minXOffset,
+							minYOffset,
+							maxXOffset,
+							maxYOffset,
+						})
+						resetMaxScrolls()
 				}
-			}, configHeartBeatTimer);
-		}
 
+				if (method === setTimeout) {
+				// There was activity during the heart beat period;
+        // on average, this is going to overstate the visitDuration by configMinimumVisitLength/2
+					if (lastActivityTime + configMinimumVisitLength * 1000 > now.getTime()) {
+						EXECUTE_PAGE_PING()
+					}
+				
+					setInterval(heartBeat, configHeartBeatTimer, setInterval);
+
+				} else if (method === setInterval ) {
+					// There was activity during the heart beat period;
+        	// on average, this is going to overstate the visitDuration by configHeartBeatTimer/2
+					if (lastActivityTime + configHeartBeatTimer > now.getTime()) {
+          // Send ping if minimum visit time has elapsed
+          if (
+            configLastActivityTime + configMinimumVisitLength * 1000 <
+            now.getTime()
+          ) {
+            EXECUTE_PAGE_PING()
+          }
+        }
+
+				}
+       
+      }, METHOD === setTimeout ? configMinimumVisitLength * 1000 : configHeartBeatTimer, METHOD)
+    }
 		/**
 		 * Configure the activity tracking and
 		 * ensures good values for min visit and heartbeat
