@@ -61,7 +61,7 @@
 	 *
 	 * @return object OutQueueManager instance
 	 */
-	object.OutQueueManager = function (functionName, namespace, mutSnowplowState, useLocalStorage, eventMethod, postPath, bufferSize, maxPostBytes, useStm, maxLocalStorageQueueSize) {
+	object.OutQueueManager = function (functionName, namespace, mutSnowplowState, useLocalStorage, eventMethod, postPath, bufferSize, maxPostBytes, useStm, maxLocalStorageQueueSize, connectionTimeout) {
 		var	queueName,
 			executingQueue = false,
 			configCollectorUrl,
@@ -256,7 +256,7 @@
 				var xhrTimeout = setTimeout(function () {
 					xhr.abort();
 					executingQueue = false;
-				}, 5000);
+				}, connectionTimeout);
 
 				function chooseHowManyToExecute(q) {
 					var numberToSend = 0;

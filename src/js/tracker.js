@@ -86,6 +86,7 @@
 	 * 24. stateStorageStrategy, 'cookieAndLocalStorage'
 	 * 25. maxLocalStorageQueueSize, 1000
 	 * 26. resetActivityTrackingOnPageView, true
+   * 27. connectionTimeout, 5000
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
 
@@ -321,7 +322,8 @@
 				argmap.bufferSize,
 				argmap.maxPostBytes || 40000,
 				argmap.useStm,
-				argmap.maxLocalStorageQueueSize || 1000),
+				argmap.maxLocalStorageQueueSize || 1000,
+        argmap.connectionTimeout || 5000),
 
 			// Flag to prevent the geolocation context being added multiple times
 			geolocationContextAdded = false,
