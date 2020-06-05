@@ -5,7 +5,8 @@
     "jstimezonedetect": "1.0.5",
     "sha1": "git://github.com/pvorb/node-sha1.git#910081c83f3661507d9d89e66e3f38d8b59d5559",
     "snowplow-tracker-core": "^0.7.2",
-    "uuid": "^3.3.3"
+    "uuid": "^3.3.3",
+    "snyk": "^1.336.0"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",
@@ -65,11 +66,14 @@
   "scripts": {
     "test:unit": "jest tests/unit/*.spec.js",
     "test:e2e:sauce": "docker pull snowplow/snowplow-micro && wdio tests/wdio.sauce.conf.js",
-    "test:e2e:local": "docker pull snowplow/snowplow-micro && wdio tests/wdio.local.conf.js"
+    "test:e2e:local": "docker pull snowplow/snowplow-micro && wdio tests/wdio.local.conf.js",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "jest": {
     "setupFiles": [
       "jest-date-mock"
     ]
-  }
+  },
+  "snyk": true
 }
