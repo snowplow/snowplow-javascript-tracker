@@ -37,6 +37,8 @@
 	var
 		forEach = require('lodash/forEach'),
 		map = require('lodash/map'),
+    includes = require('lodash/includes'),
+    lowerCase = require('lodash/lowerCase'),
 		helpers = require('./lib/helpers'),
 		proxies = require('./lib/proxies'),
 		detectors = require('./lib/detectors'),
@@ -87,6 +89,7 @@
 	 * 25. maxLocalStorageQueueSize, 1000
 	 * 26. resetActivityTrackingOnPageView, true
    * 27. connectionTimeout, 5000
+   * 28. skippedBrowserFeatures, []
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
 
@@ -350,6 +353,8 @@
 				configurations: {}
 			};
 
+    let skippedBrowserFeatures = argmap.skippedBrowserFeatures || [];
+
 		// Object to house gdpr Basis context values
 		let gdprBasisData = {};
 
@@ -378,15 +383,27 @@
 		core.addPayloadPair('cs', documentCharset);
 
 		// Browser features. Cookies, color depth and resolution don't get prepended with f_ (because they're not optional features)
-		for (var i in browserFeatures) {
-			if (Object.prototype.hasOwnProperty.call(browserFeatures, i)) {
-				if (i === 'res' || i === 'cd' || i === 'cookie') {
-					core.addPayloadPair(i, browserFeatures[i]);
-				} else {
-					core.addPayloadPair('f_' + i, browserFeatures[i]);
-				}
-			}
-		}
+    for (var i in browserFeatures) {
+      if (Object.prototype.hasOwnProperty.call(browserFeatures, i)) {
+        if (
+          (i === 'res' || i === 'cd' || i === 'cookie') &&
+          shouldLogFeature(i)
+        ) {
+          core.addPayloadPair(i, browserFeatures[i])
+        } else if (shouldLogFeature(i)) {
+          core.addPayloadPair('f_' + i, browserFeatures[i])
+        }
+      }
+    }
+
+    /**
+     * Check whether browserFeature should be logged
+     */
+    function shouldLogFeature(browserFeature) {
+      skippedBrowserFeatures
+        .map(lowerCase)
+        .includes(lowerCase(browserFeature))
+    }
 
 		/**
 		 * Recalculate the domain, URL, and referrer
