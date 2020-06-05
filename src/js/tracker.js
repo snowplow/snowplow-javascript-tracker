@@ -1116,8 +1116,8 @@
 		 */
 		function getOptimizelyXSummary() {
 			var state = getOptimizelyXData('state');
-			var experiment_ids = state.getActiveExperimentIds();
-			var variationMap = state.getVariationMap();
+			var experiment_ids = state && state.getActiveExperimentIds();
+			var variationMap = state && state.getVariationMap();
 			var visitor = getOptimizelyXData('visitor');
 
 			return map(experiment_ids, function(activeExperiment) {
