@@ -328,4 +328,34 @@ describe('Activity tracker behaviour', () => {
     expect(firstPageId).toBe(extractPageId(pph))
     expect(secondPageId).toBe(extractPageId(ppl))
   })
+
+  it('does not log skipped browser features', () => {
+    const outQueues = []
+    const Tracker = require('../../src/js/tracker').Tracker
+    const t = new Tracker(
+      '',
+      '',
+      '',
+      { outQueues },
+      {
+        stateStorageStrategy: 'cookies',
+        encodeBase64: false,
+        contexts: {
+          webPage: true,
+        },
+        skippedBrowserFeatures: [ "cd" ]
+      }
+    )
+    t.enableActivityTracking(10, 5)
+
+    t.trackPageView()
+    const firstPageId = t.getPageViewId()
+    advanceBy(5000)
+    jest.advanceTimersByTime(5000)
+
+    const pps = getPPEvents(outQueues)
+
+    const pph = F.head(pps)
+    expect(F.hasIn(pph, 'evt.e.cd')).toBe(false)
+  })
 })
