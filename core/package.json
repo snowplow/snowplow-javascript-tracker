@@ -13,7 +13,8 @@
   "dependencies": {
     "@types/uuid": "^2.0.29",
     "lodash": "^4.17.11",
-    "uuid": "2.0.3"
+    "uuid": "2.0.3",
+    "snyk": "^1.336.0"
   },
   "contributors": [
     "Alex Dean",
@@ -33,5 +34,10 @@
     "events",
     "open source"
   ],
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "scripts": {
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
+  },
+  "snyk": true
 }
