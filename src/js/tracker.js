@@ -1574,17 +1574,13 @@
 
 				// Add event handlers; cross-browser compatibility here varies significantly
 				// @see http://quirksmode.org/dom/events
-				helpers.addEventListener(documentAlias, 'click', activityHandler);
-				helpers.addEventListener(documentAlias, 'mouseup', activityHandler);
-				helpers.addEventListener(documentAlias, 'mousedown', activityHandler);
-				helpers.addEventListener(documentAlias, 'mousemove', activityHandler);
-				helpers.addEventListener(windowAlias, 'scroll', scrollHandler); // Will updateMaxScrolls() for us
-				helpers.addEventListener(documentAlias, 'keypress', activityHandler);
-				helpers.addEventListener(documentAlias, 'keydown', activityHandler);
-				helpers.addEventListener(documentAlias, 'keyup', activityHandler);
-				helpers.addEventListener(windowAlias, 'resize', activityHandler);
-				helpers.addEventListener(windowAlias, 'focus', activityHandler);
-				helpers.addEventListener(windowAlias, 'blur', activityHandler);
+        const documentHandlers = ['click','mouseup','mousedown','mousemove', 'keypress','keydown','keyup']
+        const windowHandlers = ['resize','focus','blur']
+        const listener = (alias, handler = activityHandler) => ev => helpers.addEventListener(documentAlias, ev, handler)
+
+        forEach(documentHandlers, listener(documentAlias))
+        forEach(windowHandlers, listener(windowAlias))
+        listener(windowAlias, scrollHandler)('scroll')
 			}
 
 			if (activityTrackingConfig.enabled && (resetActivityTrackingOnPageView || installingActivityTracking)) {
