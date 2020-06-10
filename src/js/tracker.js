@@ -1598,50 +1598,57 @@
       callback,
       context,
     }) {
-			const METHOD = configHeartBeatTimer > configMinimumVisitLength * 1000 ? setTimeout : setInterval;
+         const METHOD =
+           configHeartBeatTimer > configMinimumVisitLength * 1000
+             ? 'setTimeout'
+             : 'setInterval'
+         return window[METHOD](
+           function heartBeat(method) {
+             var now = new Date()
+             const EXECUTE_PAGE_PING = () => {
+               refreshUrl()
+               callback({
+                 context,
+                 pageViewId: getPageViewId(),
+                 minXOffset,
+                 minYOffset,
+                 maxXOffset,
+                 maxYOffset,
+               })
+               resetMaxScrolls()
+             }
 
-      return METHOD(function heartBeat(method) {
-				var now = new Date();
-				
-				const EXECUTE_PAGE_PING = () => {
-						refreshUrl()
-						callback({
-							context,
-							pageViewId: getPageViewId(),
-							minXOffset,
-							minYOffset,
-							maxXOffset,
-							maxYOffset,
-						})
-						resetMaxScrolls()
-				}
-
-				if (method === setTimeout) {
-				// There was activity during the heart beat period;
-        // on average, this is going to overstate the visitDuration by configMinimumVisitLength/2
-					if (lastActivityTime + configMinimumVisitLength * 1000 > now.getTime()) {
-						EXECUTE_PAGE_PING()
-					}
-				
-					setInterval(heartBeat, configHeartBeatTimer, setInterval);
-
-				} else if (method === setInterval ) {
-					// There was activity during the heart beat period;
-        	// on average, this is going to overstate the visitDuration by configHeartBeatTimer/2
-					if (lastActivityTime + configHeartBeatTimer > now.getTime()) {
-          // Send ping if minimum visit time has elapsed
-          if (
-            configLastActivityTime + configMinimumVisitLength * 1000 <
-            now.getTime()
-          ) {
-            EXECUTE_PAGE_PING()
-          }
-        }
-
-				}
-       
-      }, METHOD === setTimeout ? configMinimumVisitLength * 1000 : configHeartBeatTimer, METHOD)
-    }
+             if (method === 'setTimeout') {
+               // There was activity during the heart beat period;
+               // on average, this is going to overstate the visitDuration by configHeartBeatTimer/2
+               if (
+                 lastActivityTime + configMinimumVisitLength * 1000 >
+                 now.getTime()
+               ) {
+                 // Send ping if minimum visit time has elapsed
+                 EXECUTE_PAGE_PING()
+               }
+               setInterval(heartBeat, configHeartBeatTimer, 'setInterval')
+             } else if (method === 'setInterval') {
+               // There was activity during the heart beat period;
+               // on average, this is going to overstate the visitDuration by configHeartBeatTimer/2
+               if (lastActivityTime + configHeartBeatTimer > now.getTime()) {
+                 // Send ping if minimum visit time has elapsed
+                 if (
+                   configLastActivityTime + configMinimumVisitLength * 1000 <
+                   now.getTime()
+                 ) {
+                   EXECUTE_PAGE_PING()
+                 }
+               }
+             }
+           },
+           METHOD === 'setTimeout'
+             ? configMinimumVisitLength * 1000
+             : configHeartBeatTimer,
+           METHOD
+         )
+       }
 		/**
 		 * Configure the activity tracking and
 		 * ensures good values for min visit and heartbeat
