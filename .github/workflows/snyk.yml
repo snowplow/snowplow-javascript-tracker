@@ -1,0 +1,28 @@
+name: Snyk
+on:
+  push:
+    branches: [ master ]
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js 12
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12
+
+    - name: Run npm ci on Tracker
+      run: npm ci
+
+    - name: Run npm ci on Core
+      run: npm ci
+      working-directory: ./core
+
+    - name: Run Snyk to check for vulnerabilities
+      uses: snyk/actions/node@master
+      with:
+        command: monitor
+        args: --all-projects
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
