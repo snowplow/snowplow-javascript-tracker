@@ -9,8 +9,18 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 12
-    - run: npm ci
+
+    - name: Run npm ci on Tracker
+      run: npm ci
+
+    - name: Run npm ci on Core
+      run: npm ci
+      working-directory: ./core
+
     - name: Run Snyk to check for vulnerabilities
       uses: snyk/actions/node@master
+      with:
+        command: monitor
+        args: --all-projects
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
