@@ -1,7 +1,5 @@
 name: Snyk
-on:
-  push:
-    branches: [ master ]
+on: [ push ]
 jobs:
   security:
     runs-on: ubuntu-latest
@@ -11,5 +9,6 @@ jobs:
       uses: snyk/actions/node@master
       with:
         command: monitor
+        args: --all-projects
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
