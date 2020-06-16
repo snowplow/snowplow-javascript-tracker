@@ -145,7 +145,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		if (contexts && contexts.length) {
 			returnedContexts.push(...contexts);
 		}
-        if (globalContexts && globalContexts.length) {
+		if (globalContexts && globalContexts.length) {
 			returnedContexts.push(...globalContexts);
 		}
 		return returnedContexts;
@@ -159,9 +159,10 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 	 * @param sb Payload
 	 * @param context Custom contexts relating to the event
 	 * @param tstamp TrackerTimestamp of the event
+	 * @param function afterTrack A callback function triggered after event is tracked
 	 * @return Payload after the callback is applied
 	 */
-	function track(sb: PayloadData, context?: Array<SelfDescribingJson>, tstamp?: Timestamp): PayloadData {
+	function track(sb: PayloadData, context?: Array<SelfDescribingJson>, tstamp?: Timestamp, afterTrack?: (PayloadData) => void): PayloadData {
 		sb.addDict(payloadPairs);
 		sb.add('eid', uuid.v4());
 		var timestamp = getTimestamp(tstamp);
@@ -176,6 +177,12 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			callback(sb);
 		}
 
+		try {
+			afterTrack && afterTrack(sb.build());
+		} catch (ex) {
+			console.warn("Snowplow: error running custom callback")
+		}
+
 		return sb;
 	}
 
@@ -185,9 +192,10 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 	 * @param properties Contains the properties and schema location for the event
 	 * @param context Custom contexts relating to the event
 	 * @param tstamp TrackerTimestamp of the event
+	 * @param function afterTrack A callback function triggered after event is tracked
 	 * @return Payload
 	 */
-	function trackSelfDescribingEvent(properties: Object, context?: Array<SelfDescribingJson>, tstamp?: Timestamp): PayloadData {
+	function trackSelfDescribingEvent(properties: Object, context?: Array<SelfDescribingJson>, tstamp?: Timestamp, afterTrack?: (PayloadData) => void): PayloadData {
 		var sb = payload.payloadBuilder(base64);
 		var ueJson = {
 			schema: 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0',
@@ -197,7 +205,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		sb.add('e', 'ue');
 		sb.addJson('ue_px', 'ue_pr', ueJson);
 
-		return track(sb, context, tstamp);
+		return track(sb, context, tstamp, afterTrack);
 	}
 
 	return {
@@ -357,6 +365,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 * @param referrer URL users came from
 		 * @param context Custom contexts relating to the event
 		 * @param tstamp TrackerTimestamp of the event
+		 * @param function afterTrack A callback function triggered after event is tracked
 		 * @return Payload
 		 */
 		trackPageView: function (
@@ -364,7 +373,8 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			pageTitle: string,
 			referrer: string,
 			context?: Array<SelfDescribingJson>,
-			tstamp?: Timestamp): PayloadData {
+			tstamp?: Timestamp,
+			afterTrack?: (PayloadData) => void): PayloadData {
 
 			var sb = payload.payloadBuilder(base64);
 			sb.add('e', 'pv'); // 'pv' for Page View
@@ -372,7 +382,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			sb.add('page', pageTitle);
 			sb.add('refr', referrer);
 
-			return track(sb, context, tstamp);
+			return track(sb, context, tstamp, afterTrack);
 		},
 		/**
 		 * Log that a user is still viewing a given page
@@ -387,6 +397,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 * @param maxYOffset Maximum page y offset seen in the last ping period
 		 * @param context Custom contexts relating to the event
 		 * @param tstamp TrackerTimestamp of the event
+     * @param function afterTrack A callback function triggered after event is tracked
 		 * @return object Payload
 		 */
 		trackPagePing: function (
@@ -398,7 +409,8 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			minYOffset: number,
 			maxYOffset: number,
 			context?: Array<SelfDescribingJson>,
-			tstamp?: Timestamp): PayloadData {
+			tstamp?: Timestamp,
+			afterTrack?: (PayloadData) => void): PayloadData {
 
 			var sb = payload.payloadBuilder(base64);
 			sb.add('e', 'pp'); // 'pp' for Page Ping
@@ -410,7 +422,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			sb.add('pp_miy', minYOffset.toString());
 			sb.add('pp_may', maxYOffset.toString());
 
-			return track(sb, context, tstamp);
+			return track(sb, context, tstamp, afterTrack);
 		},
 		/**
 		 * Track a structured event
@@ -422,6 +434,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 * @param value (optional) An integer that you can use to provide numerical data about the user event
 		 * @param context Custom contexts relating to the event
 		 * @param tstamp TrackerTimestamp of the event
+		 * @param function afterTrack A callback function triggered after event is tracked
 		 * @return Payload
 		 */
 		trackStructEvent: function (
@@ -431,7 +444,8 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			property: string,
 			value?: number,
 			context?: Array<SelfDescribingJson>,
-			tstamp?: Timestamp): PayloadData {
+			tstamp?: Timestamp,
+			afterTrack?: (PayloadData) => void): PayloadData {
 
 			var sb = payload.payloadBuilder(base64);
 			sb.add('e', 'se'); // 'se' for Structured Event
@@ -441,7 +455,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			sb.add('se_pr', property);
 			sb.add('se_va', (value == null ? undefined : value.toString()));
 
-			return track(sb, context, tstamp);
+			return track(sb, context, tstamp, afterTrack);
 		},
 
 		/**
@@ -458,6 +472,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 * @param currency Optional. Currency to associate with this transaction.
 		 * @param context Optional. Context relating to the event.
 		 * @param tstamp Optional. TrackerTimestamp of the event
+		 * @param function afterTrack A callback function triggered after event is tracked
 		 * @return Payload
 		 */
 		trackEcommerceTransaction: function (
@@ -471,7 +486,8 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			country?: string,
 			currency?: string,
 			context?: Array<SelfDescribingJson>,
-			tstamp?: Timestamp): PayloadData {
+			tstamp?: Timestamp,
+			afterTrack?: (PayloadData) => void): PayloadData {
 
 			var sb = payload.payloadBuilder(base64);
 			sb.add('e', 'tr'); // 'tr' for Transaction
@@ -485,7 +501,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			sb.add("tr_co", country);
 			sb.add("tr_cu", currency);
 
-			return track(sb, context, tstamp);
+			return track(sb, context, tstamp, afterTrack);
 		},
 
 		/**
@@ -500,6 +516,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 * @param currency Optional. Product price currency.
 		 * @param context Optional. Context relating to the event.
 		 * @param tstamp Optional. TrackerTimestamp of the event
+		 * @param function afterTrack A callback function triggered after event is tracked
 		 * @return object Payload
 		 */
 		trackEcommerceTransactionItem: function (
@@ -511,7 +528,8 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			quantity: string,
 			currency?: string,
 			context?: Array<SelfDescribingJson>,
-			tstamp?: Timestamp): PayloadData {
+			tstamp?: Timestamp,
+			afterTrack?: (PayloadData) => void): PayloadData {
 
 			var sb = payload.payloadBuilder(base64);
 			sb.add("e", "ti"); // 'tr' for Transaction Item
@@ -523,7 +541,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			sb.add("ti_qu", quantity);
 			sb.add("ti_cu", currency);
 
-			return track(sb, context, tstamp);
+			return track(sb, context, tstamp, afterTrack);
 		},
 
 		/**
@@ -533,13 +551,15 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 * @param id The ID of the screen
 		 * @param context Optional. Contexts relating to the event
 		 * @param tstamp TrackerTimestamp of the event
+		 * @param function afterTrack A callback function triggered after event is tracked
 		 * @return Payload
 		 */
 		trackScreenView: function (
 			name: string,
 			id: string,
 			context?: Array<SelfDescribingJson>,
-			tstamp?: Timestamp): PayloadData {
+			tstamp?: Timestamp,
+			 afterTrack?: (PayloadData) => void): PayloadData {
 
 			return trackSelfDescribingEvent({
 				schema: 'iglu:com.snowplowanalytics.snowplow/screen_view/jsonschema/1-0-0',
@@ -547,7 +567,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 					name: name,
 					id: id
 				})
-			}, context, tstamp);
+			}, context, tstamp, afterTrack);
 		},
 
 		/**
@@ -560,6 +580,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 * @param elementContent innerHTML of the link
 		 * @param context Custom contexts relating to the event
 		 * @param tstamp TrackerTimestamp of the event
+		 * @param function afterTrack A callback function triggered after event is tracked
 		 * @return Payload
 		 */
 		trackLinkClick: function (
@@ -569,7 +590,8 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			elementTarget: string,
 			elementContent: string,
 			context?: Array<SelfDescribingJson>,
-			tstamp?: Timestamp) {
+			tstamp?: Timestamp,
+			afterTrack?: (PayloadData) => void) {
 
 			var eventJson = {
 				schema: 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1',
@@ -582,7 +604,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 				})
 			};
 
-			return trackSelfDescribingEvent(eventJson, context, tstamp);
+			return trackSelfDescribingEvent(eventJson, context, tstamp, afterTrack);
 		},
 
 		/**
@@ -598,6 +620,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 * @param campaignId Identifier for the campaign which the banner belongs to
 		 * @param context Custom contexts relating to the event
 		 * @param tstamp TrackerTimestamp of the event
+		 * @param function afterTrack A callback function triggered after event is tracked
 		 * @return object Payload
 		 */
 		trackAdImpression: function (
@@ -610,7 +633,8 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			advertiserId: string,
 			campaignId: string,
 			context?: Array<SelfDescribingJson>,
-			tstamp?: Timestamp): PayloadData {
+			tstamp?: Timestamp,
+			afterTrack?: (PayloadData) => void): PayloadData {
 
 			var eventJson = {
 				schema: 'iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0',
@@ -626,7 +650,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 				})
 			};
 
-			return trackSelfDescribingEvent(eventJson, context, tstamp);
+			return trackSelfDescribingEvent(eventJson, context, tstamp, afterTrack);
 		},
 
 		/**
@@ -643,6 +667,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 * @param campaignId Identifier for the campaign which the banner belongs to
 		 * @param context Custom contexts relating to the event
 		 * @param tstamp TrackerTimestamp of the event
+		 * @param function afterTrack A callback function triggered after event is tracked
 		 * @return object Payload
 		 */
 		trackAdClick: function (
@@ -656,7 +681,8 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			advertiserId: string,
 			campaignId: string,
 			context?: Array<SelfDescribingJson>,
-			tstamp?: Timestamp): PayloadData {
+			tstamp?: Timestamp,
+			afterTrack?: (PayloadData) => void): PayloadData {
 
 			var eventJson = {
 				schema: 'iglu:com.snowplowanalytics.snowplow/ad_click/jsonschema/1-0-0',
@@ -673,7 +699,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 				})
 			};
 
-			return trackSelfDescribingEvent(eventJson, context, tstamp);
+			return trackSelfDescribingEvent(eventJson, context, tstamp, afterTrack);
 		},
 
 		/**
@@ -690,6 +716,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 * @param campaignId Identifier for the campaign which the banner belongs to
 		 * @param context Custom contexts relating to the event
 		 * @param tstamp TrackerTimestamp of the event
+		 * @param function afterTrack A callback function triggered after event is tracked
 		 * @return object Payload
 		 *
 		 * @todo make costModel enum
@@ -705,7 +732,8 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			advertiserId: string,
 			campaignId: string,
 			context?: Array<SelfDescribingJson>,
-			tstamp?: Timestamp): PayloadData {
+			tstamp?: Timestamp,
+			afterTrack?: (PayloadData) => void): PayloadData {
 
 			var eventJson = {
 				schema: 'iglu:com.snowplowanalytics.snowplow/ad_conversion/jsonschema/1-0-0',
@@ -722,7 +750,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 				})
 			};
 
-			return trackSelfDescribingEvent(eventJson, context, tstamp);
+			return trackSelfDescribingEvent(eventJson, context, tstamp, afterTrack);
 		},
 
 		/**
@@ -733,6 +761,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 * @param target Object of the social action e.g. the video liked, the tweet retweeted
 		 * @param context Custom contexts relating to the event
 		 * @param tstamp TrackerTimestamp of the event
+		 * @param function afterTrack A callback function triggered after event is tracked
 		 * @return Payload
 		 */
 		trackSocialInteraction: function (
@@ -740,7 +769,8 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			network: string,
 			target: string,
 			context?: Array<SelfDescribingJson>,
-			tstamp?: Timestamp): PayloadData {
+			tstamp?: Timestamp,
+			afterTrack?: (PayloadData) => void): PayloadData {
 
 			var eventJson = {
 				schema: 'iglu:com.snowplowanalytics.snowplow/social_interaction/jsonschema/1-0-0',
@@ -751,7 +781,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 				})
 			};
 
-			return trackSelfDescribingEvent(eventJson, context, tstamp);
+			return trackSelfDescribingEvent(eventJson, context, tstamp, afterTrack);
 		},
 
 		/**
@@ -765,6 +795,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 * @param currency Optional. Product price currency.
 		 * @param context Optional. Context relating to the event.
 		 * @param tstamp Optional. TrackerTimestamp of the event
+		 * @param function afterTrack A callback function triggered after event is tracked
 		 * @return Payload
 		 */
 		trackAddToCart: function (
@@ -775,8 +806,8 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			quantity: string,
 			currency?: string,
 			context?: Array<SelfDescribingJson>,
-			tstamp?: Timestamp): PayloadData {
-
+			tstamp?: Timestamp,
+			afterTrack?: (PayloadData) => void): PayloadData {
 			return trackSelfDescribingEvent({
 				schema: 'iglu:com.snowplowanalytics.snowplow/add_to_cart/jsonschema/1-0-0',
 				data: removeEmptyProperties({
@@ -787,7 +818,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 					quantity: quantity,
 					currency: currency
 				})
-			}, context, tstamp);
+			}, context, tstamp, afterTrack);
 		},
 
 		/**
@@ -801,6 +832,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 * @param currency Optional. Product price currency.
 		 * @param context Optional. Context relating to the event.
 		 * @param tstamp Optional. TrackerTimestamp of the event
+		 * @param function afterTrack A callback function triggered after event is tracked
 		 * @return Payload
 		 */
 		trackRemoveFromCart: function (
@@ -811,7 +843,8 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			quantity: string,
 			currency?: string,
 			context?: Array<SelfDescribingJson>,
-			tstamp?: Timestamp): PayloadData {
+			tstamp?: Timestamp,
+			afterTrack?: (PayloadData) => void): PayloadData {
 
 			return trackSelfDescribingEvent({
 				schema: 'iglu:com.snowplowanalytics.snowplow/remove_from_cart/jsonschema/1-0-0',
@@ -823,7 +856,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 					quantity: quantity,
 					currency: currency
 				})
-			}, context, tstamp);
+			}, context, tstamp, afterTrack);
 		},
 
 		/**
@@ -838,6 +871,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 * @param value The new value of the changed element
 		 * @param context Optional. Context relating to the event.
 		 * @param tstamp Optional. TrackerTimestamp of the event
+		 * @param function afterTrack A callback function triggered after event is tracked
 		 * @return Payload
 		 *
 		 * @todo make `nodeName` enum
@@ -851,7 +885,8 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			elementClasses: Array<string>,
 			value: string,
 			context?: Array<SelfDescribingJson>,
-			tstamp?: Timestamp): PayloadData {
+			tstamp?: Timestamp,
+			afterTrack?: (PayloadData) => void): PayloadData {
 
 			let event_schema = '';
 			let event_data:any = {formId, elementId, nodeName, elementClasses, value};
@@ -865,7 +900,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			return trackSelfDescribingEvent({
 				schema: event_schema,
 				data: removeEmptyProperties(event_data, {value: true})
-			}, context, tstamp);
+			}, context, tstamp, afterTrack);
 		},
 
 		/**
@@ -876,6 +911,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 * @param elements Mutable elements within the form
 		 * @param context Optional. Context relating to the event.
 		 * @param tstamp Optional. TrackerTimestamp of the event
+		 * @param function afterTrack A callback function triggered after event is tracked
 		 * @return Payload
 		 */
 		trackFormSubmission: function(
@@ -883,7 +919,8 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			formClasses: Array<string>,
 			elements: Array<string>,
 			context?: Array<SelfDescribingJson>,
-			tstamp?: Timestamp): PayloadData {
+			tstamp?: Timestamp,
+			afterTrack?: (PayloadData) => void): PayloadData {
 
 			return trackSelfDescribingEvent({
 				schema: 'iglu:com.snowplowanalytics.snowplow/submit_form/jsonschema/1-0-0',
@@ -892,7 +929,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 					formClasses: formClasses,
 					elements: elements
 				})
-			}, context, tstamp);
+			}, context, tstamp, afterTrack);
 		},
 
 		/**
@@ -912,7 +949,8 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			totalResults: number,
 			pageResults: number,
 			context?: Array<SelfDescribingJson>,
-			tstamp?: Timestamp): PayloadData {
+			tstamp?: Timestamp,
+			afterTrack?: (PayloadData) => void): PayloadData {
 
 			return trackSelfDescribingEvent({
 				schema: 'iglu:com.snowplowanalytics.snowplow/site_search/jsonschema/1-0-0',
@@ -922,7 +960,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 					totalResults: totalResults,
 					pageResults: pageResults
 				})
-			}, context, tstamp);
+			}, context, tstamp, afterTrack);
 		},
 
 		/**
@@ -935,6 +973,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 * @param {string} [description] - Description of document.
 		 * @param {Array<SelfDescribingJson>} [context] - Context relating to the event.
 		 * @param {Timestamp} [tstamp] - TrackerTimestamp of the event.
+		 * @param {function} [afterTrack] A callback function triggered after event is tracked
 		 * @return Payload
 		 */
 		trackConsentWithdrawn: function(
@@ -944,7 +983,8 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			name?: string,
 			description?: string,
 			context?: Array<SelfDescribingJson>,
-			tstamp?: Timestamp): PayloadData {
+			tstamp?: Timestamp,
+			afterTrack?: (PayloadData) => void): PayloadData {
 
 			let documentJson = {
 				schema: 'iglu:com.snowplowanalytics.snowplow/consent_document/jsonschema/1-0-0',
@@ -961,7 +1001,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 				data: removeEmptyProperties({
 					all: all
 				})
-			}, documentJson.data && context ? context.concat([documentJson]) : context, tstamp);
+			}, documentJson.data && context ? context.concat([documentJson]) : context, tstamp, afterTrack);
 		},
 
 		/**
@@ -974,6 +1014,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 * @param {string} [expiry] - Date-time when consent expires.
 		 * @param {Array<SelfDescribingJson>} [context] - Context relating to the event.
 		 * @param {Timestamp} [tstamp] - TrackerTimestamp of the event.
+		 * @param {function} [afterTrack] A callback function triggered after event is tracked     
 		 * @return Payload
 		 */
 		trackConsentGranted: function(
@@ -983,7 +1024,8 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			description?: string,
 			expiry?: string,
 			context?: Array<SelfDescribingJson>,
-			tstamp?: Timestamp): PayloadData {
+			tstamp?: Timestamp,
+			afterTrack?: (PayloadData) => void): PayloadData {
 
 			let documentJson = {
 				schema: 'iglu:com.snowplowanalytics.snowplow/consent_document/jsonschema/1-0-0',
@@ -1000,7 +1042,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 				data: removeEmptyProperties({
 					expiry: expiry,
 				})
-			}, context ? context.concat([documentJson]) : [documentJson], tstamp);
+			}, context ? context.concat([documentJson]) : [documentJson], tstamp, afterTrack);
 		},
 
 		addGlobalContexts: function(contexts: Array<Object>) {
