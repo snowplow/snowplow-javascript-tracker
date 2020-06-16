@@ -723,7 +723,7 @@ define([
 		"Set true timestamp": function () {
 			var url = 'http://www.example.com';
 			var page = 'title page';
-            var result = tracker.trackPageView(url, page, null, null, { type: 'ttm', value: 1477403862 }).build();
+			var result = tracker.trackPageView(url, page, null, null, { type: 'ttm', value: 1477403862 }).build();
 			assert('ttm' in result, 'ttm should be attached');
 			assert.strictEqual(result['ttm'] , '1477403862', 'ttm should be attached as is');
 			assert(!('dtm' in result), 'dtm should absent');
@@ -743,6 +743,50 @@ define([
 			assert('dtm' in result, 'dtm should be attached');
 			assert.strictEqual(result['dtm'] , '1477403869', 'dtm should be attached as is');
 			assert(!('ttm' in result), 'ttm should absent');
+		},
+
+		"Run callback on each track event": function () {
+			const url = 'http://www.example.com';
+			const str = 'cccccckevjfiddbdjeikkdbkvvkdjcehggiutbkhnrfe';
+			const page = str;
+			const num = 1;
+			const arr = [str];
+			var filters = {
+				"safeSearch": true,
+				"category": str
+			};
+			var expiry = "01 January, 1970 00:00:00 Universal Time (UTC)";
+			var inputJson = {
+				schema: 'iglu:com.acme/user/jsonschema/1-0-1',
+				data: {
+					name: str
+				}
+			};
+
+			let count = 0;
+			const afterTrack =  _ => count += 1;
+			const fs = [
+				tracker.trackPagePing(url, str, url, num, num, num, num, null, null, afterTrack),
+				tracker.trackPageView(url, str, null, null, null, afterTrack),
+				tracker.trackAddToCart(str, str, str, num, num, str, null, null, afterTrack),
+				tracker.trackScreenView(str, str, null, null, afterTrack),
+				tracker.trackSiteSearch(arr, filters, num, num, null, null, afterTrack),
+				tracker.trackStructEvent(str, str, str, str, str, null, null, afterTrack),
+				tracker.trackAdConversion(str, str, num, str, str, str, str, str, str, null, null, afterTrack),
+				tracker.trackAdImpression(str, str, num, url, str, str, str, str, null, null, afterTrack),
+				tracker.trackConsentGranted(str, num, num, null, null, null, null, afterTrack),
+				tracker.trackFormSubmission(str, [], [], null, null, afterTrack),
+				tracker.trackRemoveFromCart(str, str, str, str, num, str, null, null, afterTrack),
+				tracker.trackConsentWithdrawn(false, null, null, null, null, null, null, afterTrack),
+				tracker.trackFormFocusOrChange(str, str, str, str, str, arr, str, null, null, afterTrack),
+				tracker.trackSocialInteraction(str, str, str, null, null, afterTrack),
+				tracker.trackSelfDescribingEvent(inputJson, null, null, afterTrack),
+				tracker.trackEcommerceTransaction(str,  null, num, num, str, str, str, str, str, null, null, afterTrack),
+				tracker.trackEcommerceTransactionItem(str, str, str, str, num, num, str, null, null, afterTrack),
+				tracker.trackLinkClick(url, str, arr, null, str, null, null, afterTrack),
+				tracker.trackAdClick(url, str, str, num, str, str, str, str, str, null, null, afterTrack),
+			];
+			assert.strictEqual(count, fs.length, "All callbacks are called");
 		}
 	});
 
