@@ -258,6 +258,33 @@ describe('Activity tracker behaviour', () => {
     expect(F.size(pps)).toBe(1)
   })
 
+  it('allows running callback after sending tracking events', () => {
+    const outQueues = []
+    const Tracker = require('../../src/js/tracker').Tracker
+    const t = new Tracker(
+      '',
+      '',
+      '',
+      { outQueues },
+      {
+        stateStorageStrategy: 'cookies',
+        encodeBase64: false,
+        contexts: {
+          webPage: true,
+        },
+      }
+    )
+
+    t.enableActivityTracking(0, 30)
+    let marker = false
+    t.trackPageView(null, null, null, null, ev => (marker = true))
+
+    advanceBy(15000)
+    jest.advanceTimersByTime(15000)
+
+    expect(marker).toBe(true)
+  })
+
   it('fires initial delayed activity tracking on first pageview and second pageview', () => {
     const outQueues = []
     const Tracker = require('../../src/js/tracker').Tracker
@@ -343,7 +370,7 @@ describe('Activity tracker behaviour', () => {
         contexts: {
           webPage: true,
         },
-        skippedBrowserFeatures: [ "cd" ]
+        skippedBrowserFeatures: ['cd'],
       }
     )
     t.enableActivityTracking(10, 5)
