@@ -1540,8 +1540,9 @@
 		 * @param context object Custom context relating to the event
 		 * @param contextCallback Function returning an array of contexts
 		 * @param tstamp number
+     * @param function afterTrack (optional) A callback function triggered after event is tracked
 		 */
-		function logPageView(customTitle, context, contextCallback, tstamp) {
+    function logPageView(customTitle, context, contextCallback, tstamp, afterTrack) {
 
 			refreshUrl();
 			if (pageViewSent) {	 // Do not reset pageViewId if previous events were not page_view
@@ -1562,7 +1563,8 @@
 				pageTitle,
 				purify(customReferrer || configReferrerUrl),
 				addCommonContexts(finalizeContexts(context, contextCallback)),
-				tstamp);
+		    tstamp,
+        afterTrack);
 
 			// Send ping (to log that user has stayed on page)
 			var now = new Date();
@@ -2312,10 +2314,11 @@
 		 * @param object Custom context relating to the event
 		 * @param object contextCallback Function returning an array of contexts
 		 * @param tstamp number or Timestamp object
+     * @param function afterTrack (optional) A callback function triggered after event is tracked
 		 */
-		apiMethods.trackPageView = function (customTitle, context, contextCallback, tstamp) {
+    apiMethods.trackPageView = function (customTitle, context, contextCallback, tstamp, afterTrack) {
 			trackCallback(function () {
-				logPageView(customTitle, context, contextCallback, tstamp);
+	      logPageView(customTitle, context, contextCallback, tstamp, afterTrack);
 			});
 		};
 
@@ -2330,12 +2333,13 @@
 		 * @param string label (optional) An optional string to provide additional dimensions to the event data
 		 * @param string property (optional) Describes the object or the action performed on it, e.g. quantity of item added to basket
 		 * @param int|float|string value (optional) An integer that you can use to provide numerical data about the user event
-		 * @param object Custom context relating to the event
-		 * @param tstamp number or Timestamp object
+		 * @param object context (optional) Custom context relating to the event
+		 * @param number|Timestamp tstamp (optional) TrackerTimestamp of the event
+     * @param function afterTrack (optional) A callback function triggered after event is tracked
 		 */
-		apiMethods.trackStructEvent = function (category, action, label, property, value, context, tstamp) {
+    apiMethods.trackStructEvent = function (category, action, label, property, value, context, tstamp, afterTrack) {
 			trackCallback(function () {
-				core.trackStructEvent(category, action, label, property, value, addCommonContexts(context), tstamp);
+		    core.trackStructEvent(category, action, label, property, value, addCommonContexts(context), tstamp, afterTrack);
 			});
 		};
 
@@ -2345,10 +2349,11 @@
 		 * @param object eventJson Contains the properties and schema location for the event
 		 * @param object context Custom context relating to the event
 		 * @param tstamp number or Timestamp object
+     * @param function afterTrack (optional) A callback function triggered after event is tracked
 		 */
-		apiMethods.trackSelfDescribingEvent = function (eventJson, context, tstamp) {
+	 apiMethods.trackSelfDescribingEvent = function (eventJson, context, tstamp, afterTrack) {
 			trackCallback(function () {
-				core.trackSelfDescribingEvent(eventJson, addCommonContexts(context), tstamp);
+  		  core.trackSelfDescribingEvent(eventJson, addCommonContexts(context), tstamp, afterTrack);
 			});
 		};
 
