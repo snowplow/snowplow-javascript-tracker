@@ -351,7 +351,29 @@
 				enabled: false,
 				installed: false, // Guard against installing the activity tracker more than once per Tracker instance
 				configurations: {}
-			};
+			},
+
+			uaClientHints = null;
+
+			if (autoContexts.clientHints) {
+				if (navigatorAlias.userAgentData) {
+					uaClientHints = {
+						isMobile: navigatorAlias.userAgentData.mobile,
+						brands: navigatorAlias.userAgentData.brands
+					};
+					if (autoContexts.clientHints.includeHighEntropy && navigatorAlias.userAgentData.getHighEntropyValues) {
+						navigatorAlias.userAgentData.getHighEntropyValues([
+							'platform',	'platformVersion', 'architecture', 'model', 'uaFullVersion'
+						]).then(res => {
+							uaClientHints.architecture = res.architecture;
+							uaClientHints.model = res.model;
+							uaClientHints.platform = res.platform;
+							uaClientHints.uaFullVersion = res.uaFullVersion;
+							uaClientHints.platformVersion = res.platformVersion;
+						});
+					}
+				}
+			}
 
     let skippedBrowserFeatures = argmap.skippedBrowserFeatures || [];
 
@@ -980,6 +1002,10 @@
 					combinedContexts.push(gdprBasisContext);
 				}
 			}
+
+			if (autoContexts.clientHints && uaClientHints) {
+				combinedContexts.push(getUAClientHintsContext());
+			}
 			return combinedContexts;
 		}
 
@@ -1002,6 +1028,18 @@
 				mutSnowplowState.pageViewId = uuid.v4();
 			}
 			return mutSnowplowState.pageViewId
+		}
+
+		/**
+		 * Put together a http_client_hints context with the UA Client Hint data we have so far
+		 *
+		 * @return object http_client_hints context
+		 */
+		function getUAClientHintsContext() {
+			return {
+				schema: 'iglu:org.ietf/http_client_hints/jsonschema/1-0-0',
+				data: uaClientHints
+			};
 		}
 
 		/**
