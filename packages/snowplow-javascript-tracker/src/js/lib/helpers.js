@@ -347,6 +347,22 @@
 		}
 	};
 
+	/**
+	 * Attempt to delete a value from localStorage
+	 *
+	 * @param string key
+	 * @return boolean Whether the operation succeeded
+	 */
+	object.attemptDeleteLocalStorage = function (key) {
+		try {
+			localStorage.removeItem(key);
+			localStorage.removeItem(key + '.expires');
+			return true;
+		} catch(e) {
+			return false;
+		}
+	};
+
 		/**
 	 * Attempt to get a value from sessionStorage
 	 *
