@@ -40,6 +40,18 @@
     window.snowplow('trackPageView:localStorageSessionTracker');
   }, 5000)
 
+  window.snowplow('newTracker', 'anonymousSessionTracker', collector_endpoint, {
+    sessionCookieTimeout: 1,
+    stateStorageStrategy: 'localStorage',
+    anonymousTracking: {withSessionTracking: true}
+  });
+  window.snowplow('trackPageView:anonymousSessionTracker');
+  window.snowplow('trackPageView:anonymousSessionTracker');
+
+  setTimeout(function() {
+    window.snowplow('trackPageView:anonymousSessionTracker');
+  }, 5000)
+
 </script>
 
 </body>
