@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+
+<!--
+		 ! Copyright (c) 2012-2013 Snowplow Analytics Ltd. All rights reserved.
+		 !
+		 ! This program is licensed to you under the Apache License Version 2.0,
+		 ! and you may not use this file except in compliance with the Apache License Version 2.0.
+		 ! You may obtain a copy of the Apache License Version 2.0 at http://www.apache.org/licenses/LICENSE-2.0.
+		 !
+		 ! Unless required by applicable law or agreed to in writing,
+		 ! software distributed under the Apache License Version 2.0 is distributed on an
+		 ! "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+		 ! See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
+-->
+<html>
+	<head>
+		<title>Cookieless tracking example for snowplow.js</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+		<!-- Snowplow starts plowing -->
+		<script type="text/javascript">
+			;(function(p, l, o, w, i, n, g) {
+				if (!p[i]) {
+					p.GlobalSnowplowNamespace = p.GlobalSnowplowNamespace || []
+					p.GlobalSnowplowNamespace.push(i)
+					p[i] = function() {
+						;(p[i].q = p[i].q || []).push(arguments)
+					}
+					p[i].q = p[i].q || []
+					n = l.createElement(o)
+					g = l.getElementsByTagName(o)[0]
+					n.async = 1
+					n.src = w
+					g.parentNode.insertBefore(n, g)
+				}
+			})(window, document, 'script', '../sp.js', 'snowplow')
+
+			window.snowplow('newTracker', 'cf', '127.0.0.1:9090', {
+				// Initialise a tracker
+				anonymousTracking: true,
+				encodeBase64: false, // Default is true
+				appId: 'CFe23a', // Site ID can be anything you want. Set it if you're tracking more than one site in this account
+				platform: 'mob',
+				contexts: {
+					webPage: true,
+					gaCookies: true,
+					performanceTiming: true
+				}
+			})
+		</script>
+		<!-- Snowplow stops plowing -->
+	</head>
+
+	<body>
+		<header>
+			<h1>Cookieless_tracking_examples_for_snowplow.js</h1>
+
+			<p>
+				Warning: if your browser's Do Not Track feature is enabled and
+				respectDoNotTrack is enabled, all tracking will be prevented.
+			</p>
+			<p>
+				If you are viewing the page using a file URL, you must edit the script
+				URL in the Snowplow tag to include an http scheme. Otherwise a file
+				scheme will be inferred and the page will attempt to load sp.js from the
+				local filesystem..
+			</p>
+		</header>
+
+		<nav>
+			<div id="login-form" style="display:block">
+				<span class="fontawesome-user"></span>
+				<input type="text" id="user" placeholder="Username" />
+
+				<span class="fontawesome-lock"></span>
+				<input type="password" id="pass" placeholder="Password" />
+
+				<input type="submit" value="Login" onclick="login()" />
+			</div>
+		</nav>
+
+		<section>
+			<div id="logout-form" style="display:none">
+				<button type="button" onclick="logout()">Logout</button>
+			</div>
+		</section>
+		<section>
+			<button type="button" onclick="playMix()">Play a Mix</button>
+		</section>
+
+		<script>
+			function playMix() {
+				alert('Playing a DJ mix')
+				window.snowplow(
+					'trackStructEvent',
+					'Mixes',
+					'Play',
+					'MRC/fabric-0503-mix',
+					'',
+					'0.0'
+				)
+			}
+
+			function login() {
+				window.snowplow('enableUserTracking', 'localStorage')
+				window.snowplow('setUserId', 'alex 123') // Business-defined user ID
+				window.snowplow('setUserIdFromLocation', 'id') // To test this, reload the page with ?id=xxx
+				window.snowplow('setUserIdFromCookie', '_sp_id.4209') // Test this using Firefox because Chrome doesn't allow local cookies.
+				window.snowplow('setCustomUrl', '/overridden-url/') // Override the page URL
+				window.snowplow('enableActivityTracking', 10, 10) // Ping every 10 seconds after 10 seconds
+
+				toggle()
+				return false
+			}
+
+			function logout() {
+				window.snowplow('disableUserTracking', 'localStorage')
+				toggle()
+
+				return false
+			}
+
+			function toggle() {
+				var login = document.getElementById('login-form')
+				var logout = document.getElementById('logout-form')
+
+				if (login.style.display == 'block') {
+					login.style.display = 'none'
+					logout.style.display = 'block'
+				} else {
+					login.style.display = 'block'
+					logout.style.display = 'none'
+				}
+			}
+		</script>
+	</body>
+</html>

@@ -120,9 +120,31 @@ describe('Test that request_recorder logs meet expectations', () => {
     ).toBe(true)
   })
 
+  it('should count sessions using anonymousSessionTracking', () => {
+    expect(
+      logContains({
+        event: {
+          parameters: {
+            e: 'pv',
+            tna: 'anonymousSessionTracker',
+            vid: '2',
+          },
+        },
+      })
+    ).toBe(true)
+  })
+
   it('should only increment vid outside of session timeout (local storage)', () => {
     const withSingleVid = ev =>
       F.get('event.parameters.tna', ev) === 'localStorageSessionTracker' &&
+      F.get('event.parameters.vid', ev) === '1'
+
+    expect(F.size(F.filter(withSingleVid, log))).toBe(2)
+  })
+
+  it('should only increment vid outside of session timeout (anonymous session tracking)', () => {
+    const withSingleVid = ev =>
+      F.get('event.parameters.tna', ev) === 'anonymousSessionTracker' &&
       F.get('event.parameters.vid', ev) === '1'
 
     expect(F.size(F.filter(withSingleVid, log))).toBe(2)
