@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Cookieless test page</title>
+	</head>
+	<body>
+		<p id="title">Page for sending requests to request_recorder</p>
+
+		<script>
+			var collector_endpoint = document.cookie
+				.split('container=')[1]
+				.split(';')[0]
+			document.body.className += ' loaded'
+		</script>
+
+		<script>
+		 ;(function(p, l, o, w, i, n, g) {
+			 if (!p[i]) {
+				 p.GlobalSnowplowNamespace = p.GlobalSnowplowNamespace || []
+				 p.GlobalSnowplowNamespace.push(i)
+				 p[i] = function() {
+					 ;(p[i].q = p[i].q || []).push(arguments)
+				 }
+				 p[i].q = p[i].q || []
+				 n = l.createElement(o)
+				 g = l.getElementsByTagName(o)[0]
+				 n.async = 1
+				 n.src = w
+				 g.parentNode.insertBefore(n, g)
+			 }
+		 })(window, document, 'script', './snowplow.js', 'snowplow')
+
+		 document.write(collector_endpoint)
+
+		 window.snowplow('newTracker', 'cf', collector_endpoint, {
+			 encodeBase64: true,
+			 appId: 'CFe23a',
+			 platform: 'mob',
+			 eventMethod: 'get',
+			 contexts: {
+				 webPage: true,
+			 },
+			 connectionTimeout: 10000,
+			 anonymousTracking: true,
+		 })
+
+		 window.snowplow('setUserId', 'Malcolm')
+		 window.snowplow('trackPageView')
+		 window.snowplow('trackPageView')
+		 window.snowplow('trackPageView')
+		 window.snowplow('enableUserTracking', 'localStorage')
+		 window.snowplow('setUserId', 'Malcolm')
+		 window.snowplow('trackPageView')
+		 window.snowplow('trackPageView')
+
+		</script>
+	</body>
+</html>

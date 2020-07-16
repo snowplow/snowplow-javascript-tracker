@@ -37,8 +37,6 @@
 	var
 		forEach = require('lodash/forEach'),
 		map = require('lodash/map'),
-    includes = require('lodash/includes'),
-    lowerCase = require('lodash/lowerCase'),
 		helpers = require('./lib/helpers'),
 		proxies = require('./lib/proxies'),
 		detectors = require('./lib/detectors'),
@@ -88,8 +86,9 @@
 	 * 24. stateStorageStrategy, 'cookieAndLocalStorage'
 	 * 25. maxLocalStorageQueueSize, 1000
 	 * 26. resetActivityTrackingOnPageView, true
-   * 27. connectionTimeout, 5000
-   * 28. skippedBrowserFeatures, []
+	 * 27. connectionTimeout, 5000
+	 * 28. skippedBrowserFeatures, []
+	 * 29. anonymousTracking, false // bool | { withSessionTracking: bool}
 	 */
 	object.Tracker = function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
 
@@ -110,6 +109,24 @@
 		if(!argmap.hasOwnProperty('useStm')) {
 			argmap.useStm = true;
 		}
+
+		const getStateStorageStrategy = (config) =>
+			config.hasOwnProperty('stateStorageStrategy')
+				? config.stateStorageStrategy
+				: !configUseCookies && !configUseLocalStorage
+					? 'none'
+					: configUseCookies && configUseLocalStorage
+						? 'cookieAndLocalStorage'
+						: configUseCookies
+							? 'cookie'
+							: 'localStorage';
+
+		const getAnonymousSessionTracking = (config) => 
+			config.hasOwnProperty('anonymousTracking') 
+				? config.anonymousTracking.withSessionTracking === true
+				: false;
+
+		const getAnonymousTracking = (config) => !!config.anonymousTracking;
 
 		// Enum for accpted values of the gdprBasisContext's basisForProcessing argument
 		const gdprBasisEnum = Object.freeze({
@@ -145,6 +162,7 @@
 			documentAlias = document,
 			windowAlias = window,
 			navigatorAlias = navigator,
+			screenAlias = screen,
 
 			// Current URL and Referrer URL
 			locationArray = proxies.fixupUrl(documentAlias.domain, windowAlias.location.href, helpers.getReferrer()),
@@ -152,14 +170,7 @@
 			locationHrefAlias = locationArray[1],
 			configReferrerUrl = locationArray[2],
 
-			// Holder of the logPagePing interval
-			pagePingInterval = null,
-			pagePingCallbackInterval = null,
-
 			customReferrer,
-
-			// Request method is always GET for Snowplow
-			configRequestMethod = 'GET',
 
 			// Platform defaults to web for this tracker
 			configPlatform = argmap.hasOwnProperty('platform') ? argmap.platform : 'web',
@@ -238,25 +249,24 @@
 			// This forces the tracker to be HTTP even if the page is secure
 			forceUnsecureTracker = !forceSecureTracker && argmap.hasOwnProperty('forceUnsecureTracker') ? (argmap.forceUnsecureTracker === true) : false,
 
+			// Allows tracking user session using localStorage salt, can only be used with anonymousTracking
+			configAnonymousSessionTracking = getAnonymousSessionTracking(argmap),
+
+			// Sets tracker to work in anonymous mode without accessing client storage
+			configAnonymousTracking = getAnonymousTracking(argmap),
+
 			// Whether to use localStorage to store events between sessions while offline
-			useLocalStorage = argmap.hasOwnProperty('useLocalStorage') ? (
-				helpers.warn('argmap.useLocalStorage is deprecated. ' +
-					'Use argmap.stateStorageStrategy instead.'),
-				argmap.useLocalStorage
-			) : true,
+			configUseLocalStorage = argmap.hasOwnProperty('useLocalStorage') 
+				? (helpers.warn('argmap.useLocalStorage is deprecated. Use argmap.stateStorageStrategy instead.'), argmap.useLocalStorage)
+				: true,
 
 			// Whether to use cookies
-			configUseCookies = argmap.hasOwnProperty('useCookies') ? (
-				helpers.warn(
-					'argmap.useCookies is deprecated. Use argmap.stateStorageStrategy instead.'),
-				argmap.useCookies
-			) : true,
+			configUseCookies = argmap.hasOwnProperty('useCookies')
+				? (helpers.warn('argmap.useCookies is deprecated. Use argmap.stateStorageStrategy instead.'), argmap.useCookies)
+				: true,
 
-			// Strategy defining how to store the state: cookie, localStorage or none
-			configStateStorageStrategy = argmap.hasOwnProperty('stateStorageStrategy') ?
-				argmap.stateStorageStrategy : (!configUseCookies && !useLocalStorage ?
-				'none' : (configUseCookies && useLocalStorage ?
-				'cookieAndLocalStorage' : (configUseCookies ? 'cookie' : 'localStorage'))),
+			// Strategy defining how to store the state: cookie, localStorage, cookieAndLocalStorage or none
+			configStateStorageStrategy = getStateStorageStrategy(argmap),
 
 			// Browser language (or Windows language for IE). Imperfect but CloudFront doesn't log the Accept-Language header
 			browserLanguage = navigatorAlias.userLanguage || navigatorAlias.language,
@@ -326,7 +336,7 @@
 				argmap.maxPostBytes || 40000,
 				argmap.useStm,
 				argmap.maxLocalStorageQueueSize || 1000,
-        argmap.connectionTimeout || 5000),
+				argmap.connectionTimeout || 5000),
 
 			// Flag to prevent the geolocation context being added multiple times
 			geolocationContextAdded = false,
@@ -355,27 +365,27 @@
 
 			uaClientHints = null;
 
-			if (autoContexts.clientHints) {
-				if (navigatorAlias.userAgentData) {
-					uaClientHints = {
-						isMobile: navigatorAlias.userAgentData.mobile,
-						brands: navigatorAlias.userAgentData.brands
-					};
-					if (autoContexts.clientHints.includeHighEntropy && navigatorAlias.userAgentData.getHighEntropyValues) {
-						navigatorAlias.userAgentData.getHighEntropyValues([
-							'platform',	'platformVersion', 'architecture', 'model', 'uaFullVersion'
-						]).then(res => {
-							uaClientHints.architecture = res.architecture;
-							uaClientHints.model = res.model;
-							uaClientHints.platform = res.platform;
-							uaClientHints.uaFullVersion = res.uaFullVersion;
-							uaClientHints.platformVersion = res.platformVersion;
-						});
-					}
+		if (autoContexts.clientHints) {
+			if (navigatorAlias.userAgentData) {
+				uaClientHints = {
+					isMobile: navigatorAlias.userAgentData.mobile,
+					brands: navigatorAlias.userAgentData.brands
+				};
+				if (autoContexts.clientHints.includeHighEntropy && navigatorAlias.userAgentData.getHighEntropyValues) {
+					navigatorAlias.userAgentData.getHighEntropyValues([
+						'platform',	'platformVersion', 'architecture', 'model', 'uaFullVersion'
+					]).then(res => {
+						uaClientHints.architecture = res.architecture;
+						uaClientHints.model = res.model;
+						uaClientHints.platform = res.platform;
+						uaClientHints.uaFullVersion = res.uaFullVersion;
+						uaClientHints.platformVersion = res.platformVersion;
+					});
 				}
 			}
+		}
 
-    let skippedBrowserFeatures = argmap.skippedBrowserFeatures || [];
+		let skippedBrowserFeatures = argmap.skippedBrowserFeatures || [];
 
 		// Object to house gdpr Basis context values
 		let gdprBasisData = {};
@@ -582,7 +592,7 @@
 					configStateStorageStrategy == 'cookieAndLocalStorage') {
 				return helpers.cookie(fullName);
 			}
-		}
+		};
 
 		/*
 		 * Update domain hash
@@ -689,12 +699,17 @@
 		}
 
 		/*
+		 * no-op if anonymousTracking enabled, will still set cookies if anonymousSessionTracking is enabled 
 		 * Sets a cookie based on the storage strategy:
 		 * - if 'localStorage': attemps to write to local storage
-		 * - if 'cookie': writes to cookies
+		 * - if 'cookie' or 'cookieAndLocalStorage': writes to cookies
 		 * - otherwise: no-op
 		 */
 		function setCookie(name, value, timeout) {
+			if (configAnonymousTracking && !configAnonymousSessionTracking) {
+				return;
+			}
+
 			if (configStateStorageStrategy == 'localStorage') {
 				helpers.attemptWriteLocalStorage(name, value, timeout);
 			} else if (configStateStorageStrategy == 'cookie' ||
@@ -710,19 +725,37 @@
 			return uuid.v4();
 		}
 
+		/**
+		 * Clears all cookie and local storage for id and ses values
+		 */
+		function deleteCookies() {
+			const idname = getSnowplowCookieName('id');
+			const sesname = getSnowplowCookieName('ses');
+			helpers.attemptDeleteLocalStorage(idname);
+			helpers.attemptDeleteLocalStorage(sesname);
+			helpers.deleteCookie(idname);
+			helpers.deleteCookie(sesname);
+		}
+
 		/*
 		 * Load the domain user ID and the session ID
 		 * Set the cookies (if cookies are enabled)
 		 */
 		function initializeIdsAndCookies() {
-			var sesCookieSet =
-				configStateStorageStrategy != 'none' && !!getSnowplowCookieValue('ses');
+			if (configAnonymousTracking && !configAnonymousSessionTracking) {
+				return;
+			}
+
+			var sesCookieSet = configStateStorageStrategy != 'none' && !!getSnowplowCookieValue('ses');
 			var idCookieComponents = loadDomainUserIdCookie();
 
 			if (idCookieComponents[1]) {
 				domainUserId = idCookieComponents[1];
-			} else {
+			} else if (!configAnonymousTracking) {
 				domainUserId = createNewDomainUserId();
+				idCookieComponents[1] = domainUserId;
+			} else {
+				domainUserId = '';
 				idCookieComponents[1] = domainUserId;
 			}
 
@@ -795,9 +828,10 @@
 		 * Also sets the required cookies.
 		 */
 		function addBrowserData(sb) {
+			const anonymizeOr = value => configAnonymousTracking ? null : value;
+			const anonymizeSessionOr = value => configAnonymousSessionTracking ? value : anonymizeOr(value);	
+
 			var nowTs = Math.round(new Date().getTime() / 1000),
-				idname = getSnowplowCookieName('id'),
-				sesname = getSnowplowCookieName('ses'),
 				ses = getSnowplowCookieValue('ses'),
 				id = loadDomainUserIdCookie(),
 				cookiesDisabled = id[0],
@@ -815,16 +849,8 @@
 				toOptoutByCookie = false;
 			}
 
-			if ((configDoNotTrack || toOptoutByCookie) &&
-					configStateStorageStrategy != 'none') {
-				if (configStateStorageStrategy == 'localStorage') {
-					helpers.attemptWriteLocalStorage(idname, '');
-					helpers.attemptWriteLocalStorage(sesname, '');
-				} else if (configStateStorageStrategy == 'cookie' ||
-						configStateStorageStrategy == 'cookieAndLocalStorage') {
-					helpers.cookie(idname, '', -1, configCookiePath, configCookieDomain, configCookieSameSite, configCookieSecure);
-					helpers.cookie(sesname, '', -1, configCookiePath, configCookieDomain, configCookieSameSite, configCookieSecure);
-				}
+			if (configDoNotTrack || toOptoutByCookie) {
+				deleteCookies();
 				return;
 			}
 
@@ -843,22 +869,18 @@
 				}
 
 				memorizedVisitCount = visitCount;
-
-			// Otherwise, a new session starts if configSessionCookieTimeout seconds have passed since the last event
-			} else {
-				if ((new Date().getTime() - lastEventTime) > configSessionCookieTimeout * 1000) {
-					memorizedSessionId = uuid.v4();
-					memorizedVisitCount++;
-				}
+			} else if ((new Date().getTime() - lastEventTime) > configSessionCookieTimeout * 1000) {
+				memorizedSessionId = uuid.v4();
+				memorizedVisitCount++;
 			}
 
 			// Build out the rest of the request
 			sb.add('vp', detectors.detectViewport());
 			sb.add('ds', detectors.detectDocumentSize());
-			sb.add('vid', memorizedVisitCount);
-			sb.add('sid', memorizedSessionId);
-			sb.add('duid', _domainUserId); // Set to our local variable
-			sb.add('uid', businessUserId);
+			sb.add('vid', anonymizeSessionOr(memorizedVisitCount));
+			sb.add('sid', anonymizeSessionOr(memorizedSessionId));
+			sb.add('duid', anonymizeOr(_domainUserId)); // Set to our local variable
+			sb.add('uid', anonymizeOr(businessUserId));
 
 			refreshUrl();
 
@@ -930,7 +952,6 @@
 
 			// Add Optimizely Contexts
 			if (windowAlias.optimizely) {
-
 				if (autoContexts.optimizelySummary) {
 					var activeExperiments = getOptimizelySummaryContexts();
 					forEach(activeExperiments, function (e) {
@@ -1434,7 +1455,6 @@
 		function newSession() {
 			// If cookies are enabled, base visit count and session ID on the cookies
 			var nowTs = Math.round(new Date().getTime() / 1000),
-				ses = getSnowplowCookieValue('ses'),
 				id = loadDomainUserIdCookie(),
 				cookiesDisabled = id[0],
 				_domainUserId = id[1], // We could use the global (domainUserId) but this is better etiquette
@@ -1540,9 +1560,9 @@
 		 * @param context object Custom context relating to the event
 		 * @param contextCallback Function returning an array of contexts
 		 * @param tstamp number
-     * @param function afterTrack (optional) A callback function triggered after event is tracked
+		 * @param function afterTrack (optional) A callback function triggered after event is tracked
 		 */
-    function logPageView(customTitle, context, contextCallback, tstamp, afterTrack) {
+		function logPageView(customTitle, context, contextCallback, tstamp, afterTrack) {
 
 			refreshUrl();
 			if (pageViewSent) {	 // Do not reset pageViewId if previous events were not page_view
@@ -1563,8 +1583,8 @@
 				pageTitle,
 				purify(customReferrer || configReferrerUrl),
 				addCommonContexts(finalizeContexts(context, contextCallback)),
-		    tstamp,
-        afterTrack);
+				tstamp,
+				afterTrack);
 
 			// Send ping (to log that user has stayed on page)
 			var now = new Date();
@@ -1614,13 +1634,13 @@
 
 				// Add event handlers; cross-browser compatibility here varies significantly
 				// @see http://quirksmode.org/dom/events
-        const documentHandlers = ['click','mouseup','mousedown','mousemove', 'keypress','keydown','keyup']
-        const windowHandlers = ['resize','focus','blur']
-        const listener = (alias, handler = activityHandler) => ev => helpers.addEventListener(documentAlias, ev, handler)
+				const documentHandlers = ['click','mouseup','mousedown','mousemove', 'keypress','keydown','keyup']
+				const windowHandlers = ['resize','focus','blur']
+				const listener = (alias, handler = activityHandler) => ev => helpers.addEventListener(documentAlias, ev, handler)
 
-        forEach(documentHandlers, listener(documentAlias))
-        forEach(windowHandlers, listener(windowAlias))
-        listener(windowAlias, scrollHandler)('scroll')
+				forEach(documentHandlers, listener(documentAlias))
+				forEach(windowHandlers, listener(windowAlias))
+				listener(windowAlias, scrollHandler)('scroll')
 			}
 
 			if (activityTrackingConfig.enabled && (resetActivityTrackingOnPageView || installingActivityTracking)) {
@@ -1697,7 +1717,7 @@
 			}
 
 			helpers.warn('Activity tracking not enabled, please provide integer values for minimumVisitLength and heartBeatDelay.')
-			return {};			
+			return {};
 		};
 
 		/**
@@ -2314,11 +2334,11 @@
 		 * @param object Custom context relating to the event
 		 * @param object contextCallback Function returning an array of contexts
 		 * @param tstamp number or Timestamp object
-     * @param function afterTrack (optional) A callback function triggered after event is tracked
+		 * @param function afterTrack (optional) A callback function triggered after event is tracked
 		 */
-    apiMethods.trackPageView = function (customTitle, context, contextCallback, tstamp, afterTrack) {
+		apiMethods.trackPageView = function (customTitle, context, contextCallback, tstamp, afterTrack) {
 			trackCallback(function () {
-	      logPageView(customTitle, context, contextCallback, tstamp, afterTrack);
+				logPageView(customTitle, context, contextCallback, tstamp, afterTrack);
 			});
 		};
 
@@ -2335,11 +2355,11 @@
 		 * @param int|float|string value (optional) An integer that you can use to provide numerical data about the user event
 		 * @param object context (optional) Custom context relating to the event
 		 * @param number|Timestamp tstamp (optional) TrackerTimestamp of the event
-     * @param function afterTrack (optional) A callback function triggered after event is tracked
+		 * @param function afterTrack (optional) A callback function triggered after event is tracked
 		 */
-    apiMethods.trackStructEvent = function (category, action, label, property, value, context, tstamp, afterTrack) {
+		apiMethods.trackStructEvent = function (category, action, label, property, value, context, tstamp, afterTrack) {
 			trackCallback(function () {
-		    core.trackStructEvent(category, action, label, property, value, addCommonContexts(context), tstamp, afterTrack);
+				core.trackStructEvent(category, action, label, property, value, addCommonContexts(context), tstamp, afterTrack);
 			});
 		};
 
@@ -2349,11 +2369,11 @@
 		 * @param object eventJson Contains the properties and schema location for the event
 		 * @param object context Custom context relating to the event
 		 * @param tstamp number or Timestamp object
-     * @param function afterTrack (optional) A callback function triggered after event is tracked
+		 * @param function afterTrack (optional) A callback function triggered after event is tracked
 		 */
-	 apiMethods.trackSelfDescribingEvent = function (eventJson, context, tstamp, afterTrack) {
+		apiMethods.trackSelfDescribingEvent = function (eventJson, context, tstamp, afterTrack) {
 			trackCallback(function () {
-  		  core.trackSelfDescribingEvent(eventJson, addCommonContexts(context), tstamp, afterTrack);
+				core.trackSelfDescribingEvent(eventJson, addCommonContexts(context), tstamp, afterTrack);
 			});
 		};
 
@@ -2879,6 +2899,68 @@
 		apiMethods.preservePageViewId = function () {
 			preservePageViewId = true
 		};
+
+		/**
+		 * Disables anonymous tracking if active (ie. tracker initialized with `anonymousTracking`)
+		 * For stateStorageStrategy override, uses supplied value first, 
+		 * falls back to one defined in initial config, otherwise uses cookieAndLocalStorage.
+		 * @param {string} stateStorageStrategy - Override for state storage
+		 */
+		apiMethods.disableAnonymousTracking = function(stateStorageStrategy) {
+			if (stateStorageStrategy) {
+				Object.assign(argmap, {
+					stateStorageStrategy: stateStorageStrategy,
+					anonymousTracking: false,
+				});
+
+				configStateStorageStrategy = getStateStorageStrategy(argmap);
+
+				outQueueManager = new requestQueue.OutQueueManager(
+					functionName,
+					namespace,
+					mutSnowplowState,
+					configStateStorageStrategy == 'localStorage' ||
+						configStateStorageStrategy == 'cookieAndLocalStorage',
+					argmap.eventMethod,
+					configPostPath,
+					argmap.bufferSize,
+					argmap.maxPostBytes || 40000,
+					argmap.useStm,
+					argmap.maxLocalStorageQueueSize || 1000,
+					argmap.connectionTimeout || 5000);
+			} else {
+				Object.assign(argmap, { 
+					anonymousTracking: false 
+				});
+			}
+
+			configAnonymousTracking = getAnonymousTracking(argmap);
+			configAnonymousSessionTracking = getAnonymousSessionTracking(argmap);
+
+			initializeIdsAndCookies();
+		};
+
+		/**
+		 * Enables anonymous tracking (ie. tracker initialized without `anonymousTracking`)
+		 */
+		apiMethods.enableAnonymousTracking = function(anonymousArgs) {
+			Object.assign(argmap, {
+				anonymousTracking: anonymousArgs || true,
+			});
+
+			configAnonymousTracking = getAnonymousTracking(argmap);
+			configAnonymousSessionTracking = getAnonymousSessionTracking(argmap);
+
+			// Reset the page view, if not tracking the session, so can't stitch user into new events on the page view id
+			if (!configAnonymousSessionTracking) {
+				resetPageView();
+			}
+		};
+
+		/**
+		 * Clears all cookies and local storage containing user and session identifiers
+		 */
+		apiMethods.clearUserData = deleteCookies;
 
 		apiMethods.setDebug = function (isDebug) {
 			debug = Boolean(isDebug).valueOf();
