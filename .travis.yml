@@ -18,6 +18,7 @@ install:
 # install packages for tracker
 - cd ..
 - rm -rf node_modules
+- npm link ./core
 - npm install
 
 before_script:
