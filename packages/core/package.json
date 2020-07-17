@@ -1,6 +1,6 @@
 {
   "name": "snowplow-tracker",
-  "version": "2.14.0",
+  "version": "2.15.0",
   "dependencies": {
     "jstimezonedetect": "1.0.5",
     "sha1": "git://github.com/pvorb/node-sha1.git#910081c83f3661507d9d89e66e3f38d8b59d5559",
