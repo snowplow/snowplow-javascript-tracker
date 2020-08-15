@@ -128,7 +128,7 @@ object.getFormTrackingManager = function (core, trackerId, contextAdder) {
 		return function (e) {
 			var elt = e.target;
 			var type = (elt.nodeName && elt.nodeName.toUpperCase() === 'INPUT') ? elt.type : null;
-			var value = (elt.type === 'checkbox' && !elt.checked) ? null : fieldTransform(elt.value);
+			var value = (elt.type === 'checkbox' && !elt.checked) ? null : fieldTransform(elt.value, elt);
 			if (event_type === 'change_form' || (type !== 'checkbox' && type !== 'radio')) {
 				core.trackFormFocusOrChange(event_type, getParentFormName(elt), getFormElementName(elt), elt.nodeName, type, helpers.getCssClasses(elt), value, contextAdder(helpers.resolveDynamicContexts(context, elt, type, value)));
 			}
@@ -143,7 +143,7 @@ object.getFormTrackingManager = function (core, trackerId, contextAdder) {
 			var elt = e.target;
 			var innerElements = getInnerFormElements(elt);
 			forEach(innerElements, function (innerElement) {
-				innerElement.value = fieldTransform(innerElement.value);
+				innerElement.value = fieldTransform(innerElement.value, innerElement);
 			});
 			core.trackFormSubmission(getFormElementName(elt), helpers.getCssClasses(elt), innerElements, contextAdder(helpers.resolveDynamicContexts(context, elt, innerElements)));
 		};
