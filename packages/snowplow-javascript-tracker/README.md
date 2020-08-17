@@ -31,11 +31,12 @@ Assuming git and [Docker][docker-install] installed:
 ```bash
  host$ git clone https://github.com/snowplow/snowplow-javascript-tracker.git
  host$ cd snowplow-javascript-tracker
- host$ docker build -t tracker .
- host$ docker run tracker grunt
  host$ cd core
  host$ docker build -t core .
  host$ docker run core grunt
+ host$ cd ..
+ host$ docker build -t tracker .
+ host$ docker run tracker grunt
 ```
 
 Set up an `./aws.json` file using the example `./aws.sample.json`. If you just want to concat +
@@ -54,7 +55,7 @@ tracker for the open-source [Piwik][piwik] project, and is distributed under the
 ([Simplified BSD][bsd]).
 
 Significant portions of the Snowplow JavaScript Tracker copyright 2010 Anthon Pang. Remainder
-copyright 2012-14 Snowplow Analytics Ltd.
+copyright 2012-2020 Snowplow Analytics Ltd.
 
 Licensed under the [Simplified BSD][bsd] license.
 

@@ -116,7 +116,7 @@ For more information on the Snowplow JavaScript Tracker Core's API, view its [wi
 
 ## Copyright and license
 
-The Snowplow JavaScript Tracker Core is copyright 2014 Snowplow Analytics Ltd.
+The Snowplow JavaScript Tracker Core is copyright 2014-2020 Snowplow Analytics Ltd.
 
 Licensed under the [Apache License, Version 2.0][apache-license] (the "License");
 you may not use this software except in compliance with the License.
