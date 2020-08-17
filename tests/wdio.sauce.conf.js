@@ -1,5 +1,7 @@
 const { config } = require('./wdio.default.conf')
 
+const buildName = 'snowplow-js-tracker-' + (process.env.TRAVIS_TAG ? 'v' + process.env.TRAVIS_TAG : '#' + process.env.TRAVIS_BUILD_NUMBER)
+
 exports.config = {
   ...config,
 
@@ -13,15 +15,15 @@ exports.config = {
       platformName: 'Windows 10',
       browserVersion: 'latest',
       'sauce:options': {
-        'build': 'snowplow-js-tracker-v2.15.0',
+        'build': buildName,
       },
     },
     {
       browserName: 'firefox',
-      platformName: 'macOS 10.14',
+      platformName: 'macOS 10.15',
       browserVersion: 'latest',
       'sauce:options': {
-        'build': 'snowplow-js-tracker-v2.15.0',
+        'build': buildName,
       },
     },
     {
@@ -29,15 +31,15 @@ exports.config = {
       platformName: 'Windows 10',
       browserVersion: 'latest',
       'sauce:options': {
-        'build': 'snowplow-js-tracker-v2.15.0',
+        'build': buildName,
       },
     },
     {
       browserName: 'chrome',
-      platformName: 'macOS 10.14',
+      platformName: 'macOS 10.15',
       browserVersion: 'latest',
       'sauce:options': {
-        'build': 'snowplow-js-tracker-v2.15.0',
+        'build': buildName,
       },
     },
     {
@@ -45,7 +47,7 @@ exports.config = {
       platformName: 'Windows 10',
       browserVersion: 'latest',
       'sauce:options': {
-        'build': 'snowplow-js-tracker-v2.15.0',
+        'build': buildName,
       },
     },
     {
@@ -53,7 +55,7 @@ exports.config = {
       platformName: 'Windows 10',
       browserVersion: '13',
       'sauce:options': {
-        'build': 'snowplow-js-tracker-v2.15.0',
+        'build': buildName,
       },
     },
     {
@@ -61,7 +63,7 @@ exports.config = {
       platformName: 'Windows 8.1',
       browserVersion: '11',
       'sauce:options': {
-        'build': 'snowplow-js-tracker-v2.15.0',
+        'build': buildName,
       },
     },
     {
@@ -69,16 +71,25 @@ exports.config = {
       platformName: 'Windows 8',
       browserVersion: '10',
       'sauce:options': {
-        'build': 'snowplow-js-tracker-v2.15.0',
+        'build': buildName,
       },
     },
     {
       browserName: 'safari',
-      browserVersion: 'latest',
+      browserVersion: '13.1',
+      platformName: 'macOS 10.15',
+      'sauce:options': { 
+        seleniumVersion: '3.14.0',
+        'build': buildName,
+      },
+    },
+    {
+      browserName: 'safari',
+      browserVersion: '12.0',
       platformName: 'macOS 10.14',
       'sauce:options': { 
         seleniumVersion: '3.14.0',
-        'build': 'snowplow-js-tracker-v2.15.0',
+        'build': buildName,
       },
     },
     {
@@ -87,7 +98,7 @@ exports.config = {
       platformName: 'macOS 10.12',
       'sauce:options': { 
         seleniumVersion: '3.14.0',
-        'build': 'snowplow-js-tracker-v2.15.0',
+        'build': buildName,
       },
     },
     // Legacy Sauce Labs 
@@ -95,13 +106,25 @@ exports.config = {
       browserName: 'safari',
       platform: 'OS X 10.10',
       version: '8.0',
-      build: 'snowplow-js-tracker-v2.15.0',
+      build: buildName,
     },
     {
       browserName: 'internet explorer',
       platform: 'Windows 7',
       version: '9',
-      build: 'snowplow-js-tracker-v2.15.0',
+      build: buildName,
+    },
+    {
+      browserName: 'firefox',
+      platform: 'Windows 10',
+      version: '53.0',
+      build: buildName,
+    },
+    {
+      browserName: 'chrome',
+      platform: 'Windows 10',
+      version: '60.0',
+      build: buildName,
     },
   ],
   services: ['static-server', 'sauce'],
