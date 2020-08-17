@@ -1,7 +1,6 @@
 name: Snyk
 on:
-  push:
-    branches: [ master ]
+  push
 jobs:
   security:
     runs-on: ubuntu-latest
@@ -12,12 +11,15 @@ jobs:
       with:
         node-version: 12
 
-    - name: Run npm ci on Tracker
-      run: npm ci
-
-    - name: Run npm ci on Core
-      run: npm ci
+    - name: Run npm install on Core
+      run: npm install
       working-directory: ./core
+
+    - name: Link Core to Tracker
+      run: npm link ./core
+
+    - name: Run npm intall on Tracker
+      run: npm install
 
     - name: Run Snyk to check for vulnerabilities
       uses: snyk/actions/node@master
