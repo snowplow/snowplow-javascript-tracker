@@ -11,9 +11,9 @@
     "typescript": "2.2.2"
   },
   "dependencies": {
-    "@types/uuid": "^2.0.29",
+    "@types/uuid": "^3.4.6",
     "lodash": "^4.17.11",
-    "uuid": "2.0.3"
+    "uuid": "^3.3.3"
   },
   "contributors": [
     "Alex Dean",
