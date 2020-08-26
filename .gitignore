@@ -26,10 +26,7 @@ tags/tag.min.js
 # creds for Grunt
 aws.json
 
-# Vagrant
-.vagrant
-VERSION
-
-src/js/lib_managed
-
 .idea/
+
+.DS_Store
+dist

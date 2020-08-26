@@ -1,6 +1,6 @@
 /*
- * JavaScript tracker core for Snowplow: tests/intern.js
- * 
+ * JavaScript tracker core for Snowplow: tests/base64.js
+ *
  * Copyright (c) 2014-2020 Snowplow Analytics Ltd. All rights reserved.
  *
  * This program is licensed to you under the Apache License Version 2.0,
@@ -13,8 +13,17 @@
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
 
-define({
+import test from 'ava';
+import { base64encode } from '../../src/base64';
 
-	excludeInstrumentation: /^(?:tests|node_modules)\//
+test('Base 64 encode a string', (t) => {
+  t.is(base64encode('my_string'), 'bXlfc3RyaW5n', 'Base64-encode a string');
+});
 
+test('Base 64 encode a string containing special characters', (t) => {
+  t.is(
+    base64encode('™®字'),
+    '4oSiwq7lrZc=',
+    'Base64-encode a containing TM, Registered Trademark, and Chinese characters'
+  );
 });
