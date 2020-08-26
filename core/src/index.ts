@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker core for Snowplow: tests/intern.js
+ * JavaScript tracker core for Snowplow: main.ts
  * 
  * Copyright (c) 2014-2020 Snowplow Analytics Ltd. All rights reserved.
  *
@@ -13,8 +13,6 @@
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
 
-define({
+import { trackerCore as t } from "./core";
 
-	excludeInstrumentation: /^(?:tests|node_modules)\//
-
-});
+export const trackerCore = t;

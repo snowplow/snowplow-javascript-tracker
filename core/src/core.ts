@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker core for Snowplow: core.js
+ * JavaScript tracker core for Snowplow: core.ts
  *
  * Copyright (c) 2014-2020 Snowplow Analytics Ltd. All rights reserved.
  *
@@ -13,21 +13,18 @@
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
 
-import uuid = require('uuid');
+import { v4 } from 'uuid';
 
-import * as payload from './payload';
-import {PayloadData} from "./payload";
-import {
-	contextModule as contextConstructor
-} from "./contexts";
+import { PayloadData, PayloadDictionary, isJson, payloadBuilder } from "./payload";
+import { contextModule as contextConstructor } from "./contexts";
 
 /**
  * Interface common for any Self-Describing JSON such as custom context or
  * Self-describing (ex-unstuctured) event
  */
-export interface SelfDescribingJson extends Object {
+export interface SelfDescribingJson extends Record<string, unknown> {
 	schema: string
-	data: Object
+	data: Record<string, unknown>
 }
 
 /**
@@ -51,7 +48,7 @@ type TimestampPayload = TrueTimestamp | DeviceTimestamp
  */
 function getTimestamp(tstamp?: Timestamp): TimestampPayload {
 	if (tstamp == null) {
-		return {type: 'dtm', value: new Date().getTime() }
+		return { type: 'dtm', value: new Date().getTime() }
 	} else if (typeof tstamp === 'number') {
 		return { type: 'dtm', value: tstamp }
 	} else if (tstamp.type === 'ttm') {		// We can return tstamp here, but this is safer fallback
@@ -68,7 +65,8 @@ function getTimestamp(tstamp?: Timestamp): TimestampPayload {
  * @param callback Function applied to every payload dictionary object
  * @return Tracker core
  */
-export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function trackerCore(base64: boolean, callback?: (PayloadData: PayloadData) => void) {
 
 	// base 64 encoding should default to true
 	if (typeof base64 === 'undefined') {
@@ -76,16 +74,16 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 	}
 
 	// Dictionary of key-value pairs which get added to every payload, e.g. tracker version
-	var payloadPairs = {};
+	let payloadPairs: PayloadDictionary = {};
 
-	let contextModule = contextConstructor();
+	const contextModule = contextConstructor();
 
 	/**
 	 * Gets all global contexts to be added to events
 	 *
 	 * @param event
 	 */
-	function getAllContexts(event: PayloadData) : Array<SelfDescribingJson> {
+	function getAllContexts(event: PayloadData): Array<SelfDescribingJson> {
 		return contextModule.getApplicableContexts(event);
 	}
 
@@ -106,10 +104,10 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 	 * @param exemptFields Set of fields which should not be removed even if empty
 	 * @return A cleaned copy of eventJson
 	 */
-	function removeEmptyProperties(eventJson: Object, exemptFields?: Object) {
-		var ret = {};
+	function removeEmptyProperties(eventJson: PayloadDictionary, exemptFields?: { [key: string]: boolean}) {
+		const ret: PayloadDictionary = {};
 		exemptFields = exemptFields || {};
-		for (var k in eventJson) {
+		for (const k in eventJson) {
 			if (exemptFields[k] || (eventJson[k] !== null && typeof eventJson[k] !== 'undefined')) {
 				ret[k] = eventJson[k];
 			}
@@ -123,13 +121,14 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 	 * @param contexts Array of custom context self-describing JSONs
 	 * @return Outer JSON
 	 */
-	function completeContexts(contexts?: Array<SelfDescribingJson>): Object | undefined {		// TODO: can return nothing
+	function completeContexts(contexts?: Array<SelfDescribingJson>): Record<string, unknown> | undefined {
 		if (contexts && contexts.length) {
 			return {
 				schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0',
 				data: contexts
 			};
 		}
+		return undefined;
 	}
 
 	/**
@@ -139,9 +138,9 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 	 * @param contexts Array<SelfDescribingJson>
 	 */
 	function attachGlobalContexts(sb: PayloadData,
-								  contexts?: Array<SelfDescribingJson>): Array<SelfDescribingJson> {
-		let globalContexts : Array<SelfDescribingJson> = getAllContexts(sb);
-		let returnedContexts : Array<SelfDescribingJson> = [];
+								contexts?: Array<SelfDescribingJson>): Array<SelfDescribingJson> {
+		const globalContexts : Array<SelfDescribingJson> = getAllContexts(sb);
+		const returnedContexts : Array<SelfDescribingJson> = [];
 		if (contexts && contexts.length) {
 			returnedContexts.push(...contexts);
 		}
@@ -162,13 +161,13 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 	 * @param function afterTrack A callback function triggered after event is tracked
 	 * @return Payload after the callback is applied
 	 */
-	function track(sb: PayloadData, context?: Array<SelfDescribingJson>, tstamp?: Timestamp, afterTrack?: (PayloadData) => void): PayloadData {
+	function track(sb: PayloadData, context?: Array<SelfDescribingJson>, tstamp?: Timestamp, afterTrack?: (Payload: PayloadDictionary) => void): PayloadData {
 		sb.addDict(payloadPairs);
-		sb.add('eid', uuid.v4());
-		var timestamp = getTimestamp(tstamp);
+		sb.add('eid', v4());
+		const timestamp = getTimestamp(tstamp);
 		sb.add(timestamp.type, timestamp.value.toString());
-		var allContexts = attachGlobalContexts(sb, context);
-		var wrappedContexts = completeContexts(allContexts);
+		const allContexts = attachGlobalContexts(sb, context);
+		const wrappedContexts = completeContexts(allContexts);
 		if (wrappedContexts !== undefined) {
 			sb.addJson('cx', 'co', wrappedContexts);
 		}
@@ -195,9 +194,9 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 	 * @param function afterTrack A callback function triggered after event is tracked
 	 * @return Payload
 	 */
-	function trackSelfDescribingEvent(properties: Object, context?: Array<SelfDescribingJson>, tstamp?: Timestamp, afterTrack?: (PayloadData) => void): PayloadData {
-		var sb = payload.payloadBuilder(base64);
-		var ueJson = {
+	function trackSelfDescribingEvent(properties: Record<string, unknown>, context?: Array<SelfDescribingJson>, tstamp?: Timestamp, afterTrack?: (Payload: PayloadDictionary) => void): PayloadData {
+		const sb = payloadBuilder(base64);
+		const ueJson = {
 			schema: 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0',
 			data: properties
 		};
@@ -226,9 +225,9 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 *
 		 * @param dict Dictionary to add
 		 */
-		addPayloadDict: function (dict: Object) {
-			for (var key in dict) {
-				if (dict.hasOwnProperty(key)) {
+		addPayloadDict: function (dict: PayloadDictionary) {
+			for (const key in dict) {
+				if (Object.prototype.hasOwnProperty.call(dict, key)) {
 					payloadPairs[key] = dict[key];
 				}
 			}
@@ -239,8 +238,8 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 *
 		 * @param dict object New dictionary
 		 */
-		resetPayloadPairs: function (dict: Object) {
-			payloadPairs = payload.isJson(dict) ? dict : {};
+		resetPayloadPairs: function (dict: PayloadDictionary) {
+			payloadPairs = isJson(dict) ? dict : {};
 		},
 
 		/**
@@ -374,9 +373,9 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			referrer: string,
 			context?: Array<SelfDescribingJson>,
 			tstamp?: Timestamp,
-			afterTrack?: (PayloadData) => void): PayloadData {
+			afterTrack?: (Payload: PayloadDictionary) => void): PayloadData {
 
-			var sb = payload.payloadBuilder(base64);
+			const sb = payloadBuilder(base64);
 			sb.add('e', 'pv'); // 'pv' for Page View
 			sb.add('url', pageUrl);
 			sb.add('page', pageTitle);
@@ -397,7 +396,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 * @param maxYOffset Maximum page y offset seen in the last ping period
 		 * @param context Custom contexts relating to the event
 		 * @param tstamp TrackerTimestamp of the event
-     * @param function afterTrack A callback function triggered after event is tracked
+         * @param function afterTrack A callback function triggered after event is tracked
 		 * @return object Payload
 		 */
 		trackPagePing: function (
@@ -410,9 +409,9 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			maxYOffset: number,
 			context?: Array<SelfDescribingJson>,
 			tstamp?: Timestamp,
-			afterTrack?: (PayloadData) => void): PayloadData {
+			afterTrack?: (Payload: PayloadDictionary) => void): PayloadData {
 
-			var sb = payload.payloadBuilder(base64);
+			const sb = payloadBuilder(base64);
 			sb.add('e', 'pp'); // 'pp' for Page Ping
 			sb.add('url', pageUrl);
 			sb.add('page', pageTitle);
@@ -445,9 +444,9 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			value?: number,
 			context?: Array<SelfDescribingJson>,
 			tstamp?: Timestamp,
-			afterTrack?: (PayloadData) => void): PayloadData {
+			afterTrack?: (Payload: PayloadDictionary) => void): PayloadData {
 
-			var sb = payload.payloadBuilder(base64);
+			const sb = payloadBuilder(base64);
 			sb.add('e', 'se'); // 'se' for Structured Event
 			sb.add('se_ca', category);
 			sb.add('se_ac', action);
@@ -487,9 +486,9 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			currency?: string,
 			context?: Array<SelfDescribingJson>,
 			tstamp?: Timestamp,
-			afterTrack?: (PayloadData) => void): PayloadData {
+			afterTrack?: (Payload: PayloadDictionary) => void): PayloadData {
 
-			var sb = payload.payloadBuilder(base64);
+			const sb = payloadBuilder(base64);
 			sb.add('e', 'tr'); // 'tr' for Transaction
 			sb.add("tr_id", orderId);
 			sb.add("tr_af", affiliation);
@@ -529,9 +528,9 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			currency?: string,
 			context?: Array<SelfDescribingJson>,
 			tstamp?: Timestamp,
-			afterTrack?: (PayloadData) => void): PayloadData {
+			afterTrack?: (Payload: PayloadDictionary) => void): PayloadData {
 
-			var sb = payload.payloadBuilder(base64);
+			const sb = payloadBuilder(base64);
 			sb.add("e", "ti"); // 'tr' for Transaction Item
 			sb.add("ti_id", orderId);
 			sb.add("ti_sk", sku);
@@ -559,7 +558,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			id: string,
 			context?: Array<SelfDescribingJson>,
 			tstamp?: Timestamp,
-			 afterTrack?: (PayloadData) => void): PayloadData {
+			afterTrack?: (Payload: PayloadDictionary) => void): PayloadData {
 
 			return trackSelfDescribingEvent({
 				schema: 'iglu:com.snowplowanalytics.snowplow/screen_view/jsonschema/1-0-0',
@@ -591,9 +590,9 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			elementContent: string,
 			context?: Array<SelfDescribingJson>,
 			tstamp?: Timestamp,
-			afterTrack?: (PayloadData) => void) {
+			afterTrack?: (Payload: PayloadDictionary) => void) {
 
-			var eventJson = {
+			const eventJson = {
 				schema: 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1',
 				data: removeEmptyProperties({
 					targetUrl: targetUrl,
@@ -634,9 +633,9 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			campaignId: string,
 			context?: Array<SelfDescribingJson>,
 			tstamp?: Timestamp,
-			afterTrack?: (PayloadData) => void): PayloadData {
+			afterTrack?: (Payload: PayloadDictionary) => void): PayloadData {
 
-			var eventJson = {
+			const eventJson = {
 				schema: 'iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0',
 				data: removeEmptyProperties({
 					impressionId: impressionId,
@@ -682,9 +681,9 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			campaignId: string,
 			context?: Array<SelfDescribingJson>,
 			tstamp?: Timestamp,
-			afterTrack?: (PayloadData) => void): PayloadData {
+			afterTrack?: (Payload: PayloadDictionary) => void): PayloadData {
 
-			var eventJson = {
+			const eventJson = {
 				schema: 'iglu:com.snowplowanalytics.snowplow/ad_click/jsonschema/1-0-0',
 				data: removeEmptyProperties({
 					targetUrl: targetUrl,
@@ -733,9 +732,9 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			campaignId: string,
 			context?: Array<SelfDescribingJson>,
 			tstamp?: Timestamp,
-			afterTrack?: (PayloadData) => void): PayloadData {
+			afterTrack?: (Payload: PayloadDictionary) => void): PayloadData {
 
-			var eventJson = {
+			const eventJson = {
 				schema: 'iglu:com.snowplowanalytics.snowplow/ad_conversion/jsonschema/1-0-0',
 				data: removeEmptyProperties({
 					conversionId: conversionId,
@@ -770,9 +769,9 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			target: string,
 			context?: Array<SelfDescribingJson>,
 			tstamp?: Timestamp,
-			afterTrack?: (PayloadData) => void): PayloadData {
+			afterTrack?: (Payload: PayloadDictionary) => void): PayloadData {
 
-			var eventJson = {
+			const eventJson = {
 				schema: 'iglu:com.snowplowanalytics.snowplow/social_interaction/jsonschema/1-0-0',
 				data: removeEmptyProperties({
 					action: action,
@@ -807,7 +806,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			currency?: string,
 			context?: Array<SelfDescribingJson>,
 			tstamp?: Timestamp,
-			afterTrack?: (PayloadData) => void): PayloadData {
+			afterTrack?: (Payload: PayloadDictionary) => void): PayloadData {
 			return trackSelfDescribingEvent({
 				schema: 'iglu:com.snowplowanalytics.snowplow/add_to_cart/jsonschema/1-0-0',
 				data: removeEmptyProperties({
@@ -844,7 +843,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			currency?: string,
 			context?: Array<SelfDescribingJson>,
 			tstamp?: Timestamp,
-			afterTrack?: (PayloadData) => void): PayloadData {
+			afterTrack?: (Payload: PayloadDictionary) => void): PayloadData {
 
 			return trackSelfDescribingEvent({
 				schema: 'iglu:com.snowplowanalytics.snowplow/remove_from_cart/jsonschema/1-0-0',
@@ -886,10 +885,10 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			value: string,
 			context?: Array<SelfDescribingJson>,
 			tstamp?: Timestamp,
-			afterTrack?: (PayloadData) => void): PayloadData {
+			afterTrack?: (Payload: PayloadDictionary) => void): PayloadData {
 
 			let event_schema = '';
-			let event_data:any = {formId, elementId, nodeName, elementClasses, value};
+			const event_data: PayloadDictionary = {formId, elementId, nodeName, elementClasses, value};
 			if (schema === 'change_form'){
 				event_schema = 'iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0';
 				event_data.type = type
@@ -917,10 +916,10 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		trackFormSubmission: function(
 			formId: string,
 			formClasses: Array<string>,
-			elements: Array<string>,
+			elements: Array<Record<string, unknown>>,
 			context?: Array<SelfDescribingJson>,
 			tstamp?: Timestamp,
-			afterTrack?: (PayloadData) => void): PayloadData {
+			afterTrack?: (Payload: PayloadDictionary) => void): PayloadData {
 
 			return trackSelfDescribingEvent({
 				schema: 'iglu:com.snowplowanalytics.snowplow/submit_form/jsonschema/1-0-0',
@@ -945,12 +944,12 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 		 */
 		trackSiteSearch: function(
 			terms: Array<string>,
-			filters: Object,
+			filters: Record<string, string | boolean>,
 			totalResults: number,
 			pageResults: number,
 			context?: Array<SelfDescribingJson>,
 			tstamp?: Timestamp,
-			afterTrack?: (PayloadData) => void): PayloadData {
+			afterTrack?: (Payload: PayloadDictionary) => void): PayloadData {
 
 			return trackSelfDescribingEvent({
 				schema: 'iglu:com.snowplowanalytics.snowplow/site_search/jsonschema/1-0-0',
@@ -984,9 +983,9 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			description?: string,
 			context?: Array<SelfDescribingJson>,
 			tstamp?: Timestamp,
-			afterTrack?: (PayloadData) => void): PayloadData {
+			afterTrack?: (Payload: PayloadDictionary) => void): PayloadData {
 
-			let documentJson = {
+			const documentJson = {
 				schema: 'iglu:com.snowplowanalytics.snowplow/consent_document/jsonschema/1-0-0',
 				data: removeEmptyProperties({
 					id: id,
@@ -1025,9 +1024,9 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			expiry?: string,
 			context?: Array<SelfDescribingJson>,
 			tstamp?: Timestamp,
-			afterTrack?: (PayloadData) => void): PayloadData {
+			afterTrack?: (Payload: PayloadDictionary) => void): PayloadData {
 
-			let documentJson = {
+			const documentJson = {
 				schema: 'iglu:com.snowplowanalytics.snowplow/consent_document/jsonschema/1-0-0',
 				data: removeEmptyProperties({
 					id: id,
@@ -1045,7 +1044,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			}, context ? context.concat([documentJson]) : [documentJson], tstamp, afterTrack);
 		},
 
-		addGlobalContexts: function(contexts: Array<Object>) {
+		addGlobalContexts: function(contexts: Array<unknown>) {
 			contextModule.addGlobalContexts(contexts);
 		},
 
@@ -1053,7 +1052,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData) => void) {
 			contextModule.clearGlobalContexts();
 		},
 
-		removeGlobalContexts: function(contexts: Array<Object>) {
+		removeGlobalContexts: function(contexts: Array<unknown>) {
 			contextModule.removeGlobalContexts(contexts);
 		}
 	};

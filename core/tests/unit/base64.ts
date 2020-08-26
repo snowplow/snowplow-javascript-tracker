@@ -13,20 +13,13 @@
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
 
-define([
-	"intern!object",
-	"intern/chai!assert",
-	"intern/dojo/node!../../lib/base64.js"
-], function (registerSuite, assert, base64) {
+import test from 'ava'
+import { base64encode } from '../../src/base64'
 
-	registerSuite({
-		name: "Base 64 encoding test",
-		"Encode a string": function () {
-			assert.strictEqual(base64.base64encode('my_string'), 'bXlfc3RyaW5n', 'Base64-encode a string');
-		},
+test("Base 64 encode a string", t => {
+    t.is(base64encode('my_string'), 'bXlfc3RyaW5n', 'Base64-encode a string');
+});
 
-		"Encode a string containing special characters": function () {
-			assert.strictEqual(base64.base64encode('™®字'), '4oSiwq7lrZc=', 'Base64-encode a containing TM, Registered Trademark, and Chinese characters');
-		}
-	});
+test("Base 64 encode a string containing special characters", t => {
+    t.is(base64encode('™®字'), '4oSiwq7lrZc=', 'Base64-encode a containing TM, Registered Trademark, and Chinese characters');
 });

@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker core for Snowplow: payload.js
+ * JavaScript tracker core for Snowplow: payload.ts
  * 
  * Copyright (c) 2014-2020 Snowplow Analytics Ltd. All rights reserved.
  *
@@ -15,18 +15,22 @@
 
 import * as base64 from './base64';
 
+export interface PayloadDictionary {
+	[key: string] : unknown;
+}
+
 /**
  * Interface for mutable object encapsulating tracker payload
  */
 export interface PayloadData {
 	add: (key: string, value?: string) => void,
-	addDict: (dict: Object) => void,
-	addJson: (keyIfEncoded: string, keyIfNotEncoded: string, json: Object) => void,
-	build: () => Object;
+	addDict: (dict: PayloadDictionary) => void,
+	addJson: (keyIfEncoded: string, keyIfNotEncoded: string, json: Record<string, unknown>) => void,
+	build: () => PayloadDictionary;
 }
 
 /**
- * Bas64 encode data with URL and Filename Safe Alphabet (base64url)
+ * Base64 encode data with URL and Filename Safe Alphabet (base64url)
  *
  * See: http://tools.ietf.org/html/rfc4648#page-7
  */
@@ -35,19 +39,19 @@ function base64urlencode(data: string): string {
 		return data;
 	}
 
-	var enc = base64.base64encode(data);
+	const enc = base64.base64encode(data);
 	return enc.replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 }
 
 /**
  * Is property a non-empty JSON?
  */
-export function isNonEmptyJson(property): boolean {
+export function isNonEmptyJson(property: Record<string, unknown>): boolean {
 	if (!isJson(property)) {
 		return false;
 	}
-	for (var key in property) {
-		if (property.hasOwnProperty(key)) {
+	for (const key in property) {
+		if (Object.prototype.hasOwnProperty.call(property, key)) {
 			return true;
 		}
 	}
@@ -57,11 +61,11 @@ export function isNonEmptyJson(property): boolean {
 /**
  * Is property a JSON?
  */
-export function isJson(property: Object): boolean {
-	return (typeof property !== 'undefined' && property !== null &&
-	(property.constructor === {}.constructor || property.constructor === [].constructor));
+export function isJson(property: unknown): boolean {
+	const record = property as Record<string, unknown>;
+	return (typeof record !== 'undefined' && record !== null &&
+	(record.constructor === {}.constructor || record.constructor === [].constructor));
 }
-
 
 /**
  * A helper to build a Snowplow request string from an
@@ -74,25 +78,25 @@ export function isJson(property: Object): boolean {
  * @return object The request string builder, with add, addRaw and build methods
  */
 export function payloadBuilder(base64Encode: boolean): PayloadData {
-	var dict = {};
+	const dict: PayloadDictionary = {};
 
-	var add = function (key: string, value?: string): void {
+	const add = function (key: string, value?: unknown): void {
 		if (value != null && value !== '') {  // null also checks undefined
 			dict[key] = value;
 		}
 	};
 
-	var addDict = function (dict: Object) {
-		for (var key in dict) {
-			if (dict.hasOwnProperty(key)) {
+	const addDict = function (dict: PayloadDictionary) {
+		for (const key in dict) {
+			if (Object.prototype.hasOwnProperty.call(dict, key)) {
 				add(key, dict[key]);
 			}
 		}
 	};
 
-	var addJson = function (keyIfEncoded: string, keyIfNotEncoded: string, json?: Object) {
-		if (isNonEmptyJson(json)) {
-			var str = JSON.stringify(json);
+	const addJson = function (keyIfEncoded: string, keyIfNotEncoded: string, json?: Record<string, unknown>) {
+		if (json && isNonEmptyJson(json)) {
+			const str = JSON.stringify(json);
 			if (base64Encode) {
 				add(keyIfEncoded, base64urlencode(str));
 			} else {

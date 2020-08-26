@@ -1,6 +1,47 @@
-# Snowplow JavaScript Tracker Core [![npm version][npm-image]][npm-url]
+# Snowplow JavaScript Tracker Core
 
-Core module to be used by all Snowplow JavaScript trackers.
+[![npm version][npm-image]][npm-url]
+
+Core module to be used by Snowplow JavaScript based trackers.
+
+## Developer quickstart
+
+Can be built, tested and packed locally directly with [Node](https://nodejs.org/en/) (10+) and `npm`.  
+Use `npm install`, `npm run build`, `npm run test` and `npm pack`
+
+Below instructions assume git and [Docker][docker-install] installed.
+
+### Clone repository
+
+```bash
+host$ git clone https://github.com/snowplow/snowplow-javascript-tracker.git
+```
+
+### Building Tracker Core
+
+```bash
+host$ cd snowplow-javascript-tracker/core
+host$ docker build -t core .
+host$ docker run -v "$(pwd)":"/code" core npm run build
+```
+
+### Running tests
+
+```bash
+host$ docker run core npm run test
+```
+
+### Create NPM Package locally
+
+```bash
+host$ docker run -v "$(pwd)":"/code" core npm pack
+```
+
+For testing, the resulting tarball `snowplow-tracker-core-x.x.x.tgz` can be installed locally into another application (such as the Snowplow JavaScript Tracker).
+
+```bash
+host$ npm install snowplow-tracker-core-x.x.x.tgz
+```
 
 ## Installation
 
@@ -10,21 +51,34 @@ With npm:
 npm install snowplow-tracker-core
 ```
 
-## Example
+### CommonJS Example
 
 ```js
-var core = require('snowplow-tracker-core').trackerCore;
+const core = require('snowplow-tracker-core').trackerCore;
 
 // Create an instance with base 64 encoding set to false (it defaults to true)
-var coreInstance = core(false);
+const coreInstance = core(false);
+```
 
+### ES Module Example
+
+```js
+import { trackerCore } from 'snowplow-tracker-core';
+
+// Create an instance with base 64 encoding set to false (it defaults to true)
+const coreInstance = trackerCore(false)
+```
+
+### Example
+
+```js
 // Add a name-value pair to all payloads
 coreInstance.addPayloadPair('vid', 2);
 
 // Add each name-value pair in a dictionary to all payloads
 coreInstance.addPayloadDict({
-	'ds': '1160x620',
-	'fp': 4070134789
+    'ds': '1160x620',
+    'fp': 4070134789
 });
 
 // Add name-value pairs to all payloads using convenience methods
@@ -36,25 +90,25 @@ coreInstance.setViewport(600, 400);
 coreInstance.setUseragent('Snowplow/0.0.1');
 
 // Track a page view with URL and title
-var pageViewPayload = coreInstance.trackPageView('http://www.example.com', 'landing page');
+const pageViewPayload = coreInstance.trackPageView('http://www.example.com', 'landing page');
 
 console.log(pageViewPayload.build());
 /*
 {
-	'e': 'pv',
-	'url': 'http://www.example.com',
-	'page': 'landing page',
-	'uid': 'user-321',
-	'vd': 2,
-	'ds': '1160x620',	
-	'fp': 4070134789
-	'tv': 'js-3.0.0',
-	'p': 'web',
-	'cd': 24,
-	'vp': '600x400',
-	'ua': 'Snowplow/0.0.1',
-	'dtm': 1406879959702,                          // timestamp
-	'eid': '0718a85a-45dc-4f71-a949-27870442ed7d'  // UUID
+    'e': 'pv',
+    'url': 'http://www.example.com',
+    'page': 'landing page',
+    'uid': 'user-321',
+    'vd': 2,
+    'ds': '1160x620',
+    'fp': 4070134789
+    'tv': 'js-3.0.0',
+    'p': 'web',
+    'cd': 24,
+    'vp': '600x400',
+    'ua': 'Snowplow/0.0.1',
+    'dtm': 1406879959702,                          // timestamp
+    'eid': '0718a85a-45dc-4f71-a949-27870442ed7d'  // UUID
 }
 */
 
@@ -62,30 +116,30 @@ console.log(pageViewPayload.build());
 coreInstance.resetPayloadPairs();
 
 // Track an unstructured event
-var unstructEventPayload = coreInstance.trackUnstructEvent({
-	'schema': 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-0',
-	'data': {
-		'targetUrl': 'http://www.destination.com',
-		'elementId': 'bannerLink'
-	}
+const unstructEventPayload = coreInstance.trackUnstructEvent({
+    'schema': 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-0',
+    'data': {
+        'targetUrl': 'http://www.destination.com',
+        'elementId': 'bannerLink'
+    }
 });
 
 console.log(unstructEventPayload.build());
 /*
 {
-	'e': 'ue',
-	'ue_pr': {
-		'schema': 'iglu:com.snowplowanalytics.snowplow/unstruct_even/jsonschema/1-0-0',
-		'data': {
-			'schema': 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-0',
-			'data': {
-				'targetUrl': 'http://www.destination.com',
-				'elementId': 'bannerLink'
-			}
-		}
-	},
-	'dtm': 1406879973439,
-	'eid': '956c6670-cbf6-460b-9f96-143e0320fdf6'
+    'e': 'ue',
+    'ue_pr': {
+        'schema': 'iglu:com.snowplowanalytics.snowplow/unstruct_even/jsonschema/1-0-0',
+        'data': {
+            'schema': 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-0',
+            'data': {
+                'targetUrl': 'http://www.destination.com',
+                'elementId': 'bannerLink'
+            }
+        }
+    },
+    'dtm': 1406879973439,
+    'eid': '956c6670-cbf6-460b-9f96-143e0320fdf6'
 }
 */
 ```
@@ -95,7 +149,7 @@ console.log(unstructEventPayload.build());
 Core instances can be initialized with two parameters. The first is a boolean and determines whether custom contexts and unstructured events will be base 64 encoded. The second is an optional callback function which gets applied to every payload created by the instance.
 
 ```js
-var coreInstance = core(true, console.log);
+const coreInstance = core(true, console.log);
 ```
 
 The above example would base 64 encode all unstructured events and custom contexts and would log each payload to the console.
@@ -103,9 +157,7 @@ The above example would base 64 encode all unstructured events and custom contex
 Use the `setBase64Encoding` method to turn base 64 encoding on or off after initializing a core instance:
 
 ```js
-var core = require('snowplow-tracker-core');
-
-var coreInstance = core(); // Base 64 encoding on by default
+const coreInstance = core(); // Base 64 encoding on by default
 
 coreInstance.setBase64Encoding(false); // Base 64 encoding is now off
 ```
@@ -132,3 +184,4 @@ limitations under the License.
 [npm-url]: http://badge.fury.io/js/snowplow-tracker-core
 [npm-image]: https://badge.fury.io/js/snowplow-tracker-core.svg
 [wiki]: https://github.com/snowplow/snowplow/wiki/Javascript-Tracker-Core
+[docker-install]: https://docs.docker.com/install/

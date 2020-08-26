@@ -1,4 +1,4 @@
-# JavaScript tracker core for Snowplow: index.js
+# JavaScript tracker core for Snowplow: Dockerfile
 # 
 # Copyright (c) 2014-2020 Snowplow Analytics Ltd. All rights reserved.
 #
@@ -10,11 +10,9 @@
 # software distributed under the Apache License Version 2.0 is distributed on an
 # "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
-FROM node:8.12.0-alpine
+FROM node:erbium-alpine
 
-RUN npm install -g grunt-cli 
-
-WORKDIR /usr/src/app
+WORKDIR /code
 
 COPY package*.json ./
 RUN npm install

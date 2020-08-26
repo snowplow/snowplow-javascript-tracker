@@ -28,7 +28,7 @@ export function base64urldecode(data: string): string {
     if (!data) {
         return data;
     }
-    var padding = 4 - data.length % 4;
+    const padding = 4 - data.length % 4;
     switch (padding) {
         case 2:
             data += "==";
@@ -37,7 +37,7 @@ export function base64urldecode(data: string): string {
             data += "=";
             break;
     }
-    var b64Data = data.replace(/-/g, '+').replace(/_/g, '/');
+    const b64Data = data.replace(/-/g, '+').replace(/_/g, '/');
     return base64decode(b64Data);
 }
 
@@ -64,11 +64,10 @@ export function base64encode(data: string): string {
 	// example 3: base64_encode('✓ à la mode');
 	// returns 3: '4pyTIMOgIGxhIG1vZGU='
 
-	var b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-	var o1, o2, o3, h1, h2, h3, h4, bits, i = 0,
-		ac = 0,
-		enc: string,
-		tmp_arr: Array<string> = [];
+	const b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+	let o1, o2, o3, h1, h2, h3, h4, bits, i = 0,
+		ac = 0;
+	const tmp_arr: Array<string> = [];
 
 	if (!data) {
 		return data;
@@ -93,14 +92,14 @@ export function base64encode(data: string): string {
 		tmp_arr[ac++] = b64.charAt(h1) + b64.charAt(h2) + b64.charAt(h3) + b64.charAt(h4);
 	} while (i < data.length);
 
-	enc = tmp_arr.join('');
+	const enc = tmp_arr.join('');
 
-	var r = data.length % 3;
+	const r = data.length % 3;
 
 	return (r ? enc.slice(0, r - 3) : enc) + '==='.slice(r || 3);
 }
 
-export function base64decode(encodedData:string): string {
+export function base64decode(encodedData: string): string {
 	//  discuss at: http://locutus.io/php/base64_decode/
 	// original by: Tyler Akins (http://rumkin.com)
 	// improved by: Thunder.m
@@ -122,18 +121,18 @@ export function base64decode(encodedData:string): string {
 	// decodeUTF8string()
 	// Internal function to decode properly UTF8 string
 	// Adapted from Solution #1 at https://developer.mozilla.org/en-US/docs/Web/API/WindowBase64/Base64_encoding_and_decoding
-	var decodeUTF8string = function (str) {
+	const decodeUTF8string = function (str: string) {
 		// Going backwards: from bytestream, to percent-encoding, to original string.
 		return decodeURIComponent(str.split('').map(function (c) {
 			return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
 		}).join(''))
 	};
 
-	var b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-	var o1, o2, o3, h1, h2, h3, h4, bits, i = 0,
+	const b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+	let o1, o2, o3, h1, h2, h3, h4, bits, i = 0,
 		ac = 0,
-		dec = '',
-		tmpArr: Array<string> = [];
+		dec = '';
+	const tmpArr: Array<string> = [];
 
 	if (!encodedData) {
 		return encodedData;
