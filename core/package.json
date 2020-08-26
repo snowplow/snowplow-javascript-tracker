@@ -14,7 +14,8 @@
   ],
   "dependencies": {
     "lodash": "^4.17.20",
-    "uuid": "^3.3.3"
+    "uuid": "^3.3.3",
+    "tslib": "^2.0.1"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.160",
@@ -27,7 +28,6 @@
     "eslint": "^7.7.0",
     "rollup": "^2.26.5",
     "ts-node": "^9.0.0",
-    "tslib": "^2.0.1",
     "typescript": "^3.9.7"
   },
   "contributors": [
