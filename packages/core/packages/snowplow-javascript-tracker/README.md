@@ -28,21 +28,29 @@ client-side tier of your websites and web apps.
 
 Assuming git and [Docker][docker-install] installed:
 
+#### Clone repository
+
 ```bash
- host$ git clone https://github.com/snowplow/snowplow-javascript-tracker.git
- host$ cd snowplow-javascript-tracker
- host$ cd core
- host$ docker build -t core .
- host$ docker run core grunt
- host$ cd ..
- host$ docker build -t tracker .
- host$ docker run tracker grunt
+host$ git clone https://github.com/snowplow/snowplow-javascript-tracker.git
 ```
 
-Set up an `./aws.json` file using the example `./aws.sample.json`. If you just want to concat +
-minify without uploading then you don't need to fill out the `aws.json` file with valid credentials.
+#### Building Tracker Core
 
-Build the package (default task concatenates and minifies) using `grunt`.
+```bash
+host$ cd snowplow-javascript-tracker/core
+host$ docker build -t core .
+host$ docker run -v "$(pwd)":"/code" core npm run build
+```
+
+#### Building Tracker
+
+```bash
+host$ cd snowplow-javascript-tracker
+host$ docker build -t tracker .
+host$ docker run -v "$(pwd)":"/code" tracker grunt
+```
+
+Build the tracker (default task concatenates and minifies) using `grunt`.
 
 ## Testing
 

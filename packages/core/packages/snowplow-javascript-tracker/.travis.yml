@@ -2,28 +2,25 @@ addons:
   hosts:
     - snowplow-js-tracker.local
 node_js:
-- 8.12.0
+- 12
 language: node_js
 install:
-- npm install -g npm@6.4.1
+- npm install -g rollup
 - npm install -g grunt-cli
 
-# install packages and build core
+# # install packages and build core
 - cd core
 - rm -rf node_modules
 - npm install
-- grunt ts
-- grunt dtsGenerator
 
 # install packages for tracker
 - cd ..
 - rm -rf node_modules
-- npm link ./core
 - npm install
 
 before_script:
 script:
-- cd core && grunt intern && cd ..
+- cd core && npm run build && npm run test && cd ..
 - grunt travis && npm run test:unit && npm run test:e2e:sauce
 before_deploy:
 - grunt default
@@ -33,13 +30,7 @@ deploy:
   script: ./.travis/deploy.py
   on:
     condition: '"$(.travis/is_correct_core_release_tag.sh $TRAVIS_TAG)" == "" && $? == 0'
-    tags: true
-# - provider: script
-#  skip_cleanup: true
-#  script: ./.travis/deploy.py
-#  on:
-#    condition: '"$(.travis/is_tracker_release_tag.sh $TRAVIS_TAG)" == "" && $? == 0'
-#    tags: true
+    tags: true 
 - provider: releases
   skip_cleanup: true
   api_key:
