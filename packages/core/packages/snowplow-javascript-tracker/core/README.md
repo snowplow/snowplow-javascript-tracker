@@ -6,7 +6,8 @@ Core module to be used by Snowplow JavaScript based trackers.
 
 ## Developer quickstart
 
-Can be built, tested and packed locally directly with [Node](https://nodejs.org/en/) (10+) and `npm`.  
+Can be built, tested and packed locally directly with [Node](https://nodejs.org/en/) (10+) and `npm`.
+
 Use `npm install`, `npm run build`, `npm run test` and `npm pack`
 
 Below instructions assume git and [Docker][docker-install] installed.
@@ -54,19 +55,19 @@ npm install snowplow-tracker-core
 ### CommonJS Example
 
 ```js
-const trackerCore = require('snowplow-tracker-core');
+const trackerCore = require('snowplow-tracker-core').trackerCore;
 
 // Create an instance with base 64 encoding set to false (it defaults to true)
-const core = new trackerCore.TrackerCore(false);
+const core = trackerCore(false);
 ```
 
 ### ES Module Example
 
 ```js
-import { TrackerCore } from 'snowplow-tracker-core';
+import { trackerCore } from 'snowplow-tracker-core';
 
 // Create an instance with base 64 encoding set to false (it defaults to true)
-const core = new TrackerCore(false)
+const core = trackerCore(false)
 ```
 
 ### Example
@@ -149,7 +150,7 @@ console.log(unstructEventPayload.build());
 Core instances can be initialized with two parameters. The first is a boolean and determines whether custom contexts and unstructured events will be base 64 encoded. The second is an optional callback function which gets applied to every payload created by the instance.
 
 ```js
-const core = new TrackerCore(true, console.log);
+const core = trackerCore(true, console.log);
 ```
 
 The above example would base 64 encode all unstructured events and custom contexts and would log each payload to the console.
@@ -157,7 +158,7 @@ The above example would base 64 encode all unstructured events and custom contex
 Use the `setBase64Encoding` method to turn base 64 encoding on or off after initializing a core instance:
 
 ```js
-const core = new TrackerCore(); // Base 64 encoding on by default
+const core = trackerCore(); // Base 64 encoding on by default
 
 core.setBase64Encoding(false); // Base 64 encoding is now off
 ```
