@@ -24,6 +24,7 @@ import get from 'lodash/get';
 import every from 'lodash/every';
 import compact from 'lodash/compact';
 import map from 'lodash/map';
+import isPlainObject from 'lodash/isPlainObject';
 
 /**
  * Datatypes (some algebraic) for representing context types
@@ -165,23 +166,26 @@ export function isEventJson(input: unknown): input is PayloadDictionary {
 export function isRuleSet(input: unknown): input is Record<string, unknown> {
     const ruleSet = input as Record<string, unknown>;
     let ruleCount = 0;
-    if (has(ruleSet, 'accept')) {
-        if (isValidRuleSetArg(ruleSet['accept'])) {
-            ruleCount += 1;
-        } else {
-            return false;
+    if (isPlainObject(input)) {
+        if (has(ruleSet, 'accept')) {
+            if (isValidRuleSetArg(ruleSet['accept'])) {
+                ruleCount += 1;
+            } else {
+                return false;
+            }
         }
-    }
-    if (has(ruleSet, 'reject')) {
-        if (isValidRuleSetArg(ruleSet['reject'])) {
-            ruleCount += 1;
-        } else {
-            return false;
+        if (has(ruleSet, 'reject')) {
+            if (isValidRuleSetArg(ruleSet['reject'])) {
+                ruleCount += 1;
+            } else {
+                return false;
+            }
         }
+        // if either 'reject' or 'accept' or both exists,
+        // we have a valid ruleset
+        return ruleCount > 0 && ruleCount <= 2;
     }
-    // if either 'reject' or 'accept' or both exists,
-    // we have a valid ruleset
-    return ruleCount > 0 && ruleCount <= 2;
+    return false;
 }
 
 export function isContextGenerator(input: unknown): boolean {

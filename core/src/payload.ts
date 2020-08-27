@@ -62,7 +62,7 @@ export function isNonEmptyJson(property: Record<string, unknown>): boolean {
  * Is property a JSON?
  */
 export function isJson(property: unknown): boolean {
-	const record = property as Record<string, unknown>;
+	const record = property as Record<string, unknown> | null | undefined;
 	return (typeof record !== 'undefined' && record !== null &&
 	(record.constructor === {}.constructor || record.constructor === [].constructor));
 }
