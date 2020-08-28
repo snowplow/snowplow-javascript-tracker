@@ -15,7 +15,7 @@
 
 import test from 'ava'
 import * as contexts from '../../src/contexts'
-import { PayloadBuilder, PayloadDictionary } from '../../src/payload';
+import { payloadBuilder, PayloadDictionary } from '../../src/payload';
 import { SelfDescribingJson } from '../../src/core';
 
 test('Identify context primitives', t => {
@@ -183,7 +183,7 @@ test('Add global contexts', t => {
 	const ruleSetProvider: contexts.RuleSetProvider = [bothRuleSet, [geolocationContext, eventTypeContextGenerator]];
 
 	const contextArray = [filterProvider, ruleSetProvider, geolocationContext, eventTypeContextGenerator];
-	const globalContexts = new contexts.GlobalContexts();
+	const globalContexts = contexts.globalContexts();
 
 	globalContexts.addGlobalContexts(contextArray);
 	t.is(globalContexts.getGlobalPrimitives().length, 2,
@@ -225,7 +225,7 @@ test('Remove global contexts', t => {
 
 	const filterProvider: contexts.FilterProvider = [filterFunction, [geolocationContext, eventTypeContextGenerator]];
 	const ruleSetProvider: contexts.RuleSetProvider = [bothRuleSet, [geolocationContext, eventTypeContextGenerator]];
-	const globalContexts = new contexts.GlobalContexts();
+	const globalContexts = contexts.globalContexts();
 
 	globalContexts.addGlobalContexts([filterProvider, ruleSetProvider, geolocationContext, eventTypeContextGenerator]);
 	globalContexts.removeGlobalContexts([filterProvider, geolocationContext, eventTypeContextGenerator]);
@@ -270,7 +270,7 @@ test('Clear global contexts', t => {
 	const ruleSetProvider: contexts.RuleSetProvider = [bothRuleSet, [geolocationContext, eventTypeContextGenerator]];
 
 	const contextArray = [filterProvider, ruleSetProvider, geolocationContext, eventTypeContextGenerator];
-	const globalContexts = new contexts.GlobalContexts();
+	const globalContexts = contexts.globalContexts();
 	globalContexts.addGlobalContexts(contextArray);
 	globalContexts.clearGlobalContexts();
 	t.is(globalContexts.getGlobalPrimitives().length, 0,
@@ -323,8 +323,8 @@ test('Get applicable contexts', t => {
 		}
 	};
 	const contextArray = [filterProvider, ruleSetProvider, geolocationContext, eventTypeContextGenerator];
-	const globalContexts = new contexts.GlobalContexts();
-	const event = new PayloadBuilder(false);
+	const globalContexts = contexts.globalContexts();
+	const event = payloadBuilder(false);
 	for (const property in eventJson) {
 		if (Object.prototype.hasOwnProperty.call(eventJson, property)) {
 			event.add(property, eventJson[property] as string);

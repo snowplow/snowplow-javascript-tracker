@@ -1,6 +1,6 @@
 /*
  * JavaScript tracker core for Snowplow: main.ts
- * 
+ *
  * Copyright (c) 2014-2020 Snowplow Analytics Ltd. All rights reserved.
  *
  * This program is licensed to you under the Apache License Version 2.0,
@@ -13,6 +13,16 @@
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
 
-export { ContextPrimitive, ContextFilterEvent, ContextFilter, ContextGeneratorEvent, ContextGenerator, RuleSetProvider, FilterProvider, ConditionalContextProvider } from './contexts';
+export {
+  ContextPrimitive,
+  ContextFilterEvent,
+  ContextFilter,
+  ContextGeneratorEvent,
+  ContextGenerator,
+  RuleSetProvider,
+  FilterProvider,
+  ConditionalContextProvider,
+} from './contexts';
 export { PayloadData, PayloadDictionary } from './payload';
-export { SelfDescribingJson, Timestamp, TrueTimestamp, DeviceTimestamp, TrackerCore } from './core';
+export { Core, SelfDescribingJson, Timestamp, TrueTimestamp, DeviceTimestamp } from './core';
+export { trackerCore } from './core';
