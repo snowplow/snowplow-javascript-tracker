@@ -1,10 +1,9 @@
 {
   "compilerOptions": {
     /* Basic Options */
-    "target": "es5",                          /* Good for Node 10 - https://github.com/microsoft/TypeScript/wiki/Node-Target-Mapping */
+    "target": "es2018",                       /* Good for Node 10 - https://github.com/microsoft/TypeScript/wiki/Node-Target-Mapping */
     "module": "commonjs",                     /* Ignored by rollup but used by ts-node for tests */
     "declaration": true,                      /* Generates corresponding '.d.ts' file. */
-    "removeComments": true,                   /* Remove the comments from publised files */
 
     /* Strict Type-Checking Options */
     "strict": true,                           /* Enable all strict type-checking options. */

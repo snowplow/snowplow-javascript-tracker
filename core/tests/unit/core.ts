@@ -1,9 +1,9 @@
 import test, { ExecutionContext } from 'ava'
-import { trackerCore } from '../../src/core'
+import { TrackerCore } from '../../src/core'
 import { PayloadData, PayloadDictionary } from '../../src/payload';
 
 const unstructEventSchema = 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0';
-const tracker = trackerCore(false);
+const tracker = new TrackerCore(false);
 function compare(result: PayloadData, expected: PayloadDictionary, t: ExecutionContext) {
     const res = result.build();
     t.truthy(res['eid'], 'A UUID should be attached to all events');
@@ -13,7 +13,7 @@ function compare(result: PayloadData, expected: PayloadDictionary, t: ExecutionC
     t.deepEqual(res, expected);
 }
 
-test("should track a page view", t => {
+test('should track a page view', t => {
     const url = 'http://www.example.com';
     const page = 'title page';
     const referer = 'https://www.google.com';
@@ -25,7 +25,7 @@ test("should track a page view", t => {
     };
     compare(tracker.trackPageView(url, page, referer), expected, t);
 });
-test("should track a page ping", t => {
+test('should track a page ping', t => {
     const url = 'http://www.example.com';
     const page = 'title page';
     const referer = 'http://www.google.com';
@@ -41,7 +41,7 @@ test("should track a page ping", t => {
     };
     compare(tracker.trackPagePing(url, page, referer, 1, 2, 3, 4), expected, t);
 });
-test("should track a structured event", t => {
+test('should track a structured event', t => {
     const expected = {
         e: 'se',
         se_ca: 'cat',
@@ -52,7 +52,7 @@ test("should track a structured event", t => {
     };
     compare(tracker.trackStructEvent('cat', 'act', 'lab', 'prop', 1), expected, t);
 });
-test("should track an ecommerce transaction event", t => {
+test('should track an ecommerce transaction event', t => {
     const orderId = 'ak0008';
     const affiliation = '1234';
     const totalValue = '50';
@@ -76,7 +76,7 @@ test("should track an ecommerce transaction event", t => {
     };
     compare(tracker.trackEcommerceTransaction(orderId, affiliation, totalValue, taxValue, shipping, city, state, country, currency), expected, t);
 });
-test("should track an ecommerce transaction item event", t => {
+test('should track an ecommerce transaction item event', t => {
     const orderId = 'ak0008';
     const sku = '4q345';
     const price = '17.00';
@@ -96,7 +96,7 @@ test("should track an ecommerce transaction item event", t => {
     };
     compare(tracker.trackEcommerceTransactionItem(orderId, sku, name, category, price, quantity, currency), expected, t);
 });
-test("should track an unstructured event", t => {
+test('should track an unstructured event', t => {
     const inputJson = {
         schema: 'iglu:com.acme/user/jsonschema/1-0-1',
         data: {
@@ -112,7 +112,7 @@ test("should track an unstructured event", t => {
     };
     compare(tracker.trackUnstructEvent(inputJson), expected, t);
 });
-test("should track a self-describing event", t => {
+test('should track a self-describing event', t => {
     const inputJson = {
         schema: 'iglu:com.acme/user/jsonschema/1-0-1',
         data: {
@@ -128,7 +128,7 @@ test("should track a self-describing event", t => {
     };
     compare(tracker.trackSelfDescribingEvent(inputJson), expected, t);
 });
-test("should track a link click", t => {
+test('should track a link click', t => {
     const targetUrl = 'http://www.example.com';
     const elementId = 'first header';
     const elementClasses = ['header'];
@@ -153,7 +153,7 @@ test("should track a link click", t => {
     };
     compare(tracker.trackLinkClick(targetUrl, elementId, elementClasses, elementTarget, elementContent), expected, t);
 });
-test("should track a screen view", t => {
+test('should track a screen view', t => {
     const name = 'intro';
     const id = '7398-4352-5345-1950';
     const inputJson = {
@@ -172,7 +172,7 @@ test("should track a screen view", t => {
     };
     compare(tracker.trackScreenView(name, id), expected, t);
 });
-test("should track an ad impression", t => {
+test('should track an ad impression', t => {
     const impressionId = 'a0e8f8780ab3';
     const costModel = 'cpc';
     const cost = 0.5;
@@ -203,7 +203,7 @@ test("should track an ad impression", t => {
     };
     compare(tracker.trackAdImpression(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId), expected, t);
 });
-test("should track an ad click", t => {
+test('should track an ad click', t => {
     const targetUrl = 'http://adsite.com';
     const clickId = 'click-321';
     const costModel = 'cpc';
@@ -236,7 +236,7 @@ test("should track an ad click", t => {
     };
     compare(tracker.trackAdClick(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId), expected, t);
 });
-test("should track an ad conversion", t => {
+test('should track an ad conversion', t => {
     const conversionId = 'conversion-59';
     const costModel = 'cpc';
     const cost = 0.5;
@@ -269,7 +269,7 @@ test("should track an ad conversion", t => {
     };
     compare(tracker.trackAdConversion(conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId), expected, t);
 });
-test("should track a social interaction", t => {
+test('should track a social interaction', t => {
     const action = 'like';
     const network = 'facebook';
     const target = 'status-0000345345';
@@ -290,7 +290,7 @@ test("should track a social interaction", t => {
     };
     compare(tracker.trackSocialInteraction(action, network, target), expected, t);
 });
-test("should track an add-to-cart event", t => {
+test('should track an add-to-cart event', t => {
     const sku = '4q345';
     const unitPrice = '17';
     const quantity = '2';
@@ -317,7 +317,7 @@ test("should track an add-to-cart event", t => {
     };
     compare(tracker.trackAddToCart(sku, name, category, unitPrice, quantity, currency), expected, t);
 });
-test("should track a remove-from-cart event", t => {
+test('should track a remove-from-cart event', t => {
     const sku = '4q345';
     const unitPrice = '17';
     const quantity = '2';
@@ -344,13 +344,13 @@ test("should track a remove-from-cart event", t => {
     };
     compare(tracker.trackRemoveFromCart(sku, name, category, unitPrice, quantity, currency), expected, t);
 });
-test("should track a form focus event", t => {
-    const formId = "parent";
-    const elementId = "child";
-    const nodeName = "INPUT";
-    const type = "text";
-    const elementClasses = ["important"];
-    const value = "male";
+test('should track a form focus event', t => {
+    const formId = 'parent';
+    const elementId = 'child';
+    const nodeName = 'INPUT';
+    const type = 'text';
+    const elementClasses = ['important'];
+    const value = 'male';
     const inputJson = {
         schema: 'iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0',
         data: {
@@ -371,13 +371,13 @@ test("should track a form focus event", t => {
     };
     compare(tracker.trackFormFocusOrChange('focus_form', formId, elementId, nodeName, type, elementClasses, value), expected, t);
 });
-test("should track a form change event", t => {
-    const formId = "parent";
-    const elementId = "child";
-    const nodeName = "INPUT";
-    const type = "text";
-    const elementClasses = ["important"];
-    const value = "male";
+test('should track a form change event', t => {
+    const formId = 'parent';
+    const elementId = 'child';
+    const nodeName = 'INPUT';
+    const type = 'text';
+    const elementClasses = ['important'];
+    const value = 'male';
     const inputJson = {
         schema: 'iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0',
         data: {
@@ -398,14 +398,14 @@ test("should track a form change event", t => {
     };
     compare(tracker.trackFormFocusOrChange('change_form', formId, elementId, nodeName, type, elementClasses, value), expected, t);
 });
-test("should track a form submission event", t => {
-    const formId = "parent";
-    const formClasses = ["formclass"];
+test('should track a form submission event', t => {
+    const formId = 'parent';
+    const formClasses = ['formclass'];
     const elements = [{
-            name: "gender",
-            value: "male",
-            nodeName: "INPUT",
-            type: "text"
+            name: 'gender',
+            value: 'male',
+            nodeName: 'INPUT',
+            type: 'text'
         }];
     const inputJson = {
         schema: 'iglu:com.snowplowanalytics.snowplow/submit_form/jsonschema/1-0-0',
@@ -424,11 +424,11 @@ test("should track a form submission event", t => {
     };
     compare(tracker.trackFormSubmission(formId, formClasses, elements), expected, t);
 });
-test("should track a site seach event", t => {
-    const terms = ["javascript", "development"];
+test('should track a site seach event', t => {
+    const terms = ['javascript', 'development'];
     const filters = {
-        "safeSearch": true,
-        "category": "books"
+        'safeSearch': true,
+        'category': 'books'
     };
     const totalResults = 35;
     const pageResults = 10;
@@ -450,12 +450,12 @@ test("should track a site seach event", t => {
     };
     compare(tracker.trackSiteSearch(terms, filters, totalResults, pageResults), expected, t);
 });
-test("should track a consent withdrawn event", t => {
+test('should track a consent withdrawn event', t => {
     const all = false;
     const id = '1234';
     const version = '2';
-    const name = "consent_form";
-    const description = "user withdraws consent for form";
+    const name = 'consent_form';
+    const description = 'user withdraws consent for form';
     const tstamp = 1000000000000;
     const inputContext = [{
             schema: 'iglu:com.snowplowanalytics.snowplow/consent_document/jsonschema/1-0-0',
@@ -485,13 +485,13 @@ test("should track a consent withdrawn event", t => {
     };
     compare(tracker.trackConsentWithdrawn(all, id, version, name, description, [], tstamp), expected, t);
 });
-test("should track a consent granted event", t => {
+test('should track a consent granted event', t => {
     const id = '1234';
     const version = '2';
-    const name = "consent_form";
-    const description = "user grants consent for form";
+    const name = 'consent_form';
+    const description = 'user grants consent for form';
     const tstamp = 1000000000000;
-    const expiry = "01 January, 1970 00:00:00 Universal Time (UTC)";
+    const expiry = '01 January, 1970 00:00:00 Universal Time (UTC)';
     const inputContext = [{
             schema: 'iglu:com.snowplowanalytics.snowplow/consent_document/jsonschema/1-0-0',
             data: {
@@ -520,7 +520,7 @@ test("should track a consent granted event", t => {
     };
     compare(tracker.trackConsentGranted(id, version, name, description, expiry, [], tstamp), expected, t);
 });
-test("should track a page view with custom context", t => {
+test('should track a page view with custom context', t => {
     const url = 'http://www.example.com';
     const page = 'title page';
     const referer = 'https://www.google.com';
@@ -543,12 +543,12 @@ test("should track a page view with custom context", t => {
     };
     compare(tracker.trackPageView(url, page, referer, inputContext), expected, t);
 });
-test("should track a page view with a timestamp", t => {
+test('should track a page view with a timestamp', t => {
     const tstamp = 1000000000000;
     t.is(tracker.trackPageView('http://www.example.com', 'title', 'ref', [], tstamp).build()['dtm'], '1000000000000');
 });
-test("should add individual name-value pairs to the payload", t => {
-    const tracker = trackerCore(false);
+test('should add individual name-value pairs to the payload', t => {
+    const tracker = new TrackerCore(false);
     const url = 'http://www.example.com';
     const page = 'title';
     const referer = 'https://www.google.com';
@@ -564,8 +564,8 @@ test("should add individual name-value pairs to the payload", t => {
     tracker.addPayloadPair('tv', 'js-2.0.0');
     compare(tracker.trackPageView(url, page, referer), expected, t);
 });
-test("should add a dictionary of name-value pairs to the payload", t => {
-    const tracker = trackerCore(false);
+test('should add a dictionary of name-value pairs to the payload', t => {
+    const tracker = new TrackerCore(false);
     const url = 'http://www.example.com';
     const page = 'title';
     const referer = 'https://www.google.com';
@@ -585,8 +585,8 @@ test("should add a dictionary of name-value pairs to the payload", t => {
     });
     compare(tracker.trackPageView(url, page, referer), expected, t);
 });
-test("should reset payload name-value pairs", t => {
-    const tracker = trackerCore(false);
+test('should reset payload name-value pairs', t => {
+    const tracker = new TrackerCore(false);
     const url = 'http://www.example.com';
     const page = 'title';
     const referer = 'https://www.google.com';
@@ -601,8 +601,8 @@ test("should reset payload name-value pairs", t => {
     tracker.resetPayloadPairs({ 'tna': 'cf' });
     compare(tracker.trackPageView(url, page, referer), expected, t);
 });
-test("should execute a callback", t => {
-    const tracker = trackerCore(false, function (payload) {
+test('should execute a callback', t => {
+    const tracker = new TrackerCore(false, function (payload) {
         const callbackTarget = payload;
         compare(callbackTarget, expected, t);
     });
@@ -617,8 +617,8 @@ test("should execute a callback", t => {
     };
     tracker.trackPageView(url, page, referer);
 });
-test("should use setter methods", t => {
-    const tracker = trackerCore(false);
+test('should use setter methods', t => {
+    const tracker = new TrackerCore(false);
     tracker.setTrackerVersion('js-3.0.0');
     tracker.setTrackerNamespace('cf1');
     tracker.setAppId('my-app');
@@ -653,7 +653,7 @@ test("should use setter methods", t => {
     compare(tracker.trackPageView(url, page, referer), expected, t);
 });
 
-test("should set true timestamp", t => {
+test('should set true timestamp', t => {
     const url = 'http://www.example.com';
     const page = 'title page';
     const referer = 'https://www.google.com';
@@ -663,7 +663,7 @@ test("should set true timestamp", t => {
     t.false('dtm' in result);
 });
 
-test("should set device timestamp as ADT", t => {
+test('should set device timestamp as ADT', t => {
     const inputJson = {
         schema: 'iglu:com.acme/user/jsonschema/1-0-1',
         data: {
@@ -676,14 +676,14 @@ test("should set device timestamp as ADT", t => {
     t.false('ttm' in result);
 });
 
-test("should run callback on each track event", t => {
+test('should run callback on each track event', t => {
     const url = 'http://www.example.com';
     const str = 'cccccckevjfiddbdjeikkdbkvvkdjcehggiutbkhnrfe';
     const num = 1;
     const arr = [str];
     const filters = {
-        "safeSearch": true,
-        "category": str
+        'safeSearch': true,
+        'category': str
     };
     const inputJson = {
         schema: 'iglu:com.acme/user/jsonschema/1-0-1',

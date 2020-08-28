@@ -14,20 +14,20 @@
  */
 
 import test from 'ava';
-import { isJson, isNonEmptyJson, payloadBuilder } from '../../src/payload';
+import { isJson, isNonEmptyJson, PayloadBuilder } from '../../src/payload';
 
 const sampleJson = {
 	schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0',
 	data: [
 		{
-			schema: "iglu:com.example_company/page/jsonschema/1-2-1",
+			schema: 'iglu:com.example_company/page/jsonschema/1-2-1',
 			data: {
 				pageType: 'test',
 				lastUpdated: new Date(Date.UTC(2014, 1, 26))
 			}
 		},
 		{
-			schema: "iglu:com.example_company/user/jsonschema/2-0-0",
+			schema: 'iglu:com.example_company/user/jsonschema/2-0-0',
 			data: {
 				userType: 'tester'
 			}
@@ -63,7 +63,7 @@ test('Empty Payload identifies as an empty JSON', t => {
 });
 
 test('Build a payload', t => {
-	const sb = payloadBuilder(false);
+	const sb = new PayloadBuilder(false);
 	sb.add('e', 'pv');
 	sb.add('tv', 'js-2.0.0');
 
@@ -71,21 +71,21 @@ test('Build a payload', t => {
 });
 
 test('Do not add undefined values to a payload', t => {
-	const sb = payloadBuilder(false);
+	const sb = new PayloadBuilder(false);
 	sb.add('e', undefined);
 
 	t.deepEqual(sb.build(), {}, 'Undefined values should not be added to the payload');
 });
 
 test('Do not add null values to a payload', t => {
-	const sb = payloadBuilder(false);
+	const sb = new PayloadBuilder(false);
 	sb.add('e', undefined);
 
 	t.deepEqual(sb.build(), {}, 'Null values should not be added to the payload');
 });
 
 test('Add a dictionary of name-value pairs to the payload', t => {
-	const sb = payloadBuilder(false);
+	const sb = new PayloadBuilder(false);
 	sb.addDict({
 		'e': 'pv',
 		'tv': 'js-2.0.0'
@@ -95,14 +95,14 @@ test('Add a dictionary of name-value pairs to the payload', t => {
 });
 
 test('Add a JSON to the payload', t => {
-	const sb = payloadBuilder(false);
+	const sb = new PayloadBuilder(false);
 	sb.addJson('cx', 'co', sampleJson);
 
 	t.deepEqual(sb.build(), expectedPayloads[0], 'JSON should be added correctly');
 });
 
 test('Add a base 64 encoded JSON to the payload', t => {
-	const sb = payloadBuilder(true);
+	const sb = new PayloadBuilder(true);
 	sb.addJson('cx', 'co', sampleJson);
 
 	t.deepEqual(sb.build(), expectedPayloads[1], 'JSON should be encoded correctly');

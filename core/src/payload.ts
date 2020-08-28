@@ -77,40 +77,40 @@ export function isJson(property: unknown): boolean {
  *
  * @return object The request string builder, with add, addRaw and build methods
  */
-export function payloadBuilder(base64Encode: boolean): PayloadData {
-	const dict: PayloadDictionary = {};
+export class PayloadBuilder implements PayloadData {
+	private base64Encode: boolean
+	private dict: PayloadDictionary = {};
 
-	const add = function (key: string, value?: unknown): void {
+	constructor(base64Encode: boolean) {
+		this.base64Encode = base64Encode;
+	}
+
+	add(key: string, value?: unknown): void {
 		if (value != null && value !== '') {  // null also checks undefined
-			dict[key] = value;
+			this.dict[key] = value;
 		}
-	};
+	}
 
-	const addDict = function (dict: PayloadDictionary) {
+	addDict(dict: PayloadDictionary): void {
 		for (const key in dict) {
 			if (Object.prototype.hasOwnProperty.call(dict, key)) {
-				add(key, dict[key]);
+				this.add(key, dict[key]);
 			}
 		}
-	};
+	}
 
-	const addJson = function (keyIfEncoded: string, keyIfNotEncoded: string, json?: Record<string, unknown>) {
+	addJson(keyIfEncoded: string, keyIfNotEncoded: string, json?: Record<string, unknown>): void {
 		if (json && isNonEmptyJson(json)) {
 			const str = JSON.stringify(json);
-			if (base64Encode) {
-				add(keyIfEncoded, base64urlencode(str));
+			if (this.base64Encode) {
+				this.add(keyIfEncoded, base64urlencode(str));
 			} else {
-				add(keyIfNotEncoded, str);
+				this.add(keyIfNotEncoded, str);
 			}
 		}
-	};
+	}
 
-	return {
-		add: add,
-		addDict: addDict,
-		addJson: addJson,
-		build: function () {
-			return dict;
-		}
-	};
+	build(): PayloadDictionary {
+		return this.dict;
+	}
 }

@@ -13,6 +13,6 @@
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
 
-import { trackerCore as t } from "./core";
-
-export const trackerCore = t;
+export { ContextPrimitive, ContextFilterEvent, ContextFilter, ContextGeneratorEvent, ContextGenerator, RuleSetProvider, FilterProvider, ConditionalContextProvider } from './contexts';
+export { PayloadData, PayloadDictionary } from './payload';
+export { SelfDescribingJson, Timestamp, TrueTimestamp, DeviceTimestamp, TrackerCore } from './core';

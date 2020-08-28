@@ -15,10 +15,10 @@
 
 import test from 'ava'
 import * as contexts from '../../src/contexts'
-import { payloadBuilder, PayloadDictionary } from '../../src/payload';
+import { PayloadBuilder, PayloadDictionary } from '../../src/payload';
 import { SelfDescribingJson } from '../../src/core';
 
-test("Identify context primitives", t => {
+test('Identify context primitives', t => {
 	const geolocationContext = {
 		schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
 		data: {
@@ -27,14 +27,14 @@ test("Identify context primitives", t => {
 		}
 	};
 
-	function eventTypeContextGenerator(args: Record<string, unknown>) {
+	function eventTypeContextGenerator(args?: contexts.ContextGeneratorEvent) {
 		const context: SelfDescribingJson = {
 			schema: 'iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1',
 			data: {
 				osType: 'ubuntu',
 				osVersion: '2018.04',
 				deviceManufacturer: 'ASUS',
-				deviceModel: String(args['eventType'])
+				deviceModel: args ? String(args['eventType']) : ''
 			}
 		}
 		return context;
@@ -44,7 +44,7 @@ test("Identify context primitives", t => {
 	t.true(contexts.isContextPrimitive(eventTypeContextGenerator), 'A context primitive should be identified');
 });
 
-test("Validating vendors", t => {
+test('Validating vendors', t => {
 	// Vendor validation
 	t.true(contexts.validateVendor('com.acme.marketing'), 'A valid vendor without wildcard is accepted');
 	t.true(contexts.validateVendor('com.acme.*'), 'A valid vendor with wildcard is accepted');
@@ -52,7 +52,7 @@ test("Validating vendors", t => {
 	t.false(contexts.validateVendor('com.acme.*.marketing'), 'A vendor with asterisk out of order is rejected');
 });
 
-test("Identify rule sets", t => {
+test('Identify rule sets', t => {
 	const acceptRuleSet = {
 		accept: ['iglu:com.snowplowanalytics.snowplow/*/jsonschema/*-*-*']
 	};
@@ -68,8 +68,6 @@ test("Identify rule sets", t => {
 
 	const pageview_schema = 'iglu:com.snowplowanalytics.snowplow/pageview/jsonschema/1-0-1';
 
-
-
 	t.true(contexts.isValidRule(acceptRuleSet.accept[0]), 'All rule elements are correctly identified as valid rules');
 	t.true(contexts.isValidRuleSetArg(acceptRuleSet.accept), 'A rule set arg is correctly identified');
 	t.true(contexts.isRuleSet(acceptRuleSet), 'An accept rule set is identified');
@@ -81,15 +79,15 @@ test("Identify rule sets", t => {
 	t.false(contexts.matchSchemaAgainstRuleSet(rejectRuleSet, pageview_schema), 'Reject rule set rejects matching schema');
 });
 
-test("Identify filter function", t => {
-	const filterFunction = function (args: Record<string, unknown>) {
-		return args['eventType'] === 'ue';
+test('Identify filter function', t => {
+	const filterFunction = function (args?: contexts.ContextFilterEvent) {
+		return args?.eventType === 'ue';
 	};
 
 	t.true(contexts.isContextFilter(filterFunction), 'A valid filter function is identified');
 });
 
-test("Identify rule set provider", t => {
+test('Identify rule set provider', t => {
 	const bothRuleSet = {
 		accept: ['iglu:com.snowplowanalytics.snowplow/*/jsonschema/*-*-*'],
 		reject: ['iglu:com.snowplowanalytics.snowplow/*/jsonschema/*-*-*']
@@ -103,14 +101,14 @@ test("Identify rule set provider", t => {
 		}
 	};
 
-	function eventTypeContextGenerator(args: Record<string, unknown>) {
+	function eventTypeContextGenerator(args?: contexts.ContextGeneratorEvent) {
 		const context: SelfDescribingJson = {
 			schema: 'iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1',
 			data: {
 				osType: 'ubuntu',
 				osVersion: '2018.04',
 				deviceManufacturer: 'ASUS',
-				deviceModel: String(args['eventType'])
+				deviceModel: args ? String(args['eventType']) : ''
 			}
 		}
 		return context;
@@ -120,9 +118,9 @@ test("Identify rule set provider", t => {
 	t.true(contexts.isRuleSetProvider(ruleSetProvider), 'Valid rule set provider is correctly identified');
 });
 
-test("Identify filter provider", t => {
-	const filterFunction = function (args: contexts.ContextFilterEvent) {
-		return args['eventType'] === 'ue';
+test('Identify filter provider', t => {
+	const filterFunction = function (args?: contexts.ContextFilterEvent) {
+		return args?.eventType === 'ue';
 	};
 
 	const geolocationContext = {
@@ -133,14 +131,14 @@ test("Identify filter provider", t => {
 		}
 	};
 
-	function eventTypeContextGenerator(args: Record<string, unknown>) {
+	function eventTypeContextGenerator(args?: contexts.ContextGeneratorEvent) {
 		const context: SelfDescribingJson = {
 			schema: 'iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1',
 			data: {
 				osType: 'ubuntu',
 				osVersion: '2018.04',
 				deviceManufacturer: 'ASUS',
-				deviceModel: String(args['eventType'])
+				deviceModel: args ? String(args['eventType']) : ''
 			}
 		}
 		return context;
@@ -150,7 +148,7 @@ test("Identify filter provider", t => {
 	t.true(contexts.isFilterProvider(filterProvider), 'A valid filter provider is identified');
 });
 
-test("Add global contexts", t => {
+test('Add global contexts', t => {
 	const geolocationContext = {
 		schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
 		data: {
@@ -159,14 +157,14 @@ test("Add global contexts", t => {
 		}
 	};
 
-	function eventTypeContextGenerator(args: Record<string, unknown>) {
+	function eventTypeContextGenerator(args?: contexts.ContextGeneratorEvent) {
 		const context: SelfDescribingJson = {
 			schema: 'iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1',
 			data: {
 				osType: 'ubuntu',
 				osVersion: '2018.04',
 				deviceManufacturer: 'ASUS',
-				deviceModel: String(args['eventType'])
+				deviceModel: args ? String(args['eventType']) : ''
 			}
 		}
 		return context;
@@ -177,24 +175,24 @@ test("Add global contexts", t => {
 		reject: ['iglu:com.snowplowanalytics.snowplow/*/jsonschema/*-*-*']
 	};
 
-	const filterFunction = function (args: contexts.ContextFilterEvent) {
-		return args['eventType'] === 'ue';
+	const filterFunction = function (args?: contexts.ContextFilterEvent) {
+		return args?.eventType === 'ue';
 	};
 
-	const filterProvider = [filterFunction, [geolocationContext, eventTypeContextGenerator]];
-	const ruleSetProvider = [bothRuleSet, [geolocationContext, eventTypeContextGenerator]];
+	const filterProvider: contexts.FilterProvider = [filterFunction, [geolocationContext, eventTypeContextGenerator]];
+	const ruleSetProvider: contexts.RuleSetProvider = [bothRuleSet, [geolocationContext, eventTypeContextGenerator]];
 
 	const contextArray = [filterProvider, ruleSetProvider, geolocationContext, eventTypeContextGenerator];
-	const module = contexts.contextModule();
+	const globalContexts = new contexts.GlobalContexts();
 
-	module.addGlobalContexts(contextArray);
-	t.is(module.getGlobalPrimitives().length, 2,
+	globalContexts.addGlobalContexts(contextArray);
+	t.is(globalContexts.getGlobalPrimitives().length, 2,
 		'Correct number of primitives added');
-	t.is(module.getConditionalProviders().length, 2,
+	t.is(globalContexts.getConditionalProviders().length, 2,
 		'Correct number of conditional providers added');
 });
 
-test("Remove global contexts", t => {
+test('Remove global contexts', t => {
 	const geolocationContext = {
 		schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
 		data: {
@@ -203,14 +201,14 @@ test("Remove global contexts", t => {
 		}
 	};
 
-	function eventTypeContextGenerator(args: Record<string, unknown>) {
+	function eventTypeContextGenerator(args?: contexts.ContextGeneratorEvent) {
 		const context: SelfDescribingJson = {
 			schema: 'iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1',
 			data: {
 				osType: 'ubuntu',
 				osVersion: '2018.04',
 				deviceManufacturer: 'ASUS',
-				deviceModel: String(args['eventType'])
+				deviceModel: args ? String(args['eventType']) : ''
 			}
 		}
 		return context;
@@ -221,23 +219,23 @@ test("Remove global contexts", t => {
 		reject: ['iglu:com.snowplowanalytics.snowplow/*/jsonschema/*-*-*']
 	};
 
-	const filterFunction = function (args: contexts.ContextFilterEvent) {
-		return args['eventType'] === 'ue';
+	const filterFunction = function (args?: contexts.ContextFilterEvent) {
+		return args?.eventType === 'ue';
 	};
 
-	const filterProvider = [filterFunction, [geolocationContext, eventTypeContextGenerator]];
-	const ruleSetProvider = [bothRuleSet, [geolocationContext, eventTypeContextGenerator]];
-	const module = contexts.contextModule();
+	const filterProvider: contexts.FilterProvider = [filterFunction, [geolocationContext, eventTypeContextGenerator]];
+	const ruleSetProvider: contexts.RuleSetProvider = [bothRuleSet, [geolocationContext, eventTypeContextGenerator]];
+	const globalContexts = new contexts.GlobalContexts();
 
-	module.addGlobalContexts([filterProvider, ruleSetProvider, geolocationContext, eventTypeContextGenerator]);
-	module.removeGlobalContexts([filterProvider, geolocationContext, eventTypeContextGenerator]);
-	t.is(module.getGlobalPrimitives().length, 0,
+	globalContexts.addGlobalContexts([filterProvider, ruleSetProvider, geolocationContext, eventTypeContextGenerator]);
+	globalContexts.removeGlobalContexts([filterProvider, geolocationContext, eventTypeContextGenerator]);
+	t.is(globalContexts.getGlobalPrimitives().length, 0,
 		'Correct number of primitives added');
-	t.is(module.getConditionalProviders().length, 1,
+	t.is(globalContexts.getConditionalProviders().length, 1,
 		'Correct number of conditional providers added');
 });
 
-test("Clear global contexts", t => {
+test('Clear global contexts', t => {
 	const geolocationContext = {
 		schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
 		data: {
@@ -246,14 +244,14 @@ test("Clear global contexts", t => {
 		}
 	};
 
-	function eventTypeContextGenerator(args: Record<string, unknown>) {
+	function eventTypeContextGenerator(args?: contexts.ContextGeneratorEvent) {
 		const context: SelfDescribingJson = {
 			schema: 'iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1',
 			data: {
 				osType: 'ubuntu',
 				osVersion: '2018.04',
 				deviceManufacturer: 'ASUS',
-				deviceModel: String(args['eventType'])
+				deviceModel: args ? String(args['eventType']) : ''
 			}
 		}
 		return context;
@@ -264,24 +262,24 @@ test("Clear global contexts", t => {
 		reject: ['iglu:com.snowplowanalytics.snowplow/*/jsonschema/*-*-*']
 	};
 
-	const filterFunction = function (args: contexts.ContextFilterEvent) {
-		return args['eventType'] === 'ue';
+	const filterFunction = function (args?: contexts.ContextFilterEvent) {
+		return args?.eventType === 'ue';
 	};
 
-	const filterProvider = [filterFunction, [geolocationContext, eventTypeContextGenerator]];
-	const ruleSetProvider = [bothRuleSet, [geolocationContext, eventTypeContextGenerator]];
+	const filterProvider: contexts.FilterProvider = [filterFunction, [geolocationContext, eventTypeContextGenerator]];
+	const ruleSetProvider: contexts.RuleSetProvider = [bothRuleSet, [geolocationContext, eventTypeContextGenerator]];
 
 	const contextArray = [filterProvider, ruleSetProvider, geolocationContext, eventTypeContextGenerator];
-	const module = contexts.contextModule();
-	module.addGlobalContexts(contextArray);
-	module.clearGlobalContexts();
-	t.is(module.getGlobalPrimitives().length, 0,
+	const globalContexts = new contexts.GlobalContexts();
+	globalContexts.addGlobalContexts(contextArray);
+	globalContexts.clearGlobalContexts();
+	t.is(globalContexts.getGlobalPrimitives().length, 0,
 		'Correct number of primitives added');
-	t.is(module.getConditionalProviders().length, 0,
+	t.is(globalContexts.getConditionalProviders().length, 0,
 		'Correct number of conditional providers added');
 });
 
-test("Get applicable contexts", t => {
+test('Get applicable contexts', t => {
 	const geolocationContext = {
 		schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
 		data: {
@@ -290,14 +288,14 @@ test("Get applicable contexts", t => {
 		}
 	};
 
-	function eventTypeContextGenerator(args: Record<string, unknown>) {
+	function eventTypeContextGenerator(args?: contexts.ContextGeneratorEvent) {
 		const context: SelfDescribingJson = {
 			schema: 'iglu:com.snowplowanalytics.snowplow/some_context/jsonschema/1-0-1',
 			data: {
 				osType: 'ubuntu',
 				osVersion: '2018.04',
 				deviceManufacturer: 'ASUS',
-				eventType: String(args['eventType'])
+				eventType: args ? String(args['eventType']) : ''
 			}
 		}
 		return context;
@@ -307,12 +305,12 @@ test("Get applicable contexts", t => {
 		accept: ['iglu:com.acme_company/*/jsonschema/*-*-*']
 	};
 
-	const filterFunction = function (args: contexts.ContextFilterEvent) {
-		return args['eventType'] === 'ue';
+	const filterFunction = function (args?: contexts.ContextFilterEvent) {
+		return args?.eventType === 'ue';
 	};
 
-	const filterProvider = [filterFunction, [geolocationContext, eventTypeContextGenerator]];
-	const ruleSetProvider = [unstructuredEventRuleset, [geolocationContext, eventTypeContextGenerator]];
+	const filterProvider: contexts.FilterProvider = [filterFunction, [geolocationContext, eventTypeContextGenerator]];
+	const ruleSetProvider: contexts.RuleSetProvider = [unstructuredEventRuleset, [geolocationContext, eventTypeContextGenerator]];
 
 	const eventJson: PayloadDictionary = {
 		e: 'ue',
@@ -325,14 +323,14 @@ test("Get applicable contexts", t => {
 		}
 	};
 	const contextArray = [filterProvider, ruleSetProvider, geolocationContext, eventTypeContextGenerator];
-	const module = contexts.contextModule();
-	const event = payloadBuilder(false);
+	const globalContexts = new contexts.GlobalContexts();
+	const event = new PayloadBuilder(false);
 	for (const property in eventJson) {
 		if (Object.prototype.hasOwnProperty.call(eventJson, property)) {
 			event.add(property, eventJson[property] as string);
 		}
 	}
 
-	module.addGlobalContexts(contextArray);
-	t.is(module.getApplicableContexts(event).length, 6);
+	globalContexts.addGlobalContexts(contextArray);
+	t.is(globalContexts.getApplicableContexts(event).length, 6);
 });

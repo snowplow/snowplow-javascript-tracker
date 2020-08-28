@@ -13,9 +13,9 @@
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
 
-import { PayloadData, isNonEmptyJson, PayloadDictionary } from "./payload";
-import { SelfDescribingJson } from "./core";
-import { base64urldecode } from "./base64";
+import { PayloadData, PayloadDictionary, isNonEmptyJson } from './payload';
+import { SelfDescribingJson } from './core';
+import { base64urldecode } from './base64';
 
 // Must import lodash as submodules (https://github.com/rollup/rollup/wiki/Troubleshooting#tree-shaking-doesnt-seem-to-be-working)
 import isEqual from 'lodash/isEqual';
@@ -31,16 +31,16 @@ import isPlainObject from 'lodash/isPlainObject';
  */
 
  /**
- * An interface for wrapping the Context arguments
+ * An interface for wrapping the Context Generator arguments
  */
-export interface ContextGeneratorEvent { event:string, eventType: string, eventSchema: string }
+export interface ContextGeneratorEvent { event:SelfDescribingJson, eventType: string, eventSchema: string }
 
 /**
  * A context generator is a callback that returns a self-describing JSON
- * @param {Object} args - Object that contains: event, eventType, eventSchema
- * @return {SelfDescribingJson} A self-describing JSON
+ * @param args - Object that contains: event, eventType, eventSchema
+ * @return A self-describing JSON
  */
-export type ContextGenerator = (args?: ContextFilterEvent) => SelfDescribingJson;
+export type ContextGenerator = (args?: ContextGeneratorEvent) => SelfDescribingJson;
 
 /**
  * A context primitive is either a self-describing JSON or a context generator
@@ -55,6 +55,8 @@ export interface ContextFilterEvent { event: SelfDescribingJson, eventType: stri
 /**
  * A context filter is a user-supplied callback that is evaluated for each event
  * to determine if the context associated with the filter should be attached to the event
+ * @param args - Object that contains: event, eventType, eventSchema
+ * @return A self-describing JSON
  */
 export type ContextFilter = (args?: ContextFilterEvent) => boolean;
 
@@ -68,8 +70,8 @@ export type FilterProvider = [ContextFilter, Array<ContextPrimitive> | ContextPr
  * A ruleset has accept or reject properties that contain rules for matching Iglu schema URIs
  */
 export interface RuleSet {
-    accept?: string[] | string;
-    reject?: string[] | string;
+    accept?: Array<string> | string;
+    reject?: Array<string> | string;
 }
 
 /**
@@ -85,6 +87,108 @@ export type RuleSetProvider = [RuleSet, Array<ContextPrimitive> | ContextPrimiti
  */
 export type ConditionalContextProvider = FilterProvider | RuleSetProvider;
 
+/**
+ * Contains helper functions to aid in the addition and removal of Global Contexts
+ */
+export class GlobalContexts {
+    globalPrimitives: Array<ContextPrimitive>;
+    conditionalProviders: Array<ConditionalContextProvider>;
+
+    constructor() {
+        this.globalPrimitives = [];
+        this.conditionalProviders = [];
+    }
+
+    /**
+     * Returns all applicable global contexts for a specified event
+     * @param event The event to check for applicable global contexts for
+     */
+    private assembleAllContexts(event: SelfDescribingJson): Array<SelfDescribingJson> {
+        const eventSchema = getUsefulSchema(event);
+        const eventType = getEventType(event);
+        const contexts : Array<SelfDescribingJson> = [];
+        const generatedPrimitives = generatePrimitives(this.globalPrimitives, event, eventType, eventSchema);
+        contexts.push(...generatedPrimitives);
+
+        const generatedConditionals = generateConditionals(this.conditionalProviders, event, eventType, eventSchema);
+        contexts.push(...generatedConditionals);
+
+        return contexts;
+    }
+
+    /**
+     * Returns all Context Primitives
+     */
+    getGlobalPrimitives(): Array<ContextPrimitive> {
+        return this.globalPrimitives;
+    }
+
+    /**
+     * Returns all Conditional Contexts
+     */
+    getConditionalProviders(): Array<ConditionalContextProvider> {
+        return this.conditionalProviders;
+    }
+
+    /**
+     * Adds conditional or primitive global contexts
+     * @param contexts An Array of either Conditional Contexts or Primitive Contexts
+     */
+    addGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive>): void {
+        const acceptedConditionalContexts: ConditionalContextProvider[] = [];
+        const acceptedContextPrimitives: ContextPrimitive[] = [];
+        for (const context of contexts) {
+            if (isConditionalContextProvider(context)) {
+                acceptedConditionalContexts.push(context);
+            } else if (isContextPrimitive(context)) {
+                acceptedContextPrimitives.push(context);
+            }
+        }
+        this.globalPrimitives = this.globalPrimitives.concat(acceptedContextPrimitives);
+        this.conditionalProviders = this.conditionalProviders.concat(acceptedConditionalContexts);
+    }
+
+    /**
+     * Removes all global contexts
+     */
+    clearGlobalContexts(): void {
+        this.conditionalProviders = [];
+        this.globalPrimitives = [];
+    }
+
+    /**
+     * Removes previously added global context, performs a deep comparison of the contexts or conditional contexts
+     * @param contexts An Array of either Condition Contexts or Primitive Contexts
+     */
+    removeGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive>): void {
+        for (const context of contexts) {
+            if (isConditionalContextProvider(context)) {
+                this.conditionalProviders = this.conditionalProviders.filter(item => !isEqual(item, context));
+            } else if (isContextPrimitive(context)) {
+                this.globalPrimitives = this.globalPrimitives.filter(item => !isEqual(item, context));
+            }
+        }
+    }
+
+    /**
+     * Returns all applicable global contexts for a specified event
+     * @param event The event to check for applicable global contexts for
+     */
+    getApplicableContexts(event: PayloadData): Array<SelfDescribingJson> {
+        const builtEvent = event.build();
+        if (isEventJson(builtEvent)) {
+            const decodedEvent = getDecodedEvent(builtEvent as SelfDescribingJson);
+            return this.assembleAllContexts(decodedEvent);
+        } else {
+            return [];
+        }
+    }
+}
+
+/**
+ * Returns an array containing the parts of the specified schema
+ * @param input A schema string
+ */
 export function getSchemaParts(input: string): Array<string> | undefined {
     const re = new RegExp('^iglu:([a-zA-Z0-9-_.]+)/([a-zA-Z0-9-_]+)/jsonschema/([1-9][0-9]*)-(0|[1-9][0-9]*)-(0|[1-9][0-9]*)$');
     const matches = re.exec(input);
@@ -93,6 +197,10 @@ export function getSchemaParts(input: string): Array<string> | undefined {
     return undefined;
 }
 
+/**
+ * Validates the vendor section of a schema string contains allowed wildcard values
+ * @param parts Array of parts from a schema string
+ */
 export function validateVendorParts(parts: Array<string>): boolean {
     if (parts[0] === '*' || parts[1] === '*') {
         return false; // no wildcard in first or second part
@@ -112,6 +220,10 @@ export function validateVendorParts(parts: Array<string>): boolean {
     return false;
 }
 
+/**
+ * Validates the vendor part of a schema string is valid for a rule set
+ * @param input Vendor part of a schema string
+ */
 export function validateVendor(input: string): boolean {
     const parts = input.split('.');
     if (parts && parts.length > 1)
@@ -119,6 +231,10 @@ export function validateVendor(input: string): boolean {
     return false;
 }
 
+/**
+ * Returns all the sections of a schema string that are used to match rules in a ruleset
+ * @param input A Schema string
+ */
 export function getRuleParts(input: string): Array<string> | undefined {
     const re = new RegExp('^iglu:((?:(?:[a-zA-Z0-9-_]+|\\*).)+(?:[a-zA-Z0-9-_]+|\\*))/([a-zA-Z0-9-_.]+|\\*)/jsonschema/([1-9][0-9]*|\\*)-(0|[1-9][0-9]*|\\*)-(0|[1-9][0-9]*|\\*)$');
     const matches = re.exec(input);
@@ -127,6 +243,10 @@ export function getRuleParts(input: string): Array<string> | undefined {
     return undefined;
 }
 
+/**
+ * Ensures the rules specified in a schema string of a ruleset are valid
+ * @param input A Schema string
+ */
 export function isValidRule(input: string): boolean {
     const ruleParts = getRuleParts(input);
     if (ruleParts) {
@@ -227,44 +347,6 @@ export function isConditionalContextProvider(input: unknown): input is Condition
     return isFilterProvider(input) || isRuleSetProvider(input);
 }
 
-export function matchSchemaAgainstRule(rule: string, schema: string): boolean {
-    if (!isValidRule(rule))
-        return false;
-    const ruleParts = getRuleParts(rule);
-    const schemaParts = getSchemaParts(schema);
-    if (ruleParts && schemaParts) {
-        if (!matchVendor(ruleParts[0], schemaParts[0]))
-            return false;
-        for (let i=1; i<5; i++) {
-            if (!matchPart(ruleParts[i], schemaParts[i]))
-                return false;
-        }
-        return true; // if it hasn't failed, it passes
-    }
-    return false;
-}
-
-export function matchVendor(rule: string, vendor: string): boolean {
-    // rule and vendor must have same number of elements
-    const vendorParts = vendor.split('.');
-    const ruleParts = rule.split('.');
-    if (vendorParts && ruleParts) {
-        if (vendorParts.length !== ruleParts.length)
-            return false;
-        for (let i=0; i<ruleParts.length; i++) {
-            if (!matchPart(vendorParts[i], ruleParts[i]))
-                return false;
-        }
-        return true;
-    }
-    return false;
-}
-
-export function matchPart(rule: string, schema: string): boolean {
-    // parts should be the string nested between slashes in the URI: /example/
-    return (rule && schema && rule === '*' || rule === schema);
-}
-
 export function matchSchemaAgainstRuleSet(ruleSet: RuleSet, schema: string): boolean {
     let rejectCount = 0;
     let acceptCount = 0;
@@ -299,12 +381,50 @@ export function matchSchemaAgainstRuleSet(ruleSet: RuleSet, schema: string): boo
     return false;
 }
 
+export function matchSchemaAgainstRule(rule: string, schema: string): boolean {
+    if (!isValidRule(rule))
+        return false;
+    const ruleParts = getRuleParts(rule);
+    const schemaParts = getSchemaParts(schema);
+    if (ruleParts && schemaParts) {
+        if (!matchVendor(ruleParts[0], schemaParts[0]))
+            return false;
+        for (let i=1; i<5; i++) {
+            if (!matchPart(ruleParts[i], schemaParts[i]))
+                return false;
+        }
+        return true; // if it hasn't failed, it passes
+    }
+    return false;
+}
+
+function matchVendor(rule: string, vendor: string): boolean {
+    // rule and vendor must have same number of elements
+    const vendorParts = vendor.split('.');
+    const ruleParts = rule.split('.');
+    if (vendorParts && ruleParts) {
+        if (vendorParts.length !== ruleParts.length)
+            return false;
+        for (let i=0; i<ruleParts.length; i++) {
+            if (!matchPart(vendorParts[i], ruleParts[i]))
+                return false;
+        }
+        return true;
+    }
+    return false;
+}
+
+function matchPart(rule: string, schema: string): boolean {
+    // parts should be the string nested between slashes in the URI: /example/
+    return (rule && schema && rule === '*' || rule === schema);
+}
+
 // Returns the "useful" schema, i.e. what would someone want to use to identify events.
 // The idea being that you can determine the event type from 'e', so getting the schema from
 // 'ue_px.schema'/'ue_pr.schema' would be redundant - it'll return the unstructured event schema.
 // Instead the schema nested inside the unstructured event is more useful!
 // This doesn't decode ue_px, it works because it's called by code that has already decoded it
-export function getUsefulSchema(sb: SelfDescribingJson): string {
+function getUsefulSchema(sb: SelfDescribingJson): string {
     if (typeof get(sb, 'ue_px.data.schema') === 'string')
         return get(sb, 'ue_px.data.schema') as string;
     else if (typeof get(sb, 'ue_pr.data.schema') === 'string')
@@ -314,7 +434,7 @@ export function getUsefulSchema(sb: SelfDescribingJson): string {
     return '';
 }
 
-export function getDecodedEvent(sb: SelfDescribingJson): SelfDescribingJson {
+function getDecodedEvent(sb: SelfDescribingJson): SelfDescribingJson {
     const decodedEvent: SelfDescribingJson = {...sb}; // spread operator, instantiates new object
     try {
         if (has(decodedEvent, 'ue_px')) {
@@ -326,11 +446,11 @@ export function getDecodedEvent(sb: SelfDescribingJson): SelfDescribingJson {
     }
 }
 
-export function getEventType(sb: Record<string, unknown>): string {
+function getEventType(sb: Record<string, unknown>): string {
     return get(sb, 'e', '') as string;
 }
 
-export function buildGenerator(generator: ContextGenerator,
+function buildGenerator(generator: ContextGenerator,
                         event: SelfDescribingJson,
                         eventType: string,
                         eventSchema: string): SelfDescribingJson | Array<SelfDescribingJson> | undefined {
@@ -357,14 +477,14 @@ export function buildGenerator(generator: ContextGenerator,
     return contextGeneratorResult;
 }
 
-export function normalizeToArray<T>(input: Array<T> | T): Array<T> {
+function normalizeToArray<T>(input: Array<T> | T): Array<T> {
     if (Array.isArray(input)) {
         return input;
     }
     return Array.of(input);
 }
 
-export function generatePrimitives(contextPrimitives: Array<ContextPrimitive> | ContextPrimitive,
+function generatePrimitives(contextPrimitives: Array<ContextPrimitive> | ContextPrimitive,
                             event: SelfDescribingJson,
                             eventType: string,
                             eventSchema: string): Array<SelfDescribingJson> {
@@ -380,7 +500,7 @@ export function generatePrimitives(contextPrimitives: Array<ContextPrimitive> | 
     return ([] as Array<SelfDescribingJson>).concat(...compact(generatedContexts));
 }
 
-export function evaluatePrimitive(contextPrimitive: ContextPrimitive,
+function evaluatePrimitive(contextPrimitive: ContextPrimitive,
                            event: SelfDescribingJson,
                            eventType: string,
                            eventSchema: string): Array<SelfDescribingJson> | undefined {
@@ -397,7 +517,7 @@ export function evaluatePrimitive(contextPrimitive: ContextPrimitive,
     return undefined;
 }
 
-export function evaluateProvider(provider: ConditionalContextProvider,
+function evaluateProvider(provider: ConditionalContextProvider,
                           event: SelfDescribingJson,
                           eventType: string,
                           eventSchema: string): Array<SelfDescribingJson> {
@@ -425,7 +545,7 @@ export function evaluateProvider(provider: ConditionalContextProvider,
     return [];
 }
 
-export function generateConditionals(providers: Array<ConditionalContextProvider> | ConditionalContextProvider,
+function generateConditionals(providers: Array<ConditionalContextProvider> | ConditionalContextProvider,
                               event: SelfDescribingJson,
                               eventType: string,
                               eventSchema: string): Array<SelfDescribingJson> {
@@ -439,80 +559,4 @@ export function generateConditionals(providers: Array<ConditionalContextProvider
     };
     const generatedContexts = map(normalizedInput, partialEvaluate);
     return ([] as Array<SelfDescribingJson>).concat(...compact(generatedContexts));
-}
-
-interface ContextModule {
-    getGlobalPrimitives: () => ContextPrimitive[];
-    getConditionalProviders: () => ConditionalContextProvider[];
-    addGlobalContexts: (contexts: Array<unknown>) => void;
-    clearGlobalContexts: () => void;
-    removeGlobalContexts: (contexts: Array<unknown>) => void;
-    getApplicableContexts: (event: PayloadData) => Array<SelfDescribingJson>;
-}
-
-export function contextModule(): ContextModule {
-    let globalPrimitives: Array<ContextPrimitive> = [];
-    let conditionalProviders: Array<ConditionalContextProvider> = [];
-
-    function assembleAllContexts(event: SelfDescribingJson): Array<SelfDescribingJson> {
-        const eventSchema = getUsefulSchema(event);
-        const eventType = getEventType(event);
-        const contexts : Array<SelfDescribingJson> = [];
-        const generatedPrimitives = generatePrimitives(globalPrimitives, event, eventType, eventSchema);
-        contexts.push(...generatedPrimitives);
-
-        const generatedConditionals = generateConditionals(conditionalProviders, event, eventType, eventSchema);
-        contexts.push(...generatedConditionals);
-
-        return contexts;
-    }
-
-    return {
-        getGlobalPrimitives: function() {
-            return globalPrimitives;
-        },
-
-        getConditionalProviders: function() {
-            return conditionalProviders;
-        },
-
-        addGlobalContexts: function(contexts: Array<unknown>) {
-            const acceptedConditionalContexts: ConditionalContextProvider[] = [];
-            const acceptedContextPrimitives: ContextPrimitive[] = [];
-            for (const context of contexts) {
-                if (isConditionalContextProvider(context)) {
-                    acceptedConditionalContexts.push(context);
-                } else if (isContextPrimitive(context)) {
-                    acceptedContextPrimitives.push(context);
-                }
-            }
-            globalPrimitives = globalPrimitives.concat(acceptedContextPrimitives);
-            conditionalProviders = conditionalProviders.concat(acceptedConditionalContexts);
-        },
-
-        clearGlobalContexts: function() {
-            conditionalProviders = [];
-            globalPrimitives = [];
-        },
-
-        removeGlobalContexts: function(contexts: Array<unknown>) {
-            for (const context of contexts) {
-                if (isConditionalContextProvider(context)) {
-                    conditionalProviders = conditionalProviders.filter(item => !isEqual(item, context));
-                } else if (isContextPrimitive(context)) {
-                    globalPrimitives = globalPrimitives.filter(item => !isEqual(item, context));
-                }
-            }
-        },
-
-        getApplicableContexts: function(event: PayloadData): Array<SelfDescribingJson> {
-            const builtEvent = event.build();
-            if (isEventJson(builtEvent)) {
-                const decodedEvent = getDecodedEvent(builtEvent as SelfDescribingJson);
-                return assembleAllContexts(decodedEvent);
-            } else {
-                return [];
-            }
-        }
-    };
 }

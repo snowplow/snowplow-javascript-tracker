@@ -54,43 +54,43 @@ npm install snowplow-tracker-core
 ### CommonJS Example
 
 ```js
-const core = require('snowplow-tracker-core').trackerCore;
+const trackerCore = require('snowplow-tracker-core');
 
 // Create an instance with base 64 encoding set to false (it defaults to true)
-const coreInstance = core(false);
+const core = new trackerCore.TrackerCore(false);
 ```
 
 ### ES Module Example
 
 ```js
-import { trackerCore } from 'snowplow-tracker-core';
+import { TrackerCore } from 'snowplow-tracker-core';
 
 // Create an instance with base 64 encoding set to false (it defaults to true)
-const coreInstance = trackerCore(false)
+const core = new TrackerCore(false)
 ```
 
 ### Example
 
 ```js
 // Add a name-value pair to all payloads
-coreInstance.addPayloadPair('vid', 2);
+core.addPayloadPair('vid', 2);
 
 // Add each name-value pair in a dictionary to all payloads
-coreInstance.addPayloadDict({
+core.addPayloadDict({
     'ds': '1160x620',
     'fp': 4070134789
 });
 
 // Add name-value pairs to all payloads using convenience methods
-coreInstance.setTrackerVersion('js-3.0.0');
-coreInstance.setPlatform('web');
-coreInstance.setUserId('user-321');
-coreInstance.setColorDepth(24);
-coreInstance.setViewport(600, 400);
-coreInstance.setUseragent('Snowplow/0.0.1');
+core.setTrackerVersion('js-3.0.0');
+core.setPlatform('web');
+core.setUserId('user-321');
+core.setColorDepth(24);
+core.setViewport(600, 400);
+core.setUseragent('Snowplow/0.0.1');
 
 // Track a page view with URL and title
-const pageViewPayload = coreInstance.trackPageView('http://www.example.com', 'landing page');
+const pageViewPayload = core.trackPageView('http://www.example.com', 'landing page');
 
 console.log(pageViewPayload.build());
 /*
@@ -113,10 +113,10 @@ console.log(pageViewPayload.build());
 */
 
 // Stop automatically adding tv, p, and dtm to the payload
-coreInstance.resetPayloadPairs();
+core.resetPayloadPairs();
 
 // Track an unstructured event
-const unstructEventPayload = coreInstance.trackUnstructEvent({
+const unstructEventPayload = core.trackUnstructEvent({
     'schema': 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-0',
     'data': {
         'targetUrl': 'http://www.destination.com',
@@ -149,7 +149,7 @@ console.log(unstructEventPayload.build());
 Core instances can be initialized with two parameters. The first is a boolean and determines whether custom contexts and unstructured events will be base 64 encoded. The second is an optional callback function which gets applied to every payload created by the instance.
 
 ```js
-const coreInstance = core(true, console.log);
+const core = new TrackerCore(true, console.log);
 ```
 
 The above example would base 64 encode all unstructured events and custom contexts and would log each payload to the console.
@@ -157,9 +157,9 @@ The above example would base 64 encode all unstructured events and custom contex
 Use the `setBase64Encoding` method to turn base 64 encoding on or off after initializing a core instance:
 
 ```js
-const coreInstance = core(); // Base 64 encoding on by default
+const core = new TrackerCore(); // Base 64 encoding on by default
 
-coreInstance.setBase64Encoding(false); // Base 64 encoding is now off
+core.setBase64Encoding(false); // Base 64 encoding is now off
 ```
 
 ## Documentation
