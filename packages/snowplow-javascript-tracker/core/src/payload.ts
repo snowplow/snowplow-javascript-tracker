@@ -15,6 +15,9 @@
 
 import * as base64 from './base64';
 
+/**
+ * Interface for a Payload dictionary
+ */
 export interface PayloadDictionary {
   [key: string]: unknown;
 }
@@ -23,9 +26,30 @@ export interface PayloadDictionary {
  * Interface for mutable object encapsulating tracker payload
  */
 export interface PayloadData {
+  /**
+   * Adds an entry to the Payload
+   * @param key Key for Payload dictionary entry
+   * @param value Value for Payload dictionaty entry
+   */
   add: (key: string, value?: string) => void;
+
+  /**
+   * Merges a payload into the existing payload
+   * @param dict The payload to merge
+   */
   addDict: (dict: PayloadDictionary) => void;
+
+  /**
+   * Adds a JSON object to the payload - will stringify the JSON object
+   * @param keyIfEncoded key if base64 encoding is enabled
+   * @param keyIfNotEncoded key if base64 encoding is disabled
+   * @param json The json to be stringified and added to the payload
+   */
   addJson: (keyIfEncoded: string, keyIfNotEncoded: string, json: Record<string, unknown>) => void;
+
+  /**
+   * Builds and returns the Payload
+   */
   build: () => PayloadDictionary;
 }
 
@@ -40,10 +64,7 @@ function base64urlencode(data: string): string {
   }
 
   const enc = base64.base64encode(data);
-  return enc
-    .replace(/=/g, '')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_');
+  return enc.replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 }
 
 /**
@@ -78,10 +99,9 @@ export function isJson(property: unknown): boolean {
  * an optional initial value plus a set of individual
  * name-value pairs, provided using the add method.
  *
- * @param base64Encode boolean Whether or not JSONs should be
- * Base64-URL-safe-encoded
+ * @param base64Encode Whether or not JSONs should be Base64-URL-safe-encoded
  *
- * @return object The request string builder, with add, addRaw and build methods
+ * @return The request string builder, with add, addRaw and build methods
  */
 export function payloadBuilder(base64Encode: boolean): PayloadData {
   const dict: PayloadDictionary = {};
