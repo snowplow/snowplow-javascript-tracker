@@ -27,10 +27,6 @@ import map from 'lodash/map';
 import isPlainObject from 'lodash/isPlainObject';
 
 /**
- * Datatypes (some algebraic) for representing context types
- */
-
-/**
  * An interface for wrapping the Context Generator arguments
  */
 export interface ContextGeneratorEvent {
@@ -96,11 +92,37 @@ export type RuleSetProvider = [RuleSet, Array<ContextPrimitive> | ContextPrimiti
 export type ConditionalContextProvider = FilterProvider | RuleSetProvider;
 
 export interface GlobalContexts {
+  /**
+   * Returns all Context Primitives
+   */
   getGlobalPrimitives(): Array<ContextPrimitive>;
+
+  /**
+   * Returns all Conditional Contexts
+   */
   getConditionalProviders(): Array<ConditionalContextProvider>;
+
+  /**
+   * Adds conditional or primitive global contexts
+   * @param contexts An Array of either Conditional Contexts or Primitive Contexts
+   */
   addGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive>): void;
+
+  /**
+   * Removes all global contexts
+   */
   clearGlobalContexts(): void;
+
+  /**
+   * Removes previously added global context, performs a deep comparison of the contexts or conditional contexts
+   * @param contexts An Array of either Condition Contexts or Primitive Contexts
+   */
   removeGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive>): void;
+
+  /**
+   * Returns all applicable global contexts for a specified event
+   * @param event The event to check for applicable global contexts for
+   */
   getApplicableContexts(event: PayloadData): Array<SelfDescribingJson>;
 }
 
@@ -129,24 +151,14 @@ export function globalContexts(): GlobalContexts {
   };
 
   return {
-    /**
-     * Returns all Context Primitives
-     */
     getGlobalPrimitives(): Array<ContextPrimitive> {
       return globalPrimitives;
     },
 
-    /**
-     * Returns all Conditional Contexts
-     */
     getConditionalProviders(): Array<ConditionalContextProvider> {
       return conditionalProviders;
     },
 
-    /**
-     * Adds conditional or primitive global contexts
-     * @param contexts An Array of either Conditional Contexts or Primitive Contexts
-     */
     addGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive>): void {
       const acceptedConditionalContexts: ConditionalContextProvider[] = [];
       const acceptedContextPrimitives: ContextPrimitive[] = [];
@@ -161,32 +173,21 @@ export function globalContexts(): GlobalContexts {
       conditionalProviders = conditionalProviders.concat(acceptedConditionalContexts);
     },
 
-    /**
-     * Removes all global contexts
-     */
     clearGlobalContexts(): void {
       conditionalProviders = [];
       globalPrimitives = [];
     },
 
-    /**
-     * Removes previously added global context, performs a deep comparison of the contexts or conditional contexts
-     * @param contexts An Array of either Condition Contexts or Primitive Contexts
-     */
     removeGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive>): void {
       for (const context of contexts) {
         if (isConditionalContextProvider(context)) {
-          conditionalProviders = conditionalProviders.filter(item => !isEqual(item, context));
+          conditionalProviders = conditionalProviders.filter((item) => !isEqual(item, context));
         } else if (isContextPrimitive(context)) {
-          globalPrimitives = globalPrimitives.filter(item => !isEqual(item, context));
+          globalPrimitives = globalPrimitives.filter((item) => !isEqual(item, context));
         }
       }
     },
 
-    /**
-     * Returns all applicable global contexts for a specified event
-     * @param event The event to check for applicable global contexts for
-     */
     getApplicableContexts(event: PayloadData): Array<SelfDescribingJson> {
       const builtEvent = event.build();
       if (isEventJson(builtEvent)) {
@@ -275,7 +276,7 @@ export function isValidRule(input: string): boolean {
 export function isStringArray(input: unknown): input is Array<string> {
   return (
     Array.isArray(input) &&
-    input.every(x => {
+    input.every((x) => {
       return typeof x === 'string';
     })
   );
@@ -370,7 +371,7 @@ export function matchSchemaAgainstRuleSet(ruleSet: RuleSet, schema: string): boo
   let acceptCount = 0;
   const acceptRules = get(ruleSet, 'accept');
   if (Array.isArray(acceptRules)) {
-    if ((ruleSet.accept as Array<string>).some(rule => matchSchemaAgainstRule(rule, schema))) {
+    if ((ruleSet.accept as Array<string>).some((rule) => matchSchemaAgainstRule(rule, schema))) {
       acceptCount++;
     }
   } else if (typeof acceptRules === 'string') {
@@ -381,7 +382,7 @@ export function matchSchemaAgainstRuleSet(ruleSet: RuleSet, schema: string): boo
 
   const rejectRules = get(ruleSet, 'reject');
   if (Array.isArray(rejectRules)) {
-    if ((ruleSet.reject as Array<string>).some(rule => matchSchemaAgainstRule(rule, schema))) {
+    if ((ruleSet.reject as Array<string>).some((rule) => matchSchemaAgainstRule(rule, schema))) {
       rejectCount++;
     }
   } else if (typeof rejectRules === 'string') {
