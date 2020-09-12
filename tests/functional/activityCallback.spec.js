@@ -34,26 +34,6 @@
 import F from 'lodash/fp'
 
 describe('Activity tracking with callbacks', () => {
-  if (
-    F.isMatch(
-      { version: '12604.5.6.1.1', browserName: 'safari' },
-      browser.capabilities
-    )
-  ) {
-    fit('skipping in safari 11 (saucelabs)', () => {})
-  }
-  if (
-    F.isMatch(
-      { version: '12603.3.8', browserName: 'safari' },
-      browser.capabilities
-    )
-  ) {
-    // the safari driver sauce uses for safari 10 doesnt support
-    // setting cookies, so this whole suite fails
-    // https://github.com/webdriverio/webdriverio/issues/2004
-    fit('skipping in safari 10 (saucelabs)', () => {})
-  }
-
   it('reports events on scroll', () => {
     browser.url('/activity-callback.html?test1')
     browser.waitUntil(

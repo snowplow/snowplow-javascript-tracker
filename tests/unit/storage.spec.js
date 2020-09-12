@@ -30,10 +30,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-const {
+import {
   attemptGetLocalStorage,
   attemptWriteLocalStorage
-} = require('../../src/js/lib/helpers')
+} from '../../src/js/lib/helpers';
 
 describe('local storage', () => {
 
