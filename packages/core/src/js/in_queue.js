@@ -1,200 +1,190 @@
 /*
  * JavaScript tracker for Snowplow: queue.js
- * 
- * Significant portions copyright 2010 Anthon Pang. Remainder copyright 
- * 2012-2020 Snowplow Analytics Ltd. All rights reserved. 
- * 
- * Redistribution and use in source and binary forms, with or without 
- * modification, are permitted provided that the following conditions are 
- * met: 
  *
- * * Redistributions of source code must retain the above copyright 
- *   notice, this list of conditions and the following disclaimer. 
+ * Significant portions copyright 2010 Anthon Pang. Remainder copyright
+ * 2012-2020 Snowplow Analytics Ltd. All rights reserved.
  *
- * * Redistributions in binary form must reproduce the above copyright 
- *   notice, this list of conditions and the following disclaimer in the 
- *   documentation and/or other materials provided with the distribution. 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * * Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.
  *
  * * Neither the name of Anthon Pang nor Snowplow Analytics Ltd nor the
  *   names of their contributors may be used to endorse or promote products
- *   derived from this software without specific prior written permission. 
+ *   derived from this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR 
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT 
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT 
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY 
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-;(function() {
+import map from 'lodash/map';
+import isUndefined from 'lodash/isUndefined';
+import isFunction from 'lodash/isFunction';
+import { warn } from './lib/helpers';
 
-	var
-		map = require('lodash/map'),
-		isUndefined = require('lodash/isUndefined'),
-		isFunction = require('lodash/isFunction'),
-		helpers = require('./lib/helpers'),
+/************************************************************
+ * Proxy object
+ * - this allows the caller to continue push()'ing to _snaq
+ *   after the Tracker has been initialized and loaded
+ ************************************************************/
 
-		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
+export function InQueueManager(TrackerConstructor, version, mutSnowplowState, asyncQueue, functionName) {
+  // Page view ID should be shared between all tracker instances
+  var trackerDictionary = {};
 
-	/************************************************************
-	 * Proxy object
-	 * - this allows the caller to continue push()'ing to _snaq
-	 *   after the Tracker has been initialized and loaded
-	 ************************************************************/
+  /**
+   * Get an array of trackers to which a function should be applied.
+   *
+   * @param array names List of namespaces to use. If empty, use all namespaces.
+   */
+  function getNamedTrackers(names) {
+    var namedTrackers = [];
 
-	object.InQueueManager = function(TrackerConstructor, version, mutSnowplowState, asyncQueue, functionName) {
+    if (!names || names.length === 0) {
+      namedTrackers = map(trackerDictionary);
+    } else {
+      for (var i = 0; i < names.length; i++) {
+        if (trackerDictionary.hasOwnProperty(names[i])) {
+          namedTrackers.push(trackerDictionary[names[i]]);
+        } else {
+          warn('Warning: Tracker namespace "' + names[i] + '" not configured');
+        }
+      }
+    }
 
-		// Page view ID should be shared between all tracker instances
-		var trackerDictionary = {};
+    if (namedTrackers.length === 0) {
+      warn('Warning: No tracker configured');
+    }
 
-		/**
-		 * Get an array of trackers to which a function should be applied.
-		 *
-		 * @param array names List of namespaces to use. If empty, use all namespaces.
-		 */
-		function getNamedTrackers(names) {
-			var namedTrackers = [];
+    return namedTrackers;
+  }
 
-			if (!names || names.length === 0) {
-				namedTrackers = map(trackerDictionary);
-			} else {
-				for (var i = 0; i < names.length; i++) {
-					if (trackerDictionary.hasOwnProperty(names[i])) {
-						namedTrackers.push(trackerDictionary[names[i]]);
-					} else {
-						helpers.warn('Warning: Tracker namespace "' + names[i] + '" not configured');
-					}
-				}
-			}
+  /**
+   * Legacy support for input of the form _snaq.push(['setCollectorCf', 'd34uzc5hjrimh8'])
+   *
+   * @param string f Either 'setCollectorCf' or 'setCollectorUrl'
+   * @param string endpoint
+   * @param string namespace Optional tracker name
+   *
+   * TODO: remove this in 2.1.0
+   */
+  function legacyCreateNewNamespace(f, endpoint, namespace) {
+    warn(f + ' is deprecated. Set the collector when a new tracker instance using newTracker.');
 
-			if (namedTrackers.length === 0) {
-				helpers.warn('Warning: No tracker configured');
-			}
+    var name;
 
-			return namedTrackers;
-		}
+    if (isUndefined(namespace)) {
+      name = 'sp';
+    } else {
+      name = namespace;
+    }
 
-		/**
-		 * Legacy support for input of the form _snaq.push(['setCollectorCf', 'd34uzc5hjrimh8'])
-		 * 
-		 * @param string f Either 'setCollectorCf' or 'setCollectorUrl'
-		 * @param string endpoint
-		 * @param string namespace Optional tracker name
-		 * 
-		 * TODO: remove this in 2.1.0
-		 */
-		function legacyCreateNewNamespace(f, endpoint, namespace) {
-			helpers.warn(f + ' is deprecated. Set the collector when a new tracker instance using newTracker.');
+    createNewNamespace(name);
+    trackerDictionary[name][f](endpoint);
+  }
 
-			var name;
+  /**
+   * Initiate a new tracker namespace
+   *
+   * @param string namespace
+   * @param string endpoint Of the form d3rkrsqld9gmqf.cloudfront.net
+   */
+  function createNewNamespace(namespace, endpoint, argmap) {
+    argmap = argmap || {};
 
-			if (isUndefined(namespace)) {
-				name = 'sp';
-			} else {
-				name = namespace;
-			}
+    if (!trackerDictionary.hasOwnProperty(namespace)) {
+      trackerDictionary[namespace] = new TrackerConstructor(functionName, namespace, version, mutSnowplowState, argmap);
+      trackerDictionary[namespace].setCollectorUrl(endpoint);
+    } else {
+      warn('Tracker namespace ' + namespace + ' already exists.');
+    }
+  }
 
-			createNewNamespace(name);
-			trackerDictionary[name][f](endpoint);
-		}
+  /**
+   * Output an array of the form ['functionName', [trackerName1, trackerName2, ...]]
+   *
+   * @param string inputString
+   */
+  function parseInputString(inputString) {
+    var separatedString = inputString.split(':'),
+      extractedFunction = separatedString[0],
+      extractedNames = separatedString.length > 1 ? separatedString[1].split(';') : [];
 
-		/**
-		 * Initiate a new tracker namespace
-		 *
-		 * @param string namespace
-		 * @param string endpoint Of the form d3rkrsqld9gmqf.cloudfront.net
-		 */
-		function createNewNamespace(namespace, endpoint, argmap) {
-			argmap = argmap || {};
+    return [extractedFunction, extractedNames];
+  }
 
-			if (!trackerDictionary.hasOwnProperty(namespace)) {
-				trackerDictionary[namespace] = new TrackerConstructor(functionName, namespace, version, mutSnowplowState, argmap);
-				trackerDictionary[namespace].setCollectorUrl(endpoint);
-			} else {
-				helpers.warn('Tracker namespace ' + namespace + ' already exists.');
-			}
-		}
+  /**
+   * apply wrapper
+   *
+   * @param array parameterArray An array comprising either:
+   *      [ 'methodName', optional_parameters ]
+   * or:
+   *      [ functionObject, optional_parameters ]
+   */
+  function applyAsyncFunction() {
+    var i, j, f, parameterArray, input, parsedString, names, namedTrackers;
 
-		/**
-		 * Output an array of the form ['functionName', [trackerName1, trackerName2, ...]]
-		 *
-		 * @param string inputString
-		 */
-		function parseInputString(inputString) {
-			var separatedString = inputString.split(':'),
-				extractedFunction = separatedString[0],
-				extractedNames = (separatedString.length > 1) ? separatedString[1].split(';') : [];
+    // Outer loop in case someone push'es in zarg of arrays
+    for (i = 0; i < arguments.length; i += 1) {
+      parameterArray = arguments[i];
 
-			return [extractedFunction, extractedNames];
-		}
+      // Arguments is not an array, so we turn it into one
+      input = Array.prototype.shift.call(parameterArray);
 
-		/**
-		 * apply wrapper
-		 *
-		 * @param array parameterArray An array comprising either:
-		 *      [ 'methodName', optional_parameters ]
-		 * or:
-		 *      [ functionObject, optional_parameters ]
-		 */
-		function applyAsyncFunction() {
-			var i, j, f, parameterArray, input, parsedString, names, namedTrackers;
+      // Custom callback rather than tracker method, called with trackerDictionary as the context
+      if (isFunction(input)) {
+        try {
+          input.apply(trackerDictionary, parameterArray);
+        } catch (e) {
+          warn(`Custom callback error - ${e}`);
+        } finally {
+          continue;
+        }
+      }
 
-			// Outer loop in case someone push'es in zarg of arrays
-			for (i = 0; i < arguments.length; i += 1) {
-				parameterArray = arguments[i];
+      parsedString = parseInputString(input);
+      f = parsedString[0];
+      names = parsedString[1];
 
-				// Arguments is not an array, so we turn it into one
-				input = Array.prototype.shift.call(parameterArray);
+      if (f === 'newTracker') {
+        createNewNamespace(parameterArray[0], parameterArray[1], parameterArray[2]);
+        continue;
+      }
 
-				// Custom callback rather than tracker method, called with trackerDictionary as the context
-				if (isFunction(input)) {
-					try {
-						input.apply(trackerDictionary, parameterArray);
-					} 
-					catch(e) {
-						helpers.warn(`Custom callback error - ${e}`);
-					} 
-					finally {
-						continue;
-					}
-				}
+      if ((f === 'setCollectorCf' || f === 'setCollectorUrl') && (!names || names.length === 0)) {
+        legacyCreateNewNamespace(f, parameterArray[0], parameterArray[1]);
+        continue;
+      }
 
-				parsedString = parseInputString(input);
-				f = parsedString[0];
-				names = parsedString[1];
+      namedTrackers = getNamedTrackers(names);
 
-				if (f === 'newTracker') {
-					createNewNamespace(parameterArray[0], parameterArray[1], parameterArray[2]);
-					continue;
-				}
+      for (j = 0; j < namedTrackers.length; j++) {
+        namedTrackers[j][f].apply(namedTrackers[j], parameterArray);
+      }
+    }
+  }
 
-				if ((f === 'setCollectorCf' || f === 'setCollectorUrl') && (!names || names.length === 0)) {
-					legacyCreateNewNamespace(f, parameterArray[0], parameterArray[1]);
-					continue;
-				}
+  // We need to manually apply any events collected before this initialization
+  for (var i = 0; i < asyncQueue.length; i++) {
+    applyAsyncFunction(asyncQueue[i]);
+  }
 
-				namedTrackers = getNamedTrackers(names);
-
-				for (j = 0; j < namedTrackers.length; j++) {
-					namedTrackers[j][f].apply(namedTrackers[j], parameterArray);
-				}
-			}
-		}
-
-		// We need to manually apply any events collected before this initialization
-		for (var i = 0; i < asyncQueue.length; i++) {
-			applyAsyncFunction(asyncQueue[i]);
-		}
-
-		return {
-			push: applyAsyncFunction
-		};
-	};
-
-}());
+  return {
+    push: applyAsyncFunction,
+  };
+}

@@ -32,7 +32,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-const { fixupUrl } = require('../../src/js/lib/proxies')
+import { fixupUrl } from '../../src/js/lib/proxies';
 
 describe('Proxies', () => {
   beforeAll(() => {

@@ -71,198 +71,184 @@
 	addPlugin, getAsyncTracker
 */
 
-;(function() {
+import forEach from 'lodash/forEach';
+import filter from 'lodash/filter';
+import { addEventListener } from './lib/helpers';
+import { InQueueManager } from './in_queue';
+import { Tracker } from './tracker';
 
-	// Load all our modules (at least until we fully modularize & remove grunt-concat)
-	var
-		uuid = require('uuid'),
-		forEach = require('lodash/forEach'),
-		filter = require('lodash/filter'),
-		helpers = require('./lib/helpers'),
-		queue = require('./in_queue'),
-		tracker = require('./tracker'),
+export function Snowplow(asynchronousQueue, functionName) {
+  var documentAlias = document,
+    windowAlias = window,
+    /* Tracker identifier with version */
+    version = 'js-' + '<%= pkg.version %>', // Update banner.js too
+    /* Contains four variables that are shared with tracker.js and must be passed by reference */
+    mutSnowplowState = {
+      /* List of request queues - one per Tracker instance */
+      outQueues: [],
+      bufferFlushers: [],
 
-		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
+      /* Time at which to stop blocking excecution */
+      expireDateTime: null,
 
-	object.Snowplow = function(asynchronousQueue, functionName) {
+      /* DOM Ready */
+      hasLoaded: false,
+      registeredOnLoadHandlers: [],
 
-		var
-			documentAlias = document,
-			windowAlias = window,
+      /* pageViewId, which can changed by other trackers on page;
+       * initialized by tracker sent first event */
+      pageViewId: null,
+    };
 
-			/* Tracker identifier with version */
-			version = 'js-' + '<%= pkg.version %>', // Update banner.js too
+  /************************************************************
+   * Private methods
+   ************************************************************/
 
-			/* Contains four variables that are shared with tracker.js and must be passed by reference */
-			mutSnowplowState = {
+  /*
+   * Handle beforeunload event
+   *
+   * Subject to Safari's "Runaway JavaScript Timer" and
+   * Chrome V8 extension that terminates JS that exhibits
+   * "slow unload", i.e., calling getTime() > 1000 times
+   */
+  function beforeUnloadHandler() {
+    var now;
 
-				/* List of request queues - one per Tracker instance */
-				outQueues: [],
-				bufferFlushers: [],
+    // Flush all POST queues
+    forEach(mutSnowplowState.bufferFlushers, function (flusher) {
+      flusher();
+    });
 
-				/* Time at which to stop blocking excecution */
-				expireDateTime: null,
+    /*
+     * Delay/pause (blocks UI)
+     */
+    if (mutSnowplowState.expireDateTime) {
+      // the things we do for backwards compatibility...
+      // in ECMA-262 5th ed., we could simply use:
+      //     while (Date.now() < mutSnowplowState.expireDateTime) { }
+      do {
+        now = new Date();
+        if (
+          filter(mutSnowplowState.outQueues, function (queue) {
+            return queue.length > 0;
+          }).length === 0
+        ) {
+          break;
+        }
+      } while (now.getTime() < mutSnowplowState.expireDateTime);
+    }
+  }
 
-				/* DOM Ready */
-				hasLoaded: false,
-				registeredOnLoadHandlers: [],
+  /*
+   * Handler for onload event
+   */
+  function loadHandler() {
+    var i;
 
-				/* pageViewId, which can changed by other trackers on page;
-				 * initialized by tracker sent first event */
-				pageViewId: null
-			};
+    if (!mutSnowplowState.hasLoaded) {
+      mutSnowplowState.hasLoaded = true;
+      for (i = 0; i < mutSnowplowState.registeredOnLoadHandlers.length; i++) {
+        mutSnowplowState.registeredOnLoadHandlers[i]();
+      }
+    }
+    return true;
+  }
 
-		/************************************************************
-		 * Private methods
-		 ************************************************************/
+  /*
+   * Add onload or DOM ready handler
+   */
+  function addReadyListener() {
+    var _timer;
 
+    if (documentAlias.addEventListener) {
+      addEventListener(documentAlias, 'DOMContentLoaded', function ready() {
+        documentAlias.removeEventListener('DOMContentLoaded', ready, false);
+        loadHandler();
+      });
+    } else if (documentAlias.attachEvent) {
+      documentAlias.attachEvent('onreadystatechange', function ready() {
+        if (documentAlias.readyState === 'complete') {
+          documentAlias.detachEvent('onreadystatechange', ready);
+          loadHandler();
+        }
+      });
 
-		/*
-		 * Handle beforeunload event
-		 *
-		 * Subject to Safari's "Runaway JavaScript Timer" and
-		 * Chrome V8 extension that terminates JS that exhibits
-		 * "slow unload", i.e., calling getTime() > 1000 times
-		 */
-		function beforeUnloadHandler() {
-			var now;
+      if (documentAlias.documentElement.doScroll && windowAlias === windowAlias.top) {
+        (function ready() {
+          if (!mutSnowplowState.hasLoaded) {
+            try {
+              documentAlias.documentElement.doScroll('left');
+            } catch (error) {
+              setTimeout(ready, 0);
+              return;
+            }
+            loadHandler();
+          }
+        })();
+      }
+    }
 
-			// Flush all POST queues
-			forEach(mutSnowplowState.bufferFlushers, function (flusher) {
-				flusher();
-			});
+    // sniff for older WebKit versions
+    if (new RegExp('WebKit').test(navigator.userAgent)) {
+      _timer = setInterval(function () {
+        if (mutSnowplowState.hasLoaded || /loaded|complete/.test(documentAlias.readyState)) {
+          clearInterval(_timer);
+          loadHandler();
+        }
+      }, 10);
+    }
 
-			/*
-			 * Delay/pause (blocks UI)
-			 */
-			if (mutSnowplowState.expireDateTime) {
-				// the things we do for backwards compatibility...
-				// in ECMA-262 5th ed., we could simply use:
-				//     while (Date.now() < mutSnowplowState.expireDateTime) { }
-				do {
-					now = new Date();
-					if (filter(mutSnowplowState.outQueues, function (queue) {
-						return queue.length > 0;
-					}).length === 0) {
-						break;
-					}
-				} while (now.getTime() < mutSnowplowState.expireDateTime);
-			}
-		}
+    // fallback
+    addEventListener(windowAlias, 'load', loadHandler, false);
+  }
 
-		/*
-		 * Handler for onload event
-		 */
-		function loadHandler() {
-			var i;
+  /************************************************************
+   * Public data and methods
+   ************************************************************/
 
-			if (!mutSnowplowState.hasLoaded) {
-				mutSnowplowState.hasLoaded = true;
-				for (i = 0; i < mutSnowplowState.registeredOnLoadHandlers.length; i++) {
-					mutSnowplowState.registeredOnLoadHandlers[i]();
-				}
-			}
-			return true;
-		}
+  windowAlias.Snowplow = {
+    /**
+     * Returns a Tracker object, configured with a
+     * CloudFront collector.
+     *
+     * @param string distSubdomain The subdomain on your CloudFront collector's distribution
+     */
+    getTrackerCf: function (distSubdomain) {
+      var t = new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
+      t.setCollectorCf(distSubdomain);
+      return t;
+    },
 
-		/*
-		 * Add onload or DOM ready handler
-		 */
-		function addReadyListener() {
-			var _timer;
+    /**
+     * Returns a Tracker object, configured with the
+     * URL to the collector to use.
+     *
+     * @param string rawUrl The collector URL minus protocol and /i
+     */
+    getTrackerUrl: function (rawUrl) {
+      var t = new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
+      t.setCollectorUrl(rawUrl);
+      return t;
+    },
 
-			if (documentAlias.addEventListener) {
-				helpers.addEventListener(documentAlias, 'DOMContentLoaded', function ready() {
-					documentAlias.removeEventListener('DOMContentLoaded', ready, false);
-					loadHandler();
-				});
-			} else if (documentAlias.attachEvent) {
-				documentAlias.attachEvent('onreadystatechange', function ready() {
-					if (documentAlias.readyState === 'complete') {
-						documentAlias.detachEvent('onreadystatechange', ready);
-						loadHandler();
-					}
-				});
+    /**
+     * Get internal asynchronous tracker object
+     *
+     * @return Tracker
+     */
+    getAsyncTracker: function () {
+      return new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
+    },
+  };
 
-				if (documentAlias.documentElement.doScroll && windowAlias === windowAlias.top) {
-					(function ready() {
-						if (!mutSnowplowState.hasLoaded) {
-							try {
-								documentAlias.documentElement.doScroll('left');
-							} catch (error) {
-								setTimeout(ready, 0);
-								return;
-							}
-							loadHandler();
-						}
-					}());
-				}
-			}
+  /************************************************************
+   * Constructor
+   ************************************************************/
 
-			// sniff for older WebKit versions
-			if ((new RegExp('WebKit')).test(navigator.userAgent)) {
-				_timer = setInterval(function () {
-					if (mutSnowplowState.hasLoaded || /loaded|complete/.test(documentAlias.readyState)) {
-						clearInterval(_timer);
-						loadHandler();
-					}
-				}, 10);
-			}
+  // initialize the Snowplow singleton
+  addEventListener(windowAlias, 'beforeunload', beforeUnloadHandler, false);
+  addReadyListener();
 
-			// fallback
-			helpers.addEventListener(windowAlias, 'load', loadHandler, false);
-		}
-
-		/************************************************************
-		 * Public data and methods
-		 ************************************************************/
-
-		windowAlias.Snowplow = {
-
-			/**
-			 * Returns a Tracker object, configured with a
-			 * CloudFront collector.
-			 *
-			 * @param string distSubdomain The subdomain on your CloudFront collector's distribution
-			 */
-			getTrackerCf: function (distSubdomain) {
-				var t = new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
-				t.setCollectorCf(distSubdomain);
-				return t;
-			},
-
-			/**
-			 * Returns a Tracker object, configured with the
-			 * URL to the collector to use.
-			 *
-			 * @param string rawUrl The collector URL minus protocol and /i
-			 */
-			getTrackerUrl: function (rawUrl) {
-				var t = new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
-				t.setCollectorUrl(rawUrl);
-				return t;
-			},
-
-			/**
-			 * Get internal asynchronous tracker object
-			 *
-			 * @return Tracker
-			 */
-			getAsyncTracker: function () {
-				return new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
-			}
-		};
-
-		/************************************************************
-		 * Constructor
-		 ************************************************************/
-
-		// initialize the Snowplow singleton
-		helpers.addEventListener(windowAlias, 'beforeunload', beforeUnloadHandler, false);
-		addReadyListener();
-
-		// Now replace initialization array with queue manager object
-		return new queue.InQueueManager(tracker.Tracker, version, mutSnowplowState, asynchronousQueue, functionName);
-	};
-
-}());
+  // Now replace initialization array with queue manager object
+  return new InQueueManager(Tracker, version, mutSnowplowState, asynchronousQueue, functionName);
+}
