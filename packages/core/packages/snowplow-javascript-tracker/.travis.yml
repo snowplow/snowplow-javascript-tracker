@@ -21,7 +21,8 @@ install:
 before_script:
 script:
 - cd core && npm run build && npm run test && cd ..
-- grunt travis && npm run test:unit && npm run test:e2e:sauce
+- npm run build
+- npm run test:unit && npm run test:e2e:sauce
 before_deploy:
 - grunt default
 deploy:

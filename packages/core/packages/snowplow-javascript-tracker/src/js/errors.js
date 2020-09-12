@@ -32,96 +32,96 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-var isFunction = require('lodash/isFunction'),
-    helpers = require('./lib/helpers'),
-    object = typeof exports !== 'undefined' ? exports : this,
-	windowAlias = window;
+import isFunction from 'lodash/isFunction';
+import { addEventListener } from './lib/helpers';
 
+var windowAlias = window;
 
-object.errorManager = function (core) {
+export function ErrorTrackingManager(core) {
+  /**
+   * Send error as self-describing event
+   *
+   * @param message string Message appeared in console
+   * @param filename string Source file (not used)
+   * @param lineno number Line number
+   * @param colno number Column number (not used)
+   * @param error Error error object (not present in all browsers)
+   * @param contexts Array of custom contexts
+   */
+  function track(message, filename, lineno, colno, error, contexts) {
+    var stack = error && error.stack ? error.stack : null;
 
-	/**
-	 * Send error as self-describing event
-	 *
-	 * @param message string Message appeared in console
-	 * @param filename string Source file (not used)
-	 * @param lineno number Line number
-	 * @param colno number Column number (not used)
-	 * @param error Error error object (not present in all browsers)
-	 * @param contexts Array of custom contexts
-	 */
-	function track(message, filename, lineno, colno, error, contexts) {
-		var stack = (error && error.stack) ? error.stack : null;
+    core.trackSelfDescribingEvent(
+      {
+        schema: 'iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1',
+        data: {
+          programmingLanguage: 'JAVASCRIPT',
+          message: message || "JS Exception. Browser doesn't support ErrorEvent API",
+          stackTrace: stack,
+          lineNumber: lineno,
+          lineColumn: colno,
+          fileName: filename,
+        },
+      },
+      contexts
+    );
+  }
 
-		core.trackSelfDescribingEvent({
-			schema: 'iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1',
-			data: {
-				programmingLanguage: "JAVASCRIPT",
-				message: message || "JS Exception. Browser doesn't support ErrorEvent API",
-				stackTrace: stack,
-				lineNumber: lineno,
-				lineColumn: colno,
-				fileName: filename
-			}
-		}, contexts)
-	}
+  /**
+   * Attach custom contexts using `contextAdder`
+   *
+   *
+   * @param contextsAdder function to get details from internal browser state
+   * @returns {Array} custom contexts
+   */
+  function sendError(errorEvent, commonContexts, contextsAdder) {
+    var contexts;
+    if (isFunction(contextsAdder)) {
+      contexts = commonContexts.concat(contextsAdder(errorEvent));
+    } else {
+      contexts = commonContexts;
+    }
 
-	/**
-	 * Attach custom contexts using `contextAdder`
-	 *
-	 * 
-	 * @param contextsAdder function to get details from internal browser state
-	 * @returns {Array} custom contexts
-	 */
-	function sendError(errorEvent, commonContexts, contextsAdder) {
-		var contexts;
-		if (isFunction(contextsAdder)) {
-			contexts = commonContexts.concat(contextsAdder(errorEvent));
-		} else {
-			contexts = commonContexts;
-		}
+    track(errorEvent.message, errorEvent.filename, errorEvent.lineno, errorEvent.colno, errorEvent.error, contexts);
+  }
 
-		track(errorEvent.message, errorEvent.filename, errorEvent.lineno, errorEvent.colno, errorEvent.error, contexts)
-	}
+  return {
+    /**
+     * Track unhandled exception.
+     * This method supposed to be used inside try/catch block or with window.onerror
+     * (contexts won't be attached), but NOT with `addEventListener` - use
+     * `enableErrorTracker` for this
+     *
+     * @param message string Message appeared in console
+     * @param filename string Source file (not used)
+     * @param lineno number Line number
+     * @param colno number Column number (not used)
+     * @param error Error error object (not present in all browsers)
+     * @param contexts Array of custom contexts
+     */
+    trackError: track,
 
-	return {
+    /**
+     * Curried function to enable tracking of unhandled exceptions.
+     * Listen for `error` event and
+     *
+     * @param filter Function ErrorEvent => Bool to check whether error should be tracker
+     * @param contextsAdder Function ErrorEvent => Array<Context> to add custom contexts with
+     *                     internal state based on particular error
+     */
+    enableErrorTracking: function (filter, contextsAdder, contexts) {
+      /**
+       * Closure callback to filter, contextualize and track unhandled exceptions
+       *
+       * @param errorEvent ErrorEvent passed to event listener
+       */
+      function captureError(errorEvent) {
+        if ((isFunction(filter) && filter(errorEvent)) || filter == null) {
+          sendError(errorEvent, contexts, contextsAdder);
+        }
+      }
 
-		/**
-		 * Track unhandled exception.
-		 * This method supposed to be used inside try/catch block or with window.onerror
-		 * (contexts won't be attached), but NOT with `addEventListener` - use
-		 * `enableErrorTracker` for this
-		 *
-		 * @param message string Message appeared in console
-		 * @param filename string Source file (not used)
-		 * @param lineno number Line number
-		 * @param colno number Column number (not used)
-		 * @param error Error error object (not present in all browsers)
-		 * @param contexts Array of custom contexts
-		 */
-	    trackError: track,
-
-		/**
-         * Curried function to enable tracking of unhandled exceptions.
-		 * Listen for `error` event and
-		 *
-		 * @param filter Function ErrorEvent => Bool to check whether error should be tracker
-		 * @param contextsAdder Function ErrorEvent => Array<Context> to add custom contexts with
-		 *                     internal state based on particular error
-		 */
-		enableErrorTracking: function (filter, contextsAdder, contexts) {
-			/**
-			 * Closure callback to filter, contextualize and track unhandled exceptions
-			 *
-			 * @param errorEvent ErrorEvent passed to event listener
-			 */
-			function captureError (errorEvent) {
-				if (isFunction(filter) && filter(errorEvent) || filter == null) {
-					sendError(errorEvent, contexts, contextsAdder)
-				}
-			}
-
-			helpers.addEventListener(windowAlias, 'error', captureError, true);
-		}
-	}
-};
+      addEventListener(windowAlias, 'error', captureError, true);
+    },
+  };
+}

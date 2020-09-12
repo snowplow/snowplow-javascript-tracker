@@ -32,10 +32,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
-var object = typeof exports !== 'undefined' ? exports : this;
-
-var makeSafe = function (fn) {
+const makeSafe = function (fn) {
   return function () {
     try {
       return fn.apply(this, arguments);
@@ -45,16 +42,14 @@ var makeSafe = function (fn) {
   };
 };
 
-exports.productionize = function (methods) {
+export function productionize(methods) {
   let safeMethods = {};
   if (typeof methods === 'object' && methods !== null) {
-    Object.getOwnPropertyNames(methods).forEach(
-      function (val, idx, array) {
-        if (typeof methods[val] === 'function') {
-          safeMethods[val] = makeSafe(methods[val]);
-        }
+    Object.getOwnPropertyNames(methods).forEach(function (val, idx, array) {
+      if (typeof methods[val] === 'function') {
+        safeMethods[val] = makeSafe(methods[val]);
       }
-    );
+    });
   }
   return safeMethods;
-};
+}
