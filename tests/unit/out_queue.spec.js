@@ -32,7 +32,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import RequestQueue from '../../src/js/out_queue'
+import { OutQueueManager } from '../../src/js/out_queue'
 
 describe('OutQueueManager', () => {
 
@@ -43,7 +43,7 @@ describe('OutQueueManager', () => {
   beforeEach(() => {
     localStorage.clear();
 
-    outQueue = new RequestQueue.OutQueueManager(
+    outQueue = new OutQueueManager(
       'sp', 'cf', {outQueues: []}, true, 'post', 
       '/com.snowplowanalytics.snowplow/tp2', 1, 40000, false,
       maxQueueSize

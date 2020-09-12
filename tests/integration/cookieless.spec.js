@@ -68,18 +68,6 @@ const hasGeoContext = isMatchWithCB({
 })
 
 describe('Test that request_recorder logs meet expectations', () => {
-	if (
-		F.isMatch(
-			{ version: '12603.3.8', browserName: 'safari' },
-			browser.capabilities
-		)
-	) {
-		// the safari driver sauce uses for safari 10 doesnt support
-		// setting cookies, so this whole suite fails
-		// https://github.com/webdriverio/webdriverio/issues/2004
-		fit('skipping in safari 10', () => {})
-	}
-
 	let log = []
 	let container
 	let containerUrl

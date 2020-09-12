@@ -1,8 +1,7 @@
-import util from 'util'
 import F from 'lodash/fp'
-import { advanceBy, advanceTo, clear } from 'jest-date-mock'
+import { Tracker } from '../../src/js/tracker';
 
-jest.useFakeTimers()
+jest.useFakeTimers('modern');
 
 const getPPEvents = F.compose(
   F.filter(
@@ -27,7 +26,6 @@ describe('Activity tracker behaviour', () => {
     oldDocument = document
     global.document = Object.create(document)
     document.domain = ''
-    advanceTo(new Date(2019, 10, 25, 0, 0, 0))
   })
 
   afterAll(() => {
@@ -35,10 +33,13 @@ describe('Activity tracker behaviour', () => {
     clear()
   })
 
+  beforeEach(() => {
+    jest.clearAllTimers();
+  });
+
   it('supports different timings for ping vs callback activity tracking', () => {
     let callbacks = 0
     const outQueues = []
-    const Tracker = require('../../src/js/tracker').Tracker
     const t = new Tracker(
       '',
       '',
@@ -51,35 +52,29 @@ describe('Activity tracker behaviour', () => {
       callbacks++
     })
     t.trackPageView()
-    advanceBy(5000)
-    jest.advanceTimersByTime(5000)
+    jest.advanceTimersByTime(2500)
+    t.updatePageActivity()
+    jest.advanceTimersByTime(5000) // CB = 1, PP = 0
 
     // callback timer starts tracking
-    advanceBy(1000)
     t.updatePageActivity()
-    advanceBy(4000)
-    jest.advanceTimersByTime(5000) // 1
+    jest.advanceTimersByTime(5000) // CB = 2, PP = 1
 
     // page ping timer starts tracking
-    advanceBy(1000)
     t.updatePageActivity()
-    advanceBy(4000)
-    jest.advanceTimersByTime(5000)
+    jest.advanceTimersByTime(5000) // CB = 3, PP = 1
 
     // window for callbacks ticks
-    advanceBy(1000)
     t.updatePageActivity()
-    advanceBy(4000)
-    jest.advanceTimersByTime(5000) // 2
+    jest.advanceTimersByTime(5000) // CB = 4, PP = 2
     // window for page ping ticks
 
-    expect(callbacks).toBe(3)
+    expect(callbacks).toBe(4)
     expect(F.size(getPPEvents(outQueues))).toBe(2)
   })
 
   it('maintains current static context behaviour', () => {
     const outQueues = []
-    const Tracker = require('../../src/js/tracker').Tracker
     const t = new Tracker(
       '',
       '',
@@ -105,11 +100,10 @@ describe('Activity tracker behaviour', () => {
     ])
     const pageOneTime = Date.now()
 
-    advanceBy(1000)
-    jest.advanceTimersByTime(1000) 
+    jest.advanceTimersByTime(500)
+
     t.updatePageActivity()
-    advanceBy(100)
-    jest.advanceTimersByTime(1000)
+    jest.advanceTimersByTime(2000) // PP = 1
 
     // page two with new static context, time has moved on 2 seconds by now
     t.trackPageView(null, [
@@ -122,11 +116,9 @@ describe('Activity tracker behaviour', () => {
     ])
     const pageTwoTime = Date.now()
 
-    advanceBy(1000)
-    jest.advanceTimersByTime(1000)
+    jest.advanceTimersByTime(500)
     t.updatePageActivity()
-    advanceBy(1000)
-    jest.advanceTimersByTime(1000)
+    jest.advanceTimersByTime(2000) // PP = 2
 
     // current behaviour is to capture context on the first trackPageView after enabling
     // event tracking. This might not be ideal, but lets make sure it stays this way
@@ -167,7 +159,6 @@ describe('Activity tracker behaviour', () => {
 
   it('does not reset activity tracking on pageview when resetActivityTrackingOnPageView: false,', () => {
     const outQueues = []
-    const Tracker = require('../../src/js/tracker').Tracker
     const t = new Tracker(
       '',
       '',
@@ -185,36 +176,26 @@ describe('Activity tracker behaviour', () => {
     t.enableActivityTracking(0, 30)
     t.trackPageView()
 
-    advanceBy(15000)
     jest.advanceTimersByTime(15000)
 
     // activity on page one
     t.updatePageActivity()
-    advanceBy(1000)
-
-    advanceBy(15000)
-    jest.advanceTimersByTime(15000)
+    jest.advanceTimersByTime(25000)
 
     // activity on page one
     t.updatePageActivity()
-    advanceBy(1000)
 
     // shift to page two and trigger tick
     t.trackPageView()
-    advanceBy(14000)
-    jest.advanceTimersByTime(15000)
+    jest.advanceTimersByTime(25000)
 
-    // Activity was triggered on the first page.
-    // Activity tracking is currently not reset per page view so it is reported as happening on the second page.
-
+    // Activity tracking is currently not reset per page view so we get an extra page ping on page two.
     const pps = getPPEvents(outQueues)
-
-    expect(F.size(pps)).toBe(1)
+    expect(F.size(pps)).toBe(2)
   })
 
   it('does reset activity tracking on pageview by default', () => {
     const outQueues = []
-    const Tracker = require('../../src/js/tracker').Tracker
     const t = new Tracker(
       '',
       '',
@@ -231,24 +212,25 @@ describe('Activity tracker behaviour', () => {
     t.enableActivityTracking(0, 30)
     t.trackPageView()
 
-    advanceBy(15000)
     jest.advanceTimersByTime(15000)
 
     // activity on page one
     t.updatePageActivity()
-    advanceBy(1000)
 
-    advanceBy(15000)
-    jest.advanceTimersByTime(15000)
+    jest.advanceTimersByTime(25000) // PP = 1
 
     // activity on page one
     t.updatePageActivity()
-    advanceBy(1000)
 
     // shift to page two and trigger tick
     t.trackPageView()
-    advanceBy(14000)
-    jest.advanceTimersByTime(15000)
+
+    jest.advanceTimersByTime(5000)
+
+    // activity on page two
+    t.updatePageActivity()
+
+    jest.advanceTimersByTime(20000)
 
     // Activity began tracking on the first page but moved on before 30 seconds.
     // Activity tracking should still not have fire despite being on site 30 seconds, as user has moved page.
@@ -260,7 +242,6 @@ describe('Activity tracker behaviour', () => {
 
   it('allows running callback after sending tracking events', () => {
     const outQueues = []
-    const Tracker = require('../../src/js/tracker').Tracker
     const t = new Tracker(
       '',
       '',
@@ -275,19 +256,14 @@ describe('Activity tracker behaviour', () => {
       }
     )
 
-    t.enableActivityTracking(0, 30)
     let marker = false
     t.trackPageView(null, null, null, null, ev => (marker = true))
-
-    advanceBy(15000)
-    jest.advanceTimersByTime(15000)
 
     expect(marker).toBe(true)
   })
 
   it('fires initial delayed activity tracking on first pageview and second pageview', () => {
     const outQueues = []
-    const Tracker = require('../../src/js/tracker').Tracker
     const t = new Tracker(
       '',
       '',
@@ -305,42 +281,47 @@ describe('Activity tracker behaviour', () => {
 
     t.trackPageView()
     const firstPageId = t.getPageViewId()
-    advanceBy(5000)
+
+    jest.advanceTimersByTime(2500)
+    
+    // initial callback timer starts tracking
+    t.updatePageActivity() 
+
     jest.advanceTimersByTime(5000)
 
-    // callback timer starts tracking
-    advanceBy(1000)
-    t.updatePageActivity() 
-    advanceBy(4000)
-    jest.advanceTimersByTime(5000) // 1
+    const initial_pps = getPPEvents(outQueues)
+    expect(F.size(initial_pps)).toBe(0)
+    
+    jest.advanceTimersByTime(5000) // PP = 1
 
     // page ping timer starts tracking
-    advanceBy(1000)
     t.updatePageActivity()
-    advanceBy(4000)
-    jest.advanceTimersByTime(5000) // 2
 
-    advanceBy(1000)
-    t.updatePageActivity() 
-    advanceBy(4000)
-    jest.advanceTimersByTime(5000) // 3
+    jest.advanceTimersByTime(5000) // PP = 2
 
+    t.updatePageActivity()
+    jest.advanceTimersByTime(5000) // PP = 3
+
+    // Move to second page view
     t.trackPageView()
     const secondPageId = t.getPageViewId()
-    advanceBy(5000)
-    jest.advanceTimersByTime(5000)
+
+    jest.advanceTimersByTime(2500)
 
     // window for callbacks ticks
-    advanceBy(1000)
     t.updatePageActivity()
-    advanceBy(4000)
-    jest.advanceTimersByTime(5000) // 4
+
+    jest.advanceTimersByTime(5000)
+
+    // Should still only have 3 page pings from first page
+    const first_page_only_pps = getPPEvents(outQueues)
+    expect(F.size(first_page_only_pps)).toBe(3)
+
+    jest.advanceTimersByTime(5000) // PP = 4
 
     // window for page ping ticks
-    advanceBy(1000)
     t.updatePageActivity() 
-    advanceBy(4000)
-    jest.advanceTimersByTime(5000) // 5
+    jest.advanceTimersByTime(5000) // PP = 5
 
     // Activity began tracking on the first page and tracked two page pings in 16 seconds.
     // Activity tracking only fires one further event over next 11 seconds as a page view event occurs, resetting timer back to 10 seconds.
@@ -358,7 +339,6 @@ describe('Activity tracker behaviour', () => {
 
   it('does not log skipped browser features', () => {
     const outQueues = []
-    const Tracker = require('../../src/js/tracker').Tracker
     const t = new Tracker(
       '',
       '',
@@ -376,9 +356,8 @@ describe('Activity tracker behaviour', () => {
     t.enableActivityTracking(10, 5)
 
     t.trackPageView()
-    const firstPageId = t.getPageViewId()
-    advanceBy(5000)
-    jest.advanceTimersByTime(5000)
+    t.updatePageActivity();
+    jest.advanceTimersByTime(15000)
 
     const pps = getPPEvents(outQueues)
 
