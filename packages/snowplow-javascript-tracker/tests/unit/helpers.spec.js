@@ -32,11 +32,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-const {
+import {
   decorateQuerystring,
   resolveDynamicContexts,
   getCssClasses,
-} = require('../../src/js/lib/helpers')
+} from '../../src/js/lib/helpers';
 
 describe('decorateQuerystring', () => {
   it('Decorate a URL with no querystring or fragment', () => {
