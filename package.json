@@ -2,7 +2,7 @@
   "name": "snowplow-tracker",
   "version": "2.15.0",
   "scripts": {
-    "build": "gulp",
+    "build": "gulp build",
     "test:unit": "jest tests/unit/*.spec.js",
     "test:e2e:sauce": "gulp test && docker pull snowplow/snowplow-micro:0.1.0 && wdio tests/wdio.sauce.conf.js",
     "test:e2e:local": "gulp test && docker pull snowplow/snowplow-micro:0.1.0 && wdio tests/wdio.local.conf.js"
@@ -15,6 +15,7 @@
     "uuid": "^3.3.3"
   },
   "devDependencies": {
+    "@ampproject/rollup-plugin-closure-compiler": "^0.26.0",
     "@babel/core": "^7.11.6",
     "@babel/preset-env": "^7.11.5",
     "@babel/register": "^7.11.5",
@@ -33,11 +34,15 @@
     "@wdio/sync": "^5.14.4",
     "chromedriver": "^85.0.1",
     "dockerode": "^3.2.1",
+    "esm": "^3.2.25",
     "gulp": "^4.0.2",
     "jest": "^26.4.2",
     "moment-timezone": "^0.5.26",
     "prettier": "^2.1.1",
     "rollup": "^2.26.11",
+    "rollup-plugin-cleanup": "^3.1.1",
+    "rollup-plugin-filesize": "^9.0.2",
+    "rollup-plugin-sizes": "^1.0.3",
     "saucelabs": "^3.0.0",
     "semver": "^6.3.0",
     "wdio-chromedriver-service": "^5.0.2"

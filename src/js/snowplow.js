@@ -72,7 +72,6 @@
 */
 
 import forEach from 'lodash/forEach';
-import filter from 'lodash/filter';
 import { addEventListener } from './lib/helpers';
 import { InQueueManager } from './in_queue';
 import { Tracker } from './tracker';
@@ -129,7 +128,7 @@ export function Snowplow(asynchronousQueue, functionName) {
       do {
         now = new Date();
         if (
-          filter(mutSnowplowState.outQueues, function (queue) {
+          mutSnowplowState.outQueues.filter(function (queue) {
             return queue.length > 0;
           }).length === 0
         ) {
@@ -214,7 +213,7 @@ export function Snowplow(asynchronousQueue, functionName) {
      * @param string distSubdomain The subdomain on your CloudFront collector's distribution
      */
     getTrackerCf: function (distSubdomain) {
-      var t = new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
+      var t = new Tracker(functionName, '', version, mutSnowplowState, {});
       t.setCollectorCf(distSubdomain);
       return t;
     },
@@ -226,7 +225,7 @@ export function Snowplow(asynchronousQueue, functionName) {
      * @param string rawUrl The collector URL minus protocol and /i
      */
     getTrackerUrl: function (rawUrl) {
-      var t = new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
+      var t = new Tracker(functionName, '', version, mutSnowplowState, {});
       t.setCollectorUrl(rawUrl);
       return t;
     },
@@ -237,7 +236,7 @@ export function Snowplow(asynchronousQueue, functionName) {
      * @return Tracker
      */
     getAsyncTracker: function () {
-      return new tracker.Tracker(functionName, '', version, mutSnowplowState, {});
+      return new Tracker(functionName, '', version, mutSnowplowState, {});
     },
   };
 

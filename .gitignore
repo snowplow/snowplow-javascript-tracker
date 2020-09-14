@@ -1,5 +1,4 @@
-# Tests suite
-ngrok
+dist
 
 # node.js
 lib-cov
@@ -18,15 +17,9 @@ results
 npm-debug.log
 node_modules
 
-**/lodash.js
 tests/pages/*.js
 tests/local/serve/
 tags/tag.min.js
 
-# creds for Grunt
-aws.json
-
 .idea/
-
 .DS_Store
-dist
