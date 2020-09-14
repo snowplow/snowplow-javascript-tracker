@@ -33,11 +33,10 @@
  */
 
 import mapValues from 'lodash/mapValues';
-
 import isString from 'lodash/isString';
 import map from 'lodash/map';
 import { localStorageAccessible } from './lib/detectors';
-import { warn, attemptWriteLocalStorage } from './lib/helpers';
+import { warn, attemptWriteLocalStorage, attemptWriteSessionStorage, attemptGetSessionStorage } from './lib/helpers';
 
 /**
  * Object handling sending events to a collector.
@@ -71,7 +70,8 @@ export function OutQueueManager(
   maxLocalStorageQueueSize,
   connectionTimeout
 ) {
-  var queueName,
+  var localStorageAlias = window.localStorage,
+    queueName,
     executingQueue = false,
     configCollectorUrl,
     outQueue,
@@ -112,7 +112,7 @@ export function OutQueueManager(
     // Catch any JSON parse errors or localStorage that might be thrown
     try {
       // TODO: backward compatibility with the old version of the queue for POST requests
-      outQueue = JSON.parse(localStorage.getItem(queueName));
+      outQueue = JSON.parse(localStorageAlias.getItem(queueName));
     } catch (e) {}
   }
 
