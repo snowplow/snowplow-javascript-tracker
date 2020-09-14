@@ -37,6 +37,11 @@ import isUndefined from 'lodash/isUndefined';
 import isObject from 'lodash/isObject';
 import map from 'lodash/map';
 
+var windowAlias = window,
+  documentAlias = document,
+  localStorageAlias = window.localStorage,
+  sessionStorageAlias = window.sessionStorage;
+
 /**
  * Cleans up the page title
  */
@@ -44,7 +49,7 @@ export function fixupTitle(title) {
   if (!isString(title)) {
     title = title.text || '';
 
-    var tmp = document.getElementsByTagName('title');
+    var tmp = documentAlias.getElementsByTagName('title');
     if (tmp && !isUndefined(tmp[0])) {
       title = tmp[0].text;
     }
@@ -92,7 +97,8 @@ export function fixupDomain(domain) {
 export function getReferrer(oldLocation) {
   var referrer = '';
 
-  var fromQs = fromQuerystring('referrer', window.location.href) || fromQuerystring('referer', window.location.href);
+  var fromQs =
+    fromQuerystring('referrer', windowAlias.location.href) || fromQuerystring('referer', windowAlias.location.href);
 
   // Short-circuit
   if (fromQs) {
@@ -105,18 +111,18 @@ export function getReferrer(oldLocation) {
   }
 
   try {
-    referrer = window.top.document.referrer;
+    referrer = windowAlias.top.document.referrer;
   } catch (e) {
-    if (window.parent) {
+    if (windowAlias.parent) {
       try {
-        referrer = window.parent.document.referrer;
+        referrer = windowAlias.parent.document.referrer;
       } catch (e2) {
         referrer = '';
       }
     }
   }
   if (referrer === '') {
-    referrer = document.referrer;
+    referrer = documentAlias.referrer;
   }
   return referrer;
 }
@@ -315,12 +321,12 @@ export function decorateQuerystring(url, name, value) {
  */
 export function attemptGetLocalStorage(key) {
   try {
-    const exp = localStorage.getItem(key + '.expires');
+    const exp = localStorageAlias.getItem(key + '.expires');
     if (exp === null || +exp > Date.now()) {
-      return localStorage.getItem(key);
+      return localStorageAlias.getItem(key);
     } else {
-      localStorage.removeItem(key);
-      localStorage.removeItem(key + '.expires');
+      localStorageAlias.removeItem(key);
+      localStorageAlias.removeItem(key + '.expires');
     }
     return undefined;
   } catch (e) {}
@@ -337,8 +343,8 @@ export function attemptGetLocalStorage(key) {
 export function attemptWriteLocalStorage(key, value, ttl = 63072000) {
   try {
     const t = Date.now() + ttl * 1000;
-    localStorage.setItem(`${key}.expires`, t);
-    localStorage.setItem(key, value);
+    localStorageAlias.setItem(`${key}.expires`, t);
+    localStorageAlias.setItem(key, value);
     return true;
   } catch (e) {
     return false;
@@ -353,8 +359,8 @@ export function attemptWriteLocalStorage(key, value, ttl = 63072000) {
  */
 export function attemptDeleteLocalStorage(key) {
   try {
-    localStorage.removeItem(key);
-    localStorage.removeItem(key + '.expires');
+    localStorageAlias.removeItem(key);
+    localStorageAlias.removeItem(key + '.expires');
     return true;
   } catch (e) {
     return false;
@@ -370,14 +376,14 @@ export function attemptDeleteLocalStorage(key) {
  */
 export function attemptGetSessionStorage(key) {
   try {
-    return sessionStorage.getItem(key);
+    return sessionStorageAlias.getItem(key);
   } catch (e) {
     return undefined;
   }
 }
 
 /**
- * Attempt to write a value to localStorage
+ * Attempt to write a value to sessionStorage
  *
  * @param string key
  * @param string value
@@ -385,7 +391,7 @@ export function attemptGetSessionStorage(key) {
  */
 export function attemptWriteSessionStorage(key, value) {
   try {
-    sessionStorage.setItem(key, value);
+    sessionStorageAlias.setItem(key, value);
     return true;
   } catch (e) {
     return false;
@@ -400,7 +406,7 @@ export function findRootDomain() {
   var cookieName = cookiePrefix + new Date().getTime();
   var cookieValue = '_test_value_' + new Date().getTime();
 
-  var split = window.location.hostname.split('.');
+  var split = windowAlias.location.hostname.split('.');
   var position = split.length - 1;
   while (position >= 0) {
     var currentDomain = split.slice(position, split.length).join('.');
@@ -419,7 +425,7 @@ export function findRootDomain() {
   }
 
   // Cookies cannot be read
-  return window.location.hostname;
+  return windowAlias.location.hostname;
 }
 
 /**
@@ -455,7 +461,7 @@ export function deleteCookie(cookieName, domainName) {
  * @return array The cookies that begin with the prefix
  */
 export function getCookiesWithPrefix(cookiePrefix) {
-  var cookies = document.cookie.split('; ');
+  var cookies = documentAlias.cookie.split('; ');
   var cookieNames = [];
   for (var i = 0; i < cookies.length; i++) {
     if (cookies[i].substring(0, cookiePrefix.length) === cookiePrefix) {
@@ -480,7 +486,7 @@ export function getCookiesWithPrefix(cookiePrefix) {
  */
 export function cookie(name, value, ttl, path, domain, samesite, secure) {
   if (arguments.length > 1) {
-    return (document.cookie =
+    return (documentAlias.cookie =
       name +
       '=' +
       encodeURIComponent(value) +
@@ -491,7 +497,7 @@ export function cookie(name, value, ttl, path, domain, samesite, secure) {
       (secure ? '; Secure' : ''));
   }
 
-  return decodeURIComponent((('; ' + document.cookie).split('; ' + name + '=')[1] || '').split(';')[0]);
+  return decodeURIComponent((('; ' + documentAlias.cookie).split('; ' + name + '=')[1] || '').split(';')[0]);
 }
 
 /**
@@ -516,4 +522,11 @@ export function parseInt(obj) {
 export function parseFloat(obj) {
   var result = parseFloat(obj);
   return isNaN(result) ? undefined : result;
+}
+
+export function isFunction(func) {
+  if (func && typeof func === 'function') {
+    return true;
+  }
+  return false;
 }

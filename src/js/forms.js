@@ -33,7 +33,6 @@
  */
 
 import forEach from 'lodash/forEach';
-import filter from 'lodash/filter';
 import find from 'lodash/find';
 import { getCssClasses, resolveDynamicContexts, getFilter, getTransform, addEventListener } from './lib/helpers';
 
@@ -98,7 +97,7 @@ export function FormTrackingManager(core, trackerId, contextAdder) {
   function getInnerFormElements(elt) {
     var innerElements = [];
     forEach(innerElementTags, function (tagname) {
-      var trackedChildren = filter(elt.getElementsByTagName(tagname), function (child) {
+      var trackedChildren = elt.getElementsByTagName(tagname).filter(function (child) {
         return child.hasOwnProperty(trackingMarker);
       });
 

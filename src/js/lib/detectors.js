@@ -32,9 +32,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import isFunction from 'lodash/isFunction';
 import isUndefined from 'lodash/isUndefined';
 import { jstz } from 'jstimezonedetect';
+import { isFunction, cookie } from '../lib/helpers'
 
 var windowAlias = window,
   navigatorAlias = navigator,
@@ -93,8 +93,8 @@ export function hasCookies(testCookieName) {
   var cookieName = testCookieName || 'testcookie';
 
   if (isUndefined(navigatorAlias.cookieEnabled)) {
-    helpers.cookie(cookieName, '1');
-    return helpers.cookie(cookieName) === '1' ? '1' : '0';
+    cookie(cookieName, '1');
+    return cookie(cookieName) === '1' ? '1' : '0';
   }
 
   return navigatorAlias.cookieEnabled ? '1' : '0';

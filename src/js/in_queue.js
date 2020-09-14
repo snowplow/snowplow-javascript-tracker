@@ -34,8 +34,7 @@
 
 import map from 'lodash/map';
 import isUndefined from 'lodash/isUndefined';
-import isFunction from 'lodash/isFunction';
-import { warn } from './lib/helpers';
+import { warn, isFunction } from './lib/helpers';
 
 /************************************************************
  * Proxy object

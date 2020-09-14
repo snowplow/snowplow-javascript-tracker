@@ -5,10 +5,7 @@ node_js:
 - 12
 language: node_js
 install:
-- npm install -g rollup
-- npm install -g grunt-cli
-
-# # install packages and build core
+# install packages and build core
 - cd core
 - rm -rf node_modules
 - npm install
@@ -20,11 +17,15 @@ install:
 
 before_script:
 script:
-- cd core && npm run build && npm run test && cd ..
+- cd core
 - npm run build
-- npm run test:unit && npm run test:e2e:sauce
+- npm run test
+- cd ..
+- npm run build
+- npm run test:unit
+- npm run test:e2e:sauce
 before_deploy:
-- grunt default
+- npm run build
 deploy:
 - provider: script
   skip_cleanup: true
