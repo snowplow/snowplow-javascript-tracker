@@ -45,12 +45,14 @@ import {
   getHostName,
   attemptGetLocalStorage,
   attemptWriteLocalStorage,
+  attemptDeleteLocalStorage,
   isValueInArray,
   fixupTitle,
   fromQuerystring,
   parseFloat,
   parseInt,
-  cookie
+  cookie,
+  deleteCookie
 } from './lib/helpers';
 import { fixupUrl } from './lib/proxies';
 import { detectBrowserFeatures, detectTimezone, detectViewport, detectDocumentSize } from './lib/detectors';
@@ -2250,7 +2252,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    * @param string userId The business-defined user ID
    */
   apiMethods.identifyUser = function (userId) {
-    setUserId(userId);
+    apiMethods.setUserId(userId);
   };
 
   /**
@@ -3080,7 +3082,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
 
       configStateStorageStrategy = getStateStorageStrategy(argmap);
 
-      outQueue = new requestQueue.OutQueueManager(
+      outQueue = new OutQueueManager(
         functionName,
         namespace,
         mutSnowplowState,
