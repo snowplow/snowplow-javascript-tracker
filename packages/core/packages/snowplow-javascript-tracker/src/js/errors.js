@@ -32,8 +32,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import isFunction from 'lodash/isFunction';
-import { addEventListener } from './lib/helpers';
+import { addEventListener, isFunction } from './lib/helpers';
 
 var windowAlias = window;
 
