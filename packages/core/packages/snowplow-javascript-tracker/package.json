@@ -64,8 +64,8 @@
   "private": true,
   "scripts": {
     "test:unit": "jest tests/unit/*.spec.js",
-    "test:e2e:sauce": "docker pull snowplow/snowplow-micro && wdio tests/wdio.sauce.conf.js",
-    "test:e2e:local": "docker pull snowplow/snowplow-micro && wdio tests/wdio.local.conf.js"
+    "test:e2e:sauce": "docker pull snowplow/snowplow-micro:0.1.0 && wdio tests/wdio.sauce.conf.js",
+    "test:e2e:local": "docker pull snowplow/snowplow-micro:0.1.0 && wdio tests/wdio.local.conf.js"
   },
   "jest": {
     "setupFiles": [
