@@ -30,7 +30,7 @@ import isPlainObject from 'lodash/isPlainObject';
  * An interface for wrapping the Context Generator arguments
  */
 export interface ContextGeneratorEvent {
-  event: SelfDescribingJson;
+  event: PayloadDictionary;
   eventType: string;
   eventSchema: string;
 }
@@ -51,7 +51,7 @@ export type ContextPrimitive = SelfDescribingJson | ContextGenerator;
  * An interface for wrapping the Filter arguments
  */
 export interface ContextFilterEvent {
-  event: SelfDescribingJson;
+  event: PayloadDictionary;
   eventType: string;
   eventSchema: string;
 }
@@ -137,7 +137,7 @@ export function globalContexts(): GlobalContexts {
    * Returns all applicable global contexts for a specified event
    * @param event The event to check for applicable global contexts for
    */
-  const assembleAllContexts = (event: SelfDescribingJson): Array<SelfDescribingJson> => {
+  const assembleAllContexts = (event: PayloadDictionary): Array<SelfDescribingJson> => {
     const eventSchema = getUsefulSchema(event);
     const eventType = getEventType(event);
     const contexts: Array<SelfDescribingJson> = [];
@@ -191,7 +191,7 @@ export function globalContexts(): GlobalContexts {
     getApplicableContexts(event: PayloadData): Array<SelfDescribingJson> {
       const builtEvent = event.build();
       if (isEventJson(builtEvent)) {
-        const decodedEvent = getDecodedEvent(builtEvent as SelfDescribingJson);
+        const decodedEvent = getDecodedEvent(builtEvent);
         return assembleAllContexts(decodedEvent);
       } else {
         return [];
@@ -438,15 +438,15 @@ function matchPart(rule: string, schema: string): boolean {
 // 'ue_px.schema'/'ue_pr.schema' would be redundant - it'll return the unstructured event schema.
 // Instead the schema nested inside the unstructured event is more useful!
 // This doesn't decode ue_px, it works because it's called by code that has already decoded it
-function getUsefulSchema(sb: SelfDescribingJson): string {
+function getUsefulSchema(sb: PayloadDictionary): string {
   if (typeof get(sb, 'ue_px.data.schema') === 'string') return get(sb, 'ue_px.data.schema') as string;
   else if (typeof get(sb, 'ue_pr.data.schema') === 'string') return get(sb, 'ue_pr.data.schema') as string;
-  else if (typeof get(sb, 'schema') === 'string') return get(sb, 'schema');
+  else if (typeof get(sb, 'schema') === 'string') return get(sb, 'schema') as string;
   return '';
 }
 
-function getDecodedEvent(sb: SelfDescribingJson): SelfDescribingJson {
-  const decodedEvent: SelfDescribingJson = { ...sb }; // spread operator, instantiates new object
+function getDecodedEvent(sb: PayloadDictionary): PayloadDictionary {
+  const decodedEvent = { ...sb }; // spread operator, instantiates new object
   try {
     if (has(decodedEvent, 'ue_px')) {
       decodedEvent['ue_px'] = JSON.parse(base64urldecode(get(decodedEvent, ['ue_px']) as string));
@@ -463,7 +463,7 @@ function getEventType(sb: Record<string, unknown>): string {
 
 function buildGenerator(
   generator: ContextGenerator,
-  event: SelfDescribingJson,
+  event: PayloadDictionary,
   eventType: string,
   eventSchema: string
 ): SelfDescribingJson | Array<SelfDescribingJson> | undefined {
@@ -499,7 +499,7 @@ function normalizeToArray<T>(input: Array<T> | T): Array<T> {
 
 function generatePrimitives(
   contextPrimitives: Array<ContextPrimitive> | ContextPrimitive,
-  event: SelfDescribingJson,
+  event: PayloadDictionary,
   eventType: string,
   eventSchema: string
 ): Array<SelfDescribingJson> {
@@ -517,7 +517,7 @@ function generatePrimitives(
 
 function evaluatePrimitive(
   contextPrimitive: ContextPrimitive,
-  event: SelfDescribingJson,
+  event: PayloadDictionary,
   eventType: string,
   eventSchema: string
 ): Array<SelfDescribingJson> | undefined {
@@ -536,7 +536,7 @@ function evaluatePrimitive(
 
 function evaluateProvider(
   provider: ConditionalContextProvider,
-  event: SelfDescribingJson,
+  event: PayloadDictionary,
   eventType: string,
   eventSchema: string
 ): Array<SelfDescribingJson> {
@@ -566,7 +566,7 @@ function evaluateProvider(
 
 function generateConditionals(
   providers: Array<ConditionalContextProvider> | ConditionalContextProvider,
-  event: SelfDescribingJson,
+  event: PayloadDictionary,
   eventType: string,
   eventSchema: string
 ): Array<SelfDescribingJson> {
