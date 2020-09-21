@@ -20,7 +20,7 @@ exports.config = {
   jasmineNodeOpts: {
     defaultTimeoutInterval: 60000,
   },
-  beforeSession: function(config, capabilities, specs) {
+  beforeSession: function() {
     require('@babel/register')
-  },
+  }
 }
