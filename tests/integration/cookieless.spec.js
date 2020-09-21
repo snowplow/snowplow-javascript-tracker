@@ -33,93 +33,60 @@
  */
 import util from 'util'
 import F from 'lodash/fp'
-import { reset, fetchResults, start, stop } from '../micro'
+import { fetchResults, start, stop } from '../micro'
 
 const dumpLog = log => console.log(util.inspect(log, true, null, true))
-
-const isMatchWithCB = F.isMatchWith((lt, rt) =>
-	F.isFunction(rt) ? rt(lt) : undefined
-)
-
-const parseAndDecode64 = cx => JSON.parse(Buffer.from(cx, 'base64'))
 
 const retrieveSchemaData = schema =>
 	F.compose(
 		F.get('data'),
 		F.find({ schema }),
-		F.get('data'),
-		parseAndDecode64
+		F.get('data')
 	)
-
-const hasMobileContext = isMatchWithCB({
-	schema: 'iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1',
-	data: {
-		osType: 'ubuntu',
-	},
-})
-
-const hasGeoContext = isMatchWithCB({
-	schema:
-		'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
-	data: {
-		latitude: 40.0,
-		longitude: 55.1,
-	},
-})
 
 describe('Test that request_recorder logs meet expectations', () => {
 	let log = []
-	let container
-	let containerUrl
+	let docker
 
-	const logContains = ev => F.some(isMatchWithCB(ev), log)
+	const logContains = ev => F.some(F.isMatch(ev), log)
 
 	beforeAll(() => {
 		browser.call(() => {
-			return start()
-				.then(e => {
-					container = e
-					return container.inspect()
-				})
-				.then(info => {
-					containerUrl =
-						'snowplow-js-tracker.local:' +
-						F.get('NetworkSettings.Ports["9090/tcp"][0].HostPort', info)
-				})
+		  return start()
+			.then((container) => {
+			  docker = container
+			})
 		})
 		browser.url('/index.html')
-		browser.setCookies({
-			name: 'container',
-			value: containerUrl,
-		})
+		browser.setCookies({ name: 'container', value: docker.url })
 		browser.url('/cookieless.html')
-		browser.pause(15000) // Time for requests to get written
+		browser.pause(5000) // Time for requests to get written
 		browser.call(() =>
-			fetchResults(containerUrl).then(r => {
-				log = r
-				return Promise.resolve()
-			})
+		  fetchResults(docker.url).then(result => {
+			log = result
+		  })
 		)
 	})
 
 	afterAll(() => {
-		log = []
 		browser.call(() => {
-			return stop(container)
+		  return stop(docker.container)
 		})
-	})
+	  })
 
 	it('Check existence of page view without sensitive fields', () => {
 		expect(
 			logContains({
 				event: {
-					parameters: {
-						e: 'pv',
-						p: 'mob',
-						aid: 'CFe23a',
-						page: 'Cookieless test page',
-					},
-				},
+					event: 'page_view',
+					platform: 'mob',
+					app_id: 'CFe23a',
+					page_title: 'Cookieless test page',
+					user_id: null,
+					domain_userid: null,
+					domain_sessionidx: null,
+					domain_sessionid: null
+				}
 			})
 		).toBe(true)
 	})
@@ -127,8 +94,8 @@ describe('Test that request_recorder logs meet expectations', () => {
 	it('Check pageViewId is regenerated for each trackPageView', () => {
 		const pageViews = F.filter(
 			ev =>
-				F.get('event.parameters.e', ev) === 'pv' &&
-				F.get('event.parameters.tna', ev) === 'cf',
+				F.get('event.event', ev) === 'page_view' &&
+				F.get('event.name_tracker', ev) === 'cf',
 			log
 		)
 
@@ -137,7 +104,7 @@ describe('Test that request_recorder logs meet expectations', () => {
 			retrieveSchemaData(
 				'iglu:com.snowplowanalytics.snowplow/web_page/jsonschema/1-0-0'
 			),
-			F.get('event.parameters.cx')
+			F.get('event.contexts')
 		)
 
 		expect(F.size(F.groupBy(getWebPageId, pageViews))).toBeGreaterThanOrEqual(2)
