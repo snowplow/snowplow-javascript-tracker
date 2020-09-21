@@ -74,8 +74,16 @@ describe('Detectors test', () => {
 
   it('Browser features', () => {
     const value = $('#detectBrowserFeatures').getText()
-    const { cd } = JSON.parse(value)
-    // The only feature which is the same for all tested browsers
-    expect(cd).toBe(24)
+    const browserFeatures = JSON.parse(value)
+
+    const isMatchWithCallback = F.isMatchWith((lt, rt) =>
+      F.isFunction(rt) ? rt(lt) : undefined
+    )
+
+    // The only features which are guarenteed to be returned
+    expect(isMatchWithCallback({
+      res: F.isString,
+      cd: F.isNumber
+    }, browserFeatures)).toBe(true)
   })
 })

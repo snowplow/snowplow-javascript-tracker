@@ -23,14 +23,12 @@
 			document.write(collector_endpoint)
 
 			window.snowplow('newTracker', 'cf', collector_endpoint, {
-				encodeBase64: true,
 				appId: 'CFe23a',
 				platform: 'mob',
 				eventMethod: 'get',
 				contexts: {
 					webPage: true
 				},
-				connectionTimeout: 10000,
 			 	anonymousTracking: true
 			});
 
