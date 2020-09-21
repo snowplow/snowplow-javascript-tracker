@@ -32,16 +32,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-const http = require('http')
-const Docker = require('dockerode')
-const { Writable } = require('stream')
+import http from 'http';
+import Docker from 'dockerode';
+import { Writable } from 'stream';
 
 const docker = new Docker()
 
 export const start = () => {
   return docker
     .createContainer({
-      Image: 'snowplow/snowplow-micro:0.1.0',
+      Image: 'snowplow/snowplow-micro:1.0.0',
       AttachStdin: false,
       AttachStdout: true,
       AttachStderr: true,
@@ -87,12 +87,14 @@ export const start = () => {
           }
         )
 
-        return new Promise(r => {
-          outs.on('finish', () => r(c))
+        return new Promise(resolve => {
+          outs.on('finish', () => c.inspect().then(info => {
+            resolve({container: c, url: `snowplow-js-tracker.local:${info.NetworkSettings.Ports["9090/tcp"][0].HostPort}`})
+          }))
         })
       })
     })
-}
+  }
 
 export const stop = container => container.stop().then(() => container.remove())
 
