@@ -4,8 +4,8 @@
   "scripts": {
     "build": "gulp build",
     "test:unit": "jest tests/unit/*.spec.js",
-    "test:e2e:sauce": "gulp test && docker pull snowplow/snowplow-micro:0.1.0 && wdio tests/wdio.sauce.conf.js",
-    "test:e2e:local": "gulp test && docker pull snowplow/snowplow-micro:0.1.0 && wdio tests/wdio.local.conf.js"
+    "test:e2e:sauce": "gulp testEndToEnd && wdio tests/wdio.sauce.conf.js",
+    "test:e2e:local": "gulp testEndToEnd && wdio tests/wdio.local.conf.js"
   },
   "dependencies": {
     "jstimezonedetect": "1.0.5",
@@ -17,6 +17,7 @@
   "devDependencies": {
     "@ampproject/rollup-plugin-closure-compiler": "^0.26.0",
     "@babel/core": "^7.11.6",
+    "@babel/plugin-transform-runtime": "^7.11.5",
     "@babel/preset-env": "^7.11.5",
     "@babel/register": "^7.11.5",
     "@rollup/plugin-babel": "^5.2.1",
@@ -34,7 +35,6 @@
     "@wdio/sync": "^5.14.4",
     "chromedriver": "^85.0.1",
     "dockerode": "^3.2.1",
-    "esm": "^3.2.25",
     "gulp": "^4.0.2",
     "jest": "^26.4.2",
     "moment-timezone": "^0.5.26",

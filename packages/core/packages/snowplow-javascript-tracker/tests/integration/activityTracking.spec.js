@@ -33,34 +33,27 @@
  */
 
 import F from 'lodash/fp'
-import { reset, fetchResults, start, stop } from '../micro'
+import { fetchResults, start, stop } from '../micro'
 
-const isMatchWithCB = F.isMatchWith((lt, rt) =>
+const isMatchWithCallback = F.isMatchWith((lt, rt) =>
   F.isFunction(rt) ? rt(lt) : undefined
 )
 
 describe('Activity tracking should send page pings', () => {
   let log = []
-  let container
-  let containerUrl
+  let docker
 
-  const logContains = ev => F.some(isMatchWithCB(ev), log)
+  const logContains = ev => F.some(isMatchWithCallback(ev), log)
 
   beforeAll(() => {
     browser.call(() => {
       return start()
-        .then(e => {
-          container = e
-          return container.inspect()
-        })
-        .then(info => {
-          containerUrl =
-            'snowplow-js-tracker.local:' +
-            F.get('NetworkSettings.Ports["9090/tcp"][0].HostPort', info)
+        .then((container) => {
+          docker = container
         })
     })
     browser.url('/index.html')
-    browser.setCookies({ name: 'container', value: containerUrl })
+    browser.setCookies({ name: 'container', value: docker.url })
     browser.url('/activity-tracking.html')
     browser.waitUntil(
       () => $('#init').getText() === 'true',
@@ -70,20 +63,18 @@ describe('Activity tracking should send page pings', () => {
   })
 
   afterAll(() => {
-    log = []
     browser.call(() => {
-      return stop(container)
+      return stop(docker.container)
     })
   })
-
+  
   it('sends at least one ping in the expected interval', () => {
     $('#bottomRight').scrollIntoView()
     // time for activity to register and request to arrive
     browser.pause(5000)
     browser.call(() =>
-      fetchResults(containerUrl).then(r => {
-        log = r
-        return Promise.resolve()
+      fetchResults(docker.url).then(result => {
+        log = result
       })
     )
 
@@ -95,12 +86,10 @@ describe('Activity tracking should send page pings', () => {
     expect(
       logContains({
         event: {
-          parameters: {
-            e: 'pp',
-            aid: 'ppAppId',
-            pp_max: gtZero,
-            pp_may: gtZero,
-          },
+            event_name: 'page_ping',
+            app_id: 'ppAppId',
+            pp_xoffset_max: gtZero,
+            pp_yoffset_max: gtZero,
         },
       })
     ).toBe(true)
