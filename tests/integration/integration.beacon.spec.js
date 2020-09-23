@@ -77,7 +77,7 @@ describe('Test that request_recorder logs meet expectations', () => {
     if (browser.setNetworkConditions) {
       browser.setNetworkConditions({}, 'Regular 2G') 
     }
-    browser.url('/integration.html')
+    browser.url('/integration.html?eventMethod=beacon')
     browser.pause(7500) // Time for requests to get written
     browser.call(() =>
       fetchResults(docker.url).then(result => {
@@ -164,40 +164,41 @@ describe('Test that request_recorder logs meet expectations', () => {
     ).toBe(true)
   })
 
-  // it('Check a transaction event was sent', () => {
-  //   expect(
-  //     logContains({
-  //       event: {
-  //           e: 'tr',
-  //           tr_id: 'order-123',
-  //           tr_af: 'acme',
-  //           tr_tt: '8000',
-  //           tr_tx: '100',
-  //           tr_ci: 'phoenix',
-  //           tr_st: 'arizona',
-  //           tr_co: 'USA',
-  //           tr_cu: 'JPY',
-  //       },
-  //     })
-  //   ).toBe(true)
-  // })
+  it('Check a transaction event was sent', () => {
+    expect(
+      logContains({
+        event: {
+            event: 'transaction',
+            tr_orderid: 'order-123',
+            tr_affiliation: 'acme',
+            tr_total: 8000,
+            tr_tax: 100,
+            tr_shipping: 50,
+            tr_city: 'phoenix',
+            tr_state: 'arizona',
+            tr_country: 'USA',
+            tr_currency: 'JPY',
+        },
+      })
+    ).toBe(true)
+  })
 
-  // it('Check a transaction item event was sent', () => {
-  //   expect(
-  //     logContains({
-  //       event: {
-  //         e: 'ti',
-  //         ti_id: 'order-123',
-  //         ti_sk: '1001',
-  //         ti_nm: 'Blue t-shirt',
-  //         ti_ca: 'clothing',
-  //         ti_pr: '2000',
-  //         ti_qu: '2',
-  //         ti_cu: 'JPY',
-  //       },
-  //     })
-  //   ).toBe(true)
-  // })
+  it('Check a transaction item event was sent', () => {
+    expect(
+      logContains({
+        event: {
+          event: 'transaction_item',
+          ti_orderid: 'order-123',
+          ti_sku: '1001',
+          ti_name: 'Blue t-shirt',
+          ti_category: 'clothing',
+          ti_price: 2000,
+          ti_quantity: 2,
+          ti_currency: 'JPY',
+        },
+      })
+    ).toBe(true)
+  })
 
   it('Check an unhandled exception was sent', () => {
     expect(
