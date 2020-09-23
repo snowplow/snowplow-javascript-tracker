@@ -102,7 +102,7 @@ import uuid from 'uuid/v4';
  * 26. resetActivityTrackingOnPageView, true
  * 27. connectionTimeout, 5000
  * 28. skippedBrowserFeatures, []
- * 29. anonymousTracking, false // bool | { withSessionTracking: bool}
+ * 29. anonymousTracking, false // bool | { withSessionTracking: bool, withServerAnonymisation: bool }
  */
 export function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
   /************************************************************
@@ -136,6 +136,9 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
 
   const getAnonymousSessionTracking = (config) =>
     config.hasOwnProperty('anonymousTracking') ? config.anonymousTracking.withSessionTracking === true : false;
+
+  const getAnonymousServerTracking = (config) =>
+    config.hasOwnProperty('anonymousTracking') ? config.anonymousTracking.withServerAnonymisation === true : false;
 
   const getAnonymousTracking = (config) => !!config.anonymousTracking;
 
@@ -234,8 +237,10 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
       !forceSecureTracker && argmap.hasOwnProperty('forceUnsecureTracker')
         ? argmap.forceUnsecureTracker === true
         : false,
-    // Allows tracking user session using localStorage salt, can only be used with anonymousTracking
+    // Allows tracking user session (using cookies or local storage), can only be used with anonymousTracking
     configAnonymousSessionTracking = getAnonymousSessionTracking(argmap),
+    // Will send a header to server to prevent returning cookie and capturing IP
+    configAnonymousServerTracking = getAnonymousServerTracking(argmap),
     // Sets tracker to work in anonymous mode without accessing client storage
     configAnonymousTracking = getAnonymousTracking(argmap),
     // Whether to use localStorage to store events between sessions while offline
@@ -299,7 +304,8 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
       argmap.maxPostBytes || 40000,
       argmap.useStm,
       argmap.maxLocalStorageQueueSize || 1000,
-      argmap.connectionTimeout || 5000
+      argmap.connectionTimeout || 5000,
+      configAnonymousServerTracking
     ),
     // Flag to prevent the geolocation context being added multiple times
     geolocationContextAdded = false,
@@ -3081,20 +3087,6 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
       });
 
       configStateStorageStrategy = getStateStorageStrategy(argmap);
-
-      outQueue = new OutQueueManager(
-        functionName,
-        namespace,
-        mutSnowplowState,
-        configStateStorageStrategy == 'localStorage' || configStateStorageStrategy == 'cookieAndLocalStorage',
-        argmap.eventMethod,
-        configPostPath,
-        argmap.bufferSize,
-        argmap.maxPostBytes || 40000,
-        argmap.useStm,
-        argmap.maxLocalStorageQueueSize || 1000,
-        argmap.connectionTimeout || 5000
-      );
     } else {
       Object.assign(argmap, {
         anonymousTracking: false,
@@ -3103,8 +3095,14 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
 
     configAnonymousTracking = getAnonymousTracking(argmap);
     configAnonymousSessionTracking = getAnonymousSessionTracking(argmap);
+    configAnonymousServerTracking = getAnonymousServerTracking(argmap);
+
+    outQueue.setUseLocalStorage(configStateStorageStrategy == 'localStorage' || configStateStorageStrategy == 'cookieAndLocalStorage');
+    outQueue.setAnonymousTracking(configAnonymousServerTracking);
 
     initializeIdsAndCookies();
+
+    outQueue.executeQueue(); // There might be some events in the queue we've been unable to send in anonymous mode
   };
 
   /**
@@ -3117,11 +3115,14 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
 
     configAnonymousTracking = getAnonymousTracking(argmap);
     configAnonymousSessionTracking = getAnonymousSessionTracking(argmap);
+    configAnonymousServerTracking = getAnonymousServerTracking(argmap);
 
     // Reset the page view, if not tracking the session, so can't stitch user into new events on the page view id
     if (!configAnonymousSessionTracking) {
       resetPageView();
     }
+
+    outQueue.setAnonymousTracking(configAnonymousServerTracking);
   };
 
   /**

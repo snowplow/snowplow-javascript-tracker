@@ -68,7 +68,8 @@ export function OutQueueManager(
   maxPostBytes,
   useStm,
   maxLocalStorageQueueSize,
-  connectionTimeout
+  connectionTimeout,
+  anonymousTracking
 ) {
   var localStorageAlias = window.localStorage,
     queueName,
@@ -90,13 +91,12 @@ export function OutQueueManager(
 
   // Use GET if specified
   var isGetRequested = eventMethod === 'get';
+  
+  // Don't use XhrHttpRequest for browsers which don't support CORS XMLHttpRequests (e.g. IE <= 9)
+  var useXhr = Boolean(window.XMLHttpRequest && 'withCredentials' in new XMLHttpRequest());
 
   // Use POST if specified
-  var isPostRequested = eventMethod === 'post';
-  // usePost acts like a catch all for POST methods - Beacon or XHR
-  var usePost = (isPostRequested || useBeacon) && !isGetRequested;
-  // Don't use POST for browsers which don't support CORS XMLHttpRequests (e.g. IE <= 9)
-  usePost = usePost && Boolean(window.XMLHttpRequest && 'withCredentials' in new XMLHttpRequest());
+  var usePost = !isGetRequested && useXhr && (eventMethod === 'post' || isBeaconRequested);
 
   // Resolve all options and capabilities and decide path
   var path = usePost ? postPath : '/i';
@@ -111,7 +111,6 @@ export function OutQueueManager(
   if (useLocalStorage) {
     // Catch any JSON parse errors or localStorage that might be thrown
     try {
-      // TODO: backward compatibility with the old version of the queue for POST requests
       outQueue = JSON.parse(localStorageAlias.getItem(queueName));
     } catch (e) {}
   }
@@ -124,7 +123,7 @@ export function OutQueueManager(
   // Used by pageUnloadGuard
   mutSnowplowState.outQueues.push(outQueue);
 
-  if (usePost && bufferSize > 1) {
+  if (useXhr && bufferSize > 1) {
     mutSnowplowState.bufferFlushers.push(function () {
       if (!executingQueue) {
         executeQueue();
@@ -212,8 +211,8 @@ export function OutQueueManager(
     if (usePost) {
       var body = getBody(request);
       if (body.bytes >= maxPostBytes) {
-        warn('Event of size ' + body.bytes + ' is too long - the maximum size is ' + maxPostBytes);
-        var xhr = initializeXMLHttpRequest(configCollectorUrl);
+        warn('Event (' + body.bytes + 'B) too big, max is ' + maxPostBytes);
+        var xhr = initializeXMLHttpRequest(configCollectorUrl, true);
         xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent([body.evt])));
         return;
       } else {
@@ -252,27 +251,20 @@ export function OutQueueManager(
 
     // Let's check that we have a Url to ping
     if (!isString(configCollectorUrl)) {
-      throw 'No Snowplow collector configured, cannot track';
+      throw 'No collector configured';
     }
 
     executingQueue = true;
 
     var nextRequest = outQueue[0];
 
-    if (usePost) {
-      var xhr = initializeXMLHttpRequest(configCollectorUrl);
-
-      // Time out POST requests after 5 seconds
-      var xhrTimeout = setTimeout(function () {
-        xhr.abort();
-        executingQueue = false;
-      }, connectionTimeout);
-
-      function chooseHowManyToExecute(q) {
+    if (useXhr) {
+      // Keep track of number of events to delete from queue
+      function chooseHowManyToSend(queue) {
         var numberToSend = 0;
         var byteCount = 0;
-        while (numberToSend < q.length) {
-          byteCount += q[numberToSend].bytes;
+        while (numberToSend < queue.length) {
+          byteCount += queue[numberToSend].bytes;
           if (byteCount >= maxPostBytes) {
             break;
           } else {
@@ -282,8 +274,22 @@ export function OutQueueManager(
         return numberToSend;
       }
 
-      // Keep track of number of events to delete from queue
-      var numberToSend = chooseHowManyToExecute(outQueue);
+      var url, xhr, numberToSend;
+      if (isGetRequested) {
+        url = createGetUrl(nextRequest);
+        xhr = initializeXMLHttpRequest(url, false);
+        numberToSend = 1;
+      } else {
+        url = configCollectorUrl;
+        xhr = initializeXMLHttpRequest(url, true);
+        numberToSend = chooseHowManyToSend(outQueue);
+      }
+
+      // Time out POST requests after connectionTimeout
+      var xhrTimeout = setTimeout(function () {
+        xhr.abort();
+        executingQueue = false;
+      }, connectionTimeout);
 
       // The events (`numberToSend` of them), have been sent, so we remove them from the outQueue
       // We also call executeQueue() again, to let executeQueue() check if we should keep running through the queue
@@ -310,36 +316,45 @@ export function OutQueueManager(
         }
       };
 
-      var batch = map(outQueue.slice(0, numberToSend), function (x) {
-        return x.evt;
-      });
+      if (isGetRequested) {
+        xhr.send();
+      } else {
+        var batch = outQueue.slice(0, numberToSend);
 
-      if (batch.length > 0) {
-        var beaconStatus;
+        if (batch.length > 0) {
+          var beaconStatus;
 
-        //If using Beacon, check we have sent at least one request using POST as Safari doesn't preflight Beacon
-        beaconPreflight = beaconPreflight || (useBeacon && attemptGetSessionStorage(preflightName));
+          //If using Beacon, check we have sent at least one request using POST as Safari doesn't preflight Beacon
+          beaconPreflight = beaconPreflight || (useBeacon && attemptGetSessionStorage(preflightName));
 
-        if (beaconPreflight) {
-          const headers = { type: 'application/json' };
-          const blob = new Blob([encloseInPayloadDataEnvelope(attachStmToEvent(batch))], headers);
-          try {
-            beaconStatus = navigator.sendBeacon(configCollectorUrl, blob);
-          } catch (error) {
-            beaconStatus = false;
+          var eventBatch = map(batch, function (x) {
+            return x.evt;
+          });
+
+          if (beaconPreflight) {
+            const headers = { type: 'application/json' };
+            if (anonymousTracking) {
+              header['SP-Anonymous'] = '*';
+            }
+            const blob = new Blob([encloseInPayloadDataEnvelope(attachStmToEvent(eventBatch))], headers);
+            try {
+              beaconStatus = navigator.sendBeacon(url, blob);
+            } catch (error) {
+              beaconStatus = false;
+            }
+          }
+          // When beaconStatus is true, we can't _guarantee_ that it was successful (beacon queues asynchronously)
+          // but the browser has taken it out of our hands, so we want to flush the queue assuming it will do its job
+          if (beaconStatus === true) {
+            onPostSuccess(numberToSend);
+          }
+
+          if (!useBeacon || !beaconStatus) {
+            xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent(eventBatch)));
           }
         }
-        // When beaconStatus is true, we can't _guarantee_ that it was successful (beacon queues asynchronously)
-        // but the browser has taken it out of our hands, so we want to flush the queue assuming it will do its job
-        if (beaconStatus === true) {
-          onPostSuccess(numberToSend);
-        }
-
-        if (!useBeacon || !beaconStatus) {
-          xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent(batch)));
-        }
       }
-    } else {
+    } else if (!anonymousTracking) {
       var image = new Image(1, 1);
       var loading = true;
 
@@ -359,12 +374,8 @@ export function OutQueueManager(
         executingQueue = false;
       };
 
-      // note: this currently on applies to GET requests
-      if (useStm) {
-        image.src = configCollectorUrl + nextRequest.replace('?', '?stm=' + new Date().getTime() + '&');
-      } else {
-        image.src = configCollectorUrl + nextRequest;
-      }
+      image.src = createGetUrl(nextRequest);
+
       setTimeout(function () {
         if (loading && executingQueue) {
           loading = false;
@@ -380,11 +391,18 @@ export function OutQueueManager(
    * @param string url The destination URL
    * @return object The XMLHttpRequest
    */
-  function initializeXMLHttpRequest(url) {
+  function initializeXMLHttpRequest(url, post) {
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', url, true);
+    if (post) {
+      xhr.open('POST', url, true);
+      xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+    } else {
+      xhr.open('GET', url, true);
+    }
     xhr.withCredentials = true;
-    xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+    if (anonymousTracking) {
+      xhr.setRequestHeader('SP-Anonymous', '*');
+    }
     return xhr;
   }
 
@@ -414,8 +432,23 @@ export function OutQueueManager(
     return events;
   }
 
+  /**
+   * Creates the full URL for sending the GET request. Will append `stm` if enabled
+   *
+   * @param nextRequest the query string of the next request
+   */
+  function createGetUrl(nextRequest) {
+    if (useStm) {
+      return configCollectorUrl + nextRequest.replace('?', '?stm=' + new Date().getTime() + '&');
+    } 
+    
+    return configCollectorUrl + nextRequest;
+  }
+
   return {
     enqueueRequest: enqueueRequest,
     executeQueue: executeQueue,
+    setUseLocalStorage: (localStorage) => { useLocalStorage = localStorage; },
+    setAnonymousTracking: (anonymous) => { anonymousTracking = anonymous; }
   };
 }

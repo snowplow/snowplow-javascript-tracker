@@ -12,6 +12,18 @@
 </script>
 
 <script>
+  function parseQuery() {
+      var query = {};
+      var pairs = window.location.search.substring(1).split('&');
+      for (var i = 0; i < pairs.length; i++) {
+          var pair = pairs[i].split('=');
+          query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
+      }
+      return query;
+  }  
+</script>
+
+<script>
 
   ;(function(p,l,o,w,i,n,g){if(!p[i]){p.GlobalSnowplowNamespace=p.GlobalSnowplowNamespace||[];
     p.GlobalSnowplowNamespace.push(i);p[i]=function(){(p[i].q=p[i].q||[]).push(arguments)
@@ -23,7 +35,7 @@
   window.snowplow('newTracker', 'cf', collector_endpoint, {
     appId: 'CFe23a',
     platform: 'mob',
-    eventMethod: 'get',
+    eventMethod: parseQuery().eventMethod,
     contexts: {
       webPage: true
     },
