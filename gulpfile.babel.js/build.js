@@ -3,7 +3,7 @@ import compiler from '@ampproject/rollup-plugin-closure-compiler';
 import cleanup from 'rollup-plugin-cleanup';
 import sizes from 'rollup-plugin-sizes';
 import filesize from 'rollup-plugin-filesize';
-import { rollupPlugins } from './rollup';
+import { basePlugins, spBannerPlugin } from './rollup';
 
 const minify = [
     compiler(), 
@@ -18,7 +18,7 @@ const report = [
 export const buildSp = async function () {
     const snowplow = await rollup({
         input: 'src/js/init.js',
-        plugins: [...rollupPlugins, ...minify, ...report],
+        plugins: [...basePlugins, ...minify, spBannerPlugin, ...report],
     });
 
     return await snowplow.write({
