@@ -40,11 +40,11 @@
     "moment-timezone": "^0.5.26",
     "prettier": "^2.1.1",
     "rollup": "^2.26.11",
+    "rollup-plugin-banner": "^0.2.1",
     "rollup-plugin-cleanup": "^3.1.1",
     "rollup-plugin-filesize": "^9.0.2",
     "rollup-plugin-sizes": "^1.0.3",
     "saucelabs": "^3.0.0",
-    "semver": "^6.3.0",
     "wdio-chromedriver-service": "^5.0.2"
   },
   "contributors": [
