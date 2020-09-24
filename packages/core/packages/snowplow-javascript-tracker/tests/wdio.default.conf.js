@@ -10,7 +10,7 @@ exports.config = {
   waitforTimeout: 10000,
   connectionRetryTimeout: 90000,
   connectionRetryCount: 3,
-  specFileRetries: 3,
+  specFileRetries: 1,
 
   staticServerFolders: [{ mount: '/', path: './tests/pages' }],
   staticServerPort: 8080,
