@@ -2,9 +2,8 @@
 
 [![actively-maintained]][tracker-classificiation]
 [![Release][release-image]][releases]
-[![Build Status][travis-image]][travis]
-[![Selenium Test Status][saucelabs-button-image]][saucelabs]
-[![Code Climate][codeclimate-image]][codeclimate]
+[![Build Status][gh-actions-image]][gh-actions]
+[![Saucelabs Test Status][saucelabs-button-image]][saucelabs]
 [![License][license-image]][bsd]
 
 ## Overview
@@ -82,10 +81,8 @@ Licensed under the [Simplified BSD][bsd] license.
 [releases]: https://github.com/snowplow/snowplow-javascript-tracker/releases
 [grunt-image]: https://cdn.gruntjs.com/builtwith.png
 [grunt]: https://gruntjs.com/
-[travis-image]: https://travis-ci.org/snowplow/snowplow-javascript-tracker.png?branch=master
-[travis]: http://travis-ci.org/snowplow/snowplow-javascript-tracker
-[codeclimate-image]: https://codeclimate.com/github/snowplow/snowplow-javascript-tracker.png
-[codeclimate]: https://codeclimate.com/github/snowplow/snowplow-javascript-tracker
+[gh-actions]: https://github.com/snowplow/snowplow-nodejs-tracker/actions
+[gh-actions-image]: https://github.com/snowplow/snowplow-nodejs-tracker/workflows/Build/badge.svg
 [saucelabs]: https://saucelabs.com/u/snowplow
 [saucelabs-button-image]: https://app.saucelabs.com/buildstatus/snowplow
 [saucelabs-matrix-image]: https://app.saucelabs.com/browser-matrix/snowplow.svg

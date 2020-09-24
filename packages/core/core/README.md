@@ -4,7 +4,7 @@
 
 Core module to be used by Snowplow JavaScript based trackers.
 
-## Developer quickstart
+## Developer quick start
 
 Can be built, tested and packed locally directly with [Node](https://nodejs.org/en/) (10+) and `npm`.
 

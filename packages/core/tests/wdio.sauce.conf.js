@@ -1,6 +1,6 @@
 const { config } = require('./wdio.default.conf')
 
-const buildName = 'snowplow-js-tracker-' + (process.env.TRAVIS_TAG ? 'v' + process.env.TRAVIS_TAG : '#' + process.env.TRAVIS_BUILD_NUMBER)
+const buildName = `snowplow-js-tracker-${process.env.GITHUB_WORKFLOW}/${process.env.GITHUB_RUN_NUMBER}-${process.env.GITHUB_REF}-${process.env.GITHUB_SHA}`
 
 exports.config = {
   ...config,

@@ -1,0 +1,76 @@
+name: Build
+
+on: 
+  push:
+    branches:
+      - '**' # Prevents builds on tag
+  pull_request:
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+      SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Use Node.js 12
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+
+    - name: npm cache
+      uses: actions/cache@v2
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: ${{ runner.os }}-node-
+
+    - name: Core npm ci
+      working-directory: ./core
+      run: npm ci
+
+    - name: Build core
+      working-directory: ./core
+      run: npm run build
+
+    - name: Test core
+      working-directory: ./core
+      run: npm run test
+
+    - name: Tracker npm ci
+      run: npm ci
+
+    - name: Build tracker
+      run: npm run build
+
+    - name: Test tracker
+      run: npm run test:unit
+
+    - name: Block Concurrent Executions of E2E Tests
+      if: ${{ env.SAUCE_ACCESS_KEY != '' }}
+      uses: softprops/turnstyle@v1
+      with:
+        poll-interval-seconds: 10
+        same-branch-only: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Add Host for Saucelabs Tunnel
+      if: ${{ env.SAUCE_ACCESS_KEY != '' }}
+      run: echo "127.0.0.1 snowplow-js-tracker.local" | sudo tee -a /etc/hosts
+
+    - name: Run End to End Tests
+      run: npm run test:e2e:sauce
+      if: ${{ env.SAUCE_ACCESS_KEY != '' }}
+
+    - name: Upload sp.js artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: sp.js
+        path: dist/sp.js
+
