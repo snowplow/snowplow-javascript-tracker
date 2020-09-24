@@ -6,6 +6,7 @@ import banner from 'rollup-plugin-banner'
 export const basePlugins = [
     nodeResolve({
         browser: true,
+        dedupe: [ 'lodash', 'uuid' ],
     }),
     commonjs(),
     babel({
