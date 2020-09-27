@@ -1,3 +1,12 @@
+Version 2.16.0 (2020-09-28)
+---------------------------
+Switch to Github Actions (#844)
+Add license banner to rollup builds (#845)
+Bump snowplow-tracker-core to 0.9.2 (#841)
+Update Snowplow Micro to v1 (#837)
+Use Closure Compiler to reduce sp.js size (#583)
+Switch to rollup and gulp (#752)
+
 Version 2.15.0 (2020-08-17)
 ---------------------------
 Add anonymized tracking options (closes #793)
