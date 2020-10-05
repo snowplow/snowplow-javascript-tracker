@@ -75,12 +75,13 @@ import forEach from 'lodash/forEach';
 import { addEventListener } from './lib/helpers';
 import { InQueueManager } from './in_queue';
 import { Tracker } from './tracker';
+import { version as jsVersion } from '../../package.json'
 
 export function Snowplow(asynchronousQueue, functionName) {
   var documentAlias = document,
     windowAlias = window,
     /* Tracker identifier with version */
-    version = 'js-' + '<%= pkg.version %>', // Update banner.js too
+    version = 'js-' + jsVersion,
     /* Contains four variables that are shared with tracker.js and must be passed by reference */
     mutSnowplowState = {
       /* List of request queues - one per Tracker instance */
