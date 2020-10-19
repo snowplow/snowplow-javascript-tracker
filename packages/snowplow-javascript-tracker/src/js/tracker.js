@@ -49,8 +49,8 @@ import {
   isValueInArray,
   fixupTitle,
   fromQuerystring,
-  parseFloat,
-  parseInt,
+  parseAndValidateFloat,
+  parseAndValidateInt,
   cookie,
   deleteCookie
 } from './lib/helpers';
@@ -1160,9 +1160,9 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
       var variationId = variation && variation.id;
       var visitorId = (visitor && visitor.visitorId && visitor.visitorId.toString()) || null;
       return {
-        experimentId: parseInt(activeExperiment) || null,
+        experimentId: parseAndValidateInt(activeExperiment) || null,
         variationName: variationName,
-        variation: parseInt(variationId) || null,
+        variation: parseAndValidateInt(variationId) || null,
         visitorId: visitorId,
       };
     });
@@ -2858,12 +2858,12 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
       data: {
         id: id,
         affiliation: affiliation,
-        revenue: parseFloat(revenue),
-        tax: parseFloat(tax),
-        shipping: parseFloat(shipping),
+        revenue: parseAndValidateFloat(revenue),
+        tax: parseAndValidateFloat(tax),
+        shipping: parseAndValidateFloat(shipping),
         coupon: coupon,
         list: list,
-        step: parseInt(step),
+        step: parseAndValidateInt(step),
         option: option,
         currency: currency,
       },
@@ -2903,8 +2903,8 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
         brand: brand,
         category: category,
         variant: variant,
-        position: parseInt(position),
-        price: parseFloat(price),
+        position: parseAndValidateInt(position),
+        price: parseAndValidateFloat(price),
         currency: currency,
       },
     });
@@ -2947,10 +2947,10 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
         brand: brand,
         category: category,
         variant: variant,
-        price: parseFloat(price),
-        quantity: parseInt(quantity),
+        price: parseAndValidateFloat(price),
+        quantity: parseAndValidateInt(quantity),
         coupon: coupon,
-        position: parseInt(position),
+        position: parseAndValidateInt(position),
         currency: currency,
       },
     });
