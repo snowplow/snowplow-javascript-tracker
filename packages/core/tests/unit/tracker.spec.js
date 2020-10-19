@@ -13,6 +13,24 @@ const getPPEvents = F.compose(
   F.first
 )
 
+const getUEEvents = F.compose(
+  F.filter(
+    F.compose(
+      F.eq('ue'),
+      F.get('evt.e')
+    )
+  ),
+  F.first
+)
+
+const extractSchemas = F.map(
+  F.compose(
+    F.get('data'),
+    cx => JSON.parse(cx),
+    F.get('evt.co')
+  )
+)
+
 const extractPageId = F.compose(
   F.get('data[0].data.id'),
   cx => JSON.parse(cx),
@@ -124,13 +142,6 @@ describe('Activity tracker behaviour', () => {
     // event tracking. This might not be ideal, but lets make sure it stays this way
     // unless we mean it to change when resetActivityTrackingOnPageView = false.
 
-    const extractSchemas = F.map(
-      F.compose(
-        F.get('data'),
-        cx => JSON.parse(cx),
-        F.get('evt.co')
-      )
-    )
     const findWithStaticValue = F.filter(F.get('data.staticValue'))
     const extractContextsWithStaticValue = F.compose(
       findWithStaticValue,
@@ -363,5 +374,48 @@ describe('Activity tracker behaviour', () => {
 
     const pph = F.head(pps)
     expect(F.hasIn(pph, 'evt.e.cd')).toBe(false)
+  })
+
+  it('attaches enhanced ecommerce contexts to enhanced ecommerce events', () => {
+    const outQueues = []
+    const t = new Tracker(
+      '',
+      '',
+      '',
+      { outQueues },
+      {
+        stateStorageStrategy: 'cookies',
+        encodeBase64: false
+      }
+    )
+
+    t.addEnhancedEcommerceProductContext('1234-5678','T-Shirt');
+    t.addEnhancedEcommerceImpressionContext('1234-5678','T-Shirt');
+    t.addEnhancedEcommercePromoContext('1234-5678','T-Shirt');
+    t.addEnhancedEcommerceActionContext('1234-5678','T-Shirt');
+    t.trackEnhancedEcommerceAction();
+
+    const findWithStaticValue = F.filter(F.get('data.id'))
+    const extractContextsWithStaticValue = F.compose(
+      findWithStaticValue,
+      F.flatten,
+      extractSchemas,
+      getUEEvents
+    )
+
+    const countWithStaticValueEq = value =>
+      F.compose(
+        F.size,
+        F.filter(
+          F.compose(
+            F.eq(value),
+            F.get('data.id')
+          )
+        ),
+        extractContextsWithStaticValue
+      )
+
+    // we expect there to be four contexts added to the event
+    expect(countWithStaticValueEq('1234-5678')(outQueues)).toBe(4)
   })
 })

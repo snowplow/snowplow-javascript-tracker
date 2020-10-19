@@ -507,7 +507,7 @@ export function cookie(name, value, ttl, path, domain, samesite, secure) {
  * @param obj The object to parse
  * @return the result of the parse operation
  */
-export function parseInt(obj) {
+export function parseAndValidateInt(obj) {
   var result = parseInt(obj);
   return isNaN(result) ? undefined : result;
 }
@@ -519,7 +519,7 @@ export function parseInt(obj) {
  * @param obj The object to parse
  * @return the result of the parse operation
  */
-export function parseFloat(obj) {
+export function parseAndValidateFloat(obj) {
   var result = parseFloat(obj);
   return isNaN(result) ? undefined : result;
 }
