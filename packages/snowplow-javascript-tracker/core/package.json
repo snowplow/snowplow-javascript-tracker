@@ -1,6 +1,6 @@
 {
   "name": "snowplow-tracker-core",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
