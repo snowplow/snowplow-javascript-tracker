@@ -20,8 +20,8 @@
 
   document.write(collector_endpoint)
 
-  window.snowplow('newTracker', 'cf', collector_endpoint, {
-    appId: 'CFe23a',
+  window.snowplow('newTracker', 'sp', collector_endpoint, {
+    appId: 'my-app-id',
     platform: 'mob',
     eventMethod: 'get',
     contexts: {
@@ -77,7 +77,7 @@
   window.snowplow('trackPageView');
 
   window.snowplow('trackStructEvent', 'Mixes', 'Play', 'MRC/fabric-0503-mix', '', '0.0');
-  window.snowplow('trackUnstructEvent', {
+  window.snowplow('trackSelfDescribingEvent', {
     schema: 'iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0',
     data: {
       bannerId: 'ASO01043'
@@ -124,7 +124,7 @@
   // test context rulesets
   window.snowplow('addGlobalContexts', [[testAcceptRuleSet, [eventTypeContextGenerator, geolocationContext]]]);
 
-  window.snowplow('trackUnstructEvent', {
+  window.snowplow('trackSelfDescribingEvent', {
     schema: 'iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0',
     data: {
       bannerId: 'ASO01042'
@@ -134,7 +134,7 @@
   window.snowplow('removeGlobalContexts', [[testAcceptRuleSet, [eventTypeContextGenerator, geolocationContext]]]);
 
   window.snowplow('addGlobalContexts', [[testRejectRuleSet, [eventTypeContextGenerator, geolocationContext]]]);
-  window.snowplow('trackUnstructEvent', {
+  window.snowplow('trackSelfDescribingEvent', {
     schema: 'iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0',
     data: {
       bannerId: 'ASO01041'

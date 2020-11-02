@@ -98,7 +98,7 @@ describe('Test that request_recorder logs meet expectations', () => {
         event: {
           event: 'page_view',
           platform: 'mob',
-          app_id: 'CFe23a',
+          app_id: 'my-app-id',
           user_id: 'Malcolm',
           page_title: 'Integration test page',
         },
@@ -111,7 +111,7 @@ describe('Test that request_recorder logs meet expectations', () => {
       event: {
         event: 'page_view',
         platform: 'mob',
-        app_id: 'CFe23a',
+        app_id: 'my-app-id',
         user_id: 'Malcolm',
         page_title: 'My Title',
         contexts: {
@@ -148,7 +148,7 @@ describe('Test that request_recorder logs meet expectations', () => {
     ).toBe(true)
   })
 
-  it('Check an unstructured event with true timestamp was sent', () => {
+  it('Check a self describing event with true timestamp was sent', () => {
     expect(
       logContains({
         event: {
@@ -217,7 +217,7 @@ describe('Test that request_recorder logs meet expectations', () => {
     const pageViews = F.filter(
       ev =>
         F.get('event.event', ev) === 'page_view' &&
-        F.get('event.name_tracker', ev) === 'cf',
+        F.get('event.name_tracker', ev) === 'sp',
       log
     )
 
@@ -260,13 +260,13 @@ describe('Test that request_recorder logs meet expectations', () => {
       F.get('contexts')
     )
 
-    const fromCfTracker = F.compose(
-      F.eq('cf'),
+    const fromSpTracker = F.compose(
+      F.eq('sp'),
       F.get('event.name_tracker')
     )
 
     const numberWithoutGdpr = F.size(
-      F.filter(ev => withoutGdprContext(ev) && fromCfTracker(ev), log)
+      F.filter(ev => withoutGdprContext(ev) && fromSpTracker(ev), log)
     )
 
     expect(numberWithoutGdpr).toBe(0)
@@ -285,7 +285,7 @@ describe('Test that request_recorder logs meet expectations', () => {
     ).toBe(true)
   })
 
-  it('Check an unstructured event with global context from accept ruleset', () => {
+  it('Check a self describing event with global context from accept ruleset', () => {
     expect(
       logContains({
         event: {
@@ -306,7 +306,7 @@ describe('Test that request_recorder logs meet expectations', () => {
     ).toBe(true)
   })
 
-  it('Check an unstructured event missing global context from reject ruleset', () => {
+  it('Check a self describing event missing global context from reject ruleset', () => {
     expect(
       logContains({
         event: {

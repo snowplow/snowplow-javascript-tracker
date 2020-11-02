@@ -80,7 +80,7 @@ describe('Test that request_recorder logs meet expectations', () => {
 				event: {
 					event: 'page_view',
 					platform: 'mob',
-					app_id: 'CFe23a',
+					app_id: 'my-app-id',
 					page_title: 'Cookieless test page',
 					user_id: null,
 					domain_userid: null,
@@ -95,7 +95,7 @@ describe('Test that request_recorder logs meet expectations', () => {
 		const pageViews = F.filter(
 			ev =>
 				F.get('event.event', ev) === 'page_view' &&
-				F.get('event.name_tracker', ev) === 'cf',
+				F.get('event.name_tracker', ev) === 'sp',
 			log
 		)
 

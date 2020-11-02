@@ -17,7 +17,7 @@
 
     document.write(collector_endpoint)
 
-    snowplow('newTracker', 'cf', collector_endpoint, {
+    snowplow('newTracker', 'sp', collector_endpoint, {
       appId: 'ppAppId',
       eventMethod: 'get',
     });

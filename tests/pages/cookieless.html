@@ -22,8 +22,8 @@
 
 			document.write(collector_endpoint)
 
-			window.snowplow('newTracker', 'cf', collector_endpoint, {
-				appId: 'CFe23a',
+			window.snowplow('newTracker', 'sp', collector_endpoint, {
+				appId: 'my-app-id',
 				platform: 'mob',
 				eventMethod: 'get',
 				contexts: {
