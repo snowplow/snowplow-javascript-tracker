@@ -184,24 +184,7 @@ export interface Core {
   setUseragent(useragent: string): void;
 
   /**
-   * Log an unstructured event
-   *
-   * @deprecated use trackSelfDescribingEvent instead
-   * @param properties Contains the properties and schema location for the event
-   * @param context Custom contexts relating to the event
-   * @param tstamp Timestamp of the event
-   * @param afterTrack A callback function triggered after event is tracked
-   * @return Payload
-   */
-  trackUnstructEvent: (
-    properties: Record<string, unknown>,
-    context?: Array<SelfDescribingJson>,
-    tstamp?: Timestamp,
-    afterTrack?: (Payload: PayloadDictionary) => void
-  ) => PayloadData;
-
-  /**
-   * Log an self-describing (previously unstruct) event
+   * Log a self-describing event
    *
    * @param properties Contains the properties and schema location for the event
    * @param context Custom contexts relating to the event
@@ -350,7 +333,7 @@ export interface Core {
   ): PayloadData;
 
   /**
-   * Track a screen view unstructured event
+   * Track a screen view self describing event
    *
    * @param name The name of the screen
    * @param id The ID of the screen
@@ -695,7 +678,7 @@ export interface Core {
 /**
  * Create a tracker core object
  *
- * @param base64 Whether to base 64 encode contexts and unstructured event JSONs
+ * @param base64 Whether to base 64 encode contexts and self describing event JSONs
  * @param callback Function applied to every payload dictionary object
  * @return Tracker core
  */
@@ -806,7 +789,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData: PayloadDat
   };
 
   /**
-   * Log an self-describing (previously unstruct) event
+   * Log a self-describing event
    *
    * @param properties Contains the properties and schema location for the event
    * @param context Custom contexts relating to the event
@@ -908,8 +891,6 @@ export function trackerCore(base64: boolean, callback?: (PayloadData: PayloadDat
     setUseragent(useragent: string): void {
       addPayloadPair('ua', useragent);
     },
-
-    trackUnstructEvent: trackSelfDescribingEvent,
 
     trackSelfDescribingEvent,
 
