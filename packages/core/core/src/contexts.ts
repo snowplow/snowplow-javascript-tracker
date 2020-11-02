@@ -435,8 +435,8 @@ function matchPart(rule: string, schema: string): boolean {
 
 // Returns the "useful" schema, i.e. what would someone want to use to identify events.
 // The idea being that you can determine the event type from 'e', so getting the schema from
-// 'ue_px.schema'/'ue_pr.schema' would be redundant - it'll return the unstructured event schema.
-// Instead the schema nested inside the unstructured event is more useful!
+// 'ue_px.schema'/'ue_pr.schema' would be redundant - it'll return the unstruct_event schema.
+// Instead the schema nested inside the unstruct_event is more useful!
 // This doesn't decode ue_px, it works because it's called by code that has already decoded it
 function getUsefulSchema(sb: PayloadDictionary): string {
   if (typeof get(sb, 'ue_px.data.schema') === 'string') return get(sb, 'ue_px.data.schema') as string;

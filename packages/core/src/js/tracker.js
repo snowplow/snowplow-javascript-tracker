@@ -52,7 +52,7 @@ import {
   parseAndValidateFloat,
   parseAndValidateInt,
   cookie,
-  deleteCookie
+  deleteCookie,
 } from './lib/helpers';
 import { fixupUrl } from './lib/proxies';
 import { detectBrowserFeatures, detectTimezone, detectViewport, detectDocumentSize } from './lib/detectors';
@@ -84,25 +84,22 @@ import uuid from 'uuid/v4';
  * 8. pageUnloadTimer, 500
  * 9. forceSecureTracker, false
  * 10. forceUnsecureTracker, false
- * 11. useLocalStorage, true
- * 12. useCookies, true
- * 13. sessionCookieTimeout, 1800
- * 14. contexts, {}
- * 15. eventMethod, 'post'
- * 16. post, false *DEPRECATED use eventMethod instead*
- * 17. postPath, null
- * 18. useStm, true
- * 19. bufferSize, 1
- * 20. crossDomainLinker, false
- * 21. maxPostBytes, 40000
- * 22. discoverRootDomain, false
- * 23. cookieLifetime, 63072000
- * 24. stateStorageStrategy, 'cookieAndLocalStorage'
- * 25. maxLocalStorageQueueSize, 1000
- * 26. resetActivityTrackingOnPageView, true
- * 27. connectionTimeout, 5000
- * 28. skippedBrowserFeatures, []
- * 29. anonymousTracking, false // bool | { withSessionTracking: bool, withServerAnonymisation: bool }
+ * 11. sessionCookieTimeout, 1800
+ * 12. contexts, {}
+ * 13. eventMethod, 'post'
+ * 14. postPath, null
+ * 15. useStm, true
+ * 16. bufferSize, 1
+ * 17. crossDomainLinker, false
+ * 18. maxPostBytes, 40000
+ * 19. discoverRootDomain, false
+ * 20. cookieLifetime, 63072000
+ * 21. stateStorageStrategy, 'cookieAndLocalStorage'
+ * 22. maxLocalStorageQueueSize, 1000
+ * 23. resetActivityTrackingOnPageView, true
+ * 24. connectionTimeout, 5000
+ * 25. skippedBrowserFeatures, []
+ * 26. anonymousTracking, false // bool | { withSessionTracking: bool, withServerAnonymisation: bool }
  */
 export function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
   /************************************************************
@@ -111,12 +108,8 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
 
   var argmap = argmap || {};
 
-  //use POST if that property is present on the argmap
-  if (argmap.hasOwnProperty('post')) {
-    argmap.eventMethod = argmap.post === true ? 'post' : 'get';
-  } else {
-    argmap.eventMethod = argmap.eventMethod || 'post';
-  }
+  //use POST if eventMethod isn't present on the argmap
+  argmap.eventMethod = argmap.eventMethod || 'post';
 
   // attach stm to GET requests by default
   if (!argmap.hasOwnProperty('useStm')) {
@@ -124,15 +117,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
   }
 
   const getStateStorageStrategy = (config) =>
-    config.hasOwnProperty('stateStorageStrategy')
-      ? config.stateStorageStrategy
-      : !configUseCookies && !configUseLocalStorage
-      ? 'none'
-      : configUseCookies && configUseLocalStorage
-      ? 'cookieAndLocalStorage'
-      : configUseCookies
-      ? 'cookie'
-      : 'localStorage';
+    config.hasOwnProperty('stateStorageStrategy') ? config.stateStorageStrategy : 'cookieAndLocalStorage';
 
   const getAnonymousSessionTracking = (config) =>
     config.hasOwnProperty('anonymousTracking') ? config.anonymousTracking.withSessionTracking === true : false;
@@ -222,8 +207,6 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
       : false,
     // Opt out of cookie tracking
     configOptOutCookie,
-    // Count sites which are pre-rendered
-    configCountPreRendered,
     // Life of the visitor cookie (in seconds)
     configVisitorCookieTimeout = argmap.hasOwnProperty('cookieLifetime') ? argmap.cookieLifetime : 63072000, // 2 years
     // Life of the session cookie (in seconds)
@@ -243,14 +226,6 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
     configAnonymousServerTracking = getAnonymousServerTracking(argmap),
     // Sets tracker to work in anonymous mode without accessing client storage
     configAnonymousTracking = getAnonymousTracking(argmap),
-    // Whether to use localStorage to store events between sessions while offline
-    configUseLocalStorage = argmap.hasOwnProperty('useLocalStorage')
-      ? (warn('argmap.useLocalStorage is deprecated. Use argmap.stateStorageStrategy instead.'), argmap.useLocalStorage)
-      : true,
-    // Whether to use cookies
-    configUseCookies = argmap.hasOwnProperty('useCookies')
-      ? (warn('argmap.useCookies is deprecated. Use argmap.stateStorageStrategy instead.'), argmap.useCookies)
-      : true,
     // Strategy defining how to store the state: cookie, localStorage, cookieAndLocalStorage or none
     configStateStorageStrategy = getStateStorageStrategy(argmap),
     // Browser language (or Windows language for IE). Imperfect but CloudFront doesn't log the Accept-Language header
@@ -853,18 +828,6 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
     }
 
     lastEventTime = new Date().getTime();
-  }
-
-  /**
-   * Builds a collector URL from a CloudFront distribution.
-   * We don't bother to support custom CNAMEs because Amazon CloudFront doesn't support that for SSL.
-   *
-   * @param string account The account ID to build the tracker URL from
-   *
-   * @return string The URL on which the collector is hosted
-   */
-  function collectorUrlFromCfDist(distSubdomain) {
-    return asCollectorUrl(distSubdomain + '.cloudfront.net');
   }
 
   /**
@@ -1787,67 +1750,6 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
   }
 
   /**
-   * Construct a browser prefix
-   *
-   * E.g: (moz, hidden) -> mozHidden
-   */
-  function prefixPropertyName(prefix, propertyName) {
-    if (prefix !== '') {
-      return prefix + propertyName.charAt(0).toUpperCase() + propertyName.slice(1);
-    }
-
-    return propertyName;
-  }
-
-  /**
-   * Check for pre-rendered web pages, and log the page view/link
-   * according to the configuration and/or visibility
-   *
-   * @see http://dvcs.w3.org/hg/webperf/raw-file/tip/specs/PageVisibility/Overview.html
-   */
-  function trackCallback(callback) {
-    var isPreRendered,
-      i,
-      // Chrome 13, IE10, FF10
-      prefixes = ['', 'webkit', 'ms', 'moz'],
-      prefix;
-
-    // If configPrerendered == true - we'll never set `isPreRendered` to true and fire immediately,
-    // otherwise we need to check if this is just prerendered
-    if (!configCountPreRendered) {
-      // true by default
-
-      for (i = 0; i < prefixes.length; i++) {
-        prefix = prefixes[i];
-
-        // does this browser support the page visibility API? (drop this check along with IE9 and iOS6)
-        if (documentAlias[prefixPropertyName(prefix, 'hidden')]) {
-          // if pre-rendered, then defer callback until page visibility changes
-          if (documentAlias[prefixPropertyName(prefix, 'visibilityState')] === 'prerender') {
-            isPreRendered = true;
-          }
-          break;
-        } else if (documentAlias[prefixPropertyName(prefix, 'hidden')] === false) {
-          break;
-        }
-      }
-    }
-
-    // Implies configCountPreRendered = false
-    if (isPreRendered) {
-      // note: the event name doesn't follow the same naming convention as vendor properties
-      addEventListener(documentAlias, prefix + 'visibilitychange', function ready() {
-        documentAlias.removeEventListener(prefix + 'visibilitychange', ready, false);
-        callback();
-      });
-      return;
-    }
-
-    // configCountPreRendered === true || isPreRendered === false
-    callback();
-  }
-
-  /**
    * Update the returned methods (public facing methods)
    */
   function updateReturnMethods() {
@@ -1876,10 +1778,6 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
   /************************************************************
    * Public data and methods
    ************************************************************/
-
-  const userFingerprintingWarning =
-    'User Fingerprinting is no longer supported. This function will be removed in a future release.';
-  const argmapDeprecationWarning = ' is deprecated. Instead use the argmap argument on tracker initialisation: ';
 
   /**
    * Get the domain session index also known as current memorized visit count.
@@ -1942,26 +1840,6 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
   };
 
   /**
-   * Get the user fingerprint
-   *
-   * @return string The user fingerprint
-   */
-  apiMethods.getUserFingerprint = function () {
-    warn(userFingerprintingWarning);
-    return 0;
-  };
-
-  /**
-   * Specify the app ID
-   *
-   * @param int|string appId
-   */
-  apiMethods.setAppId = function (appId) {
-    warn('setAppId' + argmapDeprecationWarning + 'appId');
-    core.setAppId(appId);
-  };
-
-  /**
    * Override referrer
    *
    * @param string url
@@ -2010,27 +1888,6 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
   };
 
   /**
-   * Set first-party cookie name prefix
-   *
-   * @param string cookieNamePrefix
-   */
-  apiMethods.setCookieNamePrefix = function (cookieNamePrefix) {
-    warn('setCookieNamePrefix' + argmapDeprecationWarning + 'cookieName');
-    configCookieNamePrefix = cookieNamePrefix;
-  };
-
-  /**
-   * Set first-party cookie domain
-   *
-   * @param string domain
-   */
-  apiMethods.setCookieDomain = function (domain) {
-    warn('setCookieDomain' + argmapDeprecationWarning + 'cookieDomain');
-    configCookieDomain = fixupDomain(domain);
-    updateDomainHash();
-  };
-
-  /**
    * Set first-party cookie path
    *
    * @param string domain
@@ -2047,44 +1904,6 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    */
   apiMethods.setVisitorCookieTimeout = function (timeout) {
     configVisitorCookieTimeout = timeout;
-  };
-
-  /**
-   * Set session cookie timeout (in seconds)
-   *
-   * @param int timeout
-   */
-  apiMethods.setSessionCookieTimeout = function (timeout) {
-    warn('setSessionCookieTimeout' + argmapDeprecationWarning + 'sessionCookieTimeout');
-    configSessionCookieTimeout = timeout;
-  };
-
-  /**
-   * @param number seed The seed used for MurmurHash3
-   */
-  apiMethods.setUserFingerprintSeed = function () {
-    warn(userFingerprintingWarning);
-  };
-
-  /**
-   * Enable/disable user fingerprinting. User fingerprinting is enabled by default.
-   */
-  apiMethods.enableUserFingerprint = function () {
-    warn(userFingerprintingWarning);
-  };
-
-  /**
-   * Prevent tracking if user's browser has Do Not Track feature enabled,
-   * where tracking is:
-   * 1) Sending events to a collector
-   * 2) Setting first-party cookies
-   * @param bool enable If true and Do Not Track feature enabled, don't track.
-   */
-  apiMethods.respectDoNotTrack = function (enable) {
-    warn('respectDoNotTrack' + argmapDeprecationWarning + 'respectDoNotTrack');
-    var dnt = navigatorAlias.doNotTrack || navigatorAlias.msDoNotTrack;
-
-    configDoNotTrack = enable && (dnt === 'yes' || dnt === '1');
   };
 
   /**
@@ -2206,41 +2025,12 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
   };
 
   /**
-   * Frame buster
-   */
-  apiMethods.killFrame = function () {
-    if (windowAlias.location !== windowAlias.top.location) {
-      windowAlias.top.location = windowAlias.location;
-    }
-  };
-
-  /**
-   * Redirect if browsing offline (aka file: buster)
-   *
-   * @param string url Redirect to this URL
-   */
-  apiMethods.redirectFile = function (url) {
-    if (windowAlias.location.protocol === 'file:') {
-      windowAlias.location = url;
-    }
-  };
-
-  /**
    * Sets the opt out cookie.
    *
    * @param string name of the opt out cookie
    */
   apiMethods.setOptOutCookie = function (name) {
     configOptOutCookie = name;
-  };
-
-  /**
-   * Count sites in pre-rendered state
-   *
-   * @param bool enable If true, track when in pre-rendered state
-   */
-  apiMethods.setCountPreRendered = function (enable) {
-    configCountPreRendered = enable;
   };
 
   /**
@@ -2291,15 +2081,6 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
   };
 
   /**
-   * Configure this tracker to log to a CloudFront collector.
-   *
-   * @param string distSubdomain The subdomain on your CloudFront collector's distribution
-   */
-  apiMethods.setCollectorCf = function (distSubdomain) {
-    configCollectorUrl = collectorUrlFromCfDist(distSubdomain);
-  };
-
-  /**
    *
    * Specify the Snowplow collector URL. No need to include HTTP
    * or HTTPS - we will add this.
@@ -2308,27 +2089,6 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    */
   apiMethods.setCollectorUrl = function (rawUrl) {
     configCollectorUrl = asCollectorUrl(rawUrl);
-  };
-
-  /**
-   * Specify the platform
-   *
-   * @param string platform Overrides the default tracking platform
-   */
-  apiMethods.setPlatform = function (platform) {
-    warn('setPlatform' + argmapDeprecationWarning + 'platform');
-    core.setPlatform(platform);
-  };
-
-  /**
-   *
-   * Enable Base64 encoding for self-describing event payload
-   *
-   * @param bool enabled A boolean value indicating if the Base64 encoding for self-describing events should be enabled or not
-   */
-  apiMethods.encodeBase64 = function (enabled) {
-    warn('encodeBase64' + argmapDeprecationWarning + 'encodeBase64');
-    core.setBase64Encoding(enabled);
   };
 
   /**
@@ -2342,7 +2102,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
   /**
    * Add the geolocation context to all events
    */
-  apiMethods.enableGeolocationContext = enableGeolocationContext,
+  apiMethods.enableGeolocationContext = enableGeolocationContext;
 
   /**
    * Log visit to this page
@@ -2354,9 +2114,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    * @param function afterTrack (optional) A callback function triggered after event is tracked
    */
   apiMethods.trackPageView = function (customTitle, context, contextCallback, tstamp, afterTrack) {
-    trackCallback(function () {
-      logPageView(customTitle, context, contextCallback, tstamp, afterTrack);
-    });
+    logPageView(customTitle, context, contextCallback, tstamp, afterTrack);
   };
 
   /**
@@ -2375,13 +2133,11 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    * @param function afterTrack (optional) A callback function triggered after event is tracked
    */
   apiMethods.trackStructEvent = function (category, action, label, property, value, context, tstamp, afterTrack) {
-    trackCallback(function () {
-      core.trackStructEvent(category, action, label, property, value, addCommonContexts(context), tstamp, afterTrack);
-    });
+    core.trackStructEvent(category, action, label, property, value, addCommonContexts(context), tstamp, afterTrack);
   };
 
   /**
-   * Track a self-describing event (previously unstructured event) happening on this page.
+   * Track a self-describing event happening on this page.
    *
    * @param object eventJson Contains the properties and schema location for the event
    * @param object context Custom context relating to the event
@@ -2389,18 +2145,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    * @param function afterTrack (optional) A callback function triggered after event is tracked
    */
   apiMethods.trackSelfDescribingEvent = function (eventJson, context, tstamp, afterTrack) {
-    trackCallback(function () {
-      core.trackSelfDescribingEvent(eventJson, addCommonContexts(context), tstamp, afterTrack);
-    });
-  };
-
-  /**
-   * Alias for `trackSelfDescribingEvent`, left for compatibility
-   */
-  apiMethods.trackUnstructEvent = function (eventJson, context, tstamp) {
-    trackCallback(function () {
-      core.trackSelfDescribingEvent(eventJson, addCommonContexts(context), tstamp);
-    });
+    core.trackSelfDescribingEvent(eventJson, addCommonContexts(context), tstamp, afterTrack);
   };
 
   /**
@@ -2480,37 +2225,35 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    * addItem methods to the tracking server.
    */
   apiMethods.trackTrans = function () {
-    trackCallback(function () {
-      logTransaction(
-        ecommerceTransaction.transaction.orderId,
-        ecommerceTransaction.transaction.affiliation,
-        ecommerceTransaction.transaction.total,
-        ecommerceTransaction.transaction.tax,
-        ecommerceTransaction.transaction.shipping,
-        ecommerceTransaction.transaction.city,
-        ecommerceTransaction.transaction.state,
-        ecommerceTransaction.transaction.country,
-        ecommerceTransaction.transaction.currency,
-        ecommerceTransaction.transaction.context,
-        ecommerceTransaction.transaction.tstamp
+    logTransaction(
+      ecommerceTransaction.transaction.orderId,
+      ecommerceTransaction.transaction.affiliation,
+      ecommerceTransaction.transaction.total,
+      ecommerceTransaction.transaction.tax,
+      ecommerceTransaction.transaction.shipping,
+      ecommerceTransaction.transaction.city,
+      ecommerceTransaction.transaction.state,
+      ecommerceTransaction.transaction.country,
+      ecommerceTransaction.transaction.currency,
+      ecommerceTransaction.transaction.context,
+      ecommerceTransaction.transaction.tstamp
+    );
+    for (var i = 0; i < ecommerceTransaction.items.length; i++) {
+      var item = ecommerceTransaction.items[i];
+      logTransactionItem(
+        item.orderId,
+        item.sku,
+        item.name,
+        item.category,
+        item.price,
+        item.quantity,
+        item.currency,
+        item.context,
+        item.tstamp
       );
-      for (var i = 0; i < ecommerceTransaction.items.length; i++) {
-        var item = ecommerceTransaction.items[i];
-        logTransactionItem(
-          item.orderId,
-          item.sku,
-          item.name,
-          item.category,
-          item.price,
-          item.quantity,
-          item.currency,
-          item.context,
-          item.tstamp
-        );
-      }
+    }
 
-      ecommerceTransaction = ecommerceTransactionTemplate();
-    });
+    ecommerceTransaction = ecommerceTransactionTemplate();
   };
 
   /**
@@ -2534,17 +2277,15 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
     context,
     tstamp
   ) {
-    trackCallback(function () {
-      core.trackLinkClick(
-        targetUrl,
-        elementId,
-        elementClasses,
-        elementTarget,
-        elementContent,
-        addCommonContexts(context),
-        tstamp
-      );
-    });
+    core.trackLinkClick(
+      targetUrl,
+      elementId,
+      elementClasses,
+      elementTarget,
+      elementContent,
+      addCommonContexts(context),
+      tstamp
+    );
   };
 
   /**
@@ -2572,20 +2313,18 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
     context,
     tstamp
   ) {
-    trackCallback(function () {
-      core.trackAdImpression(
-        impressionId,
-        costModel,
-        cost,
-        targetUrl,
-        bannerId,
-        zoneId,
-        advertiserId,
-        campaignId,
-        addCommonContexts(context),
-        tstamp
-      );
-    });
+    core.trackAdImpression(
+      impressionId,
+      costModel,
+      cost,
+      targetUrl,
+      bannerId,
+      zoneId,
+      advertiserId,
+      campaignId,
+      addCommonContexts(context),
+      tstamp
+    );
   };
 
   /**
@@ -2616,21 +2355,19 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
     context,
     tstamp
   ) {
-    trackCallback(function () {
-      core.trackAdClick(
-        targetUrl,
-        clickId,
-        costModel,
-        cost,
-        bannerId,
-        zoneId,
-        impressionId,
-        advertiserId,
-        campaignId,
-        addCommonContexts(context),
-        tstamp
-      );
-    });
+    core.trackAdClick(
+      targetUrl,
+      clickId,
+      costModel,
+      cost,
+      bannerId,
+      zoneId,
+      impressionId,
+      advertiserId,
+      campaignId,
+      addCommonContexts(context),
+      tstamp
+    );
   };
 
   /**
@@ -2661,21 +2398,19 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
     context,
     tstamp
   ) {
-    trackCallback(function () {
-      core.trackAdConversion(
-        conversionId,
-        costModel,
-        cost,
-        category,
-        action,
-        property,
-        initialValue,
-        advertiserId,
-        campaignId,
-        addCommonContexts(context),
-        tstamp
-      );
-    });
+    core.trackAdConversion(
+      conversionId,
+      costModel,
+      cost,
+      category,
+      action,
+      property,
+      initialValue,
+      advertiserId,
+      campaignId,
+      addCommonContexts(context),
+      tstamp
+    );
   };
 
   /**
@@ -2688,9 +2423,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    * @param tstamp number or Timestamp object
    */
   apiMethods.trackSocialInteraction = function (action, network, target, context, tstamp) {
-    trackCallback(function () {
-      core.trackSocialInteraction(action, network, target, addCommonContexts(context), tstamp);
-    });
+    core.trackSocialInteraction(action, network, target, addCommonContexts(context), tstamp);
   };
 
   /**
@@ -2706,9 +2439,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    * @param tstamp number or Timestamp object
    */
   apiMethods.trackAddToCart = function (sku, name, category, unitPrice, quantity, currency, context, tstamp) {
-    trackCallback(function () {
-      core.trackAddToCart(sku, name, category, unitPrice, quantity, currency, addCommonContexts(context), tstamp);
-    });
+    core.trackAddToCart(sku, name, category, unitPrice, quantity, currency, addCommonContexts(context), tstamp);
   };
 
   /**
@@ -2724,9 +2455,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    * @param tstamp Opinal number or Timestamp object
    */
   apiMethods.trackRemoveFromCart = function (sku, name, category, unitPrice, quantity, currency, context, tstamp) {
-    trackCallback(function () {
-      core.trackRemoveFromCart(sku, name, category, unitPrice, quantity, currency, addCommonContexts(context), tstamp);
-    });
+    core.trackRemoveFromCart(sku, name, category, unitPrice, quantity, currency, addCommonContexts(context), tstamp);
   };
 
   /**
@@ -2740,9 +2469,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    * @param tstamp Opinal number or Timestamp object
    */
   apiMethods.trackSiteSearch = function (terms, filters, totalResults, pageResults, context, tstamp) {
-    trackCallback(function () {
-      core.trackSiteSearch(terms, filters, totalResults, pageResults, addCommonContexts(context), tstamp);
-    });
+    core.trackSiteSearch(terms, filters, totalResults, pageResults, addCommonContexts(context), tstamp);
   };
 
   /**
@@ -2756,21 +2483,19 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    * @param tstamp Opinal number or Timestamp object
    */
   apiMethods.trackTiming = function (category, variable, timing, label, context, tstamp) {
-    trackCallback(function () {
-      core.trackSelfDescribingEvent(
-        {
-          schema: 'iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0',
-          data: {
-            category: category,
-            variable: variable,
-            timing: timing,
-            label: label,
-          },
+    core.trackSelfDescribingEvent(
+      {
+        schema: 'iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0',
+        data: {
+          category: category,
+          variable: variable,
+          timing: timing,
+          label: label,
         },
-        addCommonContexts(context),
-        tstamp
-      );
-    });
+      },
+      addCommonContexts(context),
+      tstamp
+    );
   };
 
   /**
@@ -2785,9 +2510,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    * @param {number|Timestamp} [tstamp] - Number or Timestamp object.
    */
   apiMethods.trackConsentWithdrawn = function (all, id, version, name, description, context, tstamp) {
-    trackCallback(function () {
-      core.trackConsentWithdrawn(all, id, version, name, description, addCommonContexts(context), tstamp);
-    });
+    core.trackConsentWithdrawn(all, id, version, name, description, addCommonContexts(context), tstamp);
   };
 
   /**
@@ -2802,9 +2525,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    * @param {Timestamp|number} [tstamp] - number or Timestamp object.
    */
   apiMethods.trackConsentGranted = function (id, version, name, description, expiry, context, tstamp) {
-    trackCallback(function () {
-      core.trackConsentGranted(id, version, name, description, expiry, addCommonContexts(context), tstamp);
-    });
+    core.trackConsentGranted(id, version, name, description, expiry, addCommonContexts(context), tstamp);
   };
 
   /**
@@ -2819,18 +2540,16 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
     var combinedEnhancedEcommerceContexts = enhancedEcommerceContexts.concat(context || []);
     enhancedEcommerceContexts.length = 0;
 
-    trackCallback(function () {
-      core.trackSelfDescribingEvent(
-        {
-          schema: 'iglu:com.google.analytics.enhanced-ecommerce/action/jsonschema/1-0-0',
-          data: {
-            action: action,
-          },
+    core.trackSelfDescribingEvent(
+      {
+        schema: 'iglu:com.google.analytics.enhanced-ecommerce/action/jsonschema/1-0-0',
+        data: {
+          action: action,
         },
-        addCommonContexts(combinedEnhancedEcommerceContexts),
-        tstamp
-      );
-    });
+      },
+      addCommonContexts(combinedEnhancedEcommerceContexts),
+      tstamp
+    );
   };
 
   /**
@@ -3000,7 +2719,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
 
     if (!basis) {
       warn(
-        'enableGdprContext failed. basisForProcessing must be set to one of: consent, legalObligation, vitalInterests publicTask, legitimateInterests'
+        'enableGdprContext: basisForProcessing must be one of: consent, legalObligation, vitalInterests publicTask, legitimateInterests'
       );
       return;
     } else {

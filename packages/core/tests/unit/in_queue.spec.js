@@ -90,15 +90,15 @@ describe('InQueueManager', () => {
   })
 
   it("Backward compatibility: Create a tracker using the legacy setCollectorUrl method, A second tracker is created and both trackers' attributes are added to output", () => {
-    asyncQueue.push(['setCollectorUrl', 'secondEndpoint'])
+    asyncQueue.push(['newTracker', 'secondTracker', 'secondEndpoint'])
     asyncQueue.push(['addAttributeToOutput'])
     expect(output).toEqual(24)
   })
 
   it("Use 'function:tracker1;tracker2' syntax to control which trackers execute which functions, Set the attributes of the two trackers individually, then add both to output", () => {
     asyncQueue.push(['setAttribute:firstTracker', 2])
-    asyncQueue.push(['setAttribute:sp', 3])
-    asyncQueue.push(['addAttributeToOutput:firstTracker;sp'])
+    asyncQueue.push(['setAttribute:secondTracker', 3])
+    asyncQueue.push(['addAttributeToOutput:firstTracker;secondTracker'])
     expect(output).toEqual(29)
   })
 
