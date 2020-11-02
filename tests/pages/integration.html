@@ -37,7 +37,7 @@
 
     var eventMethod = parseQuery().eventMethod;
 
-    window.snowplow('newTracker', 'cf', collector_endpoint, {
+    window.snowplow('newTracker', 'sp', collector_endpoint, {
       appId: 'sp-' + eventMethod,
       platform: 'mob',
       eventMethod: eventMethod,
@@ -86,17 +86,17 @@
       return {};
     }
 
-    window.snowplow('enableGdprContext:cf', 'consent', 'someId', '0.1.0', 'this document is a test');
+    window.snowplow('enableGdprContext:sp', 'consent', 'someId', '0.1.0', 'this document is a test');
 
-    window.snowplow('addGlobalContexts:cf', [erroneousContextGenerator]);
-    window.snowplow('addGlobalContexts:cf', [[structuredEventFilter, [eventTypeContextGenerator, geolocationContext]]]);
+    window.snowplow('addGlobalContexts:sp', [erroneousContextGenerator]);
+    window.snowplow('addGlobalContexts:sp', [[structuredEventFilter, [eventTypeContextGenerator, geolocationContext]]]);
 
-    window.snowplow('setUserId:cf', 'Malcolm');
+    window.snowplow('setUserId:sp', 'Malcolm');
 
-    window.snowplow('enableActivityTracking:cf', 1, 2);
+    window.snowplow('enableActivityTracking:sp', 1, 2);
 
     // Also tracks to non-base64 encoding tracker
-    window.snowplow('trackPageView:cf;b64off', 'My Title', [ // Set page title; add page context
+    window.snowplow('trackPageView:sp;b64off', 'My Title', [ // Set page title; add page context
       {
         schema: "iglu:org.schema/WebPage/jsonschema/1-0-0",
         data: {
@@ -106,10 +106,10 @@
     ]);
 
     // This should have different pageViewId in web_page context
-    window.snowplow('trackPageView:cf');
+    window.snowplow('trackPageView:sp');
 
-    window.snowplow('trackStructEvent:cf', 'Mixes', 'Play', 'MRC/fabric-0503-mix', '', '0.0');
-    window.snowplow('trackUnstructEvent:cf', {
+    window.snowplow('trackStructEvent:sp', 'Mixes', 'Play', 'MRC/fabric-0503-mix', '', '0.0');
+    window.snowplow('trackUnstructEvent:sp', {
       schema: 'iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0',
       data: {
         bannerId: 'ASO01043'
@@ -118,7 +118,7 @@
 
     var orderId = 'order-123';
 
-    window.snowplow('addTrans:cf',
+    window.snowplow('addTrans:sp',
       orderId,
       'acme',
       '8000',
@@ -131,7 +131,7 @@
     );
 
     // addItem might be called for each item in the shopping cart, or not at all.
-    window.snowplow('addItem:cf',
+    window.snowplow('addItem:sp',
       orderId,
       '1001',
       'Blue t-shirt',
@@ -143,7 +143,7 @@
 
     // trackTrans sends the transaction to Snowplow tracking servers.
     // Must be called last to commit the transaction.
-    window.snowplow('trackTrans:cf');
+    window.snowplow('trackTrans:sp');
 
     var testAcceptRuleSet = {
       accept: ['iglu:com.snowplowanalytics.snowplow/*/jsonschema/*-*-*']
@@ -153,28 +153,28 @@
     };
 
     // test context rulesets
-    window.snowplow('addGlobalContexts:cf', [[testAcceptRuleSet, [eventTypeContextGenerator, geolocationContext]]]);
+    window.snowplow('addGlobalContexts:sp', [[testAcceptRuleSet, [eventTypeContextGenerator, geolocationContext]]]);
 
-    window.snowplow('trackUnstructEvent:cf', {
+    window.snowplow('trackUnstructEvent:sp', {
       schema: 'iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0',
       data: {
         bannerId: 'ASO01042'
       }
     }, [], {type: 'ttm', value: 1477401869});
 
-    window.snowplow('removeGlobalContexts:cf', [[testAcceptRuleSet, [eventTypeContextGenerator, geolocationContext]]]);
+    window.snowplow('removeGlobalContexts:sp', [[testAcceptRuleSet, [eventTypeContextGenerator, geolocationContext]]]);
 
-    window.snowplow('addGlobalContexts:cf', [[testRejectRuleSet, [eventTypeContextGenerator, geolocationContext]]]);
-    window.snowplow('trackUnstructEvent:cf', {
+    window.snowplow('addGlobalContexts:sp', [[testRejectRuleSet, [eventTypeContextGenerator, geolocationContext]]]);
+    window.snowplow('trackUnstructEvent:sp', {
       schema: 'iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0',
       data: {
         bannerId: 'ASO01041'
       }
     }, [], {type: 'ttm', value: 1477401868});
 
-    window.snowplow('trackSocialInteraction:cf', 'retweet', 'twitter', '1234');
+    window.snowplow('trackSocialInteraction:sp', 'retweet', 'twitter', '1234');
 
-    window.snowplow('trackAdImpression:cf', 
+    window.snowplow('trackAdImpression:sp', 
       '67965967893',
       'cpm',
       5.5,
@@ -185,7 +185,7 @@
       '12'
     );
 
-    window.snowplow('trackAdClick:cf',
+    window.snowplow('trackAdClick:sp',
       'http://www.example.com',  // targetUrl
       '12243253',                // clickId
       'cpm',                     // costModel
@@ -197,7 +197,7 @@
       '12'                       // campaignId
     );
 
-    window.snowplow('trackAdConversion:cf',
+    window.snowplow('trackAdConversion:sp',
       '743560297', // conversionId
       'cpa',       // costModel
       10,          // cost
@@ -209,24 +209,24 @@
       '12'         // campaignId
     );
 
-    window.snowplow('trackAddToCart:cf', '000345', 'blue tie', 'clothing', 3.49, 2, 'GBP');
-    window.snowplow('trackRemoveFromCart:cf', '000345', 'blue tie', 'clothing', 3.49, 1, 'GBP');
+    window.snowplow('trackAddToCart:sp', '000345', 'blue tie', 'clothing', 3.49, 2, 'GBP');
+    window.snowplow('trackRemoveFromCart:sp', '000345', 'blue tie', 'clothing', 3.49, 1, 'GBP');
 
-    window.snowplow('trackSiteSearch:cf',
+    window.snowplow('trackSiteSearch:sp',
       ['unified', 'log'],                                     // search terms
       {'category': 'books', 'sub-category': 'non-fiction'},   // filters
       14,                                                     // results found
       8                                                       // results displayed on first page
     );
 
-    window.snowplow('trackTiming:cf',
+    window.snowplow('trackTiming:sp',
       'load',            // Category of the timing variable
       'map_loaded',      // Variable being recorded
       50,                // Milliseconds taken
       'Map loading time' // Optional label
     );
 
-    window.snowplow('trackConsentGranted:cf',
+    window.snowplow('trackConsentGranted:sp',
       '1234',                        // Id
       '5',                           // Version
       'consent_document',            // Name
@@ -234,7 +234,7 @@
       '2020-11-21T08:00:00.000Z'     // Expiry
     );
 
-    window.snowplow('trackConsentWithdrawn:cf',
+    window.snowplow('trackConsentWithdrawn:sp',
       false,                            // All
       '1234',                           // Id
       '5',                              // Version
@@ -245,10 +245,10 @@
     try {
       notExistentObject.notExistentProperty();
     } catch(e) {
-      snowplow('trackError:cf', 'Cannot access notExistentProperty()', 'trackError.js', 237, 5, e);
+      snowplow('trackError:sp', 'Cannot access notExistentProperty()', 'trackError.js', 237, 5, e);
     }
 
-    window.snowplow('addEnhancedEcommerceActionContext:cf',
+    window.snowplow('addEnhancedEcommerceActionContext:sp',
       'T12345', // The Transaction ID
       'Google Store - Online', // The affiliate
       '37.39', // The revenue
@@ -257,7 +257,7 @@
       'WINTER2016' // The coupon
     );
 
-    window.snowplow('addEnhancedEcommerceImpressionContext:cf',
+    window.snowplow('addEnhancedEcommerceImpressionContext:sp',
       'P12345', // The ID
       'Android Warhol T-Shirt', // The name
       'Search Results', // The list
@@ -267,7 +267,7 @@
       '1' // The position
     );
 
-    window.snowplow('addEnhancedEcommerceProductContext:cf',
+    window.snowplow('addEnhancedEcommerceProductContext:sp',
       'P12345', // The ID
       'Android Warhol T-Shirt', // The name
       'Search Results', // The list
@@ -277,19 +277,19 @@
       1 // The quantity
     );
 
-    window.snowplow('addEnhancedEcommercePromoContext:cf',
+    window.snowplow('addEnhancedEcommercePromoContext:sp',
       'PROMO_1234', // The Promotion ID
       'Summer Sale', // The name
       'summer_banner2', // The name of the creative
       'banner_slot1' // The position
     );
 
-    window.snowplow('trackEnhancedEcommerceAction:cf',
+    window.snowplow('trackEnhancedEcommerceAction:sp',
       'purchase'
     );
 
     // track unhandled exception
-    window.snowplow('enableErrorTracking:cf', function (error) { return true; }, function (error) { 
+    window.snowplow('enableErrorTracking:sp', function (error) { return true; }, function (error) { 
       return [
         {
           schema: "iglu:org.schema/WebPage/jsonschema/1-0-0",

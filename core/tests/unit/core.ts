@@ -2,7 +2,7 @@ import test, { ExecutionContext } from 'ava';
 import { trackerCore } from '../../src/core';
 import { PayloadData, PayloadDictionary } from '../../src/payload';
 
-const unstructEventSchema = 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0';
+const selfDescribingEventSchema = 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0';
 const tracker = trackerCore(false);
 function compare(result: PayloadData, expected: PayloadDictionary, t: ExecutionContext) {
   const res = result.build();
@@ -110,22 +110,6 @@ test('should track an ecommerce transaction item event', (t) => {
   };
   compare(tracker.trackEcommerceTransactionItem(orderId, sku, name, category, price, quantity, currency), expected, t);
 });
-test('should track an unstructured event', (t) => {
-  const inputJson = {
-    schema: 'iglu:com.acme/user/jsonschema/1-0-1',
-    data: {
-      name: 'Eric',
-    },
-  };
-  const expected = {
-    e: 'ue',
-    ue_pr: JSON.stringify({
-      schema: unstructEventSchema,
-      data: inputJson,
-    }),
-  };
-  compare(tracker.trackUnstructEvent(inputJson), expected, t);
-});
 test('should track a self-describing event', (t) => {
   const inputJson = {
     schema: 'iglu:com.acme/user/jsonschema/1-0-1',
@@ -136,7 +120,7 @@ test('should track a self-describing event', (t) => {
   const expected = {
     e: 'ue',
     ue_pr: JSON.stringify({
-      schema: unstructEventSchema,
+      schema: selfDescribingEventSchema,
       data: inputJson,
     }),
   };
@@ -161,7 +145,7 @@ test('should track a link click', (t) => {
   const expected = {
     e: 'ue',
     ue_pr: JSON.stringify({
-      schema: unstructEventSchema,
+      schema: selfDescribingEventSchema,
       data: inputJson,
     }),
   };
@@ -180,7 +164,7 @@ test('should track a screen view', (t) => {
   const expected = {
     e: 'ue',
     ue_pr: JSON.stringify({
-      schema: unstructEventSchema,
+      schema: selfDescribingEventSchema,
       data: inputJson,
     }),
   };
@@ -211,7 +195,7 @@ test('should track an ad impression', (t) => {
   const expected = {
     e: 'ue',
     ue_pr: JSON.stringify({
-      schema: unstructEventSchema,
+      schema: selfDescribingEventSchema,
       data: inputJson,
     }),
   };
@@ -248,7 +232,7 @@ test('should track an ad click', (t) => {
   const expected = {
     e: 'ue',
     ue_pr: JSON.stringify({
-      schema: unstructEventSchema,
+      schema: selfDescribingEventSchema,
       data: inputJson,
     }),
   };
@@ -285,7 +269,7 @@ test('should track an ad conversion', (t) => {
   const expected = {
     e: 'ue',
     ue_pr: JSON.stringify({
-      schema: unstructEventSchema,
+      schema: selfDescribingEventSchema,
       data: inputJson,
     }),
   };
@@ -320,7 +304,7 @@ test('should track a social interaction', (t) => {
   const expected = {
     e: 'ue',
     ue_pr: JSON.stringify({
-      schema: unstructEventSchema,
+      schema: selfDescribingEventSchema,
       data: inputJson,
     }),
   };
@@ -347,7 +331,7 @@ test('should track an add-to-cart event', (t) => {
   const expected = {
     e: 'ue',
     ue_pr: JSON.stringify({
-      schema: unstructEventSchema,
+      schema: selfDescribingEventSchema,
       data: inputJson,
     }),
   };
@@ -374,7 +358,7 @@ test('should track a remove-from-cart event', (t) => {
   const expected = {
     e: 'ue',
     ue_pr: JSON.stringify({
-      schema: unstructEventSchema,
+      schema: selfDescribingEventSchema,
       data: inputJson,
     }),
   };
@@ -401,7 +385,7 @@ test('should track a form focus event', (t) => {
   const expected = {
     e: 'ue',
     ue_pr: JSON.stringify({
-      schema: unstructEventSchema,
+      schema: selfDescribingEventSchema,
       data: inputJson,
     }),
   };
@@ -432,7 +416,7 @@ test('should track a form change event', (t) => {
   const expected = {
     e: 'ue',
     ue_pr: JSON.stringify({
-      schema: unstructEventSchema,
+      schema: selfDescribingEventSchema,
       data: inputJson,
     }),
   };
@@ -464,7 +448,7 @@ test('should track a form submission event', (t) => {
   const expected = {
     e: 'ue',
     ue_pr: JSON.stringify({
-      schema: unstructEventSchema,
+      schema: selfDescribingEventSchema,
       data: inputJson,
     }),
   };
@@ -490,7 +474,7 @@ test('should track a site seach event', (t) => {
   const expected = {
     e: 'ue',
     ue_pr: JSON.stringify({
-      schema: unstructEventSchema,
+      schema: selfDescribingEventSchema,
       data: inputJson,
     }),
   };
@@ -523,7 +507,7 @@ test('should track a consent withdrawn event', (t) => {
   const expected = {
     e: 'ue',
     ue_pr: JSON.stringify({
-      schema: unstructEventSchema,
+      schema: selfDescribingEventSchema,
       data: inputJson,
     }),
     co: JSON.stringify({
@@ -560,7 +544,7 @@ test('should track a consent granted event', (t) => {
   const expected = {
     e: 'ue',
     ue_pr: JSON.stringify({
-      schema: unstructEventSchema,
+      schema: selfDescribingEventSchema,
       data: inputJson,
     }),
     co: JSON.stringify({
@@ -607,12 +591,12 @@ test('should add individual name-value pairs to the payload', (t) => {
   const expected = {
     e: 'pv',
     url: url,
-    tna: 'cf',
+    tna: 'sp',
     tv: 'js-2.0.0',
     page: page,
     refr: referer,
   };
-  tracker.addPayloadPair('tna', 'cf');
+  tracker.addPayloadPair('tna', 'sp');
   tracker.addPayloadPair('tv', 'js-2.0.0');
   compare(tracker.trackPageView(url, page, referer), expected, t);
 });
@@ -625,15 +609,15 @@ test('should add a dictionary of name-value pairs to the payload', (t) => {
     e: 'pv',
     url: url,
     tv: 'js-2.0.0',
-    tna: 'cf',
-    aid: 'cf325',
+    tna: 'sp',
+    aid: 'sp325',
     page: page,
     refr: referer,
   };
   tracker.addPayloadPair('tv', 'js-2.0.0');
   tracker.addPayloadDict({
-    tna: 'cf',
-    aid: 'cf325',
+    tna: 'sp',
+    aid: 'sp325',
   });
   compare(tracker.trackPageView(url, page, referer), expected, t);
 });
@@ -645,12 +629,12 @@ test('should reset payload name-value pairs', (t) => {
   const expected = {
     e: 'pv',
     url: url,
-    tna: 'cf',
+    tna: 'sp',
     page: page,
     refr: referer,
   };
   tracker.addPayloadPair('tna', 'mistake');
-  tracker.resetPayloadPairs({ tna: 'cf' });
+  tracker.resetPayloadPairs({ tna: 'sp' });
   compare(tracker.trackPageView(url, page, referer), expected, t);
 });
 test('should execute a callback', (t) => {
@@ -672,7 +656,7 @@ test('should execute a callback', (t) => {
 test('should use setter methods', (t) => {
   const tracker = trackerCore(false);
   tracker.setTrackerVersion('js-3.0.0');
-  tracker.setTrackerNamespace('cf1');
+  tracker.setTrackerNamespace('sp1');
   tracker.setAppId('my-app');
   tracker.setPlatform('web');
   tracker.setUserId('jacob');
@@ -689,7 +673,7 @@ test('should use setter methods', (t) => {
     e: 'pv',
     url: url,
     page: page,
-    tna: 'cf1',
+    tna: 'sp1',
     tv: 'js-3.0.0',
     aid: 'my-app',
     p: 'web',

@@ -301,7 +301,7 @@ test('Get applicable contexts', t => {
 		return context;
 	}
 
-	const unstructuredEventRuleset = {
+	const selfDescribingEventRuleset = {
 		accept: ['iglu:com.acme_company/*/jsonschema/*-*-*']
 	};
 
@@ -310,12 +310,12 @@ test('Get applicable contexts', t => {
 	};
 
 	const filterProvider: contexts.FilterProvider = [filterFunction, [geolocationContext, eventTypeContextGenerator]];
-	const ruleSetProvider: contexts.RuleSetProvider = [unstructuredEventRuleset, [geolocationContext, eventTypeContextGenerator]];
+	const ruleSetProvider: contexts.RuleSetProvider = [selfDescribingEventRuleset, [geolocationContext, eventTypeContextGenerator]];
 
 	const eventJson: PayloadDictionary = {
 		e: 'ue',
 		ue_px: {
-			schema: 'iglu:com.snowplowanalytics.snowplow/unstructured_event/jsonschema/1-0-0',
+			schema: 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0',
 			data: {
 				schema: 'iglu:com.acme_company/some_event/jsonschema/1-0-0',
 				data: {}
