@@ -107,22 +107,4 @@ describe('Proxies', () => {
       expect(fixedupLocationArray[i]).toEqual(expectedLocationArray[i])
     }
   })
-
-  it('Host name is an IP address, On a page cached by Yahoo, get the original URL from the first link', () => {
-    const initialLocationArray = [
-      '98.139.21.31',
-      'http://98.139.21.31/search/srpcache',
-      'http://referrer.com',
-    ]
-    const fixedupLocationArray = fixupUrl.apply(null, initialLocationArray)
-    const expectedLocationArray = [
-      'www.example.com',
-      'http://www.example.com/',
-      'http://referrer.com',
-    ]
-
-    for (let i = 0; i < 3; i++) {
-      expect(fixedupLocationArray[i]).toEqual(expectedLocationArray[i])
-    }
-  })
 })

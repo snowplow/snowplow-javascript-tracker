@@ -35,11 +35,11 @@
 				}
 			})(window, document, 'script', '../sp.js', 'snowplow')
 
-			window.snowplow('newTracker', 'cf', '127.0.0.1:9090', {
+			window.snowplow('newTracker', 'sp', '127.0.0.1:9090', {
 				// Initialise a tracker
 				anonymousTracking: true,
 				encodeBase64: false, // Default is true
-				appId: 'CFe23a', // Site ID can be anything you want. Set it if you're tracking more than one site in this account
+				appId: 'my-app-id', // Site ID can be anything you want. Set it if you're tracking more than one site in this account
 				platform: 'mob',
 				contexts: {
 					webPage: true,
@@ -102,7 +102,7 @@
 			}
 
 			function login() {
-				window.snowplow('enableUserTracking', 'localStorage')
+				window.snowplow('disableAnonymousTracking', 'cookieAndLocalStorage')
 				window.snowplow('setUserId', 'alex 123') // Business-defined user ID
 				window.snowplow('setUserIdFromLocation', 'id') // To test this, reload the page with ?id=xxx
 				window.snowplow('setUserIdFromCookie', '_sp_id.4209') // Test this using Firefox because Chrome doesn't allow local cookies.
@@ -114,7 +114,7 @@
 			}
 
 			function logout() {
-				window.snowplow('disableUserTracking', 'localStorage')
+				window.snowplow('enableAnonymousTracking', true)
 				toggle()
 
 				return false

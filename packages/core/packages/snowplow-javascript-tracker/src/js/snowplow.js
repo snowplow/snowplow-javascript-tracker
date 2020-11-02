@@ -32,45 +32,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*jslint browser:true, plusplus:true, vars:true, nomen:true, evil:true */
-/*global window */
-/*global unescape */
-/*global ActiveXObject */
-/*global _snaq:true */
-/*members encodeURIComponent, decodeURIComponent, getElementsByTagName,
-	shift, unshift,
-	addEventListener, attachEvent, removeEventListener, detachEvent,
-	cookie, domain, readyState, documentElement, doScroll, title, text,
-	location, top, document, referrer, parent, links, href, protocol, GearsFactory,
-	event, which, button, srcElement, type, target,
-	parentNode, tagName, hostname, className,
-	userAgent, cookieEnabled, platform, mimeTypes, enabledPlugin, javaEnabled,
-	XDomainRequest, XMLHttpRequest, ActiveXObject, open, setRequestHeader, onreadystatechange, setRequestHeader, send, readyState, status,
-	getTime, getTimeAlias, setTime, toGMTString, getHours, getMinutes, getSeconds,
-	toLowerCase, charAt, indexOf, lastIndexOf, split, slice, toUpperCase,
-	onload, src,
-	round, random,
-	exec,
-	res, width, height,
-	pdf, qt, realp, wma, dir, fla, java, gears, ag,
-	hook, getHook,
-	setCollectorCf, setCollectorUrl, setAppId,
-	setDownloadExtensions, addDownloadExtensions,
-	setDomains, setIgnoreClasses, setRequestMethod,
-	setReferrerUrl, setCustomUrl, setDocumentTitle,
-	setDownloadClasses, setLinkClasses,
-	discardHashTag,
-	setCookieNamePrefix, setCookieDomain, setCookiePath, setVisitorIdCookie,
-	setVisitorCookieTimeout, setSessionCookieTimeout, setReferralCookieTimeout,
-	doNotTrack, respectDoNotTrack, msDoNotTrack, getTimestamp, getCookieValue,
-	detectTimezone, detectViewport,
-	addListener, enableLinkTracking, enableActivityTracking, setLinkTrackingTimer,
-	enableDarkSocialTracking,
-	killFrame, redirectFile, setCountPreRendered,
-	trackLink, trackPageView, trackImpression,
-	addPlugin, getAsyncTracker
-*/
-
 import forEach from 'lodash/forEach';
 import { addEventListener } from './lib/helpers';
 import { InQueueManager } from './in_queue';
@@ -201,45 +162,6 @@ export function Snowplow(asynchronousQueue, functionName) {
     // fallback
     addEventListener(windowAlias, 'load', loadHandler, false);
   }
-
-  /************************************************************
-   * Public data and methods
-   ************************************************************/
-
-  windowAlias.Snowplow = {
-    /**
-     * Returns a Tracker object, configured with a
-     * CloudFront collector.
-     *
-     * @param string distSubdomain The subdomain on your CloudFront collector's distribution
-     */
-    getTrackerCf: function (distSubdomain) {
-      var t = new Tracker(functionName, '', version, mutSnowplowState, {});
-      t.setCollectorCf(distSubdomain);
-      return t;
-    },
-
-    /**
-     * Returns a Tracker object, configured with the
-     * URL to the collector to use.
-     *
-     * @param string rawUrl The collector URL minus protocol and /i
-     */
-    getTrackerUrl: function (rawUrl) {
-      var t = new Tracker(functionName, '', version, mutSnowplowState, {});
-      t.setCollectorUrl(rawUrl);
-      return t;
-    },
-
-    /**
-     * Get internal asynchronous tracker object
-     *
-     * @return Tracker
-     */
-    getAsyncTracker: function () {
-      return new Tracker(functionName, '', version, mutSnowplowState, {});
-    },
-  };
 
   /************************************************************
    * Constructor
