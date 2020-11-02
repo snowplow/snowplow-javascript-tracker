@@ -74,30 +74,6 @@ export function InQueueManager(TrackerConstructor, version, mutSnowplowState, as
   }
 
   /**
-   * Legacy support for input of the form _snaq.push(['setCollectorCf', 'd34uzc5hjrimh8'])
-   *
-   * @param string f Either 'setCollectorCf' or 'setCollectorUrl'
-   * @param string endpoint
-   * @param string namespace Optional tracker name
-   *
-   * TODO: remove this in 2.1.0
-   */
-  function legacyCreateNewNamespace(f, endpoint, namespace) {
-    warn(f + ' is deprecated. Set the collector when a new tracker instance using newTracker.');
-
-    var name;
-
-    if (isUndefined(namespace)) {
-      name = 'sp';
-    } else {
-      name = namespace;
-    }
-
-    createNewNamespace(name);
-    trackerDictionary[name][f](endpoint);
-  }
-
-  /**
    * Initiate a new tracker namespace
    *
    * @param string namespace
@@ -162,11 +138,6 @@ export function InQueueManager(TrackerConstructor, version, mutSnowplowState, as
 
       if (f === 'newTracker') {
         createNewNamespace(parameterArray[0], parameterArray[1], parameterArray[2]);
-        continue;
-      }
-
-      if ((f === 'setCollectorCf' || f === 'setCollectorUrl') && (!names || names.length === 0)) {
-        legacyCreateNewNamespace(f, parameterArray[0], parameterArray[1]);
         continue;
       }
 
