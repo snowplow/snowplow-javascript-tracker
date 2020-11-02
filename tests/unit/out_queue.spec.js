@@ -44,7 +44,7 @@ describe('OutQueueManager', () => {
     localStorage.clear();
 
     outQueue = new OutQueueManager(
-      'sp', 'cf', {outQueues: []}, true, 'post', 
+      'sp', 'sp', {outQueues: []}, true, 'post', 
       '/com.snowplowanalytics.snowplow/tp2', 1, 40000, false,
       maxQueueSize
     );
@@ -54,7 +54,7 @@ describe('OutQueueManager', () => {
     const expected = { e: "pv", eid: "20269f92-f07c-44a6-87ef-43e171305076" };
     outQueue.enqueueRequest(expected, '');
 
-    const retrievedQueue = JSON.parse(window.localStorage.getItem('snowplowOutQueue_sp_cf_post2'));
+    const retrievedQueue = JSON.parse(window.localStorage.getItem('snowplowOutQueue_sp_sp_post2'));
     expect(retrievedQueue).toHaveLength(1);
     expect(retrievedQueue[0]).toMatchObject({ bytes: 55, evt: expected });
   })
@@ -68,7 +68,7 @@ describe('OutQueueManager', () => {
     outQueue.enqueueRequest(expected2, '');
     outQueue.enqueueRequest(unexpected, '');
 
-    const retrievedQueue = JSON.parse(window.localStorage.getItem('snowplowOutQueue_sp_cf_post2'));
+    const retrievedQueue = JSON.parse(window.localStorage.getItem('snowplowOutQueue_sp_sp_post2'));
     expect(retrievedQueue).toHaveLength(maxQueueSize);
     expect(retrievedQueue[0]).toMatchObject({ bytes: 55, evt: expected1 });
     expect(retrievedQueue[1]).toMatchObject({ bytes: 55, evt: expected2 });
