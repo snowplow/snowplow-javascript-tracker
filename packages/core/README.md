@@ -78,7 +78,7 @@ Licensed under the [Simplified BSD][bsd] license.
 [techdocs-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/techdocs.png
 [setup-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/setup.png
 [contributing-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/contributing.png
-[release-image]: https://img.shields.io/badge/release-2.16.2-blue.svg?style=flat
+[release-image]: https://img.shields.io/github/v/release/snowplow/snowplow-javascript-tracker?sort=semver
 [releases]: https://github.com/snowplow/snowplow-javascript-tracker/releases
 [gh-actions]: https://github.com/snowplow/snowplow-javascript-tracker/actions
 [gh-actions-image]: https://github.com/snowplow/snowplow-javascript-tracker/workflows/Build/badge.svg
