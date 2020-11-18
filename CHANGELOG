@@ -1,6 +1,10 @@
+Version 2.16.3 (2020-11-18)
+---------------------------
+Fix submit_form event not emitting when submitting a form (#856)
+
 Version 2.16.2 (2020-10-19)
 ---------------------------
-Fix Missing Enhanced Ecommerce Contexts (close #851)
+Fix Missing Enhanced Ecommerce Contexts (#851)
 
 Version 2.16.1 (2020-10-05)
 ---------------------------
@@ -17,20 +21,20 @@ Switch to rollup and gulp (#752)
 
 Version 2.15.0 (2020-08-17)
 ---------------------------
-Add anonymized tracking options (closes #793)
+Add anonymized tracking options (#793)
 Add support for callback after trackEvent (#30)
-Add User Agent Client Hints Context (closes #816)
+Add User Agent Client Hints Context (#816)
 Return full element in transform function within form tracking (#825)
 Fix silent failure if OptimizelyX is enabled but optimizely.get doesn't exist (#798)
 Make browser feature fields optional (#850)
 Metric GET failure should not block queue executing (#769)
-Canceled request with slow3g (closes #642)
+Canceled request with slow3g (#642)
 Change initial page ping to fire at minimum visit length when less than heart beat delay (#803)
 Switch page ping code to use arrays of events (#46)
 Update SauceLabs to group tests into builds (#828)
-Add Snowplow Maintenance Badge (closes #820)
-Add CONTRIBUTING.md (closes #819)
-Add Snyk configuration (closes #822)
+Add Snowplow Maintenance Badge (#820)
+Add CONTRIBUTING.md (#819)
+Add Snyk configuration (#822)
 Update README to direct to new docs website (#827)
 Update Copyright notices to 2020 (#826)
 
