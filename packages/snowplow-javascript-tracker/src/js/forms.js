@@ -97,7 +97,7 @@ export function FormTrackingManager(core, trackerId, contextAdder) {
   function getInnerFormElements(elt) {
     var innerElements = [];
     forEach(innerElementTags, function (tagname) {
-      var trackedChildren = elt.getElementsByTagName(tagname).filter(function (child) {
+      var trackedChildren = Array.prototype.filter.call(elt.getElementsByTagName(tagname), function (child) {
         return child.hasOwnProperty(trackingMarker);
       });
 
