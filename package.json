@@ -1,6 +1,6 @@
 {
   "name": "snowplow-tracker",
-  "version": "2.16.2",
+  "version": "2.16.3",
   "scripts": {
     "build": "gulp build",
     "build:all": "(cd core && npm run build) && npm run build",
