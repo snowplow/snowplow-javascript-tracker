@@ -129,7 +129,7 @@ export function Snowplow(asynchronousQueue, functionName) {
       do {
         now = new Date();
         if (
-          mutSnowplowState.outQueues.filter(function (queue) {
+          Array.prototype.filter.call(mutSnowplowState.outQueues, function (queue) {
             return queue.length > 0;
           }).length === 0
         ) {
