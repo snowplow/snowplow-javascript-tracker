@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker for Snowplow: tests/functional/integration.spec.js
+ * JavaScript tracker for Snowplow: tests/integration/sessionStorage.spec.js
  *
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright
  * 2012-2020 Snowplow Analytics Ltd. All rights reserved.
@@ -37,7 +37,7 @@ import { fetchResults, start, stop } from '../micro'
 
 const dumpLog = log => console.log(util.inspect(log, true, null, true))
 
-describe('Test that request_recorder logs meet expectations', () => {
+describe('Sessions', () => {
   let log = []
   let docker
 
@@ -53,7 +53,7 @@ describe('Test that request_recorder logs meet expectations', () => {
     browser.url('/index.html')
     browser.setCookies({ name: 'container', value: docker.url })
     browser.url('/session-integration.html')
-    browser.pause(10000) // Time for requests to get written
+    browser.pause(5000) // Time for requests to get written
     browser.call(() =>
       fetchResults(docker.url).then(result => {
         log = result
