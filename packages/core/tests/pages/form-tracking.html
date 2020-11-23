@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Page for Form Tracking testing with Snowplow Micro</title>
+
+  <script>
+    function parseQuery() {
+        var query = {};
+        var pairs = window.location.search.substring(1).split('&');
+        for (var i = 0; i < pairs.length; i++) {
+            var pair = pairs[i].split('=');
+            query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
+        }
+        return query;
+    }
+  </script>
+</head>
+<body>
+<p id="title">Page for Form Tracking testing with Snowplow Micro</p>
+<div id="init"></div>
+
+<form id="myForm" class="formy-mcformface" action="/form-tracking.html">
+  <fieldset>
+    <legend>Personal Info:</legend>
+    <label for="fname">First name:</label><br>
+    <input type="text" id="fname" name="fname" value="John" class='test'><br>
+    <label for="lname">Last name:</label><br>
+    <input type="text" id="lname" name="lname" value="Doe"><br><br>
+    <input type="radio" id="bike" name="vehicle" value="Bike">
+    <label for="bike"> I have a bike</label><br>
+  </fieldset>
+  <label for="cars">Choose a car:</label>
+  <select id="cars" name="cars">
+    <option id="volvo" value="volvo">Volvo</option>
+    <option id="saab" value="saab">Saab</option>
+  </select><br>
+  <label for="message">Enter a message:</label><br>
+  <textarea id="message" name="message" rows="10" cols="30">This is a message</textarea><br>
+  <input type="checkbox" id="terms" name="terms" value="agree">
+  <label for="terms"> Agree to terms</label><br>
+  <input type="submit" value="Submit" id="submit">
+</form>
+
+<form id="excludedForm" class="excluded-form" action="/form-tracking.html">
+  <label for="excluded-fname">First name:</label><br>
+  <input type="text" id="excluded-fname" name="excluded-fname" value="John" class='test'><br>
+  <input type="submit" value="Submit" id="excluded-submit">
+</form>
+
+<script>
+  var collector_endpoint = document.cookie.split('container=')[1].split(';')[0]
+  document.body.className += ' loaded';
+</script>
+
+<script>
+
+  ;(function(p,l,o,w,i,n,g){if(!p[i]){p.GlobalSnowplowNamespace=p.GlobalSnowplowNamespace||[];
+    p.GlobalSnowplowNamespace.push(i);p[i]=function(){(p[i].q=p[i].q||[]).push(arguments)
+    };p[i].q=p[i].q||[];n=l.createElement(o);g=l.getElementsByTagName(o)[0];n.async=1;
+    n.src=w;g.parentNode.insertBefore(n,g)}}(window,document,"script","./snowplow.js","snowplow"));
+
+  document.write(collector_endpoint)
+
+  snowplow('newTracker', 'sp', collector_endpoint, {
+    appId: 'autotracking',
+  });
+  snowplow(function() {
+    document.getElementById('init').innerText = 'true';
+  });
+
+  function formFilter (formElement) {
+    return formElement.id !== 'lname';
+  }
+
+  switch (parseQuery().filter) {
+    case 'exclude': 
+      snowplow('enableFormTracking', {fields: {'blacklist': ['fname']}});
+      break;
+    case 'include':
+      snowplow('enableFormTracking', {fields: {'whitelist': ['lname']}});
+      break;
+    case 'filter':
+      snowplow('enableFormTracking', {forms: { 'whitelist': ['formy-mcformface'] }, fields: {'filter': formFilter}});
+      break;
+    case 'excludedForm':
+      snowplow('enableFormTracking', {forms: { 'blacklist': ['excluded-form'] }});
+      break;
+    default:
+      snowplow('enableFormTracking', null, [{
+        schema: "iglu:org.schema/WebPage/jsonschema/1-0-0",
+        data: {
+          keywords: ['tester']
+        }
+      }]);
+      break;
+  }
+
+  snowplow('trackPageView');
+
+</script>
+
+</body>
+</html>

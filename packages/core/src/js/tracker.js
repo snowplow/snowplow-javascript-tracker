@@ -3081,16 +3081,11 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    */
   apiMethods.disableAnonymousTracking = function (stateStorageStrategy) {
     if (stateStorageStrategy) {
-      Object.assign(argmap, {
-        stateStorageStrategy: stateStorageStrategy,
-        anonymousTracking: false,
-      });
-
+      argmap.stateStorageStrategy = stateStorageStrategy;
+      argmap.anonymousTracking = false;
       configStateStorageStrategy = getStateStorageStrategy(argmap);
     } else {
-      Object.assign(argmap, {
-        anonymousTracking: false,
-      });
+      argmap.anonymousTracking = false;
     }
 
     configAnonymousTracking = getAnonymousTracking(argmap);
@@ -3109,9 +3104,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    * Enables anonymous tracking (ie. tracker initialized without `anonymousTracking`)
    */
   apiMethods.enableAnonymousTracking = function (anonymousArgs) {
-    Object.assign(argmap, {
-      anonymousTracking: anonymousArgs || true,
-    });
+    argmap.anonymousTracking = anonymousArgs || true;
 
     configAnonymousTracking = getAnonymousTracking(argmap);
     configAnonymousSessionTracking = getAnonymousSessionTracking(argmap);
