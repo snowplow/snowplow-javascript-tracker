@@ -4,12 +4,10 @@
 		<title>Cookieless test page</title>
 	</head>
 	<body>
-		<p id="title">Page for sending requests to request_recorder</p>
+		<p id="title">Page for testing anonymous tracking with Snowplow Micro</p>
 
 		<script>
-			var collector_endpoint = document.cookie
-				.split('container=')[1]
-				.split(';')[0]
+			var collector_endpoint = document.cookie.split('container=')[1].split(';')[0]
 			document.body.className += ' loaded'
 		</script>
 

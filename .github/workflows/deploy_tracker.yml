@@ -50,23 +50,6 @@ jobs:
       - name: Test tracker
         run: npm run test:unit
 
-      - name: Block Concurrent Executions of E2E Tests
-        if: ${{ env.SAUCE_ACCESS_KEY != '' }}
-        uses: softprops/turnstyle@v1
-        with:
-          poll-interval-seconds: 10
-          same-branch-only: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  
-      - name: Add Host for Saucelabs Tunnel
-        if: ${{ env.SAUCE_ACCESS_KEY != '' }}
-        run: echo "127.0.0.1 snowplow-js-tracker.local" | sudo tee -a /etc/hosts
-  
-      - name: Run End to End Tests
-        run: npm run test:e2e:sauce
-        if: ${{ env.SAUCE_ACCESS_KEY != '' }}
-
       - name: Get tag and tracker version information
         id: version
         run: |

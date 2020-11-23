@@ -53,7 +53,7 @@ exports.config = {
     {
       browserName: 'MicrosoftEdge',
       platformName: 'Windows 10',
-      browserVersion: '13',
+      browserVersion: '13.10586',
       'sauce:options': {
         'build': buildName,
       },
