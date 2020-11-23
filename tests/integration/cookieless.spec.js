@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker for Snowplow: tests/functional/integration.spec.js
+ * JavaScript tracker for Snowplow: tests/integration/cookieless.spec.js
  *
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright
  * 2012-2020 Snowplow Analytics Ltd. All rights reserved.
@@ -44,7 +44,7 @@ const retrieveSchemaData = schema =>
 		F.get('data')
 	)
 
-describe('Test that request_recorder logs meet expectations', () => {
+describe('Anonymous tracking features', () => {
 	let log = []
 	let docker
 
@@ -74,7 +74,7 @@ describe('Test that request_recorder logs meet expectations', () => {
 		})
 	  })
 
-	it('Check existence of page view without sensitive fields', () => {
+	it('should have no sensitive information in page view', () => {
 		expect(
 			logContains({
 				event: {

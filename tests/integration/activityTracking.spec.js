@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker for Snowplow: tests/functional/integration.spec.js
+ * JavaScript tracker for Snowplow: tests/integration/activityTracking.spec.js
  *
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright
  * 2012-2020 Snowplow Analytics Ltd. All rights reserved.
@@ -58,7 +58,7 @@ describe('Activity tracking should send page pings', () => {
     browser.waitUntil(
       () => $('#init').getText() === 'true',
       5000,
-      'expected init after 10s'
+      'expected init after 5s'
     )
   })
 
