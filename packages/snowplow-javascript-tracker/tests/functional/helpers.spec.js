@@ -31,9 +31,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-import F from 'lodash/fp'
 
-describe('Helpers test', () => {
+describe('Helpers', () => {
   it('Gets page title', () => {
     browser.url('/helpers.html')
     $('body.loaded').waitForExist()
@@ -55,7 +54,7 @@ describe('Helpers test', () => {
     expect(value).toBe('previous')
   })
 
-  it('Can add an even listener', () => {
+  it('Can add an event listener', () => {
     browser.url('/helpers.html')
     $('body.loaded').waitForExist()
     $('#click').click()

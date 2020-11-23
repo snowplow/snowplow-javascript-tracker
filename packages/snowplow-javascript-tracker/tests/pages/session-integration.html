@@ -4,7 +4,7 @@
   <title>Session integration test page</title>
 </head>
 <body>
-<p id="title">Page for sending requests to request_recorder</p>
+<p id="title">Page for testing client side sessions with Snowplow Micro</p>
 
 <script>
   var collector_endpoint = document.cookie.split('container=')[1].split(';')[0]
@@ -27,7 +27,7 @@
 
   setTimeout(function() {
     window.snowplow('trackPageView:cookieSessionTracker');
-  }, 5000)
+  }, 2000)
 
   window.snowplow('newTracker', 'localStorageSessionTracker', collector_endpoint, {
     sessionCookieTimeout: 1,
@@ -38,7 +38,7 @@
 
   setTimeout(function() {
     window.snowplow('trackPageView:localStorageSessionTracker');
-  }, 5000)
+  }, 2000)
 
   window.snowplow('newTracker', 'anonymousSessionTracker', collector_endpoint, {
     sessionCookieTimeout: 1,
@@ -50,7 +50,7 @@
 
   setTimeout(function() {
     window.snowplow('trackPageView:anonymousSessionTracker');
-  }, 5000)
+  }, 2000)
 
 </script>
 
