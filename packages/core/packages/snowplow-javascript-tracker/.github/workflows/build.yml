@@ -3,7 +3,7 @@ name: Build
 on: 
   push:
     branches:
-      - '**' # Prevents builds on tag
+      - 'master'
   pull_request:
     
 jobs:
@@ -55,7 +55,7 @@ jobs:
       if: ${{ env.SAUCE_ACCESS_KEY != '' }}
       uses: softprops/turnstyle@v1
       with:
-        poll-interval-seconds: 10
+        poll-interval-seconds: 20
         same-branch-only: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
