@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Page for Link Click testing with Snowplow Micro</title>
+
+  <script>
+    function parseQuery() {
+        var query = {};
+        var pairs = window.location.search.substring(1).split('&');
+        for (var i = 0; i < pairs.length; i++) {
+            var pair = pairs[i].split('=');
+            query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
+        }
+        return query;
+    }
+  </script>
+</head>
+<body>
+<p id="title">Page for Link Click testing with Snowplow Micro</p>
+<div id="init"></div>
+
+<a id="link-to-click" href="#click" class="example" target="_self">Click here</a><br>
+<a id="link-to-not-track" href="#exclude" class="exclude" target="_self">Click here and don't track</a><br>
+<a id="link-to-filter" href="#filter" class="filtered" target="_self">Click here and be filtered</a><br>
+
+<script>
+  var collector_endpoint = document.cookie.split('container=')[1].split(';')[0]
+  document.body.className += ' loaded';
+</script>
+
+<script>
+
+  ;(function(p,l,o,w,i,n,g){if(!p[i]){p.GlobalSnowplowNamespace=p.GlobalSnowplowNamespace||[];
+    p.GlobalSnowplowNamespace.push(i);p[i]=function(){(p[i].q=p[i].q||[]).push(arguments)
+    };p[i].q=p[i].q||[];n=l.createElement(o);g=l.getElementsByTagName(o)[0];n.async=1;
+    n.src=w;g.parentNode.insertBefore(n,g)}}(window,document,"script","./snowplow.js","snowplow"));
+
+  document.write(collector_endpoint)
+
+  snowplow('newTracker', 'sp', collector_endpoint, {
+    appId: 'autotracking',
+  });
+  snowplow(function() {
+    document.getElementById('init').innerText = 'true';
+  });
+
+  function linkFilter (linkElement) {
+    return linkElement.id !== 'link-to-filter';
+  }
+
+  switch (parseQuery().filter) {
+    case 'exclude': 
+      snowplow('enableLinkClickTracking', {'blacklist': ['exclude']}, true, true);
+      break;
+    case 'include':
+      snowplow('enableLinkClickTracking', {'whitelist': ['example']}, true, true);
+      break;
+    case 'filter':
+      snowplow('enableLinkClickTracking', {'filter': linkFilter}, true, true);
+      break;
+    default:
+      snowplow('enableLinkClickTracking', null, false, false, [{
+        schema: "iglu:org.schema/WebPage/jsonschema/1-0-0",
+        data: {
+          keywords: ['tester']
+        }
+      }]);
+      break;
+  }
+
+  snowplow('trackPageView');
+
+</script>
+
+</body>
+</html>

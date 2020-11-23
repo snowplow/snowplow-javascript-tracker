@@ -4,14 +4,24 @@
 		<title>Cookieless test page</title>
 	</head>
 	<body>
-		<p id="title">Page for sending requests to request_recorder</p>
+		<p id="title">Page for testing anonymous tracking with Snowplow Micro</p>
 
 		<script>
-			var collector_endpoint = document.cookie
-				.split('container=')[1]
-				.split(';')[0]
+			var collector_endpoint = document.cookie.split('container=')[1].split(';')[0]
 			document.body.className += ' loaded'
 		</script>
+
+		<script>
+			function parseQuery() {
+				var query = {};
+				var pairs = window.location.search.substring(1).split('&');
+				for (var i = 0; i < pairs.length; i++) {
+					var pair = pairs[i].split('=');
+					query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
+				}
+				return query;
+			}  
+		  </script>
 
 		<script>
 
@@ -22,24 +32,30 @@
 
 			document.write(collector_endpoint)
 
-			window.snowplow('newTracker', 'cf', collector_endpoint, {
-				appId: 'CFe23a',
-				platform: 'mob',
-				eventMethod: 'get',
+			var ieTest = parseQuery().ieTest;
+
+			window.snowplow('newTracker', 'sp', collector_endpoint, {
+				appId: ieTest ? 'ie' : 'anon',
+				eventMethod: 'post',
 				contexts: {
 					webPage: true
 				},
-			 	anonymousTracking: true
+			 	anonymousTracking: { withServerAnonymisation: true }
 			});
 
 			window.snowplow('setUserId', 'Malcolm')
-			window.snowplow('trackPageView')
-			window.snowplow('trackPageView')
-			window.snowplow('disableAnonymousTracking', 'localStorage')
-			window.snowplow('setUserId', 'Malcolm')
-			window.snowplow('trackPageView')
-			window.snowplow('trackPageView')
+			window.snowplow('trackPageView', 'Server Anon')
+			window.snowplow('trackPageView', 'Server Anon') // Should have different network_userid
 
+			if (!ieTest) {
+				setTimeout(function() {
+					window.snowplow('disableAnonymousTracking', 'cookieAndLocalStorage')
+					window.snowplow('setUserId', 'Malcolm')
+					window.snowplow('trackPageView', 'No Anon')
+					window.snowplow('enableAnonymousTracking', {})
+					window.snowplow('trackPageView', 'Client Anon')
+				}, 2000)
+			}
 		</script>
 	</body>
 </html>

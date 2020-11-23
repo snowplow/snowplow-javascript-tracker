@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Cookies test page</title>
+  </head>
+  <body style="width: 2000px; height: 2000px; position: relative;">
+    <div id="init"></div>
+    <div id="cookies"></div>
+    <div id="getDomainUserId"></div>
+    <div id="getDomainUserInfo"></div>
+    <div id="getUserId"></div>
+    <div id="getCookieName"></div>
+    <div id="getPageViewId"></div>
+    <script>
+      ;(function(p,l,o,w,i,n,g){if(!p[i]){p.GlobalSnowplowNamespace=p.GlobalSnowplowNamespace||[];
+        p.GlobalSnowplowNamespace.push(i);p[i]=function(){(p[i].q=p[i].q||[]).push(arguments)
+        };p[i].q=p[i].q||[];n=l.createElement(o);g=l.getElementsByTagName(o)[0];n.async=1;
+        n.src=w;g.parentNode.insertBefore(n,g)}}(window,document,"script","./snowplow.js","snowplow"));
+
+      snowplow('newTracker', 'sp0', 'snowplow-js-tracker.local:9090',
+      {
+        cookieName: "_sp_0",
+      });
+  
+      snowplow('newTracker', 'sp1', 'snowplow-js-tracker.local:9090',
+      {
+        cookieName: "_sp_1",
+        cookieSameSite: "Lax",
+        cookieSecure: false,
+      });
+
+      snowplow('setUserId:sp1', 'Dave');
+
+      snowplow('newTracker', 'sp2', 'snowplow-js-tracker.local:9090',
+      {
+        cookieName: "_sp_2",
+        cookieSameSite: "Strict",
+        cookieSecure: false,
+        cookieLifetime: 604800,
+      });
+
+      snowplow('newTracker', 'sp3', 'snowplow-js-tracker.local:9090',
+      {
+        cookieName: "_sp_3",
+        cookieSameSite: "Lax",
+        cookieSecure: false,
+        sessionCookieTimeout: 1,
+        cookieLifetime: 1,
+      });
+
+      snowplow('newTracker', 'sp4', 'snowplow-js-tracker.local:9090',
+      {
+        cookieName: "_sp_4",
+        cookieSameSite: "Lax",
+        cookieSecure: false,
+        anonymousTracking: true
+      });
+
+      snowplow('newTracker', 'sp5', 'snowplow-js-tracker.local:9090',
+      {
+        cookieName: "_sp_5",
+        cookieSameSite: "Lax",
+        cookieSecure: false,
+        stateStorageStrategy: 'localStorage'
+      });
+
+      snowplow('newTracker', 'sp6', 'snowplow-js-tracker.local:9090',
+      {
+        cookieName: "_sp_6",
+        cookieSameSite: "Lax",
+        cookieSecure: false,
+        stateStorageStrategy: 'cookie'
+      });
+
+      snowplow('newTracker', 'sp7', 'snowplow-js-tracker.local:9090',
+      {
+        cookieName: "_sp_7",
+        cookieSameSite: "Lax",
+        cookieSecure: false,
+        cookieDomain: '.google.com'
+      });
+
+      snowplow(function() {
+        document.getElementById('init').innerText = 'true';
+        document.getElementById('getDomainUserId').innerText = this.sp1.getDomainUserId();
+        document.getElementById('getDomainUserInfo').innerText = this.sp1.getDomainUserInfo();
+        document.getElementById('getUserId').innerText = this.sp1.getUserId();
+        document.getElementById('getCookieName').innerText = this.sp1.getCookieName('id');
+        document.getElementById('getPageViewId').innerText = this.sp1.getPageViewId();
+      });
+
+      setTimeout(function() {
+        document.getElementById('cookies').innerText = document.cookie;
+      }, 2000);  // Wait 1.5 seconds so sp3 cookies expires
+    </script>
+</html>

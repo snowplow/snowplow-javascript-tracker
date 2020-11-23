@@ -34,7 +34,7 @@
 import F from 'lodash/fp'
 import moment from 'moment-timezone'
 
-describe('Detectors test', () => {
+describe('Detectors', () => {
   beforeAll(() => {
     browser.url('/detectors.html')
     $('body.loaded').waitForExist()
@@ -55,8 +55,7 @@ describe('Detectors test', () => {
   })
 
   it('Check localStorage availability', () => {
-    const supportsLocalStorage = !F.isMatch( { version: '12603.3.8', browserName: 'safari' }, browser.capabilities)
-    expect($('#localStorageAccessible').getText()).toBe(String(supportsLocalStorage))
+    expect($('#localStorageAccessible').getText()).toBe('true')
   })
 
   it('Check sessionStorage availability', () => {
