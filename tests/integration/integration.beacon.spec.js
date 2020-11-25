@@ -34,6 +34,7 @@
 import util from 'util'
 import F from 'lodash/fp'
 import { fetchResults, start, stop } from '../micro'
+import { version } from '../../package.json'
 
 const dumpLog = log => console.log(util.inspect(log, true, null, true))
 
@@ -92,7 +93,22 @@ describe('Test that request_recorder logs meet expectations', () => {
     })
   })
 
-  it('Check existence of page view', () => {
+  it('contains correct tracker version', () => {
+    expect(
+      logContains({
+        rawEvent: {
+          parameters: {
+            tv: `js-${version}`
+          }
+        },
+        event: {
+          v_tracker: `js-${version}`
+        },
+      })
+    ).toBe(true)
+  })
+  
+  it('contains page view', () => {
     expect(
       logContains({
         event: {
