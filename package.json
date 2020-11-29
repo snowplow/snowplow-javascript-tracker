@@ -35,7 +35,7 @@
     "@wdio/spec-reporter": "^5.14.5",
     "@wdio/static-server-service": "^5.14.4",
     "@wdio/sync": "^5.14.4",
-    "chromedriver": "^85.0.1",
+    "chromedriver": "^87.0.0",
     "dockerode": "^3.2.1",
     "gulp": "^4.0.2",
     "jest": "^26.4.2",
