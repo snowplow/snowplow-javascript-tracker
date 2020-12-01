@@ -37,14 +37,20 @@ describe('Tracker created domain cookies', () => {
     browser.url('/cookies.html')
     browser.waitUntil(
       () => $('#init').getText() === 'true',
-      5000,
-      'expected init after 5s'
+      {
+        timeout: 5000,
+        timeoutMsg: 'expected init after 5s',
+        interval: 250
+      }
     )
 
     browser.waitUntil(
       () => $('#cookies').getText() !== '',
-      5000,
-      'expected cookie to be set after 5s'
+      {
+        timeout: 5000,
+        timeoutMsg: 'expected cookie to be set after 5s',
+        interval: 250
+      }
     )
 
     const cookies = $('#cookies').getText();
