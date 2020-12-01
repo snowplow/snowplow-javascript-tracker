@@ -118,7 +118,16 @@ exports.config = {
       build: buildName,
     },
   ],
-  services: ['static-server', 'sauce'],
-  sauceConnect: true,
-  sauceConnectOpts: {},
+  services: [
+    ['sauce', {
+      sauceConnect: true,
+      sauceConnectOpts: {}
+    }], 
+    ['static-server', {
+      folders: [
+        { mount: '/', path: './tests/pages' }
+      ],
+      port: 8080
+    }]
+  ]
 }
