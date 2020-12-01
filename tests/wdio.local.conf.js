@@ -14,7 +14,14 @@ exports.config = {
   ],
   specFileRetries: 0,
   logLevel: 'debug',
-  specFileRetries: 0,
   bail: 1,
-  services: ['chromedriver', 'static-server'],
+  services: [
+    ['chromedriver', {}],
+    ['static-server', {
+      folders: [
+        { mount: '/', path: './tests/pages' }
+      ],
+      port: 8080
+    }]
+  ],
 }
