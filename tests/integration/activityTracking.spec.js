@@ -57,8 +57,11 @@ describe('Activity tracking should send page pings', () => {
     browser.url('/activity-tracking.html')
     browser.waitUntil(
       () => $('#init').getText() === 'true',
-      5000,
-      'expected init after 5s'
+      {
+        timeout: 5000,
+        timeoutMsg: 'expected init after 5s',
+        interval: 250
+      }
     )
   })
 

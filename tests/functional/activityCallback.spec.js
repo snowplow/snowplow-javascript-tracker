@@ -38,16 +38,21 @@ describe('Activity tracking with callbacks', () => {
     browser.url('/activity-callback.html?test1')
     browser.waitUntil(
       () => $('#init').getText() === 'true',
-      5000,
-      'expected init after 5s'
+      {
+            timeout: 5000,
+            timeoutMsg: 'expected init after 5s',
+            interval: 250
+      }
     )
 
     $('#bottomRight').scrollIntoView()
 
     browser.waitUntil(
       () => +$('#numEvents').getText() >= 1,
-      10000,
-      'expected >= 1 event after 10s'
+      {
+        timeout: 10000,
+        timeoutMsg: 'expected > 1 event after 10s'
+      }
     )
     const [maxX, maxY] = browser.execute(() => {
       return [findMaxX(), findMaxY()]
@@ -61,8 +66,11 @@ describe('Activity tracking with callbacks', () => {
     browser.url('/activity-callback.html?test2')
     browser.waitUntil(
       () => $('#init').getText() === 'true',
-      5000,
-      'expected init after 5s'
+      {
+        timeout: 5000,
+        timeoutMsg: 'expected init after 5s',
+        interval: 250
+      }
     )
 
     browser.execute(() => window.scrollTo(0,0))
@@ -79,8 +87,10 @@ describe('Activity tracking with callbacks', () => {
     $('#middle').scrollIntoView()
     browser.waitUntil(
       () => +$('#numEvents').getText() >= 1,
-      10000,
-      'expected >= 1 event after 10s'
+      {
+        timeout: 10000,
+        timeoutMsg: 'expected > 1 event after 10s'
+      }
     )
 
     browser.execute(() => {
@@ -90,8 +100,10 @@ describe('Activity tracking with callbacks', () => {
 
     browser.waitUntil(
       () => +$('#numEvents').getText() > 1,
-      10000,
-      'expected > 1 event after 10s'
+      {
+        timeout: 10000,
+        timeoutMsg: 'expected > 1 event after 10s'
+      }
     )
 
     const secondPageViewId = browser.execute(() => {
