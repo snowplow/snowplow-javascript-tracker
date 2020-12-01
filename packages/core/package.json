@@ -46,7 +46,7 @@
     "rollup-plugin-cleanup": "^3.1.1",
     "rollup-plugin-filesize": "^9.0.2",
     "rollup-plugin-sizes": "^1.0.3",
-    "saucelabs": "^3.0.0",
+    "saucelabs": "^4.6.0",
     "wdio-chromedriver-service": "^5.0.2"
   },
   "contributors": [
