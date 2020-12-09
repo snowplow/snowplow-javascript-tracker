@@ -54,6 +54,13 @@ const loadUrlAndWait = (url) => {
       timeoutMsg: 'expected init after 5s'
     }
   )
+  browser.waitUntil(
+    () => $('#secondInit').getText() === 'true',
+    {
+      timeout: 5000,
+      timeoutMsg: 'expected init after 5s'
+    }
+  )
 }
 
 const isMatchWithCallback = F.isMatchWith((lt, rt) =>

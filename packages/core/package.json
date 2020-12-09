@@ -1,12 +1,20 @@
 {
-  "name": "snowplow-tracker",
-  "version": "2.17.0",
+  "name": "@snowplow/browser-tracker",
+  "version": "3.0.0",
+  "main": "dist/sp.cjs.js",
+  "module": "dist/sp.esm.js",
+  "jsnext:main": "dist/sp.esm.js",
+  "unpkg": "dist/sp.js",
+  "jsdelivr": "dist/sp.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "gulp build",
+    "build": "gulp",
     "build:all": "(cd core && npm run build) && npm run build",
     "test:unit": "jest tests/unit/*.spec.js",
-    "test:e2e:sauce": "gulp testEndToEnd && wdio tests/wdio.sauce.conf.js",
-    "test:e2e:local": "gulp testEndToEnd && wdio tests/wdio.local.conf.js"
+    "test:e2e:sauce": "gulp buildForIntegrationTest && wdio tests/wdio.sauce.conf.js",
+    "test:e2e:local": "gulp buildForIntegrationTest && wdio tests/wdio.local.conf.js"
   },
   "dependencies": {
     "jstimezonedetect": "1.0.5",
