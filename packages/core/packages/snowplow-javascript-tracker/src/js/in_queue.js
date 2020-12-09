@@ -33,8 +33,8 @@
  */
 
 import map from 'lodash/map';
-import isUndefined from 'lodash/isUndefined';
 import { warn, isFunction } from './lib/helpers';
+import { newTracker, getTracker, allTrackers } from './snowplow'
 
 /************************************************************
  * Proxy object
@@ -42,10 +42,7 @@ import { warn, isFunction } from './lib/helpers';
  *   after the Tracker has been initialized and loaded
  ************************************************************/
 
-export function InQueueManager(TrackerConstructor, version, mutSnowplowState, asyncQueue, functionName) {
-  // Page view ID should be shared between all tracker instances
-  var trackerDictionary = {};
-
+export function InQueueManager(functionName, asyncQueue) {
   /**
    * Get an array of trackers to which a function should be applied.
    *
@@ -55,14 +52,10 @@ export function InQueueManager(TrackerConstructor, version, mutSnowplowState, as
     var namedTrackers = [];
 
     if (!names || names.length === 0) {
-      namedTrackers = map(trackerDictionary);
+      namedTrackers = map(allTrackers(functionName));
     } else {
       for (var i = 0; i < names.length; i++) {
-        if (trackerDictionary.hasOwnProperty(names[i])) {
-          namedTrackers.push(trackerDictionary[names[i]]);
-        } else {
-          warn('Warning: Tracker namespace "' + names[i] + '" not configured');
-        }
+        namedTrackers.push(getTracker(names[i], functionName));
       }
     }
 
@@ -71,23 +64,6 @@ export function InQueueManager(TrackerConstructor, version, mutSnowplowState, as
     }
 
     return namedTrackers;
-  }
-
-  /**
-   * Initiate a new tracker namespace
-   *
-   * @param string namespace
-   * @param string endpoint Of the form d3rkrsqld9gmqf.cloudfront.net
-   */
-  function createNewNamespace(namespace, endpoint, argmap) {
-    argmap = argmap || {};
-
-    if (!trackerDictionary.hasOwnProperty(namespace)) {
-      trackerDictionary[namespace] = new TrackerConstructor(functionName, namespace, version, mutSnowplowState, argmap);
-      trackerDictionary[namespace].setCollectorUrl(endpoint);
-    } else {
-      warn('Tracker namespace ' + namespace + ' already exists.');
-    }
   }
 
   /**
@@ -124,7 +100,7 @@ export function InQueueManager(TrackerConstructor, version, mutSnowplowState, as
       // Custom callback rather than tracker method, called with trackerDictionary as the context
       if (isFunction(input)) {
         try {
-          input.apply(trackerDictionary, parameterArray);
+          input.apply(allTrackers(functionName), parameterArray);
         } catch (e) {
           warn(`Custom callback error - ${e}`);
         } finally {
@@ -137,7 +113,7 @@ export function InQueueManager(TrackerConstructor, version, mutSnowplowState, as
       names = parsedString[1];
 
       if (f === 'newTracker') {
-        createNewNamespace(parameterArray[0], parameterArray[1], parameterArray[2]);
+        newTracker(parameterArray[0], parameterArray[1], parameterArray[2], functionName);
         continue;
       }
 

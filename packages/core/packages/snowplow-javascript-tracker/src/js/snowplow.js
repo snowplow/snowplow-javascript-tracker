@@ -1,5 +1,5 @@
 /*
- * JavaScript tracker for Snowplow: snowplow.js
+ * JavaScript tracker for Snowplow: init.js
  *
  * Significant portions copyright 2010 Anthon Pang. Remainder copyright
  * 2012-2020 Snowplow Analytics Ltd. All rights reserved.
@@ -32,145 +32,59 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import forEach from 'lodash/forEach';
-import { addEventListener } from './lib/helpers';
-import { InQueueManager } from './in_queue';
+// Snowplow Asynchronous Queue
+
+/*
+ * Get the name of the global input function
+ */
+
 import { Tracker } from './tracker';
-import { version as jsVersion } from '../../package.json'
+import { SharedState } from './shared_state';
+import { version } from './version';
+import { warn } from './lib/helpers';
 
-export function Snowplow(asynchronousQueue, functionName) {
-  var documentAlias = document,
-    windowAlias = window,
-    /* Tracker identifier with version */
-    version = 'js-' + jsVersion,
-    /* Contains four variables that are shared with tracker.js and must be passed by reference */
-    mutSnowplowState = {
-      /* List of request queues - one per Tracker instance */
-      outQueues: [],
-      bufferFlushers: [],
+const groups = {};
 
-      /* Time at which to stop blocking excecution */
-      expireDateTime: null,
-
-      /* DOM Ready */
-      hasLoaded: false,
-      registeredOnLoadHandlers: [],
-
-      /* pageViewId, which can changed by other trackers on page;
-       * initialized by tracker sent first event */
-      pageViewId: null,
-    };
-
-  /************************************************************
-   * Private methods
-   ************************************************************/
-
-  /*
-   * Handle beforeunload event
-   *
-   * Subject to Safari's "Runaway JavaScript Timer" and
-   * Chrome V8 extension that terminates JS that exhibits
-   * "slow unload", i.e., calling getTime() > 1000 times
-   */
-  function beforeUnloadHandler() {
-    var now;
-
-    // Flush all POST queues
-    forEach(mutSnowplowState.bufferFlushers, function (flusher) {
-      flusher();
-    });
-
-    /*
-     * Delay/pause (blocks UI)
-     */
-    if (mutSnowplowState.expireDateTime) {
-      // the things we do for backwards compatibility...
-      // in ECMA-262 5th ed., we could simply use:
-      //     while (Date.now() < mutSnowplowState.expireDateTime) { }
-      do {
-        now = new Date();
-        if (
-          Array.prototype.filter.call(mutSnowplowState.outQueues, function (queue) {
-            return queue.length > 0;
-          }).length === 0
-        ) {
-          break;
-        }
-      } while (now.getTime() < mutSnowplowState.expireDateTime);
-    }
+/**
+ * Initiate a new tracker namespace
+ *
+ * @param string namespace
+ * @param string endpoint in the form collector.mysite.com
+ * @param object argmap contains the initialisation options of the JavaScript tracker
+ * @param string trackerGroup used to group multiple trackers and shared state together
+ */
+export const newTracker = (namespace, endpoint, argmap = {}, trackerGroup = 'snowplow') => {
+  if (!groups.hasOwnProperty(trackerGroup)) {
+    groups[trackerGroup] = { state: new SharedState(), trackers: {} };
   }
 
-  /*
-   * Handler for onload event
-   */
-  function loadHandler() {
-    var i;
+  const trackerDictionary = groups[trackerGroup].trackers;
+  const state = groups[trackerGroup].state;
 
-    if (!mutSnowplowState.hasLoaded) {
-      mutSnowplowState.hasLoaded = true;
-      for (i = 0; i < mutSnowplowState.registeredOnLoadHandlers.length; i++) {
-        mutSnowplowState.registeredOnLoadHandlers[i]();
-      }
-    }
-    return true;
+  if (!trackerDictionary.hasOwnProperty(namespace)) {
+    trackerDictionary[namespace] = new Tracker(trackerGroup, namespace, version, state, argmap);
+    trackerDictionary[namespace].setCollectorUrl(endpoint);
+  } else {
+    warn('Tracker namespace ' + namespace + ' already exists.');
   }
 
-  /*
-   * Add onload or DOM ready handler
-   */
-  function addReadyListener() {
-    var _timer;
+  return trackerDictionary[namespace];
+};
 
-    if (documentAlias.addEventListener) {
-      addEventListener(documentAlias, 'DOMContentLoaded', function ready() {
-        documentAlias.removeEventListener('DOMContentLoaded', ready, false);
-        loadHandler();
-      });
-    } else if (documentAlias.attachEvent) {
-      documentAlias.attachEvent('onreadystatechange', function ready() {
-        if (documentAlias.readyState === 'complete') {
-          documentAlias.detachEvent('onreadystatechange', ready);
-          loadHandler();
-        }
-      });
-
-      if (documentAlias.documentElement.doScroll && windowAlias === windowAlias.top) {
-        (function ready() {
-          if (!mutSnowplowState.hasLoaded) {
-            try {
-              documentAlias.documentElement.doScroll('left');
-            } catch (error) {
-              setTimeout(ready, 0);
-              return;
-            }
-            loadHandler();
-          }
-        })();
-      }
-    }
-
-    // sniff for older WebKit versions
-    if (new RegExp('WebKit').test(navigator.userAgent)) {
-      _timer = setInterval(function () {
-        if (mutSnowplowState.hasLoaded || /loaded|complete/.test(documentAlias.readyState)) {
-          clearInterval(_timer);
-          loadHandler();
-        }
-      }, 10);
-    }
-
-    // fallback
-    addEventListener(windowAlias, 'load', loadHandler, false);
+export const getTracker = (namespace, functionName = 'snowplow') => {
+  if (groups.hasOwnProperty(functionName) && groups[functionName].trackers.hasOwnProperty(namespace)) {
+    return groups[functionName].trackers[namespace];
   }
 
-  /************************************************************
-   * Constructor
-   ************************************************************/
+  warn('Warning: No tracker configured');
+  return null;
+};
 
-  // initialize the Snowplow singleton
-  addEventListener(windowAlias, 'beforeunload', beforeUnloadHandler, false);
-  addReadyListener();
+export const allTrackers = (functionName = 'snowplow') => {
+  if (groups.hasOwnProperty(functionName)) {
+    return groups[functionName].trackers;
+  }
 
-  // Now replace initialization array with queue manager object
-  return new InQueueManager(Tracker, version, mutSnowplowState, asynchronousQueue, functionName);
-}
+  warn('Warning: No trackers configured');
+  return {};
+};

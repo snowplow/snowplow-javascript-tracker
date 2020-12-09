@@ -53,7 +53,7 @@ describe('Sessions', () => {
     browser.url('/index.html')
     browser.setCookies({ name: 'container', value: docker.url })
     browser.url('/session-integration.html')
-    browser.pause(5000) // Time for requests to get written
+    browser.pause(6000) // Time for requests to get written
     browser.call(() =>
       fetchResults(docker.url).then(result => {
         log = result
@@ -109,6 +109,7 @@ describe('Sessions', () => {
       F.get('event.domain_sessionidx', ev) === 1
 
     expect(F.size(F.filter(withSingleVid, log))).toBe(2)
+    expect(F.size(F.filter(e => F.get('event.name_tracker', e) === 'localStorageSessionTracker', log))).toBe(3)
   })
 
   it('should only increment domain_sessionidx outside of session timeout (anonymous session tracking)', () => {
@@ -117,6 +118,7 @@ describe('Sessions', () => {
       F.get('event.domain_sessionidx', ev) === 1
 
     expect(F.size(F.filter(withSingleVid, log))).toBe(2)
+    expect(F.size(F.filter(e => F.get('event.name_tracker', e) === 'anonymousSessionTracker', log))).toBe(3)
   })
 
   it('should only increment domain_sessionidx outside of session timeout (cookie storage)', () => {
@@ -125,5 +127,6 @@ describe('Sessions', () => {
       F.get('event.domain_sessionidx', ev) === 1
 
     expect(F.size(F.filter(withSingleVid, log))).toBe(2)
+    expect(F.size(F.filter(e => F.get('event.name_tracker', e) === 'cookieSessionTracker', log))).toBe(3)
   })
 })
