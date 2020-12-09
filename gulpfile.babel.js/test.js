@@ -1,11 +1,11 @@
 import { rollup } from 'rollup';
-import { basePlugins } from './rollup';
+import { core } from './rollup';
 import Docker from 'dockerode';
 
 export const buildTestDetectors = async function () {
     const detectors = await rollup({
         input: 'tests/scripts/detectors.js',
-        plugins: basePlugins,
+        plugins: core,
     });
     return await detectors.write({
         name: 'detectors',
@@ -17,7 +17,7 @@ export const buildTestDetectors = async function () {
 export const buildTestHelpers = async function () {
     const helpers = await rollup({
         input: 'tests/scripts/helpers.js',
-        plugins: basePlugins,
+        plugins: core,
     });
     return await helpers.write({
         name: 'helpers',
@@ -28,8 +28,8 @@ export const buildTestHelpers = async function () {
   
 export const buildTestSnowplow = async function () {
     const snowplow = await rollup({
-        input: 'src/js/init.js',
-        plugins: basePlugins,
+        input: 'src/js/iife.js',
+        plugins: core,
     });
     
     return await snowplow.write({

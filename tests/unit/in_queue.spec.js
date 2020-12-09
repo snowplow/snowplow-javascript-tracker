@@ -34,18 +34,15 @@
 
 import { InQueueManager } from '../../src/js/in_queue'
 
+import * as Tracker from '../../src/js/tracker'
+
+jest.mock('../../src/js/tracker');
+
 describe('InQueueManager', () => {
   let output = 0
-
-  function mockTrackerConstructor(
-    functionName,
-    namespace,
-    version,
-    mutSnowplowState,
-    argmap
-  ) {
+  Tracker.Tracker.mockImplementation((functionName, namespace, version, mutSnowplowState, argmap) => {
     var configCollectorUrl,
-      attribute = 10
+    attribute = 10
 
     return {
       setCollectorUrl: function(rawUrl) {
@@ -64,20 +61,14 @@ describe('InQueueManager', () => {
         output += attribute
       },
     }
-  }
+  })
 
   const asyncQueueOps = [
     ['newTracker', 'firstTracker', 'firstEndpoint'],
     ['increaseAttribute', 5],
     ['setOutputToAttribute'],
   ]
-  const asyncQueue = new InQueueManager(
-    mockTrackerConstructor,
-    0,
-    {},
-    asyncQueueOps,
-    'snowplow'
-  )
+  const asyncQueue = new InQueueManager('snowplow', asyncQueueOps)
 
   it('Make a proxy, Function originally stored in asyncQueue is executed when asyncQueue becomes an AsyncQueueProxy', () => {
     expect(output).toEqual(15)
