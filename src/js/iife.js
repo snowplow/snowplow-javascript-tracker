@@ -38,12 +38,11 @@
  * Get the name of the global input function
  */
 
-import { Snowplow } from './snowplow';
+import { InQueueManager } from './in_queue';
+ 
+const windowAlias = window,
+  functionName = windowAlias.GlobalSnowplowNamespace.shift(),
+  queue = windowAlias[functionName];
 
-var queueName,
-  queue,
-  windowAlias = window;
-
-queueName = windowAlias.GlobalSnowplowNamespace.shift();
-queue = windowAlias[queueName];
-queue.q = new Snowplow(queue.q, queueName);
+// Now replace initialization array with queue manager object
+queue.q = new InQueueManager(functionName, queue.q);

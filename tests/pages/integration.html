@@ -7,6 +7,7 @@
   <p id="title">Page for sending requests to Snowplow Micro</p>
 
   <div id="init"></div>
+  <div id="secondInit"></div>
   <div id="bottomRight" style="position: absolute; bottom: 0; right: 0;">Bottom right</div>
 
   <script>
@@ -33,6 +34,11 @@
       };p[i].q=p[i].q||[];n=l.createElement(o);g=l.getElementsByTagName(o)[0];n.async=1;
       n.src=w;g.parentNode.insertBefore(n,g)}}(window,document,"script","./snowplow.js","snowplow"));
 
+    ;(function(p,l,o,w,i,n,g){if(!p[i]){p.GlobalSnowplowNamespace=p.GlobalSnowplowNamespace||[];
+      p.GlobalSnowplowNamespace.push(i);p[i]=function(){(p[i].q=p[i].q||[]).push(arguments)
+      };p[i].q=p[i].q||[];n=l.createElement(o);g=l.getElementsByTagName(o)[0];n.async=1;
+      n.src=w;g.parentNode.insertBefore(n,g)}}(window,document,"script","./snowplow.js","secondSnowplow"));
+
     document.write(collector_endpoint)
 
     var eventMethod = parseQuery().eventMethod;
@@ -46,7 +52,7 @@
       },
     });
 
-    window.snowplow('newTracker', 'b64off', collector_endpoint, {
+    window.secondSnowplow('newTracker', 'b64off', collector_endpoint, {
       appId: 'no-b64-' + eventMethod,
       platform: 'web',
       eventMethod: eventMethod,
@@ -55,6 +61,10 @@
 
     window.snowplow(function() {
       document.getElementById('init').innerText = 'true';
+    });
+
+    window.secondSnowplow(function() {
+      document.getElementById('secondInit').innerText = 'true';
     });
 
     // Add a global context
@@ -95,8 +105,17 @@
 
     window.snowplow('enableActivityTracking:sp', 1, 2);
 
-    // Also tracks to non-base64 encoding tracker
-    window.snowplow('trackPageView:sp;b64off', 'My Title', [ // Set page title; add page context
+    window.snowplow('trackPageView:sp', 'My Title', [ // Set page title; add page context
+      {
+        schema: "iglu:org.schema/WebPage/jsonschema/1-0-0",
+        data: {
+          keywords: ['tester']
+        }
+      }
+    ]);
+
+    // Tracks to non-base64 encoding tracker
+    window.secondSnowplow('trackPageView', 'My Title', [ // Set page title; add page context
       {
         schema: "iglu:org.schema/WebPage/jsonschema/1-0-0",
         data: {
@@ -109,7 +128,7 @@
     window.snowplow('trackPageView:sp');
 
     window.snowplow('trackStructEvent:sp', 'Mixes', 'Play', 'MRC/fabric-0503-mix', '', '0.0');
-    window.snowplow('trackUnstructEvent:sp', {
+    window.snowplow('trackSelfDescribingEvent:sp', {
       schema: 'iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0',
       data: {
         bannerId: 'ASO01043'
@@ -155,7 +174,7 @@
     // test context rulesets
     window.snowplow('addGlobalContexts:sp', [[testAcceptRuleSet, [eventTypeContextGenerator, geolocationContext]]]);
 
-    window.snowplow('trackUnstructEvent:sp', {
+    window.snowplow('trackSelfDescribingEvent:sp', {
       schema: 'iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0',
       data: {
         bannerId: 'ASO01042'
@@ -165,7 +184,7 @@
     window.snowplow('removeGlobalContexts:sp', [[testAcceptRuleSet, [eventTypeContextGenerator, geolocationContext]]]);
 
     window.snowplow('addGlobalContexts:sp', [[testRejectRuleSet, [eventTypeContextGenerator, geolocationContext]]]);
-    window.snowplow('trackUnstructEvent:sp', {
+    window.snowplow('trackSelfDescribingEvent:sp', {
       schema: 'iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0',
       data: {
         bannerId: 'ASO01041'

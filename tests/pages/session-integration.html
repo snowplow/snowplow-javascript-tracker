@@ -22,35 +22,44 @@
   window.snowplow('newTracker', 'cookieSessionTracker', collector_endpoint, {
     sessionCookieTimeout: 1,
   });
-  window.snowplow('trackPageView:cookieSessionTracker');
-  window.snowplow('trackPageView:cookieSessionTracker');
 
   setTimeout(function() {
     window.snowplow('trackPageView:cookieSessionTracker');
-  }, 2000)
+    window.snowplow('trackPageView:cookieSessionTracker');
+  }, 0)
+
+  setTimeout(function() {
+    window.snowplow('trackPageView:cookieSessionTracker');
+  }, 3000)
 
   window.snowplow('newTracker', 'localStorageSessionTracker', collector_endpoint, {
     sessionCookieTimeout: 1,
     stateStorageStrategy: 'localStorage',
   });
-  window.snowplow('trackPageView:localStorageSessionTracker');
-  window.snowplow('trackPageView:localStorageSessionTracker');
 
   setTimeout(function() {
     window.snowplow('trackPageView:localStorageSessionTracker');
-  }, 2000)
+    window.snowplow('trackPageView:localStorageSessionTracker');
+  }, 0)
+
+  setTimeout(function() {
+    window.snowplow('trackPageView:localStorageSessionTracker');
+  }, 3000)
 
   window.snowplow('newTracker', 'anonymousSessionTracker', collector_endpoint, {
     sessionCookieTimeout: 1,
     stateStorageStrategy: 'localStorage',
     anonymousTracking: {withSessionTracking: true}
   });
-  window.snowplow('trackPageView:anonymousSessionTracker');
-  window.snowplow('trackPageView:anonymousSessionTracker');
 
   setTimeout(function() {
     window.snowplow('trackPageView:anonymousSessionTracker');
-  }, 2000)
+    window.snowplow('trackPageView:anonymousSessionTracker');
+  }, 0)
+
+  setTimeout(function() {
+    window.snowplow('trackPageView:anonymousSessionTracker');
+  }, 3000)
 
 </script>
 
