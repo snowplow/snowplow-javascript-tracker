@@ -57,7 +57,7 @@ describe('Tracker created domain cookies', () => {
 
     expect(cookies).not.toContain('_sp_0ses.'); // Missing as tests are not HTTPS and `cookieSecure: true` by default
     expect(cookies).not.toContain('_sp_0id.');
-    expect(cookies).not.toContain('_sp_3es.'); // Missing as cookie lifetime is too short (1)
+    expect(cookies).not.toContain('_sp_3ses.'); // Missing as cookie lifetime is too short (1)
     expect(cookies).not.toContain('_sp_3id.');
     expect(cookies).not.toContain('_sp_4ses.'); // Missing as anonymous tracking enabled
     expect(cookies).not.toContain('_sp_4id.');
