@@ -8,11 +8,9 @@
 
 ## Overview
 
-Add analytics to your websites and web apps with the [Snowplow][snowplow] event tracker for
-JavaScript.
+Add analytics to your websites and web apps with the [Snowplow][snowplow] event tracker for JavaScript.
 
-With this tracker you can collect user event data (page views, e-commerce transactions etc) from the
-client-side tier of your websites and web apps.
+With this tracker you can collect user event data (page views, e-commerce transactions etc) from the client-side tier of your websites and web apps.
 
 ## Find out more
 
