@@ -76,7 +76,16 @@ exports.config = {
     },
     {
       browserName: 'safari',
-      browserVersion: 'latest',
+      browserVersion: '14',
+      platformName: 'macOS 11.00',
+      'sauce:options': { 
+        seleniumVersion: '3.14.0',
+        'build': buildName,
+      },
+    },
+    {
+      browserName: 'safari',
+      browserVersion: '13.1',
       platformName: 'macOS 10.15',
       'sauce:options': { 
         seleniumVersion: '3.14.0',
