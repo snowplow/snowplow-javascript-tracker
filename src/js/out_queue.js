@@ -447,7 +447,7 @@ export function OutQueueManager(
 
   return {
     enqueueRequest: enqueueRequest,
-    executeQueue: executeQueue,
+    executeQueue: () => { if (!executingQueue) executeQueue(); },
     setUseLocalStorage: (localStorage) => { useLocalStorage = localStorage; },
     setAnonymousTracking: (anonymous) => { anonymousTracking = anonymous; }
   };

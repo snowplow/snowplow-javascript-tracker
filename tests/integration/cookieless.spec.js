@@ -48,7 +48,7 @@ describe('Anonymous tracking features', () => {
 	let log = []
 	let docker
 
-	const logContains = ev => F.some(F.isMatch(ev), log)
+	const listContains = (items, ev) => F.some(F.isMatch(ev), items)
 
 	beforeAll(() => {
 		browser.call(() => {
@@ -61,6 +61,9 @@ describe('Anonymous tracking features', () => {
 		browser.setCookies({ name: 'container', value: docker.url })
 		browser.url('/cookieless.html')
 		browser.pause(5000) // Time for requests to get written
+		browser.url('/cookieless.html?ieTest=true')
+		browser.pause(2500) // Time for requests to get written
+
 		browser.call(() =>
 		  fetchResults(docker.url).then(result => {
 			log = result
@@ -74,28 +77,113 @@ describe('Anonymous tracking features', () => {
 		})
 	  })
 
-	it('should have no sensitive information in page view', () => {
-		expect(
-			logContains({
+	it('should have no user information in page view when server anonymisation ', () => {
+		const expected = {
+			event: 'page_view',
+			app_id: 'anon',
+			page_title: 'Server Anon',
+			user_id: null,
+			domain_userid: null,
+			domain_sessionidx: null,
+			domain_sessionid: null
+		};
+
+		const pageViews = F.filter(
+			ev =>
+				F.get('event.event', ev) === 'page_view' &&
+				F.get('event.app_id', ev) === 'anon' &&
+				F.get('event.page_title', ev) === 'Server Anon',
+				log
+		)
+
+		expect(F.size(pageViews)).toBe(2)
+
+		// We should still get these events in IE9, 
+		// but they will be sent with the non-anonymous events
+		if (F.isMatch({ browserName: 'internet explorer', version: '9' }, browser.capabilities)) {
+			expect(listContains(pageViews, {
+				event: expected
+			})).toBe(true)
+		} else { // All other browsers we support
+			expect(listContains(pageViews, {
 				event: {
-					event: 'page_view',
-					platform: 'mob',
-					app_id: 'CFe23a',
-					page_title: 'Cookieless test page',
-					user_id: null,
-					domain_userid: null,
-					domain_sessionidx: null,
-					domain_sessionid: null
+					...expected,
+					user_ipaddress: 'unknown'
 				}
-			})
-		).toBe(true)
+			})).toBe(true)
+
+			// Should have no server side cookie
+			expect(F.contains('micro=', F.find(F.contains('Cookie:'), F.get('rawEvent.context.headers', pageViews[0])))).toBe(false)
+
+			// Each event should have different network_userids (therefore anonymous)
+			expect(F.get('event.network_userid', pageViews[0])).not.toEqual(F.get('event.network_userid', pageViews[1]))
+		}
+	})
+
+	it('should have user information in page view when no anonymisation ', () => {
+
+		const pageViews = F.filter(
+			ev =>
+				F.get('event.event', ev) === 'page_view' &&
+				F.get('event.app_id', ev) === 'anon' &&
+				F.get('event.page_title', ev) === 'No Anon',
+				log
+		)
+
+		expect(listContains(pageViews, {
+			event: {
+				event: 'page_view',
+				app_id: 'anon',
+				page_title: 'No Anon',
+				user_id: 'Malcolm'
+			}
+		})).toBe(true)
+
+		expect(F.size(pageViews)).toBe(1)
+
+		expect(F.get('event.domain_userid', pageViews[0])).not.toBeNull()
+		expect(F.get('event.domain_sessionidx', pageViews[0])).not.toBeNull()
+		expect(F.get('event.domain_sessionid', pageViews[0])).not.toBeNull()
+		expect(F.get('event.network_userid', pageViews[0])).not.toBeNull()
+		expect(F.get('event.user_ipaddress', pageViews[0])).not.toBe('unknown')
+	})
+
+	it('should have no client user information in page view when client anonymisation', () => {
+
+		const pageViews = F.filter(
+			ev =>
+				F.get('event.event', ev) === 'page_view' &&
+				F.get('event.app_id', ev) === 'anon' &&
+				F.get('event.page_title', ev) === 'Client Anon',
+				log
+		)
+
+		expect(listContains(pageViews, {
+			event: {
+				event: 'page_view',
+				app_id: 'anon',
+				page_title: 'Client Anon',
+				user_id: null,
+				domain_userid: null,
+				domain_sessionidx: null,
+				domain_sessionid: null
+			}
+		})).toBe(true)
+
+		expect(F.size(pageViews)).toBe(1)
+
+		// Should have the server side cookie from earlier requests
+		expect(F.contains('micro=', F.find(F.contains('Cookie:'), F.get('rawEvent.context.headers', pageViews[0])))).toBe(true)
+
+		// IP should be tracked as only client side
+		expect(F.get('event.user_ipaddress', pageViews[0])).not.toBe('unknown')
 	})
 
 	it('Check pageViewId is regenerated for each trackPageView', () => {
 		const pageViews = F.filter(
 			ev =>
 				F.get('event.event', ev) === 'page_view' &&
-				F.get('event.name_tracker', ev) === 'cf',
+				F.get('event.name_tracker', ev) === 'sp',
 			log
 		)
 
@@ -108,5 +196,21 @@ describe('Anonymous tracking features', () => {
 		)
 
 		expect(F.size(F.groupBy(getWebPageId, pageViews))).toBeGreaterThanOrEqual(2)
+	})
+
+	it('should send no events in IE9 when server anonymisation is enabled', () => {
+		const pageViews = F.filter(
+			ev =>
+				F.get('event.event', ev) === 'page_view' &&
+				F.get('event.app_id', ev) === 'ie',
+				log
+		)
+
+		// Unable to send anonymous header on IE 9, so we don't send anything
+		if (F.isMatch({ browserName: 'internet explorer', version: '9' }, browser.capabilities)) {
+			expect(F.size(pageViews)).toBe(0)
+		} else {
+			expect(F.size(pageViews)).toBe(2)
+		}
 	})
 })
