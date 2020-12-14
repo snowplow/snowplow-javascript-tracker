@@ -37,7 +37,6 @@
 			window.snowplow('newTracker', 'sp', collector_endpoint, {
 				appId: ieTest ? 'ie' : 'anon',
 				eventMethod: 'post',
-				bufferSize: 1,
 				contexts: {
 					webPage: true
 				},
@@ -49,15 +48,13 @@
 			window.snowplow('trackPageView', 'Server Anon') // Should have different network_userid
 
 			if (!ieTest) {
-				window.snowplow('disableAnonymousTracking', 'localStorage')
-				window.snowplow('setUserId', 'Malcolm')
-				window.snowplow('trackPageView', 'No Anon')
-
-				// Quick breather so the server side cookie can be set
 				setTimeout(function() {
-					window.snowplow('enableAnonymousTracking', {})
-					window.snowplow('trackPageView', 'Client Anon')
-				}, 2000);
+						window.snowplow('disableAnonymousTracking', 'cookieAndLocalStorage')
+						window.snowplow('setUserId', 'Malcolm')
+						window.snowplow('trackPageView', 'No Anon')
+						window.snowplow('enableAnonymousTracking', {})
+						window.snowplow('trackPageView', 'Client Anon')
+				}, 2000)
 			}
 		</script>
 	</body>

@@ -112,9 +112,6 @@ describe('Anonymous tracking features', () => {
 				}
 			})).toBe(true)
 
-			// Should have no server side cookie
-			expect(F.contains('micro=', F.find(F.contains('Cookie:'), F.get('rawEvent.context.headers', pageViews[0])))).toBe(false)
-
 			// Each event should have different network_userids (therefore anonymous)
 			expect(F.get('event.network_userid', pageViews[0])).not.toEqual(F.get('event.network_userid', pageViews[1]))
 		}
@@ -171,9 +168,6 @@ describe('Anonymous tracking features', () => {
 		})).toBe(true)
 
 		expect(F.size(pageViews)).toBe(1)
-
-		// Should have the server side cookie from earlier requests
-		expect(F.contains('micro=', F.find(F.contains('Cookie:'), F.get('rawEvent.context.headers', pageViews[0])))).toBe(true)
 
 		// IP should be tracked as only client side
 		expect(F.get('event.user_ipaddress', pageViews[0])).not.toBe('unknown')
