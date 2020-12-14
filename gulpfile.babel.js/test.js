@@ -39,5 +39,5 @@ export const buildTestSnowplow = async function () {
 };
   
 export const pullSnowplowMicro = async function() {
-    return new Docker().pull('snowplow/snowplow-micro:1.0.0');
+    return new Docker().pull('snowplow/snowplow-micro:1.1.0');
 }
