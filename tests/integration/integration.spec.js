@@ -43,7 +43,22 @@ const retrieveSchemaData = schema =>
 		F.get('data'),
 		F.find({ schema }),
 		F.get('data')
-	)
+  )
+  
+const loadUrlAndWait = (url) => {
+  browser.url(url)
+  browser.waitUntil(
+    () => $('#init').getText() === 'true',
+    {
+      timeout: 5000,
+      timeoutMsg: 'expected init after 5s'
+    }
+  )
+}
+
+const isMatchWithCallback = F.isMatchWith((lt, rt) =>
+  F.isFunction(rt) ? rt(lt) : undefined
+)
 
 const mobileContext = {
   schema: 'iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1',
@@ -66,6 +81,7 @@ describe('Snowplow Micro integration', () => {
   let docker
 
   const logContains = ev => F.some(F.isMatch(ev), log)
+  const logContainsFn = ev => F.some(isMatchWithCallback(ev), log)
 
   beforeAll(() => {
     browser.call(() => {
@@ -77,11 +93,14 @@ describe('Snowplow Micro integration', () => {
     browser.url('/index.html')
     browser.setCookies({ name: 'container', value: docker.url })
 
-    browser.url(`/integration.html?eventMethod=get`)
+    loadUrlAndWait('/integration.html?eventMethod=get')
+    $('#bottomRight').scrollIntoView()
     browser.pause(10000) // Time for requests to get written
-    browser.url(`/integration.html?eventMethod=post`)
+    loadUrlAndWait('/integration.html?eventMethod=post')
+    $('#bottomRight').scrollIntoView()
     browser.pause(6000) // Time for requests to get written
-    browser.url(`/integration.html?eventMethod=beacon`)
+    loadUrlAndWait('/integration.html?eventMethod=beacon')
+    $('#bottomRight').scrollIntoView()
     browser.pause(6000) // Time for requests to get written
 
     browser.call(() =>
@@ -155,6 +174,24 @@ describe('Snowplow Micro integration', () => {
           app_id: `sp-${method}`
         })
       ).toBe(false)
+    })
+
+    it(`${method}: contains at least one ping in the expected interval`, () => { 
+      const gtZero = F.compose(
+        F.negate(F.gt(0)),
+        F.toNumber
+      )
+  
+      expect(
+        logContainsFn({
+          event: {
+              event_name: 'page_ping',
+              app_id: `sp-${method}`,
+              pp_xoffset_max: gtZero,
+              pp_yoffset_max: gtZero,
+          },
+        })
+      ).toBe(true)
     })
 
     it(`${method}: contains a structured event`, () => {

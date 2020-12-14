@@ -32,7 +32,7 @@
 
 			document.write(collector_endpoint)
 
-  			var ieTest = parseQuery().ieTest;
+			var ieTest = parseQuery().ieTest;
 
 			window.snowplow('newTracker', 'sp', collector_endpoint, {
 				appId: ieTest ? 'ie' : 'anon',
@@ -49,11 +49,11 @@
 
 			if (!ieTest) {
 				setTimeout(function() {
-						window.snowplow('disableAnonymousTracking', 'cookieAndLocalStorage')
-						window.snowplow('setUserId', 'Malcolm')
-						window.snowplow('trackPageView', 'No Anon')
-						window.snowplow('enableAnonymousTracking', {})
-						window.snowplow('trackPageView', 'Client Anon')
+					window.snowplow('disableAnonymousTracking', 'cookieAndLocalStorage')
+					window.snowplow('setUserId', 'Malcolm')
+					window.snowplow('trackPageView', 'No Anon')
+					window.snowplow('enableAnonymousTracking', {})
+					window.snowplow('trackPageView', 'Client Anon')
 				}, 2000)
 			}
 		</script>
