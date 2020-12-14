@@ -1,3 +1,22 @@
+Version 2.17.0 (2020-12-15)
+---------------------------
+Upgrade typescript to 4.1 (#870)
+Bump ava to 3.13 (#869)
+Bump tslib to 2.0.3 (#868)
+Bump rollup to 2.34 (#867)
+Bump babel to 7.12 (#866)
+Bump Jest to 26.6.3 (#865)
+Upgrade WebDriverIO to 6.10 (#864)
+Upgrade saucelabs to 4.6.0 (#863)
+Bump ChromeDriver to 87.0.0 (#862)
+Improve test coverage (#861)
+Bump snowplow-micro to 1.1.0 (#876)
+Ensure tracker emits `tv` that matches version in package.json (#850)
+Add support for SP-Anonymous HTTP Header on all requests (#842)
+Bump ini to 1.3.8 (#878)
+Add macOS 11 Big Sur and Safari 14 to Saucelabs tests (#875)
+Pin Github Actions to ubuntu-20.04 (#858)
+
 Version 2.16.3 (2020-11-18)
 ---------------------------
 Fix submit_form event not emitting when submitting a form (#856)
