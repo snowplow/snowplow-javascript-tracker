@@ -68,7 +68,7 @@ describe('InQueueManager', () => {
     ['increaseAttribute', 5],
     ['setOutputToAttribute'],
   ]
-  const asyncQueue = new InQueueManager(asyncQueueOps)
+  const asyncQueue = new InQueueManager('snowplow', asyncQueueOps)
 
   it('Make a proxy, Function originally stored in asyncQueue is executed when asyncQueue becomes an AsyncQueueProxy', () => {
     expect(output).toEqual(15)
