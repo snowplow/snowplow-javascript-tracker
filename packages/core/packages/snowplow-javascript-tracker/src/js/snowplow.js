@@ -1,3 +1,5 @@
+Ddd;
+
 /*
  * JavaScript tracker for Snowplow: init.js
  *
@@ -9,15 +11,15 @@
  * met:
  *
  * * Redistributions of source code must retain the above copyright
- *   notice, this list of conditions and the following disclaimer.
+ * notice, this list of conditions and the following disclaimer.
  *
  * * Redistributions in binary form must reproduce the above copyright
- *   notice, this list of conditions and the following disclaimer in the
- *   documentation and/or other materials provided with the distribution.
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
  * * Neither the name of Anthon Pang nor Snowplow Analytics Ltd nor the
- *   names of their contributors may be used to endorse or promote products
- *   derived from this software without specific prior written permission.
+ * names of their contributors may be used to endorse or promote products
+ * derived from this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -42,18 +44,20 @@ import { Tracker } from './tracker';
 import { SharedState } from './shared_state';
 import { version } from './version';
 import { warn } from './lib/helpers';
+import pickBy from 'lodash/pickBy';
+import includes from 'lodash/includes';
 
 const groups = {};
 
 /**
- * Initiate a new tracker namespace
+ * Initiate a new tracker
  *
- * @param string namespace
+ * @param string name
  * @param string endpoint in the form collector.mysite.com
  * @param object argmap contains the initialisation options of the JavaScript tracker
  * @param string trackerGroup used to group multiple trackers and shared state together
  */
-export const newTracker = (namespace, endpoint, argmap = {}, trackerGroup = 'snowplow') => {
+export const newTracker = (name, endpoint, argmap = {}, trackerGroup = 'snowplow') => {
   if (!groups.hasOwnProperty(trackerGroup)) {
     groups[trackerGroup] = { state: new SharedState(), trackers: {} };
   }
@@ -61,28 +65,39 @@ export const newTracker = (namespace, endpoint, argmap = {}, trackerGroup = 'sno
   const trackerDictionary = groups[trackerGroup].trackers;
   const state = groups[trackerGroup].state;
 
-  if (!trackerDictionary.hasOwnProperty(namespace)) {
-    trackerDictionary[namespace] = new Tracker(trackerGroup, namespace, version, state, argmap);
-    trackerDictionary[namespace].setCollectorUrl(endpoint);
+  if (!trackerDictionary.hasOwnProperty(name)) {
+    trackerDictionary[name] = new Tracker(trackerGroup, name, version, state, argmap);
+    trackerDictionary[name].setCollectorUrl(endpoint);
   } else {
-    warn('Tracker namespace ' + namespace + ' already exists.');
+    warn('Tracker namespace ' + name + ' already exists.');
   }
 
-  return trackerDictionary[namespace];
+  return trackerDictionary[name];
 };
 
-export const getTracker = (namespace, functionName = 'snowplow') => {
-  if (groups.hasOwnProperty(functionName) && groups[functionName].trackers.hasOwnProperty(namespace)) {
-    return groups[functionName].trackers[namespace];
+export const getTracker = (namespace, trackerGroup = 'snowplow') => {
+  if (groups.hasOwnProperty(trackerGroup) && groups[trackerGroup].trackers.hasOwnProperty(namespace)) {
+    return groups[trackerGroup].trackers[namespace];
   }
 
   warn('Warning: No tracker configured');
   return null;
 };
 
-export const allTrackers = (functionName = 'snowplow') => {
-  if (groups.hasOwnProperty(functionName)) {
-    return groups[functionName].trackers;
+export const getTrackers = (namespaces, trackerGroup = 'snowplow') => {
+  if (groups.hasOwnProperty(trackerGroup)) {
+    return pickBy(groups[trackerGroup].trackers, (_, key) => {
+      return includes(namespaces, key);
+    });
+  }
+
+  warn('Warning: No trackers configured');
+  return {};
+};
+
+export const allTrackers = (trackerGroup = 'snowplow') => {
+  if (groups.hasOwnProperty(trackerGroup)) {
+    return groups[trackerGroup].trackers;
   }
 
   warn('Warning: No trackers configured');
