@@ -1,5 +1,3 @@
-Ddd;
-
 /*
  * JavaScript tracker for Snowplow: init.js
  *

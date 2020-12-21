@@ -12,12 +12,8 @@ jobs:
       with:
         node-version: 12
 
-    - name: Run npm install on Core
-      run: npm ci
-      working-directory: ./core
-
-    - name: Run npm intall on Tracker
-      run: npm ci
+    - name: Bootstrap
+      run: npm run bootstrap
 
     - name: Run Snyk to check for vulnerabilities
       uses: snyk/actions/node@master

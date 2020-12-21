@@ -1,25 +1,5 @@
-dist
-
-# node.js
-lib-cov
-*.seed
-*.log
-*.csv
-*.dat
-*.out
-*.pid
-*.gz
-
-pids
-logs
-results
-
 npm-debug.log
 node_modules
-
-tests/pages/*.js
-tests/local/serve/
-tags/tag.min.js
 
 .idea/
 .DS_Store

@@ -2,5 +2,22 @@
   "packages": [
     "packages/*"
   ],
-  "version": "independent"
+  "version": "independent",
+  "command": {
+    "publish": {
+      "allowBranch": [
+        "master"
+      ],
+      "createRelease": "github"
+    },
+    "version": {
+      "message": "Prepare for release",
+      "conventionalCommits": true
+    }
+  },
+  "ignoreChanges": [
+    "**/test/**",
+    "lerna.json",
+    "**/*.md"
+  ]
 }

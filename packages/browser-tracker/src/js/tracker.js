@@ -62,7 +62,7 @@ import { FormTrackingManager } from './forms';
 import { ErrorTrackingManager } from './errors';
 import { OutQueueManager } from './out_queue';
 import { productionize } from './guard';
-import { trackerCore } from 'snowplow-tracker-core';
+import { trackerCore } from '@snowplow/tracker-core';
 import uuid from 'uuid/v4';
 
 /**

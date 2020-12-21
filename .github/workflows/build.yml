@@ -30,26 +30,14 @@ jobs:
         key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
         restore-keys: ${{ runner.os }}-node-
 
-    - name: Core npm ci
-      working-directory: ./core
-      run: npm ci
+    - name: Bootstrap
+      run: npm run bootstrap
 
-    - name: Build core
-      working-directory: ./core
+    - name: Build
       run: npm run build
 
-    - name: Test core
-      working-directory: ./core
+    - name: Test
       run: npm run test
-
-    - name: Tracker npm ci
-      run: npm ci
-
-    - name: Build tracker
-      run: npm run build
-
-    - name: Test tracker
-      run: npm run test:unit
 
     - name: Block Concurrent Executions of E2E Tests
       if: ${{ env.SAUCE_ACCESS_KEY != '' }}
@@ -72,5 +60,5 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: sp.js
-        path: dist/sp.js
+        path: packages/browser-tracker/dist/sp.js
 
