@@ -7,7 +7,7 @@
     "build": "lerna run build",
     "test": "lerna run test",
     "test:e2e:sauce": "lerna run test:e2e:sauce",
-    "test:e2e:local": "lerna run test:e2e:local"
+    "test:e2e:local": "lerna run test:e2e:local",
     "version": "lerna version",
     "publish": "lerna publish from-git"
   },

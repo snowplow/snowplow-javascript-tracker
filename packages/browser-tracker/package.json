@@ -43,6 +43,5 @@
     "events",
     "open source"
   ],
-  "license": "Simplified BSD",
-  "private": true
+  "license": "Simplified BSD"
 }
