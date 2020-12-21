@@ -1,39 +1,24 @@
-# JavaScript web analytics for Snowplow
+# Snowplow JavaScript Tracker Core
 
-[![actively-maintained]][tracker-classificiation]
-[![Release][release-image]][releases]
-[![Build Status][gh-actions-image]][gh-actions]
-[![Saucelabs Test Status][saucelabs-button-image]][saucelabs]
-[![License][license-image]][bsd]
+[![npm version][npm-image]][npm-url]
 
-## Overview
+Core module to be used by Snowplow JavaScript based trackers.
 
-Add analytics to your websites and web apps with the [Snowplow][snowplow] event tracker for
-JavaScript.
+## Developer quick start
 
-With this tracker you can collect user event data (page views, e-commerce transactions etc) from the
-client-side tier of your websites and web apps.
+Can be built, tested and packed locally directly with [Node](https://nodejs.org/en/) (10+) and `npm`.
 
-## Find out more
+Use `npm install`, `npm run build`, `npm run test` and `npm pack`
 
-| Technical Docs                      | Setup Guide                  | Contributing                         |
-|-------------------------------------|------------------------------|--------------------------------------|
-| [![i1][techdocs-image]][tech-docs]  | [![i2][setup-image]][setup]  | ![i3][contributing-image]            |
-| [Technical Docs][tech-docs]         | [Setup Guide][setup]         | [Contributing](Contributing.md)      |
+Below instructions assume git and [Docker][docker-install] installed.
 
-## Developers
-
-### Contributing quick start
-
-Assuming git and [Docker][docker-install] installed:
-
-#### Clone repository
+### Clone repository
 
 ```bash
 host$ git clone https://github.com/snowplow/snowplow-javascript-tracker.git
 ```
 
-#### Building Tracker Core
+### Building Tracker Core
 
 ```bash
 host$ cd snowplow-javascript-tracker/core
@@ -41,50 +26,163 @@ host$ docker build -t core .
 host$ docker run -v "$(pwd)":"/code" core npm run build
 ```
 
-From the `/core` folder, build the core library using `npm run build` and run unit tests with `npm run test`.
-
-#### Building Tracker
+### Running tests
 
 ```bash
-host$ cd snowplow-javascript-tracker
-host$ docker build -t tracker .
-host$ docker run -v "$(pwd)":"/code" tracker npm run build
+host$ docker run core npm run test
 ```
 
-Build the tracker using `npm run build` and run unit tests with `npm run test:unit`.
+### Create NPM Package locally
 
-## Testing
+```bash
+host$ docker run -v "$(pwd)":"/code" core npm pack
+```
 
-[![Selenium Test Status][saucelabs-matrix-image]][saucelabs]
+For testing, the resulting tarball `snowplow-tracker-core-x.x.x.tgz` can be installed locally into another application (such as the Snowplow JavaScript Tracker).
+
+```bash
+host$ npm install snowplow-tracker-core-x.x.x.tgz
+```
+
+## Installation
+
+With npm:
+
+```bash
+npm install snowplow-tracker-core
+```
+
+### CommonJS Example
+
+```js
+const trackerCore = require('snowplow-tracker-core').trackerCore;
+
+// Create an instance with base 64 encoding set to false (it defaults to true)
+const core = trackerCore(false);
+```
+
+### ES Module Example
+
+```js
+import { trackerCore } from 'snowplow-tracker-core';
+
+// Create an instance with base 64 encoding set to false (it defaults to true)
+const core = trackerCore(false)
+```
+
+### Example
+
+```js
+// Add a name-value pair to all payloads
+core.addPayloadPair('vid', 2);
+
+// Add each name-value pair in a dictionary to all payloads
+core.addPayloadDict({
+    'ds': '1160x620',
+    'fp': 4070134789
+});
+
+// Add name-value pairs to all payloads using convenience methods
+core.setTrackerVersion('js-3.0.0');
+core.setPlatform('web');
+core.setUserId('user-321');
+core.setColorDepth(24);
+core.setViewport(600, 400);
+core.setUseragent('Snowplow/0.0.1');
+
+// Track a page view with URL and title
+const pageViewPayload = core.trackPageView('http://www.example.com', 'landing page');
+
+console.log(pageViewPayload.build());
+/*
+{
+    'e': 'pv',
+    'url': 'http://www.example.com',
+    'page': 'landing page',
+    'uid': 'user-321',
+    'vd': 2,
+    'ds': '1160x620',
+    'fp': 4070134789
+    'tv': 'js-3.0.0',
+    'p': 'web',
+    'cd': 24,
+    'vp': '600x400',
+    'ua': 'Snowplow/0.0.1',
+    'dtm': 1406879959702,                          // timestamp
+    'eid': '0718a85a-45dc-4f71-a949-27870442ed7d'  // UUID
+}
+*/
+
+// Stop automatically adding tv, p, and dtm to the payload
+core.resetPayloadPairs();
+
+// Track an unstructured event
+const unstructEventPayload = core.trackUnstructEvent({
+    'schema': 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-0',
+    'data': {
+        'targetUrl': 'http://www.destination.com',
+        'elementId': 'bannerLink'
+    }
+});
+
+console.log(unstructEventPayload.build());
+/*
+{
+    'e': 'ue',
+    'ue_pr': {
+        'schema': 'iglu:com.snowplowanalytics.snowplow/unstruct_even/jsonschema/1-0-0',
+        'data': {
+            'schema': 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-0',
+            'data': {
+                'targetUrl': 'http://www.destination.com',
+                'elementId': 'bannerLink'
+            }
+        }
+    },
+    'dtm': 1406879973439,
+    'eid': '956c6670-cbf6-460b-9f96-143e0320fdf6'
+}
+*/
+```
+
+## Other features
+
+Core instances can be initialized with two parameters. The first is a boolean and determines whether custom contexts and unstructured events will be base 64 encoded. The second is an optional callback function which gets applied to every payload created by the instance.
+
+```js
+const core = trackerCore(true, console.log);
+```
+
+The above example would base 64 encode all unstructured events and custom contexts and would log each payload to the console.
+
+Use the `setBase64Encoding` method to turn base 64 encoding on or off after initializing a core instance:
+
+```js
+const core = trackerCore(); // Base 64 encoding on by default
+
+core.setBase64Encoding(false); // Base 64 encoding is now off
+```
+
+## Documentation
+
+For more information on the Snowplow JavaScript Tracker Core's API, view its [wiki page][wiki].
 
 ## Copyright and license
 
-The Snowplow JavaScript Tracker is based on Anthon Pang's [`piwik.js`][piwikjs], the JavaScript
-tracker for the open-source [Piwik][piwik] project, and is distributed under the same license
-([Simplified BSD][bsd]).
+The Snowplow JavaScript Tracker Core is copyright 2014-2020 Snowplow Analytics Ltd.
 
-Significant portions of the Snowplow JavaScript Tracker copyright 2010 Anthon Pang. Remainder
-copyright 2012-2020 Snowplow Analytics Ltd.
+Licensed under the [Apache License, Version 2.0][apache-license] (the "License");
+you may not use this software except in compliance with the License.
 
-Licensed under the [Simplified BSD][bsd] license.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
-[snowplow]: http://snowplowanalytics.com/
+[apache-license]: http://www.apache.org/licenses/LICENSE-2.0
+
+[npm-url]: http://badge.fury.io/js/snowplow-tracker-core
+[npm-image]: https://badge.fury.io/js/snowplow-tracker-core.svg
+[wiki]: https://github.com/snowplow/snowplow/wiki/Javascript-Tracker-Core
 [docker-install]: https://docs.docker.com/install/
-[piwik]: http://piwik.org/
-[piwikjs]: https://github.com/piwik/piwik/blob/master/js/piwik.js
-[bsd]: http://www.opensource.org/licenses/bsd-license.php
-[setup]: https://docs.snowplowanalytics.com/docs/collecting-data/collecting-from-own-applications/javascript-tracker/general-parameters/
-[tech-docs]: https://docs.snowplowanalytics.com/docs/collecting-data/collecting-from-own-applications/javascript-tracker/
-[techdocs-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/techdocs.png
-[setup-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/setup.png
-[contributing-image]: https://d3i6fms1cm1j0i.cloudfront.net/github/images/contributing.png
-[release-image]: https://img.shields.io/github/v/release/snowplow/snowplow-javascript-tracker?sort=semver
-[releases]: https://github.com/snowplow/snowplow-javascript-tracker/releases
-[gh-actions]: https://github.com/snowplow/snowplow-javascript-tracker/actions
-[gh-actions-image]: https://github.com/snowplow/snowplow-javascript-tracker/workflows/Build/badge.svg
-[saucelabs]: https://saucelabs.com/u/snowplow
-[saucelabs-button-image]: https://app.saucelabs.com/buildstatus/snowplow
-[saucelabs-matrix-image]: https://app.saucelabs.com/browser-matrix/snowplow.svg
-[license-image]: http://img.shields.io/badge/license-simplified--bsd-blue.svg?style=flat
-[tracker-classificiation]: https://docs.snowplowanalytics.com/docs/collecting-data/collecting-from-own-applications/tracker-maintenance-classification/
-[actively-maintained]: https://img.shields.io/static/v1?style=flat&label=Snowplow&message=Actively%20Maintained&color=6638b8&labelColor=9ba0aa&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAeFBMVEVMaXGXANeYANeXANZbAJmXANeUANSQAM+XANeMAMpaAJhZAJeZANiXANaXANaOAM2WANVnAKWXANZ9ALtmAKVaAJmXANZaAJlXAJZdAJxaAJlZAJdbAJlbAJmQAM+UANKZANhhAJ+EAL+BAL9oAKZnAKVjAKF1ALNBd8J1AAAAKHRSTlMAa1hWXyteBTQJIEwRgUh2JjJon21wcBgNfmc+JlOBQjwezWF2l5dXzkW3/wAAAHpJREFUeNokhQOCA1EAxTL85hi7dXv/E5YPCYBq5DeN4pcqV1XbtW/xTVMIMAZE0cBHEaZhBmIQwCFofeprPUHqjmD/+7peztd62dWQRkvrQayXkn01f/gWp2CrxfjY7rcZ5V7DEMDQgmEozFpZqLUYDsNwOqbnMLwPAJEwCopZxKttAAAAAElFTkSuQmCC

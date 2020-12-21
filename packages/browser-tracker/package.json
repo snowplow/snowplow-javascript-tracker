@@ -11,8 +11,7 @@
   ],
   "scripts": {
     "build": "gulp",
-    "build:all": "(cd core && npm run build) && npm run build",
-    "test:unit": "jest tests/unit/*.spec.js",
+    "test": "jest tests/unit/*.spec.js",
     "test:e2e:sauce": "gulp buildForIntegrationTest && wdio tests/wdio.sauce.conf.js",
     "test:e2e:local": "gulp buildForIntegrationTest && wdio tests/wdio.local.conf.js"
   },
@@ -20,7 +19,7 @@
     "jstimezonedetect": "1.0.5",
     "lodash": "^4.17.20",
     "sha1": "git://github.com/pvorb/node-sha1.git#910081c83f3661507d9d89e66e3f38d8b59d5559",
-    "snowplow-tracker-core": "file:./core",
+    "@snowplow/tracker-core": "^1.0.0",
     "uuid": "^3.3.3"
   },
   "devDependencies": {
