@@ -25,35 +25,36 @@ client-side tier of your websites and web apps.
 
 ### Contributing quick start
 
-Assuming git and [Docker][docker-install] installed:
+Assuming [git](https://git-scm.com/downloads), [Node.js 10+ LTS](https://nodejs.org/en/download/releases/).
 
 #### Clone repository
 
 ```bash
-host$ git clone https://github.com/snowplow/snowplow-javascript-tracker.git
+$ git clone https://github.com/snowplow/snowplow-javascript-tracker.git
 ```
 
-#### Building Tracker Core
+#### Building
 
 ```bash
-host$ cd snowplow-javascript-tracker/core
-host$ docker build -t core .
-host$ docker run -v "$(pwd)":"/code" core npm run build
+$ npm install -g @microsoft/rush
+$ rush update
+$ rush build
 ```
-
-From the `/core` folder, build the core library using `npm run build` and run unit tests with `npm run test`.
-
-#### Building Tracker
-
-```bash
-host$ cd snowplow-javascript-tracker
-host$ docker build -t tracker .
-host$ docker run -v "$(pwd)":"/code" tracker npm run build
-```
-
-Build the tracker using `npm run build` and run unit tests with `npm run test:unit`.
 
 ## Testing
+
+To run unit tests:
+
+```bash
+$ rush test
+```
+
+To run e2e tests (locally):
+
+```bash
+$ cd trackers/browser-tracker/
+$ rushx test:e2e:local
+```
 
 [![Sauce Labs Test Status][saucelabs-matrix-image]][saucelabs]
 
