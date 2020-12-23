@@ -1,0 +1,194 @@
+// DO NOT ADD COMMENTS IN THIS FILE.  They will be lost when the Rush tool resaves it.
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/approved-packages.schema.json",
+  "packages": [
+    {
+      "name": "@ampproject/rollup-plugin-closure-compiler",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@babel/core",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@babel/plugin-transform-runtime",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@babel/preset-env",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@babel/register",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@rollup/plugin-babel",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@rollup/plugin-commonjs",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@rollup/plugin-json",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@rollup/plugin-node-resolve",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@snowplow/tracker-core",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@types/babel__core",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@types/jest",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@types/lodash",
+      "allowedCategories": [ "libraries", "trackers" ]
+    },
+    {
+      "name": "@types/node",
+      "allowedCategories": [ "libraries" ]
+    },
+    {
+      "name": "@types/uuid",
+      "allowedCategories": [ "libraries" ]
+    },
+    {
+      "name": "@typescript-eslint/eslint-plugin",
+      "allowedCategories": [ "libraries" ]
+    },
+    {
+      "name": "@typescript-eslint/parser",
+      "allowedCategories": [ "libraries" ]
+    },
+    {
+      "name": "@wdio/cli",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@wdio/jasmine-framework",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@wdio/local-runner",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@wdio/sauce-service",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@wdio/spec-reporter",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@wdio/static-server-service",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@wdio/sync",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@wessberg/rollup-plugin-ts",
+      "allowedCategories": [ "libraries" ]
+    },
+    {
+      "name": "ava",
+      "allowedCategories": [ "libraries" ]
+    },
+    {
+      "name": "chromedriver",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "dockerode",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "eslint",
+      "allowedCategories": [ "libraries" ]
+    },
+    {
+      "name": "gulp",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "jest",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "jstimezonedetect",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "lodash",
+      "allowedCategories": [ "libraries", "trackers" ]
+    },
+    {
+      "name": "moment-timezone",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "prettier",
+      "allowedCategories": [ "libraries", "trackers" ]
+    },
+    {
+      "name": "rollup",
+      "allowedCategories": [ "libraries", "trackers" ]
+    },
+    {
+      "name": "rollup-plugin-banner",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "rollup-plugin-cleanup",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "rollup-plugin-filesize",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "rollup-plugin-sizes",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "saucelabs",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "sha1",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "ts-node",
+      "allowedCategories": [ "libraries" ]
+    },
+    {
+      "name": "tslib",
+      "allowedCategories": [ "libraries" ]
+    },
+    {
+      "name": "typescript",
+      "allowedCategories": [ "libraries" ]
+    },
+    {
+      "name": "uuid",
+      "allowedCategories": [ "libraries", "trackers" ]
+    },
+    {
+      "name": "wdio-chromedriver-service",
+      "allowedCategories": [ "trackers" ]
+    }
+  ]
+}

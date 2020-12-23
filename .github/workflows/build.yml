@@ -1,11 +1,10 @@
 name: Build
 
-on: 
+on:
   push:
     branches:
-      - 'master'
-  pull_request:
-    
+      - '**' # Prevents builds on tag
+
 jobs:
   build:
     runs-on: ubuntu-20.04
@@ -15,62 +14,50 @@ jobs:
       SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    - name: Use Node.js 12
-      uses: actions/setup-node@v1
-      with:
-        node-version: 12.x
+      - name: Use Node.js 12
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
 
-    - name: npm cache
-      uses: actions/cache@v2
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: ${{ runner.os }}-node-
+      - name: pnpm cache
+        uses: actions/cache@v2
+        with:
+          path: ./common/temp/pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('common/config/rush/pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-
 
-    - name: Core npm ci
-      working-directory: ./core
-      run: npm ci
+      - name: Install
+        run: node common/scripts/install-run-rush.js install
 
-    - name: Build core
-      working-directory: ./core
-      run: npm run build
+      - name: Build
+        run: node common/scripts/install-run-rush.js rebuild --verbose
 
-    - name: Test core
-      working-directory: ./core
-      run: npm run test
+      - name: Test
+        run: node common/scripts/install-run-rush.js test --verbose
 
-    - name: Tracker npm ci
-      run: npm ci
+      - name: Block Concurrent Executions of E2E Tests
+        if: ${{ env.SAUCE_ACCESS_KEY != '' }}
+        uses: softprops/turnstyle@v1
+        with:
+          poll-interval-seconds: 20
+          same-branch-only: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Build tracker
-      run: npm run build
+      - name: Add Host for Saucelabs Tunnel
+        if: ${{ env.SAUCE_ACCESS_KEY != '' }}
+        run: echo "127.0.0.1 snowplow-js-tracker.local" | sudo tee -a /etc/hosts
 
-    - name: Test tracker
-      run: npm run test:unit
+      - name: Run End to End Tests
+        if: ${{ env.SAUCE_ACCESS_KEY != '' }}
+        working-directory: ./trackers/browser-tracker
+        run: node ../../common/scripts/install-run-rushx.js test:e2e:sauce
 
-    - name: Block Concurrent Executions of E2E Tests
-      if: ${{ env.SAUCE_ACCESS_KEY != '' }}
-      uses: softprops/turnstyle@v1
-      with:
-        poll-interval-seconds: 20
-        same-branch-only: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Add Host for Saucelabs Tunnel
-      if: ${{ env.SAUCE_ACCESS_KEY != '' }}
-      run: echo "127.0.0.1 snowplow-js-tracker.local" | sudo tee -a /etc/hosts
-
-    - name: Run End to End Tests
-      run: npm run test:e2e:sauce
-      if: ${{ env.SAUCE_ACCESS_KEY != '' }}
-
-    - name: Upload sp.js artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: sp.js
-        path: dist/sp.js
-
+      - name: Upload sp.js artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: sp.js
+          path: trackers/browser-tracker/dist/sp.js

@@ -1,0 +1,62 @@
+name: Deploy Tracker
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-20.04
+
+    env:
+      NPM_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Use Node.js 12
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+
+      - name: pnpm cache
+        uses: actions/cache@v2
+        with:
+          path: ./common/temp/pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('common/config/rush/pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-
+
+      - name: Install
+        run: node common/scripts/install-run-rush.js install
+
+      - name: Build
+        run: node common/scripts/install-run-rush.js rebuild --verbose
+
+      - name: Test
+        run: node common/scripts/install-run-rush.js test --verbose
+
+      - name: Publish
+        run: node common/scripts/install-run-rush.js publish --include-all --publish
+
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Snowplow JavaScript Tracker v${{ github.ref }}
+          draft: false
+          prerelease: ${{ contains(steps.version.outputs.TAG_VERSION, '-M') }}
+
+      - name: Upload sp.js asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./trackers/browser-tracker/dist/sp.js
+          asset_name: sp.js
+          asset_content_type: application/javascript
