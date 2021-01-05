@@ -39,8 +39,68 @@
       "allowedCategories": [ "trackers" ]
     },
     {
-      "name": "@snowplow/tracker-core",
+      "name": "@snowplow/browser-core",
+      "allowedCategories": [ "plugins", "trackers" ]
+    },
+    {
+      "name": "@snowplow/browser-helpers",
+      "allowedCategories": [ "plugins", "trackers" ]
+    },
+    {
+      "name": "@snowplow/browser-plugin-client-hints",
       "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@snowplow/browser-plugin-core",
+      "allowedCategories": [ "plugins" ]
+    },
+    {
+      "name": "@snowplow/browser-plugin-error-tracking",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@snowplow/browser-plugin-form-tracking",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@snowplow/browser-plugin-ga-cookies",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@snowplow/browser-plugin-gdpr",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@snowplow/browser-plugin-geolocation",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@snowplow/browser-plugin-link-click-tracking",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@snowplow/browser-plugin-optimizely",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@snowplow/browser-plugin-optimizely-x",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@snowplow/browser-plugin-parrable",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@snowplow/browser-plugin-performance-timing",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@snowplow/plugin-core",
+      "allowedCategories": [ "libraries", "plugins" ]
+    },
+    {
+      "name": "@snowplow/tracker-core",
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "@types/babel__core",
@@ -51,12 +111,16 @@
       "allowedCategories": [ "trackers" ]
     },
     {
+      "name": "@types/jstimezonedetect",
+      "allowedCategories": [ "libraries" ]
+    },
+    {
       "name": "@types/lodash",
-      "allowedCategories": [ "libraries", "trackers" ]
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "@types/node",
-      "allowedCategories": [ "libraries" ]
+      "allowedCategories": [ "libraries", "plugins" ]
     },
     {
       "name": "@types/uuid",
@@ -64,11 +128,11 @@
     },
     {
       "name": "@typescript-eslint/eslint-plugin",
-      "allowedCategories": [ "libraries" ]
+      "allowedCategories": [ "libraries", "plugins" ]
     },
     {
       "name": "@typescript-eslint/parser",
-      "allowedCategories": [ "libraries" ]
+      "allowedCategories": [ "libraries", "plugins" ]
     },
     {
       "name": "@wdio/cli",
@@ -100,11 +164,11 @@
     },
     {
       "name": "@wessberg/rollup-plugin-ts",
-      "allowedCategories": [ "libraries" ]
+      "allowedCategories": [ "libraries", "plugins" ]
     },
     {
       "name": "ava",
-      "allowedCategories": [ "libraries" ]
+      "allowedCategories": [ "libraries", "plugins" ]
     },
     {
       "name": "chromedriver",
@@ -116,11 +180,15 @@
     },
     {
       "name": "eslint",
-      "allowedCategories": [ "libraries" ]
+      "allowedCategories": [ "libraries", "plugins" ]
     },
     {
       "name": "gulp",
       "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "helpers",
+      "allowedCategories": [ "plugins" ]
     },
     {
       "name": "jest",
@@ -128,11 +196,11 @@
     },
     {
       "name": "jstimezonedetect",
-      "allowedCategories": [ "trackers" ]
+      "allowedCategories": [ "libraries", "trackers" ]
     },
     {
       "name": "lodash",
-      "allowedCategories": [ "libraries", "trackers" ]
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "moment-timezone",
@@ -140,11 +208,11 @@
     },
     {
       "name": "prettier",
-      "allowedCategories": [ "libraries", "trackers" ]
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "rollup",
-      "allowedCategories": [ "libraries", "trackers" ]
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "rollup-plugin-banner",
@@ -172,15 +240,15 @@
     },
     {
       "name": "ts-node",
-      "allowedCategories": [ "libraries" ]
+      "allowedCategories": [ "libraries", "plugins" ]
     },
     {
       "name": "tslib",
-      "allowedCategories": [ "libraries" ]
+      "allowedCategories": [ "libraries", "plugins" ]
     },
     {
       "name": "typescript",
-      "allowedCategories": [ "libraries" ]
+      "allowedCategories": [ "libraries", "plugins" ]
     },
     {
       "name": "uuid",

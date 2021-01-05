@@ -16,11 +16,20 @@
     "test:e2e:local": "gulp buildForIntegrationTest && wdio tests/wdio.local.conf.js"
   },
   "dependencies": {
-    "jstimezonedetect": "1.0.5",
     "lodash": "^4.17.20",
     "sha1": "git://github.com/pvorb/node-sha1.git#910081c83f3661507d9d89e66e3f38d8b59d5559",
     "@snowplow/tracker-core": "workspace:*",
-    "uuid": "^3.3.3"
+    "uuid": "^3.3.3",
+    "@snowplow/browser-plugin-optimizely": "workspace:*",
+    "@snowplow/browser-plugin-optimizely-x": "workspace:*",
+    "@snowplow/browser-core": "workspace:*",
+    "@snowplow/browser-plugin-client-hints": "workspace:*",
+    "@snowplow/browser-plugin-parrable": "workspace:*",
+    "@snowplow/browser-plugin-performance-timing": "workspace:*",
+    "@snowplow/browser-plugin-gdpr": "workspace:*",
+    "@snowplow/browser-plugin-ga-cookies": "workspace:*",
+    "@snowplow/browser-plugin-link-click-tracking": "workspace:*",
+    "@snowplow/browser-plugin-geolocation": "workspace:*"
   },
   "devDependencies": {
     "@ampproject/rollup-plugin-closure-compiler": "^0.26.0",

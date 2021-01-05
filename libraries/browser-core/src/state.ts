@@ -33,19 +33,43 @@
  */
 
 import forEach from 'lodash/forEach';
-import { addEventListener } from './lib/helpers';
+import { addEventListener } from './helpers';
 
-export function SharedState() {
-  var documentAlias = document,
+declare global {
+  interface Document {
+    attachEvent: (type: string, fn: EventListenerOrEventListenerObject) => void;
+    detachEvent: (type: string, fn: EventListenerOrEventListenerObject) => void;
+  }
+}
+
+export interface SharedState {
+  /* List of request queues - one per Tracker instance */
+  outQueues: Array<unknown>;
+  bufferFlushers: Array<() => void>;
+
+  /* Time at which to stop blocking excecution */
+  expireDateTime?: number;
+
+  /* DOM Ready */
+  hasLoaded: boolean;
+  registeredOnLoadHandlers: Array<() => void>;
+
+  /* pageViewId, which can changed by other trackers on page;
+   * initialized by tracker sent first event */
+  pageViewId?: string;
+}
+
+export function SharedState(): SharedState {
+  const documentAlias = document,
     windowAlias = window,
     /* Contains four variables that are shared with tracker.js and must be passed by reference */
-    mutSnowplowState = {
+    mutSnowplowState: SharedState = {
       /* List of request queues - one per Tracker instance */
       outQueues: [],
       bufferFlushers: [],
 
       /* Time at which to stop blocking excecution */
-      expireDateTime: null,
+      expireDateTime: undefined,
 
       /* DOM Ready */
       hasLoaded: false,
@@ -53,7 +77,7 @@ export function SharedState() {
 
       /* pageViewId, which can changed by other trackers on page;
        * initialized by tracker sent first event */
-      pageViewId: null,
+      pageViewId: undefined,
     };
 
   /************************************************************
@@ -114,10 +138,8 @@ export function SharedState() {
    * Add onload or DOM ready handler
    */
   function addReadyListener() {
-    var _timer;
-
     if (documentAlias.addEventListener) {
-      addEventListener(documentAlias, 'DOMContentLoaded', function ready() {
+      documentAlias.addEventListener('DOMContentLoaded', function ready() {
         documentAlias.removeEventListener('DOMContentLoaded', ready, false);
         loadHandler();
       });
@@ -128,30 +150,6 @@ export function SharedState() {
           loadHandler();
         }
       });
-
-      if (documentAlias.documentElement.doScroll && windowAlias === windowAlias.top) {
-        (function ready() {
-          if (!mutSnowplowState.hasLoaded) {
-            try {
-              documentAlias.documentElement.doScroll('left');
-            } catch (error) {
-              setTimeout(ready, 0);
-              return;
-            }
-            loadHandler();
-          }
-        })();
-      }
-    }
-
-    // sniff for older WebKit versions
-    if (new RegExp('WebKit').test(navigator.userAgent)) {
-      _timer = setInterval(function () {
-        if (mutSnowplowState.hasLoaded || /loaded|complete/.test(documentAlias.readyState)) {
-          clearInterval(_timer);
-          loadHandler();
-        }
-      }, 10);
     }
 
     // fallback

@@ -16,6 +16,7 @@
 import { PayloadData, PayloadDictionary, isNonEmptyJson } from './payload';
 import { SelfDescribingJson } from './core';
 import { base64urldecode } from './base64';
+import { ContextPlugin } from './plugins';
 
 // Must import lodash as submodules (https://github.com/rollup/rollup/wiki/Troubleshooting#tree-shaking-doesnt-seem-to-be-working)
 import isEqual from 'lodash/isEqual';
@@ -196,6 +197,35 @@ export function globalContexts(): GlobalContexts {
       } else {
         return [];
       }
+    },
+  };
+}
+
+export interface PluginContexts {
+  /**
+   * Returns list of contexts from all active plugins
+   */
+  addPluginContexts: (additionalContexts?: SelfDescribingJson[]) => SelfDescribingJson[];
+}
+
+export function pluginContexts(plugins?: Array<ContextPlugin>): PluginContexts {
+  /**
+   * Add common contexts to every event
+   *
+   * @param array additionalContexts List of user-defined contexts
+   * @return userContexts combined with commonContexts
+   */
+  return {
+    addPluginContexts: (additionalContexts?: SelfDescribingJson[]): SelfDescribingJson[] => {
+      const combinedContexts: SelfDescribingJson[] = additionalContexts ?? [];
+
+      plugins?.forEach((plugin) => {
+        if (plugin.getContexts) {
+          combinedContexts.push(...plugin.getContexts());
+        }
+      });
+
+      return combinedContexts;
     },
   };
 }

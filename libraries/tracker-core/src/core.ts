@@ -15,16 +15,25 @@
 
 import { v4 } from 'uuid';
 
+import { ContextPlugin } from './plugins';
 import { payloadBuilder, PayloadData, PayloadDictionary, isJson } from './payload';
-import { globalContexts, ConditionalContextProvider, ContextPrimitive, GlobalContexts } from './contexts';
+import {
+  globalContexts,
+  pluginContexts,
+  ConditionalContextProvider,
+  ContextPrimitive,
+  GlobalContexts,
+  PluginContexts,
+} from './contexts';
 
 /**
  * Interface common for any Self-Describing JSON such as custom context or
  * Self-describing (ex-unstuctured) event
  */
-export interface SelfDescribingJson extends Record<string, unknown> {
+export interface SelfDescribingJson<T extends Record<string, unknown> = Record<string, unknown>>
+  extends Record<string, string | T> {
   schema: string;
-  data: Record<string, unknown>;
+  data: T;
 }
 
 /**
@@ -365,10 +374,10 @@ export interface Core {
    */
   trackLinkClick(
     targetUrl: string,
-    elementId: string,
-    elementClasses: Array<string>,
-    elementTarget: string,
-    elementContent: string,
+    elementId?: string,
+    elementClasses?: Array<string>,
+    elementTarget?: string,
+    elementContent?: string,
     context?: Array<SelfDescribingJson>,
     tstamp?: Timestamp,
     afterTrack?: (Payload: PayloadDictionary) => void
@@ -560,9 +569,9 @@ export interface Core {
     formId: string,
     elementId: string,
     nodeName: string,
-    type: string,
-    elementClasses: Array<string>,
-    value: string,
+    type: string | null,
+    elementClasses: Array<string> | null,
+    value: string | null,
     context?: Array<SelfDescribingJson>,
     tstamp?: Timestamp,
     afterTrack?: (Payload: PayloadDictionary) => void
@@ -682,8 +691,13 @@ export interface Core {
  * @param callback Function applied to every payload dictionary object
  * @return Tracker core
  */
-export function trackerCore(base64: boolean, callback?: (PayloadData: PayloadData) => void): Core {
+export function trackerCore(
+  base64: boolean,
+  callback?: (PayloadData: PayloadData) => void,
+  plugins?: Array<ContextPlugin>
+): Core {
   const globalContextsHelper: GlobalContexts = globalContexts();
+  const pluginContextsHelper: PluginContexts = pluginContexts(plugins);
 
   // Dictionary of key-value pairs which get added to every payload, e.g. tracker version
   let payloadPairs: PayloadDictionary = {};
@@ -720,7 +734,9 @@ export function trackerCore(base64: boolean, callback?: (PayloadData: PayloadDat
    * @param contexts Array of custom context self-describing JSONs
    * @return Outer JSON
    */
-  const completeContexts = (contexts?: Array<SelfDescribingJson>): Record<string, unknown> | undefined => {
+  const completeContexts = (
+    contexts?: Array<SelfDescribingJson>
+  ): { schema: string; data: SelfDescribingJson[] } | undefined => {
     if (contexts && contexts.length) {
       return {
         schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0',
@@ -769,7 +785,7 @@ export function trackerCore(base64: boolean, callback?: (PayloadData: PayloadDat
     sb.add('eid', v4());
     const timestamp = getTimestamp(tstamp);
     sb.add(timestamp.type, timestamp.value.toString());
-    const allContexts = attachGlobalContexts(sb, context);
+    const allContexts = attachGlobalContexts(sb, pluginContextsHelper.addPluginContexts(context));
     const wrappedContexts = completeContexts(allContexts);
     if (wrappedContexts !== undefined) {
       sb.addJson('cx', 'co', wrappedContexts);
@@ -1034,10 +1050,10 @@ export function trackerCore(base64: boolean, callback?: (PayloadData: PayloadDat
 
     trackLinkClick(
       targetUrl: string,
-      elementId: string,
-      elementClasses: Array<string>,
-      elementTarget: string,
-      elementContent: string,
+      elementId?: string,
+      elementClasses?: Array<string>,
+      elementTarget?: string,
+      elementContent?: string,
       context?: Array<SelfDescribingJson>,
       tstamp?: Timestamp,
       afterTrack?: (Payload: PayloadDictionary) => void
@@ -1233,9 +1249,9 @@ export function trackerCore(base64: boolean, callback?: (PayloadData: PayloadDat
       formId: string,
       elementId: string,
       nodeName: string,
-      type: string,
-      elementClasses: Array<string>,
-      value: string,
+      type: string | null,
+      elementClasses: Array<string> | null,
+      value: string | null,
       context?: Array<SelfDescribingJson>,
       tstamp?: Timestamp,
       afterTrack?: (Payload: PayloadDictionary) => void
