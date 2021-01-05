@@ -399,6 +399,79 @@
       "projectFolder": "libraries/tracker-core",
       "reviewCategory": "libraries",
       "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-core",
+      "projectFolder": "libraries/browser-core",
+      "reviewCategory": "libraries",
+      "versionPolicyName": "tracker"
+    },
+
+    {
+      "packageName": "@snowplow/browser-plugin-optimizely",
+      "projectFolder": "plugins/browser-plugin-optimizely",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-plugin-optimizely-x",
+      "projectFolder": "plugins/browser-plugin-optimizely-x",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-plugin-client-hints",
+      "projectFolder": "plugins/browser-plugin-client-hints",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-plugin-parrable",
+      "projectFolder": "plugins/browser-plugin-parrable",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-plugin-performance-timing",
+      "projectFolder": "plugins/browser-plugin-performance-timing",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-plugin-gdpr",
+      "projectFolder": "plugins/browser-plugin-gdpr",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-plugin-geolocation",
+      "projectFolder": "plugins/browser-plugin-geolocation",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-plugin-ga-cookies",
+      "projectFolder": "plugins/browser-plugin-ga-cookies",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-plugin-link-click-tracking",
+      "projectFolder": "plugins/browser-plugin-link-click-tracking",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-plugin-form-tracking",
+      "projectFolder": "plugins/browser-plugin-form-tracking",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-plugin-error-tracking",
+      "projectFolder": "plugins/browser-plugin-error-tracking",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
     }
   ]
 }

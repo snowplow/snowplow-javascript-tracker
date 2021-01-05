@@ -35,8 +35,13 @@
 import mapValues from 'lodash/mapValues';
 import isString from 'lodash/isString';
 import map from 'lodash/map';
-import { localStorageAccessible } from './lib/detectors';
-import { warn, attemptWriteLocalStorage, attemptWriteSessionStorage, attemptGetSessionStorage } from './lib/helpers';
+import {
+  warn,
+  attemptWriteLocalStorage,
+  attemptWriteSessionStorage,
+  attemptGetSessionStorage,
+  localStorageAccessible,
+} from '@snowplow/browser-core';
 
 /**
  * Object handling sending events to a collector.

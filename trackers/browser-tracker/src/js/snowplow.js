@@ -39,9 +39,8 @@
  */
 
 import { Tracker } from './tracker';
-import { SharedState } from './shared_state';
 import { version } from './version';
-import { warn } from './lib/helpers';
+import { warn, SharedState } from '@snowplow/browser-core';
 import pickBy from 'lodash/pickBy';
 import includes from 'lodash/includes';
 

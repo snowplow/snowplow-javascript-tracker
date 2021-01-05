@@ -16,7 +16,6 @@ export const core = [
   json(),
   nodeResolve({
     browser: true,
-    dedupe: ['lodash', 'uuid'],
   }),
   commonjs(),
   babel({

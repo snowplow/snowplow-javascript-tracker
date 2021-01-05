@@ -1,6 +1,42 @@
 importers:
   .:
     specifiers: {}
+  ../../libraries/browser-core:
+    dependencies:
+      '@snowplow/tracker-core': 'link:../tracker-core'
+      jstimezonedetect: 1.0.7
+      lodash: 4.17.20
+      tslib: 2.0.3
+    devDependencies:
+      '@types/jstimezonedetect': 1.0.3
+      '@types/lodash': 4.14.167
+      '@types/node': 14.14.14
+      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      ava: 3.14.0
+      eslint: 7.16.0
+      prettier: 2.2.1
+      rollup: 2.35.1
+      ts-node: 9.1.1_typescript@4.1.3
+      typescript: 4.1.3
+    specifiers:
+      '@snowplow/tracker-core': 'workspace:*'
+      '@types/jstimezonedetect': ~1.0.3
+      '@types/lodash': ^4.14.161
+      '@types/node': ^14.6.0
+      '@typescript-eslint/eslint-plugin': ^4.9.0
+      '@typescript-eslint/parser': ^4.9.0
+      '@wessberg/rollup-plugin-ts': ^1.3.8
+      ava: ^3.13.0
+      eslint: ^7.7.0
+      jstimezonedetect: 1.0.7
+      lodash: ^4.17.20
+      prettier: ^2.1.1
+      rollup: ^2.34.0
+      ts-node: ^9.0.0
+      tslib: ^2.0.3
+      typescript: ^4.1.2
   ../../libraries/tracker-core:
     dependencies:
       lodash: 4.17.20
@@ -20,7 +56,7 @@ importers:
       ts-node: 9.1.1_typescript@4.1.3
       typescript: 4.1.3
     specifiers:
-      '@types/lodash': ^4.14.160
+      '@types/lodash': ^4.14.161
       '@types/node': ^14.6.0
       '@types/uuid': ^3.4.6
       '@typescript-eslint/eslint-plugin': ^4.9.0
@@ -35,10 +71,298 @@ importers:
       tslib: ^2.0.3
       typescript: ^4.1.2
       uuid: ^3.3.3
-  ../../trackers/browser-tracker:
+  ../../plugins/browser-plugin-client-hints:
     dependencies:
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
-      jstimezonedetect: 1.0.5
+      tslib: 2.0.3
+    devDependencies:
+      '@types/node': 14.14.14
+      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      ava: 3.14.0
+      eslint: 7.16.0
+      prettier: 2.2.1
+      rollup: 2.35.1
+      ts-node: 9.1.1_typescript@4.1.3
+      typescript: 4.1.3
+    specifiers:
+      '@snowplow/tracker-core': 'workspace:*'
+      '@types/node': ^14.6.0
+      '@typescript-eslint/eslint-plugin': ^4.9.0
+      '@typescript-eslint/parser': ^4.9.0
+      '@wessberg/rollup-plugin-ts': ^1.3.8
+      ava: ^3.13.0
+      eslint: ^7.7.0
+      prettier: ^2.1.1
+      rollup: ^2.34.0
+      ts-node: ^9.0.0
+      tslib: ^2.0.3
+      typescript: ^4.1.2
+  ../../plugins/browser-plugin-ga-cookies:
+    dependencies:
+      '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
+      lodash: 4.17.20
+      tslib: 2.0.3
+    devDependencies:
+      '@types/lodash': 4.14.167
+      '@types/node': 14.14.14
+      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      ava: 3.14.0
+      eslint: 7.16.0
+      prettier: 2.2.1
+      rollup: 2.35.1
+      ts-node: 9.1.1_typescript@4.1.3
+      typescript: 4.1.3
+    specifiers:
+      '@snowplow/tracker-core': 'workspace:*'
+      '@types/lodash': ~4.14.167
+      '@types/node': ^14.6.0
+      '@typescript-eslint/eslint-plugin': ^4.9.0
+      '@typescript-eslint/parser': ^4.9.0
+      '@wessberg/rollup-plugin-ts': ^1.3.8
+      ava: ^3.13.0
+      eslint: ^7.7.0
+      lodash: ^4.17.20
+      prettier: ^2.1.1
+      rollup: ^2.34.0
+      ts-node: ^9.0.0
+      tslib: ^2.0.3
+      typescript: ^4.1.2
+  ../../plugins/browser-plugin-gdpr:
+    dependencies:
+      '@snowplow/browser-core': 'link:../../libraries/browser-core'
+      '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
+      tslib: 2.0.3
+    devDependencies:
+      '@types/node': 14.14.14
+      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      ava: 3.14.0
+      eslint: 7.16.0
+      prettier: 2.2.1
+      rollup: 2.35.1
+      ts-node: 9.1.1_typescript@4.1.3
+      typescript: 4.1.3
+    specifiers:
+      '@snowplow/browser-core': 'workspace:*'
+      '@snowplow/tracker-core': 'workspace:*'
+      '@types/node': ^14.6.0
+      '@typescript-eslint/eslint-plugin': ^4.9.0
+      '@typescript-eslint/parser': ^4.9.0
+      '@wessberg/rollup-plugin-ts': ^1.3.8
+      ava: ^3.13.0
+      eslint: ^7.7.0
+      prettier: ^2.1.1
+      rollup: ^2.34.0
+      ts-node: ^9.0.0
+      tslib: ^2.0.3
+      typescript: ^4.1.2
+  ../../plugins/browser-plugin-geolocation:
+    dependencies:
+      '@snowplow/browser-core': 'link:../../libraries/browser-core'
+      '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
+      tslib: 2.0.3
+    devDependencies:
+      '@types/node': 14.14.14
+      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      ava: 3.14.0
+      eslint: 7.16.0
+      prettier: 2.2.1
+      rollup: 2.35.1
+      ts-node: 9.1.1_typescript@4.1.3
+      typescript: 4.1.3
+    specifiers:
+      '@snowplow/browser-core': 'workspace:*'
+      '@snowplow/tracker-core': 'workspace:*'
+      '@types/node': ^14.6.0
+      '@typescript-eslint/eslint-plugin': ^4.9.0
+      '@typescript-eslint/parser': ^4.9.0
+      '@wessberg/rollup-plugin-ts': ^1.3.8
+      ava: ^3.13.0
+      eslint: ^7.7.0
+      prettier: ^2.1.1
+      rollup: ^2.34.0
+      ts-node: ^9.0.0
+      tslib: ^2.0.3
+      typescript: ^4.1.2
+  ../../plugins/browser-plugin-link-click-tracking:
+    dependencies:
+      '@snowplow/browser-core': 'link:../../libraries/browser-core'
+      '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
+      lodash: 4.17.20
+      tslib: 2.0.3
+    devDependencies:
+      '@types/lodash': 4.14.167
+      '@types/node': 14.14.14
+      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      ava: 3.14.0
+      eslint: 7.16.0
+      prettier: 2.2.1
+      rollup: 2.35.1
+      ts-node: 9.1.1_typescript@4.1.3
+      typescript: 4.1.3
+    specifiers:
+      '@snowplow/browser-core': 'workspace:*'
+      '@snowplow/tracker-core': 'workspace:*'
+      '@types/lodash': ~4.14.167
+      '@types/node': ^14.6.0
+      '@typescript-eslint/eslint-plugin': ^4.9.0
+      '@typescript-eslint/parser': ^4.9.0
+      '@wessberg/rollup-plugin-ts': ^1.3.8
+      ava: ^3.13.0
+      eslint: ^7.7.0
+      lodash: ^4.17.20
+      prettier: ^2.1.1
+      rollup: ^2.34.0
+      ts-node: ^9.0.0
+      tslib: ^2.0.3
+      typescript: ^4.1.2
+  ../../plugins/browser-plugin-optimizely:
+    dependencies:
+      '@snowplow/browser-core': 'link:../../libraries/browser-core'
+      '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
+      lodash: 4.17.20
+      tslib: 2.0.3
+    devDependencies:
+      '@types/lodash': 4.14.167
+      '@types/node': 14.14.14
+      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      ava: 3.14.0
+      eslint: 7.16.0
+      prettier: 2.2.1
+      rollup: 2.35.1
+      ts-node: 9.1.1_typescript@4.1.3
+      typescript: 4.1.3
+    specifiers:
+      '@snowplow/browser-core': 'workspace:*'
+      '@snowplow/tracker-core': 'workspace:*'
+      '@types/lodash': ~4.14.167
+      '@types/node': ^14.6.0
+      '@typescript-eslint/eslint-plugin': ^4.9.0
+      '@typescript-eslint/parser': ^4.9.0
+      '@wessberg/rollup-plugin-ts': ^1.3.8
+      ava: ^3.13.0
+      eslint: ^7.7.0
+      lodash: ^4.17.20
+      prettier: ^2.1.1
+      rollup: ^2.34.0
+      ts-node: ^9.0.0
+      tslib: ^2.0.3
+      typescript: ^4.1.2
+  ../../plugins/browser-plugin-optimizely-x:
+    dependencies:
+      '@snowplow/browser-core': 'link:../../libraries/browser-core'
+      '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
+      lodash: 4.17.20
+      tslib: 2.0.3
+    devDependencies:
+      '@types/lodash': 4.14.167
+      '@types/node': 14.14.14
+      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      ava: 3.14.0
+      eslint: 7.16.0
+      prettier: 2.2.1
+      rollup: 2.35.1
+      ts-node: 9.1.1_typescript@4.1.3
+      typescript: 4.1.3
+    specifiers:
+      '@snowplow/browser-core': 'workspace:*'
+      '@snowplow/tracker-core': 'workspace:*'
+      '@types/lodash': ~4.14.167
+      '@types/node': ^14.6.0
+      '@typescript-eslint/eslint-plugin': ^4.9.0
+      '@typescript-eslint/parser': ^4.9.0
+      '@wessberg/rollup-plugin-ts': ^1.3.8
+      ava: ^3.13.0
+      eslint: ^7.7.0
+      lodash: ^4.17.20
+      prettier: ^2.1.1
+      rollup: ^2.34.0
+      ts-node: ^9.0.0
+      tslib: ^2.0.3
+      typescript: ^4.1.2
+  ../../plugins/browser-plugin-parrable:
+    dependencies:
+      '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
+      tslib: 2.0.3
+    devDependencies:
+      '@types/node': 14.14.14
+      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      ava: 3.14.0
+      eslint: 7.16.0
+      prettier: 2.2.1
+      rollup: 2.35.1
+      ts-node: 9.1.1_typescript@4.1.3
+      typescript: 4.1.3
+    specifiers:
+      '@snowplow/tracker-core': 'workspace:*'
+      '@types/node': ^14.6.0
+      '@typescript-eslint/eslint-plugin': ^4.9.0
+      '@typescript-eslint/parser': ^4.9.0
+      '@wessberg/rollup-plugin-ts': ^1.3.8
+      ava: ^3.13.0
+      eslint: ^7.7.0
+      prettier: ^2.1.1
+      rollup: ^2.34.0
+      ts-node: ^9.0.0
+      tslib: ^2.0.3
+      typescript: ^4.1.2
+  ../../plugins/browser-plugin-performance-timing:
+    dependencies:
+      '@snowplow/browser-core': 'link:../../libraries/browser-core'
+      '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
+      tslib: 2.0.3
+    devDependencies:
+      '@types/node': 14.14.14
+      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      ava: 3.14.0
+      eslint: 7.16.0
+      prettier: 2.2.1
+      rollup: 2.35.1
+      ts-node: 9.1.1_typescript@4.1.3
+      typescript: 4.1.3
+    specifiers:
+      '@snowplow/browser-core': 'workspace:*'
+      '@snowplow/tracker-core': 'workspace:*'
+      '@types/node': ^14.6.0
+      '@typescript-eslint/eslint-plugin': ^4.9.0
+      '@typescript-eslint/parser': ^4.9.0
+      '@wessberg/rollup-plugin-ts': ^1.3.8
+      ava: ^3.13.0
+      eslint: ^7.7.0
+      prettier: ^2.1.1
+      rollup: ^2.34.0
+      ts-node: ^9.0.0
+      tslib: ^2.0.3
+      typescript: ^4.1.2
+  ../../trackers/browser-tracker:
+    dependencies:
+      '@snowplow/browser-core': 'link:../../libraries/browser-core'
+      '@snowplow/browser-plugin-client-hints': 'link:../../plugins/browser-plugin-client-hints'
+      '@snowplow/browser-plugin-gdpr': 'link:../../plugins/browser-plugin-gdpr'
+      '@snowplow/browser-plugin-geolocation': 'link:../../plugins/browser-plugin-geolocation'
+      '@snowplow/browser-plugin-link-click-tracking': 'link:../../plugins/browser-plugin-link-click-tracking'
+      '@snowplow/browser-plugin-optimizely': 'link:../../plugins/browser-plugin-optimizely'
+      '@snowplow/browser-plugin-optimizely-x': 'link:../../plugins/browser-plugin-optimizely-x'
+      '@snowplow/browser-plugin-parrable': 'link:../../plugins/browser-plugin-parrable'
+      '@snowplow/browser-plugin-performance-timing': 'link:../../plugins/browser-plugin-performance-timing'
+      '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
       lodash: 4.17.20
       sha1: github.com/pvorb/node-sha1/910081c83f3661507d9d89e66e3f38d8b59d5559
       uuid: 3.4.0
@@ -85,6 +409,15 @@ importers:
       '@rollup/plugin-commonjs': ^17.0.0
       '@rollup/plugin-json': ^4.1.0
       '@rollup/plugin-node-resolve': ^11.0.0
+      '@snowplow/browser-core': 'workspace:*'
+      '@snowplow/browser-plugin-client-hints': 'workspace:*'
+      '@snowplow/browser-plugin-gdpr': 'workspace:*'
+      '@snowplow/browser-plugin-geolocation': 'workspace:*'
+      '@snowplow/browser-plugin-link-click-tracking': 'workspace:*'
+      '@snowplow/browser-plugin-optimizely': 'workspace:*'
+      '@snowplow/browser-plugin-optimizely-x': 'workspace:*'
+      '@snowplow/browser-plugin-parrable': 'workspace:*'
+      '@snowplow/browser-plugin-performance-timing': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
       '@types/babel__core': ^7.1.12
       '@types/jest': ^26.0.15
@@ -100,7 +433,6 @@ importers:
       dockerode: ^3.2.1
       gulp: ^4.0.2
       jest: ^26.6.3
-      jstimezonedetect: 1.0.5
       lodash: ^4.17.20
       moment-timezone: ^0.5.26
       prettier: ^2.1.1
@@ -1728,6 +2060,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-3c+yGKvVP5Y9TYBEibGNR+kLtijnj7mYrXRg+WpFb2X9xm04g/DXYkfg4hmzJQosc9snFNUPkbYIhu+KAm6jJw==
+  /@types/jstimezonedetect/1.0.3:
+    dev: true
+    resolution:
+      integrity: sha512-nrhtotVo8xEFMiFX1V5y8GhUhCct74lsaqr6R6VWN/KGvZNdKVPrDGD//9aha360yrmJwk88c1wlRRJuIbvijQ==
   /@types/keyv/3.1.1:
     dependencies:
       '@types/node': 14.14.14
@@ -1786,6 +2122,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-tjSSOTHhI5mCHTy/OOXYIhi2Wt1qcbHmuXD1Ha7q70CgI/I71afO4XtLb/cVexki1oVYchpul/TOuu3Arcdxrg==
+  /@types/lodash/4.14.167:
+    dev: true
+    resolution:
+      integrity: sha512-w7tQPjARrvdeBkX/Rwg95S592JwxqOjmms3zWQ0XZgSyxSLdzWaYH3vErBhdVS/lRBX7F8aBYcYJYTr5TMGOzw==
   /@types/mime/2.0.3:
     dev: true
     resolution:
@@ -7334,10 +7674,10 @@ packages:
       '0': node >=0.6.0
     resolution:
       integrity: sha1-MT5mvB5cwG5Di8G3SZwuXFastqI=
-  /jstimezonedetect/1.0.5:
+  /jstimezonedetect/1.0.7:
     dev: false
     resolution:
-      integrity: sha1-k9A1zSDox9ZOsTdc9ap6EKAkRmo=
+      integrity: sha512-ARADHortktl9IZ1tr4GHwGPIAzgz3mLNCbR/YjWtRtc/O0o634O3NeFlpLjv95EvuDA5dc8z6yfgbS8nUc4zcQ==
   /just-debounce/1.0.0:
     dev: true
     resolution:
@@ -11562,5 +11902,7 @@ packages:
     dev: false
     name: sha1
     resolution:
+      registry: 'https://registry.npmjs.org/'
       tarball: 'https://codeload.github.com/pvorb/node-sha1/tar.gz/910081c83f3661507d9d89e66e3f38d8b59d5559'
     version: 1.0.0
+registry: ''

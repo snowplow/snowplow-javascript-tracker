@@ -37,26 +37,28 @@ import { fromQuerystring, getHostName } from './helpers';
 /*
  * Extract parameter from URL
  */
-function getParameter(url, name) {
+function getParameter(url: string, name: string) {
   // scheme : // [username [: password] @] hostname [: port] [/ [path] [? query] [# fragment]]
   var e = new RegExp('^(?:https?|ftp)(?::/*(?:[^?]+))([?][^#]+)'),
-    matches = e.exec(url),
-    result = fromQuerystring(name, matches[1]);
+    matches = e.exec(url);
 
-  return result;
+  if (matches && matches?.length > 1) {
+    return fromQuerystring(name, matches[1]);
+  }
+  return null;
 }
 
 /*
  * Fix-up URL when page rendered from search engine cache or translated page.
  * TODO: it would be nice to generalise this and/or move into the ETL phase.
  */
-export function fixupUrl(hostName, href, referrer) {
+export function fixupUrl(hostName: string, href: string, referrer: string) {
   if (hostName === 'translate.googleusercontent.com') {
     // Google
     if (referrer === '') {
       referrer = href;
     }
-    href = getParameter(href, 'u');
+    href = getParameter(href, 'u') ?? '';
     hostName = getHostName(href);
   } else if (
     hostName === 'cc.bingj.com' || // Bing & Yahoo

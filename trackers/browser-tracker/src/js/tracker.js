@@ -33,7 +33,6 @@
  */
 
 import forEach from 'lodash/forEach';
-import map from 'lodash/map';
 import isInteger from 'lodash/isInteger';
 import {
   getReferrer,
@@ -46,24 +45,23 @@ import {
   attemptGetLocalStorage,
   attemptWriteLocalStorage,
   attemptDeleteLocalStorage,
-  isValueInArray,
   fixupTitle,
   fromQuerystring,
   parseAndValidateFloat,
   parseAndValidateInt,
   cookie,
   deleteCookie,
-} from './lib/helpers';
-import { fixupUrl } from './lib/proxies';
-import { detectBrowserFeatures, detectTimezone, detectViewport, detectDocumentSize } from './lib/detectors';
+  fixupUrl,
+  detectBrowserFeatures,
+  detectTimezone,
+  detectViewport,
+  detectDocumentSize,
+} from '@snowplow/browser-core';
 import sha1 from 'sha1';
-import { LinkTrackingManager } from './links';
-import { FormTrackingManager } from './forms';
-import { ErrorTrackingManager } from './errors';
+import uuid from 'uuid/v4';
 import { OutQueueManager } from './out_queue';
 import { productionize } from './guard';
 import { trackerCore } from '@snowplow/tracker-core';
-import uuid from 'uuid/v4';
 
 /**
  * Snowplow Tracker class
@@ -127,21 +125,17 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
 
   const getAnonymousTracking = (config) => !!config.anonymousTracking;
 
-  // Enum for accpted values of the gdprBasisContext's basisForProcessing argument
-  const gdprBasisEnum = Object.freeze({
-    consent: 'consent',
-    contract: 'contract',
-    legalObligation: 'legal_obligation',
-    vitalInterests: 'vital_interests',
-    publicTask: 'public_task',
-    legitimateInterests: 'legitimate_interests',
-  });
+  const contextPlugins = (argmap.contextPlugins || []).concat(getWebPagePlugin());
 
   var // Tracker core
-    core = trackerCore(true, function (payload) {
-      addBrowserData(payload);
-      sendRequest(payload, configTrackerPause);
-    }),
+    core = trackerCore(
+      true,
+      function (payload) {
+        addBrowserData(payload);
+        sendRequest(payload, configTrackerPause);
+      },
+      contextPlugins
+    ),
     // Debug - whether to raise errors to console and log to console
     // or silence all errors from public methods
     debug = false,
@@ -156,7 +150,6 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
     documentAlias = document,
     windowAlias = window,
     navigatorAlias = navigator,
-    screenAlias = screen,
     // Current URL and Referrer URL
     locationArray = fixupUrl(documentAlias.domain, windowAlias.location.href, getReferrer()),
     domainAlias = fixupDomain(locationArray[0]),
@@ -258,12 +251,6 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
     // Ecommerce transaction data
     // Will be committed, sent and emptied by a call to trackTrans.
     ecommerceTransaction = ecommerceTransactionTemplate(),
-    // Manager for automatic link click tracking
-    linkTracking = new LinkTrackingManager(core, trackerId, addCommonContexts),
-    // Manager for automatic form tracking
-    formTracking = new FormTrackingManager(core, trackerId, addCommonContexts),
-    // Manager for tracking unhandled exceptions
-    errorTracking = new ErrorTrackingManager(core),
     // Manager for local storage queue
     outQueue = new OutQueueManager(
       functionName,
@@ -279,12 +266,6 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
       argmap.connectionTimeout || 5000,
       configAnonymousServerTracking
     ),
-    // Flag to prevent the geolocation context being added multiple times
-    geolocationContextAdded = false,
-    // Set of contexts to be added to every event
-    autoContexts = argmap.contexts || {},
-    // Context to be added to every event
-    commonContexts = [],
     // Enhanced Ecommerce Contexts to be added on every `trackEnhancedEcommerceAction` call
     enhancedEcommerceContexts = [],
     // Whether pageViewId should be regenerated after each trackPageView. Affect web_page context
@@ -297,43 +278,12 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
       installed: false, // Guard against installing the activity tracker more than once per Tracker instance
       configurations: {},
     },
-    uaClientHints = null;
-
-  if (autoContexts.clientHints) {
-    if (navigatorAlias.userAgentData) {
-      uaClientHints = {
-        isMobile: navigatorAlias.userAgentData.mobile,
-        brands: navigatorAlias.userAgentData.brands,
-      };
-      if (autoContexts.clientHints.includeHighEntropy && navigatorAlias.userAgentData.getHighEntropyValues) {
-        navigatorAlias.userAgentData
-          .getHighEntropyValues(['platform', 'platformVersion', 'architecture', 'model', 'uaFullVersion'])
-          .then((res) => {
-            uaClientHints.architecture = res.architecture;
-            uaClientHints.model = res.model;
-            uaClientHints.platform = res.platform;
-            uaClientHints.uaFullVersion = res.uaFullVersion;
-            uaClientHints.platformVersion = res.platformVersion;
-          });
-      }
-    }
-  }
+    apiPlugins = argmap.apiPlugins || [];
 
   let skippedBrowserFeatures = argmap.skippedBrowserFeatures || [];
 
-  // Object to house gdpr Basis context values
-  let gdprBasisData = {};
-
   if (argmap.hasOwnProperty('discoverRootDomain') && argmap.discoverRootDomain) {
     configCookieDomain = findRootDomain(configCookieSameSite, configCookieSecure);
-  }
-
-  if (autoContexts.gaCookies) {
-    commonContexts.push(getGaCookiesContext());
-  }
-
-  if (autoContexts.geolocation) {
-    enableGeolocationContext();
   }
 
   // Enable base 64 encoding for self-describing events and custom contexts
@@ -845,108 +795,6 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
   }
 
   /**
-   * Add common contexts to every event
-   * TODO: move this functionality into the core
-   *
-   * @param array userContexts List of user-defined contexts
-   * @return userContexts combined with commonContexts
-   */
-  function addCommonContexts(userContexts) {
-    var combinedContexts = commonContexts.concat(userContexts || []);
-
-    if (autoContexts.webPage) {
-      combinedContexts.push(getWebPageContext());
-    }
-
-    // Add PerformanceTiming Context
-    if (autoContexts.performanceTiming) {
-      var performanceTimingContext = getPerformanceTimingContext();
-      if (performanceTimingContext) {
-        combinedContexts.push(performanceTimingContext);
-      }
-    }
-
-    // Add Optimizely Contexts
-    if (windowAlias.optimizely) {
-      if (autoContexts.optimizelySummary) {
-        var activeExperiments = getOptimizelySummaryContexts();
-        forEach(activeExperiments, function (e) {
-          combinedContexts.push(e);
-        });
-      }
-
-      if (autoContexts.optimizelyXSummary) {
-        var activeExperiments = getOptimizelyXSummaryContexts();
-        forEach(activeExperiments, function (e) {
-          combinedContexts.push(e);
-        });
-      }
-
-      if (autoContexts.optimizelyExperiments) {
-        var experimentContexts = getOptimizelyExperimentContexts();
-        for (var i = 0; i < experimentContexts.length; i++) {
-          combinedContexts.push(experimentContexts[i]);
-        }
-      }
-
-      if (autoContexts.optimizelyStates) {
-        var stateContexts = getOptimizelyStateContexts();
-        for (var i = 0; i < stateContexts.length; i++) {
-          combinedContexts.push(stateContexts[i]);
-        }
-      }
-
-      if (autoContexts.optimizelyVariations) {
-        var variationContexts = getOptimizelyVariationContexts();
-        for (var i = 0; i < variationContexts.length; i++) {
-          combinedContexts.push(variationContexts[i]);
-        }
-      }
-
-      if (autoContexts.optimizelyVisitor) {
-        var optimizelyVisitorContext = getOptimizelyVisitorContext();
-        if (optimizelyVisitorContext) {
-          combinedContexts.push(optimizelyVisitorContext);
-        }
-      }
-
-      if (autoContexts.optimizelyAudiences) {
-        var audienceContexts = getOptimizelyAudienceContexts();
-        for (var i = 0; i < audienceContexts.length; i++) {
-          combinedContexts.push(audienceContexts[i]);
-        }
-      }
-
-      if (autoContexts.optimizelyDimensions) {
-        var dimensionContexts = getOptimizelyDimensionContexts();
-        for (var i = 0; i < dimensionContexts.length; i++) {
-          combinedContexts.push(dimensionContexts[i]);
-        }
-      }
-    }
-
-    //Add Parrable Context
-    if (autoContexts.parrable) {
-      var parrableContext = getParrableContext();
-      if (parrableContext) {
-        combinedContexts.push(parrableContext);
-      }
-    }
-
-    if (autoContexts.gdprBasis && gdprBasisData.gdprBasis) {
-      var gdprBasisContext = getGdprBasisContext();
-      if (gdprBasisContext) {
-        combinedContexts.push(gdprBasisContext);
-      }
-    }
-
-    if (autoContexts.clientHints && uaClientHints) {
-      combinedContexts.push(getUAClientHintsContext());
-    }
-    return combinedContexts;
-  }
-
-  /**
    * Initialize new `pageViewId` if it shouldn't be preserved.
    * Should be called when `trackPageView` is invoked
    */
@@ -968,429 +816,23 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
   }
 
   /**
-   * Put together a http_client_hints context with the UA Client Hint data we have so far
-   *
-   * @return object http_client_hints context
-   */
-  function getUAClientHintsContext() {
-    return {
-      schema: 'iglu:org.ietf/http_client_hints/jsonschema/1-0-0',
-      data: uaClientHints,
-    };
-  }
-
-  /**
    * Put together a web page context with a unique UUID for the page view
    *
    * @return object web_page context
    */
-  function getWebPageContext() {
+  function getWebPagePlugin() {
     return {
-      schema: 'iglu:com.snowplowanalytics.snowplow/web_page/jsonschema/1-0-0',
-      data: {
-        id: getPageViewId(),
+      getContexts: () => {
+        return [
+          {
+            schema: 'iglu:com.snowplowanalytics.snowplow/web_page/jsonschema/1-0-0',
+            data: {
+              id: getPageViewId(),
+            },
+          },
+        ];
       },
     };
-  }
-
-  /**
-   * Creates a context from the window.performance.timing object
-   *
-   * @return object PerformanceTiming context
-   */
-  function getPerformanceTimingContext() {
-    var allowedKeys = [
-      'navigationStart',
-      'redirectStart',
-      'redirectEnd',
-      'fetchStart',
-      'domainLookupStart',
-      'domainLookupEnd',
-      'connectStart',
-      'secureConnectionStart',
-      'connectEnd',
-      'requestStart',
-      'responseStart',
-      'responseEnd',
-      'unloadEventStart',
-      'unloadEventEnd',
-      'domLoading',
-      'domInteractive',
-      'domContentLoadedEventStart',
-      'domContentLoadedEventEnd',
-      'domComplete',
-      'loadEventStart',
-      'loadEventEnd',
-      'msFirstPaint',
-      'chromeFirstPaint',
-      'requestEnd',
-      'proxyStart',
-      'proxyEnd',
-    ];
-    var performance =
-      windowAlias.performance ||
-      windowAlias.mozPerformance ||
-      windowAlias.msPerformance ||
-      windowAlias.webkitPerformance;
-    if (performance) {
-      // On Safari, the fields we are interested in are on the prototype chain of
-      // performance.timing so we cannot copy them using lodash.clone
-      var performanceTiming = {};
-      for (var field in performance.timing) {
-        if (isValueInArray(field, allowedKeys) && performance.timing[field] !== null) {
-          performanceTiming[field] = performance.timing[field];
-        }
-      }
-
-      // Old Chrome versions add an unwanted requestEnd field
-      delete performanceTiming.requestEnd;
-
-      return {
-        schema: 'iglu:org.w3/PerformanceTiming/jsonschema/1-0-0',
-        data: performanceTiming,
-      };
-    }
-  }
-
-  /**
-   * Check that *both* optimizely and optimizely.data exist and return
-   * optimizely.data.property
-   *
-   * @param property optimizely data property
-   * @param snd optional nested property
-   */
-  function getOptimizelyData(property, snd) {
-    var data;
-    if (windowAlias.optimizely && windowAlias.optimizely.data) {
-      data = windowAlias.optimizely.data[property];
-      if (typeof snd !== 'undefined' && data !== undefined) {
-        data = data[snd];
-      }
-    }
-    return data;
-  }
-
-  /**
-   * Check that *both* optimizely and optimizely.get exist
-   *
-   * @param property optimizely data property
-   * @param snd optional nested property
-   */
-  function getOptimizelyXData(property, snd) {
-    var data;
-    if (windowAlias.optimizely && typeof windowAlias.optimizely.get === 'function') {
-      data = windowAlias.optimizely.get(property);
-      if (typeof snd !== 'undefined' && data !== undefined) {
-        data = data[snd];
-      }
-    }
-    return data;
-  }
-
-  /**
-   * Get data for Optimizely "lite" contexts - active experiments on current page
-   *
-   * @returns Array content of lite optimizely lite context
-   */
-  function getOptimizelySummary() {
-    var state = getOptimizelyData('state');
-    var experiments = getOptimizelyData('experiments');
-
-    return map(state && experiments && state.activeExperiments, function (activeExperiment) {
-      var current = experiments[activeExperiment];
-      return {
-        activeExperimentId: activeExperiment.toString(),
-        // User can be only in one variation (don't know why is this array)
-        variation: state.variationIdsMap[activeExperiment][0].toString(),
-        conditional: current && current.conditional,
-        manual: current && current.manual,
-        name: current && current.name,
-      };
-    });
-  }
-
-  /**
-   * Get data for OptimizelyX contexts - active experiments on current page
-   *
-   * @returns Array content of lite optimizely lite context
-   */
-  function getOptimizelyXSummary() {
-    var state = getOptimizelyXData('state');
-    var experiment_ids = state && state.getActiveExperimentIds();
-    var variationMap = state && state.getVariationMap();
-    var visitor = getOptimizelyXData('visitor');
-
-    return map(experiment_ids, function (activeExperiment) {
-      var variation = variationMap[activeExperiment];
-      var variationName = (variation && variation.name && variation.name.toString()) || null;
-      var variationId = variation && variation.id;
-      var visitorId = (visitor && visitor.visitorId && visitor.visitorId.toString()) || null;
-      return {
-        experimentId: parseAndValidateInt(activeExperiment) || null,
-        variationName: variationName,
-        variation: parseAndValidateInt(variationId) || null,
-        visitorId: visitorId,
-      };
-    });
-  }
-
-  /**
-   * Creates a context from the window['optimizely'].data.experiments object
-   *
-   * @return Array Experiment contexts
-   */
-  function getOptimizelyExperimentContexts() {
-    var experiments = getOptimizelyData('experiments');
-    if (experiments) {
-      var contexts = [];
-
-      for (var key in experiments) {
-        if (experiments.hasOwnProperty(key)) {
-          var context = {};
-          context.id = key;
-          var experiment = experiments[key];
-          context.code = experiment.code;
-          context.manual = experiment.manual;
-          context.conditional = experiment.conditional;
-          context.name = experiment.name;
-          context.variationIds = experiment.variation_ids;
-
-          contexts.push({
-            schema: 'iglu:com.optimizely/experiment/jsonschema/1-0-0',
-            data: context,
-          });
-        }
-      }
-      return contexts;
-    }
-    return [];
-  }
-
-  /**
-   * Creates a context from the window['optimizely'].data.state object
-   *
-   * @return Array State contexts
-   */
-  function getOptimizelyStateContexts() {
-    var experimentIds = [];
-    var experiments = getOptimizelyData('experiments');
-    if (experiments) {
-      for (var key in experiments) {
-        if (experiments.hasOwnProperty(key)) {
-          experimentIds.push(key);
-        }
-      }
-    }
-
-    var state = getOptimizelyData('state');
-    if (state) {
-      var contexts = [];
-      var activeExperiments = state.activeExperiments || [];
-
-      for (var i = 0; i < experimentIds.length; i++) {
-        var experimentId = experimentIds[i];
-        var context = {};
-        context.experimentId = experimentId;
-        context.isActive = isValueInArray(experimentIds[i], activeExperiments);
-        var variationMap = state.variationMap || {};
-        context.variationIndex = variationMap[experimentId];
-        var variationNamesMap = state.variationNamesMap || {};
-        context.variationName = variationNamesMap[experimentId];
-        var variationIdsMap = state.variationIdsMap || {};
-        if (variationIdsMap[experimentId] && variationIdsMap[experimentId].length === 1) {
-          context.variationId = variationIdsMap[experimentId][0];
-        }
-
-        contexts.push({
-          schema: 'iglu:com.optimizely/state/jsonschema/1-0-0',
-          data: context,
-        });
-      }
-      return contexts;
-    }
-    return [];
-  }
-
-  /**
-   * Creates a context from the window['optimizely'].data.variations object
-   *
-   * @return Array Variation contexts
-   */
-  function getOptimizelyVariationContexts() {
-    var variations = getOptimizelyData('variations');
-    if (variations) {
-      var contexts = [];
-
-      for (var key in variations) {
-        if (variations.hasOwnProperty(key)) {
-          var context = {};
-          context.id = key;
-          var variation = variations[key];
-          context.name = variation.name;
-          context.code = variation.code;
-
-          contexts.push({
-            schema: 'iglu:com.optimizely/variation/jsonschema/1-0-0',
-            data: context,
-          });
-        }
-      }
-      return contexts;
-    }
-    return [];
-  }
-
-  /**
-   * Creates a context from the window['optimizely'].data.visitor object
-   *
-   * @return object Visitor context
-   */
-  function getOptimizelyVisitorContext() {
-    var visitor = getOptimizelyData('visitor');
-    if (visitor) {
-      var context = {};
-      context.browser = visitor.browser;
-      context.browserVersion = visitor.browserVersion;
-      context.device = visitor.device;
-      context.deviceType = visitor.deviceType;
-      context.ip = visitor.ip;
-      var platform = visitor.platform || {};
-      context.platformId = platform.id;
-      context.platformVersion = platform.version;
-      var location = visitor.location || {};
-      context.locationCity = location.city;
-      context.locationRegion = location.region;
-      context.locationCountry = location.country;
-      context.mobile = visitor.mobile;
-      context.mobileId = visitor.mobileId;
-      context.referrer = visitor.referrer;
-      context.os = visitor.os;
-
-      return {
-        schema: 'iglu:com.optimizely/visitor/jsonschema/1-0-0',
-        data: context,
-      };
-    }
-  }
-
-  /**
-   * Creates a context from the window['optimizely'].data.visitor.audiences object
-   *
-   * @return Array VisitorAudience contexts
-   */
-  function getOptimizelyAudienceContexts() {
-    var audienceIds = getOptimizelyData('visitor', 'audiences');
-    if (audienceIds) {
-      var contexts = [];
-
-      for (var key in audienceIds) {
-        if (audienceIds.hasOwnProperty(key)) {
-          var context = { id: key, isMember: audienceIds[key] };
-
-          contexts.push({
-            schema: 'iglu:com.optimizely/visitor_audience/jsonschema/1-0-0',
-            data: context,
-          });
-        }
-      }
-      return contexts;
-    }
-    return [];
-  }
-
-  /**
-   * Creates a context from the window['optimizely'].data.visitor.dimensions object
-   *
-   * @return Array VisitorDimension contexts
-   */
-  function getOptimizelyDimensionContexts() {
-    var dimensionIds = getOptimizelyData('visitor', 'dimensions');
-    if (dimensionIds) {
-      var contexts = [];
-
-      for (var key in dimensionIds) {
-        if (dimensionIds.hasOwnProperty(key)) {
-          var context = { id: key, value: dimensionIds[key] };
-
-          contexts.push({
-            schema: 'iglu:com.optimizely/visitor_dimension/jsonschema/1-0-0',
-            data: context,
-          });
-        }
-      }
-      return contexts;
-    }
-    return [];
-  }
-
-  /**
-   * Creates an Optimizely lite context containing only data required to join
-   * event to experiment data
-   *
-   * @returns Array of custom contexts
-   */
-  function getOptimizelySummaryContexts() {
-    return map(getOptimizelySummary(), function (experiment) {
-      return {
-        schema: 'iglu:com.optimizely.snowplow/optimizely_summary/jsonschema/1-0-0',
-        data: experiment,
-      };
-    });
-  }
-
-  /**
-   * Creates an OptimizelyX context containing only data required to join
-   * event to experiment data
-   *
-   * @returns Array of custom contexts
-   */
-  function getOptimizelyXSummaryContexts() {
-    return map(getOptimizelyXSummary(), function (experiment) {
-      return {
-        schema: 'iglu:com.optimizely.optimizelyx/summary/jsonschema/1-0-0',
-        data: experiment,
-      };
-    });
-  }
-
-  /**
-   * Creates a context from the window['_hawk'] object
-   *
-   * @return object The Parrable context
-   */
-  function getParrableContext() {
-    var parrable = window['_hawk'];
-    if (parrable) {
-      var context = { encryptedId: null, optout: null };
-      context['encryptedId'] = parrable.browserid;
-      var regex = new RegExp(
-          '(?:^|;)\\s?' + '_parrable_hawk_optout'.replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1') + '=(.*?)(?:;|$)',
-          'i'
-        ),
-        match = document.cookie.match(regex);
-      context['optout'] = match && decodeURIComponent(match[1]) ? match && decodeURIComponent(match[1]) : 'false';
-      return {
-        schema: 'iglu:com.parrable/encrypted_payload/jsonschema/1-0-0',
-        data: context,
-      };
-    }
-  }
-
-  /* Creates GDPR context Self-describing JSON object
-   */
-
-  function getGdprBasisContext() {
-    if (gdprBasisData.gdprBasis) {
-      return {
-        schema: 'iglu:com.snowplowanalytics.snowplow/gdpr/jsonschema/1-0-0',
-        data: {
-          basisForProcessing: gdprBasisData.gdprBasis, // Needs to reference local storage
-          documentId: gdprBasisData.gdprDocId || null,
-          documentVersion: gdprBasisData.gdprDocVer || null,
-          documentDescription: gdprBasisData.gdprDocDesc || null,
-        },
-      };
-    }
   }
 
   /**
@@ -1441,51 +883,6 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
   }
 
   /**
-   * Attempts to create a context using the geolocation API and add it to commonContexts
-   */
-  function enableGeolocationContext() {
-    if (!geolocationContextAdded && navigatorAlias.geolocation && navigatorAlias.geolocation.getCurrentPosition) {
-      geolocationContextAdded = true;
-      navigatorAlias.geolocation.getCurrentPosition(function (position) {
-        var coords = position.coords;
-        var geolocationContext = {
-          schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
-          data: {
-            latitude: coords.latitude,
-            longitude: coords.longitude,
-            latitudeLongitudeAccuracy: coords.accuracy,
-            altitude: coords.altitude,
-            altitudeAccuracy: coords.altitudeAccuracy,
-            bearing: coords.heading,
-            speed: coords.speed,
-            timestamp: Math.round(position.timestamp),
-          },
-        };
-        commonContexts.push(geolocationContext);
-      });
-    }
-  }
-
-  /**
-   * Creates a context containing the values of the cookies set by GA
-   *
-   * @return object GA cookies context
-   */
-  function getGaCookiesContext() {
-    var gaCookieData = {};
-    forEach(['__utma', '__utmb', '__utmc', '__utmv', '__utmz', '_ga'], function (cookieType) {
-      var value = cookie(cookieType);
-      if (value) {
-        gaCookieData[cookieType] = value;
-      }
-    });
-    return {
-      schema: 'iglu:com.google.analytics/cookies/jsonschema/1-0-0',
-      data: gaCookieData,
-    };
-  }
-
-  /**
    * Combine an array of unchanging contexts with the result of a context-creating function
    *
    * @param staticContexts Array of custom contexts
@@ -1524,7 +921,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
       purify(configCustomUrl || locationHrefAlias),
       pageTitle,
       purify(customReferrer || configReferrerUrl),
-      addCommonContexts(finalizeContexts(context, contextCallback)),
+      finalizeContexts(context, contextCallback),
       tstamp,
       afterTrack
     );
@@ -1685,7 +1082,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
       cleanOffset(maxXOffset),
       cleanOffset(minYOffset),
       cleanOffset(maxYOffset),
-      addCommonContexts(context)
+      context
     );
   }
 
@@ -1715,7 +1112,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
       state,
       country,
       currency,
-      addCommonContexts(context),
+      context,
       tstamp
     );
   }
@@ -1733,17 +1130,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    * @param object context Custom context relating to the event
    */
   function logTransactionItem(orderId, sku, name, category, price, quantity, currency, context, tstamp) {
-    core.trackEcommerceTransactionItem(
-      orderId,
-      sku,
-      name,
-      category,
-      price,
-      quantity,
-      currency,
-      addCommonContexts(context),
-      tstamp
-    );
+    core.trackEcommerceTransactionItem(orderId, sku, name, category, price, quantity, currency, context, tstamp);
   }
 
   /**
@@ -1913,54 +1300,6 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
   };
 
   /**
-   * Install link tracker
-   *
-   * The default behaviour is to use actual click events. However, some browsers
-   * (e.g., Firefox, Opera, and Konqueror) don't generate click events for the middle mouse button.
-   *
-   * To capture more "clicks", the pseudo click-handler uses mousedown + mouseup events.
-   * This is not industry standard and is vulnerable to false positives (e.g., drag events).
-   *
-   * There is a Safari/Chrome/Webkit bug that prevents tracking requests from being sent
-   * by either click handler.  The workaround is to set a target attribute (which can't
-   * be "_self", "_top", or "_parent").
-   *
-   * @see https://bugs.webkit.org/show_bug.cgi?id=54783
-   *
-   * @param object criterion Criterion by which it will be decided whether a link will be tracked
-   * @param bool pseudoClicks If true, use pseudo click-handler (mousedown+mouseup)
-   * @param bool trackContent Whether to track the innerHTML of the link element
-   * @param array context Context for all link click events
-   */
-  apiMethods.enableLinkClickTracking = function (criterion, pseudoClicks, trackContent, context) {
-    if (mutSnowplowState.hasLoaded) {
-      // the load event has already fired, add the click listeners now
-      linkTracking.configureLinkClickTracking(criterion, pseudoClicks, trackContent, context);
-      linkTracking.addClickListeners();
-    } else {
-      // defer until page has loaded
-      mutSnowplowState.registeredOnLoadHandlers.push(function () {
-        linkTracking.configureLinkClickTracking(criterion, pseudoClicks, trackContent, context);
-        linkTracking.addClickListeners();
-      });
-    }
-  };
-
-  /**
-   * Add click event listeners to links which have been added to the page since the
-   * last time enableLinkClickTracking or refreshLinkClickTracking was used
-   */
-  apiMethods.refreshLinkClickTracking = function () {
-    if (mutSnowplowState.hasLoaded) {
-      linkTracking.addClickListeners();
-    } else {
-      mutSnowplowState.registeredOnLoadHandlers.push(function () {
-        linkTracking.addClickListeners();
-      });
-    }
-  };
-
-  /**
    * Enables page activity tracking (sends page
    * pings to the Collector regularly).
    *
@@ -1998,27 +1337,6 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    */
   apiMethods.updatePageActivity = function () {
     activityHandler();
-  };
-
-  /**
-   * Enables automatic form tracking.
-   * An event will be fired when a form field is changed or a form submitted.
-   * This can be called multiple times: only forms not already tracked will be tracked.
-   *
-   * @param object config Configuration object determining which forms and fields to track.
-   *                      Has two properties: "forms" and "fields"
-   * @param array context Context for all form tracking events
-   */
-  apiMethods.enableFormTracking = function (config, context) {
-    if (mutSnowplowState.hasLoaded) {
-      formTracking.configureFormTracking(config);
-      formTracking.addFormListeners(context);
-    } else {
-      mutSnowplowState.registeredOnLoadHandlers.push(function () {
-        formTracking.configureFormTracking(config);
-        formTracking.addFormListeners(context);
-      });
-    }
   };
 
   /**
@@ -2098,11 +1416,6 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
   };
 
   /**
-   * Add the geolocation context to all events
-   */
-  apiMethods.enableGeolocationContext = enableGeolocationContext;
-
-  /**
    * Log visit to this page
    *
    * @param string customTitle
@@ -2131,7 +1444,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    * @param function afterTrack (optional) A callback function triggered after event is tracked
    */
   apiMethods.trackStructEvent = function (category, action, label, property, value, context, tstamp, afterTrack) {
-    core.trackStructEvent(category, action, label, property, value, addCommonContexts(context), tstamp, afterTrack);
+    core.trackStructEvent(category, action, label, property, value, context, tstamp, afterTrack);
   };
 
   /**
@@ -2143,7 +1456,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    * @param function afterTrack (optional) A callback function triggered after event is tracked
    */
   apiMethods.trackSelfDescribingEvent = function (eventJson, context, tstamp, afterTrack) {
-    core.trackSelfDescribingEvent(eventJson, addCommonContexts(context), tstamp, afterTrack);
+    core.trackSelfDescribingEvent(eventJson, context, tstamp, afterTrack);
   };
 
   /**
@@ -2255,38 +1568,6 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
   };
 
   /**
-   * Manually log a click from your own code
-   *
-   * @param string elementId
-   * @param array elementClasses
-   * @param string elementTarget
-   * @param string targetUrl
-   * @param string elementContent innerHTML of the element
-   * @param object Custom context relating to the event
-   * @param tstamp number or Timestamp object
-   */
-  // TODO: break this into trackLink(destUrl) and trackDownload(destUrl)
-  apiMethods.trackLinkClick = function (
-    targetUrl,
-    elementId,
-    elementClasses,
-    elementTarget,
-    elementContent,
-    context,
-    tstamp
-  ) {
-    core.trackLinkClick(
-      targetUrl,
-      elementId,
-      elementClasses,
-      elementTarget,
-      elementContent,
-      addCommonContexts(context),
-      tstamp
-    );
-  };
-
-  /**
    * Track an ad being served
    *
    * @param string impressionId Identifier for a particular ad impression
@@ -2320,7 +1601,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
       zoneId,
       advertiserId,
       campaignId,
-      addCommonContexts(context),
+      context,
       tstamp
     );
   };
@@ -2363,7 +1644,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
       impressionId,
       advertiserId,
       campaignId,
-      addCommonContexts(context),
+      context,
       tstamp
     );
   };
@@ -2406,7 +1687,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
       initialValue,
       advertiserId,
       campaignId,
-      addCommonContexts(context),
+      context,
       tstamp
     );
   };
@@ -2421,7 +1702,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    * @param tstamp number or Timestamp object
    */
   apiMethods.trackSocialInteraction = function (action, network, target, context, tstamp) {
-    core.trackSocialInteraction(action, network, target, addCommonContexts(context), tstamp);
+    core.trackSocialInteraction(action, network, target, context, tstamp);
   };
 
   /**
@@ -2437,7 +1718,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    * @param tstamp number or Timestamp object
    */
   apiMethods.trackAddToCart = function (sku, name, category, unitPrice, quantity, currency, context, tstamp) {
-    core.trackAddToCart(sku, name, category, unitPrice, quantity, currency, addCommonContexts(context), tstamp);
+    core.trackAddToCart(sku, name, category, unitPrice, quantity, currency, context, tstamp);
   };
 
   /**
@@ -2453,7 +1734,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    * @param tstamp Opinal number or Timestamp object
    */
   apiMethods.trackRemoveFromCart = function (sku, name, category, unitPrice, quantity, currency, context, tstamp) {
-    core.trackRemoveFromCart(sku, name, category, unitPrice, quantity, currency, addCommonContexts(context), tstamp);
+    core.trackRemoveFromCart(sku, name, category, unitPrice, quantity, currency, context, tstamp);
   };
 
   /**
@@ -2467,7 +1748,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    * @param tstamp Opinal number or Timestamp object
    */
   apiMethods.trackSiteSearch = function (terms, filters, totalResults, pageResults, context, tstamp) {
-    core.trackSiteSearch(terms, filters, totalResults, pageResults, addCommonContexts(context), tstamp);
+    core.trackSiteSearch(terms, filters, totalResults, pageResults, context, tstamp);
   };
 
   /**
@@ -2491,7 +1772,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
           label: label,
         },
       },
-      addCommonContexts(context),
+      context,
       tstamp
     );
   };
@@ -2508,7 +1789,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    * @param {number|Timestamp} [tstamp] - Number or Timestamp object.
    */
   apiMethods.trackConsentWithdrawn = function (all, id, version, name, description, context, tstamp) {
-    core.trackConsentWithdrawn(all, id, version, name, description, addCommonContexts(context), tstamp);
+    core.trackConsentWithdrawn(all, id, version, name, description, context, tstamp);
   };
 
   /**
@@ -2523,7 +1804,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    * @param {Timestamp|number} [tstamp] - number or Timestamp object.
    */
   apiMethods.trackConsentGranted = function (id, version, name, description, expiry, context, tstamp) {
-    core.trackConsentGranted(id, version, name, description, expiry, addCommonContexts(context), tstamp);
+    core.trackConsentGranted(id, version, name, description, expiry, context, tstamp);
   };
 
   /**
@@ -2545,7 +1826,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
           action: action,
         },
       },
-      addCommonContexts(combinedEnhancedEcommerceContexts),
+      combinedEnhancedEcommerceContexts,
       tstamp
     );
   };
@@ -2701,36 +1982,6 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
     });
   };
 
-  /* Adds GDPR context to all events.
-   * basisForProcessing is a required enum, accepted values are:
-   * consent, contract, legalObligation, vitalInterests, publicTask or legitimateInterests
-   * All other arguments are strings
-   */
-
-  apiMethods.enableGdprContext = function (
-    basisForProcessing,
-    documentId = null,
-    documentVersion = null,
-    documentDescription = null
-  ) {
-    let basis = gdprBasisEnum[basisForProcessing];
-
-    if (!basis) {
-      warn(
-        'enableGdprContext: basisForProcessing must be one of: consent, legalObligation, vitalInterests publicTask, legitimateInterests'
-      );
-      return;
-    } else {
-      autoContexts.gdprBasis = true;
-      gdprBasisData = {
-        gdprBasis: basis,
-        gdprDocId: documentId,
-        gdprDocVer: documentVersion,
-        gdprDocDesc: documentDescription,
-      };
-    }
-  };
-
   /**
    * All provided contexts will be sent with every event
    *
@@ -2754,33 +2005,6 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    */
   apiMethods.clearGlobalContexts = function () {
     core.clearGlobalContexts();
-  };
-
-  /**
-   * Enable tracking of unhandled exceptions with custom contexts
-   *
-   * @param filter Function ErrorEvent => Bool to check whether error should be tracker
-   * @param contextsAdder Function ErrorEvent => Array<Context> to add custom contexts with
-   *		             internal state based on particular error
-   */
-  apiMethods.enableErrorTracking = function (filter, contextsAdder) {
-    errorTracking.enableErrorTracking(filter, contextsAdder, addCommonContexts());
-  };
-
-  /**
-   * Track unhandled exception.
-   * This method supposed to be used inside try/catch block
-   *
-   * @param message string Message appeared in console
-   * @param filename string Source file (not used)
-   * @param lineno number Line number
-   * @param colno number Column number (not used)
-   * @param error Error error object (not present in all browsers)
-   * @param contexts Array of custom contexts
-   */
-  apiMethods.trackError = function (message, filename, lineno, colno, error, contexts) {
-    var enrichedContexts = addCommonContexts(contexts);
-    errorTracking.trackError(message, filename, lineno, colno, error, enrichedContexts);
   };
 
   /**
@@ -2849,7 +2073,16 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
 
   // Create guarded methods from apiMethods,
   // and set returnMethods to apiMethods or safeMethods depending on value of debug
-  safeMethods = productionize(apiMethods);
+  const combinedApiMethods = apiPlugins.reduce((prev, current) => {
+    if (current.initialise) {
+      current.initialise(core, trackerId, mutSnowplowState);
+    }
+    return {
+      ...prev,
+      ...current.apiMethods,
+    };
+  }, apiMethods);
+  safeMethods = productionize(combinedApiMethods);
   updateReturnMethods();
 
   return returnMethods;
