@@ -361,8 +361,8 @@ export function trackerCore(
     timestamp?: Timestamp | null
   ): PayloadBuilder {
     pb.setBase64Encoding(encodeBase64);
-    pb.addDict(payloadPairs);
     pb.add('eid', uuid());
+    pb.addDict(payloadPairs);
     const tstamp = getTimestamp(timestamp);
     pb.add(tstamp.type, tstamp.value.toString());
     const allContexts = attachGlobalContexts(pb, pluginContextsHelper.addPluginContexts(context));
