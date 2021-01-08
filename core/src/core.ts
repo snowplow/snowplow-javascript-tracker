@@ -782,8 +782,8 @@ export function trackerCore(base64: boolean, callback?: (PayloadData: PayloadDat
     tstamp?: Timestamp,
     afterTrack?: (Payload: PayloadDictionary) => void
   ): PayloadData => {
-    sb.addDict(payloadPairs);
     sb.add('eid', v4());
+    sb.addDict(payloadPairs);
     const timestamp = getTimestamp(tstamp);
     sb.add(timestamp.type, timestamp.value.toString());
     const allContexts = attachGlobalContexts(sb, context);
