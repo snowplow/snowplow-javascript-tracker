@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/tracker-core",
+      "comment": "[tracker-core] Don't overwrite custom user defined event id (#911)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/tracker-core",
+  "email": "paul@snowplowanalytics.com"
+}
