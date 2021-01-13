@@ -23,7 +23,7 @@ importers:
     specifiers:
       '@snowplow/tracker-core': 'workspace:*'
       '@types/jstimezonedetect': ~1.0.3
-      '@types/lodash': ^4.14.161
+      '@types/lodash': ^4.14.167
       '@types/node': ^14.6.0
       '@typescript-eslint/eslint-plugin': ^4.9.0
       '@typescript-eslint/parser': ^4.9.0
@@ -43,7 +43,7 @@ importers:
       tslib: 2.0.3
       uuid: 3.4.0
     devDependencies:
-      '@types/lodash': 4.14.165
+      '@types/lodash': 4.14.167
       '@types/node': 14.14.14
       '@types/uuid': 3.4.9
       '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
@@ -56,7 +56,7 @@ importers:
       ts-node: 9.1.1_typescript@4.1.3
       typescript: 4.1.3
     specifiers:
-      '@types/lodash': ^4.14.161
+      '@types/lodash': ^4.14.167
       '@types/node': ^14.6.0
       '@types/uuid': ^3.4.6
       '@typescript-eslint/eslint-plugin': ^4.9.0
@@ -99,8 +99,39 @@ importers:
       ts-node: ^9.0.0
       tslib: ^2.0.3
       typescript: ^4.1.2
-  ../../plugins/browser-plugin-ga-cookies:
+  ../../plugins/browser-plugin-error-tracking:
     dependencies:
+      '@snowplow/browser-core': 'link:../../libraries/browser-core'
+      '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
+      tslib: 2.0.3
+    devDependencies:
+      '@types/node': 14.14.14
+      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      ava: 3.14.0
+      eslint: 7.16.0
+      prettier: 2.2.1
+      rollup: 2.35.1
+      ts-node: 9.1.1_typescript@4.1.3
+      typescript: 4.1.3
+    specifiers:
+      '@snowplow/browser-core': 'workspace:*'
+      '@snowplow/tracker-core': 'workspace:*'
+      '@types/node': ^14.6.0
+      '@typescript-eslint/eslint-plugin': ^4.9.0
+      '@typescript-eslint/parser': ^4.9.0
+      '@wessberg/rollup-plugin-ts': ^1.3.8
+      ava: ^3.13.0
+      eslint: ^7.7.0
+      prettier: ^2.1.1
+      rollup: ^2.34.0
+      ts-node: ^9.0.0
+      tslib: ^2.0.3
+      typescript: ^4.1.2
+  ../../plugins/browser-plugin-form-tracking:
+    dependencies:
+      '@snowplow/browser-core': 'link:../../libraries/browser-core'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
       lodash: 4.17.20
       tslib: 2.0.3
@@ -117,8 +148,43 @@ importers:
       ts-node: 9.1.1_typescript@4.1.3
       typescript: 4.1.3
     specifiers:
+      '@snowplow/browser-core': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
-      '@types/lodash': ~4.14.167
+      '@types/lodash': ^4.14.167
+      '@types/node': ^14.6.0
+      '@typescript-eslint/eslint-plugin': ^4.9.0
+      '@typescript-eslint/parser': ^4.9.0
+      '@wessberg/rollup-plugin-ts': ^1.3.8
+      ava: ^3.13.0
+      eslint: ^7.7.0
+      lodash: ^4.17.20
+      prettier: ^2.1.1
+      rollup: ^2.34.0
+      ts-node: ^9.0.0
+      tslib: ^2.0.3
+      typescript: ^4.1.2
+  ../../plugins/browser-plugin-ga-cookies:
+    dependencies:
+      '@snowplow/browser-core': 'link:../../libraries/browser-core'
+      '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
+      lodash: 4.17.20
+      tslib: 2.0.3
+    devDependencies:
+      '@types/lodash': 4.14.167
+      '@types/node': 14.14.14
+      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      ava: 3.14.0
+      eslint: 7.16.0
+      prettier: 2.2.1
+      rollup: 2.35.1
+      ts-node: 9.1.1_typescript@4.1.3
+      typescript: 4.1.3
+    specifiers:
+      '@snowplow/browser-core': 'workspace:*'
+      '@snowplow/tracker-core': 'workspace:*'
+      '@types/lodash': ^4.14.167
       '@types/node': ^14.6.0
       '@typescript-eslint/eslint-plugin': ^4.9.0
       '@typescript-eslint/parser': ^4.9.0
@@ -212,7 +278,7 @@ importers:
     specifiers:
       '@snowplow/browser-core': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
-      '@types/lodash': ~4.14.167
+      '@types/lodash': ^4.14.167
       '@types/node': ^14.6.0
       '@typescript-eslint/eslint-plugin': ^4.9.0
       '@typescript-eslint/parser': ^4.9.0
@@ -246,7 +312,7 @@ importers:
     specifiers:
       '@snowplow/browser-core': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
-      '@types/lodash': ~4.14.167
+      '@types/lodash': ^4.14.167
       '@types/node': ^14.6.0
       '@typescript-eslint/eslint-plugin': ^4.9.0
       '@typescript-eslint/parser': ^4.9.0
@@ -280,7 +346,7 @@ importers:
     specifiers:
       '@snowplow/browser-core': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
-      '@types/lodash': ~4.14.167
+      '@types/lodash': ^4.14.167
       '@types/node': ^14.6.0
       '@typescript-eslint/eslint-plugin': ^4.9.0
       '@typescript-eslint/parser': ^4.9.0
@@ -354,7 +420,58 @@ importers:
   ../../trackers/browser-tracker:
     dependencies:
       '@snowplow/browser-core': 'link:../../libraries/browser-core'
+      '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
+      lodash: 4.17.20
+      sha1: 1.1.1
+      uuid: 3.4.0
+    devDependencies:
+      '@ampproject/rollup-plugin-closure-compiler': 0.26.0_rollup@2.35.1
+      '@babel/core': 7.12.10
+      '@babel/plugin-transform-runtime': 7.12.10_@babel+core@7.12.10
+      '@babel/preset-env': 7.12.11_@babel+core@7.12.10
+      '@rollup/plugin-babel': 5.2.2_baf849d20c1000fbd8d3d46c4e88d8b0
+      '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
+      '@rollup/plugin-json': 4.1.0_rollup@2.35.1
+      '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
+      '@types/babel__core': 7.1.12
+      '@types/jest': 26.0.19
+      '@types/lodash': 4.14.167
+      jest: 26.6.3
+      moment-timezone: 0.5.32
+      prettier: 2.2.1
+      rollup: 2.35.1
+      rollup-plugin-banner: 0.2.1
+      rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
+    specifiers:
+      '@ampproject/rollup-plugin-closure-compiler': ^0.26.0
+      '@babel/core': ^7.12.9
+      '@babel/plugin-transform-runtime': ^7.12.1
+      '@babel/preset-env': ^7.12.7
+      '@rollup/plugin-babel': ^5.2.2
+      '@rollup/plugin-commonjs': ^17.0.0
+      '@rollup/plugin-json': ^4.1.0
+      '@rollup/plugin-node-resolve': ^11.0.0
+      '@snowplow/browser-core': 'workspace:*'
+      '@snowplow/tracker-core': 'workspace:*'
+      '@types/babel__core': ^7.1.12
+      '@types/jest': ^26.0.15
+      '@types/lodash': ^4.14.167
+      jest: ^26.6.3
+      lodash: ^4.17.20
+      moment-timezone: ^0.5.26
+      prettier: ^2.1.1
+      rollup: ^2.34.0
+      rollup-plugin-banner: ^0.2.1
+      rollup-plugin-cleanup: ^3.2.1
+      sha1: ^1.1.1
+      uuid: ^3.3.3
+  ../../trackers/javascript-tracker:
+    dependencies:
+      '@snowplow/browser-core': 'link:../../libraries/browser-core'
       '@snowplow/browser-plugin-client-hints': 'link:../../plugins/browser-plugin-client-hints'
+      '@snowplow/browser-plugin-error-tracking': 'link:../../plugins/browser-plugin-error-tracking'
+      '@snowplow/browser-plugin-form-tracking': 'link:../../plugins/browser-plugin-form-tracking'
+      '@snowplow/browser-plugin-ga-cookies': 'link:../../plugins/browser-plugin-ga-cookies'
       '@snowplow/browser-plugin-gdpr': 'link:../../plugins/browser-plugin-gdpr'
       '@snowplow/browser-plugin-geolocation': 'link:../../plugins/browser-plugin-geolocation'
       '@snowplow/browser-plugin-link-click-tracking': 'link:../../plugins/browser-plugin-link-click-tracking'
@@ -362,10 +479,9 @@ importers:
       '@snowplow/browser-plugin-optimizely-x': 'link:../../plugins/browser-plugin-optimizely-x'
       '@snowplow/browser-plugin-parrable': 'link:../../plugins/browser-plugin-parrable'
       '@snowplow/browser-plugin-performance-timing': 'link:../../plugins/browser-plugin-performance-timing'
+      '@snowplow/browser-tracker': 'link:../browser-tracker'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
       lodash: 4.17.20
-      sha1: github.com/pvorb/node-sha1/910081c83f3661507d9d89e66e3f38d8b59d5559
-      uuid: 3.4.0
     devDependencies:
       '@ampproject/rollup-plugin-closure-compiler': 0.26.0_rollup@2.35.1
       '@babel/core': 7.12.10
@@ -378,7 +494,7 @@ importers:
       '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
       '@types/babel__core': 7.1.12
       '@types/jest': 26.0.19
-      '@types/lodash': 4.14.165
+      '@types/lodash': 4.14.167
       '@wdio/cli': 6.10.11
       '@wdio/jasmine-framework': 6.10.11_@wdio+cli@6.10.11
       '@wdio/local-runner': 6.10.13_@wdio+cli@6.10.11
@@ -411,6 +527,9 @@ importers:
       '@rollup/plugin-node-resolve': ^11.0.0
       '@snowplow/browser-core': 'workspace:*'
       '@snowplow/browser-plugin-client-hints': 'workspace:*'
+      '@snowplow/browser-plugin-error-tracking': 'workspace:*'
+      '@snowplow/browser-plugin-form-tracking': 'workspace:*'
+      '@snowplow/browser-plugin-ga-cookies': 'workspace:*'
       '@snowplow/browser-plugin-gdpr': 'workspace:*'
       '@snowplow/browser-plugin-geolocation': 'workspace:*'
       '@snowplow/browser-plugin-link-click-tracking': 'workspace:*'
@@ -418,10 +537,11 @@ importers:
       '@snowplow/browser-plugin-optimizely-x': 'workspace:*'
       '@snowplow/browser-plugin-parrable': 'workspace:*'
       '@snowplow/browser-plugin-performance-timing': 'workspace:*'
+      '@snowplow/browser-tracker': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
       '@types/babel__core': ^7.1.12
       '@types/jest': ^26.0.15
-      '@types/lodash': ^4.14.161
+      '@types/lodash': ^4.14.167
       '@wdio/cli': ^6.10.5
       '@wdio/jasmine-framework': ^6.10.4
       '@wdio/local-runner': ^6.10.5
@@ -442,8 +562,6 @@ importers:
       rollup-plugin-filesize: ^9.0.2
       rollup-plugin-sizes: ^1.0.3
       saucelabs: ^4.6.0
-      sha1: 'git://github.com/pvorb/node-sha1.git#910081c83f3661507d9d89e66e3f38d8b59d5559'
-      uuid: ^3.3.3
       wdio-chromedriver-service: ^6.0.4
 lockfileVersion: 5.1
 packages:
@@ -2072,56 +2190,52 @@ packages:
       integrity: sha512-MPtoySlAZQ37VoLaPcTHCu1RWJ4llDkULYZIzOYxlhxBqYPB0RsRlmMU0R6tahtFe27mIdkHV+551ZWV4PLmVw==
   /@types/lodash.clonedeep/4.5.6:
     dependencies:
-      '@types/lodash': 4.14.165
+      '@types/lodash': 4.14.167
     dev: true
     resolution:
       integrity: sha512-cE1jYr2dEg1wBImvXlNtp0xDoS79rfEdGozQVgliDZj1uERH4k+rmEMTudP9b4VQ8O6nRb5gPqft0QzEQGMQgA==
   /@types/lodash.flattendeep/4.4.6:
     dependencies:
-      '@types/lodash': 4.14.165
+      '@types/lodash': 4.14.167
     dev: true
     resolution:
       integrity: sha512-uLm2MaRVlqJSGsMK0RZpP5T3KqReq+9WbYDHCUhBhp98v56hMG/Yht52bsoTSui9xz2mUvQ9NfG3LrNGDL92Ng==
   /@types/lodash.isobject/3.0.6:
     dependencies:
-      '@types/lodash': 4.14.165
+      '@types/lodash': 4.14.167
     dev: true
     resolution:
       integrity: sha512-2lwGbaIXMR5hjO56nCvI7W6bmY3Y3uJvbHWqO9MtOE1StyhZ1VtLINQ0MLC87rrB3zHHp+u4DHeal70rx1kvjw==
   /@types/lodash.isplainobject/4.0.6:
     dependencies:
-      '@types/lodash': 4.14.165
+      '@types/lodash': 4.14.167
     dev: true
     resolution:
       integrity: sha512-8G41YFhmOl8Ck6NrwLK5hhnbz6ADfuDJP+zusDnX3PoYhfC60+H/rQE6zmdO4yFzPCPJPY4oGZK2spbXm6gYEA==
   /@types/lodash.merge/4.6.6:
     dependencies:
-      '@types/lodash': 4.14.165
+      '@types/lodash': 4.14.167
     dev: true
     resolution:
       integrity: sha512-IB90krzMf7YpfgP3u/EvZEdXVvm4e3gJbUvh5ieuI+o+XqiNEt6fCzqNRaiLlPVScLI59RxIGZMQ3+Ko/DJ8vQ==
   /@types/lodash.pickby/4.6.6:
     dependencies:
-      '@types/lodash': 4.14.165
+      '@types/lodash': 4.14.167
     dev: true
     resolution:
       integrity: sha512-NFa13XxlMd9eFi0UFZFWIztpMpXhozbijrx3Yb1viYZphT7jyopIFVoIRF4eYMjruWNEG1rnyrRmg/8ej9T8Iw==
   /@types/lodash.union/4.6.6:
     dependencies:
-      '@types/lodash': 4.14.165
+      '@types/lodash': 4.14.167
     dev: true
     resolution:
       integrity: sha512-Wu0ZEVNcyCz8eAn6TlUbYWZoGbH9E+iOHxAZbwUoCEXdUiy6qpcz5o44mMXViM4vlPLLCPlkAubEP1gokoSZaw==
   /@types/lodash.zip/4.2.6:
     dependencies:
-      '@types/lodash': 4.14.165
+      '@types/lodash': 4.14.167
     dev: true
     resolution:
       integrity: sha512-mKAcnkyFaihVR1oK83ZBQqSSQ1hpAY+uD5QaDkf//xtvr4NlNwqJEDg/oQoqLJg5YdSEwVWlQq0Aq4oLvD3zuw==
-  /@types/lodash/4.14.165:
-    dev: true
-    resolution:
-      integrity: sha512-tjSSOTHhI5mCHTy/OOXYIhi2Wt1qcbHmuXD1Ha7q70CgI/I71afO4XtLb/cVexki1oVYchpul/TOuu3Arcdxrg==
   /@types/lodash/4.14.167:
     dev: true
     resolution:
@@ -10199,6 +10313,13 @@ packages:
     dev: true
     resolution:
       integrity: sha512-JvdAWfbXeIGaZ9cILp38HntZSFSo3mWg6xGcJJsd+d4aRMOqauag1C63dJfDw7OaMYwEbHMOxEZ1lqVRYP2OAw==
+  /sha1/1.1.1:
+    dependencies:
+      charenc: 0.0.2
+      crypt: 0.0.2
+    dev: false
+    resolution:
+      integrity: sha1-rdqnqTFo85PxnrKxUJFhjicA+Eg=
   /shebang-command/1.2.0:
     dependencies:
       shebang-regex: 1.0.0
@@ -11895,14 +12016,4 @@ packages:
       node: '>= 10'
     resolution:
       integrity: sha512-a65wQ3h5gcQ/nQGWV1mSZCEzCML6EK/vyVPcrPNynySP1j3VBbQKh3nhC8CbORb+jfl2vXvh56Ul5odP1bAHqw==
-  github.com/pvorb/node-sha1/910081c83f3661507d9d89e66e3f38d8b59d5559:
-    dependencies:
-      charenc: 0.0.2
-      crypt: 0.0.2
-    dev: false
-    name: sha1
-    resolution:
-      registry: 'https://registry.npmjs.org/'
-      tarball: 'https://codeload.github.com/pvorb/node-sha1/tar.gz/910081c83f3661507d9d89e66e3f38d8b59d5559'
-    version: 1.0.0
 registry: ''

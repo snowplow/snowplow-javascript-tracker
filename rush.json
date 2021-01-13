@@ -393,6 +393,12 @@
       "reviewCategory": "trackers",
       "versionPolicyName": "tracker"
     },
+    {
+      "packageName": "@snowplow/javascript-tracker",
+      "projectFolder": "trackers/javascript-tracker",
+      "reviewCategory": "trackers",
+      "versionPolicyName": "tracker"
+    },
 
     {
       "packageName": "@snowplow/tracker-core",
