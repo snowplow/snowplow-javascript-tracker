@@ -95,6 +95,10 @@
       "allowedCategories": [ "trackers" ]
     },
     {
+      "name": "@snowplow/browser-tracker",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "@snowplow/plugin-core",
       "allowedCategories": [ "libraries", "plugins" ]
     },

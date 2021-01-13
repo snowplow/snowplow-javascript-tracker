@@ -21,7 +21,7 @@
     "@snowplow/tracker-core": "workspace:*"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.161",
+    "@types/lodash": "^4.14.167",
     "@types/node": "^14.6.0",
     "@types/jstimezonedetect": "~1.0.3",
     "@typescript-eslint/eslint-plugin": "^4.9.0",

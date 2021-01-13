@@ -4,11 +4,11 @@ import { OptimizelyXPlugin } from '@snowplow/browser-plugin-optimizely-x';
 import { ParrablePlugin } from '@snowplow/browser-plugin-parrable';
 import { PerformanceTimingPlugin } from '@snowplow/browser-plugin-performance-timing';
 import { GdprPlugin } from '@snowplow/browser-plugin-gdpr';
+import { GeolocationPlugin } from '@snowplow/browser-plugin-geolocation';
+import { GaCookiesPlugin } from '@snowplow/browser-plugin-ga-cookies';
 import { LinkClickTrackingPlugin } from '@snowplow/browser-plugin-link-click-tracking';
 import { FormTrackingPlugin } from '@snowplow/browser-plugin-form-tracking';
 import { ErrorTrackingPlugin } from '@snowplow/browser-plugin-error-tracking';
-import { GeolocationPlugin } from '@snowplow/browser-plugin-geolocation';
-import { GaCookiesPlugins } from '@snowplow/browser-plugin-ga-cookies';
 import pluginConfig from '../../plugins.config';
 
 export function Plugins(argmap) {
@@ -67,7 +67,7 @@ export function Plugins(argmap) {
   }
 
   if (pluginConfig.gaCookies && gaCookies) {
-    contextPlugins.push(GaCookiesPlugins());
+    contextPlugins.push(GaCookiesPlugin());
   }
 
   if (geolocationPlugin) {

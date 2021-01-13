@@ -1,0 +1,91 @@
+{
+  "name": "@snowplow/javascript-tracker",
+  "version": "2.17.0",
+  "private": true,
+  "main": "dist/sp.js",
+  "unpkg": "dist/sp.js",
+  "jsdelivr": "dist/sp.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rollup -c --silent",
+    "dev": "rollup -c -w",
+    "test": "jest tests/unit/*.spec.js",
+    "test:e2e:sauce": "gulp buildForIntegrationTest && wdio tests/wdio.sauce.conf.js",
+    "test:e2e:local": "gulp buildForIntegrationTest && wdio tests/wdio.local.conf.js"
+  },
+  "dependencies": {
+    "lodash": "^4.17.20",
+    "@snowplow/tracker-core": "workspace:*",
+    "@snowplow/browser-core": "workspace:*",
+    "@snowplow/browser-tracker": "workspace:*",
+    "@snowplow/browser-plugin-optimizely": "workspace:*",
+    "@snowplow/browser-plugin-optimizely-x": "workspace:*",
+    "@snowplow/browser-plugin-client-hints": "workspace:*",
+    "@snowplow/browser-plugin-parrable": "workspace:*",
+    "@snowplow/browser-plugin-performance-timing": "workspace:*",
+    "@snowplow/browser-plugin-gdpr": "workspace:*",
+    "@snowplow/browser-plugin-ga-cookies": "workspace:*",
+    "@snowplow/browser-plugin-geolocation": "workspace:*",
+    "@snowplow/browser-plugin-link-click-tracking": "workspace:*",
+    "@snowplow/browser-plugin-form-tracking": "workspace:*",
+    "@snowplow/browser-plugin-error-tracking": "workspace:*"
+  },
+  "devDependencies": {
+    "@ampproject/rollup-plugin-closure-compiler": "^0.26.0",
+    "@babel/core": "^7.12.9",
+    "@babel/plugin-transform-runtime": "^7.12.1",
+    "@babel/preset-env": "^7.12.7",
+    "@babel/register": "^7.12.1",
+    "@rollup/plugin-babel": "^5.2.2",
+    "@rollup/plugin-commonjs": "^17.0.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^11.0.0",
+    "@types/babel__core": "^7.1.12",
+    "@types/jest": "^26.0.15",
+    "@types/lodash": "^4.14.167",
+    "@wdio/cli": "^6.10.5",
+    "@wdio/jasmine-framework": "^6.10.4",
+    "@wdio/local-runner": "^6.10.5",
+    "@wdio/sauce-service": "^6.10.4",
+    "@wdio/spec-reporter": "^6.8.1",
+    "@wdio/static-server-service": "^6.10.4",
+    "@wdio/sync": "^6.10.4",
+    "chromedriver": "^87.0.0",
+    "dockerode": "^3.2.1",
+    "gulp": "^4.0.2",
+    "jest": "^26.6.3",
+    "moment-timezone": "^0.5.26",
+    "prettier": "^2.1.1",
+    "rollup": "^2.34.0",
+    "rollup-plugin-banner": "^0.2.1",
+    "rollup-plugin-cleanup": "^3.2.1",
+    "rollup-plugin-filesize": "^9.0.2",
+    "rollup-plugin-sizes": "^1.0.3",
+    "saucelabs": "^4.6.0",
+    "wdio-chromedriver-service": "^6.0.4"
+  },
+  "contributors": [
+    "Alex Dean",
+    "Simon Andersson",
+    "Anthon Pang",
+    "Fred Blundun",
+    "Joshua Beemster",
+    "Michael Hadam",
+    "Paul Boocock"
+  ],
+  "description": "JavaScript tracker for Snowplow",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snowplow/snowplow-javascript-tracker.git"
+  },
+  "bugs": "https://github.com/snowplow/snowplow-javascript-tracker/issues",
+  "keywords": [
+    "tracking",
+    "web analytics",
+    "events",
+    "open source"
+  ],
+  "license": "Simplified BSD"
+}

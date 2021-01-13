@@ -14,9 +14,7 @@ export const minify = [compiler(), cleanup({ comments: 'none' })];
 
 export const core = [
   json(),
-  nodeResolve({
-    browser: true,
-  }),
+  nodeResolve({ browser: true }),
   commonjs(),
   babel({
     babelrc: false,

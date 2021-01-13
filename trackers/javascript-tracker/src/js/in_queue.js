@@ -34,7 +34,7 @@
 
 import map from 'lodash/map';
 import { warn, isFunction } from '@snowplow/browser-core';
-import { newTracker, getTracker, allTrackers } from './snowplow';
+import { newTracker, getTracker, allTrackers } from '@snowplow/browser-tracker';
 import { Plugins } from './plugins';
 
 /************************************************************

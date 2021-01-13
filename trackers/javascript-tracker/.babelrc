@@ -1,4 +1,4 @@
-// For tests
+// For tests only
 {
   "plugins": ["@babel/plugin-transform-runtime"],
   "presets": [
