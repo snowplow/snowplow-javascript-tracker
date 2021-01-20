@@ -478,6 +478,12 @@
       "projectFolder": "plugins/browser-plugin-error-tracking",
       "reviewCategory": "plugins",
       "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-detectors",
+      "projectFolder": "plugins/browser-detectors",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
     }
   ]
 }

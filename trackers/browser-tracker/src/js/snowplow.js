@@ -40,11 +40,17 @@
 
 import { Tracker } from './tracker';
 import { version } from './version';
+import { DetectScreen, DetectWindow, DetectDocument } from '@snowplow/browser-detectors';
 import { warn, SharedState } from '@snowplow/browser-core';
 import pickBy from 'lodash/pickBy';
 import includes from 'lodash/includes';
 
 const groups = {};
+const defaultDetectors = {
+  screen: DetectScreen(),
+  window: DetectWindow(),
+  document: DetectDocument(),
+};
 
 /**
  * Initiate a new tracker
@@ -54,7 +60,7 @@ const groups = {};
  * @param object argmap contains the initialisation options of the JavaScript tracker
  * @param string trackerGroup used to group multiple trackers and shared state together
  */
-export const newTracker = (name, endpoint, argmap = {}, trackerGroup = 'snowplow') => {
+export const newTracker = (name, endpoint, argmap = { detectors: defaultDetectors }, trackerGroup = 'snowplow') => {
   if (!groups.hasOwnProperty(trackerGroup)) {
     groups[trackerGroup] = { state: new SharedState(), trackers: {} };
   }

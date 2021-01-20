@@ -31,7 +31,7 @@ export interface PayloadData {
    * @param key Key for Payload dictionary entry
    * @param value Value for Payload dictionaty entry
    */
-  add: (key: string, value?: string) => void;
+  add: (key: string, value?: unknown) => void;
 
   /**
    * Merges a payload into the existing payload

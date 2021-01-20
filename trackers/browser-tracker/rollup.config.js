@@ -23,7 +23,20 @@ const plugins = [
   babel({
     babelrc: false,
     babelHelpers: 'bundled',
-    presets: [['@babel/preset-env']],
+    presets: [
+      [
+        '@babel/preset-env',
+        {
+          targets: {
+            chrome: 32,
+            ie: 9,
+            edge: 13,
+            firefox: 27,
+            safari: 8,
+          },
+        },
+      ],
+    ],
   }),
 ];
 
@@ -37,11 +50,13 @@ export default [
   {
     input: 'src/js/snowplow.js',
     plugins: [...plugins, banner(bannerContent)],
+    treeshake: { moduleSideEffects: ['jstimezonedetect'] },
     output: [{ file: pkg.main, format: 'umd', name: 'snowplow' }],
   },
   {
     input: 'src/js/snowplow.js',
     plugins: [...plugins, compiler(), cleanup({ comments: 'none' }), banner(bannerContent)],
+    treeshake: { moduleSideEffects: ['jstimezonedetect'] },
     output: [{ file: pkg.main.replace('.js', '.min.js'), format: 'umd', name: 'snowplow' }],
   },
 ];

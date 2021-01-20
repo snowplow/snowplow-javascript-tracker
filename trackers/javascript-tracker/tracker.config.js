@@ -1,4 +1,4 @@
-export default {
+export const plugins = {
   performanceTiming: true,
   gaCookies: true,
   geolocation: true,
@@ -10,4 +10,13 @@ export default {
   linkClickTracking: true,
   formTracking: true,
   errorTracking: true,
+};
+
+export const detectors = {
+  cookie: true,
+  screen: true,
+  window: true,
+  document: true,
+  timezone: false,
+  browserFeatures: false,
 };

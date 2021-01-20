@@ -32,13 +32,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import isUndefined from 'lodash/isUndefined';
-import { determine } from 'jstimezonedetect';
-import { isFunction } from './helpers';
-
 var windowAlias = window,
-  navigatorAlias = navigator,
-  screenAlias = screen,
   documentAlias = document;
 
 /*
@@ -86,20 +80,6 @@ export function localStorageAccessible() {
   }
 }
 
-/*
- * Does browser have cookies enabled (for this site)?
- */
-export function hasCookies() {
-  return navigatorAlias.cookieEnabled ? '1' : '0';
-}
-
-/*
- * Returns visitor timezone
- */
-export function detectTimezone() {
-  return determine().name();
-}
-
 /**
  * Gets the current viewport.
  *
@@ -141,67 +121,4 @@ export function detectDocumentSize() {
   var w = Math.max(de.clientWidth, de.offsetWidth, de.scrollWidth);
   var h = Math.max(de.clientHeight, de.offsetHeight, de.scrollHeight, bodyHeight);
   return isNaN(w) || isNaN(h) ? '' : w + 'x' + h;
-}
-
-/**
- * Returns browser features (plugins, resolution, cookies)
- *
- * @param boolean useCookies Whether to test for cookies
- * @param string testCookieName Name to use for the test cookie
- * @return Object containing browser features
- */
-export function detectBrowserFeatures() {
-  var i,
-    mimeType,
-    pluginMap: Record<string, string> = {
-      // document types
-      pdf: 'application/pdf',
-
-      // media players
-      qt: 'video/quicktime',
-      realp: 'audio/x-pn-realaudio-plugin',
-      wma: 'application/x-mplayer2',
-
-      // interactive multimedia
-      dir: 'application/x-director',
-      fla: 'application/x-shockwave-flash',
-
-      // RIA
-      java: 'application/x-java-vm',
-      gears: 'application/x-googlegears',
-      ag: 'application/x-silverlight',
-    },
-    features: Record<string, string | number> = {};
-
-  // General plugin detection
-  if (navigatorAlias.mimeTypes && navigatorAlias.mimeTypes.length) {
-    for (i in pluginMap) {
-      if (Object.prototype.hasOwnProperty.call(pluginMap, i)) {
-        mimeType = navigatorAlias.mimeTypes.namedItem(pluginMap[i]);
-        features[i] = mimeType && mimeType.enabledPlugin ? '1' : '0';
-      }
-    }
-  }
-
-  // Safari and Opera
-  // IE6/IE7 navigator.javaEnabled can't be aliased, so test directly
-  if (
-    navigatorAlias.constructor === window.Navigator &&
-    !isUndefined(navigatorAlias.javaEnabled) &&
-    navigatorAlias.javaEnabled()
-  ) {
-    features.java = '1';
-  }
-
-  // Firefox
-  if (isFunction((<any>windowAlias).GearsFactory)) {
-    features.gears = '1';
-  }
-
-  // Other browser features
-  features.res = screenAlias.width + 'x' + screenAlias.height;
-  features.cd = screenAlias.colorDepth;
-  features.cookie = hasCookies();
-
-  return features;
 }

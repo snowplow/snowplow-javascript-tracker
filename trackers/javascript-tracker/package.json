@@ -20,6 +20,7 @@
     "@snowplow/tracker-core": "workspace:*",
     "@snowplow/browser-core": "workspace:*",
     "@snowplow/browser-tracker": "workspace:*",
+    "@snowplow/browser-detectors": "workspace:*",
     "@snowplow/browser-plugin-optimizely": "workspace:*",
     "@snowplow/browser-plugin-optimizely-x": "workspace:*",
     "@snowplow/browser-plugin-client-hints": "workspace:*",

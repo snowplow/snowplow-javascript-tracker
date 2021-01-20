@@ -9,34 +9,40 @@ import { GaCookiesPlugin } from '@snowplow/browser-plugin-ga-cookies';
 import { LinkClickTrackingPlugin } from '@snowplow/browser-plugin-link-click-tracking';
 import { FormTrackingPlugin } from '@snowplow/browser-plugin-form-tracking';
 import { ErrorTrackingPlugin } from '@snowplow/browser-plugin-error-tracking';
-import pluginConfig from '../../plugins.config';
-
+import {
+  DetectScreen,
+  DetectDocument,
+  DetectWindow,
+  DetectCookie,
+  DetectTimezone,
+  DetectBrowserFeatures,
+} from '@snowplow/browser-detectors';
+import { plugins } from '../../tracker.config';
+import { detectors } from '../../tracker.config';
 export function Plugins(argmap) {
   const {
-      contexts: {
-        performanceTiming,
-        gaCookies,
-        geolocation,
-        optimizelyExperiments,
-        optimizelyStates,
-        optimizelyVariations,
-        optimizelyVisitor,
-        optimizelyAudiences,
-        optimizelyDimensions,
-        optimizelySummary,
-        optimizelyXSummary,
-        parrable,
-        clientHints,
-      },
-    } = argmap,
-    gdprPlugin = pluginConfig.gdpr ? GdprPlugin() : null,
-    geolocationPlugin = pluginConfig.geolocation ? GeolocationPlugin(geolocation) : null,
+      performanceTiming,
+      gaCookies,
+      geolocation,
+      optimizelyExperiments,
+      optimizelyStates,
+      optimizelyVariations,
+      optimizelyVisitor,
+      optimizelyAudiences,
+      optimizelyDimensions,
+      optimizelySummary,
+      optimizelyXSummary,
+      parrable,
+      clientHints,
+    } = argmap.contexts || {},
+    gdprPlugin = plugins.gdpr ? GdprPlugin() : null,
+    geolocationPlugin = plugins.geolocation ? GeolocationPlugin(geolocation) : null,
     contextPlugins = [],
     apiPlugins = [];
 
   // --- Context Plugins ---
 
-  if (pluginConfig.optimizely) {
+  if (plugins.optimizely) {
     contextPlugins.push(
       OptimizelyPlugin(
         optimizelySummary,
@@ -50,23 +56,23 @@ export function Plugins(argmap) {
     );
   }
 
-  if (pluginConfig.performanceTiming && performanceTiming) {
+  if (plugins.performanceTiming && performanceTiming) {
     contextPlugins.push(PerformanceTimingPlugin());
   }
 
-  if (pluginConfig.optimizelyX && optimizelyXSummary) {
+  if (plugins.optimizelyX && optimizelyXSummary) {
     contextPlugins.push(OptimizelyXPlugin());
   }
 
-  if (pluginConfig.clientHints && clientHints) {
+  if (plugins.clientHints && clientHints) {
     contextPlugins.push(ClientHintsPlugin(clientHints.includeHighEntropy ? true : false));
   }
 
-  if (pluginConfig.parrable && parrable) {
+  if (plugins.parrable && parrable) {
     contextPlugins.push(ParrablePlugin());
   }
 
-  if (pluginConfig.gaCookies && gaCookies) {
+  if (plugins.gaCookies && gaCookies) {
     contextPlugins.push(GaCookiesPlugin());
   }
 
@@ -89,15 +95,15 @@ export function Plugins(argmap) {
     apiPlugins.push(gdprPlugin);
   }
 
-  if (pluginConfig.linkClickTracking) {
+  if (plugins.linkClickTracking) {
     apiPlugins.push(LinkClickTrackingPlugin());
   }
 
-  if (pluginConfig.formTracking) {
+  if (plugins.formTracking) {
     apiPlugins.push(FormTrackingPlugin());
   }
 
-  if (pluginConfig.errorTracking) {
+  if (plugins.errorTracking) {
     apiPlugins.push(ErrorTrackingPlugin());
   }
 
@@ -105,4 +111,35 @@ export function Plugins(argmap) {
     contextPlugins: contextPlugins,
     apiPlugins: apiPlugins,
   };
+}
+
+export function Detectors(argmap) {
+  const { cookie, screen, window, document, timezone, browserFeatures } = argmap.detectors || {},
+    selectedDetectors = {};
+
+  if (detectors.cookie && (cookie ?? true)) {
+    selectedDetectors.cookie = DetectCookie();
+  }
+
+  if (detectors.screen && (screen ?? true)) {
+    selectedDetectors.screen = DetectScreen();
+  }
+
+  if (detectors.window && (window ?? true)) {
+    selectedDetectors.window = DetectWindow();
+  }
+
+  if (detectors.document && (document ?? true)) {
+    selectedDetectors.document = DetectDocument();
+  }
+
+  if (detectors.timezone && (timezone ?? true)) {
+    selectedDetectors.timezone = DetectTimezone();
+  }
+
+  if (detectors.browserFeatures && (browserFeatures ?? true)) {
+    selectedDetectors.browserFeatures = DetectBrowserFeatures();
+  }
+
+  return selectedDetectors;
 }
