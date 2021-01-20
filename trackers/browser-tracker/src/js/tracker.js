@@ -52,8 +52,6 @@ import {
   cookie,
   deleteCookie,
   fixupUrl,
-  detectBrowserFeatures,
-  detectTimezone,
   detectViewport,
   detectDocumentSize,
 } from '@snowplow/browser-core';
@@ -96,7 +94,6 @@ import { trackerCore } from '@snowplow/tracker-core';
  * 22. maxLocalStorageQueueSize, 1000
  * 23. resetActivityTrackingOnPageView, true
  * 24. connectionTimeout, 5000
- * 25. skippedBrowserFeatures, []
  * 26. anonymousTracking, false // bool | { withSessionTracking: bool, withServerAnonymisation: bool }
  */
 export function Tracker(functionName, namespace, version, mutSnowplowState, argmap) {
@@ -204,8 +201,6 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
     configVisitorCookieTimeout = argmap.hasOwnProperty('cookieLifetime') ? argmap.cookieLifetime : 63072000, // 2 years
     // Life of the session cookie (in seconds)
     configSessionCookieTimeout = argmap.hasOwnProperty('sessionCookieTimeout') ? argmap.sessionCookieTimeout : 1800, // 30 minutes
-    // Document character set
-    documentCharset = documentAlias.characterSet || documentAlias.charset,
     // This forces the tracker to be HTTPS even if the page is not secure
     forceSecureTracker = argmap.hasOwnProperty('forceSecureTracker') ? argmap.forceSecureTracker === true : false,
     // This forces the tracker to be HTTP even if the page is secure
@@ -221,10 +216,6 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
     configAnonymousTracking = getAnonymousTracking(argmap),
     // Strategy defining how to store the state: cookie, localStorage, cookieAndLocalStorage or none
     configStateStorageStrategy = getStateStorageStrategy(argmap),
-    // Browser language (or Windows language for IE). Imperfect but CloudFront doesn't log the Accept-Language header
-    browserLanguage = navigatorAlias.userLanguage || navigatorAlias.language,
-    // Browser features via client-side data collection
-    browserFeatures = detectBrowserFeatures(),
     // Unique ID for the tracker instance used to mark links which are being tracked
     trackerId = functionName + '_' + namespace,
     // Last activity timestamp
@@ -278,9 +269,8 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
       installed: false, // Guard against installing the activity tracker more than once per Tracker instance
       configurations: {},
     },
-    apiPlugins = argmap.apiPlugins || [];
-
-  let skippedBrowserFeatures = argmap.skippedBrowserFeatures || [];
+    apiPlugins = argmap.apiPlugins || [],
+    detectors = argmap.detectors || {};
 
   if (argmap.hasOwnProperty('discoverRootDomain') && argmap.discoverRootDomain) {
     configCookieDomain = findRootDomain(configCookieSameSite, configCookieSecure);
@@ -294,28 +284,13 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
   core.setTrackerNamespace(namespace);
   core.setAppId(configTrackerSiteId);
   core.setPlatform(configPlatform);
-  core.setTimezone(detectTimezone());
-  core.addPayloadPair('lang', browserLanguage);
-  core.addPayloadPair('cs', documentCharset);
 
-  // Browser features. Cookies, color depth and resolution don't get prepended with f_ (because they're not optional features)
-  for (var i in browserFeatures) {
-    if (Object.prototype.hasOwnProperty.call(browserFeatures, i)) {
-      if ((i === 'res' || i === 'cd' || i === 'cookie') && !shouldSkipFeature(i)) {
-        core.addPayloadPair(i, browserFeatures[i]);
-      } else if (!shouldSkipFeature(i)) {
-        core.addPayloadPair('f_' + i, browserFeatures[i]);
-      }
-    }
-  }
-
-  /**
-   * Check whether browserFeature should be logged
-   */
-  function shouldSkipFeature(browserFeature) {
-    return skippedBrowserFeatures.map((v) => v.toLowerCase()).indexOf(browserFeature.toLowerCase()) > -1;
-  }
-
+  if (detectors.timezone) detectors.timezone(core);
+  if (detectors.browserFeatures) detectors.browserFeatures(core);
+  if (detectors.screen) detectors.screen(core);
+  if (detectors.document) detectors.document(core);
+  if (detectors.cookie) detectors.cookie(core);
+  
   /**
    * Recalculate the domain, URL, and referrer
    */
@@ -754,8 +729,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
     }
 
     // Build out the rest of the request
-    sb.add('vp', detectViewport());
-    sb.add('ds', detectDocumentSize());
+    if (detectors.window) detectors.window(sb);
     sb.add('vid', anonymizeSessionOr(memorizedVisitCount));
     sb.add('sid', anonymizeSessionOr(memorizedSessionId));
     sb.add('duid', anonymizeOr(_domainUserId)); // Set to our local variable

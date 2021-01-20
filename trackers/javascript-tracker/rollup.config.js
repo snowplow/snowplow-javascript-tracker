@@ -49,6 +49,7 @@ export default [
   {
     input: 'src/js/index.js',
     plugins: plugins,
+    treeshake: { moduleSideEffects: ['jstimezonedetect'] },
     output: [{ file: pkg.main }],
   },
 ];

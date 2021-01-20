@@ -35,7 +35,7 @@
 import map from 'lodash/map';
 import { warn, isFunction } from '@snowplow/browser-core';
 import { newTracker, getTracker, allTrackers } from '@snowplow/browser-tracker';
-import { Plugins } from './plugins';
+import { Plugins, Detectors } from './features';
 
 /************************************************************
  * Proxy object
@@ -115,10 +115,12 @@ export function InQueueManager(functionName, asyncQueue) {
 
       if (f === 'newTracker') {
         const plugins = Plugins(parameterArray[2]);
+        const detectors = Detectors(parameterArray[2]);
         parameterArray[2] = {
           ...parameterArray[2],
           contextPlugins: plugins.contextPlugins,
           apiPlugins: plugins.apiPlugins,
+          detectors: detectors,
         };
         newTracker(parameterArray[0], parameterArray[1], parameterArray[2], functionName);
         continue;

@@ -83,7 +83,7 @@ export interface Core {
    * @param key Field name
    * @param value Field value
    */
-  addPayloadPair: (key: string, value: string) => void;
+  addPayloadPair: (key: string, value: string | number) => void;
 
   /**
    * Turn base 64 encoding on or off
@@ -837,7 +837,7 @@ export function trackerCore(
    * @param key Field name
    * @param value Field value
    */
-  const addPayloadPair = (key: string, value: string): void => {
+  const addPayloadPair = (key: string, value: string | number): void => {
     payloadPairs[key] = value;
   };
 

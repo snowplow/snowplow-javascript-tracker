@@ -16,6 +16,7 @@
     "lodash": "^4.17.20",
     "sha1": "^1.1.1",
     "uuid": "^3.3.3",
+    "@snowplow/browser-detectors": "workspace:*",
     "@snowplow/tracker-core": "workspace:*",
     "@snowplow/browser-core": "workspace:*"
   },
