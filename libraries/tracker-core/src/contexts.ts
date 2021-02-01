@@ -13,12 +13,10 @@
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
 
-import { PayloadData, PayloadDictionary, isNonEmptyJson } from './payload';
+import { PayloadBuilder, Payload, isNonEmptyJson } from './payload';
 import { SelfDescribingJson } from './core';
 import { base64urldecode } from './base64';
-import { ContextPlugin } from './plugins';
-
-// Must import lodash as submodules (https://github.com/rollup/rollup/wiki/Troubleshooting#tree-shaking-doesnt-seem-to-be-working)
+import { Plugin } from './plugins';
 import isEqual from 'lodash/isEqual';
 import has from 'lodash/has';
 import get from 'lodash/get';
@@ -31,7 +29,7 @@ import isPlainObject from 'lodash/isPlainObject';
  * An interface for wrapping the Context Generator arguments
  */
 export interface ContextGeneratorEvent {
-  event: PayloadDictionary;
+  event: Payload;
   eventType: string;
   eventSchema: string;
 }
@@ -52,7 +50,7 @@ export type ContextPrimitive = SelfDescribingJson | ContextGenerator;
  * An interface for wrapping the Filter arguments
  */
 export interface ContextFilterEvent {
-  event: PayloadDictionary;
+  event: Payload;
   eventType: string;
   eventSchema: string;
 }
@@ -124,7 +122,7 @@ export interface GlobalContexts {
    * Returns all applicable global contexts for a specified event
    * @param event The event to check for applicable global contexts for
    */
-  getApplicableContexts(event: PayloadData): Array<SelfDescribingJson>;
+  getApplicableContexts(event: PayloadBuilder): Array<SelfDescribingJson>;
 }
 
 /**
@@ -138,7 +136,7 @@ export function globalContexts(): GlobalContexts {
    * Returns all applicable global contexts for a specified event
    * @param event The event to check for applicable global contexts for
    */
-  const assembleAllContexts = (event: PayloadDictionary): Array<SelfDescribingJson> => {
+  const assembleAllContexts = (event: Payload): Array<SelfDescribingJson> => {
     const eventSchema = getUsefulSchema(event);
     const eventType = getEventType(event);
     const contexts: Array<SelfDescribingJson> = [];
@@ -189,7 +187,7 @@ export function globalContexts(): GlobalContexts {
       }
     },
 
-    getApplicableContexts(event: PayloadData): Array<SelfDescribingJson> {
+    getApplicableContexts(event: PayloadBuilder): Array<SelfDescribingJson> {
       const builtEvent = event.build();
       if (isEventJson(builtEvent)) {
         const decodedEvent = getDecodedEvent(builtEvent);
@@ -205,10 +203,10 @@ export interface PluginContexts {
   /**
    * Returns list of contexts from all active plugins
    */
-  addPluginContexts: (additionalContexts?: SelfDescribingJson[]) => SelfDescribingJson[];
+  addPluginContexts: (additionalContexts?: SelfDescribingJson[] | null) => SelfDescribingJson[];
 }
 
-export function pluginContexts(plugins?: Array<ContextPlugin>): PluginContexts {
+export function pluginContexts(plugins: Array<Plugin>): PluginContexts {
   /**
    * Add common contexts to every event
    *
@@ -216,12 +214,16 @@ export function pluginContexts(plugins?: Array<ContextPlugin>): PluginContexts {
    * @return userContexts combined with commonContexts
    */
   return {
-    addPluginContexts: (additionalContexts?: SelfDescribingJson[]): SelfDescribingJson[] => {
+    addPluginContexts: (additionalContexts?: SelfDescribingJson[] | null): SelfDescribingJson[] => {
       const combinedContexts: SelfDescribingJson[] = additionalContexts ?? [];
 
-      plugins?.forEach((plugin) => {
-        if (plugin.getContexts) {
-          combinedContexts.push(...plugin.getContexts());
+      plugins.forEach((plugin) => {
+        try {
+          if (plugin.contexts) {
+            combinedContexts.push(...plugin.contexts());
+          }
+        } catch (ex) {
+          console.warn('Snowplow: error with plugin context', ex);
         }
       });
 
@@ -328,8 +330,8 @@ export function isSelfDescribingJson(input: unknown): input is SelfDescribingJso
   return false;
 }
 
-export function isEventJson(input: unknown): input is PayloadDictionary {
-  const payload = input as PayloadDictionary;
+export function isEventJson(input: unknown): input is Payload {
+  const payload = input as Payload;
   if (isNonEmptyJson(payload) && 'e' in payload) return typeof payload.e === 'string';
   return false;
 }
@@ -468,14 +470,14 @@ function matchPart(rule: string, schema: string): boolean {
 // 'ue_px.schema'/'ue_pr.schema' would be redundant - it'll return the unstruct_event schema.
 // Instead the schema nested inside the unstruct_event is more useful!
 // This doesn't decode ue_px, it works because it's called by code that has already decoded it
-function getUsefulSchema(sb: PayloadDictionary): string {
+function getUsefulSchema(sb: Payload): string {
   if (typeof get(sb, 'ue_px.data.schema') === 'string') return get(sb, 'ue_px.data.schema') as string;
   else if (typeof get(sb, 'ue_pr.data.schema') === 'string') return get(sb, 'ue_pr.data.schema') as string;
   else if (typeof get(sb, 'schema') === 'string') return get(sb, 'schema') as string;
   return '';
 }
 
-function getDecodedEvent(sb: PayloadDictionary): PayloadDictionary {
+function getDecodedEvent(sb: Payload): Payload {
   const decodedEvent = { ...sb }; // spread operator, instantiates new object
   try {
     if (has(decodedEvent, 'ue_px')) {
@@ -493,7 +495,7 @@ function getEventType(sb: Record<string, unknown>): string {
 
 function buildGenerator(
   generator: ContextGenerator,
-  event: PayloadDictionary,
+  event: Payload,
   eventType: string,
   eventSchema: string
 ): SelfDescribingJson | Array<SelfDescribingJson> | undefined {
@@ -529,7 +531,7 @@ function normalizeToArray<T>(input: Array<T> | T): Array<T> {
 
 function generatePrimitives(
   contextPrimitives: Array<ContextPrimitive> | ContextPrimitive,
-  event: PayloadDictionary,
+  event: Payload,
   eventType: string,
   eventSchema: string
 ): Array<SelfDescribingJson> {
@@ -547,7 +549,7 @@ function generatePrimitives(
 
 function evaluatePrimitive(
   contextPrimitive: ContextPrimitive,
-  event: PayloadDictionary,
+  event: Payload,
   eventType: string,
   eventSchema: string
 ): Array<SelfDescribingJson> | undefined {
@@ -566,7 +568,7 @@ function evaluatePrimitive(
 
 function evaluateProvider(
   provider: ConditionalContextProvider,
-  event: PayloadDictionary,
+  event: Payload,
   eventType: string,
   eventSchema: string
 ): Array<SelfDescribingJson> {
@@ -596,7 +598,7 @@ function evaluateProvider(
 
 function generateConditionals(
   providers: Array<ConditionalContextProvider> | ConditionalContextProvider,
-  event: PayloadDictionary,
+  event: Payload,
   eventType: string,
   eventSchema: string
 ): Array<SelfDescribingJson> {

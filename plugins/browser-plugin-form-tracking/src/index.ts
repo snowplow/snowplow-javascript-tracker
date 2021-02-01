@@ -8,13 +8,13 @@ import {
   getFilterByClass,
   getFilterByName,
   addEventListener,
-  BrowserApiPlugin,
+  ApiPlugin,
   ApiMethods,
   DynamicContexts,
   SharedState,
   FilterCriterion,
 } from '@snowplow/browser-core';
-import { Core } from '@snowplow/tracker-core';
+import { Core, Plugin } from '@snowplow/tracker-core';
 
 interface FormTrackingConfig {
   forms: FilterCriterion<HTMLElement>;
@@ -42,11 +42,11 @@ interface ElementData extends Record<string, string | null | undefined> {
 
 type transformFn = (x: string | null, _?: ElementData | TrackedHTMLElement) => string | null;
 
-const FormTrackingPlugin = (): BrowserApiPlugin<FormMethods> => {
+const FormTrackingPlugin = (): Plugin & ApiPlugin<FormMethods> => {
   let _core: Core,
     _state: SharedState,
-    innerElementTags: Array<keyof TrackedHTMLElementTagNameMap> = ['textarea', 'input', 'select'],
-    trackingMarker: string;
+    _trackingMarker: string,
+    innerElementTags: Array<keyof TrackedHTMLElementTagNameMap> = ['textarea', 'input', 'select'];
 
   // Filter to determine which forms should be tracked
   var formFilter = function (_: HTMLFormElement) {
@@ -87,12 +87,12 @@ const FormTrackingPlugin = (): BrowserApiPlugin<FormMethods> => {
   /*
    * Get an identifier for a form, input, textarea, or select element
    */
-  function getFormElementName(elt: Record<string, any>) {
+  function getElementIdentifier(elt: Record<string, any>) {
     const properties: Array<'name' | 'id' | 'type' | 'nodeName'> = ['name', 'id', 'type', 'nodeName'];
     const found = find(properties, (propName) => {
       // If elt has a child whose name is "id", that element will be returned
       // instead of the actual id of elt unless we ensure that a string is returned
-      return elt[propName] !== null;
+      return elt[propName] != false && typeof elt[propName] === 'string';
     });
 
     if (found) return elt[found];
@@ -103,19 +103,12 @@ const FormTrackingPlugin = (): BrowserApiPlugin<FormMethods> => {
   /*
    * Identifies the parent form in which an element is contained
    */
-  function getParentFormName(elt: TrackedHTMLElement) {
-    let searchElt = elt as HTMLElement;
-    while (
-      searchElt &&
-      searchElt.nodeName &&
-      searchElt.parentElement &&
-      searchElt.nodeName.toUpperCase() !== 'HTML' &&
-      searchElt.nodeName.toUpperCase() !== 'FORM'
-    ) {
-      searchElt = searchElt.parentElement;
+  function getParentFormIdentifier(elt: Node | null) {
+    while (elt && elt.nodeName && elt.nodeName.toUpperCase() !== 'HTML' && elt.nodeName.toUpperCase() !== 'FORM') {
+      elt = elt.parentNode;
     }
-    if (searchElt && searchElt.nodeName && searchElt.nodeName.toUpperCase() === 'FORM') {
-      return getFormElementName(searchElt);
+    if (elt && elt.nodeName && elt.nodeName.toUpperCase() === 'FORM') {
+      return getElementIdentifier(elt);
     }
 
     return null;
@@ -128,7 +121,7 @@ const FormTrackingPlugin = (): BrowserApiPlugin<FormMethods> => {
     var innerElements: Array<ElementData> = [];
     forEach(innerElementTags, (tagname: 'textarea' | 'input' | 'select') => {
       var trackedChildren = filter(elt.getElementsByTagName(tagname), function (child) {
-        return child.hasOwnProperty(trackingMarker);
+        return child.hasOwnProperty(_trackingMarker);
       });
 
       forEach(trackedChildren, function (child) {
@@ -136,7 +129,7 @@ const FormTrackingPlugin = (): BrowserApiPlugin<FormMethods> => {
           return;
         }
         var elementJson: ElementData = {
-          name: getFormElementName(child),
+          name: getElementIdentifier(child),
           value: child.value,
           nodeName: child.nodeName,
         };
@@ -167,8 +160,8 @@ const FormTrackingPlugin = (): BrowserApiPlugin<FormMethods> => {
         if (event_type === 'change_form' || (type !== 'checkbox' && type !== 'radio')) {
           _core.trackFormFocusOrChange(
             event_type,
-            getParentFormName(elt) ?? '',
-            getFormElementName(elt) ?? '',
+            getParentFormIdentifier(elt) ?? '',
+            getElementIdentifier(elt) ?? '',
             elt.nodeName,
             type,
             getCssClasses(elt),
@@ -191,7 +184,7 @@ const FormTrackingPlugin = (): BrowserApiPlugin<FormMethods> => {
         innerElement.value = fieldTransform(innerElement.value, innerElement);
       });
       _core.trackFormSubmission(
-        getFormElementName(elt) ?? '',
+        getElementIdentifier(elt) ?? '',
         getCssClasses(elt),
         innerElements,
         resolveDynamicContexts(context, elt, innerElements)
@@ -216,32 +209,34 @@ const FormTrackingPlugin = (): BrowserApiPlugin<FormMethods> => {
    */
   function addFormListeners(context: DynamicContexts) {
     forEach(document.getElementsByTagName('form'), function (form) {
-      if (formFilter(form) && !form[trackingMarker]) {
+      if (formFilter(form) && !form[_trackingMarker]) {
         forEach(innerElementTags, function (tagname) {
           forEach(form.getElementsByTagName(tagname), function (innerElement) {
             if (
               fieldFilter(innerElement) &&
-              !(innerElement as any)[trackingMarker] &&
+              !(innerElement as any)[_trackingMarker] &&
               innerElement.type.toLowerCase() !== 'password'
             ) {
               addEventListener(innerElement, 'focus', getFormChangeListener('focus_form', context), false);
               addEventListener(innerElement, 'change', getFormChangeListener('change_form', context), false);
-              (innerElement as any)[trackingMarker] = true;
+              (innerElement as any)[_trackingMarker] = true;
             }
           });
         });
 
         addEventListener(form, 'submit', getFormSubmissionListener(context));
-        form[trackingMarker] = true;
+        form[_trackingMarker] = true;
       }
     });
   }
 
   return {
-    initialise: (core: Core, trackerId: string, state: SharedState) => {
+    coreInit: (core: Core) => {
       _core = core;
+    },
+    trackerInit: (trackerId: string, state: SharedState) => {
       _state = state;
-      trackingMarker = trackerId + 'form';
+      _trackingMarker = trackerId + 'form';
     },
     apiMethods: {
       /**

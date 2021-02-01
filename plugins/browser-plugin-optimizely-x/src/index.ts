@@ -1,5 +1,5 @@
 import map from 'lodash/map';
-import { ContextPlugin } from '@snowplow/tracker-core';
+import { Plugin } from '@snowplow/tracker-core';
 import { parseAndValidateInt } from '@snowplow/browser-core';
 import { OptimizelyxSummary } from './contexts';
 
@@ -11,7 +11,7 @@ declare global {
   }
 }
 
-const OptimizelyXPlugin = (): ContextPlugin => {
+const OptimizelyXPlugin = (): Plugin => {
   const windowAlias = window;
 
   /**
@@ -72,7 +72,7 @@ const OptimizelyXPlugin = (): ContextPlugin => {
   }
 
   return {
-    getContexts: () => {
+    contexts: () => {
       // Add Optimizely Contexts
       if (windowAlias.optimizely) {
         return getOptimizelyXSummaryContexts();

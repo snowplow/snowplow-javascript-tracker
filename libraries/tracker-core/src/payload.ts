@@ -15,29 +15,29 @@
 
 import * as base64 from './base64';
 
+export type PayloadValue = unknown;
+
 /**
  * Interface for a Payload dictionary
  */
-export interface PayloadDictionary {
-  [key: string]: unknown;
-}
+export type Payload = Record<string, PayloadValue>;
 
 /**
  * Interface for mutable object encapsulating tracker payload
  */
-export interface PayloadData {
+export interface PayloadBuilder {
   /**
    * Adds an entry to the Payload
    * @param key Key for Payload dictionary entry
    * @param value Value for Payload dictionaty entry
    */
-  add: (key: string, value?: unknown) => void;
+  add: (key: string, value: PayloadValue) => void;
 
   /**
    * Merges a payload into the existing payload
    * @param dict The payload to merge
    */
-  addDict: (dict: PayloadDictionary) => void;
+  addDict: (dict: Payload) => void;
 
   /**
    * Adds a JSON object to the payload - will stringify the JSON object
@@ -50,7 +50,7 @@ export interface PayloadData {
   /**
    * Builds and returns the Payload
    */
-  build: () => PayloadDictionary;
+  build: () => Payload;
 }
 
 /**
@@ -70,7 +70,7 @@ function base64urlencode(data: string): string {
 /**
  * Is property a non-empty JSON?
  */
-export function isNonEmptyJson(property: Record<string, unknown>): boolean {
+export function isNonEmptyJson(property?: Record<string, unknown>): boolean {
   if (!isJson(property)) {
     return false;
   }
@@ -85,12 +85,11 @@ export function isNonEmptyJson(property: Record<string, unknown>): boolean {
 /**
  * Is property a JSON?
  */
-export function isJson(property: unknown): boolean {
-  const record = property as Record<string, unknown> | null | undefined;
+export function isJson(property?: Record<string, unknown>): boolean {
   return (
-    typeof record !== 'undefined' &&
-    record !== null &&
-    (record.constructor === {}.constructor || record.constructor === [].constructor)
+    typeof property !== 'undefined' &&
+    property !== null &&
+    (property.constructor === {}.constructor || property.constructor === [].constructor)
   );
 }
 
@@ -103,17 +102,17 @@ export function isJson(property: unknown): boolean {
  *
  * @return The request string builder, with add, addRaw and build methods
  */
-export function payloadBuilder(base64Encode: boolean): PayloadData {
-  const dict: PayloadDictionary = {};
+export function payloadBuilder(base64Encode: boolean): PayloadBuilder {
+  const dict: Payload = {};
 
-  const add = (key: string, value?: unknown): void => {
+  const add = (key: string, value: PayloadValue): void => {
     if (value != null && value !== '') {
       // null also checks undefined
       dict[key] = value;
     }
   };
 
-  const addDict = (dict: PayloadDictionary): void => {
+  const addDict = (dict: Payload): void => {
     for (const key in dict) {
       if (Object.prototype.hasOwnProperty.call(dict, key)) {
         add(key, dict[key]);
@@ -132,7 +131,7 @@ export function payloadBuilder(base64Encode: boolean): PayloadData {
     }
   };
 
-  const build = (): PayloadDictionary => {
+  const build = (): Payload => {
     return dict;
   };
 

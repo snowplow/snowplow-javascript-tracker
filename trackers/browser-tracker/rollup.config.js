@@ -1,5 +1,5 @@
 import { nodeResolve } from '@rollup/plugin-node-resolve';
-import { babel } from '@rollup/plugin-babel';
+import ts from '@wessberg/rollup-plugin-ts'; // Prefered over @rollup/plugin-typescript as it bundles .d.ts files
 import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
 import banner from 'rollup-plugin-banner';
@@ -16,45 +16,23 @@ const bannerContent =
   '@license     <%= pkg.license %>\n\n' +
   'Documentation: http://bit.ly/sp-js';
 
-const plugins = [
-  json(),
-  nodeResolve({ browser: true }),
-  commonjs(),
-  babel({
-    babelrc: false,
-    babelHelpers: 'bundled',
-    presets: [
-      [
-        '@babel/preset-env',
-        {
-          targets: {
-            chrome: 32,
-            ie: 9,
-            edge: 13,
-            firefox: 27,
-            safari: 8,
-          },
-        },
-      ],
-    ],
-  }),
-];
+const plugins = [nodeResolve({ browser: true }), commonjs(), json(), ts()];
 
 export default [
   {
-    input: 'src/js/snowplow.js',
+    input: './src/index.ts',
     external: [/^lodash/, ...builtinModules, ...Object.keys(pkg.dependencies)],
     plugins: [...plugins, banner(bannerContent)],
     output: [{ file: pkg.module, format: 'es' }],
   },
   {
-    input: 'src/js/snowplow.js',
+    input: './src/index.ts',
     plugins: [...plugins, banner(bannerContent)],
     treeshake: { moduleSideEffects: ['jstimezonedetect'] },
     output: [{ file: pkg.main, format: 'umd', name: 'snowplow' }],
   },
   {
-    input: 'src/js/snowplow.js',
+    input: './src/index.ts',
     plugins: [...plugins, compiler(), cleanup({ comments: 'none' }), banner(bannerContent)],
     treeshake: { moduleSideEffects: ['jstimezonedetect'] },
     output: [{ file: pkg.main.replace('.js', '.min.js'), format: 'umd', name: 'snowplow' }],

@@ -1,12 +1,12 @@
-import { ContextPlugin, SelfDescribingJson } from '@snowplow/tracker-core';
-import { BrowserApiPlugin, ApiMethods } from '@snowplow/browser-core';
+import { Plugin, SelfDescribingJson } from '@snowplow/tracker-core';
+import { ApiPlugin, ApiMethods } from '@snowplow/browser-core';
 import { Geolocation } from './contexts';
 
 interface GeolocationMethods extends ApiMethods {
   enableGeolocationContext: () => void;
 }
 
-const GeolocationPlugin = (enableAtLoad: boolean = false): ContextPlugin & BrowserApiPlugin<GeolocationMethods> => {
+const GeolocationPlugin = (enableAtLoad: boolean = false): Plugin & ApiPlugin<GeolocationMethods> => {
   let geolocation: SelfDescribingJson<Geolocation>;
   let geolocationContextAdded = false;
   let navigatorAlias: Navigator = navigator;
@@ -41,7 +41,7 @@ const GeolocationPlugin = (enableAtLoad: boolean = false): ContextPlugin & Brows
   }
 
   return {
-    getContexts: () => {
+    contexts: () => {
       return geolocation ? [geolocation] : [];
     },
     apiMethods: {

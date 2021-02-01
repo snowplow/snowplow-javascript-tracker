@@ -1,5 +1,5 @@
-import { ContextPlugin } from '@snowplow/tracker-core';
-import { warn, BrowserApiPlugin, ApiMethods } from '@snowplow/browser-core';
+import { Plugin } from '@snowplow/tracker-core';
+import { warn, ApiPlugin, ApiMethods } from '@snowplow/browser-core';
 import { Gdpr } from './contexts';
 
 enum gdprBasis {
@@ -22,7 +22,7 @@ interface GdprMethods extends ApiMethods {
   ) => void;
 }
 
-const GdprPlugin = (): ContextPlugin & BrowserApiPlugin<GdprMethods> => {
+const GdprPlugin = (): Plugin & ApiPlugin<GdprMethods> => {
   let gdprBasisData: Gdpr;
 
   const enableGdprContext = (
@@ -67,7 +67,7 @@ const GdprPlugin = (): ContextPlugin & BrowserApiPlugin<GdprMethods> => {
   }
 
   return {
-    getContexts: () => getGdprContext(),
+    contexts: () => getGdprContext(),
     apiMethods: {
       enableGdprContext,
     },

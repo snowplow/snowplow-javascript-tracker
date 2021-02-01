@@ -1,5 +1,9 @@
-import { SelfDescribingJson } from './core';
+import { Core, SelfDescribingJson } from './core';
+import { Payload, PayloadBuilder } from './payload';
 
-export interface ContextPlugin {
-  getContexts?: () => SelfDescribingJson[];
+export interface Plugin {
+  coreInit?: (core: Core) => void;
+  beforeTrack?: (payloadBuilder: PayloadBuilder) => void;
+  afterTrack?: (payload: Payload) => void;
+  contexts?: () => SelfDescribingJson[];
 }

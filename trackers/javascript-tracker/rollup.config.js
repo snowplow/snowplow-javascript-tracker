@@ -1,5 +1,5 @@
 import { nodeResolve } from '@rollup/plugin-node-resolve';
-import { babel } from '@rollup/plugin-babel';
+import ts from '@wessberg/rollup-plugin-ts'; // Prefered over @rollup/plugin-typescript as it bundles .d.ts files
 import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
 import banner from 'rollup-plugin-banner';
@@ -20,24 +20,7 @@ const plugins = [
   json(),
   nodeResolve({ browser: true }),
   commonjs(),
-  babel({
-    babelrc: false,
-    babelHelpers: 'bundled',
-    presets: [
-      [
-        '@babel/preset-env',
-        {
-          targets: {
-            chrome: 32,
-            ie: 9,
-            edge: 13,
-            firefox: 27,
-            safari: 8,
-          },
-        },
-      ],
-    ],
-  }),
+  ts({ tsconfig: './tsconfig.prod.json' }),
   compiler(),
   cleanup({ comments: 'none' }),
   banner(bannerContent),
@@ -47,9 +30,9 @@ const plugins = [
 
 export default [
   {
-    input: 'src/js/index.js',
+    input: './src/index.ts',
     plugins: plugins,
     treeshake: { moduleSideEffects: ['jstimezonedetect'] },
-    output: [{ file: pkg.main }],
+    output: [{ file: pkg.main, format: 'iife' }],
   },
 ];

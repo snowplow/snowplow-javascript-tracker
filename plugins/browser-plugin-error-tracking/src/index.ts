@@ -1,5 +1,5 @@
-import { isFunction, addEventListener, BrowserApiPlugin, ApiMethods } from '@snowplow/browser-core';
-import { Core, SelfDescribingJson } from '@snowplow/tracker-core';
+import { isFunction, addEventListener, ApiPlugin, ApiMethods } from '@snowplow/browser-core';
+import { Core, SelfDescribingJson, Plugin } from '@snowplow/tracker-core';
 
 interface ErrorMethods extends ApiMethods {
   trackError: (
@@ -17,7 +17,7 @@ interface ErrorMethods extends ApiMethods {
   ) => void;
 }
 
-const ErrorTrackingPlugin = (): BrowserApiPlugin<ErrorMethods> => {
+export const ErrorTrackingPlugin = (): Plugin & ApiPlugin<ErrorMethods> => {
   let windowAlias = window,
     _core: Core;
 
@@ -69,7 +69,7 @@ const ErrorTrackingPlugin = (): BrowserApiPlugin<ErrorMethods> => {
     commonContexts: Array<SelfDescribingJson>,
     contextsAdder: (error: ErrorEvent) => Array<SelfDescribingJson>
   ) => {
-    let contexts = commonContexts;
+    let contexts = commonContexts || [];
     if (isFunction(contextsAdder)) {
       contexts = contexts.concat(contextsAdder(errorEvent));
     }
@@ -78,7 +78,7 @@ const ErrorTrackingPlugin = (): BrowserApiPlugin<ErrorMethods> => {
   };
 
   return {
-    initialise: (core: Core) => {
+    coreInit: (core: Core) => {
       _core = core;
     },
     apiMethods: {
@@ -125,5 +125,3 @@ const ErrorTrackingPlugin = (): BrowserApiPlugin<ErrorMethods> => {
     },
   };
 };
-
-export { ErrorTrackingPlugin };

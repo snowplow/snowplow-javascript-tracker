@@ -1,0 +1,7 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    /* Basic Options */
+    "declaration": false /* Generates corresponding '.d.ts' file. */
+  }
+}

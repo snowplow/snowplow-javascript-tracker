@@ -8,5 +8,5 @@ export interface Cookies {
   __utmv?: string;
   __utmz?: string;
   _ga?: string;
-  [key: string]: unknown;
+  [key: string]: string | undefined;
 }
