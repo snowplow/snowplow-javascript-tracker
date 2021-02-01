@@ -1,4 +1,4 @@
-import { ContextPlugin } from '@snowplow/tracker-core';
+import { Plugin } from '@snowplow/tracker-core';
 import { HttpClientHints } from './contexts';
 
 interface NavigatorUABrandVersion {
@@ -24,7 +24,7 @@ declare global {
   }
 }
 
-const ClientHintsPlugin = (includeHighEntropy: true): ContextPlugin => {
+const ClientHintsPlugin = (includeHighEntropy: boolean): Plugin => {
   const navigatorAlias = navigator;
   var uaClientHints: HttpClientHints;
 
@@ -47,7 +47,7 @@ const ClientHintsPlugin = (includeHighEntropy: true): ContextPlugin => {
   }
 
   return {
-    getContexts: () => {
+    contexts: () => {
       return [
         {
           schema: 'iglu:org.ietf/http_client_hints/jsonschema/1-0-0',

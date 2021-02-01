@@ -42,43 +42,28 @@ declare global {
   }
 }
 
-export interface SharedState {
+export class SharedState {
   /* List of request queues - one per Tracker instance */
-  outQueues: Array<unknown>;
-  bufferFlushers: Array<() => void>;
+  outQueues: Array<unknown> = [];
+  bufferFlushers: Array<() => void> = [];
 
   /* Time at which to stop blocking excecution */
   expireDateTime?: number;
 
   /* DOM Ready */
-  hasLoaded: boolean;
-  registeredOnLoadHandlers: Array<() => void>;
+  hasLoaded: boolean = false;
+  registeredOnLoadHandlers: Array<() => void> = [];
 
   /* pageViewId, which can changed by other trackers on page;
    * initialized by tracker sent first event */
   pageViewId?: string;
 }
 
-export function SharedState(): SharedState {
+export function newSharedState(): SharedState {
   const documentAlias = document,
     windowAlias = window,
     /* Contains four variables that are shared with tracker.js and must be passed by reference */
-    mutSnowplowState: SharedState = {
-      /* List of request queues - one per Tracker instance */
-      outQueues: [],
-      bufferFlushers: [],
-
-      /* Time at which to stop blocking excecution */
-      expireDateTime: undefined,
-
-      /* DOM Ready */
-      hasLoaded: false,
-      registeredOnLoadHandlers: [],
-
-      /* pageViewId, which can changed by other trackers on page;
-       * initialized by tracker sent first event */
-      pageViewId: undefined,
-    };
+    mutSnowplowState = new SharedState();
 
   /************************************************************
    * Private methods

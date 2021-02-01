@@ -47,8 +47,16 @@
       "allowedCategories": [ "trackers" ]
     },
     {
+      "name": "@snowplow/browser-environment",
+      "allowedCategories": [ "libraries" ]
+    },
+    {
       "name": "@snowplow/browser-helpers",
       "allowedCategories": [ "plugins", "trackers" ]
+    },
+    {
+      "name": "@snowplow/browser-plugin-browser-features",
+      "allowedCategories": [ "trackers" ]
     },
     {
       "name": "@snowplow/browser-plugin-client-hints",
@@ -99,6 +107,10 @@
       "allowedCategories": [ "trackers" ]
     },
     {
+      "name": "@snowplow/browser-plugin-timezone",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "@snowplow/browser-tracker",
       "allowedCategories": [ "trackers" ]
     },
@@ -115,8 +127,16 @@
       "allowedCategories": [ "trackers" ]
     },
     {
-      "name": "@types/jest",
+      "name": "@types/dockerode",
       "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@types/jest",
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
+    },
+    {
+      "name": "@types/jsdom",
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "@types/jstimezonedetect",
@@ -127,20 +147,28 @@
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
+      "name": "@types/lodash-es",
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
+    },
+    {
       "name": "@types/node",
-      "allowedCategories": [ "libraries", "plugins" ]
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
+    },
+    {
+      "name": "@types/sha1",
+      "allowedCategories": [ "trackers" ]
     },
     {
       "name": "@types/uuid",
-      "allowedCategories": [ "libraries" ]
+      "allowedCategories": [ "libraries", "trackers" ]
     },
     {
       "name": "@typescript-eslint/eslint-plugin",
-      "allowedCategories": [ "libraries", "plugins" ]
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "@typescript-eslint/parser",
-      "allowedCategories": [ "libraries", "plugins" ]
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "@wdio/cli",
@@ -172,11 +200,19 @@
     },
     {
       "name": "@wessberg/rollup-plugin-ts",
-      "allowedCategories": [ "libraries", "plugins" ]
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "ava",
       "allowedCategories": [ "libraries", "plugins" ]
+    },
+    {
+      "name": "browser-env",
+      "allowedCategories": [ "libraries" ]
+    },
+    {
+      "name": "browser-environment",
+      "allowedCategories": [ "libraries" ]
     },
     {
       "name": "chromedriver",
@@ -188,7 +224,7 @@
     },
     {
       "name": "eslint",
-      "allowedCategories": [ "libraries", "plugins" ]
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "gulp",
@@ -200,7 +236,27 @@
     },
     {
       "name": "jest",
-      "allowedCategories": [ "trackers" ]
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
+    },
+    {
+      "name": "jest-environment-jsdom",
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
+    },
+    {
+      "name": "jest-environment-jsdom-global",
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
+    },
+    {
+      "name": "jest-standard-reporter",
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
+    },
+    {
+      "name": "jsdom",
+      "allowedCategories": [ "libraries" ]
+    },
+    {
+      "name": "jsdom-global",
+      "allowedCategories": [ "libraries" ]
     },
     {
       "name": "jstimezonedetect",
@@ -211,7 +267,15 @@
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
+      "name": "lodash-es",
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
+    },
+    {
       "name": "moment-timezone",
+      "allowedCategories": [ "plugins", "trackers" ]
+    },
+    {
+      "name": "npm-run-all",
       "allowedCategories": [ "trackers" ]
     },
     {
@@ -247,16 +311,20 @@
       "allowedCategories": [ "trackers" ]
     },
     {
+      "name": "ts-jest",
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
+    },
+    {
       "name": "ts-node",
-      "allowedCategories": [ "libraries", "plugins" ]
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "tslib",
-      "allowedCategories": [ "libraries", "plugins" ]
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "typescript",
-      "allowedCategories": [ "libraries", "plugins" ]
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "uuid",

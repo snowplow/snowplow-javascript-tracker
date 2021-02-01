@@ -1,9 +1,9 @@
-import { ContextPlugin, SelfDescribingJson } from '@snowplow/tracker-core';
+import { Plugin, SelfDescribingJson } from '@snowplow/tracker-core';
 import { cookie } from '@snowplow/browser-core';
 import forEach from 'lodash/forEach';
 import { Cookies } from './contexts';
 
-const GaCookiesPlugin = (): ContextPlugin => {
+const GaCookiesPlugin = (): Plugin => {
   const gaCookieData: SelfDescribingJson<Cookies> = {
     schema: 'iglu:com.google.analytics/cookies/jsonschema/1-0-0',
     data: {},
@@ -16,7 +16,7 @@ const GaCookiesPlugin = (): ContextPlugin => {
   });
 
   return {
-    getContexts: () => [gaCookieData],
+    contexts: () => [gaCookieData],
   };
 };
 

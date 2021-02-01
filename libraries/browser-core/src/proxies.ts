@@ -50,7 +50,6 @@ function getParameter(url: string, name: string) {
 
 /*
  * Fix-up URL when page rendered from search engine cache or translated page.
- * TODO: it would be nice to generalise this and/or move into the ETL phase.
  */
 export function fixupUrl(hostName: string, href: string, referrer: string) {
   if (hostName === 'translate.googleusercontent.com') {

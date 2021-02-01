@@ -53,7 +53,7 @@ jobs:
 
       - name: Run End to End Tests
         if: ${{ env.SAUCE_ACCESS_KEY != '' }}
-        working-directory: ./trackers/browser-tracker
+        working-directory: ./trackers/javascript-tracker
         run: node ../../common/scripts/install-run-rushx.js test:e2e:sauce
 
       - name: Upload sp.js artifact

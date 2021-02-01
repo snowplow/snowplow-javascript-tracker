@@ -1,5 +1,5 @@
 import map from 'lodash/map';
-import { ContextPlugin } from '@snowplow/tracker-core';
+import { Plugin } from '@snowplow/tracker-core';
 import { isValueInArray } from '@snowplow/browser-core';
 import {
   Experiment,
@@ -27,7 +27,7 @@ const OptimizelyPlugin = (
   visitor: boolean = true,
   audiences: boolean = true,
   dimensions: boolean
-): ContextPlugin => {
+): Plugin => {
   const windowAlias = window;
 
   /**
@@ -278,7 +278,7 @@ const OptimizelyPlugin = (
   }
 
   return {
-    getContexts: () => {
+    contexts: () => {
       const combinedContexts = [];
 
       // Add Optimizely Contexts

@@ -69,8 +69,8 @@ common/autoinstallers/*/.npmrc
 **/.rush/temp/
 
 # Test files
-trackers/browser-tracker/tests/pages/*.js
-trackers/browser-tracker/tests/local/serve/
+trackers/browser-tracker/test/pages/*.js
+trackers/browser-tracker/test/local/serve/
 
 # Generated tag
 trackers/browser-tracker/tags/tag.min.js

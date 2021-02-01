@@ -148,7 +148,7 @@
     //    * the "common/autoinstallers/my-task/node_modules/.bin" folder would be added to the shell PATH when
     //    * invoking the "shellCommand".
     //    */
-    //   // "autoinstallerName": "my-task"
+    //   "autoinstallerName": "my-task"
     // }
     {
       "name": "test",
@@ -156,7 +156,8 @@
       "summary": "Runs unit tests in each project.",
       "description": "Runs the 'test' script within each project.json",
       "enableParallelism": true,
-      "allowWarningsInSuccessfulBuild": true
+      "ignoreDependencyOrder": true,
+      "incremental": false
     },
     {
       "name": "prettier",

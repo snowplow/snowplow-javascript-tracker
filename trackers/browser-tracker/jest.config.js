@@ -1,0 +1,11 @@
+module.exports = {
+  preset: 'ts-jest',
+  reporters: ['jest-standard-reporter'],
+  testEnvironment: 'jest-environment-jsdom-global',
+  testEnvironmentOptions: {
+    url: 'https://snowplow-js-tracker.local/test/page.html',
+    referrer: 'https://example.com/',
+    innerWidth: 1024,
+    innerHeight: 768,
+  },
+};

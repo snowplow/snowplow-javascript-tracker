@@ -1,4 +1,4 @@
-import { ContextPlugin } from '@snowplow/tracker-core';
+import { Plugin } from '@snowplow/tracker-core';
 import { EncryptedPayload } from './contexts';
 
 declare global {
@@ -9,7 +9,7 @@ declare global {
   }
 }
 
-const ParrablePlugin = (): ContextPlugin => {
+const ParrablePlugin = (): Plugin => {
   const windowAlias = window;
   /**
    * Creates a context from the window['_hawk'] object
@@ -40,7 +40,7 @@ const ParrablePlugin = (): ContextPlugin => {
   }
 
   return {
-    getContexts: () => getParrableContext(),
+    contexts: () => getParrableContext(),
   };
 };
 
