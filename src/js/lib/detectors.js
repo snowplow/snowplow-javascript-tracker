@@ -34,7 +34,7 @@
 
 import isUndefined from 'lodash/isUndefined';
 import { jstz } from 'jstimezonedetect';
-import { isFunction, cookie } from '../lib/helpers'
+import { isFunction } from '../lib/helpers'
 
 var windowAlias = window,
   navigatorAlias = navigator,
@@ -89,14 +89,7 @@ export function localStorageAccessible() {
 /*
  * Does browser have cookies enabled (for this site)?
  */
-export function hasCookies(testCookieName) {
-  var cookieName = testCookieName || 'testcookie';
-
-  if (isUndefined(navigatorAlias.cookieEnabled)) {
-    cookie(cookieName, '1');
-    return cookie(cookieName) === '1' ? '1' : '0';
-  }
-
+export function hasCookies() {
   return navigatorAlias.cookieEnabled ? '1' : '0';
 }
 
@@ -154,7 +147,7 @@ export function detectDocumentSize() {
  * @param string testCookieName Name to use for the test cookie
  * @return Object containing browser features
  */
-export function detectBrowserFeatures(useCookies, testCookieName) {
+export function detectBrowserFeatures() {
   var i,
     mimeType,
     pluginMap = {
@@ -206,9 +199,7 @@ export function detectBrowserFeatures(useCookies, testCookieName) {
   // Other browser features
   features.res = screenAlias.width + 'x' + screenAlias.height;
   features.cd = screenAlias.colorDepth;
-  if (useCookies) {
-    features.cookie = hasCookies(testCookieName);
-  }
+  features.cookie = hasCookies();
 
   return features;
 }

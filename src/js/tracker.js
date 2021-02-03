@@ -256,10 +256,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
     // Browser language (or Windows language for IE). Imperfect but CloudFront doesn't log the Accept-Language header
     browserLanguage = navigatorAlias.userLanguage || navigatorAlias.language,
     // Browser features via client-side data collection
-    browserFeatures = detectBrowserFeatures(
-      configStateStorageStrategy == 'cookie' || configStateStorageStrategy == 'cookieAndLocalStorage',
-      getSnowplowCookieName('testcookie')
-    ),
+    browserFeatures = detectBrowserFeatures(),
     // Unique ID for the tracker instance used to mark links which are being tracked
     trackerId = functionName + '_' + namespace,
     // Last activity timestamp
@@ -353,7 +350,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
   let gdprBasisData = {};
 
   if (argmap.hasOwnProperty('discoverRootDomain') && argmap.discoverRootDomain) {
-    configCookieDomain = findRootDomain();
+    configCookieDomain = findRootDomain(configCookieSameSite, configCookieSecure);
   }
 
   if (autoContexts.gaCookies) {
@@ -691,8 +688,8 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
     const sesname = getSnowplowCookieName('ses');
     attemptDeleteLocalStorage(idname);
     attemptDeleteLocalStorage(sesname);
-    deleteCookie(idname);
-    deleteCookie(sesname);
+    deleteCookie(idname, configCookieDomain, configCookieSameSite, configCookieSecure);
+    deleteCookie(sesname, configCookieDomain, configCookieSameSite, configCookieSecure);
   }
 
   /*

@@ -401,7 +401,7 @@ export function attemptWriteSessionStorage(key, value) {
 /**
  * Finds the root domain
  */
-export function findRootDomain() {
+export function findRootDomain(sameSite, secure) {
   var cookiePrefix = '_sp_root_domain_test_';
   var cookieName = cookiePrefix + new Date().getTime();
   var cookieValue = '_test_value_' + new Date().getTime();
@@ -410,13 +410,13 @@ export function findRootDomain() {
   var position = split.length - 1;
   while (position >= 0) {
     var currentDomain = split.slice(position, split.length).join('.');
-    cookie(cookieName, cookieValue, 0, '/', currentDomain);
+    cookie(cookieName, cookieValue, 0, '/', currentDomain, sameSite, secure);
     if (cookie(cookieName) === cookieValue) {
       // Clean up created cookie(s)
-      deleteCookie(cookieName, currentDomain);
+      deleteCookie(cookieName, currentDomain, sameSite, secure);
       var cookieNames = getCookiesWithPrefix(cookiePrefix);
       for (var i = 0; i < cookieNames.length; i++) {
-        deleteCookie(cookieNames[i], currentDomain);
+        deleteCookie(cookieNames[i], currentDomain, sameSite, secure);
       }
 
       return currentDomain;
@@ -450,8 +450,8 @@ export function isValueInArray(val, array) {
  * @param cookieName The name of the cookie to delete
  * @param domainName The domain the cookie is in
  */
-export function deleteCookie(cookieName, domainName) {
-  cookie(cookieName, '', -1, '/', domainName);
+export function deleteCookie(cookieName, domainName, sameSite, secure) {
+  cookie(cookieName, '', -1, '/', domainName, sameSite, secure);
 }
 
 /**
