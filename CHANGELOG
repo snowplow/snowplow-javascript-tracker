@@ -1,3 +1,8 @@
+Version 2.17.1 (2020-02-03)
+---------------------------
+Prevent samesite cookie warning from triggering (#886)
+Remove server side anonymisation headers on Beacon (#887)
+
 Version 2.17.0 (2020-12-15)
 ---------------------------
 Upgrade typescript to 4.1 (#870)
