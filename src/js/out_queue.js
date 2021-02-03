@@ -332,11 +332,7 @@ export function OutQueueManager(
           });
 
           if (beaconPreflight) {
-            const headers = { type: 'application/json' };
-            if (anonymousTracking) {
-              header['SP-Anonymous'] = '*';
-            }
-            const blob = new Blob([encloseInPayloadDataEnvelope(attachStmToEvent(eventBatch))], headers);
+            const blob = new Blob([encloseInPayloadDataEnvelope(attachStmToEvent(eventBatch))], { type: 'application/json' });
             try {
               beaconStatus = navigator.sendBeacon(url, blob);
             } catch (error) {
