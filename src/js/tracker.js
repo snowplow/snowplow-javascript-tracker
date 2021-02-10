@@ -1636,13 +1636,13 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
           //Clear page ping heartbeat on new page view
           clearInterval(config.activityInterval);
 
-          activityInterval(config, finalizeContexts(context, contextCallback));
+          activityInterval(config, context, contextCallback);
         }
       }
     }
   }
 
-  function activityInterval(config, context) {
+  function activityInterval(config, context, contextCallback) {
     const executePagePing = (cb, c) => {
       refreshUrl();
       cb({ context: c, pageViewId: getPageViewId(), minXOffset, minYOffset, maxXOffset, maxYOffset });
@@ -1655,7 +1655,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
       // There was activity during the heart beat period;
       // on average, this is going to overstate the visitDuration by configHeartBeatTimer/2
       if (lastActivityTime + config.configMinimumVisitLength > now.getTime()) {
-        executePagePing(config.callback, context);
+        executePagePing(config.callback, finalizeContexts(context, contextCallback));
       }
 
       config.activityInterval = setInterval(heartbeat, config.configHeartBeatTimer);
@@ -1667,7 +1667,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
       // There was activity during the heart beat period;
       // on average, this is going to overstate the visitDuration by configHeartBeatTimer/2
       if (lastActivityTime + config.configHeartBeatTimer > now.getTime()) {
-        executePagePing(config.callback, context);
+        executePagePing(config.callback, finalizeContexts(context, contextCallback));
       }
     };
 

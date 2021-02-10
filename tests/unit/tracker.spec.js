@@ -168,6 +168,53 @@ describe('Activity tracker behaviour', () => {
     expect(countWithStaticValueEq(pageTwoTime)(outQueues)).toBe(0)
   })
 
+  it('does compute dynamic context for each page ping', () => {
+    const outQueues = []
+    const t = new Tracker(
+      '',
+      '',
+      '',
+      { outQueues },
+      {
+        stateStorageStrategy: 'cookies',
+        encodeBase64: false,
+        contexts: {
+          webPage: true,
+        },
+      }
+    )
+    t.enableActivityTracking(0, 30)
+    let id = 0
+    t.trackPageView(null, null, () => ([
+      {
+        schema: 'iglu:com.acme/dynamic_context/jsonschema/1-0-0',
+        data: { pingId: id++ },
+      },
+    ]))
+
+    jest.advanceTimersByTime(10000)
+
+    // PP 1
+    t.updatePageActivity()
+    jest.advanceTimersByTime(30000)
+
+    // PP 2
+    t.updatePageActivity()
+    jest.advanceTimersByTime(30000)
+
+    const findWithPingId = F.filter(F.get('data.pingId'))
+    const extractContextsWithPingId = F.compose(
+      findWithPingId,
+      F.flatten,
+      extractSchemas,
+      getPPEvents
+    )
+    const contexts = extractContextsWithPingId(outQueues)
+
+    expect(contexts[0].data.pingId).toBe(1)
+    expect(contexts[1].data.pingId).toBe(2)
+  })
+
   it('does not reset activity tracking on pageview when resetActivityTrackingOnPageView: false,', () => {
     const outQueues = []
     const t = new Tracker(
