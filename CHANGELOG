@@ -1,3 +1,7 @@
+Version 2.17.2 (2020-02-10)
+---------------------------
+Fix dynamic contexts not being evaluated on each page ping (#891)
+
 Version 2.17.1 (2020-02-03)
 ---------------------------
 Prevent samesite cookie warning from triggering (#886)
