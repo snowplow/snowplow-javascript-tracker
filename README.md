@@ -1,9 +1,9 @@
 # JavaScript web analytics for Snowplow
 
 [![actively-maintained]][tracker-classificiation]
-[![Release][release-image]][releases]
 [![Build Status][gh-actions-image]][gh-actions]
 [![Saucelabs Test Status][saucelabs-button-image]][saucelabs]
+[![Release][release-image]][releases]
 [![License][license-image]][bsd]
 
 ## Overview
@@ -55,7 +55,7 @@ Build the tracker using `npm run build` and run unit tests with `npm run test:un
 
 ## Testing
 
-[![Selenium Test Status][saucelabs-matrix-image]][saucelabs]
+[![Sauce Labs Test Status][saucelabs-matrix-image]][saucelabs]
 
 ## Copyright and license
 
@@ -83,7 +83,7 @@ Licensed under the [Simplified BSD][bsd] license.
 [gh-actions]: https://github.com/snowplow/snowplow-javascript-tracker/actions
 [gh-actions-image]: https://github.com/snowplow/snowplow-javascript-tracker/workflows/Build/badge.svg
 [saucelabs]: https://saucelabs.com/u/snowplow
-[saucelabs-button-image]: https://app.saucelabs.com/buildstatus/snowplow
+[saucelabs-button-image]: https://img.shields.io/static/v1?style=flat&label=Sauce%20Labs&message=Tested&color=e2231a&logo=sauce-labs
 [saucelabs-matrix-image]: https://app.saucelabs.com/browser-matrix/snowplow.svg
 [license-image]: http://img.shields.io/badge/license-simplified--bsd-blue.svg?style=flat
 [tracker-classificiation]: https://docs.snowplowanalytics.com/docs/collecting-data/collecting-from-own-applications/tracker-maintenance-classification/
