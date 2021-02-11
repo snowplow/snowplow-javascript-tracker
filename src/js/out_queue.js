@@ -128,6 +128,9 @@ export function OutQueueManager(
       if (!executingQueue) {
         executeQueue();
       }
+
+      // We've flushed the buffers, but if bufferSize > 1; we'll just buffer any following events...
+      bufferSize = 1; // ...So force bufferSize to 1 to force any subsequent events to send out immediately and not buffer
     });
   }
 
