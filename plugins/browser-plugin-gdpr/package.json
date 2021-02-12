@@ -11,8 +11,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "rollup -c --silent",
-    "dev": "rollup -c -w",
+    "build": "rollup -c --silent --failAfterWarnings",
     "test": ""
   },
   "dependencies": {

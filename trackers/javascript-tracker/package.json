@@ -26,8 +26,7 @@
   ],
   "main": "dist/sp.js",
   "scripts": {
-    "build": "rollup -c --silent",
-    "dev": "rollup -c -w",
+    "build": "rollup -c --silent --failAfterWarnings",
     "docker:micro": "docker pull snowplow/snowplow-micro:1.1.0",
     "test": "jest test/unit/*.test.ts",
     "test:build": "rollup --config rollup.config.test.js --silent",
