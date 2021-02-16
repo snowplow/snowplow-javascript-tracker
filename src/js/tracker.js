@@ -2294,6 +2294,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    */
   apiMethods.setCollectorCf = function (distSubdomain) {
     configCollectorUrl = collectorUrlFromCfDist(distSubdomain);
+    outQueue.setCollectorUrl(configCollectorUrl);
   };
 
   /**
@@ -2305,6 +2306,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    */
   apiMethods.setCollectorUrl = function (rawUrl) {
     configCollectorUrl = asCollectorUrl(rawUrl);
+    outQueue.setCollectorUrl(configCollectorUrl);
   };
 
   /**
