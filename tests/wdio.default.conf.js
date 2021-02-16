@@ -3,15 +3,15 @@ exports.config = {
   exclude: ['tests/unit/**/*.spec.js'],
   logLevel: 'warn',
   baseUrl: 'http://snowplow-js-tracker.local:8080',
-  waitforTimeout: 10000,
-  connectionRetryTimeout: 90000,
+  waitforTimeout: 30000,
+  connectionRetryTimeout: 120000,
   connectionRetryCount: 3,
   specFileRetries: 1,
 
   framework: 'jasmine',
   reporters: ['spec'],
   jasmineNodeOpts: {
-    defaultTimeoutInterval: 60000,
+    defaultTimeoutInterval: 120000,
   },
   beforeSession: function() {
     require('@babel/register')
