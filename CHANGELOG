@@ -1,3 +1,8 @@
+Version 2.17.3 (2020-02-16)
+---------------------------
+Fix flushBuffer not working if first function call (#896)
+Bump wdio to 6.12 (#898) 
+
 Version 2.17.2 (2020-02-10)
 ---------------------------
 Fix dynamic contexts not being evaluated on each page ping (#891)
