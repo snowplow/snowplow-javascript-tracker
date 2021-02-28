@@ -490,6 +490,18 @@
       "projectFolder": "plugins/browser-plugin-timezone",
       "reviewCategory": "plugins",
       "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-plugin-ecommerce",
+      "projectFolder": "plugins/browser-plugin-ecommerce",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-plugin-enhanced-ecommerce",
+      "projectFolder": "plugins/browser-plugin-enhanced-ecommerce",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
     }
   ]
 }

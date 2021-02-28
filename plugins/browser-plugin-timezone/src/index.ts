@@ -1,10 +1,10 @@
-import { Core, Plugin } from '@snowplow/tracker-core';
 import { determine } from 'jstimezonedetect';
+import { BrowserTracker, BrowserPlugin } from '@snowplow/browser-core';
 
-export const TimezonePlugin = (): Plugin => {
+export function TimezonePlugin(): BrowserPlugin {
   return {
-    coreInit: (core: Core) => {
-      core.setTimezone(determine(typeof Intl !== 'undefined').name());
+    activateBrowserPlugin: (tracker: BrowserTracker) => {
+      tracker.core.setTimezone(determine(typeof Intl !== 'undefined').name());
     },
   };
-};
+}

@@ -1,4 +1,4 @@
-import { Plugin } from '@snowplow/tracker-core';
+import { BrowserPlugin } from '@snowplow/browser-core';
 import { HttpClientHints } from './contexts';
 
 interface NavigatorUABrandVersion {
@@ -24,9 +24,10 @@ declare global {
   }
 }
 
-const ClientHintsPlugin = (includeHighEntropy: boolean): Plugin => {
-  const navigatorAlias = navigator;
-  var uaClientHints: HttpClientHints;
+const navigatorAlias = navigator;
+
+const ClientHintsPlugin = (includeHighEntropy: boolean): BrowserPlugin => {
+  let uaClientHints: HttpClientHints;
 
   if (navigatorAlias.userAgentData) {
     uaClientHints = {
@@ -48,12 +49,15 @@ const ClientHintsPlugin = (includeHighEntropy: boolean): Plugin => {
 
   return {
     contexts: () => {
-      return [
-        {
-          schema: 'iglu:org.ietf/http_client_hints/jsonschema/1-0-0',
-          data: uaClientHints,
-        },
-      ];
+      if (uaClientHints) {
+        return [
+          {
+            schema: 'iglu:org.ietf/http_client_hints/jsonschema/1-0-0',
+            data: uaClientHints,
+          },
+        ];
+      }
+      return [];
     },
   };
 };

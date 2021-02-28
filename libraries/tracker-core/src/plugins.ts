@@ -1,8 +1,8 @@
-import { Core, SelfDescribingJson } from './core';
+import { TrackerCore, SelfDescribingJson } from './core';
 import { Payload, PayloadBuilder } from './payload';
 
-export interface Plugin {
-  coreInit?: (core: Core) => void;
+export interface CorePlugin {
+  activateCorePlugin?: (core: TrackerCore) => void;
   beforeTrack?: (payloadBuilder: PayloadBuilder) => void;
   afterTrack?: (payload: Payload) => void;
   contexts?: () => SelfDescribingJson[];

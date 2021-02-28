@@ -1,6 +1,4 @@
-import map from 'lodash/map';
-import { Plugin } from '@snowplow/tracker-core';
-import { parseAndValidateInt } from '@snowplow/browser-core';
+import { BrowserPlugin, parseAndValidateInt } from '@snowplow/browser-core';
 import { OptimizelyxSummary } from './contexts';
 
 declare global {
@@ -11,7 +9,7 @@ declare global {
   }
 }
 
-const OptimizelyXPlugin = (): Plugin => {
+export function OptimizelyXPlugin(): BrowserPlugin {
   const windowAlias = window;
 
   /**
@@ -42,7 +40,7 @@ const OptimizelyXPlugin = (): Plugin => {
     var variationMap = state && state.getVariationMap();
     var visitor = getOptimizelyXData('visitor');
 
-    return map(experiment_ids, function (activeExperiment) {
+    return experiment_ids.map(function (activeExperiment: string) {
       var variation = variationMap[activeExperiment];
       var variationName = (variation && variation.name && variation.name.toString()) || null;
       var variationId = variation && variation.id;
@@ -63,7 +61,7 @@ const OptimizelyXPlugin = (): Plugin => {
    * @returns Array of custom contexts
    */
   function getOptimizelyXSummaryContexts() {
-    return map(getOptimizelyXSummary(), function (experiment) {
+    return getOptimizelyXSummary().map(function (experiment) {
       return {
         schema: 'iglu:com.optimizely.optimizelyx/summary/jsonschema/1-0-0',
         data: experiment,
@@ -81,6 +79,4 @@ const OptimizelyXPlugin = (): Plugin => {
       return [];
     },
   };
-};
-
-export { OptimizelyXPlugin };
+}

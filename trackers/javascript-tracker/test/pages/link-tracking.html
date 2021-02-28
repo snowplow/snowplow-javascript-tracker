@@ -60,23 +60,39 @@
 
       switch (parseQuery().filter) {
         case 'exclude':
-          snowplow('enableLinkClickTracking', { blacklist: ['exclude'] }, true, true);
+          snowplow('enableLinkClickTracking', {
+            options: { blacklist: ['exclude'] },
+            pseudoClicks: true,
+            trackContent: true,
+          });
           break;
         case 'include':
-          snowplow('enableLinkClickTracking', { whitelist: ['example'] }, true, true);
+          snowplow('enableLinkClickTracking', {
+            options: { whitelist: ['example'] },
+            pseudoClicks: true,
+            trackContent: true,
+          });
           break;
         case 'filter':
-          snowplow('enableLinkClickTracking', { filter: linkFilter }, true, true);
+          snowplow('enableLinkClickTracking', {
+            options: { filter: linkFilter },
+            pseudoClicks: true,
+            trackContent: true,
+          });
           break;
         default:
-          snowplow('enableLinkClickTracking', null, false, false, [
-            {
-              schema: 'iglu:org.schema/WebPage/jsonschema/1-0-0',
-              data: {
-                keywords: ['tester'],
+          snowplow('enableLinkClickTracking', {
+            pseudoClicks: false,
+            trackContent: false,
+            context: [
+              {
+                schema: 'iglu:org.schema/WebPage/jsonschema/1-0-0',
+                data: {
+                  keywords: ['tester'],
+                },
               },
-            },
-          ]);
+            ],
+          });
           break;
       }
 

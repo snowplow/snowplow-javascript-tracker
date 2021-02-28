@@ -15,6 +15,7 @@
       }
     </script>
   </head>
+
   <body>
     <p id="title">Page for Form Tracking testing with Snowplow Micro</p>
     <div id="init"></div>
@@ -84,29 +85,33 @@
 
       switch (parseQuery().filter) {
         case 'exclude':
-          snowplow('enableFormTracking', { fields: { blacklist: ['fname'] } });
+          snowplow('enableFormTracking', { options: { fields: { blacklist: ['fname'] } } });
           break;
         case 'include':
-          snowplow('enableFormTracking', { fields: { whitelist: ['lname'] } });
+          snowplow('enableFormTracking', { options: { fields: { whitelist: ['lname'] } } });
           break;
         case 'filter':
           snowplow('enableFormTracking', {
-            forms: { whitelist: ['formy-mcformface'] },
-            fields: { filter: formFilter },
+            options: {
+              forms: { whitelist: ['formy-mcformface'] },
+              fields: { filter: formFilter },
+            },
           });
           break;
         case 'excludedForm':
-          snowplow('enableFormTracking', { forms: { blacklist: ['excluded-form'] } });
+          snowplow('enableFormTracking', { options: { forms: { blacklist: ['excluded-form'] } } });
           break;
         default:
-          snowplow('enableFormTracking', null, [
-            {
-              schema: 'iglu:org.schema/WebPage/jsonschema/1-0-0',
-              data: {
-                keywords: ['tester'],
+          snowplow('enableFormTracking', {
+            context: [
+              {
+                schema: 'iglu:org.schema/WebPage/jsonschema/1-0-0',
+                data: {
+                  keywords: ['tester'],
+                },
               },
-            },
-          ]);
+            ],
+          });
           break;
       }
 

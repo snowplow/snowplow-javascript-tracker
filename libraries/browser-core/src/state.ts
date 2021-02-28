@@ -32,7 +32,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import forEach from 'lodash/forEach';
 import { addEventListener } from './helpers';
 
 declare global {
@@ -59,7 +58,7 @@ export class SharedState {
   pageViewId?: string;
 }
 
-export function newSharedState(): SharedState {
+export function createSharedState(): SharedState {
   const documentAlias = document,
     windowAlias = window,
     /* Contains four variables that are shared with tracker.js and must be passed by reference */
@@ -80,7 +79,7 @@ export function newSharedState(): SharedState {
     var now;
 
     // Flush all POST queues
-    forEach(mutSnowplowState.bufferFlushers, function (flusher) {
+    mutSnowplowState.bufferFlushers.forEach(function (flusher) {
       flusher();
     });
 

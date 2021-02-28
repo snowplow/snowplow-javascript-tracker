@@ -4,12 +4,14 @@ importers:
   ../../libraries/browser-core:
     dependencies:
       '@snowplow/tracker-core': 'link:../tracker-core'
-      lodash: 4.17.20
+      sha1: 1.1.1
       tslib: 2.0.3
+      uuid: 3.4.0
     devDependencies:
       '@types/jest': 26.0.20
       '@types/jsdom': 16.2.6
-      '@types/lodash': 4.14.168
+      '@types/sha1': 1.1.2
+      '@types/uuid': 3.4.9
       '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
       '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
@@ -25,7 +27,8 @@ importers:
       '@snowplow/tracker-core': 'workspace:*'
       '@types/jest': ^26.0.20
       '@types/jsdom': ^16.2.6
-      '@types/lodash': ^4.14.168
+      '@types/sha1': ^1.1.2
+      '@types/uuid': ^3.4.6
       '@typescript-eslint/eslint-plugin': ^4.9.0
       '@typescript-eslint/parser': ^4.9.0
       '@wessberg/rollup-plugin-ts': ^1.3.8
@@ -34,18 +37,17 @@ importers:
       jest-environment-jsdom: ^26.6.2
       jest-environment-jsdom-global: ^2.0.4
       jest-standard-reporter: ^2.0.0
-      lodash: ^4.17.20
       rollup: ^2.34.0
+      sha1: ^1.1.1
       ts-jest: ^26.5.0
       tslib: ^2.0.3
       typescript: ^4.1.2
+      uuid: ^3.3.3
   ../../libraries/tracker-core:
     dependencies:
-      lodash: 4.17.20
       tslib: 2.0.3
       uuid: 3.4.0
     devDependencies:
-      '@types/lodash': 4.14.168
       '@types/node': 14.14.14
       '@types/uuid': 3.4.9
       '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
@@ -58,7 +60,6 @@ importers:
       ts-node: 9.1.1_typescript@4.1.3
       typescript: 4.1.3
     specifiers:
-      '@types/lodash': ^4.14.168
       '@types/node': ^14.6.0
       '@types/uuid': ^3.4.6
       '@typescript-eslint/eslint-plugin': ^4.9.0
@@ -67,7 +68,6 @@ importers:
       ava: ^3.13.0
       eslint: ^7.7.0
       jest-standard-reporter: ^2.0.0
-      lodash: ^4.17.20
       rollup: ^2.34.0
       ts-node: ^9.1.1
       tslib: ^2.0.3
@@ -76,13 +76,11 @@ importers:
   ../../plugins/browser-plugin-browser-features:
     dependencies:
       '@snowplow/browser-core': 'link:../../libraries/browser-core'
-      '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
-      lodash: 4.17.20
       tslib: 2.0.3
     devDependencies:
+      '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
       '@types/jest': 26.0.20
       '@types/jsdom': 16.2.6
-      '@types/lodash': 4.14.168
       '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
       '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
@@ -99,7 +97,6 @@ importers:
       '@snowplow/tracker-core': 'workspace:*'
       '@types/jest': ^26.0.20
       '@types/jsdom': ^16.2.6
-      '@types/lodash': ^4.14.168
       '@typescript-eslint/eslint-plugin': ^4.9.0
       '@typescript-eslint/parser': ^4.9.0
       '@wessberg/rollup-plugin-ts': ^1.3.8
@@ -108,13 +105,41 @@ importers:
       jest-environment-jsdom: ^26.6.2
       jest-environment-jsdom-global: ^2.0.4
       jest-standard-reporter: ^2.0.0
-      lodash: ^4.17.20
       rollup: ^2.34.0
       ts-jest: ^26.5.0
       tslib: ^2.0.3
       typescript: ^4.1.2
   ../../plugins/browser-plugin-client-hints:
     dependencies:
+      '@snowplow/browser-core': 'link:../../libraries/browser-core'
+      tslib: 2.0.3
+    devDependencies:
+      '@types/jest': 26.0.20
+      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      eslint: 7.16.0
+      jest: 26.6.3
+      jest-standard-reporter: 2.0.0
+      rollup: 2.35.1
+      ts-jest: 26.5.0_jest@26.6.3+typescript@4.1.3
+      typescript: 4.1.3
+    specifiers:
+      '@snowplow/browser-core': 'workspace:*'
+      '@types/jest': ^26.0.20
+      '@typescript-eslint/eslint-plugin': ^4.9.0
+      '@typescript-eslint/parser': ^4.9.0
+      '@wessberg/rollup-plugin-ts': ^1.3.8
+      eslint: ^7.7.0
+      jest: ^26.6.3
+      jest-standard-reporter: ^2.0.0
+      rollup: ^2.34.0
+      ts-jest: ^26.5.0
+      tslib: ^2.0.3
+      typescript: ^4.1.2
+  ../../plugins/browser-plugin-ecommerce:
+    dependencies:
+      '@snowplow/browser-core': 'link:../../libraries/browser-core'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
       tslib: 2.0.3
     devDependencies:
@@ -129,6 +154,37 @@ importers:
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.1.3
       typescript: 4.1.3
     specifiers:
+      '@snowplow/browser-core': 'workspace:*'
+      '@snowplow/tracker-core': 'workspace:*'
+      '@types/jest': ^26.0.20
+      '@typescript-eslint/eslint-plugin': ^4.9.0
+      '@typescript-eslint/parser': ^4.9.0
+      '@wessberg/rollup-plugin-ts': ^1.3.8
+      eslint: ^7.7.0
+      jest: ^26.6.3
+      jest-standard-reporter: ^2.0.0
+      rollup: ^2.34.0
+      ts-jest: ^26.5.0
+      tslib: ^2.0.3
+      typescript: ^4.1.2
+  ../../plugins/browser-plugin-enhanced-ecommerce:
+    dependencies:
+      '@snowplow/browser-core': 'link:../../libraries/browser-core'
+      '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
+      tslib: 2.0.3
+    devDependencies:
+      '@types/jest': 26.0.20
+      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      eslint: 7.16.0
+      jest: 26.6.3
+      jest-standard-reporter: 2.0.0
+      rollup: 2.35.1
+      ts-jest: 26.5.0_jest@26.6.3+typescript@4.1.3
+      typescript: 4.1.3
+    specifiers:
+      '@snowplow/browser-core': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
       '@types/jest': ^26.0.20
       '@typescript-eslint/eslint-plugin': ^4.9.0
@@ -175,11 +231,9 @@ importers:
     dependencies:
       '@snowplow/browser-core': 'link:../../libraries/browser-core'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
-      lodash: 4.17.20
       tslib: 2.0.3
     devDependencies:
       '@types/jest': 26.0.20
-      '@types/lodash': 4.14.168
       '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
       '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
@@ -193,14 +247,12 @@ importers:
       '@snowplow/browser-core': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
       '@types/jest': ^26.0.20
-      '@types/lodash': ^4.14.168
       '@typescript-eslint/eslint-plugin': ^4.9.0
       '@typescript-eslint/parser': ^4.9.0
       '@wessberg/rollup-plugin-ts': ^1.3.8
       eslint: ^7.7.0
       jest: ^26.6.3
       jest-standard-reporter: ^2.0.0
-      lodash: ^4.17.20
       rollup: ^2.34.0
       ts-jest: ^26.5.0
       tslib: ^2.0.3
@@ -209,11 +261,9 @@ importers:
     dependencies:
       '@snowplow/browser-core': 'link:../../libraries/browser-core'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
-      lodash: 4.17.20
       tslib: 2.0.3
     devDependencies:
       '@types/jest': 26.0.20
-      '@types/lodash': 4.14.168
       '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
       '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
@@ -227,14 +277,12 @@ importers:
       '@snowplow/browser-core': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
       '@types/jest': ^26.0.20
-      '@types/lodash': ^4.14.168
       '@typescript-eslint/eslint-plugin': ^4.9.0
       '@typescript-eslint/parser': ^4.9.0
       '@wessberg/rollup-plugin-ts': ^1.3.8
       eslint: ^7.7.0
       jest: ^26.6.3
       jest-standard-reporter: ^2.0.0
-      lodash: ^4.17.20
       rollup: ^2.34.0
       ts-jest: ^26.5.0
       tslib: ^2.0.3
@@ -303,11 +351,9 @@ importers:
     dependencies:
       '@snowplow/browser-core': 'link:../../libraries/browser-core'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
-      lodash: 4.17.20
       tslib: 2.0.3
     devDependencies:
       '@types/jest': 26.0.20
-      '@types/lodash': 4.14.168
       '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
       '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
@@ -321,14 +367,12 @@ importers:
       '@snowplow/browser-core': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
       '@types/jest': ^26.0.20
-      '@types/lodash': ^4.14.168
       '@typescript-eslint/eslint-plugin': ^4.9.0
       '@typescript-eslint/parser': ^4.9.0
       '@wessberg/rollup-plugin-ts': ^1.3.8
       eslint: ^7.7.0
       jest: ^26.6.3
       jest-standard-reporter: ^2.0.0
-      lodash: ^4.17.20
       rollup: ^2.34.0
       ts-jest: ^26.5.0
       tslib: ^2.0.3
@@ -337,11 +381,9 @@ importers:
     dependencies:
       '@snowplow/browser-core': 'link:../../libraries/browser-core'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
-      lodash: 4.17.20
       tslib: 2.0.3
     devDependencies:
       '@types/jest': 26.0.20
-      '@types/lodash': 4.14.168
       '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
       '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
@@ -355,14 +397,12 @@ importers:
       '@snowplow/browser-core': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
       '@types/jest': ^26.0.20
-      '@types/lodash': ^4.14.168
       '@typescript-eslint/eslint-plugin': ^4.9.0
       '@typescript-eslint/parser': ^4.9.0
       '@wessberg/rollup-plugin-ts': ^1.3.8
       eslint: ^7.7.0
       jest: ^26.6.3
       jest-standard-reporter: ^2.0.0
-      lodash: ^4.17.20
       rollup: ^2.34.0
       ts-jest: ^26.5.0
       tslib: ^2.0.3
@@ -371,11 +411,9 @@ importers:
     dependencies:
       '@snowplow/browser-core': 'link:../../libraries/browser-core'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
-      lodash: 4.17.20
       tslib: 2.0.3
     devDependencies:
       '@types/jest': 26.0.20
-      '@types/lodash': 4.14.168
       '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
       '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
@@ -389,21 +427,19 @@ importers:
       '@snowplow/browser-core': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
       '@types/jest': ^26.0.20
-      '@types/lodash': ^4.14.168
       '@typescript-eslint/eslint-plugin': ^4.9.0
       '@typescript-eslint/parser': ^4.9.0
       '@wessberg/rollup-plugin-ts': ^1.3.8
       eslint: ^7.7.0
       jest: ^26.6.3
       jest-standard-reporter: ^2.0.0
-      lodash: ^4.17.20
       rollup: ^2.34.0
       ts-jest: ^26.5.0
       tslib: ^2.0.3
       typescript: ^4.1.2
   ../../plugins/browser-plugin-parrable:
     dependencies:
-      '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
+      '@snowplow/browser-core': 'link:../../libraries/browser-core'
       tslib: 2.0.3
     devDependencies:
       '@types/jest': 26.0.20
@@ -417,7 +453,7 @@ importers:
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.1.3
       typescript: 4.1.3
     specifiers:
-      '@snowplow/tracker-core': 'workspace:*'
+      '@snowplow/browser-core': 'workspace:*'
       '@types/jest': ^26.0.20
       '@typescript-eslint/eslint-plugin': ^4.9.0
       '@typescript-eslint/parser': ^4.9.0
@@ -464,13 +500,11 @@ importers:
       '@snowplow/browser-core': 'link:../../libraries/browser-core'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
       jstimezonedetect: 1.0.7
-      lodash: 4.17.20
       tslib: 2.0.3
     devDependencies:
       '@types/jest': 26.0.20
       '@types/jsdom': 16.2.6
       '@types/jstimezonedetect': 1.0.3
-      '@types/lodash': 4.14.168
       '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
       '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
@@ -487,7 +521,6 @@ importers:
       '@types/jest': ^26.0.20
       '@types/jsdom': ^16.2.6
       '@types/jstimezonedetect': ~1.0.3
-      '@types/lodash': ^4.14.168
       '@typescript-eslint/eslint-plugin': ^4.9.0
       '@typescript-eslint/parser': ^4.9.0
       '@wessberg/rollup-plugin-ts': ^1.3.8
@@ -495,7 +528,6 @@ importers:
       jest: ^26.6.3
       jest-standard-reporter: ^2.0.0
       jstimezonedetect: 1.0.7
-      lodash: ^4.17.20
       moment-timezone: ^0.5.26
       rollup: ^2.34.0
       ts-jest: ^26.5.0
@@ -505,10 +537,7 @@ importers:
     dependencies:
       '@snowplow/browser-core': 'link:../../libraries/browser-core'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
-      lodash: 4.17.20
-      sha1: 1.1.1
       tslib: 2.0.3
-      uuid: 3.4.0
     devDependencies:
       '@ampproject/rollup-plugin-closure-compiler': 0.26.0_rollup@2.35.1
       '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
@@ -517,8 +546,6 @@ importers:
       '@types/jest': 26.0.20
       '@types/jsdom': 16.2.6
       '@types/lodash': 4.14.168
-      '@types/sha1': 1.1.2
-      '@types/uuid': 3.4.9
       '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
       '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
@@ -527,6 +554,7 @@ importers:
       jest-environment-jsdom: 26.6.2
       jest-environment-jsdom-global: 2.0.4_jest-environment-jsdom@26.6.2
       jest-standard-reporter: 2.0.0
+      lodash: 4.17.20
       rollup: 2.35.1
       rollup-plugin-banner: 0.2.1
       rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
@@ -542,8 +570,6 @@ importers:
       '@types/jest': ^26.0.20
       '@types/jsdom': ^16.2.6
       '@types/lodash': ^4.14.168
-      '@types/sha1': ^1.1.2
-      '@types/uuid': ^3.4.6
       '@typescript-eslint/eslint-plugin': ^4.9.0
       '@typescript-eslint/parser': ^4.9.0
       '@wessberg/rollup-plugin-ts': ^1.3.8
@@ -556,16 +582,15 @@ importers:
       rollup: ^2.34.0
       rollup-plugin-banner: ^0.2.1
       rollup-plugin-cleanup: ^3.2.1
-      sha1: ^1.1.1
       ts-jest: ^26.5.0
       tslib: ^2.0.3
       typescript: ^4.1.2
-      uuid: ^3.3.3
   ../../trackers/javascript-tracker:
     dependencies:
       '@snowplow/browser-core': 'link:../../libraries/browser-core'
       '@snowplow/browser-plugin-browser-features': 'link:../../plugins/browser-plugin-browser-features'
       '@snowplow/browser-plugin-client-hints': 'link:../../plugins/browser-plugin-client-hints'
+      '@snowplow/browser-plugin-ecommerce': 'link:../../plugins/browser-plugin-ecommerce'
       '@snowplow/browser-plugin-error-tracking': 'link:../../plugins/browser-plugin-error-tracking'
       '@snowplow/browser-plugin-form-tracking': 'link:../../plugins/browser-plugin-form-tracking'
       '@snowplow/browser-plugin-ga-cookies': 'link:../../plugins/browser-plugin-ga-cookies'
@@ -579,7 +604,6 @@ importers:
       '@snowplow/browser-plugin-timezone': 'link:../../plugins/browser-plugin-timezone'
       '@snowplow/browser-tracker': 'link:../browser-tracker'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
-      lodash: 4.17.20
       tslib: 2.0.3
     devDependencies:
       '@ampproject/rollup-plugin-closure-compiler': 0.26.0_rollup@2.35.1
@@ -603,12 +627,14 @@ importers:
       gulp: 4.0.2
       jest: 26.6.3_ts-node@9.1.1
       jest-standard-reporter: 2.0.0
+      lodash: 4.17.20
       npm-run-all: 4.1.5
       rollup: 2.35.1
       rollup-plugin-banner: 0.2.1
       rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
       rollup-plugin-filesize: 9.1.0
       rollup-plugin-sizes: 1.0.3_rollup@2.35.1
+      rollup-plugin-terser: 7.0.2_rollup@2.35.1
       saucelabs: 4.6.2
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.1.3
       ts-node: 9.1.1_typescript@4.1.3
@@ -622,6 +648,7 @@ importers:
       '@snowplow/browser-core': 'workspace:*'
       '@snowplow/browser-plugin-browser-features': 'workspace:*'
       '@snowplow/browser-plugin-client-hints': 'workspace:*'
+      '@snowplow/browser-plugin-ecommerce': 'workspace:*'
       '@snowplow/browser-plugin-error-tracking': 'workspace:*'
       '@snowplow/browser-plugin-form-tracking': 'workspace:*'
       '@snowplow/browser-plugin-ga-cookies': 'workspace:*'
@@ -659,13 +686,14 @@ importers:
       rollup-plugin-cleanup: ^3.2.1
       rollup-plugin-filesize: ^9.0.2
       rollup-plugin-sizes: ^1.0.3
+      rollup-plugin-terser: ^7.0.2
       saucelabs: ^4.6.0
       ts-jest: ^26.5.0
       ts-node: ^9.1.1
       tslib: ^2.0.3
       typescript: ^4.1.2
       wdio-chromedriver-service: ^6.0.4
-lockfileVersion: 5.1
+lockfileVersion: 5.2
 packages:
   /@ampproject/remapping/0.2.0:
     dependencies:
@@ -1721,7 +1749,7 @@ packages:
       jest-haste-map: 26.6.2
       jest-message-util: 26.6.2
       jest-regex-util: 26.0.0
-      jest-resolve: 26.6.2_jest-resolve@26.6.2
+      jest-resolve: 26.6.2
       jest-resolve-dependencies: 26.6.3
       jest-runner: 26.6.3
       jest-runtime: 26.6.3
@@ -1737,8 +1765,6 @@ packages:
     dev: true
     engines:
       node: '>= 10.14.2'
-    peerDependencies:
-      ts-node: '*'
     resolution:
       integrity: sha512-xvV1kKbhfUqFVuZ8Cyo+JPpipAHHAV3kcDBftiduK8EICXmTFddryy3P7NfZt8Pv37rA9nEJBKCCkglCPt/Xjw==
   /@jest/core/26.6.3_ts-node@9.1.1:
@@ -1758,10 +1784,10 @@ packages:
       jest-haste-map: 26.6.2
       jest-message-util: 26.6.2
       jest-regex-util: 26.0.0
-      jest-resolve: 26.6.2_jest-resolve@26.6.2
+      jest-resolve: 26.6.2
       jest-resolve-dependencies: 26.6.3
       jest-runner: 26.6.3_ts-node@9.1.1
-      jest-runtime: 26.6.3
+      jest-runtime: 26.6.3_ts-node@9.1.1
       jest-snapshot: 26.6.2
       jest-util: 26.6.2
       jest-validate: 26.6.2
@@ -1830,7 +1856,7 @@ packages:
       istanbul-lib-source-maps: 4.0.0
       istanbul-reports: 3.0.2
       jest-haste-map: 26.6.2
-      jest-resolve: 26.6.2_jest-resolve@26.6.2
+      jest-resolve: 26.6.2
       jest-util: 26.6.2
       jest-worker: 26.6.2
       slash: 3.0.0
@@ -1876,8 +1902,6 @@ packages:
     dev: true
     engines:
       node: '>= 10.14.2'
-    peerDependencies:
-      ts-node: '*'
     resolution:
       integrity: sha512-YHlVIjP5nfEyjlrSr8t/YdNfU/1XEt7c5b4OxcXCjyRhjzLYu/rO69/WHPuYcbCWkz8kAeZVZp2N2+IOLLEPGw==
   /@jest/test-sequencer/26.6.3_ts-node@9.1.1:
@@ -1886,7 +1910,7 @@ packages:
       graceful-fs: 4.2.4
       jest-haste-map: 26.6.2
       jest-runner: 26.6.3_ts-node@9.1.1
-      jest-runtime: 26.6.3
+      jest-runtime: 26.6.3_ts-node@9.1.1
     dev: true
     engines:
       node: '>= 10.14.2'
@@ -2417,7 +2441,7 @@ packages:
       integrity: sha512-MoJhSQreaVoL+/hurAZzIm8wafFR6ajiTM1m4A0kv6AGeVBl4r4pOV8bGFrjjq1sGxDTnCoF8i22o0/aE5XCyA==
   /@types/sha1/1.1.2:
     dependencies:
-      '@types/node': 14.14.14
+      '@types/node': 14.14.25
     dev: true
     resolution:
       integrity: sha512-qL23ImGRNLvDvLXL6EmE41QTAaBfwGgSOfxmytyOwfFSF0xj7BnhhHff8lcv6DpLWt2I5q+LLQ6iIKL+zev9mw==
@@ -7420,8 +7444,6 @@ packages:
     engines:
       node: '>= 10.14.2'
     hasBin: true
-    peerDependencies:
-      ts-node: '*'
     resolution:
       integrity: sha512-GF9noBSa9t08pSyl3CY4frMrqp+aQXFGFkf5hEPbh/pIUFYWMK6ZLTfbmadxJVcJrdRoChlWQsA2VkJcDFK8hg==
   /jest-cli/26.6.3_ts-node@9.1.1:
@@ -7462,7 +7484,7 @@ packages:
       jest-get-type: 26.3.0
       jest-jasmine2: 26.6.3
       jest-regex-util: 26.0.0
-      jest-resolve: 26.6.2_jest-resolve@26.6.2
+      jest-resolve: 26.6.2
       jest-util: 26.6.2
       jest-validate: 26.6.2
       micromatch: 4.0.2
@@ -7490,9 +7512,9 @@ packages:
       jest-environment-jsdom: 26.6.2
       jest-environment-node: 26.6.2
       jest-get-type: 26.3.0
-      jest-jasmine2: 26.6.3
+      jest-jasmine2: 26.6.3_ts-node@9.1.1
       jest-regex-util: 26.0.0
-      jest-resolve: 26.6.2_jest-resolve@26.6.2
+      jest-resolve: 26.6.2
       jest-util: 26.6.2
       jest-validate: 26.6.2
       micromatch: 4.0.2
@@ -7625,6 +7647,31 @@ packages:
     dev: true
     engines:
       node: '>= 10.14.2'
+    resolution:
+      integrity: sha512-kPKUrQtc8aYwBV7CqBg5pu+tmYXlvFlSFYn18ev4gPFtrRzB15N2gW/Roew3187q2w2eHuu0MU9TJz6w0/nPEg==
+  /jest-jasmine2/26.6.3_ts-node@9.1.1:
+    dependencies:
+      '@babel/traverse': 7.12.10
+      '@jest/environment': 26.6.2
+      '@jest/source-map': 26.6.2
+      '@jest/test-result': 26.6.2
+      '@jest/types': 26.6.2
+      '@types/node': 14.14.25
+      chalk: 4.1.0
+      co: 4.6.0
+      expect: 26.6.2
+      is-generator-fn: 2.1.0
+      jest-each: 26.6.2
+      jest-matcher-utils: 26.6.2
+      jest-message-util: 26.6.2
+      jest-runtime: 26.6.3_ts-node@9.1.1
+      jest-snapshot: 26.6.2
+      jest-util: 26.6.2
+      pretty-format: 26.6.2
+      throat: 5.0.0
+    dev: true
+    engines:
+      node: '>= 10.14.2'
     peerDependencies:
       ts-node: '*'
     resolution:
@@ -7676,7 +7723,7 @@ packages:
       integrity: sha512-YyFjePHHp1LzpzYcmgqkJ0nm0gg/lJx2aZFzFy1S6eUqNjXsOqTK10zNRff2dNfssgokjkG65OlWNcIlgd3zew==
   /jest-pnp-resolver/1.2.2_jest-resolve@26.6.2:
     dependencies:
-      jest-resolve: 26.6.2_jest-resolve@26.6.2
+      jest-resolve: 26.6.2
     dev: true
     engines:
       node: '>=6'
@@ -7703,7 +7750,7 @@ packages:
       node: '>= 10.14.2'
     resolution:
       integrity: sha512-pVwUjJkxbhe4RY8QEWzN3vns2kqyuldKpxlxJlzEYfKSvY6/bMvxoFrYYzUO1Gx28yKWN37qyV7rIoIp2h8fTg==
-  /jest-resolve/26.6.2_jest-resolve@26.6.2:
+  /jest-resolve/26.6.2:
     dependencies:
       '@jest/types': 26.6.2
       chalk: 4.1.0
@@ -7716,8 +7763,6 @@ packages:
     dev: true
     engines:
       node: '>= 10.14.2'
-    peerDependencies:
-      jest-resolve: '*'
     resolution:
       integrity: sha512-sOxsZOq25mT1wRsfHcbtkInS+Ek7Q8jCHUB0ZUTP0tc/c41QHriU/NunqMfCUWsL4H3MHpvQD4QR9kSYhS7UvQ==
   /jest-runner/26.6.3:
@@ -7736,7 +7781,7 @@ packages:
       jest-haste-map: 26.6.2
       jest-leak-detector: 26.6.2
       jest-message-util: 26.6.2
-      jest-resolve: 26.6.2_jest-resolve@26.6.2
+      jest-resolve: 26.6.2
       jest-runtime: 26.6.3
       jest-util: 26.6.2
       jest-worker: 26.6.2
@@ -7745,8 +7790,6 @@ packages:
     dev: true
     engines:
       node: '>= 10.14.2'
-    peerDependencies:
-      ts-node: '*'
     resolution:
       integrity: sha512-atgKpRHnaA2OvByG/HpGA4g6CSPS/1LK0jK3gATJAoptC1ojltpmVlYC3TYgdmGp+GLuhzpH30Gvs36szSL2JQ==
   /jest-runner/26.6.3_ts-node@9.1.1:
@@ -7765,8 +7808,8 @@ packages:
       jest-haste-map: 26.6.2
       jest-leak-detector: 26.6.2
       jest-message-util: 26.6.2
-      jest-resolve: 26.6.2_jest-resolve@26.6.2
-      jest-runtime: 26.6.3
+      jest-resolve: 26.6.2
+      jest-runtime: 26.6.3_ts-node@9.1.1
       jest-util: 26.6.2
       jest-worker: 26.6.2
       source-map-support: 0.5.19
@@ -7800,7 +7843,42 @@ packages:
       jest-message-util: 26.6.2
       jest-mock: 26.6.2
       jest-regex-util: 26.0.0
-      jest-resolve: 26.6.2_jest-resolve@26.6.2
+      jest-resolve: 26.6.2
+      jest-snapshot: 26.6.2
+      jest-util: 26.6.2
+      jest-validate: 26.6.2
+      slash: 3.0.0
+      strip-bom: 4.0.0
+      yargs: 15.4.1
+    dev: true
+    engines:
+      node: '>= 10.14.2'
+    hasBin: true
+    resolution:
+      integrity: sha512-lrzyR3N8sacTAMeonbqpnSka1dHNux2uk0qqDXVkMv2c/A3wYnvQ4EXuI013Y6+gSKSCxdaczvf4HF0mVXHRdw==
+  /jest-runtime/26.6.3_ts-node@9.1.1:
+    dependencies:
+      '@jest/console': 26.6.2
+      '@jest/environment': 26.6.2
+      '@jest/fake-timers': 26.6.2
+      '@jest/globals': 26.6.2
+      '@jest/source-map': 26.6.2
+      '@jest/test-result': 26.6.2
+      '@jest/transform': 26.6.2
+      '@jest/types': 26.6.2
+      '@types/yargs': 15.0.12
+      chalk: 4.1.0
+      cjs-module-lexer: 0.6.0
+      collect-v8-coverage: 1.0.1
+      exit: 0.1.2
+      glob: 7.1.6
+      graceful-fs: 4.2.4
+      jest-config: 26.6.3_ts-node@9.1.1
+      jest-haste-map: 26.6.2
+      jest-message-util: 26.6.2
+      jest-mock: 26.6.2
+      jest-regex-util: 26.0.0
+      jest-resolve: 26.6.2
       jest-snapshot: 26.6.2
       jest-util: 26.6.2
       jest-validate: 26.6.2
@@ -7838,7 +7916,7 @@ packages:
       jest-haste-map: 26.6.2
       jest-matcher-utils: 26.6.2
       jest-message-util: 26.6.2
-      jest-resolve: 26.6.2_jest-resolve@26.6.2
+      jest-resolve: 26.6.2
       natural-compare: 1.4.0
       pretty-format: 26.6.2
       semver: 7.3.4
@@ -7917,8 +7995,6 @@ packages:
     engines:
       node: '>= 10.14.2'
     hasBin: true
-    peerDependencies:
-      ts-node: '*'
     resolution:
       integrity: sha512-lGS5PXGAzR4RF7V5+XObhqz2KZIDUA1yD0DG6pBVmy10eh0ZIXQImRuzocsI/N2XZ1GrLFwTS27In2i2jlpq1Q==
   /jest/26.6.3_ts-node@9.1.1:
@@ -8351,6 +8427,7 @@ packages:
     resolution:
       integrity: sha1-7GZi5IlkCO1KtsVCo5kLcswIACA=
   /lodash/4.17.20:
+    dev: true
     resolution:
       integrity: sha512-PlhdFcillOINfeV7Ni6oF1TAEayyZBoZ8bcshTHqOYJYlrqzRK5hagpagky5o4HfCzzd1TRkXPMFq6cKk9rGmA==
   /log-symbols/4.0.0:
@@ -9926,6 +10003,12 @@ packages:
       node: '>=10'
     resolution:
       integrity: sha512-WuyALRjWPDGtt/wzJiadO5AXY+8hZ80hVpe6MyivgraREW751X3SbhRvG3eLKOYN+8VEvqLcf3wdnt44Z4S4SA==
+  /randombytes/2.1.0:
+    dependencies:
+      safe-buffer: 5.2.1
+    dev: true
+    resolution:
+      integrity: sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ==
   /range-parser/1.2.1:
     dev: true
     engines:
@@ -10431,6 +10514,18 @@ packages:
       rollup: ^2.0.0
     resolution:
       integrity: sha512-4s/uOW3CykN4kMZrrvYngA309qTd4Hb18kplErDAtOUXUK7PrFAa3g7s2H5nW9hWZy7sNUkPMkH85klwacq19A==
+  /rollup-plugin-terser/7.0.2_rollup@2.35.1:
+    dependencies:
+      '@babel/code-frame': 7.12.11
+      jest-worker: 26.6.2
+      rollup: 2.35.1
+      serialize-javascript: 4.0.0
+      terser: 5.5.1
+    dev: true
+    peerDependencies:
+      rollup: ^2.0.0
+    resolution:
+      integrity: sha512-w3iIaU4OxcF52UUXiZNsNeuXIMDvFrr+ZXK6bFZ0Q60qyVfq4uLptoS4bbq3paG3x216eQllFZX7zt6TIImguQ==
   /rollup-pluginutils/2.8.2:
     dependencies:
       estree-walker: 0.6.1
@@ -10629,6 +10724,12 @@ packages:
       node: '>=10'
     resolution:
       integrity: sha512-r5o60rWFS+8/b49DNAbB+GXZA0SpDpuWE758JxDKgRTga05r3U5lwyksE91dYKDhXSmnu36RALj615E6Aj5pSg==
+  /serialize-javascript/4.0.0:
+    dependencies:
+      randombytes: 2.1.0
+    dev: true
+    resolution:
+      integrity: sha512-GaNA54380uFefWghODBWEGisLZFj00nS5ACs6yHa9nLqlLpVLO8ChDGeKRjZnV4Nh4n0Qi7nhYZD/9fCPzEqkw==
   /serve-static/1.14.1:
     dependencies:
       encodeurl: 1.0.2

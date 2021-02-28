@@ -14,6 +14,8 @@
  */
 
 export {
+  resolveDynamicContexts,
+  DynamicContexts,
   ContextPrimitive,
   ContextFilterEvent,
   ContextFilter,
@@ -23,7 +25,14 @@ export {
   FilterProvider,
   ConditionalContextProvider,
 } from './contexts';
-export { Plugin } from './plugins';
+export { CorePlugin } from './plugins';
 export { PayloadBuilder, Payload } from './payload';
-export { Core, SelfDescribingJson, SelfDescribingJsonArray, Timestamp, TrueTimestamp, DeviceTimestamp } from './core';
+export {
+  TrackerCore,
+  SelfDescribingJson,
+  SelfDescribingJsonArray,
+  Timestamp,
+  TrueTimestamp,
+  DeviceTimestamp,
+} from './core';
 export { trackerCore } from './core';

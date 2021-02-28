@@ -4,6 +4,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
 import banner from 'rollup-plugin-banner';
 import compiler from '@ampproject/rollup-plugin-closure-compiler';
+import { terser } from 'rollup-plugin-terser';
 import cleanup from 'rollup-plugin-cleanup';
 import sizes from 'rollup-plugin-sizes';
 import filesize from 'rollup-plugin-filesize';
@@ -22,6 +23,7 @@ const plugins = [
   commonjs(),
   ts({ tsconfig: './tsconfig.prod.json' }),
   compiler(),
+  terser(),
   cleanup({ comments: 'none' }),
   banner(bannerContent),
   sizes(),

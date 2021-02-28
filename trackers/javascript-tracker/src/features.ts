@@ -1,44 +1,51 @@
-import { ClientHintsPlugin } from '@snowplow/browser-plugin-client-hints';
-import { OptimizelyPlugin } from '@snowplow/browser-plugin-optimizely';
-import { OptimizelyXPlugin } from '@snowplow/browser-plugin-optimizely-x';
-import { ParrablePlugin } from '@snowplow/browser-plugin-parrable';
-import { PerformanceTimingPlugin } from '@snowplow/browser-plugin-performance-timing';
-import { GdprPlugin } from '@snowplow/browser-plugin-gdpr';
-import { GeolocationPlugin } from '@snowplow/browser-plugin-geolocation';
-import { GaCookiesPlugin } from '@snowplow/browser-plugin-ga-cookies';
-import { LinkClickTrackingPlugin } from '@snowplow/browser-plugin-link-click-tracking';
-import { FormTrackingPlugin } from '@snowplow/browser-plugin-form-tracking';
-import { ErrorTrackingPlugin } from '@snowplow/browser-plugin-error-tracking';
-import { BrowserFeaturesPlugin } from '@snowplow/browser-plugin-browser-features';
-import { TimezonePlugin } from '@snowplow/browser-plugin-timezone';
+import * as ClientHints from '@snowplow/browser-plugin-client-hints';
+import * as Optimizely from '@snowplow/browser-plugin-optimizely';
+import * as OptimizelyX from '@snowplow/browser-plugin-optimizely-x';
+import * as Parrable from '@snowplow/browser-plugin-parrable';
+import * as PerformanceTiming from '@snowplow/browser-plugin-performance-timing';
+import * as Gdpr from '@snowplow/browser-plugin-gdpr';
+import * as Geolocation from '@snowplow/browser-plugin-geolocation';
+import * as GaCookies from '@snowplow/browser-plugin-ga-cookies';
+import * as LinkClickTracking from '@snowplow/browser-plugin-link-click-tracking';
+import * as FormTracking from '@snowplow/browser-plugin-form-tracking';
+import * as ErrorTracking from '@snowplow/browser-plugin-error-tracking';
+import * as BrowserFeatures from '@snowplow/browser-plugin-browser-features';
+import * as Timezone from '@snowplow/browser-plugin-timezone';
+import * as Ecommerce from '@snowplow/browser-plugin-ecommerce';
+import * as EnhancedEcommerce from '@snowplow/browser-plugin-enhanced-ecommerce';
 import { plugins } from '../tracker.config';
-import { Plugin } from '@snowplow/tracker-core';
-import { ApiMethods, ApiPlugin } from '@snowplow/browser-core';
+import { BrowserPlugin } from '@snowplow/browser-core';
 
 export function Plugins(argmap: any) {
   const {
-      performanceTiming,
-      gaCookies,
-      geolocation,
-      optimizelyExperiments,
-      optimizelyStates,
-      optimizelyVariations,
-      optimizelyVisitor,
-      optimizelyAudiences,
-      optimizelyDimensions,
-      optimizelySummary,
-      optimizelyXSummary,
-      parrable,
-      clientHints,
-    } = argmap?.contexts ?? {},
-    gdprPlugin = plugins.gdpr ? GdprPlugin() : null,
-    geolocationPlugin = plugins.geolocation ? GeolocationPlugin(geolocation) : null,
-    activatedPlugins: Array<Plugin | ApiPlugin<ApiMethods>> = [];
+    performanceTiming,
+    gaCookies,
+    geolocation,
+    optimizelyExperiments,
+    optimizelyStates,
+    optimizelyVariations,
+    optimizelyVisitor,
+    optimizelyAudiences,
+    optimizelyDimensions,
+    optimizelySummary,
+    optimizelyXSummary,
+    parrable,
+    clientHints,
+  } = argmap?.contexts ?? {};
+  const activatedPlugins: Array<[BrowserPlugin, {} | Record<string, Function>]> = [];
 
-  // --- Context Plugins ---
-
-  if (plugins.optimizely) {
-    activatedPlugins.push(
+  if (
+    plugins.optimizely &&
+    (optimizelySummary ||
+      optimizelyExperiments ||
+      optimizelyStates ||
+      optimizelyVariations ||
+      optimizelyVisitor ||
+      optimizelyAudiences ||
+      optimizelyDimensions)
+  ) {
+    const { OptimizelyPlugin, ...apiMethods } = Optimizely;
+    activatedPlugins.push([
       OptimizelyPlugin(
         optimizelySummary,
         optimizelyExperiments,
@@ -47,67 +54,79 @@ export function Plugins(argmap: any) {
         optimizelyVisitor,
         optimizelyAudiences,
         optimizelyDimensions
-      )
-    );
+      ),
+      apiMethods,
+    ]);
   }
 
   if (plugins.performanceTiming && performanceTiming) {
-    activatedPlugins.push(PerformanceTimingPlugin());
+    const { PerformanceTimingPlugin, ...apiMethods } = PerformanceTiming;
+    activatedPlugins.push([PerformanceTimingPlugin(), apiMethods]);
   }
 
   if (plugins.optimizelyX && optimizelyXSummary) {
-    activatedPlugins.push(OptimizelyXPlugin());
+    const { OptimizelyXPlugin, ...apiMethods } = OptimizelyX;
+    activatedPlugins.push([OptimizelyXPlugin(), apiMethods]);
   }
 
   if (plugins.clientHints && clientHints) {
-    activatedPlugins.push(ClientHintsPlugin(clientHints.includeHighEntropy ? true : false));
+    const { ClientHintsPlugin, ...apiMethods } = ClientHints;
+    activatedPlugins.push([ClientHintsPlugin(clientHints.includeHighEntropy ? true : false), apiMethods]);
   }
 
   if (plugins.parrable && parrable) {
-    activatedPlugins.push(ParrablePlugin());
+    const { ParrablePlugin, ...apiMethods } = Parrable;
+    activatedPlugins.push([ParrablePlugin(), apiMethods]);
   }
 
   if (plugins.gaCookies && gaCookies) {
-    activatedPlugins.push(GaCookiesPlugin());
+    const { GaCookiesPlugin, ...apiMethods } = GaCookies;
+    activatedPlugins.push([GaCookiesPlugin(), apiMethods]);
   }
 
-  if (geolocationPlugin) {
-    // Always add as has API which could enable the context
-    activatedPlugins.push(geolocationPlugin);
+  if (plugins.gdpr) {
+    const { GdprPlugin, ...apiMethods } = Gdpr;
+    activatedPlugins.push([GdprPlugin(), apiMethods]);
   }
 
-  if (gdprPlugin) {
-    // Always add as has API which could enable the context
-    activatedPlugins.push(gdprPlugin);
-  }
-
-  // --- API Plugins ---
-  if (geolocationPlugin) {
-    activatedPlugins.push(geolocationPlugin);
-  }
-
-  if (gdprPlugin) {
-    activatedPlugins.push(gdprPlugin);
+  if (plugins.geolocation) {
+    const { GeolocationPlugin, ...apiMethods } = Geolocation;
+    activatedPlugins.push([GeolocationPlugin(geolocation), apiMethods]);
   }
 
   if (plugins.linkClickTracking) {
-    activatedPlugins.push(LinkClickTrackingPlugin());
+    const { LinkClickTrackingPlugin, ...apiMethods } = LinkClickTracking;
+    activatedPlugins.push([LinkClickTrackingPlugin(), apiMethods]);
   }
 
   if (plugins.formTracking) {
-    activatedPlugins.push(FormTrackingPlugin());
+    const { FormTrackingPlugin, ...apiMethods } = FormTracking;
+    activatedPlugins.push([FormTrackingPlugin(), apiMethods]);
   }
 
   if (plugins.errorTracking) {
-    activatedPlugins.push(ErrorTrackingPlugin());
+    const { ErrorTrackingPlugin, ...apiMethods } = ErrorTracking;
+    activatedPlugins.push([ErrorTrackingPlugin(), apiMethods]);
+  }
+
+  if (plugins.ecommerce) {
+    const { EcommercePlugin, ...apiMethods } = Ecommerce;
+    activatedPlugins.push([EcommercePlugin(), apiMethods]);
+  }
+
+  if (plugins.enhancedEcommerce) {
+    const { EnhancedEcommercePlugin, ...apiMethods } = EnhancedEcommerce;
+    activatedPlugins.push([EnhancedEcommercePlugin(), apiMethods]);
   }
 
   if (plugins.browserFeatures) {
-    activatedPlugins.push(BrowserFeaturesPlugin());
+    const { BrowserFeaturesPlugin, ...apiMethods } = BrowserFeatures;
+    activatedPlugins.push([BrowserFeaturesPlugin(), apiMethods]);
   }
 
   if (plugins.timezone) {
-    activatedPlugins.push(TimezonePlugin());
+    const { TimezonePlugin, ...apiMethods } = Timezone;
+    activatedPlugins.push([TimezonePlugin(), apiMethods]);
   }
 
   return activatedPlugins;

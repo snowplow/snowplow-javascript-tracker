@@ -3,6 +3,7 @@
   <head>
     <title>Integration test page</title>
   </head>
+
   <body style="width: 2000px; height: 2000px; position: relative">
     <p id="title">Page for sending requests to Snowplow Micro</p>
 
@@ -120,7 +121,12 @@
         return {};
       }
 
-      window.snowplow('enableGdprContext:sp', 'consent', 'someId', '0.1.0', 'this document is a test');
+      window.snowplow('enableGdprContext:sp', {
+        basisForProcessing: 'consent',
+        documentId: 'someId',
+        documentVersion: '0.1.0',
+        documentDescription: 'this document is a test',
+      });
 
       window.snowplow('addGlobalContexts:sp', [erroneousContextGenerator]);
       window.snowplow('addGlobalContexts:sp', [
@@ -129,51 +135,77 @@
 
       window.snowplow('setUserId:sp', 'Malcolm');
 
-      window.snowplow('enableActivityTracking:sp', 1, 2);
+      window.snowplow('enableActivityTracking:sp', { minimumVisitLength: 1, heartBeatDelay: 2 });
 
-      window.snowplow('trackPageView:sp', 'My Title', [
-        // Set page title; add page context
-        {
-          schema: 'iglu:org.schema/WebPage/jsonschema/1-0-0',
-          data: {
-            keywords: ['tester'],
+      window.snowplow('trackPageView:sp', {
+        title: 'My Title',
+        context: [
+          {
+            schema: 'iglu:org.schema/WebPage/jsonschema/1-0-0',
+            data: {
+              keywords: ['tester'],
+            },
           },
-        },
-      ]);
+        ],
+      });
 
       // Tracks to non-base64 encoding tracker
-      window.secondSnowplow('trackPageView', 'My Title', [
-        // Set page title; add page context
-        {
-          schema: 'iglu:org.schema/WebPage/jsonschema/1-0-0',
-          data: {
-            keywords: ['tester'],
+      window.secondSnowplow('trackPageView', {
+        title: 'My Title',
+        context: [
+          // Set page title; add page context
+          {
+            schema: 'iglu:org.schema/WebPage/jsonschema/1-0-0',
+            data: {
+              keywords: ['tester'],
+            },
           },
-        },
-      ]);
+        ],
+      });
 
       // This should have different pageViewId in web_page context
       window.snowplow('trackPageView:sp');
 
-      window.snowplow('trackStructEvent:sp', 'Mixes', 'Play', 'MRC/fabric-0503-mix', '', '0.0');
-      window.snowplow(
-        'trackSelfDescribingEvent:sp',
-        {
+      window.snowplow('trackStructEvent:sp', {
+        category: 'Mixes',
+        action: 'Play',
+        label: 'MRC/fabric-0503-mix',
+        property: '',
+        value: 0.0,
+      });
+      window.snowplow('trackSelfDescribingEvent:sp', {
+        event: {
           schema: 'iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0',
           data: {
             bannerId: 'ASO01043',
           },
         },
-        [],
-        { type: 'ttm', value: 1477401868 }
-      );
+        context: [],
+        tstamp: { type: 'ttm', value: 1477401868 },
+      });
 
-      var orderId = 'order-123';
-
-      window.snowplow('addTrans:sp', orderId, 'acme', '8000', '100', '50', 'phoenix', 'arizona', 'USA', 'JPY');
+      window.snowplow('addTrans:sp', {
+        orderId: 'order-123',
+        total: 8000,
+        affiliation: 'acme',
+        tax: 100,
+        shipping: 50,
+        city: 'pheonix',
+        state: 'arizona',
+        country: 'USA',
+        currency: 'JPY',
+      });
 
       // addItem might be called for each item in the shopping cart, or not at all.
-      window.snowplow('addItem:sp', orderId, '1001', 'Blue t-shirt', 'clothing', '2000', '2', 'JPY');
+      window.snowplow('addItem:sp', {
+        orderId: 'order-123',
+        sku: '1001',
+        name: 'Blue t-shirt',
+        category: 'clothing',
+        price: '2000',
+        quantity: '2',
+        currency: 'JPY',
+      });
 
       // trackTrans sends the transaction to Snowplow tracking servers.
       // Must be called last to commit the transaction.
@@ -189,167 +221,175 @@
       // test context rulesets
       window.snowplow('addGlobalContexts:sp', [[testAcceptRuleSet, [eventTypeContextGenerator, geolocationContext]]]);
 
-      window.snowplow(
-        'trackSelfDescribingEvent:sp',
-        {
+      window.snowplow('trackSelfDescribingEvent:sp', {
+        event: {
           schema: 'iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0',
           data: {
             bannerId: 'ASO01042',
           },
         },
-        [],
-        { type: 'ttm', value: 1477401869 }
-      );
+        tstamp: { type: 'ttm', value: 1477401869 },
+      });
 
       window.snowplow('removeGlobalContexts:sp', [
         [testAcceptRuleSet, [eventTypeContextGenerator, geolocationContext]],
       ]);
 
       window.snowplow('addGlobalContexts:sp', [[testRejectRuleSet, [eventTypeContextGenerator, geolocationContext]]]);
-      window.snowplow(
-        'trackSelfDescribingEvent:sp',
-        {
+      window.snowplow('trackSelfDescribingEvent:sp', {
+        event: {
           schema: 'iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0',
           data: {
             bannerId: 'ASO01041',
           },
         },
-        [],
-        { type: 'ttm', value: 1477401868 }
-      );
+        tstamp: { type: 'ttm', value: 1477401868 },
+      });
 
-      window.snowplow('trackSocialInteraction:sp', 'retweet', 'twitter', '1234');
+      window.snowplow('trackSocialInteraction:sp', {
+        action: 'retweet',
+        network: 'twitter',
+        target: '1234',
+      });
 
-      window.snowplow(
-        'trackAdImpression:sp',
-        '67965967893',
-        'cpm',
-        5.5,
-        'http://www.example.com',
-        '23',
-        '7',
-        '201',
-        '12'
-      );
+      window.snowplow('trackAdImpression:sp', {
+        impressionId: '67965967893',
+        costModel: 'cpm',
+        cost: 5.5,
+        targetUrl: 'http://www.example.com',
+        bannerId: '23',
+        zoneId: '7',
+        advertiserId: '201',
+        campaignId: '12',
+      });
 
-      window.snowplow(
-        'trackAdClick:sp',
-        'http://www.example.com', // targetUrl
-        '12243253', // clickId
-        'cpm', // costModel
-        2.5, // cost
-        '23', // bannerId
-        '7', // zoneId
-        '67965967893', // impressionId - the same as in trackAdImpression
-        '201', // advertiserId
-        '12' // campaignId
-      );
+      window.snowplow('trackAdClick:sp', {
+        targetUrl: 'http://www.example.com',
+        clickId: '12243253',
+        costModel: 'cpm',
+        cost: 2.5,
+        bannerId: '23',
+        zoneId: '7',
+        impressionId: '67965967893', // the same as in trackAdImpression
+        advertiserId: '201',
+        campaignId: '12',
+      });
 
-      window.snowplow(
-        'trackAdConversion:sp',
-        '743560297', // conversionId
-        'cpa', // costModel
-        10, // cost
-        'ecommerce', // category
-        'purchase', // action
-        '', // property
-        99, // initialValue
-        '201', // advertiserId
-        '12' // campaignId
-      );
+      window.snowplow('trackAdConversion:sp', {
+        conversionId: '743560297', // conversionId
+        costModel: 'cpa', // costModel
+        cost: 10, // cost
+        category: 'ecommerce', // category
+        action: 'purchase', // action
+        property: '', // property
+        initialValue: 99, // initialValue
+        advertiserId: '201', // advertiserId
+        campaignId: '12', // campaignId
+      });
 
-      window.snowplow('trackAddToCart:sp', '000345', 'blue tie', 'clothing', 3.49, 2, 'GBP');
-      window.snowplow('trackRemoveFromCart:sp', '000345', 'blue tie', 'clothing', 3.49, 1, 'GBP');
+      window.snowplow('trackAddToCart:sp', {
+        sku: '000345',
+        name: 'blue tie',
+        category: 'clothing',
+        unitPrice: 3.49,
+        quantity: 2,
+        currency: 'GBP',
+      });
+      window.snowplow('trackRemoveFromCart:sp', {
+        sku: '000345',
+        name: 'blue tie',
+        category: 'clothing',
+        unitPrice: 3.49,
+        quantity: 1,
+        currency: 'GBP',
+      });
 
-      window.snowplow(
-        'trackSiteSearch:sp',
-        ['unified', 'log'], // search terms
-        { category: 'books', 'sub-category': 'non-fiction' }, // filters
-        14, // results found
-        8 // results displayed on first page
-      );
+      window.snowplow('trackSiteSearch:sp', {
+        terms: ['unified', 'log'],
+        filters: { category: 'books', 'sub-category': 'non-fiction' },
+        totalResults: 14,
+        pageResults: 8,
+      });
 
-      window.snowplow(
-        'trackTiming:sp',
-        'load', // Category of the timing variable
-        'map_loaded', // Variable being recorded
-        50, // Milliseconds taken
-        'Map loading time' // Optional label
-      );
+      window.snowplow('trackTiming:sp', {
+        category: 'load',
+        variable: 'map_loaded',
+        timing: 50,
+        label: 'Map loading time',
+      });
 
-      window.snowplow(
-        'trackConsentGranted:sp',
-        '1234', // Id
-        '5', // Version
-        'consent_document', // Name
-        'a document granting consent', // Description
-        '2020-11-21T08:00:00.000Z' // Expiry
-      );
+      window.snowplow('trackConsentGranted:sp', {
+        id: '1234',
+        version: '5',
+        name: 'consent_document',
+        description: 'a document granting consent',
+        expiry: '2020-11-21T08:00:00.000Z',
+      });
 
-      window.snowplow(
-        'trackConsentWithdrawn:sp',
-        false, // All
-        '1234', // Id
-        '5', // Version
-        'consent_document', // Name
-        'a document withdrawing consent' // Description
-      );
+      window.snowplow('trackConsentWithdrawn:sp', {
+        all: false,
+        id: '1234',
+        version: '5',
+        name: 'consent_document',
+        description: 'a document withdrawing consent',
+      });
 
       try {
         notExistentObject.notExistentProperty();
       } catch (e) {
-        snowplow('trackError:sp', 'Cannot access notExistentProperty()', 'trackError.js', 237, 5, e);
+        window.snowplow('trackError:sp', {
+          message: 'Cannot access notExistentProperty()',
+          filename: 'trackError.js',
+          lineno: 237,
+          colno: 5,
+          error: e,
+        });
       }
 
-      window.snowplow(
-        'addEnhancedEcommerceActionContext:sp',
-        'T12345', // The Transaction ID
-        'Google Store - Online', // The affiliate
-        '37.39', // The revenue
-        '2.85', // The tax
-        '5.34', // The shipping
-        'WINTER2016' // The coupon
-      );
+      window.snowplow('addEnhancedEcommerceActionContext:sp', {
+        id: 'T12345',
+        affiliation: 'Google Store - Online',
+        revenue: '37.39',
+        tax: '2.85',
+        shipping: '5.34',
+        coupon: 'WINTER2016',
+      });
 
-      window.snowplow(
-        'addEnhancedEcommerceImpressionContext:sp',
-        'P12345', // The ID
-        'Android Warhol T-Shirt', // The name
-        'Search Results', // The list
-        'Google', // The brand
-        'Apparel/T-Shirts', // The category
-        'Black', // The variant
-        '1' // The position
-      );
+      window.snowplow('addEnhancedEcommerceImpressionContext:sp', {
+        id: 'P12345',
+        name: 'Android Warhol T-Shirt',
+        list: 'Search Results',
+        brand: 'Google',
+        category: 'Apparel/T-Shirts',
+        variant: 'Black',
+        position: '1',
+      });
 
-      window.snowplow(
-        'addEnhancedEcommerceProductContext:sp',
-        'P12345', // The ID
-        'Android Warhol T-Shirt', // The name
-        'Search Results', // The list
-        'Google', // The brand
-        'Apparel/T-Shirts', // The category
-        'Black', // The variant
-        1 // The quantity
-      );
+      window.snowplow('addEnhancedEcommerceProductContext:sp', {
+        id: 'P12345',
+        name: 'Android Warhol T-Shirt',
+        list: 'Search Results',
+        brand: 'Google',
+        category: 'Apparel/T-Shirts',
+        variant: 'Black',
+        quantity: 1,
+      });
 
-      window.snowplow(
-        'addEnhancedEcommercePromoContext:sp',
-        'PROMO_1234', // The Promotion ID
-        'Summer Sale', // The name
-        'summer_banner2', // The name of the creative
-        'banner_slot1' // The position
-      );
+      window.snowplow('addEnhancedEcommercePromoContext:sp', {
+        id: 'PROMO_1234',
+        name: 'Summer Sale',
+        creative: 'summer_banner2',
+        position: 'banner_slot1',
+      });
 
-      window.snowplow('trackEnhancedEcommerceAction:sp', 'purchase');
+      window.snowplow('trackEnhancedEcommerceAction:sp', { action: 'purchase' });
 
       // track unhandled exception
-      window.snowplow(
-        'enableErrorTracking:sp',
-        function (error) {
+      window.snowplow('enableErrorTracking:sp', {
+        filter: function (error) {
           return true;
         },
-        function (error) {
+        contextsAdder: function (error) {
           return [
             {
               schema: 'iglu:org.schema/WebPage/jsonschema/1-0-0',
@@ -358,8 +398,8 @@
               },
             },
           ];
-        }
-      );
+        },
+      });
 
       // Test for exception handling
       function raiseException() {

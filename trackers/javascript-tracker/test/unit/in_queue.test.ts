@@ -34,45 +34,44 @@
 
 import { InQueueManager } from '../../src/in_queue';
 
-import { newTracker, getTracker, allTrackers, TrackerApi } from '@snowplow/browser-tracker';
+import { newTracker } from '@snowplow/browser-tracker';
+import { BrowserTracker, allTrackersForGroup } from '@snowplow/browser-core';
 
 jest.mock('@snowplow/browser-tracker');
-const mockNewTracker = newTracker as jest.Mock<TrackerApi>;
-const mockGetTracker = getTracker as jest.Mock<TrackerApi>;
-const mockAllTrackers = allTrackers as jest.Mock<Record<string, TrackerApi>>;
+jest.mock('@snowplow/browser-core');
+const mockNewTracker = newTracker as jest.Mock<void>;
+const mockAllTrackers = allTrackersForGroup as jest.Mock<Array<BrowserTracker>>;
 
 describe('InQueueManager', () => {
   let output = 0;
   const newTracker = (): any => {
     let attribute = 10;
     return {
-      increaseAttribute: function (n: number) {
+      enableActivityTracking: function ({ n }: { n: number }) {
         attribute += n;
       },
-      setAttribute: function (p: number) {
+      setVisitorCookieTimeout: function ({ p }: { p: number }) {
         attribute = p;
       },
-      setOutputToAttribute: function () {
+      trackPageView: function () {
         output = attribute;
       },
-      addAttributeToOutput: function () {
+      updatePageActivity: function () {
         output += attribute;
       },
     };
   };
-  const mockTracker: Record<string, unknown> = {};
 
-  mockNewTracker.mockImplementation((name: string): any => {
+  const mockTracker: Record<string, any> = {};
+  mockNewTracker.mockImplementation((name: string) => {
     mockTracker[name] = newTracker();
-    return mockTracker[name];
   });
-  mockGetTracker.mockImplementation((name: string): any => mockTracker[name]);
-  mockAllTrackers.mockImplementation((): any => mockTracker);
+  mockAllTrackers.mockImplementation(() => Object.values(mockTracker));
 
   const asyncQueueOps = [
     ['newTracker', 'firstTracker', 'firstEndpoint'],
-    ['increaseAttribute', 5],
-    ['setOutputToAttribute'],
+    ['enableActivityTracking', { n: 5 }],
+    ['trackPageView'],
   ];
   const asyncQueue = InQueueManager('snowplow', asyncQueueOps);
 
@@ -81,21 +80,21 @@ describe('InQueueManager', () => {
   });
 
   it('Add to asyncQueue after conversion, Function added to asyncQueue after it becomes an AsyncQueueProxy is executed', () => {
-    asyncQueue.push(['setAttribute', 7]);
-    asyncQueue.push(['setOutputToAttribute']);
+    asyncQueue.push(['setVisitorCookieTimeout', { p: 7 }]);
+    asyncQueue.push(['trackPageView']);
     expect(output).toEqual(7);
   });
 
   it("Backward compatibility: Create a tracker using the legacy setCollectorUrl method, A second tracker is created and both trackers' attributes are added to output", () => {
     asyncQueue.push(['newTracker', 'secondTracker', 'secondEndpoint']);
-    asyncQueue.push(['addAttributeToOutput']);
+    asyncQueue.push(['updatePageActivity']);
     expect(output).toEqual(24);
   });
 
   it("Use 'function:tracker1;tracker2' syntax to control which trackers execute which functions, Set the attributes of the two trackers individually, then add both to output", () => {
-    asyncQueue.push(['setAttribute:firstTracker', 2]);
-    asyncQueue.push(['setAttribute:secondTracker', 3]);
-    asyncQueue.push(['addAttributeToOutput:firstTracker;secondTracker']);
+    asyncQueue.push(['setVisitorCookieTimeout:firstTracker', { p: 2 }]);
+    asyncQueue.push(['setVisitorCookieTimeout:secondTracker', { p: 3 }]);
+    asyncQueue.push(['updatePageActivity:firstTracker;secondTracker']);
     expect(output).toEqual(29);
   });
 

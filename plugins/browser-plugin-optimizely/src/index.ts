@@ -1,6 +1,4 @@
-import map from 'lodash/map';
-import { Plugin } from '@snowplow/tracker-core';
-import { isValueInArray } from '@snowplow/browser-core';
+import { isValueInArray, BrowserPlugin } from '@snowplow/browser-core';
 import {
   Experiment,
   OptimizelySummary,
@@ -19,7 +17,7 @@ declare global {
   }
 }
 
-const OptimizelyPlugin = (
+export function OptimizelyPlugin(
   summary: boolean = true,
   experiments: boolean = true,
   states: boolean = true,
@@ -27,7 +25,7 @@ const OptimizelyPlugin = (
   visitor: boolean = true,
   audiences: boolean = true,
   dimensions: boolean
-): Plugin => {
+): BrowserPlugin {
   const windowAlias = window;
 
   /**
@@ -57,17 +55,21 @@ const OptimizelyPlugin = (
     var state = getOptimizelyData('state');
     var experiments = getOptimizelyData('experiments');
 
-    return map(state && experiments && state.activeExperiments, function (activeExperiment) {
-      var current = experiments[activeExperiment];
-      return {
-        activeExperimentId: activeExperiment.toString(),
-        // User can be only in one variation (don't know why is this array)
-        variation: state.variationIdsMap[activeExperiment][0].toString(),
-        conditional: current && current.conditional,
-        manual: current && current.manual,
-        name: current && current.name,
-      };
-    });
+    if (!state || !experiments) return [];
+
+    return (
+      state.activeExperiments?.map(function (activeExperiment: string) {
+        var current = experiments[activeExperiment];
+        return {
+          activeExperimentId: activeExperiment.toString(),
+          // User can be only in one variation (don't know why is this array)
+          variation: state.variationIdsMap[activeExperiment][0].toString(),
+          conditional: current && current.conditional,
+          manual: current && current.manual,
+          name: current && current.name,
+        };
+      }) ?? []
+    );
   }
 
   /**
@@ -269,7 +271,7 @@ const OptimizelyPlugin = (
    * @returns Array of custom contexts
    */
   function getOptimizelySummaryContexts() {
-    return map(getOptimizelySummary(), function (experiment) {
+    return getOptimizelySummary().map(function (experiment) {
       return {
         schema: 'iglu:com.optimizely.snowplow/optimizely_summary/jsonschema/1-0-0',
         data: experiment,
@@ -315,6 +317,4 @@ const OptimizelyPlugin = (
       return combinedContexts;
     },
   };
-};
-
-export { OptimizelyPlugin };
+}

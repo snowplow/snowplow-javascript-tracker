@@ -1,4 +1,4 @@
-import { Plugin } from '@snowplow/tracker-core';
+import { BrowserPlugin } from '@snowplow/browser-core';
 import { PerformanceTiming } from './contexts';
 
 declare global {
@@ -9,7 +9,7 @@ declare global {
   }
 }
 
-const PerformanceTimingPlugin = (): Plugin => {
+export function PerformanceTimingPlugin(): BrowserPlugin {
   const windowAlias = window;
 
   /**
@@ -68,6 +68,4 @@ const PerformanceTimingPlugin = (): Plugin => {
   return {
     contexts: () => getPerformanceTimingContext(),
   };
-};
-
-export { PerformanceTimingPlugin };
+}

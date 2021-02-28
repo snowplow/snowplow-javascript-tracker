@@ -341,3 +341,51 @@ test('Get applicable contexts', (t) => {
   globalContexts.addGlobalContexts(contextArray);
   t.is(globalContexts.getApplicableContexts(event).length, 6);
 });
+
+test('Resolves context generators and static contexts', (t) => {
+  const contextGenerator = () => {
+    return {
+      schema: 'iglu:com.acme.marketing/some_event/jsonschema/1-0-0',
+      data: { test: 1 },
+    };
+  };
+  const staticContext = {
+    schema: 'iglu:com.acme.marketing/some_event/jsonschema/1-0-0',
+    data: { test: 1 },
+  };
+  const expected = [contextGenerator(), staticContext];
+  const actual = contexts.resolveDynamicContexts([contextGenerator, staticContext]);
+  t.deepEqual(actual, expected);
+});
+
+test('Resolves context generators with arguments', (t) => {
+  const contextGenerator = (argOne: string, argTwo: string) => ({
+    schema: 'iglu:com.acme.marketing/some_event/jsonschema/1-0-0',
+    data: {
+      firstVal: argOne,
+      secondVal: argTwo,
+    },
+  });
+  const expected = [
+    {
+      schema: 'iglu:com.acme.marketing/some_event/jsonschema/1-0-0',
+      data: {
+        firstVal: 1,
+        secondVal: 2,
+      },
+    },
+  ];
+  const actual = contexts.resolveDynamicContexts([contextGenerator], 1, 2);
+  t.deepEqual(actual, expected);
+});
+
+test('Context generators which return empty are ignored', (t) => {
+  const contextGenerator = () => null;
+  const staticContext = {
+    schema: 'iglu:com.acme.marketing/some_event/jsonschema/1-0-0',
+    data: { test: 1 },
+  };
+  const expected = [staticContext];
+  const actual = contexts.resolveDynamicContexts([contextGenerator, staticContext]);
+  t.deepEqual(actual, expected);
+});

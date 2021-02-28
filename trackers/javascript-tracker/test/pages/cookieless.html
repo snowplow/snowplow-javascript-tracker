@@ -3,6 +3,7 @@
   <head>
     <title>Cookieless test page</title>
   </head>
+
   <body>
     <p id="title">Page for testing anonymous tracking with Snowplow Micro</p>
 
@@ -54,16 +55,16 @@
       });
 
       window.snowplow('setUserId', 'Malcolm');
-      window.snowplow('trackPageView', 'Server Anon');
-      window.snowplow('trackPageView', 'Server Anon'); // Should have different network_userid
+      window.snowplow('trackPageView', { title: 'Server Anon' });
+      window.snowplow('trackPageView', { title: 'Server Anon' }); // Should have different network_userid
 
       if (!ieTest) {
         setTimeout(function () {
-          window.snowplow('disableAnonymousTracking', 'cookieAndLocalStorage');
+          window.snowplow('disableAnonymousTracking', { stateStorageStrategy: 'cookieAndLocalStorage' });
           window.snowplow('setUserId', 'Malcolm');
-          window.snowplow('trackPageView', 'No Anon');
-          window.snowplow('enableAnonymousTracking', {});
-          window.snowplow('trackPageView', 'Client Anon');
+          window.snowplow('trackPageView', { title: 'No Anon' });
+          window.snowplow('enableAnonymousTracking');
+          window.snowplow('trackPageView', { title: 'Client Anon' });
         }, 2000);
       }
     </script>

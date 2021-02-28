@@ -32,13 +32,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { SharedState } from './state';
+import { CorePlugin } from '@snowplow/tracker-core';
+import { BrowserTracker } from './tracker/types';
 
-export interface ApiMethods {
-  [key: string]: Function;
-}
-
-export interface ApiPlugin<Methods extends ApiMethods> {
-  trackerInit?: (trackerId: string, state: SharedState) => void;
-  apiMethods: Methods;
+export interface BrowserPlugin extends CorePlugin {
+  activateBrowserPlugin?: (tracker: BrowserTracker) => void;
 }

@@ -39,12 +39,10 @@
     ]
   },
   "dependencies": {
-    "lodash": "^4.17.20",
     "tslib": "^2.0.3",
     "uuid": "^3.3.3"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.168",
     "@types/node": "^14.6.0",
     "@types/uuid": "^3.4.6",
     "@typescript-eslint/eslint-plugin": "^4.9.0",

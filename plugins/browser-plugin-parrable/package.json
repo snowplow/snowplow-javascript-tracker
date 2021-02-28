@@ -15,7 +15,7 @@
     "test": ""
   },
   "dependencies": {
-    "@snowplow/tracker-core": "workspace:*",
+    "@snowplow/browser-core": "workspace:*",
     "tslib": "^2.0.3"
   },
   "devDependencies": {
