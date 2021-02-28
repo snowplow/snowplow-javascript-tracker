@@ -14,16 +14,16 @@
  */
 
 import { v4 } from 'uuid';
-import { Plugin } from './plugins';
 import { payloadBuilder, PayloadBuilder, Payload, isJson } from './payload';
 import {
   globalContexts,
-  pluginContexts,
   ConditionalContextProvider,
   ContextPrimitive,
   GlobalContexts,
   PluginContexts,
+  pluginContexts,
 } from './contexts';
+import { CorePlugin } from './plugins';
 
 /**
  * Interface common for any Self-Describing JSON such as custom context or
@@ -78,7 +78,7 @@ function getTimestamp(tstamp?: Timestamp | null): TimestampPayload {
 /**
  * Interface containing all Core functions
  */
-export interface Core {
+export interface TrackerCore {
   /**
    * Set a persistent key-value pair to be added to every payload
    *
@@ -200,14 +200,13 @@ export interface Core {
    * @param properties Contains the properties and schema location for the event
    * @param context Custom contexts relating to the event
    * @param tstamp Timestamp of the event
-   * @param afterTrack A callback function triggered after event is tracked
+   * @param  A callback function triggered after event is tracked
    * @return Payload
    */
   trackSelfDescribingEvent: (
     properties: SelfDescribingJson,
     context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null,
-    afterTrack?: ((Payload: Payload) => void) | null
+    tstamp?: Timestamp | null
   ) => PayloadBuilder;
 
   /**
@@ -218,7 +217,7 @@ export interface Core {
    * @param referrer URL users came from
    * @param context Custom contexts relating to the event
    * @param tstamp Timestamp of the event
-   * @param afterTrack A callback function triggered after event is tracked
+   * @param  A callback function triggered after event is tracked
    * @return Payload
    */
   trackPageView(
@@ -226,8 +225,7 @@ export interface Core {
     pageTitle: string | null,
     referrer: string | null,
     context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null,
-    afterTrack?: ((Payload: Payload) => void) | null
+    tstamp?: Timestamp | null
   ): PayloadBuilder;
 
   /**
@@ -243,7 +241,7 @@ export interface Core {
    * @param maxYOffset Maximum page y offset seen in the last ping period
    * @param context Custom contexts relating to the event
    * @param tstamp Timestamp of the event
-   * @param afterTrack A callback function triggered after event is tracked
+   * @param  A callback function triggered after event is tracked
    * @return Payload
    */
   trackPagePing(
@@ -255,8 +253,7 @@ export interface Core {
     minYOffset: number,
     maxYOffset: number,
     context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null,
-    afterTrack?: ((Payload: Payload) => void) | null
+    tstamp?: Timestamp | null
   ): PayloadBuilder;
 
   /**
@@ -269,26 +266,25 @@ export interface Core {
    * @param value An integer that you can use to provide numerical data about the user event
    * @param context Custom contexts relating to the event
    * @param tstamp Timestamp of the event
-   * @param afterTrack A callback function triggered after event is tracked
+   * @param  A callback function triggered after event is tracked
    * @return Payload
    */
   trackStructEvent(
     category: string,
     action: string,
-    label: string,
-    property: string,
+    label?: string,
+    property?: string,
     value?: number,
     context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null,
-    afterTrack?: ((Payload: Payload) => void) | null
+    tstamp?: Timestamp | null
   ): PayloadBuilder;
 
   /**
    * Track an ecommerce transaction
    *
    * @param orderId Internal unique order id number for this transaction.
-   * @param affiliation Partner or store affiliation.
    * @param totalValue Total amount of the transaction.
+   * @param affiliation Partner or store affiliation.
    * @param taxValue Tax amount of the transaction.
    * @param shipping Shipping charge for the transaction.
    * @param city City to associate with transaction.
@@ -297,22 +293,21 @@ export interface Core {
    * @param currency Currency to associate with this transaction.
    * @param context Context relating to the event.
    * @param tstamp Timestamp of the event
-   * @param afterTrack A callback function triggered after event is tracked
+   * @param  A callback function triggered after event is tracked
    * @return Payload
    */
   trackEcommerceTransaction(
     orderId: string,
-    affiliation: string,
-    totalValue: string,
-    taxValue?: string,
-    shipping?: string,
+    totalValue: number,
+    affiliation?: string,
+    taxValue?: number,
+    shipping?: number,
     city?: string,
     state?: string,
     country?: string,
     currency?: string,
     context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null,
-    afterTrack?: ((Payload: Payload) => void) | null
+    tstamp?: Timestamp | null
   ): PayloadBuilder;
 
   /**
@@ -327,7 +322,7 @@ export interface Core {
    * @param currency Product price currency.
    * @param context Context relating to the event.
    * @param tstamp Timestamp of the event
-   * @param afterTrack A callback function triggered after event is tracked
+   * @param  A callback function triggered after event is tracked
    * @return Payload
    */
   trackEcommerceTransactionItem(
@@ -335,12 +330,11 @@ export interface Core {
     sku: string,
     name: string,
     category: string,
-    price: string,
-    quantity: string,
+    price: number,
+    quantity: number,
     currency?: string,
     context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null,
-    afterTrack?: ((Payload: Payload) => void) | null
+    tstamp?: Timestamp | null
   ): PayloadBuilder;
 
   /**
@@ -350,15 +344,14 @@ export interface Core {
    * @param id The ID of the screen
    * @param context Contexts relating to the event
    * @param tstamp Timestamp of the event
-   * @param afterTrack A callback function triggered after event is tracked
+   * @param  A callback function triggered after event is tracked
    * @return Payload
    */
   trackScreenView(
     name: string,
     id: string,
     context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null,
-    afterTrack?: ((Payload: Payload) => void) | null
+    tstamp?: Timestamp | null
   ): PayloadBuilder;
 
   /**
@@ -371,7 +364,7 @@ export interface Core {
    * @param elementContent innerHTML of the link
    * @param context Custom contexts relating to the event
    * @param tstamp Timestamp of the event
-   * @param afterTrack A callback function triggered after event is tracked
+   * @param  A callback function triggered after event is tracked
    * @return Payload
    */
   trackLinkClick(
@@ -381,8 +374,7 @@ export interface Core {
     elementTarget?: string,
     elementContent?: string,
     context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null,
-    afterTrack?: ((Payload: Payload) => void) | null
+    tstamp?: Timestamp | null
   ): PayloadBuilder;
 
   /**
@@ -398,7 +390,7 @@ export interface Core {
    * @param campaignId Identifier for the campaign which the banner belongs to
    * @param context Custom contexts relating to the event
    * @param tstamp Timestamp of the event
-   * @param afterTrack A callback function triggered after event is tracked
+   * @param  A callback function triggered after event is tracked
    * @return Payload
    */
   trackAdImpression(
@@ -411,8 +403,7 @@ export interface Core {
     advertiserId: string,
     campaignId: string,
     context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null,
-    afterTrack?: ((Payload: Payload) => void) | null
+    tstamp?: Timestamp | null
   ): PayloadBuilder;
 
   /**
@@ -429,7 +420,7 @@ export interface Core {
    * @param campaignId Identifier for the campaign which the banner belongs to
    * @param context Custom contexts relating to the event
    * @param tstamp Timestamp of the event
-   * @param afterTrack A callback function triggered after event is tracked
+   * @param  A callback function triggered after event is tracked
    * @return Payload
    */
   trackAdClick(
@@ -443,8 +434,7 @@ export interface Core {
     advertiserId: string,
     campaignId: string,
     context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null,
-    afterTrack?: ((Payload: Payload) => void) | null
+    tstamp?: Timestamp | null
   ): PayloadBuilder;
 
   /**
@@ -461,7 +451,7 @@ export interface Core {
    * @param campaignId Identifier for the campaign which the banner belongs to
    * @param context Custom contexts relating to the event
    * @param tstamp Timestamp of the event
-   * @param afterTrack A callback function triggered after event is tracked
+   * @param  A callback function triggered after event is tracked
    * @return Payload
    */
   trackAdConversion(
@@ -475,8 +465,7 @@ export interface Core {
     advertiserId: string,
     campaignId: string,
     context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null,
-    afterTrack?: ((Payload: Payload) => void) | null
+    tstamp?: Timestamp | null
   ): PayloadBuilder;
 
   /**
@@ -487,7 +476,7 @@ export interface Core {
    * @param target Object of the social action e.g. the video liked, the tweet retweeted
    * @param context Custom contexts relating to the event
    * @param tstamp Timestamp of the event
-   * @param afterTrack A callback function triggered after event is tracked
+   * @param  A callback function triggered after event is tracked
    * @return Payload
    */
   trackSocialInteraction(
@@ -495,8 +484,7 @@ export interface Core {
     network: string,
     target: string,
     context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null,
-    afterTrack?: ((Payload: Payload) => void) | null
+    tstamp?: Timestamp | null
   ): PayloadBuilder;
 
   /**
@@ -510,7 +498,7 @@ export interface Core {
    * @param currency Product price currency.
    * @param context Context relating to the event.
    * @param tstamp Timestamp of the event
-   * @param afterTrack A callback function triggered after event is tracked
+   * @param  A callback function triggered after event is tracked
    * @return Payload
    */
   trackAddToCart(
@@ -521,8 +509,7 @@ export interface Core {
     quantity: string,
     currency?: string,
     context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null,
-    afterTrack?: ((Payload: Payload) => void) | null
+    tstamp?: Timestamp | null
   ): PayloadBuilder;
 
   /**
@@ -536,7 +523,7 @@ export interface Core {
    * @param currency Product price currency.
    * @param context Context relating to the event.
    * @param tstamp Timestamp of the event
-   * @param afterTrack A callback function triggered after event is tracked
+   * @param  A callback function triggered after event is tracked
    * @return Payload
    */
   trackRemoveFromCart(
@@ -547,8 +534,7 @@ export interface Core {
     quantity: string,
     currency?: string,
     context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null,
-    afterTrack?: ((Payload: Payload) => void) | null
+    tstamp?: Timestamp | null
   ): PayloadBuilder;
 
   /**
@@ -563,7 +549,7 @@ export interface Core {
    * @param value The new value of the changed element
    * @param context Context relating to the event.
    * @param tstamp Timestamp of the event
-   * @param afterTrack A callback function triggered after event is tracked
+   * @param  A callback function triggered after event is tracked
    * @return Payload
    */
   trackFormFocusOrChange(
@@ -575,8 +561,7 @@ export interface Core {
     elementClasses: Array<string> | null,
     value: string | null,
     context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null,
-    afterTrack?: ((Payload: Payload) => void) | null
+    tstamp?: Timestamp | null
   ): PayloadBuilder;
 
   /**
@@ -587,7 +572,7 @@ export interface Core {
    * @param elements Mutable elements within the form
    * @param context Context relating to the event.
    * @param tstamp Timestamp of the event
-   * @param afterTrack A callback function triggered after event is tracked
+   * @param  A callback function triggered after event is tracked
    * @return Payload
    */
   trackFormSubmission(
@@ -595,8 +580,7 @@ export interface Core {
     formClasses: Array<string>,
     elements: Array<Record<string, unknown>>,
     context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null,
-    afterTrack?: ((Payload: Payload) => void) | null
+    tstamp?: Timestamp | null
   ): PayloadBuilder;
 
   /**
@@ -616,8 +600,7 @@ export interface Core {
     totalResults: number,
     pageResults: number,
     context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null,
-    afterTrack?: ((Payload: Payload) => void) | null
+    tstamp?: Timestamp | null
   ): PayloadBuilder;
 
   /**
@@ -630,7 +613,7 @@ export interface Core {
    * @param description Description of document.
    * @param context Context relating to the event.
    * @param tstamp Timestamp of the event.
-   * @param afterTrack A callback function triggered after event is tracked
+   * @param  A callback function triggered after event is tracked
    * @return Payload
    */
   trackConsentWithdrawn(
@@ -640,8 +623,7 @@ export interface Core {
     name?: string,
     description?: string,
     context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null,
-    afterTrack?: ((Payload: Payload) => void) | null
+    tstamp?: Timestamp | null
   ): PayloadBuilder;
 
   /**
@@ -654,7 +636,7 @@ export interface Core {
    * @param expiry Date-time when consent expires.
    * @param context Context relating to the event.
    * @param tstamp Timestamp of the event.
-   * @param afterTrack A callback function triggered after event is tracked
+   * @param  A callback function triggered after event is tracked
    * @return Payload
    */
   trackConsentGranted(
@@ -664,8 +646,7 @@ export interface Core {
     description?: string,
     expiry?: string,
     context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null,
-    afterTrack?: ((Payload: Payload) => void) | null
+    tstamp?: Timestamp | null
   ): PayloadBuilder;
 
   /**
@@ -696,8 +677,8 @@ export interface Core {
 export function trackerCore(
   base64?: boolean,
   callback?: (PayloadData: PayloadBuilder) => void,
-  corePlugins?: Array<Plugin>
-): Core {
+  corePlugins?: Array<CorePlugin>
+): TrackerCore {
   const plugins = corePlugins ?? [];
   const pluginContextsHelper: PluginContexts = pluginContexts(plugins);
   const globalContextsHelper: GlobalContexts = globalContexts();
@@ -754,7 +735,7 @@ export function trackerCore(
    */
   const attachGlobalContexts = (
     sb: PayloadBuilder,
-    contexts?: Array<SelfDescribingJson>
+    contexts?: Array<SelfDescribingJson> | null
   ): Array<SelfDescribingJson> => {
     const applicableContexts: Array<SelfDescribingJson> = globalContextsHelper.getApplicableContexts(sb);
     const returnedContexts: Array<SelfDescribingJson> = [];
@@ -775,14 +756,13 @@ export function trackerCore(
    * @param sb Payload
    * @param context Custom contexts relating to the event
    * @param tstamp Timestamp of the event
-   * @param afterTrack A callback function triggered after event is tracked
+   * @param  A callback function triggered after event is tracked
    * @return Payload after the callback is applied
    */
   const track = (
     sb: PayloadBuilder,
     context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null,
-    afterTrack?: ((Payload: Payload) => void) | null
+    tstamp?: Timestamp | null
   ): PayloadBuilder => {
     sb.addDict(payloadPairs);
     sb.add('eid', v4());
@@ -814,15 +794,9 @@ export function trackerCore(
           plugin.afterTrack(sb.build());
         }
       } catch (ex) {
-        console.warn('Snowplow: error with plugin afterTrack', ex);
+        console.warn('Snowplow: error with plugin ', ex);
       }
     });
-
-    try {
-      afterTrack && afterTrack(sb.build());
-    } catch (ex) {
-      console.warn('Snowplow: error running custom callback');
-    }
 
     return sb;
   };
@@ -833,14 +807,13 @@ export function trackerCore(
    * @param properties Contains the properties and schema location for the event
    * @param context Custom contexts relating to the event
    * @param tstamp Timestamp of the event
-   * @param afterTrack A callback function triggered after event is tracked
+   * @param  A callback function triggered after event is tracked
    * @return Payload
    */
   const trackSelfDescribingEvent = (
     properties: Record<string, unknown>,
     context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null,
-    afterTrack?: ((Payload: Payload) => void) | null
+    tstamp?: Timestamp | null
   ): PayloadBuilder => {
     const sb = payloadBuilder(encodeBase64);
     const ueJson = {
@@ -851,7 +824,7 @@ export function trackerCore(
     sb.add('e', 'ue');
     sb.addJson('ue_px', 'ue_pr', ueJson);
 
-    return track(sb, context, tstamp, afterTrack);
+    return track(sb, context, tstamp);
   };
 
   /**
@@ -938,8 +911,7 @@ export function trackerCore(
       pageTitle: string | null,
       referrer: string | null,
       context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null,
-      afterTrack?: ((Payload: Payload) => void) | null
+      tstamp?: Timestamp | null
     ): PayloadBuilder {
       const sb = payloadBuilder(encodeBase64);
       sb.add('e', 'pv'); // 'pv' for Page View
@@ -947,7 +919,7 @@ export function trackerCore(
       sb.add('page', pageTitle);
       sb.add('refr', referrer);
 
-      return track(sb, context, tstamp, afterTrack);
+      return track(sb, context, tstamp);
     },
 
     trackPagePing(
@@ -959,8 +931,7 @@ export function trackerCore(
       minYOffset: number,
       maxYOffset: number,
       context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null,
-      afterTrack?: ((Payload: Payload) => void) | null
+      tstamp?: Timestamp | null
     ): PayloadBuilder {
       const sb = payloadBuilder(encodeBase64);
       sb.add('e', 'pp'); // 'pp' for Page Ping
@@ -972,18 +943,17 @@ export function trackerCore(
       sb.add('pp_miy', isNaN(minYOffset) ? null : minYOffset.toString());
       sb.add('pp_may', isNaN(maxYOffset) ? null : maxYOffset.toString());
 
-      return track(sb, context, tstamp, afterTrack);
+      return track(sb, context, tstamp);
     },
 
     trackStructEvent(
       category: string,
       action: string,
-      label: string,
-      property: string,
+      label?: string,
+      property?: string,
       value?: number,
       context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null,
-      afterTrack?: ((Payload: Payload) => void) | null
+      tstamp?: Timestamp | null
     ): PayloadBuilder {
       const sb = payloadBuilder(encodeBase64);
       sb.add('e', 'se'); // 'se' for Structured Event
@@ -993,22 +963,21 @@ export function trackerCore(
       sb.add('se_pr', property);
       sb.add('se_va', value == null ? undefined : value.toString());
 
-      return track(sb, context, tstamp, afterTrack);
+      return track(sb, context, tstamp);
     },
 
     trackEcommerceTransaction(
       orderId: string,
-      affiliation: string,
-      totalValue: string,
-      taxValue?: string,
-      shipping?: string,
+      totalValue: number,
+      affiliation?: string,
+      taxValue?: number,
+      shipping?: number,
       city?: string,
       state?: string,
       country?: string,
       currency?: string,
       context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null,
-      afterTrack?: ((Payload: Payload) => void) | null
+      tstamp?: Timestamp | null
     ): PayloadBuilder {
       const sb = payloadBuilder(encodeBase64);
       sb.add('e', 'tr'); // 'tr' for Transaction
@@ -1022,7 +991,7 @@ export function trackerCore(
       sb.add('tr_co', country);
       sb.add('tr_cu', currency);
 
-      return track(sb, context, tstamp, afterTrack);
+      return track(sb, context, tstamp);
     },
 
     trackEcommerceTransactionItem(
@@ -1030,12 +999,11 @@ export function trackerCore(
       sku: string,
       name: string,
       category: string,
-      price: string,
-      quantity: string,
+      price: number,
+      quantity: number,
       currency?: string,
       context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null,
-      afterTrack?: ((Payload: Payload) => void) | null
+      tstamp?: Timestamp | null
     ): PayloadBuilder {
       const sb = payloadBuilder(encodeBase64);
       sb.add('e', 'ti'); // 'tr' for Transaction Item
@@ -1047,15 +1015,14 @@ export function trackerCore(
       sb.add('ti_qu', quantity);
       sb.add('ti_cu', currency);
 
-      return track(sb, context, tstamp, afterTrack);
+      return track(sb, context, tstamp);
     },
 
     trackScreenView(
       name: string,
       id: string,
       context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null,
-      afterTrack?: ((Payload: Payload) => void) | null
+      tstamp?: Timestamp | null
     ): PayloadBuilder {
       return trackSelfDescribingEvent(
         {
@@ -1066,8 +1033,7 @@ export function trackerCore(
           }),
         },
         context,
-        tstamp,
-        afterTrack
+        tstamp
       );
     },
 
@@ -1078,8 +1044,7 @@ export function trackerCore(
       elementTarget?: string,
       elementContent?: string,
       context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null,
-      afterTrack?: ((Payload: Payload) => void) | null
+      tstamp?: Timestamp | null
     ): PayloadBuilder {
       const eventJson = {
         schema: 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1',
@@ -1092,7 +1057,7 @@ export function trackerCore(
         }),
       };
 
-      return trackSelfDescribingEvent(eventJson, context, tstamp, afterTrack);
+      return trackSelfDescribingEvent(eventJson, context, tstamp);
     },
 
     trackAdImpression(
@@ -1105,8 +1070,7 @@ export function trackerCore(
       advertiserId: string,
       campaignId: string,
       context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null,
-      afterTrack?: ((Payload: Payload) => void) | null
+      tstamp?: Timestamp | null
     ): PayloadBuilder {
       const eventJson = {
         schema: 'iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0',
@@ -1122,7 +1086,7 @@ export function trackerCore(
         }),
       };
 
-      return trackSelfDescribingEvent(eventJson, context, tstamp, afterTrack);
+      return trackSelfDescribingEvent(eventJson, context, tstamp);
     },
 
     trackAdClick(
@@ -1136,8 +1100,7 @@ export function trackerCore(
       advertiserId: string,
       campaignId: string,
       context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null,
-      afterTrack?: ((Payload: Payload) => void) | null
+      tstamp?: Timestamp | null
     ): PayloadBuilder {
       const eventJson = {
         schema: 'iglu:com.snowplowanalytics.snowplow/ad_click/jsonschema/1-0-0',
@@ -1154,7 +1117,7 @@ export function trackerCore(
         }),
       };
 
-      return trackSelfDescribingEvent(eventJson, context, tstamp, afterTrack);
+      return trackSelfDescribingEvent(eventJson, context, tstamp);
     },
 
     trackAdConversion(
@@ -1168,8 +1131,7 @@ export function trackerCore(
       advertiserId: string,
       campaignId: string,
       context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null,
-      afterTrack?: ((Payload: Payload) => void) | null
+      tstamp?: Timestamp | null
     ): PayloadBuilder {
       const eventJson = {
         schema: 'iglu:com.snowplowanalytics.snowplow/ad_conversion/jsonschema/1-0-0',
@@ -1186,7 +1148,7 @@ export function trackerCore(
         }),
       };
 
-      return trackSelfDescribingEvent(eventJson, context, tstamp, afterTrack);
+      return trackSelfDescribingEvent(eventJson, context, tstamp);
     },
 
     trackSocialInteraction(
@@ -1194,8 +1156,7 @@ export function trackerCore(
       network: string,
       target: string,
       context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null,
-      afterTrack?: ((Payload: Payload) => void) | null
+      tstamp?: Timestamp | null
     ): PayloadBuilder {
       const eventJson = {
         schema: 'iglu:com.snowplowanalytics.snowplow/social_interaction/jsonschema/1-0-0',
@@ -1206,7 +1167,7 @@ export function trackerCore(
         }),
       };
 
-      return trackSelfDescribingEvent(eventJson, context, tstamp, afterTrack);
+      return trackSelfDescribingEvent(eventJson, context, tstamp);
     },
 
     trackAddToCart(
@@ -1217,8 +1178,7 @@ export function trackerCore(
       quantity: string,
       currency?: string,
       context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null,
-      afterTrack?: ((Payload: Payload) => void) | null
+      tstamp?: Timestamp | null
     ): PayloadBuilder {
       return trackSelfDescribingEvent(
         {
@@ -1233,8 +1193,7 @@ export function trackerCore(
           }),
         },
         context,
-        tstamp,
-        afterTrack
+        tstamp
       );
     },
 
@@ -1246,8 +1205,7 @@ export function trackerCore(
       quantity: string,
       currency?: string,
       context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null,
-      afterTrack?: ((Payload: Payload) => void) | null
+      tstamp?: Timestamp | null
     ): PayloadBuilder {
       return trackSelfDescribingEvent(
         {
@@ -1262,8 +1220,7 @@ export function trackerCore(
           }),
         },
         context,
-        tstamp,
-        afterTrack
+        tstamp
       );
     },
 
@@ -1276,8 +1233,7 @@ export function trackerCore(
       elementClasses: Array<string> | null,
       value: string | null,
       context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null,
-      afterTrack?: ((Payload: Payload) => void) | null
+      tstamp?: Timestamp | null
     ): PayloadBuilder {
       let event_schema = '';
       const event_data: Payload = { formId, elementId, nodeName, elementClasses, value };
@@ -1294,8 +1250,7 @@ export function trackerCore(
           data: removeEmptyProperties(event_data, { value: true }),
         },
         context,
-        tstamp,
-        afterTrack
+        tstamp
       );
     },
 
@@ -1304,8 +1259,7 @@ export function trackerCore(
       formClasses: Array<string>,
       elements: Array<Record<string, { name: string; value: string | null; nodeName: string; type?: string }>>,
       context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null,
-      afterTrack?: ((Payload: Payload) => void) | null
+      tstamp?: Timestamp | null
     ): PayloadBuilder {
       return trackSelfDescribingEvent(
         {
@@ -1317,8 +1271,7 @@ export function trackerCore(
           }),
         },
         context,
-        tstamp,
-        afterTrack
+        tstamp
       );
     },
 
@@ -1328,8 +1281,7 @@ export function trackerCore(
       totalResults: number,
       pageResults: number,
       context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null,
-      afterTrack?: ((Payload: Payload) => void) | null
+      tstamp?: Timestamp | null
     ): PayloadBuilder {
       return trackSelfDescribingEvent(
         {
@@ -1342,8 +1294,7 @@ export function trackerCore(
           }),
         },
         context,
-        tstamp,
-        afterTrack
+        tstamp
       );
     },
 
@@ -1354,8 +1305,7 @@ export function trackerCore(
       name?: string,
       description?: string,
       context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null,
-      afterTrack?: ((Payload: Payload) => void) | null
+      tstamp?: Timestamp | null
     ): PayloadBuilder {
       const documentJson = {
         schema: 'iglu:com.snowplowanalytics.snowplow/consent_document/jsonschema/1-0-0',
@@ -1375,8 +1325,7 @@ export function trackerCore(
           }),
         },
         context ? context.concat([documentJson]) : [documentJson],
-        tstamp,
-        afterTrack
+        tstamp
       );
     },
 
@@ -1387,8 +1336,7 @@ export function trackerCore(
       description?: string,
       expiry?: string,
       context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null,
-      afterTrack?: ((Payload: Payload) => void) | null
+      tstamp?: Timestamp | null
     ): PayloadBuilder {
       const documentJson = {
         schema: 'iglu:com.snowplowanalytics.snowplow/consent_document/jsonschema/1-0-0',
@@ -1408,8 +1356,7 @@ export function trackerCore(
           }),
         },
         context ? context.concat([documentJson]) : [documentJson],
-        tstamp,
-        afterTrack
+        tstamp
       );
     },
 
@@ -1425,16 +1372,6 @@ export function trackerCore(
       globalContextsHelper.removeGlobalContexts(contexts);
     },
   };
-
-  plugins.forEach((plugin) => {
-    try {
-      if (plugin.coreInit) {
-        plugin.coreInit(core);
-      }
-    } catch (ex) {
-      console.warn('Snowplow: error with plugin coreInit', ex);
-    }
-  });
 
   return core;
 }

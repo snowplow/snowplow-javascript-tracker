@@ -1,258 +1,285 @@
-import isUndefined from 'lodash/isUndefined';
 import {
   getHostName,
   getCssClasses,
-  resolveDynamicContexts,
   addEventListener,
   getFilterByClass,
   FilterCriterion,
-  DynamicContexts,
-  ApiPlugin,
-  SharedState,
-  ApiMethods,
+  BrowserPlugin,
+  BrowserTracker,
 } from '@snowplow/browser-core';
-import { Core, SelfDescribingJson, Timestamp, Plugin } from '@snowplow/tracker-core';
+import { SelfDescribingJson, Timestamp, resolveDynamicContexts, DynamicContexts } from '@snowplow/tracker-core';
 
-export interface LinkClickMethods extends ApiMethods {
-  enableLinkClickTracking: (
-    criterion: FilterCriterion<HTMLElement>,
-    pseudoClicks: boolean,
-    trackContent: boolean,
-    context: DynamicContexts
-  ) => void;
-  refreshLinkClickTracking: () => void;
-  trackLinkClick: (
-    targetUrl: string,
-    elementId?: string,
-    elementClasses?: Array<string>,
-    elementTarget?: string,
-    elementContent?: string,
-    context?: SelfDescribingJson[],
-    tstamp?: Timestamp
-  ) => void;
+interface LinkClickConfiguration {
+  tracker: BrowserTracker;
+  linkTrackingFilter?: (element: HTMLElement) => boolean;
+  // Whether pseudo clicks are tracked
+  linkTrackingPseudoClicks?: boolean | null | undefined;
+  // Whether to track the  innerHTML of clicked links
+  linkTrackingContent?: boolean | null | undefined;
+  // The context attached to link click events
+  linkTrackingContext?: DynamicContexts | null | undefined;
+  lastButton?: number | null;
+  lastTarget?: EventTarget | null;
 }
 
-export const LinkClickTrackingPlugin = (): Plugin & ApiPlugin<LinkClickMethods> => {
-  let _core: Core,
-    _trackerId: string,
-    _state: SharedState,
-    // Filter function used to determine whether clicks on a link should be tracked
-    linkTrackingFilter: (element: HTMLElement) => boolean,
-    // Whether pseudo clicks are tracked
-    linkTrackingPseudoClicks: boolean,
-    // Whether to track the  innerHTML of clicked links
-    linkTrackingContent: boolean,
-    // The context attached to link click events
-    linkTrackingContext: DynamicContexts,
-    // Internal state of the pseudo click handler
-    lastButton: number | null,
-    lastTarget: EventTarget | null;
+const _configuration: Record<string, LinkClickConfiguration> = {};
 
-  /*
-   * Process clicks
-   */
-  function processClick(sourceElement: Element, context: DynamicContexts) {
-    let parentElement, tag, elementId, elementClasses, elementTarget, elementContent;
-
-    while (
-      (parentElement = sourceElement.parentElement) !== null &&
-      !isUndefined(parentElement) && // buggy IE5.5
-      (tag = sourceElement.tagName.toUpperCase()) !== 'A' &&
-      tag !== 'AREA'
-    ) {
-      sourceElement = parentElement;
-    }
-
-    const anchorElement = <HTMLAnchorElement>sourceElement;
-    if (!isUndefined(anchorElement.href)) {
-      // browsers, such as Safari, don't downcase hostname and href
-      var originalSourceHostName = anchorElement.hostname || getHostName(anchorElement.href),
-        sourceHostName = originalSourceHostName.toLowerCase(),
-        sourceHref = anchorElement.href.replace(originalSourceHostName, sourceHostName),
-        scriptProtocol = new RegExp('^(javascript|vbscript|jscript|mocha|livescript|ecmascript|mailto):', 'i');
-
-      // Ignore script pseudo-protocol links
-      if (!scriptProtocol.test(sourceHref)) {
-        elementId = anchorElement.id;
-        elementClasses = getCssClasses(anchorElement);
-        elementTarget = anchorElement.target;
-        elementContent = linkTrackingContent ? anchorElement.innerHTML : undefined;
-
-        // decodeUrl %xx
-        sourceHref = unescape(sourceHref);
-        _core.trackLinkClick(
-          sourceHref,
-          elementId,
-          elementClasses,
-          elementTarget,
-          elementContent,
-          resolveDynamicContexts(context, sourceElement)
-        );
-      }
-    }
-  }
-
-  /*
-   * Return function to handle click event
-   */
-  function getClickHandler(context: DynamicContexts): EventListenerOrEventListenerObject {
-    return function (evt: Event) {
-      var button, target;
-
-      evt = evt || window.event;
-      button = (evt as MouseEvent).which || (evt as MouseEvent).button;
-      target = evt.target || evt.srcElement;
-
-      // Using evt.type (added in IE4), we avoid defining separate handlers for mouseup and mousedown.
-      if (evt.type === 'click') {
-        if (target) {
-          processClick(target as Element, context);
-        }
-      } else if (evt.type === 'mousedown') {
-        if ((button === 1 || button === 2) && target) {
-          lastButton = button;
-          lastTarget = target;
-        } else {
-          lastButton = lastTarget = null;
-        }
-      } else if (evt.type === 'mouseup') {
-        if (button === lastButton && target === lastTarget) {
-          processClick(target as Element, context);
-        }
-        lastButton = lastTarget = null;
-      }
-    };
-  }
-
-  /*
-   * Add click listener to a DOM element
-   */
-  function addClickListener(element: HTMLAnchorElement | HTMLAreaElement) {
-    if (linkTrackingPseudoClicks) {
-      // for simplicity and performance, we ignore drag events
-      addEventListener(element, 'mouseup', getClickHandler(linkTrackingContext), false);
-      addEventListener(element, 'mousedown', getClickHandler(linkTrackingContext), false);
-    } else {
-      addEventListener(element, 'click', getClickHandler(linkTrackingContext), false);
-    }
-  }
-
-  /*
-   * Configures link click tracking: how to filter which links will be tracked,
-   * whether to use pseudo click tracking, and what context to attach to link_click events
-   */
-  function configureLinkClickTracking(
-    criterion: FilterCriterion<HTMLElement>,
-    pseudoClicks: boolean,
-    trackContent: boolean,
-    context: DynamicContexts
-  ) {
-    linkTrackingContent = trackContent;
-    linkTrackingContext = context;
-    linkTrackingPseudoClicks = pseudoClicks;
-    linkTrackingFilter = getFilterByClass(criterion);
-  }
-
-  /*
-   * Add click handlers to anchor and AREA elements, except those to be ignored
-   */
-  function addClickListeners() {
-    var linkElements = document.links,
-      i;
-
-    for (i = 0; i < linkElements.length; i++) {
-      // Add a listener to link elements which pass the filter and aren't already tracked
-      if (linkTrackingFilter(linkElements[i]) && !(linkElements[i] as any)[_trackerId]) {
-        addClickListener(linkElements[i]);
-        (linkElements[i] as any)[_trackerId] = true;
-      }
-    }
-  }
-
+export const LinkClickTrackingPlugin = (): BrowserPlugin => {
   return {
-    coreInit: (core: Core) => {
-      _core = core;
-    },
-    trackerInit: (trackerId: string, state: SharedState) => {
-      _trackerId = trackerId;
-      _state = state;
-    },
-    apiMethods: {
-      /**
-       * Install link tracker
-       *
-       * The default behaviour is to use actual click events. However, some browsers
-       * (e.g., Firefox, Opera, and Konqueror) don't generate click events for the middle mouse button.
-       *
-       * To capture more "clicks", the pseudo click-handler uses mousedown + mouseup events.
-       * This is not industry standard and is vulnerable to false positives (e.g., drag events).
-       *
-       * There is a Safari/Chrome/Webkit bug that prevents tracking requests from being sent
-       * by either click handler.  The workaround is to set a target attribute (which can't
-       * be "_self", "_top", or "_parent").
-       *
-       * @see https://bugs.webkit.org/show_bug.cgi?id=54783
-       *
-       * @param object criterion Criterion by which it will be decided whether a link will be tracked
-       * @param bool pseudoClicks If true, use pseudo click-handler (mousedown+mouseup)
-       * @param bool trackContent Whether to track the innerHTML of the link element
-       * @param array context Context for all link click events
-       */
-      enableLinkClickTracking: function (
-        criterion: FilterCriterion<HTMLElement>,
-        pseudoClicks: boolean,
-        trackContent: boolean,
-        context: DynamicContexts
-      ) {
-        if (_state.hasLoaded) {
-          // the load event has already fired, add the click listeners now
-          configureLinkClickTracking(criterion, pseudoClicks, trackContent, context);
-          addClickListeners();
-        } else {
-          // defer until page has loaded
-          _state.registeredOnLoadHandlers.push(function () {
-            configureLinkClickTracking(criterion, pseudoClicks, trackContent, context);
-            addClickListeners();
-          });
-        }
-      },
-
-      /**
-       * Add click event listeners to links which have been added to the page since the
-       * last time enableLinkClickTracking or refreshLinkClickTracking was used
-       */
-      refreshLinkClickTracking: function () {
-        if (_state.hasLoaded) {
-          addClickListeners();
-        } else {
-          _state.registeredOnLoadHandlers.push(function () {
-            addClickListeners();
-          });
-        }
-      },
-
-      /**
-       * Manually log a click from your own code
-       *
-       * @param string targetUrl
-       * @param string elementId
-       * @param array elementClasses
-       * @param string elementTarget
-       * @param string elementContent innerHTML of the element
-       * @param object Custom context relating to the event
-       * @param tstamp number or Timestamp object
-       */
-      trackLinkClick: function (
-        targetUrl: string,
-        elementId?: string,
-        elementClasses?: Array<string>,
-        elementTarget?: string,
-        elementContent?: string,
-        context?: SelfDescribingJson[],
-        tstamp?: Timestamp
-      ) {
-        _core.trackLinkClick(targetUrl, elementId, elementClasses, elementTarget, elementContent, context, tstamp);
-      },
+    activateBrowserPlugin: (tracker: BrowserTracker) => {
+      _configuration[tracker.id] = { tracker };
     },
   };
 };
+
+/**
+ * Install link tracker
+ *
+ * The default behaviour is to use actual click events. However, some browsers
+ * (e.g., Firefox, Opera, and Konqueror) don't generate click events for the middle mouse button.
+ *
+ * To capture more "clicks", the pseudo click-handler uses mousedown + mouseup events.
+ * This is not industry standard and is vulnerable to false positives (e.g., drag events).
+ *
+ * There is a Safari/Chrome/Webkit bug that prevents tracking requests from being sent
+ * by either click handler.  The workaround is to set a target attribute (which can't
+ * be "_self", "_top", or "_parent").
+ *
+ * @see https://bugs.webkit.org/show_bug.cgi?id=54783
+ *
+ * @param object criterion Criterion by which it will be decided whether a link will be tracked
+ * @param bool pseudoClicks If true, use pseudo click-handler (mousedown+mouseup)
+ * @param bool trackContent Whether to track the innerHTML of the link element
+ * @param array context Context for all link click events
+ */
+export function enableLinkClickTracking(
+  {
+    options,
+    pseudoClicks,
+    trackContent,
+    context,
+  }: {
+    options?: FilterCriterion<HTMLElement> | null;
+    pseudoClicks?: boolean | null;
+    trackContent?: boolean | null;
+    context?: DynamicContexts | null;
+  } = {},
+  trackers: Array<string> = Object.keys(_configuration)
+) {
+  trackers.forEach((id) => {
+    if (_configuration[id]) {
+      if (_configuration[id].tracker.sharedState.hasLoaded) {
+        // the load event has already fired, add the click listeners now
+        configureLinkClickTracking({ options, pseudoClicks, trackContent, context }, id);
+        addClickListeners(id);
+      } else {
+        // defer until page has loaded
+        _configuration[id].tracker.sharedState.registeredOnLoadHandlers.push(function () {
+          configureLinkClickTracking({ options, pseudoClicks, trackContent, context }, id);
+          addClickListeners(id);
+        });
+      }
+    }
+  });
+}
+
+/**
+ * Add click event listeners to links which have been added to the page since the
+ * last time enableLinkClickTracking or refreshLinkClickTracking was used
+ */
+export function refreshLinkClickTracking(trackers: Array<string> = Object.keys(_configuration)) {
+  trackers.forEach((id) => {
+    if (_configuration[id]) {
+      if (_configuration[id].tracker.sharedState.hasLoaded) {
+        addClickListeners(id);
+      } else {
+        _configuration[id].tracker.sharedState.registeredOnLoadHandlers.push(function () {
+          addClickListeners(id);
+        });
+      }
+    }
+  });
+}
+
+/**
+ * Manually log a click from your own code
+ *
+ * @param string targetUrl
+ * @param string elementId
+ * @param array elementClasses
+ * @param string elementTarget
+ * @param string elementContent innerHTML of the element
+ * @param object Custom context relating to the event
+ * @param tstamp number or Timestamp object
+ */
+export function trackLinkClick(
+  {
+    targetUrl,
+    elementId,
+    elementClasses,
+    elementTarget,
+    elementContent,
+    context,
+    tstamp,
+  }: {
+    targetUrl: string;
+    elementId?: string;
+    elementClasses?: Array<string>;
+    elementTarget?: string;
+    elementContent?: string;
+    context?: SelfDescribingJson[];
+    tstamp?: Timestamp;
+  },
+  trackers: Array<string> = Object.keys(_configuration)
+) {
+  trackers.forEach((id) => {
+    if (_configuration[id]) {
+      _configuration[id].tracker.core.trackLinkClick(
+        targetUrl,
+        elementId,
+        elementClasses,
+        elementTarget,
+        elementContent,
+        context,
+        tstamp
+      );
+    }
+  });
+}
+
+/*
+ * Process clicks
+ */
+function processClick(tracker: BrowserTracker, sourceElement: Element, context?: DynamicContexts | null) {
+  let parentElement, tag, elementId, elementClasses, elementTarget, elementContent;
+
+  while (
+    (parentElement = sourceElement.parentElement) !== null &&
+    parentElement != null &&
+    (tag = sourceElement.tagName.toUpperCase()) !== 'A' &&
+    tag !== 'AREA'
+  ) {
+    sourceElement = parentElement;
+  }
+
+  const anchorElement = <HTMLAnchorElement>sourceElement;
+  if (anchorElement.href != null) {
+    // browsers, such as Safari, don't downcase hostname and href
+    var originalSourceHostName = anchorElement.hostname || getHostName(anchorElement.href),
+      sourceHostName = originalSourceHostName.toLowerCase(),
+      sourceHref = anchorElement.href.replace(originalSourceHostName, sourceHostName),
+      scriptProtocol = new RegExp('^(javascript|vbscript|jscript|mocha|livescript|ecmascript|mailto):', 'i');
+
+    // Ignore script pseudo-protocol links
+    if (!scriptProtocol.test(sourceHref)) {
+      elementId = anchorElement.id;
+      elementClasses = getCssClasses(anchorElement);
+      elementTarget = anchorElement.target;
+      elementContent = _configuration[tracker.id].linkTrackingContent ? anchorElement.innerHTML : undefined;
+
+      // decodeUrl %xx
+      sourceHref = unescape(sourceHref);
+      tracker.core.trackLinkClick(
+        sourceHref,
+        elementId,
+        elementClasses,
+        elementTarget,
+        elementContent,
+        resolveDynamicContexts(context, sourceElement)
+      );
+    }
+  }
+}
+
+/*
+ * Return function to handle click event
+ */
+function getClickHandler(tracker: string, context?: DynamicContexts | null): EventListenerOrEventListenerObject {
+  return function (evt: Event) {
+    var button, target;
+
+    evt = evt || window.event;
+    button = (evt as MouseEvent).which || (evt as MouseEvent).button;
+    target = evt.target || evt.srcElement;
+
+    // Using evt.type (added in IE4), we avoid defining separate handlers for mouseup and mousedown.
+    if (evt.type === 'click') {
+      if (target) {
+        processClick(_configuration[tracker].tracker, target as Element, context);
+      }
+    } else if (evt.type === 'mousedown') {
+      if ((button === 1 || button === 2) && target) {
+        _configuration[tracker].lastButton = button;
+        _configuration[tracker].lastTarget = target;
+      } else {
+        _configuration[tracker].lastButton = _configuration[tracker].lastTarget = null;
+      }
+    } else if (evt.type === 'mouseup') {
+      if (button === _configuration[tracker].lastButton && target === _configuration[tracker].lastTarget) {
+        processClick(_configuration[tracker].tracker, target as Element, context);
+      }
+      _configuration[tracker].lastButton = _configuration[tracker].lastTarget = null;
+    }
+  };
+}
+
+/*
+ * Add click listener to a DOM element
+ */
+function addClickListener(tracker: string, element: HTMLAnchorElement | HTMLAreaElement) {
+  if (_configuration[tracker].linkTrackingPseudoClicks) {
+    // for simplicity and performance, we ignore drag events
+    addEventListener(element, 'mouseup', getClickHandler(tracker, _configuration[tracker].linkTrackingContext), false);
+    addEventListener(
+      element,
+      'mousedown',
+      getClickHandler(tracker, _configuration[tracker].linkTrackingContext),
+      false
+    );
+  } else {
+    addEventListener(element, 'click', getClickHandler(tracker, _configuration[tracker].linkTrackingContext), false);
+  }
+}
+
+/*
+ * Configures link click tracking: how to filter which links will be tracked,
+ * whether to use pseudo click tracking, and what context to attach to link_click events
+ */
+function configureLinkClickTracking(
+  {
+    options,
+    pseudoClicks,
+    trackContent,
+    context,
+  }: {
+    options?: FilterCriterion<HTMLElement> | null;
+    pseudoClicks?: boolean | null;
+    trackContent?: boolean | null;
+    context?: DynamicContexts | null;
+  } = {},
+  tracker: string
+) {
+  _configuration[tracker] = {
+    tracker: _configuration[tracker].tracker,
+    linkTrackingContent: trackContent,
+    linkTrackingContext: context,
+    linkTrackingPseudoClicks: pseudoClicks,
+    linkTrackingFilter: getFilterByClass(options),
+  };
+}
+
+/*
+ * Add click handlers to anchor and AREA elements, except those to be ignored
+ */
+function addClickListeners(trackerId: string) {
+  var linkElements = document.links,
+    i;
+
+  for (i = 0; i < linkElements.length; i++) {
+    // Add a listener to link elements which pass the filter and aren't already tracked
+    if (_configuration[trackerId].linkTrackingFilter?.(linkElements[i]) && !(linkElements[i] as any)[trackerId]) {
+      addClickListener(trackerId, linkElements[i]);
+      (linkElements[i] as any)[trackerId] = true;
+    }
+  }
+}

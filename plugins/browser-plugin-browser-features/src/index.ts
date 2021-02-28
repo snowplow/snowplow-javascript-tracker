@@ -1,6 +1,4 @@
-import { isFunction } from '@snowplow/browser-core';
-import { Core, Plugin } from '@snowplow/tracker-core';
-import isUndefined from 'lodash/isUndefined';
+import { isFunction, BrowserPlugin, BrowserTracker } from '@snowplow/browser-core';
 
 declare global {
   interface MimeTypeArray {
@@ -9,38 +7,36 @@ declare global {
 }
 
 const windowAlias = window,
-  navigatorAlias = navigator;
+  navigatorAlias = navigator,
+  pluginMap: Record<string, string> = {
+    // document types
+    pdf: 'application/pdf',
 
-export const BrowserFeaturesPlugin = (): Plugin => {
+    // media players
+    qt: 'video/quicktime',
+    realp: 'audio/x-pn-realaudio-plugin',
+    wma: 'application/x-mplayer2',
+
+    // interactive multimedia
+    dir: 'application/x-director',
+    fla: 'application/x-shockwave-flash',
+
+    // RIA
+    java: 'application/x-java-vm',
+    gears: 'application/x-googlegears',
+    ag: 'application/x-silverlight',
+  };
+
+export const BrowserFeaturesPlugin = (): BrowserPlugin => {
   return {
-    coreInit: (core: Core) => {
-      let mimeType,
-        pluginMap: Record<string, string> = {
-          // document types
-          pdf: 'application/pdf',
-
-          // media players
-          qt: 'video/quicktime',
-          realp: 'audio/x-pn-realaudio-plugin',
-          wma: 'application/x-mplayer2',
-
-          // interactive multimedia
-          dir: 'application/x-director',
-          fla: 'application/x-shockwave-flash',
-
-          // RIA
-          java: 'application/x-java-vm',
-          gears: 'application/x-googlegears',
-          ag: 'application/x-silverlight',
-        };
-
+    activateBrowserPlugin: (tracker: BrowserTracker) => {
       // General plugin detection
       if (navigatorAlias.mimeTypes && navigatorAlias.mimeTypes.length) {
         for (const i in pluginMap) {
           if (Object.prototype.hasOwnProperty.call(pluginMap, i)) {
-            mimeType = navigatorAlias.mimeTypes[pluginMap[i]];
+            let mimeType = navigatorAlias.mimeTypes[pluginMap[i]];
             if (mimeType) {
-              core.addPayloadPair('f_' + i, mimeType.enabledPlugin ? '1' : '0');
+              tracker.core.addPayloadPair('f_' + i, mimeType.enabledPlugin ? '1' : '0');
             }
           }
         }
@@ -48,17 +44,13 @@ export const BrowserFeaturesPlugin = (): Plugin => {
 
       // Safari and Opera
       // IE6/IE7 navigator.javaEnabled can't be aliased, so test directly
-      if (
-        navigatorAlias.constructor === window.Navigator &&
-        !isUndefined(navigatorAlias.javaEnabled) &&
-        navigatorAlias.javaEnabled()
-      ) {
-        core.addPayloadPair('f_java', '1');
+      if (navigatorAlias.javaEnabled && navigatorAlias.javaEnabled()) {
+        tracker.core.addPayloadPair('f_java', '1');
       }
 
       // Firefox
       if (isFunction((windowAlias as any).GearsFactory)) {
-        core.addPayloadPair('f_gears', '1');
+        tracker.core.addPayloadPair('f_gears', '1');
       }
     },
   };

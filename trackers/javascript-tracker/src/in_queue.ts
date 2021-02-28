@@ -32,9 +32,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import map from 'lodash/map';
-import { warn, isFunction } from '@snowplow/browser-core';
-import { newTracker, getTracker, allTrackers, TrackerApi } from '@snowplow/browser-tracker';
+import {
+  warn,
+  isFunction,
+  addTracker,
+  Tracker,
+  SharedState,
+  createSharedState,
+  BrowserTracker,
+  allTrackersForGroup,
+} from '@snowplow/browser-core';
+import * as Snowplow from '@snowplow/browser-tracker';
 import { Plugins } from './features';
 
 export interface Queue {
@@ -48,39 +56,19 @@ export interface Queue {
  ************************************************************/
 
 export function InQueueManager(functionName: string, asyncQueue: Array<unknown>): Queue {
-  /**
-   * Get an array of trackers to which a function should be applied.
-   *
-   * @param array names List of namespaces to use. If empty, use all namespaces.
-   */
-  function getNamedTrackers(names: Array<string>) {
-    var namedTrackers: Array<TrackerApi> = [];
-
-    if (!names || names.length === 0) {
-      namedTrackers = map(allTrackers(functionName));
-    } else {
-      for (var i = 0; i < names.length; i++) {
-        const tracker = getTracker(names[i], functionName);
-        if (tracker) namedTrackers.push(tracker);
-      }
-    }
-
-    if (namedTrackers.length === 0) {
-      warn('Warning: No tracker configured');
-    }
-
-    return namedTrackers;
-  }
+  const sharedState: SharedState = createSharedState();
+  let version: string, availableFunctions: Record<string, Function>;
+  ({ version, ...availableFunctions } = Snowplow);
 
   /**
    * Output an array of the form ['functionName', [trackerName1, trackerName2, ...]]
    *
    * @param string inputString
    */
-  function parseInputString(inputString: string): [string, string[]] {
+  function parseInputString(inputString: string): [string, string[] | undefined] {
     var separatedString = inputString.split(':'),
       extractedFunction = separatedString[0],
-      extractedNames = separatedString.length > 1 ? separatedString[1].split(';') : [];
+      extractedNames = separatedString.length > 1 ? separatedString[1].split(';') : undefined;
 
     return [extractedFunction, extractedNames];
   }
@@ -94,7 +82,7 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
    *      [ functionObject, optional_parameters ]
    */
   function applyAsyncFunction(...args: any[]) {
-    var i, j, f, parameterArray, input, parsedString, names, namedTrackers;
+    var i, f, parameterArray, input, parsedString, names;
 
     // Outer loop in case someone push'es in zarg of arrays
     for (i = 0; i < args.length; i += 1) {
@@ -106,7 +94,12 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
       // Custom callback rather than tracker method, called with trackerDictionary as the context
       if (isFunction(input)) {
         try {
-          input.apply(allTrackers(functionName), parameterArray);
+          const namedTrackers = allTrackersForGroup(functionName);
+          let fnTrackers: Record<string, BrowserTracker> = {};
+          for (const tracker of namedTrackers) {
+            fnTrackers[tracker.id.replace(`${functionName}_`, '')] = tracker;
+          }
+          input.apply(fnTrackers, parameterArray);
         } catch (e) {
           warn(`Custom callback error - ${e}`);
         } finally {
@@ -119,22 +112,48 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
       names = parsedString[1];
 
       if (f === 'newTracker') {
-        newTracker(
-          parameterArray[0],
-          parameterArray[1],
-          {
+        const trackerId = `${functionName}_${parameterArray[0]}`;
+        const plugins = Plugins(parameterArray[2]);
+        addTracker(
+          trackerId,
+          Tracker(trackerId, parameterArray[0], version, parameterArray[1], sharedState, {
             ...parameterArray[2],
-            plugins: Plugins(parameterArray[2]),
-          },
+            plugins: plugins.map((p) => p[0]),
+          }),
           functionName
         );
+        plugins.forEach((p) => {
+          // Spread in any new plugin methods
+          availableFunctions = {
+            ...availableFunctions,
+            ...p[1],
+          };
+        });
+
         continue;
       }
 
-      namedTrackers = getNamedTrackers(names);
+      if (availableFunctions[f]) {
+        let fnParameters: Array<unknown>;
+        if (parameterArray[0]) {
+          fnParameters = [parameterArray[0]];
+        } else {
+          fnParameters = availableFunctions[f].length === 2 ? [{}] : [];
+        }
 
-      for (j = 0; j < namedTrackers.length; j++) {
-        namedTrackers[j][f].apply(namedTrackers[j], parameterArray);
+        if (names) {
+          fnParameters.push(names.map((n) => `${functionName}_${n}`));
+        } else {
+          fnParameters.push(allTrackersForGroup(functionName).map((t) => t.id));
+        }
+
+        try {
+          availableFunctions[f].apply(null, fnParameters);
+        } catch (ex) {
+          warn(f + ' did not succeed');
+        }
+      } else {
+        warn(f + ' is not an available function');
       }
     }
   }

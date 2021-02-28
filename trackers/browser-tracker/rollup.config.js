@@ -21,7 +21,7 @@ const plugins = [nodeResolve({ browser: true }), commonjs(), json(), ts()];
 export default [
   {
     input: './src/index.ts',
-    external: [/^lodash/, ...builtinModules, ...Object.keys(pkg.dependencies)],
+    external: [...builtinModules, ...Object.keys(pkg.dependencies)],
     plugins: [...plugins, banner(bannerContent)],
     output: [{ file: pkg.module, format: 'es' }],
   },

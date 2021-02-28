@@ -31,12 +31,6 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-import compact from 'lodash/compact';
-import isString from 'lodash/isString';
-import isUndefined from 'lodash/isUndefined';
-import isObject from 'lodash/isObject';
-import map from 'lodash/map';
-import { SelfDescribingJson } from '@snowplow/tracker-core';
 
 declare global {
   interface EventTarget {
@@ -49,6 +43,19 @@ var windowAlias = window,
   localStorageAlias = window.localStorage,
   sessionStorageAlias = window.sessionStorage;
 
+export function isString(str: Object): str is string {
+  if (str && typeof str.valueOf() === 'string') {
+    return true;
+  }
+  return false;
+}
+
+export function isInteger(int: Object): int is number {
+  return (
+    (Number.isInteger && Number.isInteger(int)) || (typeof int === 'number' && isFinite(int) && Math.floor(int) === int)
+  );
+}
+
 /**
  * Cleans up the page title
  */
@@ -57,7 +64,7 @@ export function fixupTitle(title: string | { text: string }) {
     title = title.text || '';
 
     var tmp = documentAlias.getElementsByTagName('title');
-    if (tmp && !isUndefined(tmp[0])) {
+    if (tmp && tmp[0] != null) {
       title = tmp[0].text;
     }
   }
@@ -166,35 +173,6 @@ export function fromQuerystring(field: string, url: string) {
   return decodeURIComponent(match[1].replace(/\+/g, ' '));
 }
 
-export type DynamicContexts = (SelfDescribingJson | ((...params: string[]) => SelfDescribingJson | null))[];
-
-/*
- * Find dynamic context generating functions and merge their results into the static contexts
- * Combine an array of unchanging contexts with the result of a context-creating function
- *
- * @param {(object|function(...*): ?object)[]} dynamicOrStaticContexts Array of custom context Objects or custom context generating functions
- * @param {...*} Parameters to pass to dynamic callbacks
- */
-export function resolveDynamicContexts(
-  dynamicOrStaticContexts: DynamicContexts,
-  ...extraParams: unknown[]
-): Array<SelfDescribingJson> {
-  return compact(
-    map(dynamicOrStaticContexts, function (context) {
-      if (typeof context === 'function') {
-        try {
-          return (context as (...params: unknown[]) => SelfDescribingJson)(...extraParams);
-        } catch (e) {
-          //TODO: provide warning
-          return undefined;
-        }
-      } else {
-        return context;
-      }
-    })
-  );
-}
-
 /**
  * Only log deprecation warnings if they won't cause an error
  */
@@ -263,15 +241,15 @@ function getSpecifiedClassesSet<T>(criterion: FilterCriterion<T>) {
  * @param boolean byClass Whether to whitelist/blacklist based on an element's classes (for forms)
  *                        or name attribute (for fields)
  */
-export function getFilterByClass(criterion: FilterCriterion<HTMLElement>): (elt: HTMLElement) => boolean {
+export function getFilterByClass(criterion?: FilterCriterion<HTMLElement> | null): (elt: HTMLElement) => boolean {
   // If the criterion argument is not an object, add listeners to all elements
-  if (Array.isArray(criterion) || !isObject(criterion)) {
+  if (criterion == null || typeof criterion !== 'object' || Array.isArray(criterion)) {
     return function () {
       return true;
     };
   }
 
-  const inclusive = criterion.hasOwnProperty('whitelist');
+  const inclusive = Object.prototype.hasOwnProperty.call(criterion, 'whitelist');
   const specifiedClassesSet = getSpecifiedClassesSet(criterion);
 
   return getFilter(criterion, function (elt: HTMLElement) {
@@ -288,7 +266,7 @@ export function getFilterByClass(criterion: FilterCriterion<HTMLElement>): (elt:
  */
 export function getFilterByName<T extends { name: string }>(criterion: FilterCriterion<T>): (elt: T) => boolean {
   // If the criterion argument is not an object, add listeners to all elements
-  if (Array.isArray(criterion) || !isObject(criterion)) {
+  if (criterion == null || typeof criterion !== 'object' || Array.isArray(criterion)) {
     return function () {
       return true;
     };

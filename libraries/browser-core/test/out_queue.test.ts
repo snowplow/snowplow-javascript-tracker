@@ -32,9 +32,9 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { SharedState } from '@snowplow/browser-core';
 import { OutQueueManager } from '../src/out_queue';
 import { OutQueue } from '../src/out_queue/types';
+import { SharedState } from '../src/state';
 
 describe('OutQueueManager', () => {
   const maxQueueSize = 2;
@@ -45,7 +45,6 @@ describe('OutQueueManager', () => {
     localStorage.clear();
 
     outQueue = OutQueueManager(
-      'sp',
       'sp',
       new SharedState(),
       true,
@@ -65,7 +64,7 @@ describe('OutQueueManager', () => {
     outQueue.enqueueRequest(expected, '');
 
     const retrievedQueue = JSON.parse(
-      window.localStorage.getItem('snowplowOutQueue_sp_sp_post2') ?? fail('Unable to find local storage queue')
+      window.localStorage.getItem('snowplowOutQueue_sp_post2') ?? fail('Unable to find local storage queue')
     );
     expect(retrievedQueue).toHaveLength(1);
     expect(retrievedQueue[0]).toMatchObject({ bytes: 55, evt: expected });
@@ -81,7 +80,7 @@ describe('OutQueueManager', () => {
     outQueue.enqueueRequest(unexpected, '');
 
     const retrievedQueue = JSON.parse(
-      window.localStorage.getItem('snowplowOutQueue_sp_sp_post2') ?? fail('Unable to find local storage queue')
+      window.localStorage.getItem('snowplowOutQueue_sp_post2') ?? fail('Unable to find local storage queue')
     );
     expect(retrievedQueue).toHaveLength(maxQueueSize);
     expect(retrievedQueue[0]).toMatchObject({ bytes: 55, evt: expected1 });

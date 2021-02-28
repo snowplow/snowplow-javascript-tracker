@@ -229,7 +229,7 @@ describe('Snowplow Micro integration', () => {
             tr_total: 8000,
             tr_tax: 100,
             tr_shipping: 50,
-            tr_city: 'phoenix',
+            tr_city: 'pheonix',
             tr_state: 'arizona',
             tr_country: 'USA',
             tr_currency: 'JPY',
@@ -754,7 +754,7 @@ describe('Snowplow Micro integration', () => {
                     brand: 'Google',
                     category: 'Apparel/T-Shirts',
                     variant: 'Black',
-                    price: 1,
+                    quantity: 1,
                   },
                 },
                 {

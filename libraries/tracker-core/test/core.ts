@@ -3,7 +3,11 @@ import { trackerCore } from '../src/core';
 import { PayloadBuilder, Payload } from '../src/payload';
 
 const selfDescribingEventSchema = 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0';
-const tracker = trackerCore(false);
+let beforeCount = 0,
+  afterCount = 0;
+const tracker = trackerCore(false, () => {}, [
+  { beforeTrack: () => (beforeCount += 1), afterTrack: () => (afterCount += 1) },
+]);
 function compare(result: PayloadBuilder, expected: Payload, t: ExecutionContext) {
   const res = result.build();
   t.truthy(res['eid'], 'A UUID should be attached to all events');
@@ -55,9 +59,9 @@ test('should track a structured event', (t) => {
 test('should track an ecommerce transaction event', (t) => {
   const orderId = 'ak0008';
   const affiliation = '1234';
-  const totalValue = '50';
-  const taxValue = '6';
-  const shipping = '0';
+  const totalValue = 50;
+  const taxValue = 6;
+  const shipping = 0;
   const city = 'Phoenix';
   const state = 'Arizona';
   const country = 'USA';
@@ -77,8 +81,8 @@ test('should track an ecommerce transaction event', (t) => {
   compare(
     tracker.trackEcommerceTransaction(
       orderId,
-      affiliation,
       totalValue,
+      affiliation,
       taxValue,
       shipping,
       city,
@@ -93,8 +97,8 @@ test('should track an ecommerce transaction event', (t) => {
 test('should track an ecommerce transaction item event', (t) => {
   const orderId = 'ak0008';
   const sku = '4q345';
-  const price = '17.00';
-  const quantity = '2';
+  const price = 17.0;
+  const quantity = 2;
   const name = 'red shoes';
   const category = 'clothing';
   const currency = 'USD';
@@ -712,7 +716,7 @@ test('should set device timestamp as ADT', (t) => {
   t.false('ttm' in result);
 });
 
-test('should run callback on each track event', (t) => {
+test('should run plugin before and after track callbacks on each track event', (t) => {
   const url = 'http://www.example.com';
   const str = 'cccccckevjfiddbdjeikkdbkvvkdjcehggiutbkhnrfe';
   const num = 1;
@@ -727,29 +731,29 @@ test('should run callback on each track event', (t) => {
       name: str,
     },
   };
-  let count = 0;
-  const afterTrack = () => (count += 1);
+  (beforeCount = 0), (afterCount = 0);
   const fs = [
-    tracker.trackPagePing(url, str, url, num, num, num, num, undefined, undefined, afterTrack),
-    tracker.trackPageView(url, str, str, undefined, undefined, afterTrack),
-    tracker.trackAddToCart(str, str, str, str, str, str, undefined, undefined, afterTrack),
-    tracker.trackScreenView(str, str, undefined, undefined, afterTrack),
-    tracker.trackSiteSearch(arr, filters, num, num, undefined, undefined, afterTrack),
-    tracker.trackStructEvent(str, str, str, str, num, undefined, undefined, afterTrack),
-    tracker.trackAdConversion(str, str, num, str, str, str, num, str, str, undefined, undefined, afterTrack),
-    tracker.trackAdImpression(str, str, num, url, str, str, str, str, undefined, undefined, afterTrack),
-    tracker.trackConsentGranted(str, str, str, undefined, undefined, undefined, undefined, afterTrack),
-    tracker.trackFormSubmission(str, [], [], undefined, undefined, afterTrack),
-    tracker.trackRemoveFromCart(str, str, str, str, str, str, undefined, undefined, afterTrack),
-    tracker.trackConsentWithdrawn(false, undefined, undefined, undefined, undefined, undefined, undefined, afterTrack),
-    tracker.trackFormFocusOrChange(str, str, str, str, str, arr, str, undefined, undefined, afterTrack),
-    tracker.trackSocialInteraction(str, str, str, undefined, undefined, afterTrack),
-    tracker.trackSelfDescribingEvent(inputJson, undefined, undefined, afterTrack),
-    tracker.trackEcommerceTransaction(str, str, str, str, str, str, str, str, str, undefined, undefined, afterTrack),
-    tracker.trackEcommerceTransactionItem(str, str, str, str, str, str, str, undefined, undefined, afterTrack),
-    tracker.trackLinkClick(url, str, arr, str, str, undefined, undefined, afterTrack),
-    tracker.trackAdClick(url, str, str, num, str, str, str, str, str, undefined, undefined, afterTrack),
+    tracker.trackPagePing(url, str, url, num, num, num, num, undefined, undefined),
+    tracker.trackPageView(url, str, str, undefined, undefined),
+    tracker.trackAddToCart(str, str, str, str, str, str, undefined, undefined),
+    tracker.trackScreenView(str, str, undefined, undefined),
+    tracker.trackSiteSearch(arr, filters, num, num, undefined, undefined),
+    tracker.trackStructEvent(str, str, str, str, num, undefined, undefined),
+    tracker.trackAdConversion(str, str, num, str, str, str, num, str, str, undefined, undefined),
+    tracker.trackAdImpression(str, str, num, url, str, str, str, str, undefined, undefined),
+    tracker.trackConsentGranted(str, str, str, undefined, undefined, undefined, undefined),
+    tracker.trackFormSubmission(str, [], [], undefined, undefined),
+    tracker.trackRemoveFromCart(str, str, str, str, str, str, undefined, undefined),
+    tracker.trackConsentWithdrawn(false, undefined, undefined, undefined, undefined, undefined, undefined),
+    tracker.trackFormFocusOrChange(str, str, str, str, str, arr, str, undefined, undefined),
+    tracker.trackSocialInteraction(str, str, str, undefined, undefined),
+    tracker.trackSelfDescribingEvent(inputJson, undefined, undefined),
+    tracker.trackEcommerceTransaction(str, num, str, num, num, str, str, str, str, undefined, undefined),
+    tracker.trackEcommerceTransactionItem(str, str, str, str, num, num, str, undefined, undefined),
+    tracker.trackLinkClick(url, str, arr, str, str, undefined, undefined),
+    tracker.trackAdClick(url, str, str, num, str, str, str, str, str, undefined, undefined),
   ];
 
-  t.is(count, fs.length);
+  t.is(beforeCount, fs.length);
+  t.is(afterCount, fs.length);
 });

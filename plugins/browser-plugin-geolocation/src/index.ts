@@ -1,53 +1,69 @@
-import { Plugin, SelfDescribingJson } from '@snowplow/tracker-core';
-import { ApiPlugin, ApiMethods } from '@snowplow/browser-core';
+import { SelfDescribingJson } from '@snowplow/tracker-core';
+import { BrowserPlugin } from '@snowplow/browser-core';
 import { Geolocation } from './contexts';
 
-interface GeolocationMethods extends ApiMethods {
-  enableGeolocationContext: () => void;
-}
+const navigatorAlias = navigator,
+  _trackers: Record<string, [boolean, SelfDescribingJson<Geolocation> | undefined]> = {};
 
-const GeolocationPlugin = (enableAtLoad: boolean = false): Plugin & ApiPlugin<GeolocationMethods> => {
-  let geolocation: SelfDescribingJson<Geolocation>;
-  let geolocationContextAdded = false;
-  let navigatorAlias: Navigator = navigator;
+let geolocation: SelfDescribingJson<Geolocation>,
+  geolocationContextAdded = false;
 
-  if (enableAtLoad) {
-    enableGeolocationContext();
-  }
-
-  /**
-   * Attempts to create a context using the geolocation API and add it to commonContexts
-   */
-  function enableGeolocationContext() {
-    if (!geolocationContextAdded && navigatorAlias.geolocation && navigatorAlias.geolocation.getCurrentPosition) {
-      geolocationContextAdded = true;
-      navigatorAlias.geolocation.getCurrentPosition(function (position) {
-        var coords = position.coords;
-        geolocation = {
-          schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
-          data: {
-            latitude: coords.latitude,
-            longitude: coords.longitude,
-            latitudeLongitudeAccuracy: coords.accuracy,
-            altitude: coords.altitude,
-            altitudeAccuracy: coords.altitudeAccuracy,
-            bearing: coords.heading,
-            speed: coords.speed,
-            timestamp: Math.round(position.timestamp),
-          },
-        };
-      });
-    }
-  }
+export function GeolocationPlugin(enableAtLoad: boolean = false): BrowserPlugin {
+  let trackerId: string;
 
   return {
-    contexts: () => {
-      return geolocation ? [geolocation] : [];
+    activateBrowserPlugin: (tracker) => {
+      trackerId = tracker.id;
+      _trackers[tracker.id] = [false, undefined];
+
+      if (enableAtLoad) {
+        enableGeolocationContext([trackerId]);
+      }
     },
-    apiMethods: {
-      enableGeolocationContext,
+    contexts: () => {
+      let context = _trackers[trackerId]?.[1];
+      if (context) {
+        return [context];
+      }
+
+      return [];
     },
   };
-};
+}
 
-export { GeolocationPlugin };
+/**
+ * Attempts to create a context using the geolocation API and add it to commonContexts
+ */
+export function enableGeolocationContext(trackers: Array<string> = Object.keys(_trackers)) {
+  trackers.forEach((t) => {
+    //Mark as enabled
+    _trackers[t] = [true, geolocation]; // Geolocation might still be undefined but it could also be set already
+  });
+
+  if (!geolocationContextAdded && navigatorAlias.geolocation && navigatorAlias.geolocation.getCurrentPosition) {
+    geolocationContextAdded = true;
+    navigatorAlias.geolocation.getCurrentPosition(function (position) {
+      var coords = position.coords;
+      geolocation = {
+        schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
+        data: {
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+          latitudeLongitudeAccuracy: coords.accuracy,
+          altitude: coords.altitude,
+          altitudeAccuracy: coords.altitudeAccuracy,
+          bearing: coords.heading,
+          speed: coords.speed,
+          timestamp: Math.round(position.timestamp),
+        },
+      };
+
+      // Ensure all trackers with geolocation enabled have the context set
+      for (const key in _trackers) {
+        if (Object.prototype.hasOwnProperty.call(_trackers, key) && _trackers[key][0]) {
+          _trackers[key] = [true, geolocation];
+        }
+      }
+    });
+  }
+}

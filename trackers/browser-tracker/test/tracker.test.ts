@@ -1,12 +1,9 @@
-import { SharedState } from '@snowplow/browser-core';
+import { SharedState, Tracker } from '@snowplow/browser-core';
 import F from 'lodash/fp';
-import { Tracker } from '../src/tracker';
 
 jest.useFakeTimers('modern');
 
 const getPPEvents = F.compose(F.filter(F.compose(F.eq('pp'), F.get('evt.e'))), F.first);
-
-const getUEEvents = F.compose(F.filter(F.compose(F.eq('ue'), F.get('evt.e'))), F.first);
 
 const extractSchemas = F.map(F.compose(F.get('data'), (cx: string) => JSON.parse(cx), F.get('evt.co')));
 
@@ -24,7 +21,7 @@ describe('Activity tracker behaviour', () => {
   it('supports different timings for ping vs callback activity tracking', () => {
     let callbacks = 0;
     const state = new SharedState();
-    const t = Tracker('', '', '', state, { stateStorageStrategy: 'cookie' });
+    const t = Tracker('', '', '', '', state, { stateStorageStrategy: 'cookie' });
     t.enableActivityTracking(10, 10);
     t.enableActivityTrackingCallback(5, 5, () => {
       callbacks++;
@@ -53,13 +50,10 @@ describe('Activity tracker behaviour', () => {
 
   it('maintains current static context behaviour', () => {
     const state = new SharedState();
-    const t = Tracker('', '', '', state, {
+    const t = Tracker('', '', '', '', state, {
       resetActivityTrackingOnPageView: false,
       stateStorageStrategy: 'cookie',
       encodeBase64: false,
-      contexts: {
-        webPage: true,
-      },
     });
     t.enableActivityTracking(0, 2);
     t.trackPageView(null, [
@@ -110,13 +104,10 @@ describe('Activity tracker behaviour', () => {
 
   it('does not reset activity tracking on pageview when resetActivityTrackingOnPageView: false,', () => {
     const state = new SharedState();
-    const t = Tracker('', '', '', state, {
+    const t = Tracker('', '', '', '', state, {
       resetActivityTrackingOnPageView: false,
       stateStorageStrategy: 'cookie',
       encodeBase64: false,
-      contexts: {
-        webPage: true,
-      },
     });
     t.enableActivityTracking(0, 30);
     t.trackPageView();
@@ -141,12 +132,9 @@ describe('Activity tracker behaviour', () => {
 
   it('does reset activity tracking on pageview by default', () => {
     const state = new SharedState();
-    const t = Tracker('', '', '', state, {
+    const t = Tracker('', '', '', '', state, {
       stateStorageStrategy: 'cookie',
       encodeBase64: false,
-      contexts: {
-        webPage: true,
-      },
     });
     t.enableActivityTracking(0, 30);
     t.trackPageView();
@@ -179,30 +167,11 @@ describe('Activity tracker behaviour', () => {
     expect(F.size(pps)).toBe(1);
   });
 
-  it('allows running callback after sending tracking events', () => {
-    const state = new SharedState();
-    const t = Tracker('', '', '', state, {
-      stateStorageStrategy: 'cookie',
-      encodeBase64: false,
-      contexts: {
-        webPage: true,
-      },
-    });
-
-    let marker = false;
-    t.trackPageView(null, null, null, null, () => (marker = true));
-
-    expect(marker).toBe(true);
-  });
-
   it('fires initial delayed activity tracking on first pageview and second pageview', () => {
     const state = new SharedState();
-    const t = Tracker('', '', '', state, {
+    const t = Tracker('', '', '', '', state, {
       stateStorageStrategy: 'cookie',
       encodeBase64: false,
-      contexts: {
-        webPage: true,
-      },
     });
     t.enableActivityTracking(10, 5);
 
@@ -262,28 +231,5 @@ describe('Activity tracker behaviour', () => {
 
     expect(firstPageId).toBe(extractPageId(pph));
     expect(secondPageId).toBe(extractPageId(ppl));
-  });
-
-  it('attaches enhanced ecommerce contexts to enhanced ecommerce events', () => {
-    const state = new SharedState();
-    const t = Tracker('', '', '', state, {
-      stateStorageStrategy: 'cookie',
-      encodeBase64: false,
-    });
-
-    t.addEnhancedEcommerceProductContext('1234-5678', 'T-Shirt');
-    t.addEnhancedEcommerceImpressionContext('1234-5678', 'T-Shirt');
-    t.addEnhancedEcommercePromoContext('1234-5678', 'T-Shirt');
-    t.addEnhancedEcommerceActionContext('1234-5678', 'T-Shirt');
-    t.trackEnhancedEcommerceAction();
-
-    const findWithStaticValue = F.filter(F.get('data.id'));
-    const extractContextsWithStaticValue = F.compose(findWithStaticValue, F.flatten, extractSchemas, getUEEvents);
-
-    const countWithStaticValueEq = (value: string) =>
-      F.compose(F.size, F.filter(F.compose(F.eq(value), F.get('data.id'))), extractContextsWithStaticValue);
-
-    // we expect there to be four contexts added to the event
-    expect(countWithStaticValueEq('1234-5678')(state.outQueues)).toBe(4);
   });
 });

@@ -32,7 +32,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { decorateQuerystring, resolveDynamicContexts, getCssClasses } from '../src/helpers';
+import { decorateQuerystring, getCssClasses } from '../src/helpers';
 
 describe('decorateQuerystring', () => {
   it('Decorate a URL with no querystring or fragment', () => {
@@ -99,56 +99,6 @@ describe('getCssClasses', () => {
     } as Element;
     const expected = ['the', 'quick', 'brown_fox-jumps/over', 'the', 'lazy', 'dog'];
     const actual = getCssClasses(element);
-    expect(actual).toEqual(expected);
-  });
-});
-
-describe('resolveDynamicContexts', () => {
-  it('Resolves context generators and static contexts', () => {
-    const contextGenerator = () => {
-      return {
-        schema: 'iglu:com.acme.marketing/some_event/jsonschema/1-0-0',
-        data: { test: 1 },
-      };
-    };
-    const staticContext = {
-      schema: 'iglu:com.acme.marketing/some_event/jsonschema/1-0-0',
-      data: { test: 1 },
-    };
-    const expected = [contextGenerator(), staticContext];
-    const actual = resolveDynamicContexts([contextGenerator, staticContext]);
-    expect(actual).toEqual(expected);
-  });
-
-  it('Resolves context generators with arguments', () => {
-    const contextGenerator = (argOne: string, argTwo: string) => ({
-      schema: 'iglu:com.acme.marketing/some_event/jsonschema/1-0-0',
-      data: {
-        firstVal: argOne,
-        secondVal: argTwo,
-      },
-    });
-    const expected = [
-      {
-        schema: 'iglu:com.acme.marketing/some_event/jsonschema/1-0-0',
-        data: {
-          firstVal: 1,
-          secondVal: 2,
-        },
-      },
-    ];
-    const actual = resolveDynamicContexts([contextGenerator], 1, 2);
-    expect(actual).toEqual(expected);
-  });
-
-  it('Context generators which return empty are ignored', () => {
-    const contextGenerator = () => null;
-    const staticContext = {
-      schema: 'iglu:com.acme.marketing/some_event/jsonschema/1-0-0',
-      data: { test: 1 },
-    };
-    const expected = [staticContext];
-    const actual = resolveDynamicContexts([contextGenerator, staticContext]);
     expect(actual).toEqual(expected);
   });
 });

@@ -67,6 +67,14 @@
       "allowedCategories": [ "plugins" ]
     },
     {
+      "name": "@snowplow/browser-plugin-ecommerce",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@snowplow/browser-plugin-enhanced-ecommerce",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "@snowplow/browser-plugin-error-tracking",
       "allowedCategories": [ "trackers" ]
     },
@@ -156,7 +164,7 @@
     },
     {
       "name": "@types/sha1",
-      "allowedCategories": [ "trackers" ]
+      "allowedCategories": [ "libraries", "trackers" ]
     },
     {
       "name": "@types/uuid",
@@ -303,12 +311,16 @@
       "allowedCategories": [ "trackers" ]
     },
     {
+      "name": "rollup-plugin-terser",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "saucelabs",
       "allowedCategories": [ "trackers" ]
     },
     {
       "name": "sha1",
-      "allowedCategories": [ "trackers" ]
+      "allowedCategories": [ "libraries", "trackers" ]
     },
     {
       "name": "ts-jest",

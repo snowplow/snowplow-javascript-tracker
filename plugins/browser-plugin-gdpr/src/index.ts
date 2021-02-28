@@ -1,6 +1,7 @@
-import { Plugin } from '@snowplow/tracker-core';
-import { warn, ApiPlugin, ApiMethods } from '@snowplow/browser-core';
+import { BrowserPlugin, warn } from '@snowplow/browser-core';
 import { Gdpr } from './contexts';
+
+const trackerContexts: Record<string, Gdpr> = {};
 
 enum gdprBasis {
   consent = 'consent',
@@ -13,52 +14,52 @@ enum gdprBasis {
 
 type GdprBasis = keyof typeof gdprBasis;
 
-interface GdprMethods extends ApiMethods {
-  enableGdprContext: (
-    basisForProcessing: GdprBasis,
-    documentId?: string,
-    documentVersion?: string,
-    documentDescription?: string
-  ) => void;
-}
+export function enableGdprContext(
+  {
+    basisForProcessing,
+    documentId,
+    documentVersion,
+    documentDescription,
+  }: {
+    basisForProcessing: GdprBasis;
+    documentId?: string;
+    documentVersion?: string;
+    documentDescription?: string;
+  },
+  trackers: Array<string> = Object.keys(trackerContexts)
+) {
+  let basis = gdprBasis[basisForProcessing];
 
-const GdprPlugin = (): Plugin & ApiPlugin<GdprMethods> => {
-  let gdprBasisData: Gdpr;
-
-  const enableGdprContext = (
-    basisForProcessing: GdprBasis,
-    documentId?: string,
-    documentVersion?: string,
-    documentDescription?: string
-  ): void => {
-    let basis = gdprBasis[basisForProcessing];
-
-    if (!basis) {
-      warn(
-        'enableGdprContext: basisForProcessing must be one of: consent, contract, legalObligation, vitalInterests, publicTask, legitimateInterests'
-      );
-      return;
-    } else {
-      gdprBasisData = {
+  if (!basis) {
+    warn(
+      'enableGdprContext: basisForProcessing must be one of: consent, contract, legalObligation, vitalInterests, publicTask, legitimateInterests'
+    );
+    return;
+  } else {
+    trackers.forEach((t) => {
+      trackerContexts[t] = {
         basisForProcessing: basis,
         documentId: documentId ?? null,
         documentVersion: documentVersion ?? null,
         documentDescription: documentDescription ?? null,
       };
-    }
-  };
+    });
+  }
+}
 
+export function GdprPlugin(): BrowserPlugin {
+  let trackerId: string;
   /**
    * Creates a context from the window.performance.timing object
    *
    * @return object PerformanceTiming context
    */
   function getGdprContext() {
-    if (gdprBasisData) {
+    if (trackerContexts[trackerId]) {
       return [
         {
           schema: 'iglu:com.snowplowanalytics.snowplow/gdpr/jsonschema/1-0-0',
-          data: gdprBasisData,
+          data: trackerContexts[trackerId],
         },
       ];
     }
@@ -67,11 +68,7 @@ const GdprPlugin = (): Plugin & ApiPlugin<GdprMethods> => {
   }
 
   return {
+    activateBrowserPlugin: (t) => (trackerId = t.id),
     contexts: () => getGdprContext(),
-    apiMethods: {
-      enableGdprContext,
-    },
   };
-};
-
-export { GdprPlugin };
+}

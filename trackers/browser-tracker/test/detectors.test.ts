@@ -33,7 +33,7 @@
  */
 // import { trackerCore } from '@snowplow/tracker-core';
 import { JSDOM } from 'jsdom';
-import { newTracker } from '../src';
+import { newTracker, trackPageView } from '../src';
 
 declare var jsdom: JSDOM;
 
@@ -46,32 +46,44 @@ describe('Detectors', () => {
   });
 
   it('Return a value for dimensions', (done) => {
-    const tracker = newTracker('sp', '', {});
-    tracker.trackPageView(null, null, null, null, (payload) => {
-      const [reportedDocumentWidth, reportedDocumentHeight] = (payload['ds'] as string).split('x');
-      expect(+reportedDocumentWidth).toBeGreaterThan(1);
-      expect(+reportedDocumentHeight).toBeGreaterThan(1);
+    newTracker('sp1', '', {
+      plugins: [
+        {
+          afterTrack: (payload) => {
+            const [reportedDocumentWidth, reportedDocumentHeight] = (payload['ds'] as string).split('x');
+            expect(+reportedDocumentWidth).toBeGreaterThan(1);
+            expect(+reportedDocumentHeight).toBeGreaterThan(1);
 
-      const [reportedViewportWidth, reportedViewportHeight] = (payload['vp'] as string).split('x');
-      expect(+reportedViewportWidth).toBe(1024);
-      expect(+reportedViewportHeight).toBe(768);
+            const [reportedViewportWidth, reportedViewportHeight] = (payload['vp'] as string).split('x');
+            expect(+reportedViewportWidth).toBe(1024);
+            expect(+reportedViewportHeight).toBe(768);
 
-      const [reportedWidth, reportedHeight] = (payload['res'] as string).split('x');
-      expect(+reportedWidth).toBe(1024);
-      expect(+reportedHeight).toBe(768);
+            const [reportedWidth, reportedHeight] = (payload['res'] as string).split('x');
+            expect(+reportedWidth).toBe(1024);
+            expect(+reportedHeight).toBe(768);
 
-      done();
+            done();
+          },
+        },
+      ],
     });
+    trackPageView({}, ['sp1']);
   });
 
   it('Return a value for language, charset, color depth and cookies', (done) => {
-    const tracker = newTracker('sp', '', {});
-    tracker.trackPageView(null, null, null, null, (payload) => {
-      expect(payload['lang']).toBe('en-US');
-      expect(payload['cs']).toBe('UTF-8');
-      expect(payload['cd']).toBe(24);
-      expect(payload['cookie']).toBe('1');
-      done();
+    newTracker('sp2', '', {
+      plugins: [
+        {
+          afterTrack: (payload) => {
+            expect(payload['lang']).toBe('en-US');
+            expect(payload['cs']).toBe('UTF-8');
+            expect(payload['cd']).toBe(24);
+            expect(payload['cookie']).toBe('1');
+            done();
+          },
+        },
+      ],
     });
+    trackPageView({}, ['sp2']);
   });
 });

@@ -32,17 +32,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import mapValues from 'lodash/mapValues';
-import isString from 'lodash/isString';
-import map from 'lodash/map';
 import {
   warn,
   attemptWriteLocalStorage,
   attemptWriteSessionStorage,
   attemptGetSessionStorage,
-  localStorageAccessible,
-  SharedState,
-} from '@snowplow/browser-core';
+  isString,
+} from '../helpers';
+import { SharedState } from '../state';
+import { localStorageAccessible } from '../detectors';
 import { Payload } from '@snowplow/tracker-core';
 import { OutQueue } from './types';
 
@@ -66,8 +64,7 @@ import { OutQueue } from './types';
  * @return object OutQueueManager instance
  */
 export function OutQueueManager(
-  functionName: string,
-  namespace: string,
+  id: string,
   mutSnowplowState: SharedState,
   useLocalStorage: boolean,
   eventMethod: string | boolean | null,
@@ -117,9 +114,9 @@ export function OutQueueManager(
   bufferSize = (localStorageAccessible() && useLocalStorage && usePost && bufferSize) || 1;
 
   // Different queue names for GET and POST since they are stored differently
-  queueName = `snowplowOutQueue_${functionName}_${namespace}_${usePost ? 'post2' : 'get'}`;
+  queueName = `snowplowOutQueue_${id}_${usePost ? 'post2' : 'get'}`;
   // Storage name for checking if preflight POST has been sent for Beacon API
-  preflightName = `spBeaconPreflight_${functionName}_${namespace}`;
+  preflightName = `spBeaconPreflight_${id}`;
 
   if (useLocalStorage) {
     // Catch any JSON parse errors or localStorage that might be thrown
@@ -178,9 +175,12 @@ export function OutQueueManager(
    * Convert numeric fields to strings to match payload_data schema
    */
   function getBody(request: Payload): PostEvent {
-    var cleanedRequest = mapValues(request, function (v: Object) {
-      return v.toString();
-    });
+    var cleanedRequest = Object.keys(request)
+      .map<[string, unknown]>((k) => [k, request[k]])
+      .reduce((acc, [key, value]) => {
+        acc[key] = (value as Object).toString();
+        return acc;
+      }, {} as Record<string, unknown>);
     return {
       evt: cleanedRequest,
       bytes: getUTF8Length(JSON.stringify(cleanedRequest)),
@@ -343,7 +343,7 @@ export function OutQueueManager(
           //If using Beacon, check we have sent at least one request using POST as Safari doesn't preflight Beacon
           beaconPreflight = beaconPreflight || (useBeacon && !!attemptGetSessionStorage(preflightName));
 
-          const eventBatch = map(batch, function (x) {
+          const eventBatch = batch.map(function (x) {
             return x.evt;
           });
 

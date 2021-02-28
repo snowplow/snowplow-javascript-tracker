@@ -12,4 +12,6 @@ export const plugins = {
   errorTracking: true,
   browserFeatures: true,
   timezone: true,
+  ecommerce: true,
+  enhancedEcommerce: true,
 };

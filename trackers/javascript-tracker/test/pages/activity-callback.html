@@ -33,9 +33,13 @@
 
       var events = [];
 
-      spActivity('enableActivityTrackingCallback', 2, 2, function (e) {
-        events.push(e);
-        document.getElementById('numEvents').innerText = events.length;
+      spActivity('enableActivityTrackingCallback', {
+        minimumVisitLength: 2,
+        heartBeatDelay: 2,
+        callback: function (e) {
+          events.push(e);
+          document.getElementById('numEvents').innerText = events.length;
+        },
       });
 
       function createMaxFinder(key) {
