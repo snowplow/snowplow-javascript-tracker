@@ -28,9 +28,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { CorePlugin } from '@snowplow/tracker-core';
-import { BrowserTracker } from './tracker/types';
-
-export interface BrowserPlugin extends CorePlugin {
-  activateBrowserPlugin?: (tracker: BrowserTracker) => void;
+/**
+ * Schema for a context of Google Analytics cookie values
+ */
+export interface Cookies {
+  __utma?: string;
+  __utmb?: string;
+  __utmc?: string;
+  __utmv?: string;
+  __utmz?: string;
+  _ga?: string;
+  [key: string]: string | undefined;
 }

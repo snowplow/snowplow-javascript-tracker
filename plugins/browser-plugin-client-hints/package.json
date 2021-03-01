@@ -2,7 +2,7 @@
   "name": "@snowplow/browser-plugin-client-hints",
   "version": "1.0.0",
   "description": "Automatically attaches Client Hints data as a context to events",
-  "license": "Apache-2.0",
+  "license": "BSD-3-Clause",
   "author": "Paul Boocock",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",

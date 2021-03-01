@@ -2,7 +2,7 @@
   "name": "@snowplow/browser-core",
   "version": "1.0.0",
   "description": "Core functionality for the Snowplow Browser based trackers",
-  "license": "Apache-2.0",
+  "license": "BSD-3-Clause",
   "author": "Paul Boocock",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",

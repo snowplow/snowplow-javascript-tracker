@@ -1,6 +1,7 @@
 # Snowplow JavaScript Tracker Core
 
 [![npm version][npm-image]][npm-url]
+[![License][license-image]](LICENSE)
 
 Core module to be used by Snowplow JavaScript based trackers.
 
@@ -169,20 +170,14 @@ For more information on the Snowplow JavaScript Tracker Core's API, view its [wi
 
 ## Copyright and license
 
-The Snowplow JavaScript Tracker Core is copyright 2014-2020 Snowplow Analytics Ltd.
+Licensed and distributed under the [BSD 3-Clause License](LICENSE) ([An OSI Approved License][osi]).
 
-Licensed under the [Apache License, Version 2.0][apache-license] (the "License");
-you may not use this software except in compliance with the License.
+Copyright (c) 2021 Snowplow Analytics Ltd, 2010 Anthon Pang.
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+All rights reserved.
 
-[apache-license]: http://www.apache.org/licenses/LICENSE-2.0
-
-[npm-url]: http://badge.fury.io/js/snowplow-tracker-core
-[npm-image]: https://badge.fury.io/js/snowplow-tracker-core.svg
-[wiki]: https://github.com/snowplow/snowplow/wiki/Javascript-Tracker-Core
+[npm-url]: https://www.npmjs.com/package/snowplow-tracker-core
+[npm-image]: https://img.shields.io/npm/v/snowplow-tracker-core
+[wiki]: https://docs.snowplowanalytics.com/docs/collecting-data/collecting-from-own-applications/node-js-tracker/javascript-tracker-core/
 [docker-install]: https://docs.docker.com/install/
+[osi]: https://opensource.org/licenses/BSD-3-Clause
