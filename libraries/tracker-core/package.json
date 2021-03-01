@@ -13,7 +13,7 @@
     "type": "git",
     "url": "https://github.com/snowplow/snowplow-javascript-tracker.git"
   },
-  "license": "Apache-2.0",
+  "license": "BSD-3-Clause",
   "contributors": [
     "Alex Dean",
     "Simon Andersson",

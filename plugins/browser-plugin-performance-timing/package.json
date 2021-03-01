@@ -2,7 +2,7 @@
   "name": "@snowplow/browser-plugin-performance-timing",
   "version": "1.0.0",
   "description": "Automatically attaches Performance Timing data as a context to events",
-  "license": "Apache-2.0",
+  "license": "BSD-3-Clause",
   "author": "Paul Boocock",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",

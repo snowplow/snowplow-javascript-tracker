@@ -28,9 +28,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { CorePlugin } from '@snowplow/tracker-core';
-import { BrowserTracker } from './tracker/types';
-
-export interface BrowserPlugin extends CorePlugin {
-  activateBrowserPlugin?: (tracker: BrowserTracker) => void;
+/**
+ * Schema for client geolocation contexts
+ */
+export interface Geolocation {
+  latitude: number;
+  longitude: number;
+  latitudeLongitudeAccuracy?: number | null;
+  altitude?: number | null;
+  altitudeAccuracy?: number | null;
+  bearing?: number | null;
+  speed?: number | null;
+  timestamp?: number | null;
+  [key: string]: unknown;
 }

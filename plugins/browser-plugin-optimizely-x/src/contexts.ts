@@ -28,9 +28,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { CorePlugin } from '@snowplow/tracker-core';
-import { BrowserTracker } from './tracker/types';
-
-export interface BrowserPlugin extends CorePlugin {
-  activateBrowserPlugin?: (tracker: BrowserTracker) => void;
+/**
+ * Schema for an Optimizely X summary context
+ */
+export interface OptimizelyxSummary {
+  experimentId?: number | null;
+  variationName?: string | null;
+  variation?: number | null;
+  visitorId?: string | null;
+  [key: string]: unknown;
 }

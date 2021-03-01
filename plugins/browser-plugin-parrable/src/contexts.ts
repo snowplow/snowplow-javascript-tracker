@@ -28,9 +28,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { CorePlugin } from '@snowplow/tracker-core';
-import { BrowserTracker } from './tracker/types';
+/**
+ * Schema for the Parrable encrypted payload
+ */
+export interface EncryptedPayload {
+  [key: string]: unknown;
 
-export interface BrowserPlugin extends CorePlugin {
-  activateBrowserPlugin?: (tracker: BrowserTracker) => void;
+  encryptedId: string;
+  optout: 'true' | 'false';
 }
