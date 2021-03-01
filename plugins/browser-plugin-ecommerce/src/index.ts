@@ -229,6 +229,88 @@ export function trackTrans(trackers: Array<string> = Object.keys(_trackers)) {
   });
 }
 
+/**
+ * Track an add-to-cart event
+ *
+ * @param string sku Required. Item's SKU code.
+ * @param string name Optional. Product name.
+ * @param string category Optional. Product category.
+ * @param string unitPrice Optional. Product price.
+ * @param string quantity Required. Quantity added.
+ * @param string currency Optional. Product price currency.
+ * @param array context Optional. Context relating to the event.
+ * @param tstamp number or Timestamp object
+ */
+export const trackAddToCart = function (
+  {
+    sku,
+    name,
+    category,
+    unitPrice,
+    quantity,
+    currency,
+    context,
+    tstamp,
+  }: {
+    sku: string;
+    name: string;
+    category: string;
+    unitPrice: string;
+    quantity: string;
+    currency: string | undefined;
+    context: Array<SelfDescribingJson>;
+    tstamp: Timestamp;
+  },
+  trackers: Array<string> = Object.keys(_trackers)
+) {
+  trackers.forEach((t) => {
+    if (_trackers[t]) {
+      _trackers[t][0].core.trackAddToCart(sku, name, category, unitPrice, quantity, currency, context, tstamp);
+    }
+  });
+};
+
+/**
+ * Track a remove-from-cart event
+ *
+ * @param string sku Required. Item's SKU code.
+ * @param string name Optional. Product name.
+ * @param string category Optional. Product category.
+ * @param string unitPrice Optional. Product price.
+ * @param string quantity Required. Quantity removed.
+ * @param string currency Optional. Product price currency.
+ * @param array context Optional. Context relating to the event.
+ * @param tstamp Opinal number or Timestamp object
+ */
+export const trackRemoveFromCart = function (
+  {
+    sku,
+    name,
+    category,
+    unitPrice,
+    quantity,
+    currency,
+    context,
+    tstamp,
+  }: {
+    sku: string;
+    name: string;
+    category: string;
+    unitPrice: string;
+    quantity: string;
+    currency: string | undefined;
+    context: Array<SelfDescribingJson>;
+    tstamp: Timestamp;
+  },
+  trackers: Array<string> = Object.keys(_trackers)
+) {
+  trackers.forEach((t) => {
+    if (_trackers[t]) {
+      _trackers[t][0].core.trackRemoveFromCart(sku, name, category, unitPrice, quantity, currency, context, tstamp);
+    }
+  });
+};
+
 function ecommerceTransactionTemplate(): Transaction {
   return {
     items: [],

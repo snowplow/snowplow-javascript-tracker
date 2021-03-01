@@ -23,6 +23,10 @@
       "allowedCategories": [ "trackers" ]
     },
     {
+      "name": "@rollup/plugin-alias",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "@rollup/plugin-babel",
       "allowedCategories": [ "trackers" ]
     },
@@ -55,11 +59,19 @@
       "allowedCategories": [ "plugins", "trackers" ]
     },
     {
+      "name": "@snowplow/browser-plugin-ad-tracking",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "@snowplow/browser-plugin-browser-features",
       "allowedCategories": [ "trackers" ]
     },
     {
       "name": "@snowplow/browser-plugin-client-hints",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@snowplow/browser-plugin-consent",
       "allowedCategories": [ "trackers" ]
     },
     {
@@ -112,6 +124,10 @@
     },
     {
       "name": "@snowplow/browser-plugin-performance-timing",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@snowplow/browser-plugin-site-tracking",
       "allowedCategories": [ "trackers" ]
     },
     {

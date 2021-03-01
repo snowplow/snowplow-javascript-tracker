@@ -8,14 +8,13 @@ import { terser } from 'rollup-plugin-terser';
 import cleanup from 'rollup-plugin-cleanup';
 import sizes from 'rollup-plugin-sizes';
 import filesize from 'rollup-plugin-filesize';
+import alias from '@rollup/plugin-alias';
 import pkg from './package.json';
 
 const bannerContent =
-  '@description <%= pkg.description %>\n' +
-  '@version     <%= pkg.version %>\n' +
-  '@copyright   Anthon Pang, Snowplow Analytics Ltd\n' +
-  '@license     <%= pkg.license %>\n\n' +
-  'Documentation: http://bit.ly/sp-js';
+  '<%= pkg.description %> v<%= pkg.version %> (<%= pkg.homepage %>)\n' +
+  'Copyright Snowplow Analytics Ltd, Anthon Pang\n' +
+  'Licensed under <%= pkg.license %>';
 
 const plugins = [
   json(),
@@ -35,6 +34,17 @@ export default [
     input: './src/index.ts',
     plugins: plugins,
     treeshake: { moduleSideEffects: ['jstimezonedetect'] },
-    output: [{ file: pkg.main, format: 'iife' }],
+    output: [{ file: pkg.browser, format: 'iife' }],
+  },
+  {
+    input: './src/index.ts',
+    plugins: [
+      alias({
+        entries: [{ find: '../tracker.config', replacement: '../tracker.lite.config' }],
+      }),
+      ...plugins,
+    ],
+    treeshake: { moduleSideEffects: ['jstimezonedetect'] },
+    output: [{ file: pkg.browser.replace('.js', '.lite.js'), format: 'iife' }],
   },
 ];
