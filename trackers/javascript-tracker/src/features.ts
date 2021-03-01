@@ -33,7 +33,7 @@ import * as Optimizely from '@snowplow/browser-plugin-optimizely';
 import * as OptimizelyX from '@snowplow/browser-plugin-optimizely-x';
 import * as Parrable from '@snowplow/browser-plugin-parrable';
 import * as PerformanceTiming from '@snowplow/browser-plugin-performance-timing';
-import * as Gdpr from '@snowplow/browser-plugin-gdpr';
+import * as Consent from '@snowplow/browser-plugin-consent';
 import * as Geolocation from '@snowplow/browser-plugin-geolocation';
 import * as GaCookies from '@snowplow/browser-plugin-ga-cookies';
 import * as LinkClickTracking from '@snowplow/browser-plugin-link-click-tracking';
@@ -43,6 +43,8 @@ import * as BrowserFeatures from '@snowplow/browser-plugin-browser-features';
 import * as Timezone from '@snowplow/browser-plugin-timezone';
 import * as Ecommerce from '@snowplow/browser-plugin-ecommerce';
 import * as EnhancedEcommerce from '@snowplow/browser-plugin-enhanced-ecommerce';
+import * as AdTracking from '@snowplow/browser-plugin-ad-tracking';
+import * as SiteTracking from '@snowplow/browser-plugin-site-tracking';
 import { plugins } from '../tracker.config';
 import { BrowserPlugin } from '@snowplow/browser-core';
 
@@ -114,9 +116,9 @@ export function Plugins(argmap: any) {
     activatedPlugins.push([GaCookiesPlugin(), apiMethods]);
   }
 
-  if (plugins.gdpr) {
-    const { GdprPlugin, ...apiMethods } = Gdpr;
-    activatedPlugins.push([GdprPlugin(), apiMethods]);
+  if (plugins.consent) {
+    const { ConsentPlugin, ...apiMethods } = Consent;
+    activatedPlugins.push([ConsentPlugin(), apiMethods]);
   }
 
   if (plugins.geolocation) {
@@ -147,6 +149,16 @@ export function Plugins(argmap: any) {
   if (plugins.enhancedEcommerce) {
     const { EnhancedEcommercePlugin, ...apiMethods } = EnhancedEcommerce;
     activatedPlugins.push([EnhancedEcommercePlugin(), apiMethods]);
+  }
+
+  if (plugins.adTracking) {
+    const { AdTrackingPlugin, ...apiMethods } = AdTracking;
+    activatedPlugins.push([AdTrackingPlugin(), apiMethods]);
+  }
+
+  if (plugins.siteTracking) {
+    const { SiteTrackingPlugin, ...apiMethods } = SiteTracking;
+    activatedPlugins.push([SiteTrackingPlugin(), apiMethods]);
   }
 
   if (plugins.browserFeatures) {

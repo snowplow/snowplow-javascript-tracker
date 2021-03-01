@@ -444,8 +444,8 @@
       "versionPolicyName": "tracker"
     },
     {
-      "packageName": "@snowplow/browser-plugin-gdpr",
-      "projectFolder": "plugins/browser-plugin-gdpr",
+      "packageName": "@snowplow/browser-plugin-consent",
+      "projectFolder": "plugins/browser-plugin-consent",
       "reviewCategory": "plugins",
       "versionPolicyName": "tracker"
     },
@@ -500,6 +500,18 @@
     {
       "packageName": "@snowplow/browser-plugin-enhanced-ecommerce",
       "projectFolder": "plugins/browser-plugin-enhanced-ecommerce",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-plugin-ad-tracking",
+      "projectFolder": "plugins/browser-plugin-ad-tracking",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-plugin-site-tracking",
+      "projectFolder": "plugins/browser-plugin-site-tracking",
       "reviewCategory": "plugins",
       "versionPolicyName": "tracker"
     }

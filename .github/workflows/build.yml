@@ -60,4 +60,10 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: sp.js
-          path: trackers/browser-tracker/dist/sp.js
+          path: trackers/javascript-tracker/dist/sp.js
+
+      - name: Upload sp.lite.js artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: sp.lite.js
+          path: trackers/javascript-tracker/dist/sp.lite.js

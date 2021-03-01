@@ -1,14 +1,14 @@
 {
   "name": "@snowplow/javascript-tracker",
   "version": "2.17.3",
-  "private": true,
-  "description": "JavaScript tracker for Snowplow",
+  "description": "Web analytics for Snowplow",
   "keywords": [
     "tracking",
     "web analytics",
     "events",
     "open source"
   ],
+  "homepage": "http://bit.ly/sp-js",
   "bugs": "https://github.com/snowplow/snowplow-javascript-tracker/issues",
   "repository": {
     "type": "git",
@@ -24,7 +24,7 @@
     "Michael Hadam",
     "Paul Boocock"
   ],
-  "main": "dist/sp.js",
+  "browser": "dist/sp.js",
   "scripts": {
     "build": "rollup -c --silent --failAfterWarnings",
     "docker:micro": "docker pull snowplow/snowplow-micro:1.1.0",
@@ -44,7 +44,7 @@
     "@snowplow/browser-plugin-error-tracking": "workspace:*",
     "@snowplow/browser-plugin-form-tracking": "workspace:*",
     "@snowplow/browser-plugin-ga-cookies": "workspace:*",
-    "@snowplow/browser-plugin-gdpr": "workspace:*",
+    "@snowplow/browser-plugin-consent": "workspace:*",
     "@snowplow/browser-plugin-geolocation": "workspace:*",
     "@snowplow/browser-plugin-link-click-tracking": "workspace:*",
     "@snowplow/browser-plugin-optimizely": "workspace:*",
@@ -52,12 +52,15 @@
     "@snowplow/browser-plugin-parrable": "workspace:*",
     "@snowplow/browser-plugin-performance-timing": "workspace:*",
     "@snowplow/browser-plugin-timezone": "workspace:*",
+    "@snowplow/browser-plugin-ad-tracking": "workspace:*",
+    "@snowplow/browser-plugin-site-tracking": "workspace:*",
     "@snowplow/browser-tracker": "workspace:*",
     "@snowplow/tracker-core": "workspace:*",
     "tslib": "^2.0.3"
   },
   "devDependencies": {
     "@ampproject/rollup-plugin-closure-compiler": "^0.26.0",
+    "@rollup/plugin-alias": "^3.1.2",
     "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^11.0.0",
@@ -90,7 +93,6 @@
     "ts-jest": "^26.5.0",
     "ts-node": "^9.1.1",
     "typescript": "^4.1.2",
-    "wdio-chromedriver-service": "^6.0.4",
-    "@rollup/plugin-alias": "^3.1.2"
+    "wdio-chromedriver-service": "^6.0.4"
   }
 }

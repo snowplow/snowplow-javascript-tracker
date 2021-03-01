@@ -1,4 +1,4 @@
-# JavaScript web analytics for Snowplow
+# Web analytics for Snowplow
 
 [![actively-maintained]][tracker-classificiation]
 [![Build Status][gh-actions-image]][gh-actions]
