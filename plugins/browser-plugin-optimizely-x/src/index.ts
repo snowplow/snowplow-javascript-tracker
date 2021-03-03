@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { BrowserPlugin, parseAndValidateInt } from '@snowplow/browser-core';
+import { BrowserPlugin, parseAndValidateInt } from '@snowplow/browser-tracker-core';
 import { OptimizelyxSummary } from './contexts';
 
 declare global {

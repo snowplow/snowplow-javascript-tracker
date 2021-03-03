@@ -2,7 +2,7 @@ import { nodeResolve } from '@rollup/plugin-node-resolve';
 import ts from '@wessberg/rollup-plugin-ts'; // Prefered over @rollup/plugin-typescript as it bundles .d.ts files
 import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
-import banner from 'rollup-plugin-banner';
+import { banner } from '../../banner';
 import compiler from '@ampproject/rollup-plugin-closure-compiler';
 import { terser } from 'rollup-plugin-terser';
 import cleanup from 'rollup-plugin-cleanup';
@@ -13,7 +13,7 @@ import pkg from './package.json';
 
 const bannerContent =
   '<%= pkg.description %> v<%= pkg.version %> (<%= pkg.homepage %>)\n' +
-  'Copyright Snowplow Analytics Ltd, Anthon Pang\n' +
+  'Copyright 2021 Snowplow Analytics Ltd, 2010 Anthon Pang\n' +
   'Licensed under <%= pkg.license %>';
 
 const plugins = [
@@ -24,7 +24,7 @@ const plugins = [
   compiler(),
   terser(),
   cleanup({ comments: 'none' }),
-  banner(bannerContent),
+  banner(),
   sizes(),
   filesize({ showMinifiedSize: false, showBeforeSizes: 'build' }),
 ];
@@ -34,7 +34,7 @@ export default [
     input: './src/index.ts',
     plugins: plugins,
     treeshake: { moduleSideEffects: ['jstimezonedetect'] },
-    output: [{ file: pkg.browser, format: 'iife' }],
+    output: [{ file: pkg.browser, format: 'iife', sourcemap: true }],
   },
   {
     input: './src/index.ts',
@@ -45,6 +45,6 @@ export default [
       ...plugins,
     ],
     treeshake: { moduleSideEffects: ['jstimezonedetect'] },
-    output: [{ file: pkg.browser.replace('.js', '.lite.js'), format: 'iife' }],
+    output: [{ file: pkg.browser.replace('.js', '.lite.js'), format: 'iife', sourcemap: true }],
   },
 ];

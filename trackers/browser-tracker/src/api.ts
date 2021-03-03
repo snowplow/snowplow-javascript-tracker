@@ -35,7 +35,7 @@ import {
   BrowserTracker,
   getTrackers,
   StateStorageStrategy,
-} from '@snowplow/browser-core';
+} from '@snowplow/browser-tracker-core';
 import { ConditionalContextProvider, ContextPrimitive, SelfDescribingJson, Timestamp } from '@snowplow/tracker-core';
 
 const dispatch = (trackers: Array<string> = allTrackerNames(), fn: (t: BrowserTracker) => void) => {

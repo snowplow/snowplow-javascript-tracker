@@ -28,7 +28,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { BrowserPlugin, BrowserTracker, parseAndValidateFloat, parseAndValidateInt } from '@snowplow/browser-core';
+import {
+  BrowserPlugin,
+  BrowserTracker,
+  parseAndValidateFloat,
+  parseAndValidateInt,
+} from '@snowplow/browser-tracker-core';
 import { SelfDescribingJson, Timestamp } from '@snowplow/tracker-core';
 
 const _trackers: Record<string, [BrowserTracker, Array<SelfDescribingJson>]> = {};

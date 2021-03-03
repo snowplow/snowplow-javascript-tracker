@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { createSharedState, addTracker, Tracker, TrackerConfiguration } from '@snowplow/browser-core';
+import { createSharedState, addTracker, TrackerConfiguration, BrowserTracker } from '@snowplow/browser-tracker-core';
 import { version } from './version';
 
 const state = createSharedState();
@@ -42,10 +42,10 @@ const state = createSharedState();
  * @param string trackerGroup used to group multiple trackers and shared state together
  */
 
-export function newTracker(name: string, endpoint: string): void;
-export function newTracker(name: string, endpoint: string, configuration: TrackerConfiguration): void;
-export function newTracker(name: string, endpoint: string, configuration: TrackerConfiguration = {}) {
-  addTracker(name, Tracker(name, name, version, endpoint, state, configuration));
+export function newTracker(namespace: string, endpoint: string): BrowserTracker;
+export function newTracker(namespace: string, endpoint: string, configuration: TrackerConfiguration): BrowserTracker;
+export function newTracker(namespace: string, endpoint: string, configuration: TrackerConfiguration = {}) {
+  return addTracker(namespace, namespace, version, endpoint, state, configuration);
 }
 
 export { version } from './version';

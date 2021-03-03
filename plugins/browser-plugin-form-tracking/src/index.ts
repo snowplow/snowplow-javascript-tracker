@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { BrowserPlugin, BrowserTracker } from '@snowplow/browser-core';
+import { BrowserPlugin, BrowserTracker } from '@snowplow/browser-tracker-core';
 import { DynamicContexts } from '@snowplow/tracker-core';
 import { TrackerAndFormConfiguration, FormTrackingConfig, addFormListeners, configureFormTracking } from './helpers';
 

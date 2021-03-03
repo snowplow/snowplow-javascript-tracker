@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { SharedState, Tracker } from '@snowplow/browser-core';
+import { SharedState, addTracker } from '@snowplow/browser-tracker-core';
 import F from 'lodash/fp';
 
 jest.useFakeTimers('modern');
@@ -51,7 +51,8 @@ describe('Activity tracker behaviour', () => {
   it('supports different timings for ping vs callback activity tracking', () => {
     let callbacks = 0;
     const state = new SharedState();
-    const t = Tracker('', '', '', '', state, { stateStorageStrategy: 'cookie' });
+    const t =
+      addTracker('sp1', 'sp1', '', '', state, { stateStorageStrategy: 'cookie' }) ?? fail('Failed to create tracker');
     t.enableActivityTracking(10, 10);
     t.enableActivityTrackingCallback(5, 5, () => {
       callbacks++;
@@ -80,11 +81,12 @@ describe('Activity tracker behaviour', () => {
 
   it('maintains current static context behaviour', () => {
     const state = new SharedState();
-    const t = Tracker('', '', '', '', state, {
-      resetActivityTrackingOnPageView: false,
-      stateStorageStrategy: 'cookie',
-      encodeBase64: false,
-    });
+    const t =
+      addTracker('sp2', 'sp2', '', '', state, {
+        resetActivityTrackingOnPageView: false,
+        stateStorageStrategy: 'cookie',
+        encodeBase64: false,
+      }) ?? fail('Failed to create tracker');
     t.enableActivityTracking(0, 2);
     t.trackPageView(null, [
       {
@@ -134,11 +136,12 @@ describe('Activity tracker behaviour', () => {
 
   it('does not reset activity tracking on pageview when resetActivityTrackingOnPageView: false,', () => {
     const state = new SharedState();
-    const t = Tracker('', '', '', '', state, {
-      resetActivityTrackingOnPageView: false,
-      stateStorageStrategy: 'cookie',
-      encodeBase64: false,
-    });
+    const t =
+      addTracker('sp3', 'sp3', '', '', state, {
+        resetActivityTrackingOnPageView: false,
+        stateStorageStrategy: 'cookie',
+        encodeBase64: false,
+      }) ?? fail('Failed to create tracker');
     t.enableActivityTracking(0, 30);
     t.trackPageView();
 
@@ -162,10 +165,11 @@ describe('Activity tracker behaviour', () => {
 
   it('does reset activity tracking on pageview by default', () => {
     const state = new SharedState();
-    const t = Tracker('', '', '', '', state, {
-      stateStorageStrategy: 'cookie',
-      encodeBase64: false,
-    });
+    const t =
+      addTracker('sp4', 'sp4', '', '', state, {
+        stateStorageStrategy: 'cookie',
+        encodeBase64: false,
+      }) ?? fail('Failed to create tracker');
     t.enableActivityTracking(0, 30);
     t.trackPageView();
 
@@ -199,10 +203,11 @@ describe('Activity tracker behaviour', () => {
 
   it('fires initial delayed activity tracking on first pageview and second pageview', () => {
     const state = new SharedState();
-    const t = Tracker('', '', '', '', state, {
-      stateStorageStrategy: 'cookie',
-      encodeBase64: false,
-    });
+    const t =
+      addTracker('sp5', 'sp5', '', '', state, {
+        stateStorageStrategy: 'cookie',
+        encodeBase64: false,
+      }) ?? fail('Failed to create tracker');
     t.enableActivityTracking(10, 5);
 
     t.trackPageView();

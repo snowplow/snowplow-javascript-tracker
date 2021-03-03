@@ -28,8 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { OutQueueManager } from '../src/out_queue';
-import { OutQueue } from '../src/out_queue/types';
+import { OutQueueManager, OutQueue } from '../src/tracker/out_queue';
 import { SharedState } from '../src/state';
 
 describe('OutQueueManager', () => {

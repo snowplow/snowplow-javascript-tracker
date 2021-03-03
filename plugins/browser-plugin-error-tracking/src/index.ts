@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { isFunction, addEventListener, BrowserPlugin, BrowserTracker } from '@snowplow/browser-core';
+import { isFunction, addEventListener, BrowserPlugin, BrowserTracker } from '@snowplow/browser-tracker-core';
 import { SelfDescribingJson } from '@snowplow/tracker-core';
 
 let windowAlias = window,

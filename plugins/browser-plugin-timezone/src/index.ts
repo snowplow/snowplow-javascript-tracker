@@ -29,7 +29,7 @@
  */
 
 import { determine } from 'jstimezonedetect';
-import { BrowserTracker, BrowserPlugin } from '@snowplow/browser-core';
+import { BrowserTracker, BrowserPlugin } from '@snowplow/browser-tracker-core';
 
 export function TimezonePlugin(): BrowserPlugin {
   return {

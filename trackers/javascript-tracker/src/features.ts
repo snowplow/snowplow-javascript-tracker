@@ -46,7 +46,7 @@ import * as EnhancedEcommerce from '@snowplow/browser-plugin-enhanced-ecommerce'
 import * as AdTracking from '@snowplow/browser-plugin-ad-tracking';
 import * as SiteTracking from '@snowplow/browser-plugin-site-tracking';
 import { plugins } from '../tracker.config';
-import { BrowserPlugin } from '@snowplow/browser-core';
+import { BrowserPlugin } from '@snowplow/browser-tracker-core';
 
 export function Plugins(argmap: any) {
   const {

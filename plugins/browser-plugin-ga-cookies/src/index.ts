@@ -29,7 +29,7 @@
  */
 
 import { SelfDescribingJson } from '@snowplow/tracker-core';
-import { BrowserPlugin, cookie } from '@snowplow/browser-core';
+import { BrowserPlugin, cookie } from '@snowplow/browser-tracker-core';
 import { Cookies } from './contexts';
 
 const GaCookiesPlugin = (): BrowserPlugin => {

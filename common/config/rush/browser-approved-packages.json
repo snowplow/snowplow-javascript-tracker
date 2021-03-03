@@ -4,7 +4,7 @@
   "packages": [
     {
       "name": "@ampproject/rollup-plugin-closure-compiler",
-      "allowedCategories": [ "trackers" ]
+      "allowedCategories": [ "libraries", "trackers" ]
     },
     {
       "name": "@babel/core",
@@ -32,7 +32,7 @@
     },
     {
       "name": "@rollup/plugin-commonjs",
-      "allowedCategories": [ "trackers" ]
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "@rollup/plugin-json",
@@ -40,7 +40,7 @@
     },
     {
       "name": "@rollup/plugin-node-resolve",
-      "allowedCategories": [ "trackers" ]
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "@snowplow/browser-core",
@@ -139,6 +139,10 @@
       "allowedCategories": [ "trackers" ]
     },
     {
+      "name": "@snowplow/browser-tracker-core",
+      "allowedCategories": [ "plugins", "trackers" ]
+    },
+    {
       "name": "@snowplow/plugin-core",
       "allowedCategories": [ "libraries", "plugins" ]
     },
@@ -221,6 +225,10 @@
     {
       "name": "@wdio/sync",
       "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@wessberg/browserslist-generator",
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "@wessberg/rollup-plugin-ts",
@@ -316,11 +324,15 @@
     },
     {
       "name": "rollup-plugin-cleanup",
-      "allowedCategories": [ "trackers" ]
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "rollup-plugin-filesize",
       "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "rollup-plugin-license",
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "rollup-plugin-sizes",
@@ -328,7 +340,7 @@
     },
     {
       "name": "rollup-plugin-terser",
-      "allowedCategories": [ "trackers" ]
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "saucelabs",

@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { BrowserPlugin } from '@snowplow/browser-core';
+import { BrowserPlugin } from '@snowplow/browser-tracker-core';
 import { EncryptedPayload } from './contexts';
 
 declare global {

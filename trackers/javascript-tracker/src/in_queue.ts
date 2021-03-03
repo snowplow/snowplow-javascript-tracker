@@ -32,12 +32,10 @@ import {
   warn,
   isFunction,
   addTracker,
-  Tracker,
   SharedState,
   createSharedState,
   BrowserTracker,
-  allTrackersForGroup,
-} from '@snowplow/browser-core';
+} from '@snowplow/browser-tracker-core';
 import * as Snowplow from '@snowplow/browser-tracker';
 import { Plugins } from './features';
 
@@ -47,12 +45,14 @@ export interface Queue {
 
 /************************************************************
  * Proxy object
- * - this allows the caller to continue push()'ing to _snaq
+ * - this allows the caller to continue push()'ing
  *   after the Tracker has been initialized and loaded
  ************************************************************/
 
 export function InQueueManager(functionName: string, asyncQueue: Array<unknown>): Queue {
-  const sharedState: SharedState = createSharedState();
+  const sharedState: SharedState = createSharedState(),
+    availableTrackers: Record<string, Record<string, BrowserTracker>> = { [functionName]: {} };
+
   let version: string, availableFunctions: Record<string, Function>;
   ({ version, ...availableFunctions } = Snowplow);
 
@@ -62,11 +62,15 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
    * @param string inputString
    */
   function parseInputString(inputString: string): [string, string[] | undefined] {
-    var separatedString = inputString.split(':'),
+    const separatedString = inputString.split(':'),
       extractedFunction = separatedString[0],
       extractedNames = separatedString.length > 1 ? separatedString[1].split(';') : undefined;
 
     return [extractedFunction, extractedNames];
+  }
+
+  function trackersForFunctionName() {
+    return Object.keys(availableTrackers[functionName]).map((k) => availableTrackers[functionName][k]);
   }
 
   /**
@@ -78,21 +82,16 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
    *      [ functionObject, optional_parameters ]
    */
   function applyAsyncFunction(...args: any[]) {
-    var i, f, parameterArray, input, parsedString, names;
-
     // Outer loop in case someone push'es in zarg of arrays
-    for (i = 0; i < args.length; i += 1) {
-      parameterArray = args[i];
-
-      // Arguments is not an array, so we turn it into one
-      input = Array.prototype.shift.call(parameterArray);
+    for (let i = 0; i < args.length; i += 1) {
+      let parameterArray = args[i],
+        input = Array.prototype.shift.call(parameterArray);
 
       // Custom callback rather than tracker method, called with trackerDictionary as the context
       if (isFunction(input)) {
         try {
-          const namedTrackers = allTrackersForGroup(functionName);
           let fnTrackers: Record<string, BrowserTracker> = {};
-          for (const tracker of namedTrackers) {
+          for (const tracker of trackersForFunctionName()) {
             fnTrackers[tracker.id.replace(`${functionName}_`, '')] = tracker;
           }
           input.apply(fnTrackers, parameterArray);
@@ -103,21 +102,24 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
         }
       }
 
-      parsedString = parseInputString(input);
-      f = parsedString[0];
-      names = parsedString[1];
+      let parsedString = parseInputString(input),
+        f = parsedString[0],
+        names = parsedString[1];
 
       if (f === 'newTracker') {
         const trackerId = `${functionName}_${parameterArray[0]}`;
         const plugins = Plugins(parameterArray[2]);
-        addTracker(
-          trackerId,
-          Tracker(trackerId, parameterArray[0], version, parameterArray[1], sharedState, {
-            ...parameterArray[2],
-            plugins: plugins.map((p) => p[0]),
-          }),
-          functionName
-        );
+        const tracker = addTracker(trackerId, parameterArray[0], version, parameterArray[1], sharedState, {
+          ...parameterArray[2],
+          plugins: plugins.map((p) => p[0]),
+        });
+        if (tracker) {
+          availableTrackers[functionName][trackerId] = tracker;
+        } else {
+          warn(parameterArray[0] + ' already exists');
+          continue;
+        }
+
         plugins.forEach((p) => {
           // Spread in any new plugin methods
           availableFunctions = {
@@ -140,7 +142,7 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
         if (names) {
           fnParameters.push(names.map((n) => `${functionName}_${n}`));
         } else {
-          fnParameters.push(allTrackersForGroup(functionName).map((t) => t.id));
+          fnParameters.push(trackersForFunctionName().map((t) => t.id));
         }
 
         try {
@@ -155,7 +157,7 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
   }
 
   // We need to manually apply any events collected before this initialization
-  for (var i = 0; i < asyncQueue.length; i++) {
+  for (let i = 0; i < asyncQueue.length; i++) {
     applyAsyncFunction(asyncQueue[i]);
   }
 
