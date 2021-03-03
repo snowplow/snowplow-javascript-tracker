@@ -29,7 +29,7 @@
  */
 
 import { SelfDescribingJson } from '@snowplow/tracker-core';
-import { BrowserPlugin } from '@snowplow/browser-core';
+import { BrowserPlugin } from '@snowplow/browser-tracker-core';
 import { Geolocation } from './contexts';
 
 const navigatorAlias = navigator,

@@ -407,8 +407,8 @@
       "versionPolicyName": "tracker"
     },
     {
-      "packageName": "@snowplow/browser-core",
-      "projectFolder": "libraries/browser-core",
+      "packageName": "@snowplow/browser-tracker-core",
+      "projectFolder": "libraries/browser-tracker-core",
       "reviewCategory": "libraries",
       "versionPolicyName": "tracker"
     },

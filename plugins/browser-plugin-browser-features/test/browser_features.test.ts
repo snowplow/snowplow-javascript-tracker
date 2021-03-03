@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { BrowserTracker } from '@snowplow/browser-core';
+import { BrowserTracker } from '@snowplow/browser-tracker-core';
 import { trackerCore } from '@snowplow/tracker-core';
 import { JSDOM } from 'jsdom';
 import { BrowserFeaturesPlugin } from '../src/index';

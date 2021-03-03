@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { BrowserPlugin, BrowserTracker, warn } from '@snowplow/browser-core';
+import { BrowserPlugin, BrowserTracker, warn } from '@snowplow/browser-tracker-core';
 import { SelfDescribingJson, Timestamp } from '@snowplow/tracker-core';
 import { Gdpr } from './contexts';
 

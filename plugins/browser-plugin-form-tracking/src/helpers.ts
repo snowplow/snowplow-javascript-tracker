@@ -35,7 +35,7 @@ import {
   FilterCriterion,
   getFilterByClass,
   getFilterByName,
-} from '@snowplow/browser-core';
+} from '@snowplow/browser-tracker-core';
 import { resolveDynamicContexts, DynamicContexts } from '@snowplow/tracker-core';
 
 export interface FormTrackingConfig {

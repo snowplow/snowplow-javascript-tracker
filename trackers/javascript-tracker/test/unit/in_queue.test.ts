@@ -31,10 +31,10 @@
 import { InQueueManager } from '../../src/in_queue';
 
 import { newTracker } from '@snowplow/browser-tracker';
-import { BrowserTracker, allTrackersForGroup } from '@snowplow/browser-core';
+import { BrowserTracker, allTrackersForGroup } from '@snowplow/browser-tracker-core';
 
 jest.mock('@snowplow/browser-tracker');
-jest.mock('@snowplow/browser-core');
+jest.mock('@snowplow/browser-tracker-core');
 const mockNewTracker = newTracker as jest.Mock<void>;
 const mockAllTrackers = allTrackersForGroup as jest.Mock<Array<BrowserTracker>>;
 

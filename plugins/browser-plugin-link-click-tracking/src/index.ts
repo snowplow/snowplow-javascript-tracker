@@ -36,7 +36,7 @@ import {
   FilterCriterion,
   BrowserPlugin,
   BrowserTracker,
-} from '@snowplow/browser-core';
+} from '@snowplow/browser-tracker-core';
 import { SelfDescribingJson, Timestamp, resolveDynamicContexts, DynamicContexts } from '@snowplow/tracker-core';
 
 interface LinkClickConfiguration {

@@ -49,7 +49,7 @@ import {
   fromQuerystring,
   isInteger,
 } from '../helpers';
-import { OutQueueManager } from '../out_queue';
+import { OutQueueManager } from './out_queue';
 import { fixupUrl } from '../proxies';
 import { SharedState } from '../state';
 import {
@@ -153,6 +153,10 @@ export const Tracker = (
       customReferrer: string,
       // Platform defaults to web for this tracker
       configPlatform = argmap.platform ?? 'web',
+      // This forces the tracker to be HTTPS even if the page is not secure
+      forceSecureTracker = argmap.forceSecureTracker ?? false,
+      // This forces the tracker to be HTTP even if the page is secure
+      forceUnsecureTracker = !forceSecureTracker && (argmap.forceUnsecureTracker ?? false),
       // Snowplow collector URL
       configCollectorUrl = asCollectorUrl(endpoint),
       // Custom path for post requests (to get around adblockers)
@@ -196,10 +200,6 @@ export const Tracker = (
       configVisitorCookieTimeout = argmap.cookieLifetime ?? 63072000, // 2 years
       // Life of the session cookie (in seconds)
       configSessionCookieTimeout = argmap.sessionCookieTimeout ?? 1800, // 30 minutes
-      // This forces the tracker to be HTTPS even if the page is not secure
-      forceSecureTracker = argmap.forceSecureTracker ?? false,
-      // This forces the tracker to be HTTP even if the page is secure
-      forceUnsecureTracker = !forceSecureTracker && (argmap.forceUnsecureTracker ?? false),
       // Allows tracking user session (using cookies or local storage), can only be used with anonymousTracking
       configAnonymousSessionTracking = getAnonymousSessionTracking(argmap),
       // Will send a header to server to prevent returning cookie and capturing IP

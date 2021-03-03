@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { isValueInArray, BrowserPlugin } from '@snowplow/browser-core';
+import { isValueInArray, BrowserPlugin } from '@snowplow/browser-tracker-core';
 import {
   Experiment,
   OptimizelySummary,

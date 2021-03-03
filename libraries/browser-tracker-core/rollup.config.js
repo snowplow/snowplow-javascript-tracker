@@ -9,7 +9,7 @@ import pkg from './package.json';
 import { builtinModules } from 'module';
 
 const umdPlugins = [nodeResolve({ browser: true }), commonjs(), ts()];
-const umdName = 'snowplowConsent';
+const umdName = 'snowplowBrowserTrackerCore';
 
 export default [
   // CommonJS (for Node) and ES module (for bundlers) build.

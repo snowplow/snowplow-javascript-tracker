@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    /* Module and Target are calculated by @wessberg/rollup-plugin-ts
+    /* Module and Target are calculated by @wessberg/rollup-plugin-ts */
     /* Basic Options */
     "declaration": true /* Generates corresponding '.d.ts' file. */,
     "resolveJsonModule": true,

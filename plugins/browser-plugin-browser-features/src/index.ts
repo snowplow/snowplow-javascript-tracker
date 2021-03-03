@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { isFunction, BrowserPlugin, BrowserTracker } from '@snowplow/browser-core';
+import { isFunction, BrowserPlugin, BrowserTracker } from '@snowplow/browser-tracker-core';
 
 declare global {
   interface MimeTypeArray {
