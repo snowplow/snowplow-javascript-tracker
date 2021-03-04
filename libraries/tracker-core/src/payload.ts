@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import * as base64 from './base64';
+import { base64urlencode } from './base64';
 
 export type PayloadValue = unknown;
 
@@ -41,6 +41,7 @@ export type Payload = Record<string, PayloadValue>;
  * Interface for mutable object encapsulating tracker payload
  */
 export interface PayloadBuilder {
+  setBase64Encoding: (base64: boolean) => void;
   /**
    * Adds an entry to the Payload
    * @param key Key for Payload dictionary entry
@@ -55,7 +56,7 @@ export interface PayloadBuilder {
   addDict: (dict: Payload) => void;
 
   /**
-   * Adds a JSON object to the payload - will stringify the JSON object
+   * Caches a JSON object to be added to payload on build
    * @param keyIfEncoded key if base64 encoding is enabled
    * @param keyIfNotEncoded key if base64 encoding is disabled
    * @param json The json to be stringified and added to the payload
@@ -64,22 +65,9 @@ export interface PayloadBuilder {
 
   /**
    * Builds and returns the Payload
+   * @param base64Encode configures if cached json should be encoded
    */
   build: () => Payload;
-}
-
-/**
- * Base64 encode data with URL and Filename Safe Alphabet (base64url)
- *
- * See: http://tools.ietf.org/html/rfc4648#page-7
- */
-function base64urlencode(data: string): string {
-  if (!data) {
-    return data;
-  }
-
-  const enc = base64.base64encode(data);
-  return enc.replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 }
 
 /**
@@ -117,8 +105,14 @@ export function isJson(property?: Record<string, unknown>): boolean {
  *
  * @return The request string builder, with add, addRaw and build methods
  */
-export function payloadBuilder(base64Encode: boolean): PayloadBuilder {
+export function payloadBuilder(): PayloadBuilder {
   const dict: Payload = {};
+  const jsonForEncoding: Array<[string, string, Record<string, unknown>]> = [];
+  let encodeBase64: boolean = true;
+
+  const setBase64Encoding = (base64: boolean) => {
+    encodeBase64 = base64;
+  };
 
   const add = (key: string, value: PayloadValue): void => {
     if (value != null && value !== '') {
@@ -137,20 +131,26 @@ export function payloadBuilder(base64Encode: boolean): PayloadBuilder {
 
   const addJson = (keyIfEncoded: string, keyIfNotEncoded: string, json?: Record<string, unknown>): void => {
     if (json && isNonEmptyJson(json)) {
-      const str = JSON.stringify(json);
-      if (base64Encode) {
-        add(keyIfEncoded, base64urlencode(str));
-      } else {
-        add(keyIfNotEncoded, str);
-      }
+      jsonForEncoding.push([keyIfEncoded, keyIfNotEncoded, json]);
     }
   };
 
   const build = (): Payload => {
+    for (const json of jsonForEncoding) {
+      const str = JSON.stringify(json[2]);
+      if (encodeBase64) {
+        add(json[0], base64urlencode(str));
+      } else {
+        add(json[1], str);
+      }
+    }
+    jsonForEncoding.length = 0;
+
     return dict;
   };
 
   return {
+    setBase64Encoding,
     add,
     addDict,
     addJson,

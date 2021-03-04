@@ -30,19 +30,29 @@
 
 import { InQueueManager } from '../../src/in_queue';
 
-import { newTracker } from '@snowplow/browser-tracker';
-import { BrowserTracker, allTrackersForGroup } from '@snowplow/browser-tracker-core';
+import {
+  enableActivityTracking,
+  setVisitorCookieTimeout,
+  trackPageView,
+  updatePageActivity,
+} from '@snowplow/browser-tracker';
+import { BrowserTracker, addTracker, isFunction } from '@snowplow/browser-tracker-core';
 
 jest.mock('@snowplow/browser-tracker');
 jest.mock('@snowplow/browser-tracker-core');
-const mockNewTracker = newTracker as jest.Mock<void>;
-const mockAllTrackers = allTrackersForGroup as jest.Mock<Array<BrowserTracker>>;
+const mockNewTracker = addTracker as jest.Mock<BrowserTracker>;
+const mockEnableActivityTracking = enableActivityTracking as jest.Mock<void>;
+const mockSetVisitorCookieTimeout = setVisitorCookieTimeout as jest.Mock<void>;
+const mockTrackPageView = trackPageView as jest.Mock<void>;
+const mockUpdatePageActivity = updatePageActivity as jest.Mock<void>;
+const mockIsFunction = isFunction as jest.Mock<boolean>;
 
 describe('InQueueManager', () => {
   let output = 0;
-  const newTracker = (): any => {
+  const newTracker = (trackerId: string): any => {
     let attribute = 10;
     return {
+      id: trackerId,
       enableActivityTracking: function ({ n }: { n: number }) {
         attribute += n;
       },
@@ -60,9 +70,40 @@ describe('InQueueManager', () => {
 
   const mockTracker: Record<string, any> = {};
   mockNewTracker.mockImplementation((name: string) => {
-    mockTracker[name] = newTracker();
+    mockTracker[name] = newTracker(name);
+    return mockTracker[name];
   });
-  mockAllTrackers.mockImplementation(() => Object.values(mockTracker));
+
+  mockEnableActivityTracking.mockImplementation(function (event: { n: number }, trackers: string[]) {
+    trackers.forEach((t) => {
+      mockTracker[t].enableActivityTracking(event);
+    });
+  });
+
+  mockSetVisitorCookieTimeout.mockImplementation(function (event: { p: number }, trackers: string[]) {
+    trackers.forEach((t) => {
+      mockTracker[t].setVisitorCookieTimeout(event);
+    });
+  });
+
+  mockTrackPageView.mockImplementation(function (trackers: string[]) {
+    trackers.forEach((t) => {
+      mockTracker[t].trackPageView();
+    });
+  });
+
+  mockUpdatePageActivity.mockImplementation(function (trackers: string[]) {
+    trackers.forEach((t) => {
+      mockTracker[t].updatePageActivity();
+    });
+  });
+
+  mockIsFunction.mockImplementation(function (func: any) {
+    if (func && typeof func === 'function') {
+      return true;
+    }
+    return false;
+  });
 
   const asyncQueueOps = [
     ['newTracker', 'firstTracker', 'firstEndpoint'],

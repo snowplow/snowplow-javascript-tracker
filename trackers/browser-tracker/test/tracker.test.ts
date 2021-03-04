@@ -53,9 +53,13 @@ describe('Activity tracker behaviour', () => {
     const state = new SharedState();
     const t =
       addTracker('sp1', 'sp1', '', '', state, { stateStorageStrategy: 'cookie' }) ?? fail('Failed to create tracker');
-    t.enableActivityTracking(10, 10);
-    t.enableActivityTrackingCallback(5, 5, () => {
-      callbacks++;
+    t.enableActivityTracking({ minimumVisitLength: 10, heartbeatDelay: 10 });
+    t.enableActivityTrackingCallback({
+      minimumVisitLength: 5,
+      heartbeatDelay: 5,
+      callback: () => {
+        callbacks++;
+      },
     });
     t.trackPageView();
     jest.advanceTimersByTime(2500);
@@ -87,15 +91,17 @@ describe('Activity tracker behaviour', () => {
         stateStorageStrategy: 'cookie',
         encodeBase64: false,
       }) ?? fail('Failed to create tracker');
-    t.enableActivityTracking(0, 2);
-    t.trackPageView(null, [
-      {
-        schema: 'iglu:com.acme/static_context/jsonschema/1-0-0',
-        data: {
-          staticValue: Date.now(),
+    t.enableActivityTracking({ minimumVisitLength: 0, heartbeatDelay: 2 });
+    t.trackPageView({
+      context: [
+        {
+          schema: 'iglu:com.acme/static_context/jsonschema/1-0-0',
+          data: {
+            staticValue: Date.now(),
+          },
         },
-      },
-    ]);
+      ],
+    });
     const pageOneTime = Date.now();
 
     jest.advanceTimersByTime(500);
@@ -104,14 +110,16 @@ describe('Activity tracker behaviour', () => {
     jest.advanceTimersByTime(2000); // PP = 1
 
     // page two with new static context, time has moved on 2 seconds by now
-    t.trackPageView(null, [
-      {
-        schema: 'iglu:com.acme/static_context/jsonschema/1-0-0',
-        data: {
-          staticValue: Date.now(),
+    t.trackPageView({
+      context: [
+        {
+          schema: 'iglu:com.acme/static_context/jsonschema/1-0-0',
+          data: {
+            staticValue: Date.now(),
+          },
         },
-      },
-    ]);
+      ],
+    });
     const pageTwoTime = Date.now();
 
     jest.advanceTimersByTime(500);
@@ -142,7 +150,7 @@ describe('Activity tracker behaviour', () => {
         stateStorageStrategy: 'cookie',
         encodeBase64: false,
       }) ?? fail('Failed to create tracker');
-    t.enableActivityTracking(0, 30);
+    t.enableActivityTracking({ minimumVisitLength: 0, heartbeatDelay: 30 });
     t.trackPageView();
 
     jest.advanceTimersByTime(15000);
@@ -170,7 +178,7 @@ describe('Activity tracker behaviour', () => {
         stateStorageStrategy: 'cookie',
         encodeBase64: false,
       }) ?? fail('Failed to create tracker');
-    t.enableActivityTracking(0, 30);
+    t.enableActivityTracking({ minimumVisitLength: 0, heartbeatDelay: 30 });
     t.trackPageView();
 
     jest.advanceTimersByTime(15000);
@@ -208,7 +216,7 @@ describe('Activity tracker behaviour', () => {
         stateStorageStrategy: 'cookie',
         encodeBase64: false,
       }) ?? fail('Failed to create tracker');
-    t.enableActivityTracking(10, 5);
+    t.enableActivityTracking({ minimumVisitLength: 10, heartbeatDelay: 5 });
 
     t.trackPageView();
     const firstPageId = t.getPageViewId();

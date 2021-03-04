@@ -36,7 +36,12 @@ import {
   getFilterByClass,
   getFilterByName,
 } from '@snowplow/browser-tracker-core';
-import { resolveDynamicContexts, DynamicContexts } from '@snowplow/tracker-core';
+import {
+  resolveDynamicContexts,
+  DynamicContexts,
+  buildFormFocusOrChange,
+  buildFormSubmission,
+} from '@snowplow/tracker-core';
 
 export interface FormTrackingConfig {
   forms: FilterCriterion<HTMLElement>;
@@ -61,7 +66,7 @@ export interface TrackedHTMLElementTagNameMap {
 export type TrackedHTMLElement = TrackedHTMLElementTagNameMap[keyof TrackedHTMLElementTagNameMap];
 
 export interface ElementData extends Record<string, string | null | undefined> {
-  name: string | null;
+  name: string;
   value: string | null;
   nodeName: string;
   type?: string;
@@ -209,7 +214,7 @@ function getInnerFormElements(trackingMarker: string, elt: HTMLFormElement) {
  */
 function getFormChangeListener(
   trackerConfiguration: TrackerAndFormConfiguration,
-  event_type: string,
+  event_type: 'change_form' | 'focus_form',
   context: DynamicContexts
 ) {
   return function (e: Event) {
@@ -221,14 +226,16 @@ function getFormChangeListener(
           ? null
           : trackerConfiguration.config?.fieldTransform(elt.value, elt);
       if (event_type === 'change_form' || (type !== 'checkbox' && type !== 'radio')) {
-        trackerConfiguration.tracker.core.trackFormFocusOrChange(
-          event_type,
-          getParentFormIdentifier(elt) ?? '',
-          getElementIdentifier(elt) ?? '',
-          elt.nodeName,
-          type,
-          getCssClasses(elt),
-          value ?? null,
+        trackerConfiguration.tracker.core.track(
+          buildFormFocusOrChange({
+            schema: event_type,
+            formId: getParentFormIdentifier(elt) ?? '',
+            elementId: getElementIdentifier(elt) ?? '',
+            nodeName: elt.nodeName,
+            type,
+            elementClasses: getCssClasses(elt),
+            value: value ?? null,
+          }),
           resolveDynamicContexts(context, elt, type, value)
         );
       }
@@ -251,10 +258,12 @@ function getFormSubmissionListener(
       innerElement.value =
         trackerConfiguration.config?.fieldTransform(innerElement.value, innerElement) ?? innerElement.value;
     });
-    trackerConfiguration.tracker.core.trackFormSubmission(
-      getElementIdentifier(elt) ?? '',
-      getCssClasses(elt),
-      innerElements,
+    trackerConfiguration.tracker.core.track(
+      buildFormSubmission({
+        formId: getElementIdentifier(elt) ?? '',
+        formClasses: getCssClasses(elt),
+        elements: innerElements,
+      }),
       resolveDynamicContexts(context, elt, innerElements)
     );
   };

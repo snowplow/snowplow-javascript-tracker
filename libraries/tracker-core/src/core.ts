@@ -74,19 +74,19 @@ type TimestampPayload = TrueTimestamp | DeviceTimestamp;
 /**
  * Transform optional/old-behavior number timestamp into`Timestamp` ADT
  *
- * @param tstamp optional number or timestamp object
+ * @param timestamp optional number or timestamp object
  * @returns correct timestamp object
  */
-function getTimestamp(tstamp?: Timestamp | null): TimestampPayload {
-  if (tstamp == null) {
+function getTimestamp(timestamp?: Timestamp | null): TimestampPayload {
+  if (timestamp == null) {
     return { type: 'dtm', value: new Date().getTime() };
-  } else if (typeof tstamp === 'number') {
-    return { type: 'dtm', value: tstamp };
-  } else if (tstamp.type === 'ttm') {
-    // We can return tstamp here, but this is safer fallback
-    return { type: 'ttm', value: tstamp.value };
+  } else if (typeof timestamp === 'number') {
+    return { type: 'dtm', value: timestamp };
+  } else if (timestamp.type === 'ttm') {
+    // We can return timestamp here, but this is safer fallback
+    return { type: 'ttm', value: timestamp.value };
   } else {
-    return { type: 'dtm', value: tstamp.value || new Date().getTime() };
+    return { type: 'dtm', value: timestamp.value || new Date().getTime() };
   }
 }
 
@@ -95,12 +95,34 @@ function getTimestamp(tstamp?: Timestamp | null): TimestampPayload {
  */
 export interface TrackerCore {
   /**
+   * Call with a payload from a buildX function
+   * Adds context and payloadPairs name-value pairs to the payload
+   * Applies the callback to the built payload
+   *
+   * @param sb Payload
+   * @param context Custom contexts relating to the event
+   * @param timestamp Timestamp of the event
+   * @param  A callback function triggered after event is tracked
+   * @return Payload after the callback is applied
+   */
+  track: (
+    sb: PayloadBuilder,
+    context?: Array<SelfDescribingJson> | null,
+    timestamp?: Timestamp | null
+  ) => PayloadBuilder;
+
+  /**
    * Set a persistent key-value pair to be added to every payload
    *
    * @param key Field name
    * @param value Field value
    */
   addPayloadPair: (key: string, value: string | number) => void;
+
+  /**
+   * Get current base64 encoding state
+   */
+  getBase64Encoding(): boolean;
 
   /**
    * Turn base 64 encoding on or off
@@ -210,461 +232,6 @@ export interface TrackerCore {
   setUseragent(useragent: string): void;
 
   /**
-   * Log a self-describing event
-   *
-   * @param properties Contains the properties and schema location for the event
-   * @param context Custom contexts relating to the event
-   * @param tstamp Timestamp of the event
-   * @param  A callback function triggered after event is tracked
-   * @return Payload
-   */
-  trackSelfDescribingEvent: (
-    properties: SelfDescribingJson,
-    context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null
-  ) => PayloadBuilder;
-
-  /**
-   * Log the page view / visit
-   *
-   * @param pageUrl Current page URL
-   * @param pageTitle The user-defined page title to attach to this page view
-   * @param referrer URL users came from
-   * @param context Custom contexts relating to the event
-   * @param tstamp Timestamp of the event
-   * @param  A callback function triggered after event is tracked
-   * @return Payload
-   */
-  trackPageView(
-    pageUrl: string | null,
-    pageTitle: string | null,
-    referrer: string | null,
-    context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null
-  ): PayloadBuilder;
-
-  /**
-   * Log that a user is still viewing a given page
-   * by sending a page ping
-   *
-   * @param pageUrl Current page URL
-   * @param pageTitle The page title to attach to this page ping
-   * @param referrer URL users came from
-   * @param minXOffset Minimum page x offset seen in the last ping period
-   * @param maxXOffset Maximum page x offset seen in the last ping period
-   * @param minYOffset Minimum page y offset seen in the last ping period
-   * @param maxYOffset Maximum page y offset seen in the last ping period
-   * @param context Custom contexts relating to the event
-   * @param tstamp Timestamp of the event
-   * @param  A callback function triggered after event is tracked
-   * @return Payload
-   */
-  trackPagePing(
-    pageUrl: string,
-    pageTitle: string,
-    referrer: string,
-    minXOffset: number,
-    maxXOffset: number,
-    minYOffset: number,
-    maxYOffset: number,
-    context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null
-  ): PayloadBuilder;
-
-  /**
-   * Track a structured event
-   *
-   * @param category The name you supply for the group of objects you want to track
-   * @param action A string that is uniquely paired with each category, and commonly used to define the type of user interaction for the web object
-   * @param label An optional string to provide additional dimensions to the event data
-   * @param property Describes the object or the action performed on it, e.g. quantity of item added to basket
-   * @param value An integer that you can use to provide numerical data about the user event
-   * @param context Custom contexts relating to the event
-   * @param tstamp Timestamp of the event
-   * @param  A callback function triggered after event is tracked
-   * @return Payload
-   */
-  trackStructEvent(
-    category: string,
-    action: string,
-    label?: string,
-    property?: string,
-    value?: number,
-    context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null
-  ): PayloadBuilder;
-
-  /**
-   * Track an ecommerce transaction
-   *
-   * @param orderId Internal unique order id number for this transaction.
-   * @param totalValue Total amount of the transaction.
-   * @param affiliation Partner or store affiliation.
-   * @param taxValue Tax amount of the transaction.
-   * @param shipping Shipping charge for the transaction.
-   * @param city City to associate with transaction.
-   * @param state State to associate with transaction.
-   * @param country Country to associate with transaction.
-   * @param currency Currency to associate with this transaction.
-   * @param context Context relating to the event.
-   * @param tstamp Timestamp of the event
-   * @param  A callback function triggered after event is tracked
-   * @return Payload
-   */
-  trackEcommerceTransaction(
-    orderId: string,
-    totalValue: number,
-    affiliation?: string,
-    taxValue?: number,
-    shipping?: number,
-    city?: string,
-    state?: string,
-    country?: string,
-    currency?: string,
-    context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null
-  ): PayloadBuilder;
-
-  /**
-   * Track an ecommerce transaction item
-   *
-   * @param orderId Required Order ID of the transaction to associate with item.
-   * @param sku Item's SKU code.
-   * @param name Product name.
-   * @param category Product category.
-   * @param price Product price.
-   * @param quantity Purchase quantity.
-   * @param currency Product price currency.
-   * @param context Context relating to the event.
-   * @param tstamp Timestamp of the event
-   * @param  A callback function triggered after event is tracked
-   * @return Payload
-   */
-  trackEcommerceTransactionItem(
-    orderId: string,
-    sku: string,
-    name: string,
-    category: string,
-    price: number,
-    quantity: number,
-    currency?: string,
-    context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null
-  ): PayloadBuilder;
-
-  /**
-   * Track a screen view self describing event
-   *
-   * @param name The name of the screen
-   * @param id The ID of the screen
-   * @param context Contexts relating to the event
-   * @param tstamp Timestamp of the event
-   * @param  A callback function triggered after event is tracked
-   * @return Payload
-   */
-  trackScreenView(
-    name: string,
-    id: string,
-    context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null
-  ): PayloadBuilder;
-
-  /**
-   * Log the link or click with the server
-   *
-   * @param targetUrl
-   * @param elementId
-   * @param elementClasses
-   * @param elementTarget
-   * @param elementContent innerHTML of the link
-   * @param context Custom contexts relating to the event
-   * @param tstamp Timestamp of the event
-   * @param  A callback function triggered after event is tracked
-   * @return Payload
-   */
-  trackLinkClick(
-    targetUrl: string,
-    elementId?: string,
-    elementClasses?: Array<string>,
-    elementTarget?: string,
-    elementContent?: string,
-    context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null
-  ): PayloadBuilder;
-
-  /**
-   * Track an ad being served
-   *
-   * @param impressionId Identifier for a particular ad impression
-   * @param costModel The cost model. 'cpa', 'cpc', or 'cpm'
-   * @param cost Cost
-   * @param targetUrl URL ad pointing to
-   * @param bannerId Identifier for the ad banner displayed
-   * @param zoneId Identifier for the ad zone
-   * @param advertiserId Identifier for the advertiser
-   * @param campaignId Identifier for the campaign which the banner belongs to
-   * @param context Custom contexts relating to the event
-   * @param tstamp Timestamp of the event
-   * @param  A callback function triggered after event is tracked
-   * @return Payload
-   */
-  trackAdImpression(
-    impressionId: string,
-    costModel: string,
-    cost: number,
-    targetUrl: string,
-    bannerId: string,
-    zoneId: string,
-    advertiserId: string,
-    campaignId: string,
-    context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null
-  ): PayloadBuilder;
-
-  /**
-   * Track an ad being clicked
-   *
-   * @param targetUrl (required) The link's target URL
-   * @param clickId Identifier for the ad click
-   * @param costModel The cost model. 'cpa', 'cpc', or 'cpm'
-   * @param cost Cost
-   * @param bannerId Identifier for the ad banner displayed
-   * @param zoneId Identifier for the ad zone
-   * @param impressionId Identifier for a particular ad impression
-   * @param advertiserId Identifier for the advertiser
-   * @param campaignId Identifier for the campaign which the banner belongs to
-   * @param context Custom contexts relating to the event
-   * @param tstamp Timestamp of the event
-   * @param  A callback function triggered after event is tracked
-   * @return Payload
-   */
-  trackAdClick(
-    targetUrl: string,
-    clickId: string,
-    costModel: string,
-    cost: number,
-    bannerId: string,
-    zoneId: string,
-    impressionId: string,
-    advertiserId: string,
-    campaignId: string,
-    context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null
-  ): PayloadBuilder;
-
-  /**
-   * Track an ad conversion event
-   *
-   * @param conversionId Identifier for the ad conversion event
-   * @param costModel The cost model. 'cpa', 'cpc', or 'cpm'
-   * @param cost Cost
-   * @param category The name you supply for the group of objects you want to track
-   * @param action A string that is uniquely paired with each category
-   * @param property Describes the object of the conversion or the action performed on it
-   * @param initialValue Revenue attributable to the conversion at time of conversion
-   * @param advertiserId Identifier for the advertiser
-   * @param campaignId Identifier for the campaign which the banner belongs to
-   * @param context Custom contexts relating to the event
-   * @param tstamp Timestamp of the event
-   * @param  A callback function triggered after event is tracked
-   * @return Payload
-   */
-  trackAdConversion(
-    conversionId: string,
-    costModel: string,
-    cost: number,
-    category: string,
-    action: string,
-    property: string,
-    initialValue: number,
-    advertiserId: string,
-    campaignId: string,
-    context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null
-  ): PayloadBuilder;
-
-  /**
-   * Track a social event
-   *
-   * @param action Social action performed
-   * @param network Social network
-   * @param target Object of the social action e.g. the video liked, the tweet retweeted
-   * @param context Custom contexts relating to the event
-   * @param tstamp Timestamp of the event
-   * @param  A callback function triggered after event is tracked
-   * @return Payload
-   */
-  trackSocialInteraction(
-    action: string,
-    network: string,
-    target: string,
-    context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null
-  ): PayloadBuilder;
-
-  /**
-   * Track an add-to-cart event
-   *
-   * @param sku Item's SKU code.
-   * @param name Product name.
-   * @param category Product category.
-   * @param unitPrice Product price.
-   * @param quantity Quantity added.
-   * @param currency Product price currency.
-   * @param context Context relating to the event.
-   * @param tstamp Timestamp of the event
-   * @param  A callback function triggered after event is tracked
-   * @return Payload
-   */
-  trackAddToCart(
-    sku: string,
-    name: string,
-    category: string,
-    unitPrice: string,
-    quantity: string,
-    currency?: string,
-    context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null
-  ): PayloadBuilder;
-
-  /**
-   * Track a remove-from-cart event
-   *
-   * @param sku Item's SKU code.
-   * @param name Product name.
-   * @param category Product category.
-   * @param unitPrice Product price.
-   * @param quantity Quantity removed.
-   * @param currency Product price currency.
-   * @param context Context relating to the event.
-   * @param tstamp Timestamp of the event
-   * @param  A callback function triggered after event is tracked
-   * @return Payload
-   */
-  trackRemoveFromCart(
-    sku: string,
-    name: string,
-    category: string,
-    unitPrice: string,
-    quantity: string,
-    currency?: string,
-    context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null
-  ): PayloadBuilder;
-
-  /**
-   * Track the value of a form field changing or receiving focus
-   *
-   * @param schema The schema type of the event
-   * @param formId The parent form ID
-   * @param elementId ID of the changed element
-   * @param nodeName "INPUT", "TEXTAREA", or "SELECT"
-   * @param type Type of the changed element if its type is "INPUT"
-   * @param elementClasses List of classes of the changed element
-   * @param value The new value of the changed element
-   * @param context Context relating to the event.
-   * @param tstamp Timestamp of the event
-   * @param  A callback function triggered after event is tracked
-   * @return Payload
-   */
-  trackFormFocusOrChange(
-    schema: string,
-    formId: string,
-    elementId: string,
-    nodeName: string,
-    type: string | null,
-    elementClasses: Array<string> | null,
-    value: string | null,
-    context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null
-  ): PayloadBuilder;
-
-  /**
-   * Track a form submission event
-   *
-   * @param formId ID of the form
-   * @param formClasses Classes of the form
-   * @param elements Mutable elements within the form
-   * @param context Context relating to the event.
-   * @param tstamp Timestamp of the event
-   * @param  A callback function triggered after event is tracked
-   * @return Payload
-   */
-  trackFormSubmission(
-    formId: string,
-    formClasses: Array<string>,
-    elements: Array<Record<string, unknown>>,
-    context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null
-  ): PayloadBuilder;
-
-  /**
-   * Track an internal search event
-   *
-   * @param terms Search terms
-   * @param filters Search filters
-   * @param totalResults Number of results
-   * @param pageResults Number of results displayed on page
-   * @param context Context relating to the event.
-   * @param tstamp Timestamp of the event
-   * @return Payload
-   */
-  trackSiteSearch(
-    terms: Array<string>,
-    filters: Record<string, string | boolean>,
-    totalResults: number,
-    pageResults: number,
-    context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null
-  ): PayloadBuilder;
-
-  /**
-   * Track a consent withdrawn event
-   *
-   * @param all Indicates user withdraws consent for all documents.
-   * @param id ID number associated with document.
-   * @param version Version number of document.
-   * @param name Name of document.
-   * @param description Description of document.
-   * @param context Context relating to the event.
-   * @param tstamp Timestamp of the event.
-   * @param  A callback function triggered after event is tracked
-   * @return Payload
-   */
-  trackConsentWithdrawn(
-    all: boolean,
-    id?: string,
-    version?: string,
-    name?: string,
-    description?: string,
-    context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null
-  ): PayloadBuilder;
-
-  /**
-   * Track a consent granted event
-   *
-   * @param id ID number associated with document.
-   * @param version Version number of document.
-   * @param name Name of document.
-   * @param description Description of document.
-   * @param expiry Date-time when consent expires.
-   * @param context Context relating to the event.
-   * @param tstamp Timestamp of the event.
-   * @param  A callback function triggered after event is tracked
-   * @return Payload
-   */
-  trackConsentGranted(
-    id: string,
-    version: string,
-    name?: string,
-    description?: string,
-    expiry?: string,
-    context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null
-  ): PayloadBuilder;
-
-  /**
    * Adds contexts globally, contexts added here will be attached to all applicable events
    * @param contexts An array containing either contexts or a conditional contexts
    */
@@ -691,38 +258,15 @@ export interface TrackerCore {
  */
 export function trackerCore(
   base64?: boolean,
-  callback?: (PayloadData: PayloadBuilder) => void,
-  corePlugins?: Array<CorePlugin>
+  corePlugins?: Array<CorePlugin>,
+  callback?: (PayloadData: PayloadBuilder) => void
 ): TrackerCore {
-  const plugins = corePlugins ?? [];
-  const pluginContextsHelper: PluginContexts = pluginContexts(plugins);
-  const globalContextsHelper: GlobalContexts = globalContexts();
+  let encodeBase64 = base64 ?? true,
+    payloadPairs: Payload = {}; // Dictionary of key-value pairs which get added to every payload, e.g. tracker version
 
-  // Dictionary of key-value pairs which get added to every payload, e.g. tracker version
-  let payloadPairs: Payload = {};
-
-  // base 64 encoding should default to true
-  let encodeBase64 = base64 ?? true;
-
-  /**
-   * Returns a copy of a JSON with undefined and null properties removed
-   *
-   * @param eventJson JSON object to clean
-   * @param exemptFields Set of fields which should not be removed even if empty
-   * @return A cleaned copy of eventJson
-   */
-  const removeEmptyProperties = (
-    eventJson: Record<string, unknown>,
-    exemptFields: { [key: string]: boolean } = {}
-  ): Payload => {
-    const ret: Payload = {};
-    for (const k in eventJson) {
-      if (exemptFields[k] || (eventJson[k] !== null && typeof eventJson[k] !== 'undefined')) {
-        ret[k] = eventJson[k];
-      }
-    }
-    return ret;
-  };
+  const plugins = corePlugins ?? [],
+    pluginContextsHelper: PluginContexts = pluginContexts(plugins),
+    globalContextsHelper: GlobalContexts = globalContexts();
 
   /**
    * Wraps an array of custom contexts in a self-describing JSON
@@ -770,19 +314,19 @@ export function trackerCore(
    *
    * @param sb Payload
    * @param context Custom contexts relating to the event
-   * @param tstamp Timestamp of the event
-   * @param  A callback function triggered after event is tracked
+   * @param timestamp Timestamp of the event
    * @return Payload after the callback is applied
    */
   const track = (
     sb: PayloadBuilder,
     context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null
+    timestamp?: Timestamp | null
   ): PayloadBuilder => {
+    sb.setBase64Encoding(encodeBase64);
     sb.addDict(payloadPairs);
     sb.add('eid', v4());
-    const timestamp = getTimestamp(tstamp);
-    sb.add(timestamp.type, timestamp.value.toString());
+    const tstamp = getTimestamp(timestamp);
+    sb.add(tstamp.type, tstamp.value.toString());
     const allContexts = attachGlobalContexts(sb, pluginContextsHelper.addPluginContexts(context));
     const wrappedContexts = completeContexts(allContexts);
     if (wrappedContexts !== undefined) {
@@ -817,32 +361,6 @@ export function trackerCore(
   };
 
   /**
-   * Log a self-describing event
-   *
-   * @param properties Contains the properties and schema location for the event
-   * @param context Custom contexts relating to the event
-   * @param tstamp Timestamp of the event
-   * @param  A callback function triggered after event is tracked
-   * @return Payload
-   */
-  const trackSelfDescribingEvent = (
-    properties: Record<string, unknown>,
-    context?: Array<SelfDescribingJson> | null,
-    tstamp?: Timestamp | null
-  ): PayloadBuilder => {
-    const sb = payloadBuilder(encodeBase64);
-    const ueJson = {
-      schema: 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0',
-      data: properties,
-    };
-
-    sb.add('e', 'ue');
-    sb.addJson('ue_px', 'ue_pr', ueJson);
-
-    return track(sb, context, tstamp);
-  };
-
-  /**
    * Set a persistent key-value pair to be added to every payload
    *
    * @param key Field name
@@ -853,13 +371,19 @@ export function trackerCore(
   };
 
   const core = {
+    track,
+
     addPayloadPair,
 
-    setBase64Encoding(encode: boolean): void {
+    getBase64Encoding() {
+      return encodeBase64;
+    },
+
+    setBase64Encoding(encode: boolean) {
       encodeBase64 = encode;
     },
 
-    addPayloadDict(dict: Payload): void {
+    addPayloadDict(dict: Payload) {
       for (const key in dict) {
         if (Object.prototype.hasOwnProperty.call(dict, key)) {
           payloadPairs[key] = dict[key];
@@ -867,515 +391,59 @@ export function trackerCore(
       }
     },
 
-    resetPayloadPairs(dict: Payload): void {
+    resetPayloadPairs(dict: Payload) {
       payloadPairs = isJson(dict) ? dict : {};
     },
 
-    setTrackerVersion(version: string): void {
+    setTrackerVersion(version: string) {
       addPayloadPair('tv', version);
     },
 
-    setTrackerNamespace(name: string): void {
+    setTrackerNamespace(name: string) {
       addPayloadPair('tna', name);
     },
 
-    setAppId(appId: string): void {
+    setAppId(appId: string) {
       addPayloadPair('aid', appId);
     },
 
-    setPlatform(value: string): void {
+    setPlatform(value: string) {
       addPayloadPair('p', value);
     },
 
-    setUserId(userId: string): void {
+    setUserId(userId: string) {
       addPayloadPair('uid', userId);
     },
 
-    setScreenResolution(width: string, height: string): void {
+    setScreenResolution(width: string, height: string) {
       addPayloadPair('res', width + 'x' + height);
     },
 
-    setViewport(width: string, height: string): void {
+    setViewport(width: string, height: string) {
       addPayloadPair('vp', width + 'x' + height);
     },
 
-    setColorDepth(depth: string): void {
+    setColorDepth(depth: string) {
       addPayloadPair('cd', depth);
     },
 
-    setTimezone(timezone: string): void {
+    setTimezone(timezone: string) {
       addPayloadPair('tz', timezone);
     },
 
-    setLang(lang: string): void {
+    setLang(lang: string) {
       addPayloadPair('lang', lang);
     },
 
-    setIpAddress(ip: string): void {
+    setIpAddress(ip: string) {
       addPayloadPair('ip', ip);
     },
 
-    setUseragent(useragent: string): void {
+    setUseragent(useragent: string) {
       addPayloadPair('ua', useragent);
     },
 
-    trackSelfDescribingEvent,
-
-    trackPageView(
-      pageUrl: string | null,
-      pageTitle: string | null,
-      referrer: string | null,
-      context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null
-    ): PayloadBuilder {
-      const sb = payloadBuilder(encodeBase64);
-      sb.add('e', 'pv'); // 'pv' for Page View
-      sb.add('url', pageUrl);
-      sb.add('page', pageTitle);
-      sb.add('refr', referrer);
-
-      return track(sb, context, tstamp);
-    },
-
-    trackPagePing(
-      pageUrl: string,
-      pageTitle: string,
-      referrer: string,
-      minXOffset: number,
-      maxXOffset: number,
-      minYOffset: number,
-      maxYOffset: number,
-      context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null
-    ): PayloadBuilder {
-      const sb = payloadBuilder(encodeBase64);
-      sb.add('e', 'pp'); // 'pp' for Page Ping
-      sb.add('url', pageUrl);
-      sb.add('page', pageTitle);
-      sb.add('refr', referrer);
-      sb.add('pp_mix', isNaN(minXOffset) ? null : minXOffset.toString());
-      sb.add('pp_max', isNaN(maxXOffset) ? null : maxXOffset.toString());
-      sb.add('pp_miy', isNaN(minYOffset) ? null : minYOffset.toString());
-      sb.add('pp_may', isNaN(maxYOffset) ? null : maxYOffset.toString());
-
-      return track(sb, context, tstamp);
-    },
-
-    trackStructEvent(
-      category: string,
-      action: string,
-      label?: string,
-      property?: string,
-      value?: number,
-      context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null
-    ): PayloadBuilder {
-      const sb = payloadBuilder(encodeBase64);
-      sb.add('e', 'se'); // 'se' for Structured Event
-      sb.add('se_ca', category);
-      sb.add('se_ac', action);
-      sb.add('se_la', label);
-      sb.add('se_pr', property);
-      sb.add('se_va', value == null ? undefined : value.toString());
-
-      return track(sb, context, tstamp);
-    },
-
-    trackEcommerceTransaction(
-      orderId: string,
-      totalValue: number,
-      affiliation?: string,
-      taxValue?: number,
-      shipping?: number,
-      city?: string,
-      state?: string,
-      country?: string,
-      currency?: string,
-      context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null
-    ): PayloadBuilder {
-      const sb = payloadBuilder(encodeBase64);
-      sb.add('e', 'tr'); // 'tr' for Transaction
-      sb.add('tr_id', orderId);
-      sb.add('tr_af', affiliation);
-      sb.add('tr_tt', totalValue);
-      sb.add('tr_tx', taxValue);
-      sb.add('tr_sh', shipping);
-      sb.add('tr_ci', city);
-      sb.add('tr_st', state);
-      sb.add('tr_co', country);
-      sb.add('tr_cu', currency);
-
-      return track(sb, context, tstamp);
-    },
-
-    trackEcommerceTransactionItem(
-      orderId: string,
-      sku: string,
-      name: string,
-      category: string,
-      price: number,
-      quantity: number,
-      currency?: string,
-      context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null
-    ): PayloadBuilder {
-      const sb = payloadBuilder(encodeBase64);
-      sb.add('e', 'ti'); // 'tr' for Transaction Item
-      sb.add('ti_id', orderId);
-      sb.add('ti_sk', sku);
-      sb.add('ti_nm', name);
-      sb.add('ti_ca', category);
-      sb.add('ti_pr', price);
-      sb.add('ti_qu', quantity);
-      sb.add('ti_cu', currency);
-
-      return track(sb, context, tstamp);
-    },
-
-    trackScreenView(
-      name: string,
-      id: string,
-      context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null
-    ): PayloadBuilder {
-      return trackSelfDescribingEvent(
-        {
-          schema: 'iglu:com.snowplowanalytics.snowplow/screen_view/jsonschema/1-0-0',
-          data: removeEmptyProperties({
-            name: name,
-            id: id,
-          }),
-        },
-        context,
-        tstamp
-      );
-    },
-
-    trackLinkClick(
-      targetUrl: string,
-      elementId?: string,
-      elementClasses?: Array<string>,
-      elementTarget?: string,
-      elementContent?: string,
-      context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null
-    ): PayloadBuilder {
-      const eventJson = {
-        schema: 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1',
-        data: removeEmptyProperties({
-          targetUrl: targetUrl,
-          elementId: elementId,
-          elementClasses: elementClasses,
-          elementTarget: elementTarget,
-          elementContent: elementContent,
-        }),
-      };
-
-      return trackSelfDescribingEvent(eventJson, context, tstamp);
-    },
-
-    trackAdImpression(
-      impressionId: string,
-      costModel: string,
-      cost: number,
-      targetUrl: string,
-      bannerId: string,
-      zoneId: string,
-      advertiserId: string,
-      campaignId: string,
-      context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null
-    ): PayloadBuilder {
-      const eventJson = {
-        schema: 'iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0',
-        data: removeEmptyProperties({
-          impressionId: impressionId,
-          costModel: costModel,
-          cost: cost,
-          targetUrl: targetUrl,
-          bannerId: bannerId,
-          zoneId: zoneId,
-          advertiserId: advertiserId,
-          campaignId: campaignId,
-        }),
-      };
-
-      return trackSelfDescribingEvent(eventJson, context, tstamp);
-    },
-
-    trackAdClick(
-      targetUrl: string,
-      clickId: string,
-      costModel: string,
-      cost: number,
-      bannerId: string,
-      zoneId: string,
-      impressionId: string,
-      advertiserId: string,
-      campaignId: string,
-      context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null
-    ): PayloadBuilder {
-      const eventJson = {
-        schema: 'iglu:com.snowplowanalytics.snowplow/ad_click/jsonschema/1-0-0',
-        data: removeEmptyProperties({
-          targetUrl: targetUrl,
-          clickId: clickId,
-          costModel: costModel,
-          cost: cost,
-          bannerId: bannerId,
-          zoneId: zoneId,
-          impressionId: impressionId,
-          advertiserId: advertiserId,
-          campaignId: campaignId,
-        }),
-      };
-
-      return trackSelfDescribingEvent(eventJson, context, tstamp);
-    },
-
-    trackAdConversion(
-      conversionId: string,
-      costModel: string,
-      cost: number,
-      category: string,
-      action: string,
-      property: string,
-      initialValue: number,
-      advertiserId: string,
-      campaignId: string,
-      context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null
-    ): PayloadBuilder {
-      const eventJson = {
-        schema: 'iglu:com.snowplowanalytics.snowplow/ad_conversion/jsonschema/1-0-0',
-        data: removeEmptyProperties({
-          conversionId: conversionId,
-          costModel: costModel,
-          cost: cost,
-          category: category,
-          action: action,
-          property: property,
-          initialValue: initialValue,
-          advertiserId: advertiserId,
-          campaignId: campaignId,
-        }),
-      };
-
-      return trackSelfDescribingEvent(eventJson, context, tstamp);
-    },
-
-    trackSocialInteraction(
-      action: string,
-      network: string,
-      target: string,
-      context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null
-    ): PayloadBuilder {
-      const eventJson = {
-        schema: 'iglu:com.snowplowanalytics.snowplow/social_interaction/jsonschema/1-0-0',
-        data: removeEmptyProperties({
-          action: action,
-          network: network,
-          target: target,
-        }),
-      };
-
-      return trackSelfDescribingEvent(eventJson, context, tstamp);
-    },
-
-    trackAddToCart(
-      sku: string,
-      name: string,
-      category: string,
-      unitPrice: string,
-      quantity: string,
-      currency?: string,
-      context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null
-    ): PayloadBuilder {
-      return trackSelfDescribingEvent(
-        {
-          schema: 'iglu:com.snowplowanalytics.snowplow/add_to_cart/jsonschema/1-0-0',
-          data: removeEmptyProperties({
-            sku: sku,
-            name: name,
-            category: category,
-            unitPrice: unitPrice,
-            quantity: quantity,
-            currency: currency,
-          }),
-        },
-        context,
-        tstamp
-      );
-    },
-
-    trackRemoveFromCart(
-      sku: string,
-      name: string,
-      category: string,
-      unitPrice: string,
-      quantity: string,
-      currency?: string,
-      context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null
-    ): PayloadBuilder {
-      return trackSelfDescribingEvent(
-        {
-          schema: 'iglu:com.snowplowanalytics.snowplow/remove_from_cart/jsonschema/1-0-0',
-          data: removeEmptyProperties({
-            sku: sku,
-            name: name,
-            category: category,
-            unitPrice: unitPrice,
-            quantity: quantity,
-            currency: currency,
-          }),
-        },
-        context,
-        tstamp
-      );
-    },
-
-    trackFormFocusOrChange(
-      schema: string,
-      formId: string,
-      elementId: string,
-      nodeName: string,
-      type: string | null,
-      elementClasses: Array<string> | null,
-      value: string | null,
-      context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null
-    ): PayloadBuilder {
-      let event_schema = '';
-      const event_data: Payload = { formId, elementId, nodeName, elementClasses, value };
-      if (schema === 'change_form') {
-        event_schema = 'iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0';
-        event_data.type = type;
-      } else if (schema === 'focus_form') {
-        event_schema = 'iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0';
-        event_data.elementType = type;
-      }
-      return trackSelfDescribingEvent(
-        {
-          schema: event_schema,
-          data: removeEmptyProperties(event_data, { value: true }),
-        },
-        context,
-        tstamp
-      );
-    },
-
-    trackFormSubmission(
-      formId: string,
-      formClasses: Array<string>,
-      elements: Array<Record<string, { name: string; value: string | null; nodeName: string; type?: string }>>,
-      context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null
-    ): PayloadBuilder {
-      return trackSelfDescribingEvent(
-        {
-          schema: 'iglu:com.snowplowanalytics.snowplow/submit_form/jsonschema/1-0-0',
-          data: removeEmptyProperties({
-            formId: formId,
-            formClasses: formClasses,
-            elements: elements,
-          }),
-        },
-        context,
-        tstamp
-      );
-    },
-
-    trackSiteSearch(
-      terms: Array<string>,
-      filters: Record<string, string | boolean>,
-      totalResults: number,
-      pageResults: number,
-      context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null
-    ): PayloadBuilder {
-      return trackSelfDescribingEvent(
-        {
-          schema: 'iglu:com.snowplowanalytics.snowplow/site_search/jsonschema/1-0-0',
-          data: removeEmptyProperties({
-            terms: terms,
-            filters: filters,
-            totalResults: totalResults,
-            pageResults: pageResults,
-          }),
-        },
-        context,
-        tstamp
-      );
-    },
-
-    trackConsentWithdrawn(
-      all: boolean,
-      id?: string,
-      version?: string,
-      name?: string,
-      description?: string,
-      context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null
-    ): PayloadBuilder {
-      const documentJson = {
-        schema: 'iglu:com.snowplowanalytics.snowplow/consent_document/jsonschema/1-0-0',
-        data: removeEmptyProperties({
-          id: id,
-          version: version,
-          name: name,
-          description: description,
-        }),
-      };
-
-      return trackSelfDescribingEvent(
-        {
-          schema: 'iglu:com.snowplowanalytics.snowplow/consent_withdrawn/jsonschema/1-0-0',
-          data: removeEmptyProperties({
-            all: all,
-          }),
-        },
-        context ? context.concat([documentJson]) : [documentJson],
-        tstamp
-      );
-    },
-
-    trackConsentGranted(
-      id: string,
-      version: string,
-      name?: string,
-      description?: string,
-      expiry?: string,
-      context?: Array<SelfDescribingJson> | null,
-      tstamp?: Timestamp | null
-    ): PayloadBuilder {
-      const documentJson = {
-        schema: 'iglu:com.snowplowanalytics.snowplow/consent_document/jsonschema/1-0-0',
-        data: removeEmptyProperties({
-          id: id,
-          version: version,
-          name: name,
-          description: description,
-        }),
-      };
-
-      return trackSelfDescribingEvent(
-        {
-          schema: 'iglu:com.snowplowanalytics.snowplow/consent_granted/jsonschema/1-0-0',
-          data: removeEmptyProperties({
-            expiry: expiry,
-          }),
-        },
-        context ? context.concat([documentJson]) : [documentJson],
-        tstamp
-      );
-    },
-
-    addGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive>): void {
+    addGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive>) {
       globalContextsHelper.addGlobalContexts(contexts);
     },
 
@@ -1383,10 +451,420 @@ export function trackerCore(
       globalContextsHelper.clearGlobalContexts();
     },
 
-    removeGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive>): void {
+    removeGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive>) {
       globalContextsHelper.removeGlobalContexts(contexts);
     },
   };
 
   return core;
+}
+
+/**
+ * Log a self-describing event
+ *
+ * @param properties Contains the properties and schema location for the event
+ * @return Payload
+ */
+export function buildSelfDescribingEvent({ event }: { event: SelfDescribingJson }): PayloadBuilder {
+  const sb = payloadBuilder();
+  const ueJson = {
+    schema: 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0',
+    data: event,
+  };
+
+  sb.add('e', 'ue');
+  sb.addJson('ue_px', 'ue_pr', ueJson);
+
+  return sb;
+}
+
+export function buildPageView({
+  pageUrl,
+  pageTitle,
+  referrer,
+}: {
+  pageUrl: string | null;
+  pageTitle: string | null;
+  referrer: string | null;
+  context?: Array<SelfDescribingJson> | null;
+  timestamp?: Timestamp | null;
+}): PayloadBuilder {
+  const sb = payloadBuilder();
+  sb.add('e', 'pv'); // 'pv' for Page View
+  sb.add('url', pageUrl);
+  sb.add('page', pageTitle);
+  sb.add('refr', referrer);
+
+  return sb;
+}
+
+export function buildPagePing({
+  pageUrl,
+  pageTitle,
+  referrer,
+  minXOffset,
+  maxXOffset,
+  minYOffset,
+  maxYOffset,
+}: {
+  pageUrl: string;
+  pageTitle: string;
+  referrer: string;
+  minXOffset: number;
+  maxXOffset: number;
+  minYOffset: number;
+  maxYOffset: number;
+}): PayloadBuilder {
+  const sb = payloadBuilder();
+  sb.add('e', 'pp'); // 'pp' for Page Ping
+  sb.add('url', pageUrl);
+  sb.add('page', pageTitle);
+  sb.add('refr', referrer);
+  sb.add('pp_mix', isNaN(minXOffset) ? null : minXOffset.toString());
+  sb.add('pp_max', isNaN(maxXOffset) ? null : maxXOffset.toString());
+  sb.add('pp_miy', isNaN(minYOffset) ? null : minYOffset.toString());
+  sb.add('pp_may', isNaN(maxYOffset) ? null : maxYOffset.toString());
+
+  return sb;
+}
+
+export function buildStructEvent({
+  category,
+  action,
+  label,
+  property,
+  value,
+}: {
+  category: string;
+  action: string;
+  label?: string;
+  property?: string;
+  value?: number;
+}): PayloadBuilder {
+  const sb = payloadBuilder();
+  sb.add('e', 'se'); // 'se' for Structured Event
+  sb.add('se_ca', category);
+  sb.add('se_ac', action);
+  sb.add('se_la', label);
+  sb.add('se_pr', property);
+  sb.add('se_va', value == null ? undefined : value.toString());
+
+  return sb;
+}
+
+export function buildEcommerceTransaction({
+  orderId,
+  total,
+  affiliation,
+  tax,
+  shipping,
+  city,
+  state,
+  country,
+  currency,
+}: {
+  orderId: string;
+  total: number;
+  affiliation?: string;
+  tax?: number;
+  shipping?: number;
+  city?: string;
+  state?: string;
+  country?: string;
+  currency?: string;
+}): PayloadBuilder {
+  const sb = payloadBuilder();
+  sb.add('e', 'tr'); // 'tr' for Transaction
+  sb.add('tr_id', orderId);
+  sb.add('tr_af', affiliation);
+  sb.add('tr_tt', total);
+  sb.add('tr_tx', tax);
+  sb.add('tr_sh', shipping);
+  sb.add('tr_ci', city);
+  sb.add('tr_st', state);
+  sb.add('tr_co', country);
+  sb.add('tr_cu', currency);
+
+  return sb;
+}
+
+export function buildEcommerceTransactionItem({
+  orderId,
+  sku,
+  name,
+  category,
+  price,
+  quantity,
+  currency,
+}: {
+  orderId: string;
+  sku: string;
+  name: string;
+  category: string;
+  price: number;
+  quantity: number;
+  currency?: string;
+}): PayloadBuilder {
+  const sb = payloadBuilder();
+  sb.add('e', 'ti'); // 'tr' for Transaction Item
+  sb.add('ti_id', orderId);
+  sb.add('ti_sk', sku);
+  sb.add('ti_nm', name);
+  sb.add('ti_ca', category);
+  sb.add('ti_pr', price);
+  sb.add('ti_qu', quantity);
+  sb.add('ti_cu', currency);
+
+  return sb;
+}
+
+export function buildScreenView(event: { name: string; id: string }): PayloadBuilder {
+  return buildSelfDescribingEvent({
+    event: {
+      schema: 'iglu:com.snowplowanalytics.snowplow/screen_view/jsonschema/1-0-0',
+      data: removeEmptyProperties(event),
+    },
+  });
+}
+
+export function buildLinkClick(event: {
+  targetUrl: string;
+  elementId?: string;
+  elementClasses?: Array<string>;
+  elementTarget?: string;
+  elementContent?: string;
+}): PayloadBuilder {
+  const eventJson = {
+    schema: 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1',
+    data: removeEmptyProperties(event),
+  };
+
+  return buildSelfDescribingEvent({ event: eventJson });
+}
+
+export function buildAdImpression(event: {
+  impressionId: string;
+  costModel: string;
+  cost: number;
+  targetUrl: string;
+  bannerId: string;
+  zoneId: string;
+  advertiserId: string;
+  campaignId: string;
+}): PayloadBuilder {
+  const eventJson = {
+    schema: 'iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0',
+    data: removeEmptyProperties(event),
+  };
+
+  return buildSelfDescribingEvent({ event: eventJson });
+}
+
+export function buildAdClick(event: {
+  targetUrl: string;
+  clickId: string;
+  costModel: string;
+  cost: number;
+  bannerId: string;
+  zoneId: string;
+  impressionId: string;
+  advertiserId: string;
+  campaignId: string;
+}): PayloadBuilder {
+  const eventJson = {
+    schema: 'iglu:com.snowplowanalytics.snowplow/ad_click/jsonschema/1-0-0',
+    data: removeEmptyProperties(event),
+  };
+
+  return buildSelfDescribingEvent({ event: eventJson });
+}
+
+export function buildAdConversion(event: {
+  conversionId: string;
+  costModel: string;
+  cost: number;
+  category: string;
+  action: string;
+  property: string;
+  initialValue: number;
+  advertiserId: string;
+  campaignId: string;
+}): PayloadBuilder {
+  const eventJson = {
+    schema: 'iglu:com.snowplowanalytics.snowplow/ad_conversion/jsonschema/1-0-0',
+    data: removeEmptyProperties(event),
+  };
+
+  return buildSelfDescribingEvent({ event: eventJson });
+}
+
+export function buildSocialInteraction(event: { action: string; network: string; target: string }): PayloadBuilder {
+  const eventJson = {
+    schema: 'iglu:com.snowplowanalytics.snowplow/social_interaction/jsonschema/1-0-0',
+    data: removeEmptyProperties(event),
+  };
+
+  return buildSelfDescribingEvent({ event: eventJson });
+}
+
+export function buildAddToCart(event: {
+  sku: string;
+  name: string;
+  category: string;
+  unitPrice: string;
+  quantity: string;
+  currency?: string;
+}): PayloadBuilder {
+  return buildSelfDescribingEvent({
+    event: {
+      schema: 'iglu:com.snowplowanalytics.snowplow/add_to_cart/jsonschema/1-0-0',
+      data: removeEmptyProperties(event),
+    },
+  });
+}
+
+export function buildRemoveFromCart(event: {
+  sku: string;
+  name: string;
+  category: string;
+  unitPrice: string;
+  quantity: string;
+  currency?: string;
+}): PayloadBuilder {
+  return buildSelfDescribingEvent({
+    event: {
+      schema: 'iglu:com.snowplowanalytics.snowplow/remove_from_cart/jsonschema/1-0-0',
+      data: removeEmptyProperties(event),
+    },
+  });
+}
+
+export function buildFormFocusOrChange({
+  schema,
+  formId,
+  elementId,
+  nodeName,
+  type,
+  elementClasses,
+  value,
+}: {
+  schema: 'change_form' | 'focus_form';
+  formId: string;
+  elementId: string;
+  nodeName: string;
+  type: string | null;
+  elementClasses: Array<string> | null;
+  value: string | null;
+}): PayloadBuilder {
+  let event_schema = '';
+  const event_data: Payload = { formId, elementId, nodeName, elementClasses, value };
+  if (schema === 'change_form') {
+    event_schema = 'iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0';
+    event_data.type = type;
+  } else if (schema === 'focus_form') {
+    event_schema = 'iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0';
+    event_data.elementType = type;
+  }
+  return buildSelfDescribingEvent({
+    event: {
+      schema: event_schema,
+      data: removeEmptyProperties(event_data, { value: true }),
+    },
+  });
+}
+
+export function buildFormSubmission(event: {
+  formId: string;
+  formClasses: Array<string>;
+  elements: Array<{ name: string; value: string | null; nodeName: string; type?: string }>;
+}): PayloadBuilder {
+  return buildSelfDescribingEvent({
+    event: {
+      schema: 'iglu:com.snowplowanalytics.snowplow/submit_form/jsonschema/1-0-0',
+      data: removeEmptyProperties(event),
+    },
+  });
+}
+
+export function buildSiteSearch(event: {
+  terms: Array<string>;
+  filters: Record<string, string | boolean>;
+  totalResults: number;
+  pageResults: number;
+}): PayloadBuilder {
+  return buildSelfDescribingEvent({
+    event: {
+      schema: 'iglu:com.snowplowanalytics.snowplow/site_search/jsonschema/1-0-0',
+      data: removeEmptyProperties(event),
+    },
+  });
+}
+
+export function buildConsentWithdrawn(event: {
+  all: boolean;
+  id?: string;
+  version?: string;
+  name?: string;
+  description?: string;
+}) {
+  const { all, ...rest } = event;
+  const documentJson = {
+    schema: 'iglu:com.snowplowanalytics.snowplow/consent_document/jsonschema/1-0-0',
+    data: removeEmptyProperties(rest),
+  };
+
+  return {
+    event: buildSelfDescribingEvent({
+      event: {
+        schema: 'iglu:com.snowplowanalytics.snowplow/consent_withdrawn/jsonschema/1-0-0',
+        data: removeEmptyProperties({
+          all: all,
+        }),
+      },
+    }),
+    context: [documentJson],
+  };
+}
+
+export function buildConsentGranted(event: {
+  id: string;
+  version: string;
+  name?: string;
+  description?: string;
+  expiry?: string;
+}) {
+  const { expiry, ...rest } = event;
+  const documentJson = {
+    schema: 'iglu:com.snowplowanalytics.snowplow/consent_document/jsonschema/1-0-0',
+    data: removeEmptyProperties(rest),
+  };
+
+  return {
+    event: buildSelfDescribingEvent({
+      event: {
+        schema: 'iglu:com.snowplowanalytics.snowplow/consent_granted/jsonschema/1-0-0',
+        data: removeEmptyProperties({
+          expiry: expiry,
+        }),
+      },
+    }),
+    context: [documentJson],
+  };
+}
+
+/**
+ * Returns a copy of a JSON with undefined and null properties removed
+ *
+ * @param eventJson JSON object to clean
+ * @param exemptFields Set of fields which should not be removed even if empty
+ * @return A cleaned copy of eventJson
+ */
+function removeEmptyProperties(eventJson: Record<string, any>, exemptFields: { [key: string]: boolean } = {}): Payload {
+  const ret: Payload = {};
+  for (const k in eventJson) {
+    if (exemptFields[k] || (eventJson[k] !== null && typeof eventJson[k] !== 'undefined')) {
+      ret[k] = eventJson[k];
+    }
+  }
+  return ret;
 }

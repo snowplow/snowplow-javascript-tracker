@@ -331,7 +331,7 @@ test('Get applicable contexts', (t) => {
   };
   const contextArray = [filterProvider, ruleSetProvider, geolocationContext, eventTypeContextGenerator];
   const globalContexts = contexts.globalContexts();
-  const event = payloadBuilder(false);
+  const event = payloadBuilder();
   for (const property in eventJson) {
     if (Object.prototype.hasOwnProperty.call(eventJson, property)) {
       event.add(property, eventJson[property]);

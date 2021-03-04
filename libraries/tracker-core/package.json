@@ -23,8 +23,8 @@
   ],
   "main": "./dist/index.js",
   "umd:main": "./dist/index.js",
-  "unpkg": "./dist/index.umd.js",
   "jsdelivr": "./dist/index.umd.js",
+  "unpkg": "./dist/index.umd.js",
   "module": "./dist/index.module.js",
   "types": "./dist/index.module.d.ts",
   "files": [

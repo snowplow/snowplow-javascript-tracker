@@ -1,13 +1,32 @@
 import test, { ExecutionContext } from 'ava';
-import { trackerCore } from '../src/core';
+import {
+  buildAdClick,
+  buildAdConversion,
+  buildAddToCart,
+  buildAdImpression,
+  buildConsentGranted,
+  buildConsentWithdrawn,
+  buildEcommerceTransaction,
+  buildEcommerceTransactionItem,
+  buildFormFocusOrChange,
+  buildFormSubmission,
+  buildLinkClick,
+  buildPagePing,
+  buildPageView,
+  buildRemoveFromCart,
+  buildScreenView,
+  buildSelfDescribingEvent,
+  buildSiteSearch,
+  buildSocialInteraction,
+  buildStructEvent,
+  trackerCore,
+} from '../src/core';
 import { PayloadBuilder, Payload } from '../src/payload';
 
 const selfDescribingEventSchema = 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0';
 let beforeCount = 0,
   afterCount = 0;
-const tracker = trackerCore(false, () => {}, [
-  { beforeTrack: () => (beforeCount += 1), afterTrack: () => (afterCount += 1) },
-]);
+const tracker = trackerCore(false, [{ beforeTrack: () => (beforeCount += 1), afterTrack: () => (afterCount += 1) }]);
 function compare(result: PayloadBuilder, expected: Payload, t: ExecutionContext) {
   const res = result.build();
   t.truthy(res['eid'], 'A UUID should be attached to all events');
@@ -18,32 +37,38 @@ function compare(result: PayloadBuilder, expected: Payload, t: ExecutionContext)
 }
 
 test('should track a page view', (t) => {
-  const url = 'http://www.example.com';
-  const page = 'title page';
-  const referer = 'https://www.google.com';
+  const pageUrl = 'http://www.example.com';
+  const pageTitle = 'title page';
+  const referrer = 'https://www.google.com';
   const expected = {
     e: 'pv',
-    url: url,
-    page: page,
-    refr: referer,
+    url: pageUrl,
+    page: pageTitle,
+    refr: referrer,
   };
-  compare(tracker.trackPageView(url, page, referer), expected, t);
+  compare(tracker.track(buildPageView({ pageUrl, pageTitle, referrer })), expected, t);
 });
 test('should track a page ping', (t) => {
-  const url = 'http://www.example.com';
-  const page = 'title page';
-  const referer = 'http://www.google.com';
+  const pageUrl = 'http://www.example.com';
+  const pageTitle = 'title page';
+  const referrer = 'http://www.google.com';
   const expected = {
     e: 'pp',
-    page: page,
-    url: url,
-    refr: referer,
+    page: pageTitle,
+    url: pageUrl,
+    refr: referrer,
     pp_mix: '1',
     pp_max: '2',
     pp_miy: '3',
     pp_may: '4',
   };
-  compare(tracker.trackPagePing(url, page, referer, 1, 2, 3, 4), expected, t);
+  compare(
+    tracker.track(
+      buildPagePing({ pageUrl, pageTitle, referrer, minXOffset: 1, maxXOffset: 2, minYOffset: 3, maxYOffset: 4 })
+    ),
+    expected,
+    t
+  );
 });
 test('should track a structured event', (t) => {
   const expected = {
@@ -54,13 +79,17 @@ test('should track a structured event', (t) => {
     se_pr: 'prop',
     se_va: '1',
   };
-  compare(tracker.trackStructEvent('cat', 'act', 'lab', 'prop', 1), expected, t);
+  compare(
+    tracker.track(buildStructEvent({ category: 'cat', action: 'act', label: 'lab', property: 'prop', value: 1 })),
+    expected,
+    t
+  );
 });
 test('should track an ecommerce transaction event', (t) => {
   const orderId = 'ak0008';
   const affiliation = '1234';
-  const totalValue = 50;
-  const taxValue = 6;
+  const total = 50;
+  const tax = 6;
   const shipping = 0;
   const city = 'Phoenix';
   const state = 'Arizona';
@@ -70,8 +99,8 @@ test('should track an ecommerce transaction event', (t) => {
     e: 'tr',
     tr_af: affiliation,
     tr_id: orderId,
-    tr_tt: totalValue,
-    tr_tx: taxValue,
+    tr_tt: total,
+    tr_tx: tax,
     tr_sh: shipping,
     tr_ci: city,
     tr_st: state,
@@ -79,16 +108,18 @@ test('should track an ecommerce transaction event', (t) => {
     tr_cu: currency,
   };
   compare(
-    tracker.trackEcommerceTransaction(
-      orderId,
-      totalValue,
-      affiliation,
-      taxValue,
-      shipping,
-      city,
-      state,
-      country,
-      currency
+    tracker.track(
+      buildEcommerceTransaction({
+        orderId,
+        total,
+        affiliation,
+        tax,
+        shipping,
+        city,
+        state,
+        country,
+        currency,
+      })
     ),
     expected,
     t
@@ -112,7 +143,11 @@ test('should track an ecommerce transaction item event', (t) => {
     ti_qu: quantity,
     ti_cu: currency,
   };
-  compare(tracker.trackEcommerceTransactionItem(orderId, sku, name, category, price, quantity, currency), expected, t);
+  compare(
+    tracker.track(buildEcommerceTransactionItem({ orderId, sku, name, category, price, quantity, currency })),
+    expected,
+    t
+  );
 });
 test('should track a self-describing event', (t) => {
   const inputJson = {
@@ -128,7 +163,7 @@ test('should track a self-describing event', (t) => {
       data: inputJson,
     }),
   };
-  compare(tracker.trackSelfDescribingEvent(inputJson), expected, t);
+  compare(tracker.track(buildSelfDescribingEvent({ event: inputJson })), expected, t);
 });
 test('should track a link click', (t) => {
   const targetUrl = 'http://www.example.com';
@@ -153,7 +188,11 @@ test('should track a link click', (t) => {
       data: inputJson,
     }),
   };
-  compare(tracker.trackLinkClick(targetUrl, elementId, elementClasses, elementTarget, elementContent), expected, t);
+  compare(
+    tracker.track(buildLinkClick({ targetUrl, elementId, elementClasses, elementTarget, elementContent })),
+    expected,
+    t
+  );
 });
 test('should track a screen view', (t) => {
   const name = 'intro';
@@ -172,7 +211,7 @@ test('should track a screen view', (t) => {
       data: inputJson,
     }),
   };
-  compare(tracker.trackScreenView(name, id), expected, t);
+  compare(tracker.track(buildScreenView({ name, id })), expected, t);
 });
 test('should track an ad impression', (t) => {
   const impressionId = 'a0e8f8780ab3';
@@ -204,7 +243,9 @@ test('should track an ad impression', (t) => {
     }),
   };
   compare(
-    tracker.trackAdImpression(impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId),
+    tracker.track(
+      buildAdImpression({ impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId })
+    ),
     expected,
     t
   );
@@ -241,7 +282,9 @@ test('should track an ad click', (t) => {
     }),
   };
   compare(
-    tracker.trackAdClick(targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId),
+    tracker.track(
+      buildAdClick({ targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId })
+    ),
     expected,
     t
   );
@@ -278,16 +321,18 @@ test('should track an ad conversion', (t) => {
     }),
   };
   compare(
-    tracker.trackAdConversion(
-      conversionId,
-      costModel,
-      cost,
-      category,
-      action,
-      property,
-      initialValue,
-      advertiserId,
-      campaignId
+    tracker.track(
+      buildAdConversion({
+        conversionId,
+        costModel,
+        cost,
+        category,
+        action,
+        property,
+        initialValue,
+        advertiserId,
+        campaignId,
+      })
     ),
     expected,
     t
@@ -312,7 +357,7 @@ test('should track a social interaction', (t) => {
       data: inputJson,
     }),
   };
-  compare(tracker.trackSocialInteraction(action, network, target), expected, t);
+  compare(tracker.track(buildSocialInteraction({ action, network, target })), expected, t);
 });
 test('should track an add-to-cart event', (t) => {
   const sku = '4q345';
@@ -339,7 +384,7 @@ test('should track an add-to-cart event', (t) => {
       data: inputJson,
     }),
   };
-  compare(tracker.trackAddToCart(sku, name, category, unitPrice, quantity, currency), expected, t);
+  compare(tracker.track(buildAddToCart({ sku, name, category, unitPrice, quantity, currency })), expected, t);
 });
 test('should track a remove-from-cart event', (t) => {
   const sku = '4q345';
@@ -366,7 +411,7 @@ test('should track a remove-from-cart event', (t) => {
       data: inputJson,
     }),
   };
-  compare(tracker.trackRemoveFromCart(sku, name, category, unitPrice, quantity, currency), expected, t);
+  compare(tracker.track(buildRemoveFromCart({ sku, name, category, unitPrice, quantity, currency })), expected, t);
 });
 test('should track a form focus event', (t) => {
   const formId = 'parent';
@@ -394,7 +439,9 @@ test('should track a form focus event', (t) => {
     }),
   };
   compare(
-    tracker.trackFormFocusOrChange('focus_form', formId, elementId, nodeName, type, elementClasses, value),
+    tracker.track(
+      buildFormFocusOrChange({ schema: 'focus_form', formId, elementId, nodeName, type, elementClasses, value })
+    ),
     expected,
     t
   );
@@ -425,7 +472,9 @@ test('should track a form change event', (t) => {
     }),
   };
   compare(
-    tracker.trackFormFocusOrChange('change_form', formId, elementId, nodeName, type, elementClasses, value),
+    tracker.track(
+      buildFormFocusOrChange({ schema: 'change_form', formId, elementId, nodeName, type, elementClasses, value })
+    ),
     expected,
     t
   );
@@ -456,7 +505,7 @@ test('should track a form submission event', (t) => {
       data: inputJson,
     }),
   };
-  compare(tracker.trackFormSubmission(formId, formClasses, elements), expected, t);
+  compare(tracker.track(buildFormSubmission({ formId, formClasses, elements })), expected, t);
 });
 test('should track a site seach event', (t) => {
   const terms = ['javascript', 'development'];
@@ -482,7 +531,7 @@ test('should track a site seach event', (t) => {
       data: inputJson,
     }),
   };
-  compare(tracker.trackSiteSearch(terms, filters, totalResults, pageResults), expected, t);
+  compare(tracker.track(buildSiteSearch({ terms, filters, totalResults, pageResults })), expected, t);
 });
 test('should track a consent withdrawn event', (t) => {
   const all = false;
@@ -490,7 +539,7 @@ test('should track a consent withdrawn event', (t) => {
   const version = '2';
   const name = 'consent_form';
   const description = 'user withdraws consent for form';
-  const tstamp = 1000000000000;
+  const timestamp = 1000000000000;
   const inputContext = [
     {
       schema: 'iglu:com.snowplowanalytics.snowplow/consent_document/jsonschema/1-0-0',
@@ -519,14 +568,15 @@ test('should track a consent withdrawn event', (t) => {
       data: inputContext,
     }),
   };
-  compare(tracker.trackConsentWithdrawn(all, id, version, name, description, [], tstamp), expected, t);
+  const consentEvent = buildConsentWithdrawn({ all, id, version, name, description });
+  compare(tracker.track(consentEvent.event, consentEvent.context, timestamp), expected, t);
 });
 test('should track a consent granted event', (t) => {
   const id = '1234';
   const version = '2';
   const name = 'consent_form';
   const description = 'user grants consent for form';
-  const tstamp = 1000000000000;
+  const timestamp = 1000000000000;
   const expiry = '01 January, 1970 00:00:00 Universal Time (UTC)';
   const inputContext = [
     {
@@ -556,12 +606,13 @@ test('should track a consent granted event', (t) => {
       data: inputContext,
     }),
   };
-  compare(tracker.trackConsentGranted(id, version, name, description, expiry, [], tstamp), expected, t);
+  const consentEvent = buildConsentGranted({ id, version, name, description, expiry });
+  compare(tracker.track(consentEvent.event, consentEvent.context, timestamp), expected, t);
 });
 test('should track a page view with custom context', (t) => {
-  const url = 'http://www.example.com';
-  const page = 'title page';
-  const referer = 'https://www.google.com';
+  const pageUrl = 'http://www.example.com';
+  const pageTitle = 'title page';
+  const referrer = 'https://www.google.com';
   const inputContext = [
     {
       schema: 'iglu:com.acme/user/jsonschema/1-0-0',
@@ -573,89 +624,94 @@ test('should track a page view with custom context', (t) => {
   ];
   const expected = {
     e: 'pv',
-    url: url,
-    page: page,
-    refr: referer,
+    url: pageUrl,
+    page: pageTitle,
+    refr: referrer,
     co: JSON.stringify({
       schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0',
       data: inputContext,
     }),
   };
-  compare(tracker.trackPageView(url, page, referer, inputContext), expected, t);
+  compare(tracker.track(buildPageView({ pageUrl, pageTitle, referrer }), inputContext), expected, t);
 });
 test('should track a page view with a timestamp', (t) => {
-  const tstamp = 1000000000000;
-  t.is(tracker.trackPageView('http://www.example.com', 'title', 'ref', [], tstamp).build()['dtm'], '1000000000000');
+  const timestamp = 1000000000000;
+  t.is(
+    tracker
+      .track(buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'title', referrer: 'ref' }), [], timestamp)
+      .build()['dtm'],
+    '1000000000000'
+  );
 });
 test('should add individual name-value pairs to the payload', (t) => {
   const tracker = trackerCore(false);
-  const url = 'http://www.example.com';
-  const page = 'title';
-  const referer = 'https://www.google.com';
+  const pageUrl = 'http://www.example.com';
+  const pageTitle = 'title';
+  const referrer = 'https://www.google.com';
   const expected = {
     e: 'pv',
-    url: url,
+    url: pageUrl,
     tna: 'sp',
     tv: 'js-2.0.0',
-    page: page,
-    refr: referer,
+    page: pageTitle,
+    refr: referrer,
   };
   tracker.addPayloadPair('tna', 'sp');
   tracker.addPayloadPair('tv', 'js-2.0.0');
-  compare(tracker.trackPageView(url, page, referer), expected, t);
+  compare(tracker.track(buildPageView({ pageUrl, pageTitle, referrer })), expected, t);
 });
 test('should add a dictionary of name-value pairs to the payload', (t) => {
   const tracker = trackerCore(false);
-  const url = 'http://www.example.com';
-  const page = 'title';
-  const referer = 'https://www.google.com';
+  const pageUrl = 'http://www.example.com';
+  const pageTitle = 'title';
+  const referrer = 'https://www.google.com';
   const expected = {
     e: 'pv',
-    url: url,
+    url: pageUrl,
     tv: 'js-2.0.0',
     tna: 'sp',
     aid: 'sp325',
-    page: page,
-    refr: referer,
+    page: pageTitle,
+    refr: referrer,
   };
   tracker.addPayloadPair('tv', 'js-2.0.0');
   tracker.addPayloadDict({
     tna: 'sp',
     aid: 'sp325',
   });
-  compare(tracker.trackPageView(url, page, referer), expected, t);
+  compare(tracker.track(buildPageView({ pageUrl, pageTitle, referrer })), expected, t);
 });
 test('should reset payload name-value pairs', (t) => {
   const tracker = trackerCore(false);
-  const url = 'http://www.example.com';
-  const page = 'title';
-  const referer = 'https://www.google.com';
+  const pageUrl = 'http://www.example.com';
+  const pageTitle = 'title';
+  const referrer = 'https://www.google.com';
   const expected = {
     e: 'pv',
-    url: url,
+    url: pageUrl,
     tna: 'sp',
-    page: page,
-    refr: referer,
+    page: pageTitle,
+    refr: referrer,
   };
   tracker.addPayloadPair('tna', 'mistake');
   tracker.resetPayloadPairs({ tna: 'sp' });
-  compare(tracker.trackPageView(url, page, referer), expected, t);
+  compare(tracker.track(buildPageView({ pageUrl, pageTitle, referrer })), expected, t);
 });
 test('should execute a callback', (t) => {
-  const tracker = trackerCore(false, function (payload) {
+  const tracker = trackerCore(false, [], function (payload) {
     const callbackTarget = payload;
     compare(callbackTarget, expected, t);
   });
-  const url = 'http://www.example.com';
-  const page = 'title';
-  const referer = 'https://www.google.com';
+  const pageUrl = 'http://www.example.com';
+  const pageTitle = 'title';
+  const referrer = 'https://www.google.com';
   const expected = {
     e: 'pv',
-    url: url,
-    page: page,
-    refr: referer,
+    url: pageUrl,
+    page: pageTitle,
+    refr: referrer,
   };
-  tracker.trackPageView(url, page, referer);
+  tracker.track(buildPageView({ pageUrl, pageTitle, referrer }));
 });
 test('should use setter methods', (t) => {
   const tracker = trackerCore(false);
@@ -670,13 +726,13 @@ test('should use setter methods', (t) => {
   tracker.setTimezone('Europe London');
   tracker.setIpAddress('37.151.33.154');
   tracker.setUseragent('SnowplowJavascript/0.0.1');
-  const url = 'http://www.example.com';
-  const page = 'title page';
-  const referer = 'https://www.google.com';
+  const pageUrl = 'http://www.example.com';
+  const pageTitle = 'title page';
+  const referrer = 'https://www.google.com';
   const expected = {
     e: 'pv',
-    url: url,
-    page: page,
+    url: pageUrl,
+    page: pageTitle,
     tna: 'sp1',
     tv: 'js-3.0.0',
     aid: 'my-app',
@@ -688,16 +744,18 @@ test('should use setter methods', (t) => {
     tz: 'Europe London',
     ip: '37.151.33.154',
     ua: 'SnowplowJavascript/0.0.1',
-    refr: referer,
+    refr: referrer,
   };
-  compare(tracker.trackPageView(url, page, referer), expected, t);
+  compare(tracker.track(buildPageView({ pageUrl, pageTitle, referrer })), expected, t);
 });
 
 test('should set true timestamp', (t) => {
-  const url = 'http://www.example.com';
-  const page = 'title page';
-  const referer = 'https://www.google.com';
-  const result = tracker.trackPageView(url, page, referer, undefined, { type: 'ttm', value: 1477403862 }).build();
+  const pageUrl = 'http://www.example.com';
+  const pageTitle = 'title page';
+  const referrer = 'https://www.google.com';
+  const result = tracker
+    .track(buildPageView({ pageUrl, pageTitle, referrer }), undefined, { type: 'ttm', value: 1477403862 })
+    .build();
   t.true('ttm' in result);
   t.is(result['ttm'], '1477403862');
   t.false('dtm' in result);
@@ -710,7 +768,9 @@ test('should set device timestamp as ADT', (t) => {
       name: 'Eric',
     },
   };
-  const result = tracker.trackSelfDescribingEvent(inputJson, [inputJson], { type: 'dtm', value: 1477403869 }).build();
+  const result = tracker
+    .track(buildSelfDescribingEvent({ event: inputJson }), [inputJson], { type: 'dtm', value: 1477403869 })
+    .build();
   t.true('dtm' in result);
   t.is(result['dtm'], '1477403869');
   t.false('ttm' in result);
@@ -733,25 +793,82 @@ test('should run plugin before and after track callbacks on each track event', (
   };
   (beforeCount = 0), (afterCount = 0);
   const fs = [
-    tracker.trackPagePing(url, str, url, num, num, num, num, undefined, undefined),
-    tracker.trackPageView(url, str, str, undefined, undefined),
-    tracker.trackAddToCart(str, str, str, str, str, str, undefined, undefined),
-    tracker.trackScreenView(str, str, undefined, undefined),
-    tracker.trackSiteSearch(arr, filters, num, num, undefined, undefined),
-    tracker.trackStructEvent(str, str, str, str, num, undefined, undefined),
-    tracker.trackAdConversion(str, str, num, str, str, str, num, str, str, undefined, undefined),
-    tracker.trackAdImpression(str, str, num, url, str, str, str, str, undefined, undefined),
-    tracker.trackConsentGranted(str, str, str, undefined, undefined, undefined, undefined),
-    tracker.trackFormSubmission(str, [], [], undefined, undefined),
-    tracker.trackRemoveFromCart(str, str, str, str, str, str, undefined, undefined),
-    tracker.trackConsentWithdrawn(false, undefined, undefined, undefined, undefined, undefined, undefined),
-    tracker.trackFormFocusOrChange(str, str, str, str, str, arr, str, undefined, undefined),
-    tracker.trackSocialInteraction(str, str, str, undefined, undefined),
-    tracker.trackSelfDescribingEvent(inputJson, undefined, undefined),
-    tracker.trackEcommerceTransaction(str, num, str, num, num, str, str, str, str, undefined, undefined),
-    tracker.trackEcommerceTransactionItem(str, str, str, str, num, num, str, undefined, undefined),
-    tracker.trackLinkClick(url, str, arr, str, str, undefined, undefined),
-    tracker.trackAdClick(url, str, str, num, str, str, str, str, str, undefined, undefined),
+    tracker.track(
+      buildPagePing({
+        pageUrl: url,
+        pageTitle: str,
+        referrer: url,
+        maxXOffset: num,
+        maxYOffset: num,
+        minXOffset: num,
+        minYOffset: num,
+      })
+    ),
+    tracker.track(buildPageView({ pageUrl: url, pageTitle: str, referrer: url })),
+    tracker.track(buildAddToCart({ category: str, name: str, quantity: str, sku: str, unitPrice: str })),
+    tracker.track(buildScreenView({ id: str, name: str })),
+    tracker.track(buildSiteSearch({ filters, pageResults: num, terms: arr, totalResults: num })),
+    tracker.track(buildStructEvent({ category: str, action: str })),
+    tracker.track(
+      buildAdConversion({
+        conversionId: str,
+        costModel: str,
+        cost: num,
+        category: str,
+        action: str,
+        property: str,
+        initialValue: num,
+        advertiserId: str,
+        campaignId: str,
+      })
+    ),
+    tracker.track(
+      buildAdImpression({
+        impressionId: str,
+        costModel: str,
+        cost: num,
+        targetUrl: str,
+        bannerId: str,
+        zoneId: str,
+        advertiserId: str,
+        campaignId: str,
+      })
+    ),
+    tracker.track(buildFormSubmission({ elements: [], formClasses: [], formId: str })),
+    tracker.track(buildRemoveFromCart({ category: str, name: str, quantity: str, sku: str, unitPrice: str })),
+    tracker.track(buildConsentGranted({ id: str, version: str }).event),
+    tracker.track(buildConsentWithdrawn({ all: true }).event),
+    tracker.track(
+      buildFormFocusOrChange({
+        schema: 'focus_form',
+        formId: str,
+        elementId: str,
+        nodeName: str,
+        type: str,
+        elementClasses: arr,
+        value: str,
+      })
+    ),
+    tracker.track(buildSocialInteraction({ action: str, network: str, target: str })),
+    tracker.track(buildSelfDescribingEvent({ event: inputJson })),
+    tracker.track(buildEcommerceTransaction({ orderId: str, total: num })),
+    tracker.track(
+      buildEcommerceTransactionItem({ orderId: str, sku: str, name: str, category: str, price: num, quantity: num })
+    ),
+    tracker.track(buildLinkClick({ targetUrl: url })),
+    tracker.track(
+      buildAdClick({
+        targetUrl: str,
+        clickId: str,
+        costModel: str,
+        cost: num,
+        bannerId: str,
+        zoneId: str,
+        impressionId: str,
+        advertiserId: str,
+        campaignId: str,
+      })
+    ),
   ];
 
   t.is(beforeCount, fs.length);

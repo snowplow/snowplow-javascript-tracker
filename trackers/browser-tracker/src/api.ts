@@ -36,7 +36,14 @@ import {
   getTrackers,
   StateStorageStrategy,
 } from '@snowplow/browser-tracker-core';
-import { ConditionalContextProvider, ContextPrimitive, SelfDescribingJson, Timestamp } from '@snowplow/tracker-core';
+import {
+  buildSelfDescribingEvent,
+  buildStructEvent,
+  ConditionalContextProvider,
+  ContextPrimitive,
+  SelfDescribingJson,
+  Timestamp,
+} from '@snowplow/tracker-core';
 
 const dispatch = (trackers: Array<string> = allTrackerNames(), fn: (t: BrowserTracker) => void) => {
   getTrackers(trackers).forEach(fn);
@@ -147,14 +154,14 @@ export const crossDomainLinker = function (
  * pings to the Collector regularly).
  *
  * @param int minimumVisitLength Seconds to wait before sending first page ping
- * @param int heartBeatDelay Seconds to wait between pings
+ * @param int heartbeatDelay Seconds to wait between pings
  */
 export const enableActivityTracking = function (
-  { minimumVisitLength, heartBeatDelay }: { minimumVisitLength: number; heartBeatDelay: number },
+  configuration: { minimumVisitLength: number; heartbeatDelay: number },
   trackers?: Array<string>
 ) {
   dispatch(trackers, (t) => {
-    t.enableActivityTracking(minimumVisitLength, heartBeatDelay);
+    t.enableActivityTracking(configuration);
   });
 };
 
@@ -162,19 +169,15 @@ export const enableActivityTracking = function (
  * Enables page activity tracking (replaces collector ping with callback).
  *
  * @param int minimumVisitLength Seconds to wait before sending first page ping
- * @param int heartBeatDelay Seconds to wait between pings
+ * @param int heartbeatDelay Seconds to wait between pings
  * @param function callback function called with ping data
  */
 export const enableActivityTrackingCallback = function (
-  {
-    minimumVisitLength,
-    heartBeatDelay,
-    callback,
-  }: { minimumVisitLength: number; heartBeatDelay: number; callback: ActivityCallback },
+  configuration: { minimumVisitLength: number; heartbeatDelay: number; callback: ActivityCallback },
   trackers?: Array<string>
 ) {
   dispatch(trackers, (t) => {
-    t.enableActivityTrackingCallback(minimumVisitLength, heartBeatDelay, callback);
+    t.enableActivityTrackingCallback(configuration);
   });
 };
 
@@ -272,24 +275,19 @@ export const flushBuffer = function (trackers?: Array<string>) {
  * @param string customTitle
  * @param object Custom context relating to the event
  * @param object contextCallback Function returning an array of contexts
- * @param tstamp number or Timestamp object
+ * @param timestamp number or Timestamp object
  */
 export const trackPageView = function (
-  {
-    title,
-    context,
-    contextCallback,
-    tstamp,
-  }: {
+  event: {
     title?: string | null;
     context?: Array<SelfDescribingJson> | null;
     contextCallback?: (() => Array<SelfDescribingJson>) | null;
-    tstamp?: Timestamp | null;
+    timestamp?: Timestamp | null;
   } = {},
   trackers?: Array<string>
 ) {
   dispatch(trackers, (t) => {
-    t.trackPageView(title, context, contextCallback, tstamp);
+    t.trackPageView(event);
   });
 };
 
@@ -305,31 +303,23 @@ export const trackPageView = function (
 //    * @param string property (optional) Describes the object or the action performed on it, e.g. quantity of item added to basket
 //    * @param int|float|string value (optional) An integer that you can use to provide numerical data about the user event
 //    * @param object context (optional) Custom context relating to the event
-//    * @param number|Timestamp tstamp (optional) TrackerTimestamp of the event
+//    * @param number|Timestamp timestamp (optional) TrackerTimestamp of the event
 //    * @param function afterTrack (optional) A callback function triggered after event is tracked
 //    */
 export const trackStructEvent = function (
-  {
-    category,
-    action,
-    label,
-    property,
-    value,
-    context,
-    tstamp,
-  }: {
+  event: {
     category: string;
     action: string;
     label?: string;
     property?: string;
     value?: number;
     context?: Array<SelfDescribingJson>;
-    tstamp?: Timestamp;
+    timestamp?: Timestamp;
   },
   trackers?: Array<string>
 ) {
   dispatch(trackers, (t) => {
-    t.core.trackStructEvent(category, action, label, property, value, context, tstamp);
+    t.core.track(buildStructEvent(event), event.context, event.timestamp);
   });
 };
 
@@ -338,15 +328,19 @@ export const trackStructEvent = function (
  *
  * @param object eventJson Contains the properties and schema location for the event
  * @param object context Custom context relating to the event
- * @param tstamp number or Timestamp object
+ * @param timestamp number or Timestamp object
  * @param function afterTrack (optional) A callback function triggered after event is tracked
  */
 export const trackSelfDescribingEvent = function (
-  { event, context, tstamp }: { event: SelfDescribingJson; context?: Array<SelfDescribingJson>; tstamp?: Timestamp },
+  {
+    event,
+    context,
+    timestamp,
+  }: { event: SelfDescribingJson; context?: Array<SelfDescribingJson>; timestamp?: Timestamp },
   trackers?: Array<string>
 ) {
   dispatch(trackers, (t) => {
-    t.core.trackSelfDescribingEvent(event, context, tstamp);
+    t.core.track(buildSelfDescribingEvent({ event }), context, timestamp);
   });
 };
 

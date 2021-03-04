@@ -28,7 +28,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { PayloadBuilder, SelfDescribingJson, Timestamp, trackerCore } from '@snowplow/tracker-core';
+import {
+  buildPagePing,
+  buildPageView,
+  PayloadBuilder,
+  SelfDescribingJson,
+  Timestamp,
+  trackerCore,
+} from '@snowplow/tracker-core';
 import sha1 from 'sha1';
 import { v4 as uuid } from 'uuid';
 import { detectDocumentSize, detectViewport } from '../detectors';
@@ -130,14 +137,10 @@ export const Tracker = (
     }
 
     let // Tracker core
-      core = trackerCore(
-        argmap.encodeBase64 ?? true,
-        function (payloadBuilder) {
-          addBrowserData(payloadBuilder);
-          sendRequest(payloadBuilder, configPageUnloadTimer);
-        },
-        plugins
-      ),
+      core = trackerCore(argmap.encodeBase64 ?? true, plugins, function (payloadBuilder) {
+        addBrowserData(payloadBuilder);
+        sendRequest(payloadBuilder, configPageUnloadTimer);
+      }),
       // Aliases
       documentAlias = document,
       windowAlias = window,
@@ -292,10 +295,10 @@ export const Tracker = (
      * @param event e The event targeting the link
      */
     function linkDecorationHandler(evt: Event) {
-      var tstamp = new Date().getTime();
+      var timestamp = new Date().getTime();
       let elt = evt.target as HTMLAnchorElement | HTMLAreaElement | null;
       if (elt?.href) {
-        elt.href = decorateQuerystring(elt.href, '_sp', domainUserId + '.' + tstamp);
+        elt.href = decorateQuerystring(elt.href, '_sp', domainUserId + '.' + timestamp);
       }
     }
 
@@ -513,7 +516,7 @@ export const Tracker = (
      * or when there is a new visit or a new page view
      */
     function setDomainUserIdCookie(
-      _domainUserId: string,
+      domainUserId: string,
       createTs: number,
       visitCount: number,
       nowTs: number,
@@ -522,7 +525,7 @@ export const Tracker = (
     ) {
       var cookieName = getSnowplowCookieName('id');
       var cookieValue =
-        _domainUserId + '.' + createTs + '.' + visitCount + '.' + nowTs + '.' + lastVisitTs + '.' + sessionId;
+        domainUserId + '.' + createTs + '.' + visitCount + '.' + nowTs + '.' + lastVisitTs + '.' + sessionId;
       setCookie(cookieName, cookieValue, configVisitorCookieTimeout);
     }
 
@@ -845,17 +848,22 @@ export const Tracker = (
     /**
      * Log the page view / visit
      *
-     * @param customTitle string The user-defined page title to attach to this page view
+     * @param title string The user-defined page title to attach to this page view
      * @param context object Custom context relating to the event
      * @param contextCallback Function returning an array of contexts
-     * @param tstamp number
+     * @param timestamp number
      */
-    function logPageView(
-      customTitle?: string | null,
-      context?: Array<SelfDescribingJson> | null,
-      contextCallback?: (() => Array<SelfDescribingJson>) | null,
-      tstamp?: Timestamp | null
-    ) {
+    function logPageView({
+      title,
+      context,
+      contextCallback,
+      timestamp,
+    }: {
+      title?: string | null;
+      context?: Array<SelfDescribingJson> | null;
+      contextCallback?: (() => Array<SelfDescribingJson>) | null;
+      timestamp?: Timestamp | null;
+    }) {
       refreshUrl();
       if (pageViewSent) {
         // Do not reset pageViewId if previous events were not page_view
@@ -865,18 +873,20 @@ export const Tracker = (
 
       // So we know what document.title was at the time of trackPageView
       lastDocumentTitle = documentAlias.title;
-      lastConfigTitle = customTitle;
+      lastConfigTitle = title;
 
       // Fixup page title
       var pageTitle = fixupTitle(lastConfigTitle || lastDocumentTitle);
 
       // Log page view
-      core.trackPageView(
-        purify(configCustomUrl || locationHrefAlias),
-        pageTitle,
-        purify(customReferrer || configReferrerUrl),
+      core.track(
+        buildPageView({
+          pageUrl: purify(configCustomUrl || locationHrefAlias),
+          pageTitle,
+          referrer: purify(customReferrer || configReferrerUrl),
+        }),
         finalizeContexts(context, contextCallback),
-        tstamp
+        timestamp
       );
 
       // Send ping (to log that user has stayed on page)
@@ -1001,23 +1011,27 @@ export const Tracker = (
      * ensures good values for min visit and heartbeat
      *
      * @param {int} [minimumVisitLength] The minimum length of a visit before the first page ping
-     * @param {int} [heartBeatDelay] The length between checks to see if we should send a page ping
+     * @param {int} [heartbeatDelay] The length between checks to see if we should send a page ping
      * @param {function} [callback] A callback function to execute
      */
-    function configureActivityTracking(
-      minimumVisitLength: number,
-      heartBeatDelay: number,
-      callback: ActivityCallback
-    ): ActivityConfig | undefined {
-      if (isInteger(minimumVisitLength) && isInteger(heartBeatDelay)) {
+    function configureActivityTracking({
+      minimumVisitLength,
+      heartbeatDelay,
+      callback,
+    }: {
+      minimumVisitLength: number;
+      heartbeatDelay: number;
+      callback: ActivityCallback;
+    }): ActivityConfig | undefined {
+      if (isInteger(minimumVisitLength) && isInteger(heartbeatDelay)) {
         return {
           configMinimumVisitLength: minimumVisitLength * 1000,
-          configHeartBeatTimer: heartBeatDelay * 1000,
+          configHeartBeatTimer: heartbeatDelay * 1000,
           callback,
         };
       }
 
-      warn('Activity tracking not enabled, please provide integer values for minimumVisitLength and heartBeatDelay.');
+      warn('Activity tracking not enabled, please provide integer values for minimumVisitLength and heartbeatDelay.');
       return undefined;
     }
 
@@ -1035,14 +1049,16 @@ export const Tracker = (
         lastDocumentTitle = newDocumentTitle;
         lastConfigTitle = undefined;
       }
-      core.trackPagePing(
-        purify(configCustomUrl || locationHrefAlias),
-        fixupTitle(lastConfigTitle || lastDocumentTitle),
-        purify(customReferrer || configReferrerUrl),
-        cleanOffset(minXOffset),
-        cleanOffset(maxXOffset),
-        cleanOffset(minYOffset),
-        cleanOffset(maxYOffset),
+      core.track(
+        buildPagePing({
+          pageUrl: purify(configCustomUrl || locationHrefAlias),
+          pageTitle: fixupTitle(lastConfigTitle || lastDocumentTitle),
+          referrer: purify(customReferrer || configReferrerUrl),
+          minXOffset: cleanOffset(minXOffset),
+          maxXOffset: cleanOffset(maxXOffset),
+          minYOffset: cleanOffset(minYOffset),
+          maxYOffset: cleanOffset(maxYOffset),
+        }),
         context
       );
     }
@@ -1208,35 +1224,30 @@ export const Tracker = (
        * pings to the Collector regularly).
        *
        * @param int minimumVisitLength Seconds to wait before sending first page ping
-       * @param int heartBeatDelay Seconds to wait between pings
+       * @param int heartbeatDelay Seconds to wait between pings
        */
-      enableActivityTracking: function (minimumVisitLength: number, heartBeatDelay: number) {
+      enableActivityTracking: function (configuration: { minimumVisitLength: number; heartbeatDelay: number }) {
         activityTrackingConfig.enabled = true;
-        activityTrackingConfig.configurations.pagePing = configureActivityTracking(
-          minimumVisitLength,
-          heartBeatDelay,
-          logPagePing
-        );
+        activityTrackingConfig.configurations.pagePing = configureActivityTracking({
+          ...configuration,
+          callback: logPagePing,
+        });
       },
 
       /**
        * Enables page activity tracking (replaces collector ping with callback).
        *
        * @param int minimumVisitLength Seconds to wait before sending first page ping
-       * @param int heartBeatDelay Seconds to wait between pings
+       * @param int heartbeatDelay Seconds to wait between pings
        * @param function callback function called with ping data
        */
-      enableActivityTrackingCallback: function (
-        minimumVisitLength: number,
-        heartBeatDelay: number,
-        callback: ActivityCallback
-      ) {
+      enableActivityTrackingCallback: function (configuration: {
+        minimumVisitLength: number;
+        heartbeatDelay: number;
+        callback: ActivityCallback;
+      }) {
         activityTrackingConfig.enabled = true;
-        activityTrackingConfig.configurations.callback = configureActivityTracking(
-          minimumVisitLength,
-          heartBeatDelay,
-          callback
-        );
+        activityTrackingConfig.configurations.callback = configureActivityTracking(configuration);
       },
 
       /**
@@ -1320,15 +1331,17 @@ export const Tracker = (
        * @param string customTitle
        * @param object Custom context relating to the event
        * @param object contextCallback Function returning an array of contexts
-       * @param tstamp number or Timestamp object
+       * @param timestamp number or Timestamp object
        */
       trackPageView: function (
-        customTitle?: string | null,
-        context?: Array<SelfDescribingJson> | null,
-        contextCallback?: (() => Array<SelfDescribingJson>) | null,
-        tstamp?: Timestamp | null
+        event: {
+          title?: string | null;
+          context?: Array<SelfDescribingJson> | null;
+          contextCallback?: (() => Array<SelfDescribingJson>) | null;
+          timestamp?: Timestamp | null;
+        } = {}
       ) {
-        logPageView(customTitle, context, contextCallback, tstamp);
+        logPageView(event);
       },
 
       /**

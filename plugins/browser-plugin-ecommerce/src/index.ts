@@ -29,7 +29,14 @@
  */
 
 import { BrowserPlugin, BrowserTracker } from '@snowplow/browser-tracker-core';
-import { SelfDescribingJson, Timestamp } from '@snowplow/tracker-core';
+import {
+  buildAddToCart,
+  buildEcommerceTransaction,
+  buildEcommerceTransactionItem,
+  buildRemoveFromCart,
+  SelfDescribingJson,
+  Timestamp,
+} from '@snowplow/tracker-core';
 
 interface Transaction {
   transaction?: {
@@ -43,7 +50,7 @@ interface Transaction {
     country?: string;
     currency?: string;
     context?: Array<SelfDescribingJson>;
-    tstamp?: Timestamp;
+    timestamp?: Timestamp;
   };
   items: Array<{
     orderId: string;
@@ -54,7 +61,7 @@ interface Transaction {
     quantity: number;
     currency: string;
     context: Array<SelfDescribingJson>;
-    tstamp: Timestamp;
+    timestamp: Timestamp;
   }>;
 }
 
@@ -81,22 +88,10 @@ export function EcommercePlugin(): BrowserPlugin {
  * @param string country Optional. Country to associate with transaction.
  * @param string currency Optional. Currency to associate with this transaction.
  * @param object context Optional. Context relating to the event.
- * @param tstamp number or Timestamp object
+ * @param timestamp number or Timestamp object
  */
 export function addTrans(
-  {
-    orderId,
-    total,
-    affiliation,
-    tax,
-    shipping,
-    city,
-    state,
-    country,
-    currency,
-    context,
-    tstamp,
-  }: {
+  event: {
     orderId: string;
     total: number;
     affiliation?: string;
@@ -107,25 +102,13 @@ export function addTrans(
     country?: string;
     currency?: string;
     context?: Array<SelfDescribingJson>;
-    tstamp?: Timestamp;
+    timestamp?: Timestamp;
   },
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
     if (_trackers[t]) {
-      _trackers[t][1].transaction = {
-        orderId: orderId,
-        total: total,
-        affiliation: affiliation,
-        tax: tax,
-        shipping: shipping,
-        city: city,
-        state: state,
-        country: country,
-        currency: currency,
-        context: context,
-        tstamp: tstamp,
-      };
+      _trackers[t][1].transaction = event;
     }
   });
 }
@@ -141,20 +124,10 @@ export function addTrans(
  * @param string quantity Required. Purchase quantity.
  * @param string currency Optional. Product price currency.
  * @param object context Optional. Context relating to the event.
- * @param tstamp number or Timestamp object
+ * @param timestamp number or Timestamp object
  */
 export function addItem(
-  {
-    orderId,
-    sku,
-    name,
-    category,
-    price,
-    quantity,
-    currency,
-    context,
-    tstamp,
-  }: {
+  event: {
     orderId: string;
     sku: string;
     name: string;
@@ -163,23 +136,13 @@ export function addItem(
     quantity: number;
     currency: string;
     context: Array<SelfDescribingJson>;
-    tstamp: Timestamp;
+    timestamp: Timestamp;
   },
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
     if (_trackers[t]) {
-      _trackers[t][1].items.push({
-        orderId: orderId,
-        sku: sku,
-        name: name,
-        category: category,
-        price: price,
-        quantity: quantity,
-        currency: currency,
-        context: context,
-        tstamp: tstamp,
-      });
+      _trackers[t][1].items.push(event);
     }
   });
 }
@@ -195,33 +158,11 @@ export function trackTrans(trackers: Array<string> = Object.keys(_trackers)) {
     if (_trackers[t]) {
       const transaction = _trackers[t][1].transaction;
       if (transaction) {
-        _trackers[t][0].core.trackEcommerceTransaction(
-          transaction.orderId,
-          transaction.total,
-          transaction.affiliation,
-          transaction.tax,
-          transaction.shipping,
-          transaction.city,
-          transaction.state,
-          transaction.country,
-          transaction.currency,
-          transaction.context,
-          transaction.tstamp
-        );
+        _trackers[t][0].core.track(buildEcommerceTransaction(transaction), transaction.context, transaction.timestamp);
       }
       for (var i = 0; i < _trackers[t][1].items.length; i++) {
-        var item = _trackers[t][1].items[i];
-        _trackers[t][0].core.trackEcommerceTransactionItem(
-          item.orderId,
-          item.sku,
-          item.name,
-          item.category,
-          item.price,
-          item.quantity,
-          item.currency,
-          item.context,
-          item.tstamp
-        );
+        const item = _trackers[t][1].items[i];
+        _trackers[t][0].core.track(buildEcommerceTransactionItem(item), item.context, item.timestamp);
       }
 
       _trackers[t][1] = ecommerceTransactionTemplate();
@@ -239,19 +180,10 @@ export function trackTrans(trackers: Array<string> = Object.keys(_trackers)) {
  * @param string quantity Required. Quantity added.
  * @param string currency Optional. Product price currency.
  * @param array context Optional. Context relating to the event.
- * @param tstamp number or Timestamp object
+ * @param timestamp number or Timestamp object
  */
 export const trackAddToCart = function (
-  {
-    sku,
-    name,
-    category,
-    unitPrice,
-    quantity,
-    currency,
-    context,
-    tstamp,
-  }: {
+  event: {
     sku: string;
     name: string;
     category: string;
@@ -259,13 +191,13 @@ export const trackAddToCart = function (
     quantity: string;
     currency: string | undefined;
     context: Array<SelfDescribingJson>;
-    tstamp: Timestamp;
+    timestamp: Timestamp;
   },
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
     if (_trackers[t]) {
-      _trackers[t][0].core.trackAddToCart(sku, name, category, unitPrice, quantity, currency, context, tstamp);
+      _trackers[t][0].core.track(buildAddToCart(event), event.context, event.timestamp);
     }
   });
 };
@@ -280,19 +212,10 @@ export const trackAddToCart = function (
  * @param string quantity Required. Quantity removed.
  * @param string currency Optional. Product price currency.
  * @param array context Optional. Context relating to the event.
- * @param tstamp Opinal number or Timestamp object
+ * @param timestamp Opinal number or Timestamp object
  */
 export const trackRemoveFromCart = function (
-  {
-    sku,
-    name,
-    category,
-    unitPrice,
-    quantity,
-    currency,
-    context,
-    tstamp,
-  }: {
+  event: {
     sku: string;
     name: string;
     category: string;
@@ -300,13 +223,13 @@ export const trackRemoveFromCart = function (
     quantity: string;
     currency: string | undefined;
     context: Array<SelfDescribingJson>;
-    tstamp: Timestamp;
+    timestamp: Timestamp;
   },
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
     if (_trackers[t]) {
-      _trackers[t][0].core.trackRemoveFromCart(sku, name, category, unitPrice, quantity, currency, context, tstamp);
+      _trackers[t][0].core.track(buildRemoveFromCart(event), event.context, event.timestamp);
     }
   });
 };

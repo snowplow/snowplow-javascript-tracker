@@ -72,7 +72,7 @@ test('Empty Payload identifies as an empty JSON', (t) => {
 });
 
 test('Build a payload', (t) => {
-  const sb = payloadBuilder(false);
+  const sb = payloadBuilder();
   sb.add('e', 'pv');
   sb.add('tv', 'js-2.0.0');
 
@@ -80,21 +80,21 @@ test('Build a payload', (t) => {
 });
 
 test('Do not add undefined values to a payload', (t) => {
-  const sb = payloadBuilder(false);
+  const sb = payloadBuilder();
   sb.add('e', undefined);
 
   t.deepEqual(sb.build(), {}, 'Undefined values should not be added to the payload');
 });
 
 test('Do not add null values to a payload', (t) => {
-  const sb = payloadBuilder(false);
+  const sb = payloadBuilder();
   sb.add('e', undefined);
 
   t.deepEqual(sb.build(), {}, 'Null values should not be added to the payload');
 });
 
 test('Add a dictionary of name-value pairs to the payload', (t) => {
-  const sb = payloadBuilder(false);
+  const sb = payloadBuilder();
   sb.addDict({
     e: 'pv',
     tv: 'js-2.0.0',
@@ -108,14 +108,15 @@ test('Add a dictionary of name-value pairs to the payload', (t) => {
 });
 
 test('Add a JSON to the payload', (t) => {
-  const sb = payloadBuilder(false);
+  const sb = payloadBuilder();
+  sb.setBase64Encoding(false);
   sb.addJson('cx', 'co', sampleJson);
 
   t.deepEqual(sb.build(), expectedPayloads[0], 'JSON should be added correctly');
 });
 
 test('Add a base 64 encoded JSON to the payload', (t) => {
-  const sb = payloadBuilder(true);
+  const sb = payloadBuilder(); // base64 encoding on by default
   sb.addJson('cx', 'co', sampleJson);
 
   t.deepEqual(sb.build(), expectedPayloads[1], 'JSON should be encoded correctly');

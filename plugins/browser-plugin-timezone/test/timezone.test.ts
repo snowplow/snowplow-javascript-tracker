@@ -29,18 +29,18 @@
  */
 
 import { BrowserTracker } from '@snowplow/browser-tracker-core';
-import { trackerCore } from '@snowplow/tracker-core';
+import { buildLinkClick, trackerCore } from '@snowplow/tracker-core';
 import { tz } from 'moment-timezone';
 import { TimezonePlugin } from '../src/index';
 
 describe('Timezone Plugin', () => {
   it('Returns a value for the current timezone', (done) => {
-    const core = trackerCore(false, (payloadBuilder) => {
+    const core = trackerCore(false, [], (payloadBuilder) => {
       const payload = payloadBuilder.build();
       expect(tz.names().includes(payload['tz'] as string)).toBeTruthy();
       done();
     });
     TimezonePlugin().activateBrowserPlugin?.({ core } as BrowserTracker);
-    core.trackLinkClick('https://example.com');
+    core.track(buildLinkClick({ targetUrl: 'https://example.com' }));
   });
 });
