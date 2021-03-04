@@ -37,7 +37,13 @@ import {
   BrowserPlugin,
   BrowserTracker,
 } from '@snowplow/browser-tracker-core';
-import { SelfDescribingJson, Timestamp, resolveDynamicContexts, DynamicContexts } from '@snowplow/tracker-core';
+import {
+  SelfDescribingJson,
+  Timestamp,
+  resolveDynamicContexts,
+  DynamicContexts,
+  buildLinkClick,
+} from '@snowplow/tracker-core';
 
 interface LinkClickConfiguration {
   tracker: BrowserTracker;
@@ -140,39 +146,23 @@ export function refreshLinkClickTracking(trackers: Array<string> = Object.keys(_
  * @param string elementTarget
  * @param string elementContent innerHTML of the element
  * @param object Custom context relating to the event
- * @param tstamp number or Timestamp object
+ * @param timestamp number or Timestamp object
  */
 export function trackLinkClick(
-  {
-    targetUrl,
-    elementId,
-    elementClasses,
-    elementTarget,
-    elementContent,
-    context,
-    tstamp,
-  }: {
+  event: {
     targetUrl: string;
     elementId?: string;
     elementClasses?: Array<string>;
     elementTarget?: string;
     elementContent?: string;
     context?: SelfDescribingJson[];
-    tstamp?: Timestamp;
+    timestamp?: Timestamp;
   },
   trackers: Array<string> = Object.keys(_configuration)
 ) {
   trackers.forEach((id) => {
     if (_configuration[id]) {
-      _configuration[id].tracker.core.trackLinkClick(
-        targetUrl,
-        elementId,
-        elementClasses,
-        elementTarget,
-        elementContent,
-        context,
-        tstamp
-      );
+      _configuration[id].tracker.core.track(buildLinkClick(event), event.context, event.timestamp);
     }
   });
 }
@@ -209,12 +199,14 @@ function processClick(tracker: BrowserTracker, sourceElement: Element, context?:
 
       // decodeUrl %xx
       sourceHref = unescape(sourceHref);
-      tracker.core.trackLinkClick(
-        sourceHref,
-        elementId,
-        elementClasses,
-        elementTarget,
-        elementContent,
+      tracker.core.track(
+        buildLinkClick({
+          targetUrl: sourceHref,
+          elementId,
+          elementClasses,
+          elementTarget,
+          elementContent,
+        }),
         resolveDynamicContexts(context, sourceElement)
       );
     }

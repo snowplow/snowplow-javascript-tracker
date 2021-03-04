@@ -29,7 +29,13 @@
  */
 
 import { BrowserPlugin, BrowserTracker } from '@snowplow/browser-tracker-core';
-import { SelfDescribingJson, Timestamp } from '@snowplow/tracker-core';
+import {
+  buildSelfDescribingEvent,
+  buildSiteSearch,
+  buildSocialInteraction,
+  SelfDescribingJson,
+  Timestamp,
+} from '@snowplow/tracker-core';
 
 const _trackers: Record<string, BrowserTracker> = {};
 
@@ -48,21 +54,15 @@ export function SiteTrackingPlugin(): BrowserPlugin {
  * @param string network (required) Social network
  * @param string target Object of the social action e.g. the video liked, the tweet retweeted
  * @param object Custom context relating to the event
- * @param tstamp number or Timestamp object
+ * @param timestamp number or Timestamp object
  */
 export const trackSocialInteraction = function (
-  {
-    action,
-    network,
-    target,
-    context,
-    tstamp,
-  }: { action: string; network: string; target: string; context: Array<SelfDescribingJson>; tstamp: Timestamp },
+  event: { action: string; network: string; target: string; context: Array<SelfDescribingJson>; timestamp: Timestamp },
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
     if (_trackers[t]) {
-      _trackers[t].core.trackSocialInteraction(action, network, target, context, tstamp);
+      _trackers[t].core.track(buildSocialInteraction(event), event.context, event.timestamp);
     }
   });
 };
@@ -75,29 +75,22 @@ export const trackSocialInteraction = function (
  * @param number totalResults Number of results
  * @param number pageResults Number of results displayed on page
  * @param array context Optional. Context relating to the event.
- * @param tstamp Opinal number or Timestamp object
+ * @param timestamp Opinal number or Timestamp object
  */
 export const trackSiteSearch = function (
-  {
-    terms,
-    filters,
-    totalResults,
-    pageResults,
-    context,
-    tstamp,
-  }: {
+  event: {
     terms: Array<string>;
     filters: Record<string, string | boolean>;
     totalResults: number;
     pageResults: number;
     context: Array<SelfDescribingJson>;
-    tstamp: Timestamp;
+    timestamp: Timestamp;
   },
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
     if (_trackers[t]) {
-      _trackers[t].core.trackSiteSearch(terms, filters, totalResults, pageResults, context, tstamp);
+      _trackers[t].core.track(buildSiteSearch(event), event.context, event.timestamp);
     }
   });
 };
@@ -110,40 +103,30 @@ export const trackSiteSearch = function (
  * @param number timing Required.
  * @param string label Optional.
  * @param array context Optional. Context relating to the event.
- * @param tstamp Opinal number or Timestamp object
+ * @param timestamp Opinal number or Timestamp object
  */
 export const trackTiming = function (
-  {
-    category,
-    variable,
-    timing,
-    label,
-    context,
-    tstamp,
-  }: {
+  event: {
     category: string;
     variable: string;
     timing: number;
     label: string;
     context: Array<SelfDescribingJson>;
-    tstamp: Timestamp;
+    timestamp: Timestamp;
   },
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
     if (_trackers[t]) {
-      _trackers[t].core.trackSelfDescribingEvent(
-        {
-          schema: 'iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0',
-          data: {
-            category: category,
-            variable: variable,
-            timing: timing,
-            label: label,
+      _trackers[t].core.track(
+        buildSelfDescribingEvent({
+          event: {
+            schema: 'iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0',
+            data: event,
           },
-        },
-        context,
-        tstamp
+        }),
+        event.context,
+        event.timestamp
       );
     }
   });

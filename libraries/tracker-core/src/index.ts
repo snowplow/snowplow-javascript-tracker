@@ -42,12 +42,5 @@ export {
 } from './contexts';
 export { CorePlugin } from './plugins';
 export { PayloadBuilder, Payload } from './payload';
-export {
-  TrackerCore,
-  SelfDescribingJson,
-  SelfDescribingJsonArray,
-  Timestamp,
-  TrueTimestamp,
-  DeviceTimestamp,
-} from './core';
+export * from './core';
 export { trackerCore } from './core';

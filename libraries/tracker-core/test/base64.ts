@@ -14,16 +14,41 @@
  */
 
 import test from 'ava';
-import { base64encode } from '../src/base64';
+import { base64urlencode, base64urldecode } from '../src/base64';
 
 test('Base 64 encode a string', (t) => {
-  t.is(base64encode('my_string'), 'bXlfc3RyaW5n', 'Base64-encode a string');
+  t.is(base64urlencode('my_string'), 'bXlfc3RyaW5n');
+});
+
+test('Base 64 decode a string', (t) => {
+  t.is(base64urldecode('bXlfc3RyaW5n'), 'my_string');
 });
 
 test('Base 64 encode a string containing special characters', (t) => {
+  t.is(base64urlencode('™®字'), '4oSiwq7lrZc');
+});
+
+test('Base 64 decode a string containing special characters', (t) => {
+  t.is(base64urldecode('4oSiwq7lrZc'), '™®字');
+});
+
+test('Base 64 encode json', (t) => {
   t.is(
-    base64encode('™®字'),
-    '4oSiwq7lrZc=',
-    'Base64-encode a containing TM, Registered Trademark, and Chinese characters'
+    base64urlencode(
+      JSON.stringify({
+        string: 'this_is_json',
+        number: 12,
+        array: [1, 2, 3],
+      })
+    ),
+    'eyJzdHJpbmciOiJ0aGlzX2lzX2pzb24iLCJudW1iZXIiOjEyLCJhcnJheSI6WzEsMiwzXX0'
   );
+});
+
+test('Base 64 decode json', (t) => {
+  t.deepEqual(JSON.parse(base64urldecode('eyJzdHJpbmciOiJ0aGlzX2lzX2pzb24iLCJudW1iZXIiOjEyLCJhcnJheSI6WzEsMiwzXX0')), {
+    string: 'this_is_json',
+    number: 12,
+    array: [1, 2, 3],
+  });
 });

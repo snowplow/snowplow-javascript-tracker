@@ -28,27 +28,40 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-// const getUEEvents = F.compose(F.filter(F.compose(F.eq('ue'), F.get('evt.e'))), F.first);
+import { addTracker, SharedState } from '@snowplow/browser-tracker-core';
+import F from 'lodash/fp';
+import {
+  EnhancedEcommercePlugin,
+  addEnhancedEcommerceActionContext,
+  addEnhancedEcommerceImpressionContext,
+  addEnhancedEcommerceProductContext,
+  addEnhancedEcommercePromoContext,
+  trackEnhancedEcommerceAction,
+} from '../src';
 
-// it('attaches enhanced ecommerce contexts to enhanced ecommerce events', () => {
-//   const state = new SharedState();
-//   newTracker('', '', {
-//     stateStorageStrategy: 'cookie',
-//     encodeBase64: false,
-//   });
+const getUEEvents = F.compose(F.filter(F.compose(F.eq('ue'), F.get('evt.e'))), F.first);
+const extractSchemas = F.map(F.compose(F.get('data'), (cx: string) => JSON.parse(cx), F.get('evt.co')));
 
-//   addEnhancedEcommerceProductContext('1234-5678', 'T-Shirt');
-//   t.addEnhancedEcommerceImpressionContext('1234-5678', 'T-Shirt');
-//   t.addEnhancedEcommercePromoContext('1234-5678', 'T-Shirt');
-//   t.addEnhancedEcommerceActionContext('1234-5678', 'T-Shirt');
-//   t.trackEnhancedEcommerceAction();
+it('attaches enhanced ecommerce contexts to enhanced ecommerce events', () => {
+  const state = new SharedState();
+  addTracker('sp1', 'sp1', 'js-3.0.0', '', state, {
+    stateStorageStrategy: 'cookie',
+    encodeBase64: false,
+    plugins: [EnhancedEcommercePlugin()],
+  });
 
-//   const findWithStaticValue = F.filter(F.get('data.id'));
-//   const extractContextsWithStaticValue = F.compose(findWithStaticValue, F.flatten, extractSchemas, getUEEvents);
+  addEnhancedEcommerceProductContext({ id: '1234-5678', name: 'T-Shirt' });
+  addEnhancedEcommerceImpressionContext({ id: '1234-5678', name: 'T-Shirt' });
+  addEnhancedEcommercePromoContext({ id: '1234-5678', name: 'T-Shirt' });
+  addEnhancedEcommerceActionContext({ id: '1234-5678', affiliation: 'acme' });
+  trackEnhancedEcommerceAction();
 
-//   const countWithStaticValueEq = (value: string) =>
-//     F.compose(F.size, F.filter(F.compose(F.eq(value), F.get('data.id'))), extractContextsWithStaticValue);
+  const findWithStaticValue = F.filter(F.get('data.id'));
+  const extractContextsWithStaticValue = F.compose(findWithStaticValue, F.flatten, extractSchemas, getUEEvents);
 
-//   // we expect there to be four contexts added to the event
-//   expect(countWithStaticValueEq('1234-5678')(state.outQueues)).toBe(4);
-// });
+  const countWithStaticValueEq = (value: string) =>
+    F.compose(F.size, F.filter(F.compose(F.eq(value), F.get('data.id'))), extractContextsWithStaticValue);
+
+  // we expect there to be four contexts added to the event
+  expect(countWithStaticValueEq('1234-5678')(state.outQueues)).toBe(4);
+});

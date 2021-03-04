@@ -135,7 +135,7 @@
 
       window.snowplow('setUserId:sp', 'Malcolm');
 
-      window.snowplow('enableActivityTracking:sp', { minimumVisitLength: 1, heartBeatDelay: 2 });
+      window.snowplow('enableActivityTracking:sp', { minimumVisitLength: 1, heartbeatDelay: 2 });
 
       window.snowplow('trackPageView:sp', {
         title: 'My Title',
@@ -181,7 +181,7 @@
           },
         },
         context: [],
-        tstamp: { type: 'ttm', value: 1477401868 },
+        timestamp: { type: 'ttm', value: 1477401868 },
       });
 
       window.snowplow('addTrans:sp', {
@@ -228,7 +228,7 @@
             bannerId: 'ASO01042',
           },
         },
-        tstamp: { type: 'ttm', value: 1477401869 },
+        timestamp: { type: 'ttm', value: 1477401869 },
       });
 
       window.snowplow('removeGlobalContexts:sp', [
@@ -243,7 +243,7 @@
             bannerId: 'ASO01041',
           },
         },
-        tstamp: { type: 'ttm', value: 1477401868 },
+        timestamp: { type: 'ttm', value: 1477401868 },
       });
 
       window.snowplow('trackSocialInteraction:sp', {

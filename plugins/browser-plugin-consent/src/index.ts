@@ -29,7 +29,7 @@
  */
 
 import { BrowserPlugin, BrowserTracker, warn } from '@snowplow/browser-tracker-core';
-import { SelfDescribingJson, Timestamp } from '@snowplow/tracker-core';
+import { buildConsentGranted, buildConsentWithdrawn, SelfDescribingJson, Timestamp } from '@snowplow/tracker-core';
 import { Gdpr } from './contexts';
 
 const _trackers: Record<string, { tracker: BrowserTracker; gdpr?: Gdpr }> = {};
@@ -89,31 +89,28 @@ export function enableGdprContext(
  * @param {string} [description] - Document description.
  * @param {string} [expiry] - Date-time when consent document(s) expire.
  * @param {array} [context] - Context containing consent documents.
- * @param {Timestamp|number} [tstamp] - number or Timestamp object.
+ * @param {Timestamp|number} [timestamp] - number or Timestamp object.
  */
 export const trackConsentGranted = function (
-  {
-    id,
-    version,
-    name,
-    description,
-    expiry,
-    context,
-    tstamp,
-  }: {
+  event: {
     id: string;
     version: string;
-    name: string;
-    description: string;
-    expiry: string;
-    context: Array<SelfDescribingJson>;
-    tstamp: Timestamp;
+    name?: string;
+    description?: string;
+    expiry?: string;
+    context?: Array<SelfDescribingJson>;
+    timestamp?: Timestamp;
   },
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
     if (_trackers[t]) {
-      _trackers[t].tracker.core.trackConsentGranted(id, version, name, description, expiry, context, tstamp);
+      const builtEvent = buildConsentGranted(event);
+      _trackers[t].tracker.core.track(
+        builtEvent.event,
+        event.context ? event.context.concat(builtEvent.context) : builtEvent.context,
+        event.timestamp
+      );
     }
   });
 };
@@ -127,31 +124,28 @@ export const trackConsentGranted = function (
  * @param {string} [name] - Document name.
  * @param {string} [description] - Document description.
  * @param {array} [context] - Context relating to the event.
- * @param {number|Timestamp} [tstamp] - Number or Timestamp object.
+ * @param {number|Timestamp} [timestamp] - Number or Timestamp object.
  */
 export const trackConsentWithdrawn = function (
-  {
-    all,
-    id,
-    version,
-    name,
-    description,
-    context,
-    tstamp,
-  }: {
+  event: {
     all: boolean;
     id?: string;
     version?: string;
     name?: string;
     description?: string;
     context?: Array<SelfDescribingJson>;
-    tstamp?: Timestamp;
+    timestamp?: Timestamp;
   },
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
     if (_trackers[t]) {
-      _trackers[t].tracker.core.trackConsentWithdrawn(all, id, version, name, description, context, tstamp);
+      const builtEvent = buildConsentWithdrawn(event);
+      _trackers[t].tracker.core.track(
+        builtEvent.event,
+        event.context ? event.context.concat(builtEvent.context) : builtEvent.context,
+        event.timestamp
+      );
     }
   });
 };

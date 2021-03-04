@@ -42,6 +42,20 @@ export function base64urldecode(data: string): string {
 }
 
 /**
+ * Base64 encode data with URL and Filename Safe Alphabet (base64url)
+ *
+ * See: http://tools.ietf.org/html/rfc4648#page-7
+ */
+export function base64urlencode(data: string): string {
+  if (!data) {
+    return data;
+  }
+
+  const enc = base64encode(data);
+  return enc.replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+}
+
+/**
  * Encode string as base64.
  * Any type can be passed, but will be stringified
  *

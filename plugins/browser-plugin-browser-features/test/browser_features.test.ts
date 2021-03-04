@@ -29,7 +29,7 @@
  */
 
 import { BrowserTracker } from '@snowplow/browser-tracker-core';
-import { trackerCore } from '@snowplow/tracker-core';
+import { buildLinkClick, trackerCore } from '@snowplow/tracker-core';
 import { JSDOM } from 'jsdom';
 import { BrowserFeaturesPlugin } from '../src/index';
 
@@ -45,7 +45,7 @@ describe('Browser Features plugin', () => {
       configurable: true,
     });
 
-    const core = trackerCore(false, (payloadBuilder) => {
+    const core = trackerCore(false, [], (payloadBuilder) => {
       const payload = payloadBuilder.build();
       expect(payload['f_pdf']).toBe('0');
       expect(payload['f_qt']).toBeUndefined();
@@ -53,7 +53,7 @@ describe('Browser Features plugin', () => {
     });
 
     BrowserFeaturesPlugin().activateBrowserPlugin?.({ core } as BrowserTracker);
-    core.trackLinkClick('https://example.com');
+    core.track(buildLinkClick({ targetUrl: 'https://example.com' }));
   });
 
   it('Returns values for available mimeTypes', (done) => {
@@ -73,7 +73,7 @@ describe('Browser Features plugin', () => {
       configurable: true,
     });
 
-    const core = trackerCore(false, (payloadBuilder) => {
+    const core = trackerCore(false, [], (payloadBuilder) => {
       const payload = payloadBuilder.build();
       expect(payload['f_pdf']).toBe('1');
       expect(payload['f_qt']).toBe('1');
@@ -88,6 +88,6 @@ describe('Browser Features plugin', () => {
     });
 
     BrowserFeaturesPlugin().activateBrowserPlugin?.({ core } as BrowserTracker);
-    core.trackLinkClick('https://example.com');
+    core.track(buildLinkClick({ targetUrl: 'https://example.com' }));
   });
 });

@@ -195,22 +195,22 @@ export interface BrowserTracker {
    * pings to the Collector regularly).
    *
    * @param int minimumVisitLength Seconds to wait before sending first page ping
-   * @param int heartBeatDelay Seconds to wait between pings
+   * @param int heartbeatDelay Seconds to wait between pings
    */
-  enableActivityTracking: (minimumVisitLength: number, heartBeatDelay: number) => void;
+  enableActivityTracking: (configuration: { minimumVisitLength: number; heartbeatDelay: number }) => void;
 
   /**
    * Enables page activity tracking (replaces collector ping with callback).
    *
    * @param int minimumVisitLength Seconds to wait before sending first page ping
-   * @param int heartBeatDelay Seconds to wait between pings
+   * @param int heartbeatDelay Seconds to wait between pings
    * @param function callback function called with ping data
    */
-  enableActivityTrackingCallback: (
-    minimumVisitLength: number,
-    heartBeatDelay: number,
-    callback: ActivityCallback
-  ) => void;
+  enableActivityTrackingCallback: (configuration: {
+    minimumVisitLength: number;
+    heartbeatDelay: number;
+    callback: ActivityCallback;
+  }) => void;
 
   /**
    * Triggers the activityHandler manually to allow external user defined
@@ -279,15 +279,15 @@ export interface BrowserTracker {
    * @param string customTitle
    * @param object Custom context relating to the event
    * @param object contextCallback Function returning an array of contexts
-   * @param tstamp number or Timestamp object
+   * @param timestamp number or Timestamp object
    * @param function afterTrack (optional) A callback function triggered after event is tracked
    */
-  trackPageView: (
-    customTitle?: string | null,
-    context?: Array<SelfDescribingJson> | null,
-    contextCallback?: (() => Array<SelfDescribingJson>) | null,
-    tstamp?: Timestamp | null
-  ) => void;
+  trackPageView: (event?: {
+    customTitle?: string | null;
+    context?: Array<SelfDescribingJson> | null;
+    contextCallback?: (() => Array<SelfDescribingJson>) | null;
+    timestamp?: Timestamp | null;
+  }) => void;
 
   /**
    * Disables anonymous tracking if active (ie. tracker initialized with `anonymousTracking`)

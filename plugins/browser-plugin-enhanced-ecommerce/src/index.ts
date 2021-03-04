@@ -34,7 +34,7 @@ import {
   parseAndValidateFloat,
   parseAndValidateInt,
 } from '@snowplow/browser-tracker-core';
-import { SelfDescribingJson, Timestamp } from '@snowplow/tracker-core';
+import { buildSelfDescribingEvent, SelfDescribingJson, Timestamp } from '@snowplow/tracker-core';
 
 const _trackers: Record<string, [BrowserTracker, Array<SelfDescribingJson>]> = {};
 
@@ -52,14 +52,14 @@ export function EnhancedEcommercePlugin(): BrowserPlugin {
  *
  * @param string action
  * @param array context Optional. Context relating to the event.
- * @param tstamp Opinal number or Timestamp object
+ * @param timestamp Opinal number or Timestamp object
  */
 export function trackEnhancedEcommerceAction(
   {
     action,
     context,
-    tstamp,
-  }: { action?: string; context?: Array<SelfDescribingJson> | null; tstamp?: Timestamp | null } = {},
+    timestamp,
+  }: { action?: string; context?: Array<SelfDescribingJson> | null; timestamp?: Timestamp | null } = {},
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
@@ -67,15 +67,17 @@ export function trackEnhancedEcommerceAction(
       const combinedContexts = _trackers[t][1].concat(context || []);
       _trackers[t][1].length = 0;
 
-      _trackers[t][0].core.trackSelfDescribingEvent(
-        {
-          schema: 'iglu:com.google.analytics.enhanced-ecommerce/action/jsonschema/1-0-0',
-          data: {
-            action: action,
+      _trackers[t][0].core.track(
+        buildSelfDescribingEvent({
+          event: {
+            schema: 'iglu:com.google.analytics.enhanced-ecommerce/action/jsonschema/1-0-0',
+            data: {
+              action,
+            },
           },
-        },
+        }),
         combinedContexts,
-        tstamp
+        timestamp
       );
     }
   });
@@ -273,26 +275,14 @@ export function addEnhancedEcommerceProductContext(
  * @param string currency
  */
 export function addEnhancedEcommercePromoContext(
-  {
-    id,
-    name,
-    creative,
-    position,
-    currency,
-  }: { id?: string; name?: string; creative?: string; position?: string; currency?: string } = {},
+  event: { id?: string; name?: string; creative?: string; position?: string; currency?: string } = {},
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
     if (_trackers[t]) {
       _trackers[t][1].push({
         schema: 'iglu:com.google.analytics.enhanced-ecommerce/promoFieldObject/jsonschema/1-0-0',
-        data: {
-          id: id,
-          name: name,
-          creative: creative,
-          position: position,
-          currency: currency,
-        },
+        data: event,
       });
     }
   });

@@ -29,7 +29,13 @@
  */
 
 import { BrowserPlugin, BrowserTracker } from '@snowplow/browser-tracker-core';
-import { SelfDescribingJson, Timestamp } from '@snowplow/tracker-core';
+import {
+  buildAdClick,
+  buildAdConversion,
+  buildAdImpression,
+  SelfDescribingJson,
+  Timestamp,
+} from '@snowplow/tracker-core';
 
 const _trackers: Record<string, BrowserTracker> = {};
 
@@ -52,21 +58,10 @@ export function AdTrackingPlugin(): BrowserPlugin {
  * @param string advertiserId Identifier for the advertiser
  * @param string campaignId Identifier for the campaign which the banner belongs to
  * @param object Custom context relating to the event
- * @param tstamp number or Timestamp object
+ * @param timestamp number or Timestamp object
  */
 export const trackAdImpression = function (
-  {
-    impressionId,
-    costModel,
-    cost,
-    targetUrl,
-    bannerId,
-    zoneId,
-    advertiserId,
-    campaignId,
-    context,
-    tstamp,
-  }: {
+  event: {
     impressionId: string;
     costModel: string;
     cost: number;
@@ -76,24 +71,13 @@ export const trackAdImpression = function (
     advertiserId: string;
     campaignId: string;
     context: Array<SelfDescribingJson>;
-    tstamp: Timestamp;
+    timestamp: Timestamp;
   },
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
     if (_trackers[t]) {
-      _trackers[t].core.trackAdImpression(
-        impressionId,
-        costModel,
-        cost,
-        targetUrl,
-        bannerId,
-        zoneId,
-        advertiserId,
-        campaignId,
-        context,
-        tstamp
-      );
+      _trackers[t].core.track(buildAdImpression(event), event.context, event.timestamp);
     }
   });
 };
@@ -111,22 +95,10 @@ export const trackAdImpression = function (
  * @param string advertiserId Identifier for the advertiser
  * @param string campaignId Identifier for the campaign which the banner belongs to
  * @param object Custom context relating to the event
- * @param tstamp number or Timestamp object
+ * @param timestamp number or Timestamp object
  */
 export const trackAdClick = function (
-  {
-    targetUrl,
-    clickId,
-    costModel,
-    cost,
-    bannerId,
-    zoneId,
-    impressionId,
-    advertiserId,
-    campaignId,
-    context,
-    tstamp,
-  }: {
+  event: {
     targetUrl: string;
     clickId: string;
     costModel: string;
@@ -137,25 +109,13 @@ export const trackAdClick = function (
     advertiserId: string;
     campaignId: string;
     context: Array<SelfDescribingJson>;
-    tstamp: Timestamp;
+    timestamp: Timestamp;
   },
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
     if (_trackers[t]) {
-      _trackers[t].core.trackAdClick(
-        targetUrl,
-        clickId,
-        costModel,
-        cost,
-        bannerId,
-        zoneId,
-        impressionId,
-        advertiserId,
-        campaignId,
-        context,
-        tstamp
-      );
+      _trackers[t].core.track(buildAdClick(event), event.context, event.timestamp);
     }
   });
 };
@@ -173,22 +133,10 @@ export const trackAdClick = function (
  * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'
  * @param string campaignId Identifier for the campaign which the banner belongs to
  * @param object Custom context relating to the event
- * @param tstamp number or Timestamp object
+ * @param timestamp number or Timestamp object
  */
 export const trackAdConversion = function (
-  {
-    conversionId,
-    costModel,
-    cost,
-    category,
-    action,
-    property,
-    initialValue,
-    advertiserId,
-    campaignId,
-    context,
-    tstamp,
-  }: {
+  event: {
     conversionId: string;
     costModel: string;
     cost: number;
@@ -199,25 +147,13 @@ export const trackAdConversion = function (
     advertiserId: string;
     campaignId: string;
     context: Array<SelfDescribingJson>;
-    tstamp: Timestamp;
+    timestamp: Timestamp;
   },
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
     if (_trackers[t]) {
-      _trackers[t].core.trackAdConversion(
-        conversionId,
-        costModel,
-        cost,
-        category,
-        action,
-        property,
-        initialValue,
-        advertiserId,
-        campaignId,
-        context,
-        tstamp
-      );
+      _trackers[t].core.track(buildAdConversion(event), event.context, event.timestamp);
     }
   });
 };

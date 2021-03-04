@@ -29,7 +29,7 @@
  */
 
 import { isFunction, addEventListener, BrowserPlugin, BrowserTracker } from '@snowplow/browser-tracker-core';
-import { SelfDescribingJson } from '@snowplow/tracker-core';
+import { buildSelfDescribingEvent, SelfDescribingJson, Timestamp } from '@snowplow/tracker-core';
 
 let windowAlias = window,
   _trackers: Record<string, BrowserTracker> = {};
@@ -60,13 +60,15 @@ export function trackError(
     colno,
     error,
     contexts,
+    timestamp,
   }: {
     message: string;
     filename: string;
     lineno: number;
     colno: number;
     error: Error;
-    contexts: Array<SelfDescribingJson>;
+    contexts?: Array<SelfDescribingJson>;
+    timestamp?: Timestamp;
   },
   trackers: Array<string> = Object.keys(_trackers)
 ) {
@@ -74,19 +76,22 @@ export function trackError(
 
   trackers.forEach((t) => {
     if (_trackers[t]) {
-      _trackers[t].core.trackSelfDescribingEvent(
-        {
-          schema: 'iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1',
-          data: {
-            programmingLanguage: 'JAVASCRIPT',
-            message: message || "JS Exception. Browser doesn't support ErrorEvent API",
-            stackTrace: stack,
-            lineNumber: lineno,
-            lineColumn: colno,
-            fileName: filename,
+      _trackers[t].core.track(
+        buildSelfDescribingEvent({
+          event: {
+            schema: 'iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1',
+            data: {
+              programmingLanguage: 'JAVASCRIPT',
+              message: message || "JS Exception. Browser doesn't support ErrorEvent API",
+              stackTrace: stack,
+              lineNumber: lineno,
+              lineColumn: colno,
+              fileName: filename,
+            },
           },
-        },
-        contexts
+        }),
+        contexts,
+        timestamp
       );
     }
   });
