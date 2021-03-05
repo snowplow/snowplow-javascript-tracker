@@ -1,6 +1,6 @@
 {
   "name": "@snowplow/browser-plugin-form-tracking",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "description": "Form tracking for Snowplow",
   "homepage": "http://bit.ly/sp-js",
   "bugs": "https://github.com/snowplow/snowplow-javascript-tracker/issues",

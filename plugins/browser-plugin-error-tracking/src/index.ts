@@ -103,10 +103,10 @@ export function enableErrorTracking(
     contextsAdder,
     contexts,
   }: {
-    filter: (error: ErrorEvent) => boolean;
-    contextsAdder: (error: ErrorEvent) => Array<SelfDescribingJson>;
-    contexts: SelfDescribingJson[];
-  },
+    filter?: (error: ErrorEvent) => boolean;
+    contextsAdder?: (error: ErrorEvent) => Array<SelfDescribingJson>;
+    contexts?: SelfDescribingJson[];
+  } = {},
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   /**
@@ -115,7 +115,7 @@ export function enableErrorTracking(
    * @param errorEvent ErrorEvent passed to event listener
    */
   const captureError = (errorEvent: Event) => {
-    if ((isFunction(filter) && filter(errorEvent as ErrorEvent)) || filter == null) {
+    if ((filter && isFunction(filter) && filter(errorEvent as ErrorEvent)) || filter == null) {
       sendError({ errorEvent: errorEvent as ErrorEvent, commonContexts: contexts, contextsAdder }, trackers);
     }
   };
@@ -137,13 +137,13 @@ function sendError(
     contextsAdder,
   }: {
     errorEvent: ErrorEvent;
-    commonContexts: Array<SelfDescribingJson>;
-    contextsAdder: (error: ErrorEvent) => Array<SelfDescribingJson>;
+    commonContexts?: Array<SelfDescribingJson>;
+    contextsAdder?: (error: ErrorEvent) => Array<SelfDescribingJson>;
   },
   trackers: Array<string>
 ) {
   let contexts = commonContexts || [];
-  if (isFunction(contextsAdder)) {
+  if (contextsAdder && isFunction(contextsAdder)) {
     contexts = contexts.concat(contextsAdder(errorEvent));
   }
 

@@ -44,7 +44,7 @@ const _trackers: Record<string, TrackerAndFormConfiguration> = {};
  * @param array context Context for all form tracking events
  */
 export function enableFormTracking(
-  { options, context }: { options: FormTrackingConfig; context: DynamicContexts },
+  { options, context }: { options?: FormTrackingConfig; context?: DynamicContexts } = {},
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {

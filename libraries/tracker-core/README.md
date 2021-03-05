@@ -1,62 +1,50 @@
-# Snowplow JavaScript Tracker Core
+# Snowplow Tracker Core
 
 [![npm version][npm-image]][npm-url]
 [![License][license-image]](LICENSE)
 
 Core module to be used by Snowplow JavaScript based trackers.
 
-## Developer quick start
+## Maintainer quick start
 
-Can be built, tested and packed locally directly with [Node](https://nodejs.org/en/) (10+) and `npm`.
+Part of the Snowplow JavaScript Tracker monorepo.  
+Build with [Node](https://nodejs.org/en/) (10+) and [Rush](https://rushjs.io/).
 
-Use `npm install`, `npm run build`, `npm run test` and `npm pack`
-
-Below instructions assume git and [Docker][docker-install] installed.
-
-### Clone repository
+### Setup repository
 
 ```bash
-host$ git clone https://github.com/snowplow/snowplow-javascript-tracker.git
+$ npm install -g @microsoft/rush 
+$ git clone https://github.com/snowplow/snowplow-javascript-tracker.git
+$ rush update
 ```
 
 ### Building Tracker Core
 
 ```bash
-host$ cd snowplow-javascript-tracker/core
-host$ docker build -t core .
-host$ docker run -v "$(pwd)":"/code" core npm run build
+$ cd libraries/tracker-core
+$ rushx build
 ```
 
 ### Running tests
 
 ```bash
-host$ docker run core npm run test
+$ rushx test
 ```
 
-### Create NPM Package locally
-
-```bash
-host$ docker run -v "$(pwd)":"/code" core npm pack
-```
-
-For testing, the resulting tarball `snowplow-tracker-core-x.x.x.tgz` can be installed locally into another application (such as the Snowplow JavaScript Tracker).
-
-```bash
-host$ npm install snowplow-tracker-core-x.x.x.tgz
-```
-
-## Installation
+## Package Installation
 
 With npm:
 
 ```bash
-npm install snowplow-tracker-core
+npm install @snowplow/tracker-core
 ```
+
+## Usage
 
 ### CommonJS Example
 
 ```js
-const trackerCore = require('snowplow-tracker-core').trackerCore;
+const trackerCore = require('@snowplow/tracker-core').trackerCore;
 
 // Create an instance with base 64 encoding set to false (it defaults to true)
 const core = trackerCore(false);
@@ -65,7 +53,7 @@ const core = trackerCore(false);
 ### ES Module Example
 
 ```js
-import { trackerCore } from 'snowplow-tracker-core';
+import { trackerCore } from '@snowplow/tracker-core';
 
 // Create an instance with base 64 encoding set to false (it defaults to true)
 const core = trackerCore(false)
@@ -92,7 +80,7 @@ core.setViewport(600, 400);
 core.setUseragent('Snowplow/0.0.1');
 
 // Track a page view with URL and title
-const pageViewPayload = core.trackPageView('http://www.example.com', 'landing page');
+const pageViewPayload = core.track(buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'landing page'});
 
 console.log(pageViewPayload.build());
 /*
@@ -118,15 +106,17 @@ console.log(pageViewPayload.build());
 core.resetPayloadPairs();
 
 // Track an unstructured event
-const unstructEventPayload = core.trackUnstructEvent({
-    'schema': 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-0',
-    'data': {
-        'targetUrl': 'http://www.destination.com',
-        'elementId': 'bannerLink'
+const selfDescribingEventPayload = core.track(buildSelfDescribingEvent({ 
+    event: {
+        'schema': 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-0',
+        'data': {
+            'targetUrl': 'http://www.destination.com',
+            'elementId': 'bannerLink'
+        }
     }
 });
 
-console.log(unstructEventPayload.build());
+console.log(selfDescribingEventPayload.build());
 /*
 {
     'e': 'ue',
@@ -148,10 +138,10 @@ console.log(unstructEventPayload.build());
 
 ## Other features
 
-Core instances can be initialized with two parameters. The first is a boolean and determines whether custom contexts and unstructured events will be base 64 encoded. The second is an optional callback function which gets applied to every payload created by the instance.
+Core instances can be initialized with three parameters. The first is a boolean and determines whether custom contexts and unstructured events will be base 64 encoded. The second are optional Core Plugins, these can be used to intercept payload creation and add contexts on every event. The third is an optional callback function which gets applied to every payload created by the instance.
 
 ```js
-const core = trackerCore(true, console.log);
+const core = trackerCore(true, [], console.log);
 ```
 
 The above example would base 64 encode all unstructured events and custom contexts and would log each payload to the console.
@@ -166,7 +156,7 @@ core.setBase64Encoding(false); // Base 64 encoding is now off
 
 ## Documentation
 
-For more information on the Snowplow JavaScript Tracker Core's API, view its [wiki page][wiki].
+For more information on the Snowplow JavaScript Tracker Core's API, view its [docs page][docs].
 
 ## Copyright and license
 
@@ -176,8 +166,8 @@ Copyright (c) 2021 Snowplow Analytics Ltd, 2010 Anthon Pang.
 
 All rights reserved.
 
-[npm-url]: https://www.npmjs.com/package/snowplow-tracker-core
-[npm-image]: https://img.shields.io/npm/v/snowplow-tracker-core
-[wiki]: https://docs.snowplowanalytics.com/docs/collecting-data/collecting-from-own-applications/node-js-tracker/javascript-tracker-core/
-[docker-install]: https://docs.docker.com/install/
+[npm-url]: https://www.npmjs.com/package/@snowplow/tracker-core
+[npm-image]: https://img.shields.io/npm/v/@snowplow/tracker-core
+[docs]: https://docs.snowplowanalytics.com/docs/collecting-data/collecting-from-own-applications/node-js-tracker/javascript-tracker-core/
 [osi]: https://opensource.org/licenses/BSD-3-Clause
+[license-image]: https://img.shields.io/github/license/snowplow/snowplow-javascript-tracker
