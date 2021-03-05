@@ -21,7 +21,7 @@ client-side tier of your websites and web apps.
 | [![i1][techdocs-image]][tech-docs]  | [![i2][setup-image]][setup]  | ![i3][contributing-image]            |
 | [Technical Docs][tech-docs]         | [Setup Guide][setup]         | [Contributing](Contributing.md)      |
 
-## Developers
+## Maintainers
 
 ### Contributing quick start
 
@@ -52,7 +52,7 @@ $ rush test
 To run e2e tests (locally):
 
 ```bash
-$ cd trackers/browser-tracker/
+$ cd trackers/javascript-tracker/
 $ rushx test:e2e:local
 ```
 

@@ -81,7 +81,7 @@ const defaultTransformFn: transformFn = (x) => x;
 /*
  * Configures form tracking: which forms and fields will be tracked, and the context to attach
  */
-export function configureFormTracking(trackerConfig: TrackerAndFormConfiguration, config: FormTrackingConfig) {
+export function configureFormTracking(trackerConfig: TrackerAndFormConfiguration, config?: FormTrackingConfig) {
   if (config) {
     trackerConfig.config = {
       formFilter: getFilterByClass(config.forms),
@@ -114,7 +114,7 @@ export function getTransform(criterion: { transform: transformFn }): transformFn
  * Add submission event listeners to all form elements
  * Add value change event listeners to all mutable inner form elements
  */
-export function addFormListeners(trackerConfiguration: TrackerAndFormConfiguration, context: DynamicContexts) {
+export function addFormListeners(trackerConfiguration: TrackerAndFormConfiguration, context?: DynamicContexts) {
   const trackingMarker = trackerConfiguration.tracker.id + 'form';
   Array.prototype.slice.call(document.getElementsByTagName('form')).forEach(function (form) {
     if (trackerConfiguration.config?.formFilter(form) && !form[trackingMarker]) {
@@ -215,7 +215,7 @@ function getInnerFormElements(trackingMarker: string, elt: HTMLFormElement) {
 function getFormChangeListener(
   trackerConfiguration: TrackerAndFormConfiguration,
   event_type: 'change_form' | 'focus_form',
-  context: DynamicContexts
+  context?: DynamicContexts
 ) {
   return function (e: Event) {
     var elt = e.target as TrackedHTMLElement;
@@ -249,7 +249,7 @@ function getFormChangeListener(
 function getFormSubmissionListener(
   trackerConfiguration: TrackerAndFormConfiguration,
   trackingMarker: string,
-  context: DynamicContexts
+  context?: DynamicContexts
 ) {
   return function (e: Event) {
     var elt = e.target as HTMLFormElement;

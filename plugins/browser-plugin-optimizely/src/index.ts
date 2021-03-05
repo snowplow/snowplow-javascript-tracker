@@ -54,7 +54,7 @@ export function OptimizelyPlugin(
   variations: boolean = true,
   visitor: boolean = true,
   audiences: boolean = true,
-  dimensions: boolean
+  dimensions: boolean = true
 ): BrowserPlugin {
   const windowAlias = window;
 
