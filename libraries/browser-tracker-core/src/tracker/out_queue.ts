@@ -51,24 +51,22 @@ export interface OutQueue {
  * Object handling sending events to a collector.
  * Instantiated once per tracker instance.
  *
- * @param string functionName The Snowplow function name (used to generate the localStorage key)
- * @param string namespace The tracker instance's namespace (used to generate the localStorage key)
- * @param object mutSnowplowState Gives the pageUnloadGuard a reference to the outbound queue
- *                                so it can unload the page when all queues are empty
- * @param boolean useLocalStorage Whether to use localStorage at all
- * @param string eventMethod if null will use 'beacon' otherwise can be set to 'post', 'get', or 'beacon' to force.
- * @param string postPath The path where events are to be posted
- * @param int bufferSize How many events to batch in localStorage before sending them all.
- *                       Only applies when sending POST requests and when localStorage is available.
- * @param int maxPostBytes Maximum combined size in bytes of the event JSONs in a POST request
- * @param boolean useStm Whether to add timestamp to events
- * @param int maxLocalStorageQueueSize Maximum number of queued events we will attempt to store in local storage.
- *
- * @return object OutQueueManager instance
+ * @param id The Snowplow function name (used to generate the localStorage key)
+ * @param sharedSate Stores reference to the outbound queue so it can unload the page when all queues are empty
+ * @param useLocalStorage Whether to use localStorage at all
+ * @param eventMethod if null will use 'beacon' otherwise can be set to 'post', 'get', or 'beacon' to force.
+ * @param postPath The path where events are to be posted
+ * @param bufferSize How many events to batch in localStorage before sending them all
+ * @param maxPostBytes Maximum combined size in bytes of the event JSONs in a POST request
+ * @param useStm Whether to add timestamp to events
+ * @param maxLocalStorageQueueSize Maximum number of queued events we will attempt to store in local storage
+ * @param connectionTimeout Defines how long to wait before aborting the request
+ * @param anonymousTracking Defines whether to set the SP-Anonymous header for anonymous tracking on GET and POST
+ * @returns object OutQueueManager instance
  */
 export function OutQueueManager(
   id: string,
-  mutSnowplowState: SharedState,
+  sharedSate: SharedState,
   useLocalStorage: boolean,
   eventMethod: string | boolean | null,
   postPath: string,
@@ -114,6 +112,7 @@ export function OutQueueManager(
   // Resolve all options and capabilities and decide path
   var path = usePost ? postPath : '/i';
 
+  // Get buffer size or set 1 if unable to buffer
   bufferSize = (localStorageAccessible() && useLocalStorage && usePost && bufferSize) || 1;
 
   // Different queue names for GET and POST since they are stored differently
@@ -135,10 +134,10 @@ export function OutQueueManager(
   }
 
   // Used by pageUnloadGuard
-  mutSnowplowState.outQueues.push(outQueue);
+  sharedSate.outQueues.push(outQueue);
 
   if (useXhr && bufferSize > 1) {
-    mutSnowplowState.bufferFlushers.push(function () {
+    sharedSate.bufferFlushers.push(function () {
       if (!executingQueue) {
         executeQueue();
       }
@@ -224,8 +223,7 @@ export function OutQueueManager(
   };
 
   /*
-   * Queue an image beacon for submission to the collector.
-   * If we're not processing the queue, we'll start.
+   * Queue for submission to the collector and start processing queue
    */
   function enqueueRequest(request: Payload, url: string) {
     configCollectorUrl = url + path;
@@ -250,13 +248,14 @@ export function OutQueueManager(
       );
     }
 
+    // If we're not processing the queue, we'll start.
     if (!executingQueue && (!savedToLocalStorage || outQueue.length >= bufferSize)) {
       executeQueue();
     }
   }
 
   /*
-   * Run through the queue of image beacons, sending them one at a time.
+   * Run through the queue of requests, sending them one at a time.
    * Stops processing when we run out of queued requests, or we get an error.
    */
   function executeQueue() {
@@ -270,7 +269,7 @@ export function OutQueueManager(
       return;
     }
 
-    // Let's check that we have a Url to ping
+    // Let's check that we have a URL
     if (!isString(configCollectorUrl)) {
       throw 'No collector configured';
     }
@@ -336,6 +335,7 @@ export function OutQueueManager(
       };
 
       if (!postable(outQueue)) {
+        // If not postable then it's a GET so just send it
         xhr.send();
       } else {
         let batch = outQueue.slice(0, numberToSend);
@@ -372,6 +372,7 @@ export function OutQueueManager(
         }
       }
     } else if (!anonymousTracking && !postable(outQueue)) {
+      // We can't send with this technique if anonymous tracking is on as we can't attach the header
       let image = new Image(1, 1),
         loading = true;
 

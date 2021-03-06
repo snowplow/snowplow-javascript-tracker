@@ -24,6 +24,12 @@
 // Deprecated and removed in TypeScript
 declare function unescape(s: string): string;
 
+/**
+ * Decodes a url safe Base 64 encoded string
+ * @remark See: {@link http://tools.ietf.org/html/rfc4648#page-7}
+ * @param data String to decode
+ * @returns The decoded string
+ */
 export function base64urldecode(data: string): string {
   if (!data) {
     return data;
@@ -42,9 +48,10 @@ export function base64urldecode(data: string): string {
 }
 
 /**
- * Base64 encode data with URL and Filename Safe Alphabet (base64url)
- *
- * See: http://tools.ietf.org/html/rfc4648#page-7
+ * Encodes a string into a url safe Base 64 encoded string
+ * @remark See: {@link http://tools.ietf.org/html/rfc4648#page-7}
+ * @param data String to encode
+ * @returns The url safe Base 64 string
  */
 export function base64urlencode(data: string): string {
   if (!data) {
@@ -121,6 +128,12 @@ export function base64encode(data: string): string {
   return (r ? enc.slice(0, r - 3) : enc) + '==='.slice(r || 3);
 }
 
+/**
+ * Decode base64 to string
+ *
+ * @param data base64 to string
+ * @returns decoded string
+ */
 export function base64decode(encodedData: string): string {
   //  discuss at: http://locutus.io/php/base64_decode/
   // original by: Tyler Akins (http://rumkin.com)

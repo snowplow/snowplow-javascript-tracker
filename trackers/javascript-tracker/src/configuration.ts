@@ -28,19 +28,23 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { determine } from 'jstimezonedetect';
-import { BrowserTracker, BrowserPlugin } from '@snowplow/browser-tracker-core';
+import { TrackerConfiguration } from '@snowplow/browser-tracker-core';
 
-/**
- * Populated the Timezone field of the canonical event model
- *
- * @remark
- * Uses Intl where availble and has fallback in older browsers
- */
-export function TimezonePlugin(): BrowserPlugin {
-  return {
-    activateBrowserPlugin: (tracker: BrowserTracker) => {
-      tracker.core.setTimezone(determine(typeof Intl !== 'undefined').name());
-    },
+export interface JavaScriptTrackerConfiguration extends TrackerConfiguration {
+  contexts: {
+    webPage: boolean;
+    performanceTiming: boolean;
+    gaCookies: boolean;
+    geolocation: boolean;
+    optimizelyExperiments: boolean;
+    optimizelyStates: boolean;
+    optimizelyVariations: boolean;
+    optimizelyVisitor: boolean;
+    optimizelyAudiences: boolean;
+    optimizelyDimensions: boolean;
+    optimizelySummary: boolean;
+    optimizelyXSummary: boolean;
+    parrable: boolean;
+    clientHints: boolean | { includeHighEntropy: boolean };
   };
 }

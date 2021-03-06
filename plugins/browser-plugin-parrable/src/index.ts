@@ -41,6 +41,9 @@ declare global {
 
 const windowAlias = window;
 
+/**
+ * Adds Parrable Context to events
+ */
 export function ParrablePlugin(): BrowserPlugin {
   return {
     /**

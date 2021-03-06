@@ -400,10 +400,10 @@ test('should track an add-to-cart event', (t) => {
     schema: 'iglu:com.snowplowanalytics.snowplow/add_to_cart/jsonschema/1-0-0',
     data: {
       sku: sku,
+      quantity: quantity,
       name: name,
       category: category,
       unitPrice: unitPrice,
-      quantity: quantity,
       currency: currency,
     },
   };
@@ -427,10 +427,10 @@ test('should track a remove-from-cart event', (t) => {
     schema: 'iglu:com.snowplowanalytics.snowplow/remove_from_cart/jsonschema/1-0-0',
     data: {
       sku: sku,
+      quantity: quantity,
       name: name,
       category: category,
       unitPrice: unitPrice,
-      quantity: quantity,
       currency: currency,
     },
   };
@@ -842,7 +842,7 @@ test('should run plugin before and after track callbacks on each track event', (
     tracker.track(
       buildAdConversion({
         conversionId: str,
-        costModel: str,
+        costModel: 'cpm',
         cost: num,
         category: str,
         action: str,
@@ -855,7 +855,7 @@ test('should run plugin before and after track callbacks on each track event', (
     tracker.track(
       buildAdImpression({
         impressionId: str,
-        costModel: str,
+        costModel: 'cpm',
         cost: num,
         targetUrl: str,
         bannerId: str,
@@ -890,7 +890,7 @@ test('should run plugin before and after track callbacks on each track event', (
       buildAdClick({
         targetUrl: str,
         clickId: str,
-        costModel: str,
+        costModel: 'cpm',
         cost: num,
         bannerId: str,
         zoneId: str,

@@ -30,24 +30,27 @@
 
 import { base64urlencode } from './base64';
 
-export type PayloadValue = unknown;
-
 /**
- * Interface for a Payload dictionary
+ * Type for a Payload dictionary
  */
-export type Payload = Record<string, PayloadValue>;
+export type Payload = Record<string, unknown>;
 
 /**
  * Interface for mutable object encapsulating tracker payload
  */
 export interface PayloadBuilder {
+  /**
+   * Sets whether the JSON within the payload should be base64 encoded
+   * @param base64 Toggle for base64 encoding
+   */
   setBase64Encoding: (base64: boolean) => void;
+
   /**
    * Adds an entry to the Payload
    * @param key Key for Payload dictionary entry
    * @param value Value for Payload dictionaty entry
    */
-  add: (key: string, value: PayloadValue) => void;
+  add: (key: string, value: unknown) => void;
 
   /**
    * Merges a payload into the existing payload
@@ -72,6 +75,7 @@ export interface PayloadBuilder {
 
 /**
  * Is property a non-empty JSON?
+ * @param property Checks if object is non-empty json
  */
 export function isNonEmptyJson(property?: Record<string, unknown>): boolean {
   if (!isJson(property)) {
@@ -87,6 +91,7 @@ export function isNonEmptyJson(property?: Record<string, unknown>): boolean {
 
 /**
  * Is property a JSON?
+ * @param property Checks if object is json
  */
 export function isJson(property?: Record<string, unknown>): boolean {
   return (
@@ -97,13 +102,10 @@ export function isJson(property?: Record<string, unknown>): boolean {
 }
 
 /**
- * A helper to build a Snowplow request string from an
- * an optional initial value plus a set of individual
- * name-value pairs, provided using the add method.
+ * A helper to build a Snowplow request from a set of name-value pairs, provided using the add methods.
+ * Will base64 encode JSON, if desired, on build
  *
- * @param base64Encode Whether or not JSONs should be Base64-URL-safe-encoded
- *
- * @return The request string builder, with add, addRaw and build methods
+ * @return The request builder, with add and build methods
  */
 export function payloadBuilder(): PayloadBuilder {
   const dict: Payload = {};
@@ -114,7 +116,7 @@ export function payloadBuilder(): PayloadBuilder {
     encodeBase64 = base64;
   };
 
-  const add = (key: string, value: PayloadValue): void => {
+  const add = (key: string, value: unknown): void => {
     if (value != null && value !== '') {
       // null also checks undefined
       dict[key] = value;

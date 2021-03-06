@@ -34,10 +34,14 @@ import {
   parseAndValidateFloat,
   parseAndValidateInt,
 } from '@snowplow/browser-tracker-core';
-import { buildSelfDescribingEvent, SelfDescribingJson, Timestamp } from '@snowplow/tracker-core';
+import { buildSelfDescribingEvent, CommonEventProperties, SelfDescribingJson } from '@snowplow/tracker-core';
 
 const _trackers: Record<string, [BrowserTracker, Array<SelfDescribingJson>]> = {};
 
+/**
+ * For tracking GA Enhanced Ecommerce events and contexts
+ * {@link https://developers.google.com/analytics/devguides/collection/analyticsjs/enhanced-ecommerce}
+ */
 export function EnhancedEcommercePlugin(): BrowserPlugin {
   return {
     activateBrowserPlugin: (tracker) => {
@@ -47,24 +51,28 @@ export function EnhancedEcommercePlugin(): BrowserPlugin {
 }
 
 /**
+ * An Enhanced Ecommerce Action
+ * Used when tracking an GA Enhanced Ecommerce Action with all stored Enhanced Ecommerce contexts
+ */
+export interface EnhancedEcommerceAction {
+  /** Actions specify how to interpret product and promotion data */
+  action?: string;
+}
+
+/**
  * Track a GA Enhanced Ecommerce Action with all stored
  * Enhanced Ecommerce contexts
  *
- * @param string action
- * @param array context Optional. Context relating to the event.
- * @param timestamp Opinal number or Timestamp object
+ * @param event
+ * @param trackers
  */
 export function trackEnhancedEcommerceAction(
-  {
-    action,
-    context,
-    timestamp,
-  }: { action?: string; context?: Array<SelfDescribingJson> | null; timestamp?: Timestamp | null } = {},
+  event: EnhancedEcommerceAction & CommonEventProperties = {},
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
     if (_trackers[t]) {
-      const combinedContexts = _trackers[t][1].concat(context || []);
+      const combinedContexts = _trackers[t][1].concat(event.context || []);
       _trackers[t][1].length = 0;
 
       _trackers[t][0].core.track(
@@ -72,57 +80,55 @@ export function trackEnhancedEcommerceAction(
           event: {
             schema: 'iglu:com.google.analytics.enhanced-ecommerce/action/jsonschema/1-0-0',
             data: {
-              action,
+              action: event.action,
             },
           },
         }),
         combinedContexts,
-        timestamp
+        event.timestamp
       );
     }
   });
 }
 
 /**
+ * The Action Context
+ * Represents information about an ecommerce related action that has taken place.
+ */
+export interface EnhanacedCommerceActionContext {
+  /** The transaction id */
+  id?: string;
+  /** The store of affiliation from which this transaction occured */
+  affiliation?: string;
+  /** Specifies the total revenue or grand total associated with the transaction */
+  revenue?: string;
+  /** The total tax associated with the transaction. */
+  tax?: number;
+  /** The shipping cost associated with the transaction. */
+  shipping?: number;
+  /** The transaction coupon redeemed with the transaction. */
+  coupon?: string;
+  /** The list that the associated products belong to. */
+  list?: string;
+  /**	A number representing a step in the checkout process. Optional on `checkout` actions.  */
+  step?: number;
+  /** Additional field for checkout and checkout_option actions that can describe option information on the checkout page, like selected payment method. */
+  option?: string;
+  /** The currency of the transactoin */
+  currency?: string;
+}
+
+/**
  * Adds a GA Enhanced Ecommerce Action Context
  *
- * @param string id
- * @param string affiliation
- * @param number revenue
- * @param number tax
- * @param number shipping
- * @param string coupon
- * @param string list
- * @param integer step
- * @param string option
- * @param string currency
+ * @param context The context to be stored
+ * @param trackers The tracker identifiers which the context will be stored against
  */
 export function addEnhancedEcommerceActionContext(
-  {
-    id,
-    affiliation,
-    revenue,
-    tax,
-    shipping,
-    coupon,
-    list,
-    step,
-    option,
-    currency,
-  }: {
-    id?: string;
-    affiliation?: string;
-    revenue?: string;
-    tax?: number;
-    shipping?: number;
-    coupon?: string;
-    list?: string;
-    step?: number;
-    option?: string;
-    currency?: string;
-  } = {},
+  context: EnhanacedCommerceActionContext = {},
   trackers: Array<string> = Object.keys(_trackers)
 ) {
+  const { id, affiliation, revenue, tax, shipping, coupon, list, step, option, currency } = context;
   trackers.forEach((t) => {
     if (_trackers[t]) {
       _trackers[t][1].push({
@@ -145,42 +151,40 @@ export function addEnhancedEcommerceActionContext(
 }
 
 /**
+ * An enhanced ecommerce impression context
+ */
+export interface EnhancedEcommerceImpressionContext {
+  /** The product ID or SKU */
+  id?: string;
+  /** The name of the product */
+  name?: string;
+  /** The list or collection to which the product belongs */
+  list?: string;
+  /** The brand associated with the product */
+  brand?: string;
+  /** The category to which the product belongs */
+  category?: string;
+  /** The variant of the product */
+  variant?: string;
+  /** The product's position in a list or collection */
+  position?: number;
+  /** The price of a product  */
+  price?: string;
+  /** The currency of a product  */
+  currency?: string;
+}
+
+/**
  * Adds a GA Enhanced Ecommerce Impression Context
  *
- * @param string id
- * @param string name
- * @param string list
- * @param string brand
- * @param string category
- * @param string variant
- * @param integer position
- * @param number price
- * @param string currency
+ * @param context The context to be stored
+ * @param trackers The tracker identifiers which the context will be stored against
  */
 export function addEnhancedEcommerceImpressionContext(
-  {
-    id,
-    name,
-    list,
-    brand,
-    category,
-    variant,
-    position,
-    price,
-    currency,
-  }: {
-    id?: string;
-    name?: string;
-    list?: string;
-    brand?: string;
-    category?: string;
-    variant?: string;
-    position?: number;
-    price?: string;
-    currency?: string;
-  } = {},
+  context: EnhancedEcommerceImpressionContext = {},
   trackers: Array<string> = Object.keys(_trackers)
 ) {
+  const { id, name, list, brand, category, variant, position, price, currency } = context;
   trackers.forEach((t) => {
     if (_trackers[t]) {
       _trackers[t][1].push({
@@ -200,49 +204,46 @@ export function addEnhancedEcommerceImpressionContext(
     }
   });
 }
+
+/**
+ * An enhanced ecommerce product context
+ */
+export interface EnhancedEcommerceProductContext {
+  /** The product ID or SKU */
+  id?: string;
+  /** The name of the product */
+  name?: string;
+  /** The list or collection to which the product belongs */
+  list?: string;
+  /** The brand associated with the product */
+  brand?: string;
+  /** The category to which the product belongs  */
+  category?: string;
+  /** The variant of the product */
+  variant?: string;
+  /** The price of a product */
+  price?: number;
+  /** The quantity of a product */
+  quantity?: number;
+  /** The coupon code associated with a product */
+  coupon?: string;
+  /** The product's position in a list or collection */
+  position?: number;
+  /** The currency of the product */
+  currency?: string;
+}
+
 /**
  * Adds a GA Enhanced Ecommerce Product Context
  *
- * @param string id
- * @param string name
- * @param string list
- * @param string brand
- * @param string category
- * @param string variant
- * @param number price
- * @param integer quantity
- * @param string coupon
- * @param integer position
- * @param string currency
+ * @param context The context to be stored
+ * @param trackers The tracker identifiers which the context will be stored against
  */
 export function addEnhancedEcommerceProductContext(
-  {
-    id,
-    name,
-    list,
-    brand,
-    category,
-    variant,
-    price,
-    quantity,
-    coupon,
-    position,
-    currency,
-  }: {
-    id?: string;
-    name?: string;
-    list?: string;
-    brand?: string;
-    category?: string;
-    variant?: string;
-    price?: number;
-    quantity?: number;
-    coupon?: string;
-    position?: number;
-    currency?: string;
-  } = {},
+  context: EnhancedEcommerceProductContext = {},
   trackers: Array<string> = Object.keys(_trackers)
 ) {
+  const { id, name, list, brand, category, variant, price, quantity, coupon, position, currency } = context;
   trackers.forEach((t) => {
     if (_trackers[t]) {
       _trackers[t][1].push({
@@ -266,23 +267,43 @@ export function addEnhancedEcommerceProductContext(
 }
 
 /**
+ * An enhanced ecommerce promo context
+ */
+export interface EnhancedEcommercePromoContext {
+  /** The promotion ID */
+  id?: string;
+  /** The name of the promotion */
+  name?: string;
+  /** The creative associated with the promotion */
+  creative?: string;
+  /** The position of the creative */
+  position?: string;
+  /** The currency of the product */
+  currency?: string;
+}
+
+/**
  * Adds a GA Enhanced Ecommerce Promo Context
  *
- * @param string id
- * @param string name
- * @param string creative
- * @param string position
- * @param string currency
+ * @param context The context to be stored
+ * @param trackers The tracker identifiers which the context will be stored against
  */
 export function addEnhancedEcommercePromoContext(
-  event: { id?: string; name?: string; creative?: string; position?: string; currency?: string } = {},
+  context: EnhancedEcommercePromoContext = {},
   trackers: Array<string> = Object.keys(_trackers)
 ) {
+  const { id, name, creative, position, currency } = context;
   trackers.forEach((t) => {
     if (_trackers[t]) {
       _trackers[t][1].push({
         schema: 'iglu:com.google.analytics.enhanced-ecommerce/promoFieldObject/jsonschema/1-0-0',
-        data: event,
+        data: {
+          id,
+          name,
+          creative,
+          position,
+          currency,
+        },
       });
     }
   });

@@ -30,4 +30,5 @@
 
 import { version as pkgVersion } from '../package.json';
 
+/** The current version of the tracker */
 export const version = 'js-' + pkgVersion;

@@ -38,11 +38,11 @@ import {
   BrowserTracker,
 } from '@snowplow/browser-tracker-core';
 import {
-  SelfDescribingJson,
-  Timestamp,
-  resolveDynamicContexts,
-  DynamicContexts,
+  resolveDynamicContext,
+  DynamicContext,
   buildLinkClick,
+  CommonEventProperties,
+  LinkClickEvent,
 } from '@snowplow/tracker-core';
 
 interface LinkClickConfiguration {
@@ -53,55 +53,57 @@ interface LinkClickConfiguration {
   // Whether to track the  innerHTML of clicked links
   linkTrackingContent?: boolean | null | undefined;
   // The context attached to link click events
-  linkTrackingContext?: DynamicContexts | null | undefined;
+  linkTrackingContext?: DynamicContext | null | undefined;
   lastButton?: number | null;
   lastTarget?: EventTarget | null;
 }
 
 const _configuration: Record<string, LinkClickConfiguration> = {};
 
-export const LinkClickTrackingPlugin = (): BrowserPlugin => {
+/**
+ * Link click tracking
+ *
+ * Will automatically tracking link clicks once enabled with 'enableLinkClickTracking'
+ * or you can manually track link clicks with 'trackLinkClick'
+ */
+export function LinkClickTrackingPlugin(): BrowserPlugin {
   return {
     activateBrowserPlugin: (tracker: BrowserTracker) => {
       _configuration[tracker.id] = { tracker };
     },
   };
-};
+}
+
+/** The configuration for automatic link click tracking */
+export interface LinkClickTrackingConfiguration {
+  /** The filter options for the link click tracking */
+  options?: FilterCriterion<HTMLElement> | null;
+  /**
+   * Captures middle click events in browsers that don't generate standard click
+   * events for middle click actions
+   */
+  pseudoClicks?: boolean | null;
+  /** Whether the content of the links should be tracked */
+  trackContent?: boolean | null;
+  /** The dyanmic context which will be evaluated for each link click event */
+  context?: DynamicContext | null;
+}
 
 /**
- * Install link tracker
+ * Enable link click tracking
  *
+ * @remark
  * The default behaviour is to use actual click events. However, some browsers
  * (e.g., Firefox, Opera, and Konqueror) don't generate click events for the middle mouse button.
  *
  * To capture more "clicks", the pseudo click-handler uses mousedown + mouseup events.
  * This is not industry standard and is vulnerable to false positives (e.g., drag events).
- *
- * There is a Safari/Chrome/Webkit bug that prevents tracking requests from being sent
- * by either click handler.  The workaround is to set a target attribute (which can't
- * be "_self", "_top", or "_parent").
- *
- * @see https://bugs.webkit.org/show_bug.cgi?id=54783
- *
- * @param object criterion Criterion by which it will be decided whether a link will be tracked
- * @param bool pseudoClicks If true, use pseudo click-handler (mousedown+mouseup)
- * @param bool trackContent Whether to track the innerHTML of the link element
- * @param array context Context for all link click events
  */
 export function enableLinkClickTracking(
-  {
-    options,
-    pseudoClicks,
-    trackContent,
-    context,
-  }: {
-    options?: FilterCriterion<HTMLElement> | null;
-    pseudoClicks?: boolean | null;
-    trackContent?: boolean | null;
-    context?: DynamicContexts | null;
-  } = {},
+  configuration: LinkClickTrackingConfiguration = {},
   trackers: Array<string> = Object.keys(_configuration)
 ) {
+  const { options, pseudoClicks, trackContent, context } = configuration;
   trackers.forEach((id) => {
     if (_configuration[id]) {
       if (_configuration[id].tracker.sharedState.hasLoaded) {
@@ -122,6 +124,8 @@ export function enableLinkClickTracking(
 /**
  * Add click event listeners to links which have been added to the page since the
  * last time enableLinkClickTracking or refreshLinkClickTracking was used
+ *
+ * @param trackers The tracker identifiers which the have their link click state refreshed
  */
 export function refreshLinkClickTracking(trackers: Array<string> = Object.keys(_configuration)) {
   trackers.forEach((id) => {
@@ -138,26 +142,13 @@ export function refreshLinkClickTracking(trackers: Array<string> = Object.keys(_
 }
 
 /**
- * Manually log a click from your own code
+ * Manually log a click
  *
- * @param string targetUrl
- * @param string elementId
- * @param array elementClasses
- * @param string elementTarget
- * @param string elementContent innerHTML of the element
- * @param object Custom context relating to the event
- * @param timestamp number or Timestamp object
+ * @param event The event information
+ * @param trackers The tracker identifiers which the event will be sent to
  */
 export function trackLinkClick(
-  event: {
-    targetUrl: string;
-    elementId?: string;
-    elementClasses?: Array<string>;
-    elementTarget?: string;
-    elementContent?: string;
-    context?: SelfDescribingJson[];
-    timestamp?: Timestamp;
-  },
+  event: LinkClickEvent & CommonEventProperties,
   trackers: Array<string> = Object.keys(_configuration)
 ) {
   trackers.forEach((id) => {
@@ -170,7 +161,7 @@ export function trackLinkClick(
 /*
  * Process clicks
  */
-function processClick(tracker: BrowserTracker, sourceElement: Element, context?: DynamicContexts | null) {
+function processClick(tracker: BrowserTracker, sourceElement: Element, context?: DynamicContext | null) {
   let parentElement, tag, elementId, elementClasses, elementTarget, elementContent;
 
   while (
@@ -207,7 +198,7 @@ function processClick(tracker: BrowserTracker, sourceElement: Element, context?:
           elementTarget,
           elementContent,
         }),
-        resolveDynamicContexts(context, sourceElement)
+        resolveDynamicContext(context, sourceElement)
       );
     }
   }
@@ -216,7 +207,7 @@ function processClick(tracker: BrowserTracker, sourceElement: Element, context?:
 /*
  * Return function to handle click event
  */
-function getClickHandler(tracker: string, context?: DynamicContexts | null): EventListenerOrEventListenerObject {
+function getClickHandler(tracker: string, context?: DynamicContext | null): EventListenerOrEventListenerObject {
   return function (evt: Event) {
     var button, target;
 
@@ -277,7 +268,7 @@ function configureLinkClickTracking(
     options?: FilterCriterion<HTMLElement> | null;
     pseudoClicks?: boolean | null;
     trackContent?: boolean | null;
-    context?: DynamicContexts | null;
+    context?: DynamicContext | null;
   } = {},
   tracker: string
 ) {

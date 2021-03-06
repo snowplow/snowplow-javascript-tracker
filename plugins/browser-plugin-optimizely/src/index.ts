@@ -47,6 +47,17 @@ declare global {
   }
 }
 
+/**
+ * Adds classic Opimizely context to events
+ *
+ * @param summary Add summary context
+ * @param experiments Add experiments context
+ * @param states Add states context
+ * @param variations Add variations context
+ * @param visitor Add visitor context
+ * @param audiences Add audiences context
+ * @param dimensions Add dimensions context
+ */
 export function OptimizelyPlugin(
   summary: boolean = true,
   experiments: boolean = true,

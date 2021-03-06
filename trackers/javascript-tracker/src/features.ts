@@ -47,8 +47,13 @@ import * as AdTracking from '@snowplow/browser-plugin-ad-tracking';
 import * as SiteTracking from '@snowplow/browser-plugin-site-tracking';
 import { plugins } from '../tracker.config';
 import { BrowserPlugin } from '@snowplow/browser-tracker-core';
+import { JavaScriptTrackerConfiguration } from './configuration';
 
-export function Plugins(argmap: any) {
+/**
+ * Calculates the required plugins to intialise per tracker
+ * @param configuration The tracker configuration object
+ */
+export function Plugins(configuration: JavaScriptTrackerConfiguration) {
   const {
     performanceTiming,
     gaCookies,
@@ -63,7 +68,7 @@ export function Plugins(argmap: any) {
     optimizelyXSummary,
     parrable,
     clientHints,
-  } = argmap?.contexts ?? {};
+  } = configuration?.contexts ?? {};
   const activatedPlugins: Array<[BrowserPlugin, {} | Record<string, Function>]> = [];
 
   if (
@@ -103,7 +108,10 @@ export function Plugins(argmap: any) {
 
   if (plugins.clientHints && clientHints) {
     const { ClientHintsPlugin, ...apiMethods } = ClientHints;
-    activatedPlugins.push([ClientHintsPlugin(clientHints.includeHighEntropy ? true : false), apiMethods]);
+    activatedPlugins.push([
+      ClientHintsPlugin(typeof clientHints === 'object' && clientHints.includeHighEntropy),
+      apiMethods,
+    ]);
   }
 
   if (plugins.parrable && parrable) {

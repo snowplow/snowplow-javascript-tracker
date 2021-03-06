@@ -56,7 +56,11 @@ declare global {
 
 const navigatorAlias = navigator;
 
-const ClientHintsPlugin = (includeHighEntropy: boolean): BrowserPlugin => {
+/**
+ * Attaches Client Hint information where available
+ * @param includeHighEntropy Should high entropy values be included
+ */
+export function ClientHintsPlugin(includeHighEntropy: boolean): BrowserPlugin {
   let uaClientHints: HttpClientHints;
 
   if (navigatorAlias.userAgentData) {
@@ -90,6 +94,4 @@ const ClientHintsPlugin = (includeHighEntropy: boolean): BrowserPlugin => {
       return [];
     },
   };
-};
-
-export { ClientHintsPlugin };
+}

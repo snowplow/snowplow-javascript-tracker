@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { v4 } from 'uuid';
+import { v4 as uuid } from 'uuid';
 import { payloadBuilder, PayloadBuilder, Payload, isJson } from './payload';
 import {
   globalContexts,
@@ -41,15 +41,34 @@ import {
 import { CorePlugin } from './plugins';
 
 /**
- * Interface common for any Self-Describing JSON such as custom context or
- * Self-describing (ex-unstuctured) event
+ * export interface for any Self-Describing JSON such as context or Self Describing events
+ * @typeParam T - The type of the data object within a SelfDescribingJson
  */
 export type SelfDescribingJson<T extends Record<keyof T, unknown> = Record<string, unknown>> = {
+  /**
+   * The schema string
+   * @example 'iglu:com.snowplowanalytics.snowplow/web_page/jsonschema/1-0-0'
+   */
   schema: string;
+  /**
+   * The data object which should conform to the supplied schema
+   */
   data: T;
 };
+
+/**
+ * export interface for any Self-Describing JSON which has the data attribute as an array
+ * @typeParam T - The type of the data object within the SelfDescribingJson data array
+ */
 export type SelfDescribingJsonArray<T extends Record<keyof T, unknown> = Record<string, unknown>> = {
+  /**
+   * The schema string
+   * @example 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-1'
+   */
   schema: string;
+  /**
+   * The data array which should conform to the supplied schema
+   */
   data: Array<T>;
 };
 
@@ -57,10 +76,18 @@ export type SelfDescribingJsonArray<T extends Record<keyof T, unknown> = Record<
  * Algebraic datatype representing possible timestamp type choice
  */
 export type Timestamp = TrueTimestamp | DeviceTimestamp | number;
+
+/**
+ * A representation of a True Timestamp (ttm)
+ */
 export interface TrueTimestamp {
   readonly type: 'ttm';
   readonly value: number;
 }
+
+/**
+ * A representation of a Device Timestamp (dtm)
+ */
 export interface DeviceTimestamp {
   readonly type: 'dtm';
   readonly value: number;
@@ -90,8 +117,16 @@ function getTimestamp(timestamp?: Timestamp | null): TimestampPayload {
   }
 }
 
+/** Additional data points to set when tracking an event */
+export interface CommonEventProperties {
+  /** Add context to an event by setting an Array of Self Describing JSON */
+  context?: Array<SelfDescribingJson> | null;
+  /** Set the true timestamp or overwrite the device sent timestamp on an event */
+  timestamp?: Timestamp | null;
+}
+
 /**
- * Interface containing all Core functions
+ * export interface containing all Core functions
  */
 export interface TrackerCore {
   /**
@@ -99,15 +134,17 @@ export interface TrackerCore {
    * Adds context and payloadPairs name-value pairs to the payload
    * Applies the callback to the built payload
    *
-   * @param sb Payload
+   * @param pb Payload
    * @param context Custom contexts relating to the event
    * @param timestamp Timestamp of the event
-   * @param  A callback function triggered after event is tracked
    * @return Payload after the callback is applied
    */
   track: (
-    sb: PayloadBuilder,
+    /** A PayloadBuilder created by one of the `buildX` functions */
+    pb: PayloadBuilder,
+    /** The additional contextual information related to the event */
     context?: Array<SelfDescribingJson> | null,
+    /** Timestamp override */
     timestamp?: Timestamp | null
   ) => PayloadBuilder;
 
@@ -253,6 +290,7 @@ export interface TrackerCore {
  * Create a tracker core object
  *
  * @param base64 Whether to base 64 encode contexts and self describing event JSONs
+ * @param corePlugins The core plugins to be processed with each event
  * @param callback Function applied to every payload dictionary object
  * @return Tracker core
  */
@@ -261,12 +299,12 @@ export function trackerCore(
   corePlugins?: Array<CorePlugin>,
   callback?: (PayloadData: PayloadBuilder) => void
 ): TrackerCore {
-  let encodeBase64 = base64 ?? true,
-    payloadPairs: Payload = {}; // Dictionary of key-value pairs which get added to every payload, e.g. tracker version
-
   const plugins = corePlugins ?? [],
     pluginContextsHelper: PluginContexts = pluginContexts(plugins),
     globalContextsHelper: GlobalContexts = globalContexts();
+
+  let encodeBase64 = base64 ?? true,
+    payloadPairs: Payload = {}; // Dictionary of key-value pairs which get added to every payload, e.g. tracker version
 
   /**
    * Wraps an array of custom contexts in a self-describing JSON
@@ -274,9 +312,9 @@ export function trackerCore(
    * @param contexts Array of custom context self-describing JSONs
    * @return Outer JSON
    */
-  const completeContexts = (
+  function completeContexts(
     contexts?: Array<SelfDescribingJson>
-  ): SelfDescribingJsonArray<SelfDescribingJson> | undefined => {
+  ): SelfDescribingJsonArray<SelfDescribingJson> | undefined {
     if (contexts && contexts.length) {
       return {
         schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0',
@@ -284,19 +322,19 @@ export function trackerCore(
       };
     }
     return undefined;
-  };
+  }
 
   /**
    * Adds all global contexts to a contexts array
    *
-   * @param sb PayloadData
+   * @param pb PayloadData
    * @param contexts Custom contexts relating to the event
    */
-  const attachGlobalContexts = (
-    sb: PayloadBuilder,
+  function attachGlobalContexts(
+    pb: PayloadBuilder,
     contexts?: Array<SelfDescribingJson> | null
-  ): Array<SelfDescribingJson> => {
-    const applicableContexts: Array<SelfDescribingJson> = globalContextsHelper.getApplicableContexts(sb);
+  ): Array<SelfDescribingJson> {
+    const applicableContexts: Array<SelfDescribingJson> = globalContextsHelper.getApplicableContexts(pb);
     const returnedContexts: Array<SelfDescribingJson> = [];
     if (contexts && contexts.length) {
       returnedContexts.push(...contexts);
@@ -305,38 +343,38 @@ export function trackerCore(
       returnedContexts.push(...applicableContexts);
     }
     return returnedContexts;
-  };
+  }
 
   /**
    * Gets called by every trackXXX method
    * Adds context and payloadPairs name-value pairs to the payload
    * Applies the callback to the built payload
    *
-   * @param sb Payload
+   * @param pb Payload
    * @param context Custom contexts relating to the event
    * @param timestamp Timestamp of the event
    * @return Payload after the callback is applied
    */
-  const track = (
-    sb: PayloadBuilder,
+  function track(
+    pb: PayloadBuilder,
     context?: Array<SelfDescribingJson> | null,
     timestamp?: Timestamp | null
-  ): PayloadBuilder => {
-    sb.setBase64Encoding(encodeBase64);
-    sb.addDict(payloadPairs);
-    sb.add('eid', v4());
+  ): PayloadBuilder {
+    pb.setBase64Encoding(encodeBase64);
+    pb.addDict(payloadPairs);
+    pb.add('eid', uuid());
     const tstamp = getTimestamp(timestamp);
-    sb.add(tstamp.type, tstamp.value.toString());
-    const allContexts = attachGlobalContexts(sb, pluginContextsHelper.addPluginContexts(context));
+    pb.add(tstamp.type, tstamp.value.toString());
+    const allContexts = attachGlobalContexts(pb, pluginContextsHelper.addPluginContexts(context));
     const wrappedContexts = completeContexts(allContexts);
     if (wrappedContexts !== undefined) {
-      sb.addJson('cx', 'co', wrappedContexts);
+      pb.addJson('cx', 'co', wrappedContexts);
     }
 
     plugins.forEach((plugin) => {
       try {
         if (plugin.beforeTrack) {
-          plugin.beforeTrack(sb);
+          plugin.beforeTrack(pb);
         }
       } catch (ex) {
         console.warn('Snowplow: error with plugin beforeTrack', ex);
@@ -344,21 +382,21 @@ export function trackerCore(
     });
 
     if (typeof callback === 'function') {
-      callback(sb);
+      callback(pb);
     }
 
     plugins.forEach((plugin) => {
       try {
         if (plugin.afterTrack) {
-          plugin.afterTrack(sb.build());
+          plugin.afterTrack(pb.build());
         }
       } catch (ex) {
         console.warn('Snowplow: error with plugin ', ex);
       }
     });
 
-    return sb;
-  };
+    return pb;
+  }
 
   /**
    * Set a persistent key-value pair to be added to every payload
@@ -366,9 +404,9 @@ export function trackerCore(
    * @param key Field name
    * @param value Field value
    */
-  const addPayloadPair = (key: string, value: string | number): void => {
+  function addPayloadPair(key: string, value: string | number): void {
     payloadPairs[key] = value;
-  };
+  }
 
   const core = {
     track,
@@ -460,304 +498,642 @@ export function trackerCore(
 }
 
 /**
- * Log a self-describing event
- *
- * @param properties Contains the properties and schema location for the event
- * @return Payload
+ * A Self Describing Event
+ * A custom event type, allowing for an event to be tracked using your own custom schema
+ * and a data object which conforms to the supplied schema
  */
-export function buildSelfDescribingEvent({ event }: { event: SelfDescribingJson }): PayloadBuilder {
-  const sb = payloadBuilder();
+export interface SelfDescribingEvent {
+  /** The Self Describing JSON which describes the event */
+  event: SelfDescribingJson;
+}
+
+/**
+ * Build a self-describing event
+ * A custom event type, allowing for an event to be tracked using your own custom schema
+ * and a data object which conforms to the supplied schema
+ *
+ * @param event Contains the properties and schema location for the event
+ * @return PayloadBuilder to be sent to {@link Core.track()}
+ */
+export function buildSelfDescribingEvent(event: SelfDescribingEvent): PayloadBuilder {
+  const {
+      event: { schema, data },
+    } = event,
+    pb = payloadBuilder();
   const ueJson = {
     schema: 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0',
-    data: event,
+    data: { schema, data },
   };
 
-  sb.add('e', 'ue');
-  sb.addJson('ue_px', 'ue_pr', ueJson);
+  pb.add('e', 'ue');
+  pb.addJson('ue_px', 'ue_pr', ueJson);
 
-  return sb;
+  return pb;
 }
 
-export function buildPageView({
-  pageUrl,
-  pageTitle,
-  referrer,
-}: {
+/**
+ * A Page View Event
+ * Represents a Page View, which is typically fired as soon as possible when a web page
+ * is loaded within the users browser. Often also fired on "virtual page views" within
+ * Single Page Applications (SPA).
+ */
+export interface PageViewEvent {
+  /** The current URL visible in the users browser */
   pageUrl: string | null;
+  /** The current page title in the users browser */
   pageTitle: string | null;
+  /** The URL of the referring page */
   referrer: string | null;
-  context?: Array<SelfDescribingJson> | null;
-  timestamp?: Timestamp | null;
-}): PayloadBuilder {
-  const sb = payloadBuilder();
-  sb.add('e', 'pv'); // 'pv' for Page View
-  sb.add('url', pageUrl);
-  sb.add('page', pageTitle);
-  sb.add('refr', referrer);
-
-  return sb;
 }
 
-export function buildPagePing({
-  pageUrl,
-  pageTitle,
-  referrer,
-  minXOffset,
-  maxXOffset,
-  minYOffset,
-  maxYOffset,
-}: {
-  pageUrl: string;
-  pageTitle: string;
-  referrer: string;
-  minXOffset: number;
-  maxXOffset: number;
-  minYOffset: number;
-  maxYOffset: number;
-}): PayloadBuilder {
-  const sb = payloadBuilder();
-  sb.add('e', 'pp'); // 'pp' for Page Ping
-  sb.add('url', pageUrl);
-  sb.add('page', pageTitle);
-  sb.add('refr', referrer);
-  sb.add('pp_mix', isNaN(minXOffset) ? null : minXOffset.toString());
-  sb.add('pp_max', isNaN(maxXOffset) ? null : maxXOffset.toString());
-  sb.add('pp_miy', isNaN(minYOffset) ? null : minYOffset.toString());
-  sb.add('pp_may', isNaN(maxYOffset) ? null : maxYOffset.toString());
+/**
+ * Build a Page View Event
+ * Represents a Page View, which is typically fired as soon as possible when a web page
+ * is loaded within the users browser. Often also fired on "virtual page views" within
+ * Single Page Applications (SPA).
+ *
+ * @param event Contains the properties for the Page View event
+ * @return PayloadBuilder to be sent to {@link Core.track()}
+ */
+export function buildPageView(event: PageViewEvent): PayloadBuilder {
+  const { pageUrl, pageTitle, referrer } = event,
+    pb = payloadBuilder();
+  pb.add('e', 'pv'); // 'pv' for Page View
+  pb.add('url', pageUrl);
+  pb.add('page', pageTitle);
+  pb.add('refr', referrer);
 
-  return sb;
+  return pb;
 }
 
-export function buildStructEvent({
-  category,
-  action,
-  label,
-  property,
-  value,
-}: {
+/**
+ * A Page Ping Event
+ * Fires when activity tracking is enabled in the browser.
+ * Tracks same information as the last tracked Page View and includes scroll
+ * information from the current page view
+ */
+export interface PagePingEvent extends PageViewEvent {
+  /** The minimum X scroll position for the current page view */
+  minXOffset?: number;
+  /** The maximum X scroll position for the current page view */
+  maxXOffset?: number;
+  /** The minimum Y scroll position for the current page view */
+  minYOffset?: number;
+  /** The maximum Y scroll position for the current page view */
+  maxYOffset?: number;
+}
+
+/**
+ * Build a Page Ping Event
+ * Fires when activity tracking is enabled in the browser.
+ * Tracks same information as the last tracked Page View and includes scroll
+ * information from the current page view
+ *
+ * @param event Contains the properties for the Page Ping event
+ * @return PayloadBuilder to be sent to {@link Core.track()}
+ */
+export function buildPagePing(event: PagePingEvent): PayloadBuilder {
+  const { pageUrl, pageTitle, referrer, minXOffset, maxXOffset, minYOffset, maxYOffset } = event,
+    pb = payloadBuilder();
+  pb.add('e', 'pp'); // 'pp' for Page Ping
+  pb.add('url', pageUrl);
+  pb.add('page', pageTitle);
+  pb.add('refr', referrer);
+  if (minXOffset && !isNaN(Number(minXOffset))) pb.add('pp_mix', minXOffset.toString());
+  if (maxXOffset && !isNaN(Number(maxXOffset))) pb.add('pp_max', maxXOffset.toString());
+  if (minYOffset && !isNaN(Number(minYOffset))) pb.add('pp_miy', minYOffset.toString());
+  if (maxYOffset && !isNaN(Number(maxYOffset))) pb.add('pp_may', maxYOffset.toString());
+
+  return pb;
+}
+
+/**
+ * A Structured Event
+ * A classic style of event tracking, allows for easier movement between analytics
+ * systems. A loosely typed event, creating a Self Describing event is preferred, but
+ * useful for interoperability.
+ */
+export interface StructuredEvent {
   category: string;
   action: string;
   label?: string;
   property?: string;
   value?: number;
-}): PayloadBuilder {
-  const sb = payloadBuilder();
-  sb.add('e', 'se'); // 'se' for Structured Event
-  sb.add('se_ca', category);
-  sb.add('se_ac', action);
-  sb.add('se_la', label);
-  sb.add('se_pr', property);
-  sb.add('se_va', value == null ? undefined : value.toString());
-
-  return sb;
 }
 
-export function buildEcommerceTransaction({
-  orderId,
-  total,
-  affiliation,
-  tax,
-  shipping,
-  city,
-  state,
-  country,
-  currency,
-}: {
+/**
+ * Build a Structured Event
+ * A classic style of event tracking, allows for easier movement between analytics
+ * systems. A loosely typed event, creating a Self Describing event is preferred, but
+ * useful for interoperability.
+ *
+ * @param event Contains the properties for the Structured event
+ * @return PayloadBuilder to be sent to {@link Core.track()}
+ */
+export function buildStructEvent(event: StructuredEvent): PayloadBuilder {
+  const { category, action, label, property, value } = event,
+    pb = payloadBuilder();
+  pb.add('e', 'se'); // 'se' for Structured Event
+  pb.add('se_ca', category);
+  pb.add('se_ac', action);
+  pb.add('se_la', label);
+  pb.add('se_pr', property);
+  pb.add('se_va', value == null ? undefined : value.toString());
+
+  return pb;
+}
+
+/**
+ * An Ecommerce Transaction Event
+ * Allows for tracking common ecommerce events, this event is usually used when
+ * a customer completes a transaction.
+ */
+export interface EcommerceTransactionEvent {
+  /** An identifier for the order */
   orderId: string;
+  /** The total value of the order  */
   total: number;
+  /** Transaction affiliation (e.g. store where sale took place) */
   affiliation?: string;
+  /** The amount of tax on the transaction */
   tax?: number;
+  /** The amount of shipping costs for this transaction */
   shipping?: number;
+  /** Delivery address, city */
   city?: string;
+  /** Delivery address, state */
   state?: string;
+  /** Delivery address, country */
   country?: string;
+  /** Currency of the transaction */
   currency?: string;
-}): PayloadBuilder {
-  const sb = payloadBuilder();
-  sb.add('e', 'tr'); // 'tr' for Transaction
-  sb.add('tr_id', orderId);
-  sb.add('tr_af', affiliation);
-  sb.add('tr_tt', total);
-  sb.add('tr_tx', tax);
-  sb.add('tr_sh', shipping);
-  sb.add('tr_ci', city);
-  sb.add('tr_st', state);
-  sb.add('tr_co', country);
-  sb.add('tr_cu', currency);
-
-  return sb;
 }
 
-export function buildEcommerceTransactionItem({
-  orderId,
-  sku,
-  name,
-  category,
-  price,
-  quantity,
-  currency,
-}: {
+/**
+ * Build an Ecommerce Transaction Event
+ * Allows for tracking common ecommerce events, this event is usually used when
+ * a consumer completes a transaction.
+ *
+ * @param event Contains the properties for the Ecommerce Transactoion event
+ * @return PayloadBuilder to be sent to {@link Core.track()}
+ */
+export function buildEcommerceTransaction(event: EcommerceTransactionEvent): PayloadBuilder {
+  const { orderId, total, affiliation, tax, shipping, city, state, country, currency } = event,
+    pb = payloadBuilder();
+  pb.add('e', 'tr'); // 'tr' for Transaction
+  pb.add('tr_id', orderId);
+  pb.add('tr_af', affiliation);
+  pb.add('tr_tt', total);
+  pb.add('tr_tx', tax);
+  pb.add('tr_sh', shipping);
+  pb.add('tr_ci', city);
+  pb.add('tr_st', state);
+  pb.add('tr_co', country);
+  pb.add('tr_cu', currency);
+
+  return pb;
+}
+
+/**
+ * An Ecommerce Transaction Item
+ * Related to the {@link EcommerceTransactionEvent}
+ * Each Ecommerce Transaction may contain one or more EcommerceTransactionItem events
+ */
+export interface EcommerceTransactionItemEvent {
+  /** An identifier for the order */
   orderId: string;
+  /** A Product Stock Keeping Unit (SKU) */
   sku: string;
-  name: string;
-  category: string;
+  /** The price of the product */
   price: number;
-  quantity: number;
+  /** The name of the product */
+  name?: string;
+  /** The category the product belongs to */
+  category?: string;
+  /** The quanity of this product within the transaction */
+  quantity?: number;
+  /** The currency of the product for the transaction */
   currency?: string;
-}): PayloadBuilder {
-  const sb = payloadBuilder();
-  sb.add('e', 'ti'); // 'tr' for Transaction Item
-  sb.add('ti_id', orderId);
-  sb.add('ti_sk', sku);
-  sb.add('ti_nm', name);
-  sb.add('ti_ca', category);
-  sb.add('ti_pr', price);
-  sb.add('ti_qu', quantity);
-  sb.add('ti_cu', currency);
-
-  return sb;
 }
 
-export function buildScreenView(event: { name: string; id: string }): PayloadBuilder {
+/**
+ * Build an Ecommerce Transaction Item Event
+ * Related to the {@link buildEcommerceTransaction}
+ * Each Ecommerce Transaction may contain one or more EcommerceTransactionItem events
+ *
+ * @param event Contains the properties for the Ecommerce Transaction Item event
+ * @return PayloadBuilder to be sent to {@link Core.track()}
+ */
+export function buildEcommerceTransactionItem(event: EcommerceTransactionItemEvent): PayloadBuilder {
+  const { orderId, sku, price, name, category, quantity, currency } = event,
+    pb = payloadBuilder();
+  pb.add('e', 'ti'); // 'tr' for Transaction Item
+  pb.add('ti_id', orderId);
+  pb.add('ti_sk', sku);
+  pb.add('ti_nm', name);
+  pb.add('ti_ca', category);
+  pb.add('ti_pr', price);
+  pb.add('ti_qu', quantity);
+  pb.add('ti_cu', currency);
+
+  return pb;
+}
+
+/**
+ * A Screen View Event
+ * Similar to a Page View but less focused on typical web properties
+ * Often used for mobile applications as the user is presented with
+ * new views as they performance navigation events
+ */
+export interface ScreenViewEvent {
+  /** The name of the screen */
+  name?: string;
+  /** The identifier of the screen */
+  id?: string;
+}
+
+/**
+ * Build a Scren View Event
+ * Similar to a Page View but less focused on typical web properties
+ * Often used for mobile applications as the user is presented with
+ * new views as they performance navigation events
+ *
+ * @param event Contains the properties for the Screen View event. One or more properties must be included.
+ * @return PayloadBuilder to be sent to {@link Core.track()}
+ */
+export function buildScreenView(event: ScreenViewEvent): PayloadBuilder {
+  const { name, id } = event;
   return buildSelfDescribingEvent({
     event: {
       schema: 'iglu:com.snowplowanalytics.snowplow/screen_view/jsonschema/1-0-0',
-      data: removeEmptyProperties(event),
+      data: removeEmptyProperties({ name, id }),
     },
   });
 }
 
-export function buildLinkClick(event: {
+/**
+ * A Link Click Event
+ * Used when a user clicks on a link on a webpage, typically an anchor tag <a>
+ */
+export interface LinkClickEvent {
+  /** The target URL of the link */
   targetUrl: string;
+  /** The ID of the element clicked if present */
   elementId?: string;
+  /** An array of class names from the element clicked */
   elementClasses?: Array<string>;
+  /** The target value of the element if present */
   elementTarget?: string;
+  /** The content of the element if present and enabled */
   elementContent?: string;
-}): PayloadBuilder {
+}
+
+/**
+ * Build a Link Click Event
+ * Used when a user clicks on a link on a webpage, typically an anchor tag <a>
+ *
+ * @param event Contains the properties for the Link Click event
+ * @return PayloadBuilder to be sent to {@link Core.track()}
+ */
+export function buildLinkClick(event: LinkClickEvent): PayloadBuilder {
+  const { targetUrl, elementId, elementClasses, elementTarget, elementContent } = event;
   const eventJson = {
     schema: 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1',
-    data: removeEmptyProperties(event),
+    data: removeEmptyProperties({ targetUrl, elementId, elementClasses, elementTarget, elementContent }),
   };
 
   return buildSelfDescribingEvent({ event: eventJson });
 }
 
-export function buildAdImpression(event: {
-  impressionId: string;
-  costModel: string;
-  cost: number;
-  targetUrl: string;
-  bannerId: string;
-  zoneId: string;
-  advertiserId: string;
-  campaignId: string;
-}): PayloadBuilder {
+/**
+ * An Ad Impression Event
+ * Used to track an advertisement impression
+ *
+ * @remark
+ * If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field.
+ */
+export interface AdImpressionEvent {
+  /** Identifier for the particular impression instance */
+  impressionId?: string;
+  /** The cost model for the campaign */
+  costModel?: 'cpa' | 'cpc' | 'cpm';
+  /** Advertisement cost */
+  cost?: number;
+  /** The destination URL of the advertisement */
+  targetUrl?: string;
+  /** Identifier for the ad banner being displayed */
+  bannerId?: string;
+  /** Identifier for the zone where the ad banner is located */
+  zoneId?: string;
+  /** Identifier for the advertiser which the campaign belongs to */
+  advertiserId?: string;
+  /** Identifier for the advertiser which the campaign belongs to */
+  campaignId?: string;
+}
+
+/**
+ * Build a Ad Impression Event
+ * Used to track an advertisement impression
+ *
+ * @remark
+ * If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field.
+ *
+ * @param event Contains the properties for the Ad Impression event
+ * @return PayloadBuilder to be sent to {@link Core.track()}
+ */
+export function buildAdImpression(event: AdImpressionEvent): PayloadBuilder {
+  const { impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId } = event;
   const eventJson = {
     schema: 'iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0',
-    data: removeEmptyProperties(event),
+    data: removeEmptyProperties({
+      impressionId,
+      costModel,
+      cost,
+      targetUrl,
+      bannerId,
+      zoneId,
+      advertiserId,
+      campaignId,
+    }),
   };
 
   return buildSelfDescribingEvent({ event: eventJson });
 }
 
-export function buildAdClick(event: {
+/**
+ * An Ad Click Event
+ * Used to track an advertisement click
+ *
+ * @remark
+ * If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field.
+ */
+export interface AdClickEvent {
+  /** The destination URL of the advertisement */
   targetUrl: string;
-  clickId: string;
-  costModel: string;
-  cost: number;
-  bannerId: string;
-  zoneId: string;
-  impressionId: string;
-  advertiserId: string;
-  campaignId: string;
-}): PayloadBuilder {
+  /**	Identifier for the particular click instance */
+  clickId?: string;
+  /** The cost model for the campaign */
+  costModel?: 'cpa' | 'cpc' | 'cpm';
+  /** Advertisement cost */
+  cost?: number;
+  /** Identifier for the ad banner being displayed */
+  bannerId?: string;
+  /** Identifier for the zone where the ad banner is located */
+  zoneId?: string;
+  /** Identifier for the particular impression instance */
+  impressionId?: string;
+  /** Identifier for the advertiser which the campaign belongs to */
+  advertiserId?: string;
+  /** Identifier for the advertiser which the campaign belongs to */
+  campaignId?: string;
+}
+
+/**
+ * Build a Ad Click Event
+ * Used to track an advertisement click
+ *
+ * @remark
+ * If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field.
+ *
+ * @param event Contains the properties for the Ad Click event
+ * @return PayloadBuilder to be sent to {@link Core.track()}
+ */
+export function buildAdClick(event: AdClickEvent): PayloadBuilder {
+  const { targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId } = event;
   const eventJson = {
     schema: 'iglu:com.snowplowanalytics.snowplow/ad_click/jsonschema/1-0-0',
-    data: removeEmptyProperties(event),
+    data: removeEmptyProperties({
+      targetUrl,
+      clickId,
+      costModel,
+      cost,
+      bannerId,
+      zoneId,
+      impressionId,
+      advertiserId,
+      campaignId,
+    }),
   };
 
   return buildSelfDescribingEvent({ event: eventJson });
 }
 
-export function buildAdConversion(event: {
-  conversionId: string;
-  costModel: string;
-  cost: number;
-  category: string;
-  action: string;
-  property: string;
-  initialValue: number;
-  advertiserId: string;
-  campaignId: string;
-}): PayloadBuilder {
+/**
+ * An Ad Conversion Event
+ * Used to track an advertisement click
+ *
+ * @remark
+ * If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field.
+ */
+export interface AdConversionEvent {
+  /** Identifier for the particular conversion instance */
+  conversionId?: string;
+  /** The cost model for the campaign */
+  costModel?: 'cpa' | 'cpc' | 'cpm';
+  /** Advertisement cost */
+  cost?: number;
+  /**	Conversion category */
+  category?: string;
+  /** The type of user interaction e.g. 'purchase' */
+  action?: string;
+  /** Describes the object of the conversion */
+  property?: string;
+  /** How much the conversion is initially worth */
+  initialValue?: number;
+  /** Identifier for the advertiser which the campaign belongs to */
+  advertiserId?: string;
+  /** Identifier for the advertiser which the campaign belongs to */
+  campaignId?: string;
+}
+
+/**
+ * Build a Ad Conversion Event
+ * Used to track an advertisement click
+ *
+ * @remark
+ * If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field.
+ *
+ * @param event Contains the properties for the Ad Conversion event
+ * @return PayloadBuilder to be sent to {@link Core.track()}
+ */
+export function buildAdConversion(event: AdConversionEvent): PayloadBuilder {
+  const { conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId } = event;
   const eventJson = {
     schema: 'iglu:com.snowplowanalytics.snowplow/ad_conversion/jsonschema/1-0-0',
-    data: removeEmptyProperties(event),
+    data: removeEmptyProperties({
+      conversionId,
+      costModel,
+      cost,
+      category,
+      action,
+      property,
+      initialValue,
+      advertiserId,
+      campaignId,
+    }),
   };
 
   return buildSelfDescribingEvent({ event: eventJson });
 }
 
-export function buildSocialInteraction(event: { action: string; network: string; target: string }): PayloadBuilder {
+/**
+ * A Social Interaction Event
+ * Social tracking will be used to track the way users interact
+ * with Facebook, Twitter and Google + widgets
+ * e.g. to capture “like this” or “tweet this” events.
+ */
+export interface SocialInteractionEvent {
+  /** Social action performed */
+  action: string;
+  /** Social network */
+  network: string;
+  /** Object social action is performed on */
+  target?: string;
+}
+
+/**
+ * Build a Social Interaction Event\
+ * Social tracking will be used to track the way users interact
+ * with Facebook, Twitter and Google + widgets
+ * e.g. to capture “like this” or “tweet this” events.
+ *
+ * @param event Contains the properties for the Social Interaction event
+ * @return PayloadBuilder to be sent to {@link Core.track()}
+ */
+export function buildSocialInteraction(event: SocialInteractionEvent): PayloadBuilder {
+  const { action, network, target } = event;
   const eventJson = {
     schema: 'iglu:com.snowplowanalytics.snowplow/social_interaction/jsonschema/1-0-0',
-    data: removeEmptyProperties(event),
+    data: removeEmptyProperties({ action, network, target }),
   };
 
   return buildSelfDescribingEvent({ event: eventJson });
 }
 
-export function buildAddToCart(event: {
+/**
+ * An Add To Cart Event
+ * For tracking users adding items from a cart
+ * on an ecommerce site.
+ */
+export interface AddToCartEvent {
+  /** A Product Stock Keeping Unit (SKU) */
   sku: string;
-  name: string;
-  category: string;
-  unitPrice: string;
+  /** The number added to the cart */
   quantity: string;
+  /** The name of the product */
+  name?: string;
+  /** The category of the product */
+  category?: string;
+  /** The price of the product */
+  unitPrice?: string;
+  /** The currency of the product */
   currency?: string;
-}): PayloadBuilder {
+}
+
+/**
+ * Build a Add To Cart Event
+ * For tracking users adding items from a cart
+ * on an ecommerce site.
+ *
+ * @param event Contains the properties for the Add To Cart event
+ * @return PayloadBuilder to be sent to {@link Core.track()}
+ */
+export function buildAddToCart(event: AddToCartEvent): PayloadBuilder {
+  const { sku, quantity, name, category, unitPrice, currency } = event;
   return buildSelfDescribingEvent({
     event: {
       schema: 'iglu:com.snowplowanalytics.snowplow/add_to_cart/jsonschema/1-0-0',
-      data: removeEmptyProperties(event),
+      data: removeEmptyProperties({
+        sku,
+        quantity,
+        name,
+        category,
+        unitPrice,
+        currency,
+      }),
     },
   });
 }
 
-export function buildRemoveFromCart(event: {
+/**
+ * An Remove To Cart Event
+ * For tracking users removing items from a cart
+ * on an ecommerce site.
+ */
+export interface RemoveFromCartEvent {
+  /** A Product Stock Keeping Unit (SKU) */
   sku: string;
-  name: string;
-  category: string;
-  unitPrice: string;
+  /** The number removed from the cart */
   quantity: string;
+  /** The name of the product */
+  name?: string;
+  /** The category of the product */
+  category?: string;
+  /** The price of the product */
+  unitPrice?: string;
+  /** The currency of the product */
   currency?: string;
-}): PayloadBuilder {
+}
+
+/**
+ * Build a Remove From Cart Event
+ * For tracking users removing items from a cart
+ * on an ecommerce site.
+ *
+ * @param event Contains the properties for the Remove From Cart event
+ * @return PayloadBuilder to be sent to {@link Core.track()}
+ */
+export function buildRemoveFromCart(event: RemoveFromCartEvent): PayloadBuilder {
+  const { sku, quantity, name, category, unitPrice, currency } = event;
   return buildSelfDescribingEvent({
     event: {
       schema: 'iglu:com.snowplowanalytics.snowplow/remove_from_cart/jsonschema/1-0-0',
-      data: removeEmptyProperties(event),
+      data: removeEmptyProperties({
+        sku,
+        quantity,
+        name,
+        category,
+        unitPrice,
+        currency,
+      }),
     },
   });
 }
 
-export function buildFormFocusOrChange({
-  schema,
-  formId,
-  elementId,
-  nodeName,
-  type,
-  elementClasses,
-  value,
-}: {
+/**
+ * Represents either a Form Focus or Form Change event
+ * When a user focuses on a form element or when a user makes a
+ * change to a form element.
+ */
+export interface FormFocusOrChangeEvent {
+  /** The schema which will be used for the event */
   schema: 'change_form' | 'focus_form';
+  /** The ID of the form which the element belongs to */
   formId: string;
+  /** The element ID which the user is interacting with */
   elementId: string;
+  /** The name of the node ("INPUT", "TEXTAREA", "SELECT") */
   nodeName: string;
-  type: string | null;
-  elementClasses: Array<string> | null;
+  /** The value of the element at the time of the event firing */
   value: string | null;
-}): PayloadBuilder {
+  /** The type of element (e.g. "datetime", "text", "radio", etc.) */
+  type?: string | null;
+  /** The class names on the element */
+  elementClasses?: Array<string> | null;
+}
+
+/**
+ * Build a Form Focus or Change Form Event based on schema property
+ * When a user focuses on a form element or when a user makes a
+ * change to a form element.
+ *
+ * @param event Contains the properties for the Form Focus or Change Form event
+ * @return PayloadBuilder to be sent to {@link Core.track()}
+ */
+export function buildFormFocusOrChange(event: FormFocusOrChangeEvent): PayloadBuilder {
   let event_schema = '';
-  const event_data: Payload = { formId, elementId, nodeName, elementClasses, value };
+  const { schema, formId, elementId, nodeName, elementClasses, value, type } = event;
+  const event_data: Record<string, unknown> = { formId, elementId, nodeName, elementClasses, value };
   if (schema === 'change_form') {
     event_schema = 'iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0';
     event_data.type = type;
@@ -773,44 +1149,111 @@ export function buildFormFocusOrChange({
   });
 }
 
-export function buildFormSubmission(event: {
+/**
+ * A representation of an element within a form
+ */
+export type FormElement = {
+  /** The name of the element */
+  name: string;
+  /** The current value of the element */
+  value: string | null;
+  /** The name of the node ("INPUT", "TEXTAREA", "SELECT") */
+  nodeName: string;
+  /** The type of element (e.g. "datetime", "text", "radio", etc.) */
+  type?: string | null;
+};
+
+/**
+ * A Form Submission Event
+ * Used to track when a user submits a form
+ */
+export interface FormSubmissionEvent {
+  /** The ID of the form */
   formId: string;
-  formClasses: Array<string>;
-  elements: Array<{ name: string; value: string | null; nodeName: string; type?: string }>;
-}): PayloadBuilder {
+  /** The class names on the form */
+  formClasses?: Array<string>;
+  /** The elements contained within the form */
+  elements?: Array<FormElement>;
+}
+
+/**
+ * Build a Form Submission Event
+ * Used to track when a user submits a form
+ *
+ * @param event Contains the properties for the Form Submission event
+ * @return PayloadBuilder to be sent to {@link Core.track()}
+ */
+export function buildFormSubmission(event: FormSubmissionEvent): PayloadBuilder {
+  const { formId, formClasses, elements } = event;
   return buildSelfDescribingEvent({
     event: {
       schema: 'iglu:com.snowplowanalytics.snowplow/submit_form/jsonschema/1-0-0',
-      data: removeEmptyProperties(event),
+      data: removeEmptyProperties({ formId, formClasses, elements }),
     },
   });
 }
 
-export function buildSiteSearch(event: {
+/**
+ * A Site Search Event
+ * Used when a user performs a search action on a page
+ */
+export interface SiteSearchEvent {
+  /** The terms of the search */
   terms: Array<string>;
-  filters: Record<string, string | boolean>;
-  totalResults: number;
-  pageResults: number;
-}): PayloadBuilder {
+  /** Any filters which have been applied to the search */
+  filters?: Record<string, string | boolean>;
+  /** The total number of results for this search */
+  totalResults?: number;
+  /** The number of visible results on the page */
+  pageResults?: number;
+}
+
+/**
+ * Build a Site Search Event
+ * Used when a user performs a search action on a page
+ *
+ * @param event Contains the properties for the Site Search event
+ * @return PayloadBuilder to be sent to {@link Core.track()}
+ */
+export function buildSiteSearch(event: SiteSearchEvent): PayloadBuilder {
+  const { terms, filters, totalResults, pageResults } = event;
   return buildSelfDescribingEvent({
     event: {
       schema: 'iglu:com.snowplowanalytics.snowplow/site_search/jsonschema/1-0-0',
-      data: removeEmptyProperties(event),
+      data: removeEmptyProperties({ terms, filters, totalResults, pageResults }),
     },
   });
 }
 
-export function buildConsentWithdrawn(event: {
+/**
+ * A Consent Withdrawn Event
+ * Used for tracking when a user withdraws their consent
+ */
+export interface ConsentWithdrawnEvent {
+  /** Specifies whether all consent should be withdrawn */
   all: boolean;
+  /** Identifier for the document withdrawing consent */
   id?: string;
+  /** Version of the document withdrawing consent */
   version?: string;
+  /** Name of the document withdrawing consent */
   name?: string;
+  /** Description of the document withdrawing consent */
   description?: string;
-}) {
-  const { all, ...rest } = event;
+}
+
+/**
+ * Build a Consent Withdrawn Event
+ * Used for tracking when a user withdraws their consent
+ *
+ * @param event Contains the properties for the Consent Withdrawn event
+ * @return An object containing the PayloadBuilder to be sent to {@link Core.track()} and a 'consent_document' context
+ */
+export function buildConsentWithdrawn(event: ConsentWithdrawnEvent) {
+  const { all, id, version, name, description } = event;
   const documentJson = {
     schema: 'iglu:com.snowplowanalytics.snowplow/consent_document/jsonschema/1-0-0',
-    data: removeEmptyProperties(rest),
+    data: removeEmptyProperties({ id, version, name, description }),
   };
 
   return {
@@ -826,17 +1269,35 @@ export function buildConsentWithdrawn(event: {
   };
 }
 
-export function buildConsentGranted(event: {
+/**
+ * A Consent Granted Event
+ * Used for tracking when a user grants their consent
+ */
+export interface ConsentGrantedEvent {
+  /** Identifier for the document granting consent */
   id: string;
+  /** Version of the document granting consent */
   version: string;
+  /** Name of the document granting consent */
   name?: string;
+  /** Description of the document granting consent */
   description?: string;
+  /** When the consent expires */
   expiry?: string;
-}) {
-  const { expiry, ...rest } = event;
+}
+
+/**
+ * Build a Consent Granted Event
+ * Used for tracking when a user grants their consent
+ *
+ * @param event Contains the properties for the Consent Granted event
+ * @return An object containing the PayloadBuilder to be sent to {@link Core.track()} and a 'consent_document' context
+ */
+export function buildConsentGranted(event: ConsentGrantedEvent) {
+  const { expiry, id, version, name, description } = event;
   const documentJson = {
     schema: 'iglu:com.snowplowanalytics.snowplow/consent_document/jsonschema/1-0-0',
-    data: removeEmptyProperties(rest),
+    data: removeEmptyProperties({ id, version, name, description }),
   };
 
   return {
@@ -855,15 +1316,18 @@ export function buildConsentGranted(event: {
 /**
  * Returns a copy of a JSON with undefined and null properties removed
  *
- * @param eventJson JSON object to clean
+ * @param event JSON object to clean
  * @param exemptFields Set of fields which should not be removed even if empty
  * @return A cleaned copy of eventJson
  */
-function removeEmptyProperties(eventJson: Record<string, any>, exemptFields: { [key: string]: boolean } = {}): Payload {
-  const ret: Payload = {};
-  for (const k in eventJson) {
-    if (exemptFields[k] || (eventJson[k] !== null && typeof eventJson[k] !== 'undefined')) {
-      ret[k] = eventJson[k];
+function removeEmptyProperties(
+  event: Record<string, unknown>,
+  exemptFields: Record<string, boolean> = {}
+): Record<string, unknown> {
+  const ret: Record<string, unknown> = {};
+  for (const k in event) {
+    if (exemptFields[k] || (event[k] !== null && typeof event[k] !== 'undefined')) {
+      ret[k] = event[k];
     }
   }
   return ret;

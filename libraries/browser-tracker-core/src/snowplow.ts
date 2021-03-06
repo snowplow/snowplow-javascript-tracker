@@ -35,10 +35,23 @@ import { BrowserTracker, TrackerConfiguration } from './tracker/types';
 
 const namedTrackers: Record<string, BrowserTracker> = {};
 
+/**
+ * Checks if a tracker has been created for a particular identifier
+ * @param trackerId The unique identifier of the tracker
+ */
 export function trackerExists(trackerId: string) {
   return namedTrackers.hasOwnProperty(trackerId);
 }
 
+/**
+ * Creates a Tracker and adds it to the internal collection
+ * @param trackerId The unique identifier of the tracker
+ * @param namespace The namespace of the tracker, tracked with each event as `tna`
+ * @param version The current version of the tracker library
+ * @param endpoint The endpoint to send events to
+ * @param sharedState The instance of shared state to use for this tracker
+ * @param configuration The configuration to use for this tracker instance
+ */
 export function addTracker(
   trackerId: string,
   namespace: string,
@@ -54,6 +67,11 @@ export function addTracker(
   return null;
 }
 
+/**
+ * Gets a single instance of the internal tracker object
+ * @param trackerId The unique identifier of the tracker
+ * @returns The tracker instance, or null if not found
+ */
 export function getTracker(trackerId: string) {
   if (namedTrackers.hasOwnProperty(trackerId)) {
     return namedTrackers[trackerId];
@@ -63,6 +81,11 @@ export function getTracker(trackerId: string) {
   return null;
 }
 
+/**
+ * Gets an array of tracker instances based on the list of identifiers
+ * @param trackerIds An array of unique identifiers of the trackers
+ * @returns The tracker instances, or empty list if none found
+ */
 export function getTrackers(trackerIds: Array<string>): Array<BrowserTracker> {
   const trackers: Array<BrowserTracker> = [];
   for (const namespace of trackerIds) {
@@ -75,10 +98,16 @@ export function getTrackers(trackerIds: Array<string>): Array<BrowserTracker> {
   return trackers;
 }
 
+/**
+ * Gets all the trackers as a object, keyed by their unique identifiers
+ */
 export function allTrackers() {
   return namedTrackers;
 }
 
+/**
+ * Returns all the unique tracker identifiers
+ */
 export function allTrackerNames() {
   return Object.keys(namedTrackers);
 }

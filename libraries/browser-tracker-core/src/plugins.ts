@@ -31,6 +31,15 @@
 import { CorePlugin } from '@snowplow/tracker-core';
 import { BrowserTracker } from './tracker/types';
 
+/**
+ * Interface which defines Core Plugins
+ */
 export interface BrowserPlugin extends CorePlugin {
+  /**
+   * Called when the plugin is initialised during the Tracker construction
+   *
+   * @remark
+   * Use to capture the specific Tracker instance for each instance of a Browser Plugin
+   */
   activateBrowserPlugin?: (tracker: BrowserTracker) => void;
 }

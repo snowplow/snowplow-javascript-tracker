@@ -38,6 +38,14 @@ const navigatorAlias = navigator,
 let geolocation: SelfDescribingJson<Geolocation>,
   geolocationContextAdded = false;
 
+/**
+ * Captures the geolocation information from the users browser
+ * The geolocation will be cached and will be only be requested once
+ * @param enableAtLoad Should the geolocation context be populated immediately
+ *
+ * @remark
+ * Enabling this will produce a popup for the user asking for permission to read their location information
+ */
 export function GeolocationPlugin(enableAtLoad: boolean = false): BrowserPlugin {
   let trackerId: string;
 
@@ -62,7 +70,9 @@ export function GeolocationPlugin(enableAtLoad: boolean = false): BrowserPlugin 
 }
 
 /**
- * Attempts to create a context using the geolocation API and add it to commonContexts
+ * Attempts to create a context using the geolocation API
+ *
+ * @param trackers The tracker identifiers which the context will be sent to
  */
 export function enableGeolocationContext(trackers: Array<string> = Object.keys(_trackers)) {
   trackers.forEach((t) => {

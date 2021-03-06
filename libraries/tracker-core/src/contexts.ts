@@ -34,20 +34,34 @@ import { base64urldecode } from './base64';
 import { CorePlugin } from './plugins';
 
 /**
- * An interface for wrapping the Context Generator arguments
+ * Argument for {@link ContextGenerator} and {@link ContextFilter} callback
  */
-export interface ContextGeneratorEvent {
+export interface ContextEvent {
+  /** The event payload */
   event: Payload;
+  /** The event type
+   * @example 'page_view'
+   */
   eventType: string;
+  /** The event schema where one is available, or empty string
+   * @example 'iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0'
+   */
   eventSchema: string;
 }
 
 /**
- * A context generator is a callback that returns a self-describing JSON
- * @param args - Object that contains: event, eventType, eventSchema
- * @return A self-describing JSON
+ * A context generator is a user-supplied callback that is evaluated for each event
+ * to allow an additional context to be dynamically attached to the event
+ * @param args - Object which contains the event information to help decide what should be included in the returned Context
  */
-export type ContextGenerator = (args?: ContextGeneratorEvent) => SelfDescribingJson;
+export type ContextGenerator = (args?: ContextEvent) => SelfDescribingJson;
+
+/**
+ * A context filter is a user-supplied callback that is evaluated for each event
+ * to determine if the context associated with the filter should be attached to the event
+ * @param args - Object that contains: event, eventType, eventSchema
+ */
+export type ContextFilter = (args?: ContextEvent) => boolean;
 
 /**
  * A context primitive is either a self-describing JSON or a context generator
@@ -55,24 +69,7 @@ export type ContextGenerator = (args?: ContextGeneratorEvent) => SelfDescribingJ
 export type ContextPrimitive = SelfDescribingJson | ContextGenerator;
 
 /**
- * An interface for wrapping the Filter arguments
- */
-export interface ContextFilterEvent {
-  event: Payload;
-  eventType: string;
-  eventSchema: string;
-}
-
-/**
- * A context filter is a user-supplied callback that is evaluated for each event
- * to determine if the context associated with the filter should be attached to the event
- * @param args - Object that contains: event, eventType, eventSchema
- * @return A self-describing JSON
- */
-export type ContextFilter = (args?: ContextFilterEvent) => boolean;
-
-/**
- * A filter provider is an array that has two parts: a context filter and context primitives
+ * A filter provider is a tuple that has two parts: a context filter and the context primitive(s)
  * If the context filter evaluates to true, the tracker will attach the context primitive(s)
  */
 export type FilterProvider = [ContextFilter, Array<ContextPrimitive> | ContextPrimitive];
@@ -86,7 +83,7 @@ export interface RuleSet {
 }
 
 /**
- * A ruleset provider is an array that has two parts: a ruleset and context primitives
+ * A ruleset provider is aa tuple that has two parts: a ruleset and the context primitive(s)
  * If the ruleset allows the current event schema URI, the tracker will attach the context primitive(s)
  */
 export type RuleSetProvider = [RuleSet, Array<ContextPrimitive> | ContextPrimitive];
@@ -97,6 +94,12 @@ export type RuleSetProvider = [RuleSet, Array<ContextPrimitive> | ContextPrimiti
  * - the second element is any number of context primitives
  */
 export type ConditionalContextProvider = FilterProvider | RuleSetProvider;
+
+/**
+ * A Dynamic context is an array of Self Describing JSON contexts, or an array of callbacks which return Self Describing JSON contexts
+ * The array can be a mix of both contexts and callbacks which generate contexts
+ */
+export type DynamicContext = Array<SelfDescribingJson | ((...params: any[]) => SelfDescribingJson | null)>;
 
 export interface GlobalContexts {
   /**
@@ -143,6 +146,7 @@ export function globalContexts(): GlobalContexts {
   /**
    * Returns all applicable global contexts for a specified event
    * @param event The event to check for applicable global contexts for
+   * @returns An array of contexts
    */
   const assembleAllContexts = (event: Payload): Array<SelfDescribingJson> => {
     const eventSchema = getUsefulSchema(event);
@@ -242,17 +246,16 @@ export function pluginContexts(plugins: Array<CorePlugin>): PluginContexts {
   };
 }
 
-export type DynamicContexts = (SelfDescribingJson | ((...params: any[]) => SelfDescribingJson | null))[];
-
-/*
- * Find dynamic context generating functions and merge their results into the static contexts
+/**
+ * Find dynamic context generating functions and return their results to be merged into the static contexts
  * Combine an array of unchanging contexts with the result of a context-creating function
  *
- * @param {(object|function(...*): ?object)[]} dynamicOrStaticContexts Array of custom context Objects or custom context generating functions
- * @param {...*} Parameters to pass to dynamic callbacks
+ * @param dynamicOrStaticContexts Array of custom context Objects or custom context generating functions
+ * @param Parameters to pass to dynamic context callbacks
+ * @returns An array of Self Describing JSON context
  */
-export function resolveDynamicContexts(
-  dynamicOrStaticContexts?: DynamicContexts | null,
+export function resolveDynamicContext(
+  dynamicOrStaticContexts?: DynamicContext | null,
   ...extraParams: any[]
 ): Array<SelfDescribingJson> {
   return (
@@ -274,8 +277,9 @@ export function resolveDynamicContexts(
 }
 
 /**
- * Returns an array containing the parts of the specified schema
+ * Slices a schema into its composite parts. Useful for ruleset filtering.
  * @param input A schema string
+ * @returns The vendor, schema name, major, minor and patch information of a schema string
  */
 export function getSchemaParts(input: string): Array<string> | undefined {
   const re = new RegExp(
@@ -289,6 +293,7 @@ export function getSchemaParts(input: string): Array<string> | undefined {
 /**
  * Validates the vendor section of a schema string contains allowed wildcard values
  * @param parts Array of parts from a schema string
+ * @returns Whether the vendor validation parts are a valid combination
  */
 export function validateVendorParts(parts: Array<string>): boolean {
   if (parts[0] === '*' || parts[1] === '*') {
@@ -313,6 +318,7 @@ export function validateVendorParts(parts: Array<string>): boolean {
 /**
  * Validates the vendor part of a schema string is valid for a rule set
  * @param input Vendor part of a schema string
+ * @returns Whether the vendor validation string is valid
  */
 export function validateVendor(input: string): boolean {
   const parts = input.split('.');
@@ -321,8 +327,9 @@ export function validateVendor(input: string): boolean {
 }
 
 /**
- * Returns all the sections of a schema string that are used to match rules in a ruleset
+ * Checks for validity of input and returns all the sections of a schema string that are used to match rules in a ruleset
  * @param input A Schema string
+ * @returns The sections of a schema string that are used to match rules in a ruleset
  */
 export function getRuleParts(input: string): Array<string> | undefined {
   const re = new RegExp(
@@ -336,6 +343,7 @@ export function getRuleParts(input: string): Array<string> | undefined {
 /**
  * Ensures the rules specified in a schema string of a ruleset are valid
  * @param input A Schema string
+ * @returns if there rule is valid
  */
 export function isValidRule(input: string): boolean {
   const ruleParts = getRuleParts(input);
@@ -346,6 +354,11 @@ export function isValidRule(input: string): boolean {
   return false;
 }
 
+/**
+ * Check if a variable is an Array containing only strings
+ * @param input The variable to validate
+ * @returns True if the input is an array containing only strings
+ */
 export function isStringArray(input: unknown): input is Array<string> {
   return (
     Array.isArray(input) &&
@@ -355,6 +368,11 @@ export function isStringArray(input: unknown): input is Array<string> {
   );
 }
 
+/**
+ * Validates whether a rule set is an array of valid ruleset strings
+ * @param input The Array of rule set arguments
+ * @returns True is the input is an array of valid rules
+ */
 export function isValidRuleSetArg(input: unknown): boolean {
   if (isStringArray(input))
     return input.every((x: string) => {
@@ -364,6 +382,11 @@ export function isValidRuleSetArg(input: unknown): boolean {
   return false;
 }
 
+/**
+ * Check if a variable is a valid, non-empty Self Describing JSON
+ * @param input The variable to validate
+ * @returns True if a valid Self Describing JSON
+ */
 export function isSelfDescribingJson(input: unknown): input is SelfDescribingJson {
   const sdj = input as SelfDescribingJson;
   if (isNonEmptyJson(sdj))
@@ -371,12 +394,22 @@ export function isSelfDescribingJson(input: unknown): input is SelfDescribingJso
   return false;
 }
 
+/**
+ * Check if a variable to is a valid, non-empty Payload event by looking for the 'e' parameter of a Payload
+ * @param input The variable to validate
+ * @returns True if a valid Payload
+ */
 export function isEventJson(input: unknown): input is Payload {
   const payload = input as Payload;
   if (isNonEmptyJson(payload) && 'e' in payload) return typeof payload.e === 'string';
   return false;
 }
 
+/**
+ * Validates if the input object contains the expected properties of a ruleset
+ * @param input The object containing a rule set
+ * @returns True if a valid rule set
+ */
 export function isRuleSet(input: unknown): input is Record<string, unknown> {
   const ruleSet = input as Record<string, unknown>;
   let ruleCount = 0;
@@ -402,30 +435,43 @@ export function isRuleSet(input: unknown): input is Record<string, unknown> {
   return false;
 }
 
-export function isContextGenerator(input: unknown): boolean {
+/**
+ * Validates if the function can be a valid context generator function
+ * @param input The function to be validated
+ */
+export function isContextCallbackFunction(input: unknown): boolean {
   return typeof input === 'function' && input.length <= 1;
 }
 
-export function isContextFilter(input: unknown): boolean {
-  return typeof input === 'function' && input.length <= 1;
-}
-
+/**
+ * Validates if the function can be a valid context primitive function or self describing json
+ * @param input The function or orbject to be validated
+ * @returns True if either a Context Generator or Self Describing JSON
+ */
 export function isContextPrimitive(input: unknown): input is ContextPrimitive {
-  return isContextGenerator(input) || isSelfDescribingJson(input);
+  return isContextCallbackFunction(input) || isSelfDescribingJson(input);
 }
 
+/**
+ * Validates if an array is a valid shape to be a Filter Provider
+ * @param input The Array of Context filter callbacks
+ */
 export function isFilterProvider(input: unknown): boolean {
   if (Array.isArray(input)) {
     if (input.length === 2) {
       if (Array.isArray(input[1])) {
-        return isContextFilter(input[0]) && input[1].every(isContextPrimitive);
+        return isContextCallbackFunction(input[0]) && input[1].every(isContextPrimitive);
       }
-      return isContextFilter(input[0]) && isContextPrimitive(input[1]);
+      return isContextCallbackFunction(input[0]) && isContextPrimitive(input[1]);
     }
   }
   return false;
 }
 
+/**
+ * Validates if an array is a valid shape to be an array of rule sets
+ * @param input The Array of Rule Sets
+ */
 export function isRuleSetProvider(input: unknown): boolean {
   if (Array.isArray(input) && input.length === 2) {
     if (!isRuleSet(input[0])) return false;
@@ -435,10 +481,20 @@ export function isRuleSetProvider(input: unknown): boolean {
   return false;
 }
 
+/**
+ * Checks if an input array is either a filter provider or a rule set provider
+ * @param input An array of filter providers or rule set providers
+ * @returns Whether the array is a valid {@link ConditionalContextProvider}
+ */
 export function isConditionalContextProvider(input: unknown): input is ConditionalContextProvider {
   return isFilterProvider(input) || isRuleSetProvider(input);
 }
 
+/**
+ * Checks if a given schema matches any rules within the provided rule set
+ * @param ruleSet The rule set containing rules to match schema against
+ * @param schema The schema to be matched against the rule set
+ */
 export function matchSchemaAgainstRuleSet(ruleSet: RuleSet, schema: string): boolean {
   let rejectCount = 0;
   let acceptCount = 0;
@@ -473,6 +529,11 @@ export function matchSchemaAgainstRuleSet(ruleSet: RuleSet, schema: string): boo
   return false;
 }
 
+/**
+ * Checks if a given schema matches a specific rule from a rule set
+ * @param rule The rule to match schema against
+ * @param schema The schema to be matched against the rule
+ */
 export function matchSchemaAgainstRule(rule: string, schema: string): boolean {
   if (!isValidRule(rule)) return false;
   const ruleParts = getRuleParts(rule);
@@ -600,7 +661,7 @@ function evaluatePrimitive(
 ): Array<SelfDescribingJson> | undefined {
   if (isSelfDescribingJson(contextPrimitive)) {
     return [contextPrimitive as SelfDescribingJson];
-  } else if (isContextGenerator(contextPrimitive)) {
+  } else if (isContextCallbackFunction(contextPrimitive)) {
     const generatorOutput = buildGenerator(contextPrimitive as ContextGenerator, event, eventType, eventSchema);
     if (isSelfDescribingJson(generatorOutput)) {
       return [generatorOutput as SelfDescribingJson];

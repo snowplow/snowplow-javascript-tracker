@@ -29,76 +29,337 @@
  */
 
 import { BrowserPlugin } from '../plugins';
-import { SelfDescribingJson, Timestamp, TrackerCore } from '@snowplow/tracker-core';
+import { CommonEventProperties, SelfDescribingJson, TrackerCore } from '@snowplow/tracker-core';
 import { SharedState } from '../state';
 
-export type ActivityCallbackData = {
-  context: Array<SelfDescribingJson>;
-  pageViewId: string;
-  minXOffset: number;
-  minYOffset: number;
-  maxXOffset: number;
-  maxYOffset: number;
-};
-
-export type ActivityCallback = {
-  (data: ActivityCallbackData): void;
-};
-
-export type AnonymousTrackingOptions = boolean & { withSessionTracking?: boolean; withServerAnonymisation?: boolean };
+/* Configuration for Anonymous Tracking */
+export type AnonymousTrackingOptions = boolean | { withSessionTracking?: boolean; withServerAnonymisation?: boolean };
+/* Available configurations for different storage strategies */
 export type StateStorageStrategy = 'cookieAndLocalStorage' | 'cookie' | 'localStorage' | 'none';
+/* The supported platform values */
 export type Platform = 'web' | 'mob' | 'pc' | 'srv' | 'app' | 'tv' | 'cnsl' | 'iot';
+/* The supported Cookie SameSite values */
 export type CookieSameSite = 'None' | 'Lax' | 'Strict';
+/* The supported methods which events can be sent with */
 export type EventMethod = 'post' | 'get' | 'beacon';
 
+/**
+ * The configuration object for initialising the tracker
+ * @example
+ * newTracker('sp1', 'collector.my-website.com', {
+ *  appId: 'my-app-id',
+ *  platform: 'web',
+ *  plugins: [ PerformanceTimingPlugin(), AdTrackingPlugin() ],
+ *  stateStorageStrategy: 'cookieAndLocalStorage'
+ * });
+ */
 export type TrackerConfiguration = {
+  /**
+   * Should event properties be base64 encoded where supported
+   * @defaultValue true
+   */
   encodeBase64?: boolean;
+  /**
+   * The domain all cookies will be set on
+   * @defaultValue The current domain
+   */
   cookieDomain?: string;
+  /**
+   * The name of the _sp_.id cookie, will rename the _sp_ section
+   * @defaultValue _sp_
+   */
   cookieName?: string;
+  /**
+   * The SameSite value for the cookie
+   * {@link https://snowplowanalytics.com/blog/2020/09/07/pipeline-configuration-for-complete-and-accurate-data/}
+   * @defaultValue None
+   */
   cookieSameSite?: CookieSameSite;
+  /**
+   * Set the Secure flag on the cookie
+   * @defaultValue true
+   */
   cookieSecure?: boolean;
+  /**
+   * How long the cookie will be set for
+   * @defaultValue 63072000 (2 years)
+   */
   cookieLifetime?: number;
+  /**
+   * How long until a session expires
+   * @defaultValue 1800 (30 minutes)
+   */
   sessionCookieTimeout?: number;
+  /** The app id to send with each event */
   appId?: string;
+  /**
+   * The platform the event is being sent from
+   * @defaultValue web
+   */
   platform?: Platform;
+  /**
+   * Whether the doNotTracK flag should be respected
+   * @defaultValue false
+   */
   respectDoNotTrack?: boolean;
+  /**
+   * How long to attempt to wait to send events before unloading the page
+   * Has limited impact on most browsers
+   * @defaultValue 500 (milliseconds)
+   */
   pageUnloadTimer?: number;
+  /** Force all events to be sent using HTTPS */
   forceSecureTracker?: boolean;
+  /** Force all events to be sent using HTTP */
   forceUnsecureTracker?: boolean;
+  /**
+   * The preferred technique to use to send events
+   * @defaultValue post
+   */
   eventMethod?: EventMethod;
+  /**
+   * The post path which events will be sent to
+   * Ensure your collector is configured to accept events on this post path
+   * @defaultValue '/com.snowplowanalytics.snowplow/tp2'
+   */
   postPath?: string;
+  /**
+   * Should the Sent Timestamp be attached to events
+   * @defaultValue true
+   */
   useStm?: boolean;
+  /**
+   * The amount of events that should be buffered before sending
+   * Recommended to leave as 1 to reduce change of losing events
+   * @defaultValue 1
+   */
   bufferSize?: number;
+  /**
+   * Configure the cross domain linker which will add user identifiers to
+   * links becaused on the callback
+   */
   crossDomainLinker?: (elt: HTMLAnchorElement | HTMLAreaElement) => boolean;
+  /**
+   * The max size a request can be before the tracker will force send it
+   * @defaultValue 40000
+   */
   maxPostBytes?: number;
+  /**
+   * Whether the tracker should attempt to figure out what the root
+   * domain is to store cookies on
+   * @remark
+   * This sets cookies to try to determine the root domain, and some cookies may
+   * fail to save. This is expected behavior.
+   * @defaultValue false
+   */
   discoverRootDomain?: boolean;
+  /**
+   * The storage strategy which the tracker will use for storing user and session identifers
+   * and if local storage is allowed for buffering the events
+   * @defaultValue cookieAndLocalStorage
+   */
   stateStorageStrategy?: StateStorageStrategy;
+  /**
+   * The maximum amount of events that will be buffered in local storage
+   * @remark
+   * This is useful to ensure the Tracker doesn't fill the 5MB or 10MB available to
+   * each website should the collector be unavailable due to lost connectivity.
+   * Will drop events once the limit is hit
+   * @defaultValue 1000
+   */
   maxLocalStorageQueueSize?: number;
+  /**
+   * Whether to reset the Activity Tracking counters on a new page view
+   * @remarks
+   * Disabling this leads to legacy behavior due to a "bug".
+   * Recommended to leave enabled, particularly on SPAs.
+   * @defaultValue true
+   */
   resetActivityTrackingOnPageView?: boolean;
+  /**
+   * How long to wait before aborting requests to the collector
+   * @defaultValue 5000 (milliseconds)
+   */
   connectionTimeout?: number;
+  /**
+   * Condifugration for Anonymous Tracking
+   * @defaultValue false
+   */
   anonymousTracking?: AnonymousTrackingOptions;
+  /**
+   * Use to configure built in contexts
+   * @defaultValue { webPage: true }
+   */
   contexts?: { webPage: boolean };
+  /**
+   * Inject plugins which will be evaluated for each event
+   * @defaultValue []
+   */
   plugins?: Array<BrowserPlugin>;
 };
 
+/**
+ * The data which is passed to the Activity Tracking callback
+ */
+export type ActivityCallbackData = {
+  /**
+   * All context for the activity tracking
+   * Often generated by the page view events context callback
+   */
+  context: Array<SelfDescribingJson>;
+  /** The current page view id */
+  pageViewId: string;
+  /** The minimum X scroll position for the current page view */
+  minXOffset: number;
+  /** The maximum X scroll position for the current page view */
+  minYOffset: number;
+  /** The minimum Y scroll position for the current page view */
+  maxXOffset: number;
+  /** The maximum Y scroll position for the current page view */
+  maxYOffset: number;
+};
+
+/** The callback for enableActivityTrackingCallback */
+export type ActivityCallback = (data: ActivityCallbackData) => void;
+
+/**
+ * The base configuration for activity tracking
+ */
+export interface ActivityTrackingConfiguration {
+  /** The minimum time that must have elapsed before first heartbeat */
+  minimumVisitLength: number;
+  /** The interval at which the callback will be fired */
+  heartbeatDelay: number;
+}
+
+/**
+ * The callback for enableActivityTrackingCallback
+ */
+export interface ActivityTrackingConfigurationCallback {
+  /** The callback to fire based on heart beat */
+  callback: ActivityCallback;
+}
+
+/**
+ * A Page View event
+ * Used for tracking a page view
+ */
+export interface PageViewEvent {
+  /** Override the page title */
+  title?: string | null;
+  /** A callback which will fire on the page view and each subsequent activity tracking event for this page view */
+  contextCallback?: (() => Array<SelfDescribingJson>) | null;
+}
+
+export interface DisableAnonymousTrackingConfiguration {
+  stateStorageStrategy?: StateStorageStrategy;
+}
+
+export interface EnableAnonymousTrackingConfiguration {
+  options?: AnonymousTrackingOptions;
+}
+
+/**
+ * The Browser Tracker
+ */
 export interface BrowserTracker {
+  /** The unique identifier of this tracker */
   id: string;
+  /** The instance of the core library which this tracker has initialised */
   core: TrackerCore;
+  /** The instance of shared state this tracker is using */
   sharedState: SharedState;
 
   /**
    * Get the domain session index also known as current memorized visit count.
    *
-   * @return int Domain session index
+   * @returns Domain session index
    */
   getDomainSessionIndex: () => void;
 
   /**
-   * Get the page view ID as generated or provided by mutSnowplowState.pageViewId.
+   * Get the current page view ID
    *
-   * @return string Page view ID
+   * @returns Page view ID
    */
   getPageViewId: () => void;
+
+  /**
+   * Get the cookie name as cookieNamePrefix + basename + . + domain.
+   *
+   * @returns Cookie name
+   */
+  getCookieName: (basename: string) => void;
+
+  /**
+   * Get the current user ID (as set previously with setUserId()).
+   *
+   * @returns Business-defined user ID
+   */
+  getUserId: () => void;
+
+  /**
+   * Get visitor ID (from first party cookie)
+   *
+   * @returns Visitor ID (or null, if not yet known)
+   */
+  getDomainUserId: () => void;
+
+  /**
+   * Get the visitor information (from first party cookie)
+   *
+   * @returns The domain user information array
+   */
+  getDomainUserInfo: () => void;
+
+  /**
+   * Override referrer
+   *
+   * @param url the custom referrer
+   */
+  setReferrerUrl: (url: string) => void;
+
+  /**
+   * Override url
+   *
+   * @param url The custom url
+   */
+  setCustomUrl: (url: string) => void;
+
+  /**
+   * Override document.title
+   *
+   * @param title The document title
+   */
+  setDocumentTitle: (title: string) => void;
+
+  /**
+   * Strip hash tag (or anchor) from URL
+   *
+   * @param enableFilter whether to enable this feature
+   */
+  discardHashTag: (enableFilter: boolean) => void;
+
+  /**
+   * Strip braces from URL
+   *
+   * @param enableFilter whether to enable this feature
+   */
+  discardBrace: (enableFilter: boolean) => void;
+
+  /**
+   * Set first-party cookie path
+   *
+   * @param path The path for cookies
+   */
+  setCookiePath: (path: string) => void;
+
+  /**
+   * Set visitor cookie timeout (in seconds)
+   *
+   * @param timeout The timeout for the user identifier cookie
+   */
+  setVisitorCookieTimeout: (timeout: number) => void;
 
   /**
    * Expires current session and starts a new session.
@@ -106,87 +367,9 @@ export interface BrowserTracker {
   newSession: () => void;
 
   /**
-   * Get the cookie name as cookieNamePrefix + basename + . + domain.
-   *
-   * @return string Cookie name
-   */
-  getCookieName: (basename: string) => void;
-
-  /**
-   * Get the current user ID (as set previously
-   * with setUserId()).
-   *
-   * @return string Business-defined user ID
-   */
-  getUserId: () => void;
-
-  /**
-   * Get visitor ID (from first party cookie)
-   *
-   * @return string Visitor ID in hexits (or null, if not yet known)
-   */
-  getDomainUserId: () => void;
-
-  /**
-   * Get the visitor information (from first party cookie)
-   *
-   * @return array
-   */
-  getDomainUserInfo: () => void;
-
-  /**
-   * Override referrer
-   *
-   * @param string url
-   */
-  setReferrerUrl: (url: string) => void;
-
-  /**
-   * Override url
-   *
-   * @param string url
-   */
-  setCustomUrl: (url: string) => void;
-
-  /**
-   * Override document.title
-   *
-   * @param string title
-   */
-  setDocumentTitle: (title: string) => void;
-
-  /**
-   * Strip hash tag (or anchor) from URL
-   *
-   * @param bool enableFilter
-   */
-  discardHashTag: (enableFilter: boolean) => void;
-
-  /**
-   * Strip braces from URL
-   *
-   * @param bool enableFilter
-   */
-  discardBrace: (enableFilter: boolean) => void;
-
-  /**
-   * Set first-party cookie path
-   *
-   * @param string domain
-   */
-  setCookiePath: (path: string) => void;
-
-  /**
-   * Set visitor cookie timeout (in seconds)
-   *
-   * @param int timeout
-   */
-  setVisitorCookieTimeout: (timeout: number) => void;
-
-  /**
    * Enable querystring decoration for links pasing a filter
    *
-   * @param function crossDomainLinker Function used to determine which links to decorate
+   * @param crossDomainLinkerCriterion Function used to determine which links to decorate
    */
   crossDomainLinker: (crossDomainLinkerCriterion: (elt: HTMLAnchorElement | HTMLAreaElement) => boolean) => void;
 
@@ -194,23 +377,18 @@ export interface BrowserTracker {
    * Enables page activity tracking (sends page
    * pings to the Collector regularly).
    *
-   * @param int minimumVisitLength Seconds to wait before sending first page ping
-   * @param int heartbeatDelay Seconds to wait between pings
+   * @param configuration The activity tracking configuration
    */
-  enableActivityTracking: (configuration: { minimumVisitLength: number; heartbeatDelay: number }) => void;
+  enableActivityTracking: (configuration: ActivityTrackingConfiguration) => void;
 
   /**
    * Enables page activity tracking (replaces collector ping with callback).
    *
-   * @param int minimumVisitLength Seconds to wait before sending first page ping
-   * @param int heartbeatDelay Seconds to wait between pings
-   * @param function callback function called with ping data
+   * @param configuration The activity tracking configuration
    */
-  enableActivityTrackingCallback: (configuration: {
-    minimumVisitLength: number;
-    heartbeatDelay: number;
-    callback: ActivityCallback;
-  }) => void;
+  enableActivityTrackingCallback: (
+    configuration: ActivityTrackingConfiguration & ActivityTrackingConfigurationCallback
+  ) => void;
 
   /**
    * Triggers the activityHandler manually to allow external user defined
@@ -221,35 +399,35 @@ export interface BrowserTracker {
   /**
    * Sets the opt out cookie.
    *
-   * @param string name of the opt out cookie
+   * @param name of the opt out cookie
    */
   setOptOutCookie: (name: string) => void;
 
   /**
    * Set the business-defined user ID for this user.
    *
-   * @param string userId The business-defined user ID
+   * @param userId The business-defined user ID
    */
   setUserId: (userId: string) => void;
 
   /**
    * Set the business-defined user ID for this user using the location querystring.
    *
-   * @param string queryName Name of a querystring name-value pair
+   * @param querystringField Name of a querystring name-value pair
    */
   setUserIdFromLocation: (querystringField: string) => void;
 
   /**
    * Set the business-defined user ID for this user using the referrer querystring.
    *
-   * @param string queryName Name of a querystring name-value pair
+   * @param querystringField Name of a querystring name-value pair
    */
   setUserIdFromReferrer: (querystringField: string) => void;
 
   /**
    * Set the business-defined user ID for this user to the value of a cookie.
    *
-   * @param string cookieName Name of the cookie whose value will be assigned to businessUserId
+   * @param cookieName Name of the cookie whose value will be assigned to businessUserId
    */
   setUserIdFromCookie: (cookieName: string) => void;
 
@@ -258,7 +436,7 @@ export interface BrowserTracker {
    * Specify the Snowplow collector URL. No need to include HTTP
    * or HTTPS - we will add this.
    *
-   * @param string rawUrl The collector URL minus protocol and /i
+   * @param rawUrl The collector URL minus protocol and /i
    */
   setCollectorUrl: (rawUrl: string) => void;
 
@@ -276,31 +454,21 @@ export interface BrowserTracker {
   /**
    * Log visit to this page
    *
-   * @param string customTitle
-   * @param object Custom context relating to the event
-   * @param object contextCallback Function returning an array of contexts
-   * @param timestamp number or Timestamp object
-   * @param function afterTrack (optional) A callback function triggered after event is tracked
+   * @param event The Page View Event properties
    */
-  trackPageView: (event?: {
-    customTitle?: string | null;
-    context?: Array<SelfDescribingJson> | null;
-    contextCallback?: (() => Array<SelfDescribingJson>) | null;
-    timestamp?: Timestamp | null;
-  }) => void;
+  trackPageView: (event?: PageViewEvent & CommonEventProperties) => void;
 
   /**
    * Disables anonymous tracking if active (ie. tracker initialized with `anonymousTracking`)
    * For stateStorageStrategy override, uses supplied value first,
    * falls back to one defined in initial config, otherwise uses cookieAndLocalStorage.
-   * @param {string} stateStorageStrategy - Override for state storage
    */
-  disableAnonymousTracking: (stateStorageStrategy?: StateStorageStrategy) => void;
+  disableAnonymousTracking: (configuration?: DisableAnonymousTrackingConfiguration) => void;
 
   /**
    * Enables anonymous tracking (ie. tracker initialized without `anonymousTracking`)
    */
-  enableAnonymousTracking: (anonymousArgs?: AnonymousTrackingOptions) => void;
+  enableAnonymousTracking: (configuration?: EnableAnonymousTrackingConfiguration) => void;
 
   /**
    * Clears all cookies and local storage containing user and session identifiers

@@ -31,9 +31,30 @@
 import { TrackerCore, SelfDescribingJson } from './core';
 import { Payload, PayloadBuilder } from './payload';
 
+/**
+ * Interface which defines Core Plugins
+ */
 export interface CorePlugin {
+  /**
+   * Called when the plugin is initialised during the trackerCore construction
+   *
+   * @remark
+   * Use to capture the specific core instance for each instance of a core plugin
+   */
   activateCorePlugin?: (core: TrackerCore) => void;
+  /**
+   * Called just before the trackerCore callback fires
+   * @param payloadBuilder The payloadBuilder which will be sent to the callback, can be modified
+   */
   beforeTrack?: (payloadBuilder: PayloadBuilder) => void;
+  /**
+   * Called just after the trackerCore callback fires
+   * @param payload The final built payload
+   */
   afterTrack?: (payload: Payload) => void;
+  /**
+   * Called when constructing the context for each event
+   * Useful for adding additional context to events
+   */
   contexts?: () => SelfDescribingJson[];
 }

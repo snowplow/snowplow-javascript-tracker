@@ -32,7 +32,10 @@ import { SelfDescribingJson } from '@snowplow/tracker-core';
 import { BrowserPlugin, cookie } from '@snowplow/browser-tracker-core';
 import { Cookies } from './contexts';
 
-const GaCookiesPlugin = (): BrowserPlugin => {
+/**
+ * Captures the GA cookies on a page and sends as context on each event
+ */
+export function GaCookiesPlugin(): BrowserPlugin {
   return {
     contexts: () => {
       const gaCookieData: SelfDescribingJson<Cookies> = {
@@ -48,6 +51,4 @@ const GaCookiesPlugin = (): BrowserPlugin => {
       return [gaCookieData];
     },
   };
-};
-
-export { GaCookiesPlugin };
+}
