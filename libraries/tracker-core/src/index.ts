@@ -28,19 +28,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-export {
-  resolveDynamicContexts,
-  DynamicContexts,
-  ContextPrimitive,
-  ContextFilterEvent,
-  ContextFilter,
-  ContextGeneratorEvent,
-  ContextGenerator,
-  RuleSetProvider,
-  FilterProvider,
-  ConditionalContextProvider,
-} from './contexts';
-export { CorePlugin } from './plugins';
-export { PayloadBuilder, Payload } from './payload';
+/**
+ * A library of helpful methods for Snowplow JavaScript Trackers
+ * Contains Context Generation, Event Payload Builders, and Core Plugins.
+ *
+ * @packageDocumentation
+ */
+
+export * from './contexts';
+export * from './plugins';
+export * from './payload';
 export * from './core';
-export { trackerCore } from './core';

@@ -30,43 +30,33 @@
 
 import { BrowserPlugin, BrowserTracker } from '@snowplow/browser-tracker-core';
 import {
+  AddToCartEvent,
+  RemoveFromCartEvent,
   buildAddToCart,
   buildEcommerceTransaction,
   buildEcommerceTransactionItem,
   buildRemoveFromCart,
-  SelfDescribingJson,
-  Timestamp,
+  CommonEventProperties,
+  EcommerceTransactionEvent,
+  EcommerceTransactionItemEvent,
 } from '@snowplow/tracker-core';
 
 interface Transaction {
-  transaction?: {
-    orderId: string;
-    total: number;
-    affiliation?: string;
-    tax?: number;
-    shipping?: number;
-    city?: string;
-    state?: string;
-    country?: string;
-    currency?: string;
-    context?: Array<SelfDescribingJson>;
-    timestamp?: Timestamp;
+  transaction?: EcommerceTransactionEvent & CommonEventProperties;
+  items: Array<EcommerceTransactionItemEvent & CommonEventProperties>;
+}
+
+function ecommerceTransactionTemplate(): Transaction {
+  return {
+    items: [],
   };
-  items: Array<{
-    orderId: string;
-    sku: string;
-    name: string;
-    category: string;
-    price: number;
-    quantity: number;
-    currency: string;
-    context: Array<SelfDescribingJson>;
-    timestamp: Timestamp;
-  }>;
 }
 
 const _trackers: Record<string, [BrowserTracker, Transaction]> = {};
 
+/**
+ * Adds ecommerce and cart tracking
+ */
 export function EcommercePlugin(): BrowserPlugin {
   return {
     activateBrowserPlugin: (tracker) => {
@@ -78,32 +68,11 @@ export function EcommercePlugin(): BrowserPlugin {
 /**
  * Track an ecommerce transaction
  *
- * @param string orderId Required. Internal unique order id number for this transaction.
- * @param string total Required. Total amount of the transaction.
- * @param string affiliation Optional. Partner or store affiliation.
- * @param string tax Optional. Tax amount of the transaction.
- * @param string shipping Optional. Shipping charge for the transaction.
- * @param string city Optional. City to associate with transaction.
- * @param string state Optional. State to associate with transaction.
- * @param string country Optional. Country to associate with transaction.
- * @param string currency Optional. Currency to associate with this transaction.
- * @param object context Optional. Context relating to the event.
- * @param timestamp number or Timestamp object
+ * @param event The event information
+ * @param trackers The tracker identifiers which the event will be sent to
  */
 export function addTrans(
-  event: {
-    orderId: string;
-    total: number;
-    affiliation?: string;
-    tax?: number;
-    shipping?: number;
-    city?: string;
-    state?: string;
-    country?: string;
-    currency?: string;
-    context?: Array<SelfDescribingJson>;
-    timestamp?: Timestamp;
-  },
+  event: EcommerceTransactionEvent & CommonEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
@@ -116,28 +85,11 @@ export function addTrans(
 /**
  * Track an ecommerce transaction item
  *
- * @param string orderId Required Order ID of the transaction to associate with item.
- * @param string sku Required. Item's SKU code.
- * @param string name Optional. Product name.
- * @param string category Optional. Product category.
- * @param string price Required. Product price.
- * @param string quantity Required. Purchase quantity.
- * @param string currency Optional. Product price currency.
- * @param object context Optional. Context relating to the event.
- * @param timestamp number or Timestamp object
+ * @param event The event information
+ * @param trackers The tracker identifiers which the event will be sent to
  */
 export function addItem(
-  event: {
-    orderId: string;
-    sku: string;
-    name: string;
-    category: string;
-    price: number;
-    quantity: number;
-    currency: string;
-    context: Array<SelfDescribingJson>;
-    timestamp: Timestamp;
-  },
+  event: EcommerceTransactionItemEvent & CommonEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
@@ -150,8 +102,8 @@ export function addItem(
 /**
  * Commit the ecommerce transaction
  *
- * This call will send the data specified with addTrans,
- * addItem methods to the tracking server.
+ * @remark
+ * This call will send the data specified with addTrans, ddItem methods to the tracking server.
  */
 export function trackTrans(trackers: Array<string> = Object.keys(_trackers)) {
   trackers.forEach((t) => {
@@ -173,26 +125,11 @@ export function trackTrans(trackers: Array<string> = Object.keys(_trackers)) {
 /**
  * Track an add-to-cart event
  *
- * @param string sku Required. Item's SKU code.
- * @param string name Optional. Product name.
- * @param string category Optional. Product category.
- * @param string unitPrice Optional. Product price.
- * @param string quantity Required. Quantity added.
- * @param string currency Optional. Product price currency.
- * @param array context Optional. Context relating to the event.
- * @param timestamp number or Timestamp object
+ * @param event The event information
+ * @param trackers The tracker identifiers which the event will be sent to
  */
-export const trackAddToCart = function (
-  event: {
-    sku: string;
-    name: string;
-    category: string;
-    unitPrice: string;
-    quantity: string;
-    currency: string | undefined;
-    context: Array<SelfDescribingJson>;
-    timestamp: Timestamp;
-  },
+export function trackAddToCart(
+  event: AddToCartEvent & CommonEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
@@ -200,31 +137,16 @@ export const trackAddToCart = function (
       _trackers[t][0].core.track(buildAddToCart(event), event.context, event.timestamp);
     }
   });
-};
+}
 
 /**
  * Track a remove-from-cart event
  *
- * @param string sku Required. Item's SKU code.
- * @param string name Optional. Product name.
- * @param string category Optional. Product category.
- * @param string unitPrice Optional. Product price.
- * @param string quantity Required. Quantity removed.
- * @param string currency Optional. Product price currency.
- * @param array context Optional. Context relating to the event.
- * @param timestamp Opinal number or Timestamp object
+ * @param event The event information
+ * @param trackers The tracker identifiers which the event will be sent to
  */
-export const trackRemoveFromCart = function (
-  event: {
-    sku: string;
-    name: string;
-    category: string;
-    unitPrice: string;
-    quantity: string;
-    currency: string | undefined;
-    context: Array<SelfDescribingJson>;
-    timestamp: Timestamp;
-  },
+export function trackRemoveFromCart(
+  event: RemoveFromCartEvent & CommonEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
@@ -232,10 +154,4 @@ export const trackRemoveFromCart = function (
       _trackers[t][0].core.track(buildRemoveFromCart(event), event.context, event.timestamp);
     }
   });
-};
-
-function ecommerceTransactionTemplate(): Transaction {
-  return {
-    items: [],
-  };
 }

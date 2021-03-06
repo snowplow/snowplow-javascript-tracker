@@ -29,24 +29,43 @@
  */
 
 import { BrowserPlugin, BrowserTracker } from '@snowplow/browser-tracker-core';
-import { DynamicContexts } from '@snowplow/tracker-core';
+import { DynamicContext } from '@snowplow/tracker-core';
 import { TrackerAndFormConfiguration, FormTrackingConfig, addFormListeners, configureFormTracking } from './helpers';
 
 const _trackers: Record<string, TrackerAndFormConfiguration> = {};
 
 /**
- * Enables automatic form tracking.
+ * A plugin which enabled automatic form tracking
+ */
+export function FormTrackingPlugin(): BrowserPlugin {
+  return {
+    activateBrowserPlugin: (tracker: BrowserTracker) => {
+      _trackers[tracker.id] = { tracker: tracker };
+    },
+  };
+}
+
+/** The form tracking configuration */
+export interface FormTrackingConfiguration {
+  /** The options which can be configured for the form tracking events */
+  options?: FormTrackingConfig;
+  /** The dyanmic context which will be evaluated for each form event */
+  context?: DynamicContext | null;
+}
+
+/**
+ * Enables automatic form tracking
  * An event will be fired when a form field is changed or a form submitted.
  * This can be called multiple times: only forms not already tracked will be tracked.
  *
- * @param object config Configuration object determining which forms and fields to track.
- *                      Has two properties: "forms" and "fields"
- * @param array context Context for all form tracking events
+ * @param configuration The form tracking configuration
+ * @param trackers The tracker identifiers which the events will be sent to
  */
 export function enableFormTracking(
-  { options, context }: { options?: FormTrackingConfig; context?: DynamicContexts } = {},
+  configuration: FormTrackingConfiguration = {},
   trackers: Array<string> = Object.keys(_trackers)
 ) {
+  const { options, context } = configuration;
   trackers.forEach((t) => {
     if (_trackers[t]) {
       if (_trackers[t].tracker.sharedState.hasLoaded) {
@@ -61,11 +80,3 @@ export function enableFormTracking(
     }
   });
 }
-
-export const FormTrackingPlugin = (): BrowserPlugin => {
-  return {
-    activateBrowserPlugin: (tracker: BrowserTracker) => {
-      _trackers[tracker.id] = { tracker: tracker };
-    },
-  };
-};

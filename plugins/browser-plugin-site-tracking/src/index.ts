@@ -33,8 +33,9 @@ import {
   buildSelfDescribingEvent,
   buildSiteSearch,
   buildSocialInteraction,
-  SelfDescribingJson,
-  Timestamp,
+  CommonEventProperties,
+  SiteSearchEvent,
+  SocialInteractionEvent,
 } from '@snowplow/tracker-core';
 
 const _trackers: Record<string, BrowserTracker> = {};
@@ -50,14 +51,11 @@ export function SiteTrackingPlugin(): BrowserPlugin {
 /**
  * Track a social interaction event
  *
- * @param string action (required) Social action performed
- * @param string network (required) Social network
- * @param string target Object of the social action e.g. the video liked, the tweet retweeted
- * @param object Custom context relating to the event
- * @param timestamp number or Timestamp object
+ * @param event The event information
+ * @param trackers The tracker identifiers which the event will be sent to
  */
-export const trackSocialInteraction = function (
-  event: { action: string; network: string; target: string; context: Array<SelfDescribingJson>; timestamp: Timestamp },
+export function trackSocialInteraction(
+  event: SocialInteractionEvent & CommonEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
@@ -65,27 +63,16 @@ export const trackSocialInteraction = function (
       _trackers[t].core.track(buildSocialInteraction(event), event.context, event.timestamp);
     }
   });
-};
+}
 
 /**
  * Track an internal search event
  *
- * @param array terms Search terms
- * @param object filters Search filters
- * @param number totalResults Number of results
- * @param number pageResults Number of results displayed on page
- * @param array context Optional. Context relating to the event.
- * @param timestamp Opinal number or Timestamp object
+ * @param event The event information
+ * @param trackers The tracker identifiers which the event will be sent to
  */
-export const trackSiteSearch = function (
-  event: {
-    terms: Array<string>;
-    filters: Record<string, string | boolean>;
-    totalResults: number;
-    pageResults: number;
-    context: Array<SelfDescribingJson>;
-    timestamp: Timestamp;
-  },
+export function trackSiteSearch(
+  event: SiteSearchEvent & CommonEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
@@ -93,41 +80,48 @@ export const trackSiteSearch = function (
       _trackers[t].core.track(buildSiteSearch(event), event.context, event.timestamp);
     }
   });
-};
+}
+
+/** A Timing Event */
+export interface TimingEvent {
+  /** Category of the timing event */
+  category: string;
+  /** The variable being timed */
+  variable: string;
+  /** The timing result */
+  timing: number;
+  /** An additional label */
+  label?: string;
+}
 
 /**
  * Track a timing event (such as the time taken for a resource to load)
  *
- * @param string category Required.
- * @param string variable Required.
- * @param number timing Required.
- * @param string label Optional.
- * @param array context Optional. Context relating to the event.
- * @param timestamp Opinal number or Timestamp object
+ * @param event The event information
+ * @param trackers The tracker identifiers which the event will be sent to
  */
-export const trackTiming = function (
-  event: {
-    category: string;
-    variable: string;
-    timing: number;
-    label: string;
-    context: Array<SelfDescribingJson>;
-    timestamp: Timestamp;
-  },
+export function trackTiming(
+  event: TimingEvent & CommonEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
+  const { category, variable, timing, label, context, timestamp } = event;
   trackers.forEach((t) => {
     if (_trackers[t]) {
       _trackers[t].core.track(
         buildSelfDescribingEvent({
           event: {
             schema: 'iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0',
-            data: event,
+            data: {
+              category,
+              variable,
+              timing,
+              label,
+            },
           },
         }),
-        event.context,
-        event.timestamp
+        context,
+        timestamp
       );
     }
   });
-};
+}

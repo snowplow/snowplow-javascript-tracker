@@ -57,7 +57,10 @@ const windowAlias = window,
     ag: 'application/x-silverlight',
   };
 
-export const BrowserFeaturesPlugin = (): BrowserPlugin => {
+/**
+ * Adds the available MIME Types to each event
+ */
+export function BrowserFeaturesPlugin(): BrowserPlugin {
   return {
     activateBrowserPlugin: (tracker: BrowserTracker) => {
       // General plugin detection
@@ -84,4 +87,4 @@ export const BrowserFeaturesPlugin = (): BrowserPlugin => {
       }
     },
   };
-};
+}

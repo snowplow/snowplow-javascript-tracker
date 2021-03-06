@@ -33,12 +33,17 @@ import {
   buildAdClick,
   buildAdConversion,
   buildAdImpression,
-  SelfDescribingJson,
-  Timestamp,
+  AdClickEvent,
+  AdImpressionEvent,
+  AdConversionEvent,
+  CommonEventProperties,
 } from '@snowplow/tracker-core';
 
 const _trackers: Record<string, BrowserTracker> = {};
 
+/**
+ * Adds advertisement tracking functions
+ */
 export function AdTrackingPlugin(): BrowserPlugin {
   return {
     activateBrowserPlugin: (tracker) => {
@@ -60,19 +65,8 @@ export function AdTrackingPlugin(): BrowserPlugin {
  * @param object Custom context relating to the event
  * @param timestamp number or Timestamp object
  */
-export const trackAdImpression = function (
-  event: {
-    impressionId: string;
-    costModel: string;
-    cost: number;
-    targetUrl: string;
-    bannerId: string;
-    zoneId: string;
-    advertiserId: string;
-    campaignId: string;
-    context: Array<SelfDescribingJson>;
-    timestamp: Timestamp;
-  },
+export function trackAdImpression(
+  event: AdImpressionEvent & CommonEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
@@ -80,7 +74,7 @@ export const trackAdImpression = function (
       _trackers[t].core.track(buildAdImpression(event), event.context, event.timestamp);
     }
   });
-};
+}
 
 /**
  * Track an ad being clicked
@@ -97,20 +91,8 @@ export const trackAdImpression = function (
  * @param object Custom context relating to the event
  * @param timestamp number or Timestamp object
  */
-export const trackAdClick = function (
-  event: {
-    targetUrl: string;
-    clickId: string;
-    costModel: string;
-    cost: number;
-    bannerId: string;
-    zoneId: string;
-    impressionId: string;
-    advertiserId: string;
-    campaignId: string;
-    context: Array<SelfDescribingJson>;
-    timestamp: Timestamp;
-  },
+export function trackAdClick(
+  event: AdClickEvent & CommonEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
@@ -118,7 +100,7 @@ export const trackAdClick = function (
       _trackers[t].core.track(buildAdClick(event), event.context, event.timestamp);
     }
   });
-};
+}
 
 /**
  * Track an ad conversion event
@@ -135,20 +117,8 @@ export const trackAdClick = function (
  * @param object Custom context relating to the event
  * @param timestamp number or Timestamp object
  */
-export const trackAdConversion = function (
-  event: {
-    conversionId: string;
-    costModel: string;
-    cost: number;
-    category: string;
-    action: string;
-    property: string;
-    initialValue: number;
-    advertiserId: string;
-    campaignId: string;
-    context: Array<SelfDescribingJson>;
-    timestamp: Timestamp;
-  },
+export function trackAdConversion(
+  event: AdConversionEvent & CommonEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
@@ -156,4 +126,4 @@ export const trackAdConversion = function (
       _trackers[t].core.track(buildAdConversion(event), event.context, event.timestamp);
     }
   });
-};
+}

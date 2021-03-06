@@ -39,6 +39,22 @@ var windowAlias = window,
   localStorageAlias = window.localStorage,
   sessionStorageAlias = window.sessionStorage;
 
+/**
+ * The criteria which will be used to filter results to specific classes or elements
+ */
+export interface FilterCriterion<T> {
+  /** A collection of class names to include */
+  whitelist?: string[];
+  /** A collector of class names to exclude */
+  blacklist?: string[];
+  /** A callback which returns a boolean as to whether the element should be included */
+  filter?: (elt: T) => boolean;
+}
+
+/**
+ * Checks if an object is a string
+ * @param str The object to check
+ */
 export function isString(str: Object): str is string {
   if (str && typeof str.valueOf() === 'string') {
     return true;
@@ -46,10 +62,25 @@ export function isString(str: Object): str is string {
   return false;
 }
 
+/**
+ * Checks if an object is an integer
+ * @param int The object to check
+ */
 export function isInteger(int: Object): int is number {
   return (
     (Number.isInteger && Number.isInteger(int)) || (typeof int === 'number' && isFinite(int) && Math.floor(int) === int)
   );
+}
+
+/**
+ * Checks if the input parameter is a function
+ * @param func The object to check
+ */
+export function isFunction(func: unknown) {
+  if (func && typeof func === 'function') {
+    return true;
+  }
+  return false;
 }
 
 /**
@@ -176,104 +207,6 @@ export function warn(message: string) {
   if (typeof console !== 'undefined') {
     console.warn('Snowplow: ' + message);
   }
-}
-
-/**
- * List the classes of a DOM element without using elt.classList (for compatibility with IE 9)
- */
-export function getCssClasses(elt: Element) {
-  return elt.className.match(/\S+/g) || [];
-}
-
-/**
- * Check whether an element has at least one class from a given list
- */
-function checkClass(elt: Element, classList: { [k: string]: boolean }) {
-  var classes = getCssClasses(elt);
-
-  for (const className of classes) {
-    if (classList[className]) {
-      return true;
-    }
-  }
-
-  return false;
-}
-export interface FilterCriterion<T> {
-  whitelist: string[];
-  blacklist: string[];
-  filter: (elt: T) => boolean;
-}
-
-function getFilter<T>(criterion: FilterCriterion<T>, fallbackFilter: (elt: T) => boolean) {
-  if (criterion.hasOwnProperty('filter')) {
-    return criterion.filter;
-  }
-
-  return fallbackFilter;
-}
-
-function getSpecifiedClassesSet<T>(criterion: FilterCriterion<T>) {
-  var specifiedClasses = criterion.whitelist || criterion.blacklist;
-  if (!Array.isArray(specifiedClasses)) {
-    specifiedClasses = [specifiedClasses];
-  }
-
-  // Convert the array of classes to an object of the form {class1: true, class2: true, ...}
-  var specifiedClassesSet: Record<string, boolean> = {};
-  for (var i = 0; i < specifiedClasses.length; i++) {
-    specifiedClassesSet[specifiedClasses[i]] = true;
-  }
-
-  return specifiedClassesSet;
-}
-
-/**
- * Convert a criterion object to a filter function
- *
- * @param object criterion Either {whitelist: [array of allowable strings]}
- *                             or {blacklist: [array of allowable strings]}
- *                             or {filter: function (elt) {return whether to track the element}
- * @param boolean byClass Whether to whitelist/blacklist based on an element's classes (for forms)
- *                        or name attribute (for fields)
- */
-export function getFilterByClass(criterion?: FilterCriterion<HTMLElement> | null): (elt: HTMLElement) => boolean {
-  // If the criterion argument is not an object, add listeners to all elements
-  if (criterion == null || typeof criterion !== 'object' || Array.isArray(criterion)) {
-    return function () {
-      return true;
-    };
-  }
-
-  const inclusive = Object.prototype.hasOwnProperty.call(criterion, 'whitelist');
-  const specifiedClassesSet = getSpecifiedClassesSet(criterion);
-
-  return getFilter(criterion, function (elt: HTMLElement) {
-    return checkClass(elt, specifiedClassesSet) === inclusive;
-  });
-}
-
-/**
- * Convert a criterion object to a filter function
- *
- * @param object criterion Either {whitelist: [array of allowable strings]}
- *                             or {blacklist: [array of allowable strings]}
- *                             or {filter: function (elt) {return whether to track the element}
- */
-export function getFilterByName<T extends { name: string }>(criterion: FilterCriterion<T>): (elt: T) => boolean {
-  // If the criterion argument is not an object, add listeners to all elements
-  if (criterion == null || typeof criterion !== 'object' || Array.isArray(criterion)) {
-    return function () {
-      return true;
-    };
-  }
-
-  const inclusive = criterion.hasOwnProperty('whitelist');
-  const specifiedClassesSet = getSpecifiedClassesSet(criterion);
-
-  return getFilter(criterion, function (elt: T) {
-    return elt.name in specifiedClassesSet === inclusive;
-  });
 }
 
 /**
@@ -534,9 +467,98 @@ export function parseAndValidateFloat(obj: unknown) {
   return isNaN(result) ? undefined : result;
 }
 
-export function isFunction(func: unknown) {
-  if (func && typeof func === 'function') {
-    return true;
+/**
+ * Convert a criterion object to a filter function
+ *
+ * @param object criterion Either {whitelist: [array of allowable strings]}
+ *                             or {blacklist: [array of allowable strings]}
+ *                             or {filter: function (elt) {return whether to track the element}
+ * @param boolean byClass Whether to whitelist/blacklist based on an element's classes (for forms)
+ *                        or name attribute (for fields)
+ */
+export function getFilterByClass(criterion?: FilterCriterion<HTMLElement> | null): (elt: HTMLElement) => boolean {
+  // If the criterion argument is not an object, add listeners to all elements
+  if (criterion == null || typeof criterion !== 'object' || Array.isArray(criterion)) {
+    return function () {
+      return true;
+    };
   }
+
+  const inclusive = Object.prototype.hasOwnProperty.call(criterion, 'whitelist');
+  const specifiedClassesSet = getSpecifiedClassesSet(criterion);
+
+  return getFilter(criterion, function (elt: HTMLElement) {
+    return checkClass(elt, specifiedClassesSet) === inclusive;
+  });
+}
+
+/**
+ * Convert a criterion object to a filter function
+ *
+ * @param object criterion Either {whitelist: [array of allowable strings]}
+ *                             or {blacklist: [array of allowable strings]}
+ *                             or {filter: function (elt) {return whether to track the element}
+ */
+export function getFilterByName<T extends { name: string }>(criterion: FilterCriterion<T>): (elt: T) => boolean {
+  // If the criterion argument is not an object, add listeners to all elements
+  if (criterion == null || typeof criterion !== 'object' || Array.isArray(criterion)) {
+    return function () {
+      return true;
+    };
+  }
+
+  const inclusive = criterion.hasOwnProperty('whitelist');
+  const specifiedClassesSet = getSpecifiedClassesSet(criterion);
+
+  return getFilter(criterion, function (elt: T) {
+    return elt.name in specifiedClassesSet === inclusive;
+  });
+}
+
+/**
+ * List the classes of a DOM element without using elt.classList (for compatibility with IE 9)
+ */
+export function getCssClasses(elt: Element) {
+  return elt.className.match(/\S+/g) || [];
+}
+
+/**
+ * Check whether an element has at least one class from a given list
+ */
+function checkClass(elt: Element, classList: Record<string, boolean>) {
+  var classes = getCssClasses(elt);
+
+  for (const className of classes) {
+    if (classList[className]) {
+      return true;
+    }
+  }
+
   return false;
+}
+
+function getFilter<T>(criterion: FilterCriterion<T>, fallbackFilter: (elt: T) => boolean) {
+  if (criterion.hasOwnProperty('filter') && criterion.filter) {
+    return criterion.filter;
+  }
+
+  return fallbackFilter;
+}
+
+function getSpecifiedClassesSet<T>(criterion: FilterCriterion<T>) {
+  // Convert the array of classes to an object of the form {class1: true, class2: true, ...}
+  var specifiedClassesSet: Record<string, boolean> = {};
+  var specifiedClasses = criterion.whitelist || criterion.blacklist;
+
+  if (specifiedClasses) {
+    if (!Array.isArray(specifiedClasses)) {
+      specifiedClasses = [specifiedClasses];
+    }
+
+    for (var i = 0; i < specifiedClasses.length; i++) {
+      specifiedClassesSet[specifiedClasses[i]] = true;
+    }
+  }
+
+  return specifiedClassesSet;
 }

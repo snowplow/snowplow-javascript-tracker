@@ -29,50 +29,47 @@
  */
 
 import { isFunction, addEventListener, BrowserPlugin, BrowserTracker } from '@snowplow/browser-tracker-core';
-import { buildSelfDescribingEvent, SelfDescribingJson, Timestamp } from '@snowplow/tracker-core';
+import { buildSelfDescribingEvent, CommonEventProperties, SelfDescribingJson } from '@snowplow/tracker-core';
 
 let windowAlias = window,
   _trackers: Record<string, BrowserTracker> = {};
 
-export const ErrorTrackingPlugin = (): BrowserPlugin => {
+export function ErrorTrackingPlugin(): BrowserPlugin {
   return {
     activateBrowserPlugin: (tracker: BrowserTracker) => {
       _trackers[tracker.id] = tracker;
     },
   };
-};
+}
+
+/**
+ * Event for tracking an error
+ */
+export interface ErrorEventProperties {
+  /** The error message */
+  message: string;
+  /** The filename where the error occurred */
+  filename?: string;
+  /** The line number which the error occurred on */
+  lineno?: number;
+  /** The column number which the error occurred on */
+  colno?: number;
+  /** The error object */
+  error?: Error;
+}
 
 /**
  * Send error as self-describing event
  *
- * @param message string Message appeared in console
- * @param filename string Source file (not used)
- * @param lineno number Line number
- * @param colno number Column number (not used)
- * @param error Error error object (not present in all browsers)
- * @param contexts Array of custom contexts
+ * @param event The event information
+ * @param trackers The tracker identifiers which the event will be sent to
  */
 export function trackError(
-  {
-    message,
-    filename,
-    lineno,
-    colno,
-    error,
-    contexts,
-    timestamp,
-  }: {
-    message: string;
-    filename: string;
-    lineno: number;
-    colno: number;
-    error: Error;
-    contexts?: Array<SelfDescribingJson>;
-    timestamp?: Timestamp;
-  },
+  event: ErrorEventProperties & CommonEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  const stack = error && error.stack ? error.stack : null;
+  const { message, filename, lineno, colno, error, context, timestamp } = event,
+    stack = error && error.stack ? error.stack : null;
 
   trackers.forEach((t) => {
     if (_trackers[t]) {
@@ -90,61 +87,59 @@ export function trackError(
             },
           },
         }),
-        contexts,
+        context,
         timestamp
       );
     }
   });
 }
 
+/**
+ * The configuration for automatic error tracking
+ */
+interface ErrorTrackingConfiguration {
+  /** A callback which allows on certain errors to be tracked */
+  filter?: (error: ErrorEvent) => boolean;
+  /** A callback to dynamically add extra context based on the error */
+  contextAdder?: (error: ErrorEvent) => Array<SelfDescribingJson>;
+  /** Context to be added to every error */
+  context?: Array<SelfDescribingJson>;
+}
+
+/**
+ * Enable automatic error tracking, added event handler for 'error' event on window
+ * @param configuration The error tracking configuration
+ * @param trackers The tracker identifiers which the event will be sent to
+ */
 export function enableErrorTracking(
-  {
-    filter,
-    contextsAdder,
-    contexts,
-  }: {
-    filter?: (error: ErrorEvent) => boolean;
-    contextsAdder?: (error: ErrorEvent) => Array<SelfDescribingJson>;
-    contexts?: SelfDescribingJson[];
-  } = {},
+  configuration: ErrorTrackingConfiguration = {},
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  /**
-   * Closure callback to filter, contextualize and track unhandled exceptions
-   *
-   * @param errorEvent ErrorEvent passed to event listener
-   */
-  const captureError = (errorEvent: Event) => {
-    if ((filter && isFunction(filter) && filter(errorEvent as ErrorEvent)) || filter == null) {
-      sendError({ errorEvent: errorEvent as ErrorEvent, commonContexts: contexts, contextsAdder }, trackers);
-    }
-  };
+  const { filter, contextAdder, context } = configuration,
+    captureError = (errorEvent: Event) => {
+      if ((filter && isFunction(filter) && filter(errorEvent as ErrorEvent)) || filter == null) {
+        sendError({ errorEvent: errorEvent as ErrorEvent, commonContext: context, contextAdder }, trackers);
+      }
+    };
 
   addEventListener(windowAlias, 'error', captureError, true);
 }
 
-/**
- * Attach custom contexts using `contextAdder`
- *
- *
- * @param contextsAdder function to get details from internal browser state
- * @returns {Array} custom contexts
- */
 function sendError(
   {
     errorEvent,
-    commonContexts,
-    contextsAdder,
+    commonContext,
+    contextAdder,
   }: {
     errorEvent: ErrorEvent;
-    commonContexts?: Array<SelfDescribingJson>;
-    contextsAdder?: (error: ErrorEvent) => Array<SelfDescribingJson>;
+    commonContext?: Array<SelfDescribingJson>;
+    contextAdder?: (error: ErrorEvent) => Array<SelfDescribingJson>;
   },
   trackers: Array<string>
 ) {
-  let contexts = commonContexts || [];
-  if (contextsAdder && isFunction(contextsAdder)) {
-    contexts = contexts.concat(contextsAdder(errorEvent));
+  let context = commonContext || [];
+  if (contextAdder && isFunction(contextAdder)) {
+    context = context.concat(contextAdder(errorEvent));
   }
 
   trackError(
@@ -154,7 +149,7 @@ function sendError(
       lineno: errorEvent.lineno,
       colno: errorEvent.colno,
       error: errorEvent.error,
-      contexts,
+      context,
     },
     trackers
   );

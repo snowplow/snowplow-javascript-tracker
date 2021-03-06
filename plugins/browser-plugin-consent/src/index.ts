@@ -29,12 +29,18 @@
  */
 
 import { BrowserPlugin, BrowserTracker, warn } from '@snowplow/browser-tracker-core';
-import { buildConsentGranted, buildConsentWithdrawn, SelfDescribingJson, Timestamp } from '@snowplow/tracker-core';
+import {
+  buildConsentGranted,
+  buildConsentWithdrawn,
+  CommonEventProperties,
+  ConsentGrantedEvent,
+  ConsentWithdrawnEvent,
+} from '@snowplow/tracker-core';
 import { Gdpr } from './contexts';
 
 const _trackers: Record<string, { tracker: BrowserTracker; gdpr?: Gdpr }> = {};
 
-enum gdprBasis {
+export enum gdprBasis {
   consent = 'consent',
   contract = 'contract',
   legalObligation = 'legal_obligation',
@@ -43,22 +49,30 @@ enum gdprBasis {
   legitimateInterests = 'legitimate_interests',
 }
 
-type GdprBasis = keyof typeof gdprBasis;
+export type GdprBasis = keyof typeof gdprBasis;
 
+/** The Configuration for the GDPR Context */
+export interface GdprContextConfiguration {
+  /** The basis for why the document will be processed */
+  basisForProcessing: GdprBasis;
+  /** An identifier for the document */
+  documentId?: string;
+  /** The version of the document */
+  documentVersion?: string;
+  /** A descrtiption of the document */
+  documentDescription?: string;
+}
+
+/**
+ * Enable the GDPR context for each event
+ * @param configuration the configuration for the GDPR context
+ * @param trackers The tracker identifiers which should have the GDPR context enabled
+ */
 export function enableGdprContext(
-  {
-    basisForProcessing,
-    documentId,
-    documentVersion,
-    documentDescription,
-  }: {
-    basisForProcessing: GdprBasis;
-    documentId?: string;
-    documentVersion?: string;
-    documentDescription?: string;
-  },
+  configuration: GdprContextConfiguration,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
+  const { basisForProcessing, documentId, documentVersion, documentDescription } = configuration;
   let basis = gdprBasis[basisForProcessing];
 
   if (!basis) {
@@ -83,24 +97,11 @@ export function enableGdprContext(
 /**
  * Track a consent granted action
  *
- * @param {string} id - ID number associated with document.
- * @param {string} version - Document version number.
- * @param {string} [name] - Document name.
- * @param {string} [description] - Document description.
- * @param {string} [expiry] - Date-time when consent document(s) expire.
- * @param {array} [context] - Context containing consent documents.
- * @param {Timestamp|number} [timestamp] - number or Timestamp object.
+ * @param event The event information
+ * @param trackers The tracker identifiers which the event will be sent to
  */
-export const trackConsentGranted = function (
-  event: {
-    id: string;
-    version: string;
-    name?: string;
-    description?: string;
-    expiry?: string;
-    context?: Array<SelfDescribingJson>;
-    timestamp?: Timestamp;
-  },
+export function trackConsentGranted(
+  event: ConsentGrantedEvent & CommonEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
@@ -113,29 +114,16 @@ export const trackConsentGranted = function (
       );
     }
   });
-};
+}
 
 /**
  * Track a consent withdrawn action
  *
- * @param {boolean} all - Indicates user withdraws all consent regardless of context documents.
- * @param {string} [id] - Number associated with document.
- * @param {string} [version] - Document version number.
- * @param {string} [name] - Document name.
- * @param {string} [description] - Document description.
- * @param {array} [context] - Context relating to the event.
- * @param {number|Timestamp} [timestamp] - Number or Timestamp object.
+ * @param event The event information
+ * @param trackers The tracker identifiers which the event will be sent to
  */
-export const trackConsentWithdrawn = function (
-  event: {
-    all: boolean;
-    id?: string;
-    version?: string;
-    name?: string;
-    description?: string;
-    context?: Array<SelfDescribingJson>;
-    timestamp?: Timestamp;
-  },
+export function trackConsentWithdrawn(
+  event: ConsentWithdrawnEvent & CommonEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
@@ -148,8 +136,14 @@ export const trackConsentWithdrawn = function (
       );
     }
   });
-};
+}
 
+/**
+ * The Consent Plugin
+ *
+ * Adds Consent Granted and Withdrawn events
+ * and the ability to add the GDPR context to events
+ */
 export function ConsentPlugin(): BrowserPlugin {
   let trackerId: string;
 

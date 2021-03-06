@@ -29,20 +29,23 @@
  */
 
 import {
-  ActivityCallback,
+  ActivityTrackingConfiguration,
+  ActivityTrackingConfigurationCallback,
   allTrackerNames,
-  AnonymousTrackingOptions,
   BrowserTracker,
+  DisableAnonymousTrackingConfiguration,
+  EnableAnonymousTrackingConfiguration,
   getTrackers,
-  StateStorageStrategy,
+  PageViewEvent,
 } from '@snowplow/browser-tracker-core';
 import {
   buildSelfDescribingEvent,
   buildStructEvent,
+  CommonEventProperties,
   ConditionalContextProvider,
   ContextPrimitive,
-  SelfDescribingJson,
-  Timestamp,
+  SelfDescribingEvent,
+  StructuredEvent,
 } from '@snowplow/tracker-core';
 
 const dispatch = (trackers: Array<string> = allTrackerNames(), fn: (t: BrowserTracker) => void) => {
@@ -51,377 +54,369 @@ const dispatch = (trackers: Array<string> = allTrackerNames(), fn: (t: BrowserTr
 
 /**
  * Expires current session and starts a new session.
+ *
+ * @param trackers The tracker identifiers which will have their session refreshed
  */
-export const newSession = (trackers?: Array<string>) => {
+export function newSession(trackers?: Array<string>) {
   dispatch(trackers, (t) => {
     t.newSession();
   });
-};
+}
 
 /**
  * Override referrer
  *
- * @param string url
+ * @param url Custom Referrer which will be used as override
+ * @param trackers The tracker identifiers which will be configured
  */
-export const setReferrerUrl = function (url: string, trackers?: Array<string>) {
+export function setReferrerUrl(url: string, trackers?: Array<string>) {
   dispatch(trackers, (t) => {
     t.setReferrerUrl(url);
   });
-};
+}
 
 /**
  * Override url
  *
- * @param string url
+ * @param url Custom URL which will be used as override
+ * @param trackers The tracker identifiers which will be configured
  */
-export const setCustomUrl = function (url: string, trackers?: Array<string>) {
+export function setCustomUrl(url: string, trackers?: Array<string>) {
   dispatch(trackers, (t) => {
     t.setCustomUrl(url);
   });
-};
+}
 
 /**
  * Override document.title
  *
- * @param string title
+ * @param title Document title which will be used as override
+ * @param trackers The tracker identifiers which will be configured
  */
-export const setDocumentTitle = function (title: string, trackers?: Array<string>) {
+export function setDocumentTitle(title: string, trackers?: Array<string>) {
   dispatch(trackers, (t) => {
     t.setDocumentTitle(title);
   });
-};
+}
 
 /**
  * Strip hash tag (or anchor) from URL
  *
- * @param bool enableFilter
+ * @param enable Whether to enable stripping of hash
+ * @param trackers The tracker identifiers which will be configured
  */
-export const discardHashTag = function (enable: boolean, trackers?: Array<string>) {
+export function discardHashTag(enable: boolean, trackers?: Array<string>) {
   dispatch(trackers, (t) => {
     t.discardHashTag(enable);
   });
-};
+}
 
 /**
  * Strip braces from URL
  *
- * @param bool enableFilter
+ * @param enable Whther to enable stripping of braces
+ * @param trackers The tracker identifiers which will be configured
  */
-export const discardBrace = function (enable: boolean, trackers?: Array<string>) {
+export function discardBrace(enable: boolean, trackers?: Array<string>) {
   dispatch(trackers, (t) => {
     t.discardBrace(enable);
   });
-};
+}
 
 /**
  * Set first-party cookie path
  *
- * @param string domain
+ * @param domain
+ * @param trackers The tracker identifiers which will be configured
  */
-export const setCookiePath = function (path: string, trackers?: Array<string>) {
+export function setCookiePath(path: string, trackers?: Array<string>) {
   dispatch(trackers, (t) => {
     t.setCookiePath(path);
   });
-};
+}
 
 /**
  * Set visitor cookie timeout (in seconds)
  *
- * @param int timeout
+ * @param timeout
+ * @param trackers The tracker identifiers which will be configured
  */
-export const setVisitorCookieTimeout = function (timeout: number, trackers?: Array<string>) {
+export function setVisitorCookieTimeout(timeout: number, trackers?: Array<string>) {
   dispatch(trackers, (t) => {
     t.setVisitorCookieTimeout(timeout);
   });
-};
+}
 
 /**
  * Enable querystring decoration for links pasing a filter
  *
- * @param function crossDomainLinker Function used to determine which links to decorate
+ * @param crossDomainLinker Function used to determine which links to decorate
+ * @param trackers The tracker identifiers which will be configured
  */
-export const crossDomainLinker = function (
+export function crossDomainLinker(
   crossDomainLinkerCriterion: (elt: HTMLAnchorElement | HTMLAreaElement) => boolean,
   trackers?: Array<string>
 ) {
   dispatch(trackers, (t) => {
     t.crossDomainLinker(crossDomainLinkerCriterion);
   });
-};
+}
 
 /**
- * Enables page activity tracking (sends page
- * pings to the Collector regularly).
+ * Enables page activity tracking (sends page pings to the Collector regularly).
  *
- * @param int minimumVisitLength Seconds to wait before sending first page ping
- * @param int heartbeatDelay Seconds to wait between pings
+ * @param configuration The activity tracking configuration
+ * @param trackers The tracker identifiers which will be configured
  */
-export const enableActivityTracking = function (
-  configuration: { minimumVisitLength: number; heartbeatDelay: number },
-  trackers?: Array<string>
-) {
+export function enableActivityTracking(configuration: ActivityTrackingConfiguration, trackers?: Array<string>) {
   dispatch(trackers, (t) => {
     t.enableActivityTracking(configuration);
   });
-};
+}
 
 /**
  * Enables page activity tracking (replaces collector ping with callback).
  *
- * @param int minimumVisitLength Seconds to wait before sending first page ping
- * @param int heartbeatDelay Seconds to wait between pings
- * @param function callback function called with ping data
+ * @param configuration The activity tracking callback configuration
+ * @param trackers The tracker identifiers which will be configured
  */
-export const enableActivityTrackingCallback = function (
-  configuration: { minimumVisitLength: number; heartbeatDelay: number; callback: ActivityCallback },
+export function enableActivityTrackingCallback(
+  configuration: ActivityTrackingConfiguration & ActivityTrackingConfigurationCallback,
   trackers?: Array<string>
 ) {
   dispatch(trackers, (t) => {
     t.enableActivityTrackingCallback(configuration);
   });
-};
+}
 
 /**
- * Triggers the activityHandler manually to allow external user defined
- * activity. i.e. While watching a video
+ * Triggers the activityHandler manually to allow external user defined activity. i.e. While watching a video
+ *
+ * @param trackers The tracker identifiers which will be updated
  */
-export const updatePageActivity = function (trackers?: Array<string>) {
+export function updatePageActivity(trackers?: Array<string>) {
   dispatch(trackers, (t) => {
     t.updatePageActivity();
   });
-};
+}
 
 /**
  * Sets the opt out cookie.
  *
- * @param string name of the opt out cookie
+ * @param name of the opt out cookie
+ * @param trackers The tracker identifiers which will be configured
  */
-export const setOptOutCookie = function (name: string, trackers?: Array<string>) {
+export function setOptOutCookie(name: string, trackers?: Array<string>) {
   dispatch(trackers, (t) => {
     t.setOptOutCookie(name);
   });
-};
+}
 
 /**
  * Set the business-defined user ID for this user.
  *
- * @param string userId The business-defined user ID
+ * @param userId The business-defined user ID
+ * @param trackers The tracker identifiers which will be configured
  */
-export const setUserId = function (userId: string, trackers?: Array<string>) {
+export function setUserId(userId: string, trackers?: Array<string>) {
   dispatch(trackers, (t) => {
     t.setUserId(userId);
   });
-};
+}
 
 /**
  * Set the business-defined user ID for this user using the location querystring.
  *
- * @param string queryName Name of a querystring name-value pair
+ * @param querystringField Name of a querystring name-value pair
+ * @param trackers The tracker identifiers which will be configured
  */
-export const setUserIdFromLocation = function (querystringField: string, trackers?: Array<string>) {
+export function setUserIdFromLocation(querystringField: string, trackers?: Array<string>) {
   dispatch(trackers, (t) => {
     t.setUserIdFromLocation(querystringField);
   });
-};
+}
 
 /**
  * Set the business-defined user ID for this user using the referrer querystring.
  *
- * @param string queryName Name of a querystring name-value pair
+ * @param querystringField Name of a querystring name-value pair
+ * @param trackers The tracker identifiers which will be configured
  */
-export const setUserIdFromReferrer = function (querystringField: string, trackers?: Array<string>) {
+export function setUserIdFromReferrer(querystringField: string, trackers?: Array<string>) {
   dispatch(trackers, (t) => {
     t.setUserIdFromReferrer(querystringField);
   });
-};
+}
 
 /**
  * Set the business-defined user ID for this user to the value of a cookie.
  *
- * @param string cookieName Name of the cookie whose value will be assigned to businessUserId
+ * @param cookieName Name of the cookie whose value will be assigned to businessUserId
+ * @param trackers The tracker identifiers which will be configured
  */
-export const setUserIdFromCookie = function (cookieName: string, trackers?: Array<string>) {
+export function setUserIdFromCookie(cookieName: string, trackers?: Array<string>) {
   dispatch(trackers, (t) => {
     t.setUserIdFromCookie(cookieName);
   });
-};
+}
 
 /**
  *
  * Specify the Snowplow collector URL. No need to include HTTP
  * or HTTPS - we will add this.
  *
- * @param string rawUrl The collector URL minus protocol and /i
+ * @param rawUrl The collector URL minus protocol and /i
+ * @param trackers The tracker identifiers which will be configured
  */
-export const setCollectorUrl = function (rawUrl: string, trackers?: Array<string>) {
+export function setCollectorUrl(rawUrl: string, trackers?: Array<string>) {
   dispatch(trackers, (t) => {
     t.setCollectorUrl(rawUrl);
   });
-};
+}
 
 /**
  * Send all events in the outQueue
  * Use only when sending POSTs with a bufferSize of at least 2
+ * @param trackers The tracker identifiers which will be flushed
  */
-export const flushBuffer = function (trackers?: Array<string>) {
+export function flushBuffer(trackers?: Array<string>) {
   dispatch(trackers, (t) => {
     t.flushBuffer();
   });
-};
+}
 
 /**
- * Log visit to this page
+ * Track a visit to a web page
  *
- * @param string customTitle
- * @param object Custom context relating to the event
- * @param object contextCallback Function returning an array of contexts
- * @param timestamp number or Timestamp object
+ * @param event The Page View Event properties
+ * @param trackers The tracker identifiers which the event will be sent to
  */
-export const trackPageView = function (
-  event: {
-    title?: string | null;
-    context?: Array<SelfDescribingJson> | null;
-    contextCallback?: (() => Array<SelfDescribingJson>) | null;
-    timestamp?: Timestamp | null;
-  } = {},
-  trackers?: Array<string>
-) {
+export function trackPageView(event?: PageViewEvent & CommonEventProperties, trackers?: Array<string>) {
   dispatch(trackers, (t) => {
     t.trackPageView(event);
   });
-};
+}
 
-//   /**
-//    * Track a structured event happening on this page.
-//    *
-//    * Replaces trackEvent, making clear that the type
-//    * of event being tracked is a structured one.
-//    *
-//    * @param string category The name you supply for the group of objects you want to track
-//    * @param string action A string that is uniquely paired with each category, and commonly used to define the type of user interaction for the web object
-//    * @param string label (optional) An optional string to provide additional dimensions to the event data
-//    * @param string property (optional) Describes the object or the action performed on it, e.g. quantity of item added to basket
-//    * @param int|float|string value (optional) An integer that you can use to provide numerical data about the user event
-//    * @param object context (optional) Custom context relating to the event
-//    * @param number|Timestamp timestamp (optional) TrackerTimestamp of the event
-//    * @param function afterTrack (optional) A callback function triggered after event is tracked
-//    */
-export const trackStructEvent = function (
-  event: {
-    category: string;
-    action: string;
-    label?: string;
-    property?: string;
-    value?: number;
-    context?: Array<SelfDescribingJson>;
-    timestamp?: Timestamp;
-  },
-  trackers?: Array<string>
-) {
+/**
+ * Track a structured event
+ * A classic style of event tracking, allows for easier movement between analytics
+ * systems. A loosely typed event, creating a Self Describing event is preferred, but
+ * useful for interoperability.
+ *
+ * @param event The Structured Event properties
+ * @param trackers The tracker identifiers which the event will be sent to
+ */
+export function trackStructEvent(event: StructuredEvent & CommonEventProperties, trackers?: Array<string>) {
   dispatch(trackers, (t) => {
     t.core.track(buildStructEvent(event), event.context, event.timestamp);
   });
-};
+}
 
 /**
  * Track a self-describing event happening on this page.
+ * A custom event type, allowing for an event to be tracked using your own custom schema
+ * and a data object which conforms to the supplied schema
  *
- * @param object eventJson Contains the properties and schema location for the event
- * @param object context Custom context relating to the event
- * @param timestamp number or Timestamp object
- * @param function afterTrack (optional) A callback function triggered after event is tracked
+ * @param event The event information
+ * @param trackers The tracker identifiers which the event will be sent to
  */
-export const trackSelfDescribingEvent = function (
-  {
-    event,
-    context,
-    timestamp,
-  }: { event: SelfDescribingJson; context?: Array<SelfDescribingJson>; timestamp?: Timestamp },
-  trackers?: Array<string>
-) {
+export function trackSelfDescribingEvent(event: SelfDescribingEvent & CommonEventProperties, trackers?: Array<string>) {
   dispatch(trackers, (t) => {
-    t.core.track(buildSelfDescribingEvent({ event }), context, timestamp);
+    t.core.track(buildSelfDescribingEvent({ event: event.event }), event.context, event.timestamp);
   });
-};
+}
 
 /**
  * All provided contexts will be sent with every event
  *
- * @param contexts Array<ContextPrimitive | ConditionalContextProvider>
+ * @param contexts An array of contexts or conditional contexts
+ * @param trackers The tracker identifiers which the global contexts will be added to
  */
-export const addGlobalContexts = function (
+export function addGlobalContexts(
   contexts: Array<ConditionalContextProvider | ContextPrimitive>,
   trackers?: Array<string>
 ) {
   dispatch(trackers, (t) => {
     t.core.addGlobalContexts(contexts);
   });
-};
+}
 
 /**
  * All provided contexts will no longer be sent with every event
  *
- * @param contexts Array<ContextPrimitive | ConditionalContextProvider>
+ * @param contexts An array of contexts or conditional contexts
+ * @param trackers The tracker identifiers which the global contexts will be remove from
  */
-export const removeGlobalContexts = function (
+export function removeGlobalContexts(
   contexts: Array<ConditionalContextProvider | ContextPrimitive>,
   trackers?: Array<string>
 ) {
   dispatch(trackers, (t) => {
     t.core.removeGlobalContexts(contexts);
   });
-};
+}
 
 /**
  * Clear all global contexts that are sent with events
+ *
+ * @param trackers The tracker identifiers which the global contexts will be cleared from
  */
-export const clearGlobalContexts = function (trackers?: Array<string>) {
+export function clearGlobalContexts(trackers?: Array<string>) {
   dispatch(trackers, (t) => {
     t.core.clearGlobalContexts();
   });
-};
+}
 
 /**
  * Stop regenerating `pageViewId` (available from `web_page` context)
+ *
+ * @param trackers The tracker identifiers which the event will preserve their Page View Ids
  */
-export const preservePageViewId = function (trackers?: Array<string>) {
+export function preservePageViewId(trackers?: Array<string>) {
   dispatch(trackers, (t) => {
     t.preservePageViewId();
   });
-};
+}
 
 /**
  * Disables anonymous tracking if active (ie. tracker initialized with `anonymousTracking`)
  * For stateStorageStrategy override, uses supplied value first,
  * falls back to one defined in initial config, otherwise uses cookieAndLocalStorage.
- * @param {string} stateStorageStrategy - Override for state storage
+ *
+ * @param configuration The configuration for disabling anonymous tracking
+ * @param trackers The tracker identifiers which the event will be sent to
  */
-export const disableAnonymousTracking = function (
-  { stateStorageStrategy }: { stateStorageStrategy?: StateStorageStrategy },
+export function disableAnonymousTracking(
+  configuration?: DisableAnonymousTrackingConfiguration,
   trackers?: Array<string>
 ) {
   dispatch(trackers, (t) => {
-    t.disableAnonymousTracking(stateStorageStrategy);
+    t.disableAnonymousTracking(configuration);
   });
-};
+}
 
 /**
  * Enables anonymous tracking (ie. tracker initialized without `anonymousTracking`)
+ *
+ * @param configuration The configuration for enabling anonymous tracking
+ * @param trackers The tracker identifiers which the event will be sent to
  */
-export const enableAnonymousTracking = function (
-  { options }: { options?: AnonymousTrackingOptions },
+export function enableAnonymousTracking(
+  configuration?: EnableAnonymousTrackingConfiguration,
   trackers?: Array<string>
 ) {
   dispatch(trackers, (t) => {
-    t.enableAnonymousTracking(options);
+    t.enableAnonymousTracking(configuration);
   });
-};
+}
 
 /**
  * Clears all cookies and local storage containing user and session identifiers
+ *
+ * @param trackers The tracker identifiers which the event will be sent to
  */
-export const clearUserData = function (trackers?: Array<string>) {
+export function clearUserData(trackers?: Array<string>) {
   dispatch(trackers, (t) => {
     t.clearUserData();
   });
-};
+}

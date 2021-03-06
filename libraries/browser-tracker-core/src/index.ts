@@ -28,6 +28,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/**
+ * The core for the Snowplow Browser Tracker
+ * Contains the {@Link BrowserTracker} and a collection of helper methods
+ *
+ * @packageDocumentation
+ */
+
 export * from './snowplow';
 export * from './tracker/types';
 export * from './helpers';

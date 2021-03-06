@@ -34,18 +34,29 @@ import { version } from './version';
 const state = createSharedState();
 
 /**
- * Initiate a new tracker
+ * Initialise a new tracker
  *
- * @param string name
- * @param string endpoint in the form collector.mysite.com
- * @param object argmap contains the initialisation options of the JavaScript tracker
- * @param string trackerGroup used to group multiple trackers and shared state together
+ * @param trackerId The tracker id - also known as tracker namespace
+ * @param endpoint Collector endpoint in the form collector.mysite.com
  */
-
-export function newTracker(namespace: string, endpoint: string): BrowserTracker;
-export function newTracker(namespace: string, endpoint: string, configuration: TrackerConfiguration): BrowserTracker;
-export function newTracker(namespace: string, endpoint: string, configuration: TrackerConfiguration = {}) {
-  return addTracker(namespace, namespace, version, endpoint, state, configuration);
+export function newTracker(trackerId: string, endpoint: string): BrowserTracker;
+/**
+ * Initialise a new tracker
+ *
+ * @param trackerId The tracker id - also known as tracker namespace
+ * @param endpoint Collector endpoint in the form collector.mysite.com
+ * @param configuration The initialisation options of the tracker
+ */
+export function newTracker(trackerId: string, endpoint: string, configuration: TrackerConfiguration): BrowserTracker;
+/**
+ * Initialise a new tracker
+ *
+ * @param trackerId The tracker id - also known as tracker namespace
+ * @param endpoint Collector endpoint in the form collector.mysite.com
+ * @param configuration The initialisation options of the tracker
+ */
+export function newTracker(trackerId: string, endpoint: string, configuration: TrackerConfiguration = {}) {
+  return addTracker(trackerId, trackerId, version, endpoint, state, configuration);
 }
 
 export { version } from './version';

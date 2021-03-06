@@ -37,6 +37,9 @@ declare global {
   }
 }
 
+/**
+ * A set of variables which are shared among all initialised trackers
+ */
 export class SharedState {
   /* List of request queues - one per Tracker instance */
   outQueues: Array<unknown> = [];
@@ -57,12 +60,7 @@ export class SharedState {
 export function createSharedState(): SharedState {
   const documentAlias = document,
     windowAlias = window,
-    /* Contains four variables that are shared with tracker.js and must be passed by reference */
-    mutSnowplowState = new SharedState();
-
-  /************************************************************
-   * Private methods
-   ************************************************************/
+    sharedState = new SharedState();
 
   /*
    * Handle beforeunload event
@@ -75,27 +73,27 @@ export function createSharedState(): SharedState {
     var now;
 
     // Flush all POST queues
-    mutSnowplowState.bufferFlushers.forEach(function (flusher) {
+    sharedState.bufferFlushers.forEach(function (flusher) {
       flusher();
     });
 
     /*
      * Delay/pause (blocks UI)
      */
-    if (mutSnowplowState.expireDateTime) {
+    if (sharedState.expireDateTime) {
       // the things we do for backwards compatibility...
       // in ECMA-262 5th ed., we could simply use:
       //     while (Date.now() < mutSnowplowState.expireDateTime) { }
       do {
         now = new Date();
         if (
-          Array.prototype.filter.call(mutSnowplowState.outQueues, function (queue) {
+          Array.prototype.filter.call(sharedState.outQueues, function (queue) {
             return queue.length > 0;
           }).length === 0
         ) {
           break;
         }
-      } while (now.getTime() < mutSnowplowState.expireDateTime);
+      } while (now.getTime() < sharedState.expireDateTime);
     }
   }
 
@@ -105,10 +103,10 @@ export function createSharedState(): SharedState {
   function loadHandler() {
     var i;
 
-    if (!mutSnowplowState.hasLoaded) {
-      mutSnowplowState.hasLoaded = true;
-      for (i = 0; i < mutSnowplowState.registeredOnLoadHandlers.length; i++) {
-        mutSnowplowState.registeredOnLoadHandlers[i]();
+    if (!sharedState.hasLoaded) {
+      sharedState.hasLoaded = true;
+      for (i = 0; i < sharedState.registeredOnLoadHandlers.length; i++) {
+        sharedState.registeredOnLoadHandlers[i]();
       }
     }
     return true;
@@ -144,5 +142,5 @@ export function createSharedState(): SharedState {
   addEventListener(windowAlias, 'beforeunload', beforeUnloadHandler, false);
   addReadyListener();
 
-  return mutSnowplowState;
+  return sharedState;
 }

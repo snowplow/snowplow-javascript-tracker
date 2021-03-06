@@ -37,8 +37,8 @@ import {
   getFilterByName,
 } from '@snowplow/browser-tracker-core';
 import {
-  resolveDynamicContexts,
-  DynamicContexts,
+  resolveDynamicContext,
+  DynamicContext,
   buildFormFocusOrChange,
   buildFormSubmission,
 } from '@snowplow/tracker-core';
@@ -114,7 +114,7 @@ export function getTransform(criterion: { transform: transformFn }): transformFn
  * Add submission event listeners to all form elements
  * Add value change event listeners to all mutable inner form elements
  */
-export function addFormListeners(trackerConfiguration: TrackerAndFormConfiguration, context?: DynamicContexts) {
+export function addFormListeners(trackerConfiguration: TrackerAndFormConfiguration, context?: DynamicContext | null) {
   const trackingMarker = trackerConfiguration.tracker.id + 'form';
   Array.prototype.slice.call(document.getElementsByTagName('form')).forEach(function (form) {
     if (trackerConfiguration.config?.formFilter(form) && !form[trackingMarker]) {
@@ -215,7 +215,7 @@ function getInnerFormElements(trackingMarker: string, elt: HTMLFormElement) {
 function getFormChangeListener(
   trackerConfiguration: TrackerAndFormConfiguration,
   event_type: 'change_form' | 'focus_form',
-  context?: DynamicContexts
+  context?: DynamicContext | null
 ) {
   return function (e: Event) {
     var elt = e.target as TrackedHTMLElement;
@@ -236,7 +236,7 @@ function getFormChangeListener(
             elementClasses: getCssClasses(elt),
             value: value ?? null,
           }),
-          resolveDynamicContexts(context, elt, type, value)
+          resolveDynamicContext(context, elt, type, value)
         );
       }
     }
@@ -249,7 +249,7 @@ function getFormChangeListener(
 function getFormSubmissionListener(
   trackerConfiguration: TrackerAndFormConfiguration,
   trackingMarker: string,
-  context?: DynamicContexts
+  context?: DynamicContext | null
 ) {
   return function (e: Event) {
     var elt = e.target as HTMLFormElement;
@@ -264,7 +264,7 @@ function getFormSubmissionListener(
         formClasses: getCssClasses(elt),
         elements: innerElements,
       }),
-      resolveDynamicContexts(context, elt, innerElements)
+      resolveDynamicContext(context, elt, innerElements)
     );
   };
 }

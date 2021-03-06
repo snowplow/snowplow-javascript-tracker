@@ -39,6 +39,9 @@ declare global {
   }
 }
 
+/**
+ * Adds Opimizely X context to events
+ */
 export function OptimizelyXPlugin(): BrowserPlugin {
   const windowAlias = window;
 

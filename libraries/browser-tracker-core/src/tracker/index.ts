@@ -29,12 +29,12 @@
  */
 
 import {
+  trackerCore,
   buildPagePing,
   buildPageView,
+  CommonEventProperties,
   PayloadBuilder,
   SelfDescribingJson,
-  Timestamp,
-  trackerCore,
 } from '@snowplow/tracker-core';
 import sha1 from 'sha1';
 import { v4 as uuid } from 'uuid';
@@ -60,57 +60,71 @@ import { OutQueueManager } from './out_queue';
 import { fixupUrl } from '../proxies';
 import { SharedState } from '../state';
 import {
+  PageViewEvent,
   ActivityCallback,
   ActivityCallbackData,
-  AnonymousTrackingOptions,
   TrackerConfiguration,
-  StateStorageStrategy,
   BrowserTracker,
+  ActivityTrackingConfiguration,
+  ActivityTrackingConfigurationCallback,
+  DisableAnonymousTrackingConfiguration,
+  EnableAnonymousTrackingConfiguration,
 } from './types';
 
-export type ActivityConfig = {
-  callback: (obj: any) => void;
+/** Repesents an instance of an activity tracking configuration */
+type ActivityConfig = {
+  /** The callback to fire based on heart beat */
+  callback: ActivityCallback;
+  /** The minimum time that must have elapsed before first heartbeat */
   configMinimumVisitLength: number;
+  /** The interval at which the callback will be fired */
   configHeartBeatTimer: number;
+  /** The setInterval identifier */
   activityInterval?: number;
 };
 
-export type ActivityConfigurations = {
+/** The configurations for the two types of Activity Tracking */
+type ActivityConfigurations = {
+  /** The configuration for enableActivityTrackingCallback */
   callback?: ActivityConfig;
+  /** The configuration for enableActivityTracking */
   pagePing?: ActivityConfig;
 };
 
-export type ActivityTrackingConfig = {
+/** The configuration for if either activity tracking system is enable */
+type ActivityTrackingConfig = {
+  /** Tracks if activity tracking is enabled */
   enabled: boolean;
+  /** Tracks if activity tracking hooks have been installed */
   installed: boolean;
+  /** Stores the configuration for each type of activity tracking */
   configurations: ActivityConfigurations;
 };
 
 /**
- * Snowplow Tracker class
+ * The Snowplow Tracker
  *
- * @param trackerId global function name
+ * @param trackerId The unique identifier of the tracker
  * @param namespace The namespace of the tracker object
  * @param version The current version of the JavaScript Tracker
- * @param mutSnowplowState An object containing hasLoaded, registeredOnLoadHandlers, and expireDateTime
- * 	      Passed in by reference in case they are altered by snowplow.js
- * @param argmap Optional dictionary of configuration options. Supported fields and their default values:
+ * @param endpoint The collector endpoint to send events to
+ * @param sharedState An object containing state which is shared across tracker instances
+ * @param configuration Dictionary of configuration options
  */
-
-export const Tracker = (
+export function Tracker(
   trackerId: string,
   namespace: string,
   version: string,
   endpoint: string,
-  mutSnowplowState: SharedState,
+  sharedState: SharedState,
   configuration?: TrackerConfiguration
-): BrowserTracker => {
+): BrowserTracker {
   const newTracker = (
     trackerId: string,
     namespace: string,
     version: string,
     endpoint: string,
-    mutSnowplowState: SharedState,
+    state: SharedState,
     configuration?: TrackerConfiguration
   ) => {
     /************************************************************
@@ -123,17 +137,26 @@ export const Tracker = (
 
     const getStateStorageStrategy = (config: TrackerConfiguration) =>
         config.stateStorageStrategy ?? 'cookieAndLocalStorage',
-      getAnonymousSessionTracking = (config: TrackerConfiguration) =>
-        config.anonymousTracking?.withSessionTracking === true ?? false,
-      getAnonymousServerTracking = (config: TrackerConfiguration) =>
-        config.anonymousTracking?.withServerAnonymisation === true ?? false,
+      getAnonymousSessionTracking = (config: TrackerConfiguration) => {
+        if (typeof config.anonymousTracking === 'boolean') {
+          return false;
+        }
+        return config.anonymousTracking?.withSessionTracking === true ?? false;
+      },
+      getAnonymousServerTracking = (config: TrackerConfiguration) => {
+        if (typeof config.anonymousTracking === 'boolean') {
+          return false;
+        }
+        return config.anonymousTracking?.withServerAnonymisation === true ?? false;
+      },
       getAnonymousTracking = (config: TrackerConfiguration) => !!config.anonymousTracking,
       // Maximum delay to wait for events to send on beforeUnload
       configPageUnloadTimer = argmap.pageUnloadTimer ?? 500;
 
+    // Get all injected plugins
     let plugins = argmap.plugins ?? [];
     if (argmap?.contexts?.webPage ?? true) {
-      plugins.push(getWebPagePlugin());
+      plugins.push(getWebPagePlugin()); // Defaults to including the Web Page context
     }
 
     let // Tracker core
@@ -235,7 +258,7 @@ export const Tracker = (
       // Manager for local storage queue
       outQueue = OutQueueManager(
         trackerId,
-        mutSnowplowState,
+        state,
         configStateStorageStrategy == 'localStorage' || configStateStorageStrategy == 'cookieAndLocalStorage',
         argmap.eventMethod,
         configPostPath,
@@ -271,6 +294,17 @@ export const Tracker = (
     core.addPayloadPair('lang', browserLanguage);
     core.addPayloadPair('res', screenAlias.width + 'x' + screenAlias.height);
     core.addPayloadPair('cd', screenAlias.colorDepth);
+
+    /*
+     * Initialize tracker
+     */
+    updateDomainHash();
+
+    initializeIdsAndCookies();
+
+    if (argmap.crossDomainLinker) {
+      decorateLinks(argmap.crossDomainLinker);
+    }
 
     /**
      * Recalculate the domain, URL, and referrer
@@ -397,7 +431,7 @@ export const Tracker = (
 
       if (!(configDoNotTrack || toOptoutByCookie)) {
         outQueue.enqueueRequest(request.build(), configCollectorUrl);
-        mutSnowplowState.expireDateTime = now.getTime() + delay;
+        state.expireDateTime = now.getTime() + delay;
       }
     }
 
@@ -652,8 +686,7 @@ export const Tracker = (
     }
 
     /*
-     * Attaches common web fields to every request
-     * (resolution, url, referrer, etc.)
+     * Attaches common web fields to every request (resolution, url, referrer, etc.)
      * Also sets the required cookies.
      */
     function addBrowserData(payloadBuilder: PayloadBuilder) {
@@ -731,8 +764,7 @@ export const Tracker = (
      * Adds the protocol in front of our collector URL, and i to the end
      *
      * @param string rawUrl The collector URL without protocol
-     *
-     * @return string collectorUrl The tracker URL with protocol
+     * @returns string collectorUrl The tracker URL with protocol
      */
     function asCollectorUrl(rawUrl: string) {
       if (forceSecureTracker) {
@@ -749,8 +781,8 @@ export const Tracker = (
      * Should be called when `trackPageView` is invoked
      */
     function resetPageView() {
-      if (!preservePageViewId || mutSnowplowState.pageViewId == null) {
-        mutSnowplowState.pageViewId = uuid();
+      if (!preservePageViewId || state.pageViewId == null) {
+        state.pageViewId = uuid();
       }
     }
 
@@ -759,16 +791,16 @@ export const Tracker = (
      * Generates it if it wasn't initialized by other tracker
      */
     function getPageViewId() {
-      if (mutSnowplowState.pageViewId == null) {
-        mutSnowplowState.pageViewId = uuid();
+      if (state.pageViewId == null) {
+        state.pageViewId = uuid();
       }
-      return mutSnowplowState.pageViewId;
+      return state.pageViewId;
     }
 
     /**
      * Put together a web page context with a unique UUID for the page view
      *
-     * @return object web_page context
+     * @returns web_page context
      */
     function getWebPagePlugin() {
       return {
@@ -845,25 +877,7 @@ export const Tracker = (
       return (staticContexts || []).concat(contextCallback ? contextCallback() : []);
     }
 
-    /**
-     * Log the page view / visit
-     *
-     * @param title string The user-defined page title to attach to this page view
-     * @param context object Custom context relating to the event
-     * @param contextCallback Function returning an array of contexts
-     * @param timestamp number
-     */
-    function logPageView({
-      title,
-      context,
-      contextCallback,
-      timestamp,
-    }: {
-      title?: string | null;
-      context?: Array<SelfDescribingJson> | null;
-      contextCallback?: (() => Array<SelfDescribingJson>) | null;
-      timestamp?: Timestamp | null;
-    }) {
+    function logPageView({ title, context, timestamp, contextCallback }: PageViewEvent & CommonEventProperties) {
       refreshUrl();
       if (pageViewSent) {
         // Do not reset pageViewId if previous events were not page_view
@@ -1007,22 +1021,12 @@ export const Tracker = (
     }
 
     /**
-     * Configure the activity tracking and
-     * ensures good values for min visit and heartbeat
-     *
-     * @param {int} [minimumVisitLength] The minimum length of a visit before the first page ping
-     * @param {int} [heartbeatDelay] The length between checks to see if we should send a page ping
-     * @param {function} [callback] A callback function to execute
+     * Configure the activity tracking and ensures integer values for min visit and heartbeat
      */
-    function configureActivityTracking({
-      minimumVisitLength,
-      heartbeatDelay,
-      callback,
-    }: {
-      minimumVisitLength: number;
-      heartbeatDelay: number;
-      callback: ActivityCallback;
-    }): ActivityConfig | undefined {
+    function configureActivityTracking(
+      configuration: ActivityTrackingConfiguration & ActivityTrackingConfigurationCallback
+    ): ActivityConfig | undefined {
+      const { minimumVisitLength, heartbeatDelay, callback } = configuration;
       if (isInteger(minimumVisitLength) && isInteger(heartbeatDelay)) {
         return {
           configMinimumVisitLength: minimumVisitLength * 1000,
@@ -1036,12 +1040,8 @@ export const Tracker = (
     }
 
     /**
-     * Log that a user is still viewing a given page
-     * by sending a page ping.
-     * Not part of the public API - only called from
-     * logPageView() above.
-     *
-     * @param context object Custom context relating to the event
+     * Log that a user is still viewing a given page by sending a page ping.
+     * Not part of the public API - only called from logPageView() above.
      */
     function logPagePing({ context, minXOffset, minYOffset, maxXOffset, maxYOffset }: ActivityCallbackData) {
       var newDocumentTitle = documentAlias.title;
@@ -1063,170 +1063,70 @@ export const Tracker = (
       );
     }
 
-    /************************************************************
-     * Constructor
-     ************************************************************/
-
-    /*
-     * Initialize tracker
-     */
-    updateDomainHash();
-
-    initializeIdsAndCookies();
-
-    if (argmap.crossDomainLinker) {
-      decorateLinks(argmap.crossDomainLinker);
-    }
-
-    /************************************************************
-     * Public data and methods
-     ************************************************************/
-
     const apiMethods = {
-      /**
-       * Get the domain session index also known as current memorized visit count.
-       *
-       * @return int Domain session index
-       */
       getDomainSessionIndex: function () {
         return memorizedVisitCount;
       },
 
-      /**
-       * Get the page view ID as generated or provided by mutSnowplowState.pageViewId.
-       *
-       * @return string Page view ID
-       */
       getPageViewId: function () {
         return getPageViewId();
       },
 
-      /**
-       * Expires current session and starts a new session.
-       */
       newSession: newSession,
 
-      /**
-       * Get the cookie name as cookieNamePrefix + basename + . + domain.
-       *
-       * @return string Cookie name
-       */
       getCookieName: function (basename: string) {
         return getSnowplowCookieName(basename);
       },
 
-      /**
-       * Get the current user ID (as set previously
-       * with setUserId()).
-       *
-       * @return string Business-defined user ID
-       */
       getUserId: function () {
         return businessUserId;
       },
 
-      /**
-       * Get visitor ID (from first party cookie)
-       *
-       * @return string Visitor ID in hexits (or null, if not yet known)
-       */
       getDomainUserId: function () {
         return loadDomainUserIdCookie()[1];
       },
 
-      /**
-       * Get the visitor information (from first party cookie)
-       *
-       * @return array
-       */
       getDomainUserInfo: function () {
         return loadDomainUserIdCookie();
       },
 
-      /**
-       * Override referrer
-       *
-       * @param string url
-       */
       setReferrerUrl: function (url: string) {
         customReferrer = url;
       },
 
-      /**
-       * Override url
-       *
-       * @param string url
-       */
       setCustomUrl: function (url: string) {
         refreshUrl();
         configCustomUrl = resolveRelativeReference(locationHrefAlias, url);
       },
 
-      /**
-       * Override document.title
-       *
-       * @param string title
-       */
       setDocumentTitle: function (title: string) {
         // So we know what document.title was at the time of trackPageView
         lastDocumentTitle = documentAlias.title;
         lastConfigTitle = title;
       },
 
-      /**
-       * Strip hash tag (or anchor) from URL
-       *
-       * @param bool enableFilter
-       */
       discardHashTag: function (enableFilter: boolean) {
         configDiscardHashTag = enableFilter;
       },
 
-      /**
-       * Strip braces from URL
-       *
-       * @param bool enableFilter
-       */
       discardBrace: function (enableFilter: boolean) {
         configDiscardBrace = enableFilter;
       },
 
-      /**
-       * Set first-party cookie path
-       *
-       * @param string domain
-       */
       setCookiePath: function (path: string) {
         configCookiePath = path;
         updateDomainHash();
       },
 
-      /**
-       * Set visitor cookie timeout (in seconds)
-       *
-       * @param int timeout
-       */
       setVisitorCookieTimeout: function (timeout: number) {
         configVisitorCookieTimeout = timeout;
       },
 
-      /**
-       * Enable querystring decoration for links pasing a filter
-       *
-       * @param function crossDomainLinker Function used to determine which links to decorate
-       */
       crossDomainLinker: function (crossDomainLinkerCriterion: (elt: HTMLAnchorElement | HTMLAreaElement) => boolean) {
         decorateLinks(crossDomainLinkerCriterion);
       },
 
-      /**
-       * Enables page activity tracking (sends page
-       * pings to the Collector regularly).
-       *
-       * @param int minimumVisitLength Seconds to wait before sending first page ping
-       * @param int heartbeatDelay Seconds to wait between pings
-       */
-      enableActivityTracking: function (configuration: { minimumVisitLength: number; heartbeatDelay: number }) {
+      enableActivityTracking: function (configuration: ActivityTrackingConfiguration) {
         activityTrackingConfig.enabled = true;
         activityTrackingConfig.configurations.pagePing = configureActivityTracking({
           ...configuration,
@@ -1234,84 +1134,39 @@ export const Tracker = (
         });
       },
 
-      /**
-       * Enables page activity tracking (replaces collector ping with callback).
-       *
-       * @param int minimumVisitLength Seconds to wait before sending first page ping
-       * @param int heartbeatDelay Seconds to wait between pings
-       * @param function callback function called with ping data
-       */
-      enableActivityTrackingCallback: function (configuration: {
-        minimumVisitLength: number;
-        heartbeatDelay: number;
-        callback: ActivityCallback;
-      }) {
+      enableActivityTrackingCallback: function (
+        configuration: ActivityTrackingConfiguration & ActivityTrackingConfigurationCallback
+      ) {
         activityTrackingConfig.enabled = true;
         activityTrackingConfig.configurations.callback = configureActivityTracking(configuration);
       },
 
-      /**
-       * Triggers the activityHandler manually to allow external user defined
-       * activity. i.e. While watching a video
-       */
       updatePageActivity: function () {
         activityHandler();
       },
 
-      /**
-       * Sets the opt out cookie.
-       *
-       * @param string name of the opt out cookie
-       */
       setOptOutCookie: function (name: string) {
         configOptOutCookie = name;
       },
 
-      /**
-       * Set the business-defined user ID for this user.
-       *
-       * @param string userId The business-defined user ID
-       */
       setUserId: function (userId: string) {
         businessUserId = userId;
       },
 
-      /**
-       * Set the business-defined user ID for this user using the location querystring.
-       *
-       * @param string queryName Name of a querystring name-value pair
-       */
       setUserIdFromLocation: function (querystringField: string) {
         refreshUrl();
         businessUserId = fromQuerystring(querystringField, locationHrefAlias);
       },
 
-      /**
-       * Set the business-defined user ID for this user using the referrer querystring.
-       *
-       * @param string queryName Name of a querystring name-value pair
-       */
       setUserIdFromReferrer: function (querystringField: string) {
         refreshUrl();
         businessUserId = fromQuerystring(querystringField, configReferrerUrl);
       },
 
-      /**
-       * Set the business-defined user ID for this user to the value of a cookie.
-       *
-       * @param string cookieName Name of the cookie whose value will be assigned to businessUserId
-       */
       setUserIdFromCookie: function (cookieName: string) {
         businessUserId = cookie(cookieName);
       },
 
-      /**
-       *
-       * Specify the Snowplow collector URL. No need to include HTTP
-       * or HTTPS - we will add this.
-       *
-       * @param string rawUrl The collector URL minus protocol and /i
-       */
       setCollectorUrl: function (rawUrl: string) {
         configCollectorUrl = asCollectorUrl(rawUrl);
         outQueue.setCollectorUrl(configCollectorUrl);
@@ -1325,41 +1180,17 @@ export const Tracker = (
         outQueue.executeQueue();
       },
 
-      /**
-       * Log visit to this page
-       *
-       * @param string customTitle
-       * @param object Custom context relating to the event
-       * @param object contextCallback Function returning an array of contexts
-       * @param timestamp number or Timestamp object
-       */
-      trackPageView: function (
-        event: {
-          title?: string | null;
-          context?: Array<SelfDescribingJson> | null;
-          contextCallback?: (() => Array<SelfDescribingJson>) | null;
-          timestamp?: Timestamp | null;
-        } = {}
-      ) {
+      trackPageView: function (event: PageViewEvent & CommonEventProperties = {}) {
         logPageView(event);
       },
 
-      /**
-       * Stop regenerating `pageViewId` (available from `web_page` context)
-       */
       preservePageViewId: function () {
         preservePageViewId = true;
       },
 
-      /**
-       * Disables anonymous tracking if active (ie. tracker initialized with `anonymousTracking`)
-       * For stateStorageStrategy override, uses supplied value first,
-       * falls back to one defined in initial config, otherwise uses cookieAndLocalStorage.
-       * @param {string} stateStorageStrategy - Override for state storage
-       */
-      disableAnonymousTracking: function (stateStorageStrategy?: StateStorageStrategy) {
-        if (stateStorageStrategy) {
-          argmap.stateStorageStrategy = stateStorageStrategy;
+      disableAnonymousTracking: function (configuration?: DisableAnonymousTrackingConfiguration) {
+        if (configuration && configuration.stateStorageStrategy) {
+          argmap.stateStorageStrategy = configuration.stateStorageStrategy;
           argmap.anonymousTracking = false;
           configStateStorageStrategy = getStateStorageStrategy(argmap);
         } else {
@@ -1380,11 +1211,8 @@ export const Tracker = (
         outQueue.executeQueue(); // There might be some events in the queue we've been unable to send in anonymous mode
       },
 
-      /**
-       * Enables anonymous tracking (ie. tracker initialized without `anonymousTracking`)
-       */
-      enableAnonymousTracking: function (anonymousArgs?: AnonymousTrackingOptions) {
-        argmap.anonymousTracking = anonymousArgs || true;
+      enableAnonymousTracking: function (configuration?: EnableAnonymousTrackingConfiguration) {
+        argmap.anonymousTracking = (configuration && configuration?.options) || true;
 
         configAnonymousTracking = getAnonymousTracking(argmap);
         configAnonymousSessionTracking = getAnonymousSessionTracking(argmap);
@@ -1398,9 +1226,6 @@ export const Tracker = (
         outQueue.setAnonymousTracking(configAnonymousServerTracking);
       },
 
-      /**
-       * Clears all cookies and local storage containing user and session identifiers
-       */
       clearUserData: deleteCookies,
     };
 
@@ -1408,16 +1233,18 @@ export const Tracker = (
       ...apiMethods,
       id: trackerId,
       core: core,
-      sharedState: mutSnowplowState,
+      sharedState: state,
       plugins: plugins,
     };
   };
 
-  const { plugins, ...tracker } = newTracker(trackerId, namespace, version, endpoint, mutSnowplowState, configuration);
+  // Initialise the tracker
+  const { plugins, ...tracker } = newTracker(trackerId, namespace, version, endpoint, sharedState, configuration);
 
+  // Initialise each plugin with the tracker
   plugins.forEach((p) => {
     p.activateBrowserPlugin?.(tracker);
   });
 
   return tracker;
-};
+}

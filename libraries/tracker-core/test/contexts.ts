@@ -42,7 +42,7 @@ test('Identify context primitives', (t) => {
     },
   };
 
-  function eventTypeContextGenerator(args?: contexts.ContextGeneratorEvent) {
+  function eventTypeContextGenerator(args?: contexts.ContextEvent) {
     const context: SelfDescribingJson = {
       schema: 'iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1',
       data: {
@@ -105,11 +105,11 @@ test('Identify rule sets', (t) => {
 });
 
 test('Identify filter function', (t) => {
-  const filterFunction = function (args?: contexts.ContextFilterEvent) {
+  const filterFunction = function (args?: contexts.ContextEvent) {
     return args?.eventType === 'ue';
   };
 
-  t.true(contexts.isContextFilter(filterFunction), 'A valid filter function is identified');
+  t.true(contexts.isContextCallbackFunction(filterFunction), 'A valid filter function is identified');
 });
 
 test('Identify rule set provider', (t) => {
@@ -126,7 +126,7 @@ test('Identify rule set provider', (t) => {
     },
   };
 
-  function eventTypeContextGenerator(args?: contexts.ContextGeneratorEvent) {
+  function eventTypeContextGenerator(args?: contexts.ContextEvent) {
     const context: SelfDescribingJson = {
       schema: 'iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1',
       data: {
@@ -144,7 +144,7 @@ test('Identify rule set provider', (t) => {
 });
 
 test('Identify filter provider', (t) => {
-  const filterFunction = function (args?: contexts.ContextFilterEvent) {
+  const filterFunction = function (args?: contexts.ContextEvent) {
     return args?.eventType === 'ue';
   };
 
@@ -156,7 +156,7 @@ test('Identify filter provider', (t) => {
     },
   };
 
-  function eventTypeContextGenerator(args?: contexts.ContextGeneratorEvent) {
+  function eventTypeContextGenerator(args?: contexts.ContextEvent) {
     const context: SelfDescribingJson = {
       schema: 'iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1',
       data: {
@@ -182,7 +182,7 @@ test('Add global contexts', (t) => {
     },
   };
 
-  function eventTypeContextGenerator(args?: contexts.ContextGeneratorEvent) {
+  function eventTypeContextGenerator(args?: contexts.ContextEvent) {
     const context: SelfDescribingJson = {
       schema: 'iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1',
       data: {
@@ -200,7 +200,7 @@ test('Add global contexts', (t) => {
     reject: ['iglu:com.snowplowanalytics.snowplow/*/jsonschema/*-*-*'],
   };
 
-  const filterFunction = function (args?: contexts.ContextFilterEvent) {
+  const filterFunction = function (args?: contexts.ContextEvent) {
     return args?.eventType === 'ue';
   };
 
@@ -224,7 +224,7 @@ test('Remove global contexts', (t) => {
     },
   };
 
-  function eventTypeContextGenerator(args?: contexts.ContextGeneratorEvent) {
+  function eventTypeContextGenerator(args?: contexts.ContextEvent) {
     const context: SelfDescribingJson = {
       schema: 'iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1',
       data: {
@@ -242,7 +242,7 @@ test('Remove global contexts', (t) => {
     reject: ['iglu:com.snowplowanalytics.snowplow/*/jsonschema/*-*-*'],
   };
 
-  const filterFunction = function (args?: contexts.ContextFilterEvent) {
+  const filterFunction = function (args?: contexts.ContextEvent) {
     return args?.eventType === 'ue';
   };
 
@@ -265,7 +265,7 @@ test('Clear global contexts', (t) => {
     },
   };
 
-  function eventTypeContextGenerator(args?: contexts.ContextGeneratorEvent) {
+  function eventTypeContextGenerator(args?: contexts.ContextEvent) {
     const context: SelfDescribingJson = {
       schema: 'iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1',
       data: {
@@ -283,7 +283,7 @@ test('Clear global contexts', (t) => {
     reject: ['iglu:com.snowplowanalytics.snowplow/*/jsonschema/*-*-*'],
   };
 
-  const filterFunction = function (args?: contexts.ContextFilterEvent) {
+  const filterFunction = function (args?: contexts.ContextEvent) {
     return args?.eventType === 'ue';
   };
 
@@ -307,7 +307,7 @@ test('Get applicable contexts', (t) => {
     },
   };
 
-  function eventTypeContextGenerator(args?: contexts.ContextGeneratorEvent) {
+  function eventTypeContextGenerator(args?: contexts.ContextEvent) {
     const context: SelfDescribingJson = {
       schema: 'iglu:com.snowplowanalytics.snowplow/some_context/jsonschema/1-0-1',
       data: {
@@ -324,7 +324,7 @@ test('Get applicable contexts', (t) => {
     accept: ['iglu:com.acme_company/*/jsonschema/*-*-*'],
   };
 
-  const filterFunction = function (args?: contexts.ContextFilterEvent) {
+  const filterFunction = function (args?: contexts.ContextEvent) {
     return args?.eventType === 'ue';
   };
 
@@ -369,7 +369,7 @@ test('Resolves context generators and static contexts', (t) => {
     data: { test: 1 },
   };
   const expected = [contextGenerator(), staticContext];
-  const actual = contexts.resolveDynamicContexts([contextGenerator, staticContext]);
+  const actual = contexts.resolveDynamicContext([contextGenerator, staticContext]);
   t.deepEqual(actual, expected);
 });
 
@@ -390,7 +390,7 @@ test('Resolves context generators with arguments', (t) => {
       },
     },
   ];
-  const actual = contexts.resolveDynamicContexts([contextGenerator], 1, 2);
+  const actual = contexts.resolveDynamicContext([contextGenerator], 1, 2);
   t.deepEqual(actual, expected);
 });
 
@@ -401,6 +401,6 @@ test('Context generators which return empty are ignored', (t) => {
     data: { test: 1 },
   };
   const expected = [staticContext];
-  const actual = contexts.resolveDynamicContexts([contextGenerator, staticContext]);
+  const actual = contexts.resolveDynamicContext([contextGenerator, staticContext]);
   t.deepEqual(actual, expected);
 });

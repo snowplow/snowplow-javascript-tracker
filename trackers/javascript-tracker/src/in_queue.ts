@@ -39,16 +39,19 @@ import {
 import * as Snowplow from '@snowplow/browser-tracker';
 import { Plugins } from './features';
 
+/*
+ * Proxy object
+ * This allows the caller to continue push()'ing after the Tracker has been initialized and loaded
+ */
 export interface Queue {
+  /* Allows the call to push events */
   push: (...args: any[]) => void;
 }
 
-/************************************************************
+/*
  * Proxy object
- * - this allows the caller to continue push()'ing
- *   after the Tracker has been initialized and loaded
- ************************************************************/
-
+ * This allows the caller to continue push()'ing after the Tracker has been initialized and loaded
+ */
 export function InQueueManager(functionName: string, asyncQueue: Array<unknown>): Queue {
   const sharedState: SharedState = createSharedState(),
     availableTrackers: Record<string, Record<string, BrowserTracker>> = { [functionName]: {} };
@@ -59,7 +62,7 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
   /**
    * Output an array of the form ['functionName', [trackerName1, trackerName2, ...]]
    *
-   * @param string inputString
+   * @param inputString The functionName string
    */
   function parseInputString(inputString: string): [string, string[] | undefined] {
     const separatedString = inputString.split(':'),
@@ -77,7 +80,7 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
    * apply wrapper
    *
    * @param array parameterArray An array comprising either:
-   *      [ 'methodName', optional_parameters ]
+   *      [ 'functionName', optional_parameters ]
    * or:
    *      [ functionObject, optional_parameters ]
    */
