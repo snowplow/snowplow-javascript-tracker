@@ -1,6 +1,6 @@
 {
   "name": "@snowplow/browser-plugin-consent",
-  "version": "3.0.0",
+  "version": "2.17.3",
   "description": "Consent and GDPR data for Snowplow events",
   "homepage": "http://bit.ly/sp-js",
   "bugs": "https://github.com/snowplow/snowplow-javascript-tracker/issues",
