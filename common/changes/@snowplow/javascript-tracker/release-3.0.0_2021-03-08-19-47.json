@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Make sp.js build process modular (#450)",
+      "type": "none",
+      "packageName": "@snowplow/javascript-tracker"
+    }
+  ],
+  "packageName": "@snowplow/javascript-tracker",
+  "email": "paul@snowplowanalytics.com"
+}

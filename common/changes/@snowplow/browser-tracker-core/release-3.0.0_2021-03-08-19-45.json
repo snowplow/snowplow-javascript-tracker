@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Bump rush to 5.39 (#895)",
+      "type": "none",
+      "packageName": "@snowplow/browser-tracker-core"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker-core",
+  "email": "paul@snowplowanalytics.com"
+}

@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Add rush to manage monorepo (#883)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-performance-timing"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-performance-timing",
+  "email": "paul@snowplowanalytics.com"
+}

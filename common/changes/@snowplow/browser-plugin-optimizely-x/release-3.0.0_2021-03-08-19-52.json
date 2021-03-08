@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Cleanup deprecated methods (#557)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-optimizely-x"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-optimizely-x",
+  "email": "paul@snowplowanalytics.com"
+}

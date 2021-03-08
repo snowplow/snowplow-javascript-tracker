@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Add ES Module builds (#882)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-client-hints"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-client-hints",
+  "email": "paul@snowplowanalytics.com"
+}

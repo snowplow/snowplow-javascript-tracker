@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Improve API for module bundlers which support treeshaking (#899)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-enhanced-ecommerce"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-enhanced-ecommerce",
+  "email": "paul@snowplowanalytics.com"
+}

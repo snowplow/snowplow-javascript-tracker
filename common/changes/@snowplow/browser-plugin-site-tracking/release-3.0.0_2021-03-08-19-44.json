@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Improve API for module bundlers which support treeshaking (#899)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-site-tracking"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-site-tracking",
+  "email": "paul@snowplowanalytics.com"
+}

@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Create rush change files for major version 3 release (#909)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-optimizely"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-optimizely",
+  "email": "paul@snowplowanalytics.com"
+}

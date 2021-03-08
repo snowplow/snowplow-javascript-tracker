@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Create @snowplow/browser-tracker package for npm distribution (#541)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-client-hints"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-client-hints",
+  "email": "paul@snowplowanalytics.com"
+}

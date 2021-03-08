@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Improve Core API for module bundlers which support treeshaking (#903)",
+      "type": "none",
+      "packageName": "@snowplow/javascript-tracker"
+    }
+  ],
+  "packageName": "@snowplow/javascript-tracker",
+  "email": "paul@snowplowanalytics.com"
+}

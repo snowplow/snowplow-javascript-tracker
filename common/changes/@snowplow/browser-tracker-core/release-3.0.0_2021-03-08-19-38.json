@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Introduce TSDoc comments and extract interfaces where appropriate (#906)",
+      "type": "none",
+      "packageName": "@snowplow/browser-tracker-core"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker-core",
+  "email": "paul@snowplowanalytics.com"
+}

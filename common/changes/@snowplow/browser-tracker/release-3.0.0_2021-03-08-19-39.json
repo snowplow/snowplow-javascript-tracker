@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Bump major version to v3 and update READMEs (#904)",
+      "type": "none",
+      "packageName": "@snowplow/browser-tracker"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker",
+  "email": "paul@snowplowanalytics.com"
+}

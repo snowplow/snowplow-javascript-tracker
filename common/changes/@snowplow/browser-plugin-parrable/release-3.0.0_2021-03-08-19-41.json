@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Rename @snowplow/browser-core to @snowplow/browser-tracker-core (#901)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-parrable"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-parrable",
+  "email": "paul@snowplowanalytics.com"
+}

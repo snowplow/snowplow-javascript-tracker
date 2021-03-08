@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Introduce TSDoc comments and extract interfaces where appropriate (#906)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-consent"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-consent",
+  "email": "paul@snowplowanalytics.com"
+}
