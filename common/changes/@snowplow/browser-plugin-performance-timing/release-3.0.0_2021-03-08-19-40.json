@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Improve Core API for module bundlers which support treeshaking (#903)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-performance-timing"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-performance-timing",
+  "email": "paul@snowplowanalytics.com"
+}

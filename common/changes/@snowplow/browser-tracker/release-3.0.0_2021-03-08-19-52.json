@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Cleanup deprecated methods (#557)",
+      "type": "none",
+      "packageName": "@snowplow/browser-tracker"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker",
+  "email": "paul@snowplowanalytics.com"
+}

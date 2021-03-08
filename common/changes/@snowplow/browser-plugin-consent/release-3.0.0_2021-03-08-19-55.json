@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Create rush change files for major version 3 release (#909)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-consent"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-consent",
+  "email": "paul@snowplowanalytics.com"
+}

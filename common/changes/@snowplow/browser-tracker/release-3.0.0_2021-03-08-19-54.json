@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Change white and black lists to allow and deny lists (#908)",
+      "type": "none",
+      "packageName": "@snowplow/browser-tracker"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker",
+  "email": "paul@snowplowanalytics.com"
+}

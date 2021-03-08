@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Publish lite version of sp.js (#900)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-timezone"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-timezone",
+  "email": "paul@snowplowanalytics.com"
+}

@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Port to TypeScript (#72)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-timezone"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-timezone",
+  "email": "paul@snowplowanalytics.com"
+}

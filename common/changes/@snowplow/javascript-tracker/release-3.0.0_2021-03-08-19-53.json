@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Update publishing process for rush (#907)",
+      "type": "none",
+      "packageName": "@snowplow/javascript-tracker"
+    }
+  ],
+  "packageName": "@snowplow/javascript-tracker",
+  "email": "paul@snowplowanalytics.com"
+}

@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Make sp.js build process modular (#450)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-browser-features"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-browser-features",
+  "email": "paul@snowplowanalytics.com"
+}

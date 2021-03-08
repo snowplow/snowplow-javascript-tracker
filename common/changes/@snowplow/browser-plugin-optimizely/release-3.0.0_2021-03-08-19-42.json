@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Publish lite version of sp.js (#900)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-optimizely"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-optimizely",
+  "email": "paul@snowplowanalytics.com"
+}

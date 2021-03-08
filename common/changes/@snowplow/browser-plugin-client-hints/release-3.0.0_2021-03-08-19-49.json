@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Split auto contexts into plugins (#880)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-client-hints"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-client-hints",
+  "email": "paul@snowplowanalytics.com"
+}

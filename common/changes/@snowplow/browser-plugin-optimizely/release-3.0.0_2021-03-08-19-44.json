@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Improve API for module bundlers which support treeshaking (#899)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-optimizely"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-optimizely",
+  "email": "paul@snowplowanalytics.com"
+}

@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Bump rush to 5.39 (#895)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-form-tracking"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-form-tracking",
+  "email": "paul@snowplowanalytics.com"
+}

@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Split auto contexts into plugins (#880)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-geolocation"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-geolocation",
+  "email": "paul@snowplowanalytics.com"
+}

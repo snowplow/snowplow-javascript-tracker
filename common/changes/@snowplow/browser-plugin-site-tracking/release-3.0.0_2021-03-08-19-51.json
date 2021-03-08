@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Add ES Module builds (#882)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-site-tracking"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-site-tracking",
+  "email": "paul@snowplowanalytics.com"
+}

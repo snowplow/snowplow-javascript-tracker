@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Add ES Module builds (#882)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-timezone"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-timezone",
+  "email": "paul@snowplowanalytics.com"
+}

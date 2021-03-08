@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Create @snowplow/browser-tracker package for npm distribution (#541)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-consent"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-consent",
+  "email": "paul@snowplowanalytics.com"
+}
