@@ -1,9 +1,9 @@
-name: Deploy Tracker
+name: Deploy Tracker Prerelease
 
 on:
   push:
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+-*'
 
 jobs:
   deploy:
@@ -43,10 +43,10 @@ jobs:
           token: '${{ secrets.GITHUB_TOKEN }}'
 
       - name: Version
-        run: node common/scripts/install-run-rush.js version --bump --target-branch master
+        run: node common/scripts/install-run-rush.js version --bump
 
       - name: Publish
-        run: node common/scripts/install-run-rush.js publish --apply --include-all --publish --target-branch master --set-access-level public
+        run: node common/scripts/install-run-rush.js publish --apply --include-all --publish --tag next  --set-access-level public
 
       - name: Create release
         id: create_release
@@ -57,7 +57,7 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: v${{ github.ref }}
           draft: false
-          prerelease: false
+          prerelease: true
 
       - name: Upload sp.js asset
         uses: actions/upload-release-asset@v1
