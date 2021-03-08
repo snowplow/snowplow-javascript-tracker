@@ -44,9 +44,9 @@ var windowAlias = window,
  */
 export interface FilterCriterion<T> {
   /** A collection of class names to include */
-  whitelist?: string[];
+  allowlist?: string[];
   /** A collector of class names to exclude */
-  blacklist?: string[];
+  denylist?: string[];
   /** A callback which returns a boolean as to whether the element should be included */
   filter?: (elt: T) => boolean;
 }
@@ -470,10 +470,10 @@ export function parseAndValidateFloat(obj: unknown) {
 /**
  * Convert a criterion object to a filter function
  *
- * @param object criterion Either {whitelist: [array of allowable strings]}
- *                             or {blacklist: [array of allowable strings]}
+ * @param object criterion Either {allowlist: [array of allowable strings]}
+ *                             or {denylist: [array of allowable strings]}
  *                             or {filter: function (elt) {return whether to track the element}
- * @param boolean byClass Whether to whitelist/blacklist based on an element's classes (for forms)
+ * @param boolean byClass Whether to allowlist/denylist based on an element's classes (for forms)
  *                        or name attribute (for fields)
  */
 export function getFilterByClass(criterion?: FilterCriterion<HTMLElement> | null): (elt: HTMLElement) => boolean {
@@ -484,7 +484,7 @@ export function getFilterByClass(criterion?: FilterCriterion<HTMLElement> | null
     };
   }
 
-  const inclusive = Object.prototype.hasOwnProperty.call(criterion, 'whitelist');
+  const inclusive = Object.prototype.hasOwnProperty.call(criterion, 'allowlist');
   const specifiedClassesSet = getSpecifiedClassesSet(criterion);
 
   return getFilter(criterion, function (elt: HTMLElement) {
@@ -495,8 +495,8 @@ export function getFilterByClass(criterion?: FilterCriterion<HTMLElement> | null
 /**
  * Convert a criterion object to a filter function
  *
- * @param object criterion Either {whitelist: [array of allowable strings]}
- *                             or {blacklist: [array of allowable strings]}
+ * @param object criterion Either {allowlist: [array of allowable strings]}
+ *                             or {denylist: [array of allowable strings]}
  *                             or {filter: function (elt) {return whether to track the element}
  */
 export function getFilterByName<T extends { name: string }>(criterion: FilterCriterion<T>): (elt: T) => boolean {
@@ -507,7 +507,7 @@ export function getFilterByName<T extends { name: string }>(criterion: FilterCri
     };
   }
 
-  const inclusive = criterion.hasOwnProperty('whitelist');
+  const inclusive = criterion.hasOwnProperty('allowlist');
   const specifiedClassesSet = getSpecifiedClassesSet(criterion);
 
   return getFilter(criterion, function (elt: T) {
@@ -548,7 +548,7 @@ function getFilter<T>(criterion: FilterCriterion<T>, fallbackFilter: (elt: T) =>
 function getSpecifiedClassesSet<T>(criterion: FilterCriterion<T>) {
   // Convert the array of classes to an object of the form {class1: true, class2: true, ...}
   var specifiedClassesSet: Record<string, boolean> = {};
-  var specifiedClasses = criterion.whitelist || criterion.blacklist;
+  var specifiedClasses = criterion.allowlist || criterion.denylist;
 
   if (specifiedClasses) {
     if (!Array.isArray(specifiedClasses)) {

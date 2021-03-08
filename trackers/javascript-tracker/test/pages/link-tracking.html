@@ -61,14 +61,14 @@
       switch (parseQuery().filter) {
         case 'exclude':
           snowplow('enableLinkClickTracking', {
-            options: { blacklist: ['exclude'] },
+            options: { denylist: ['exclude'] },
             pseudoClicks: true,
             trackContent: true,
           });
           break;
         case 'include':
           snowplow('enableLinkClickTracking', {
-            options: { whitelist: ['example'] },
+            options: { allowlist: ['example'] },
             pseudoClicks: true,
             trackContent: true,
           });

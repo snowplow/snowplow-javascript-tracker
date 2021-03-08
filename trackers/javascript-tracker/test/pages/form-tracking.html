@@ -85,21 +85,21 @@
 
       switch (parseQuery().filter) {
         case 'exclude':
-          snowplow('enableFormTracking', { options: { fields: { blacklist: ['fname'] } } });
+          snowplow('enableFormTracking', { options: { fields: { denylist: ['fname'] } } });
           break;
         case 'include':
-          snowplow('enableFormTracking', { options: { fields: { whitelist: ['lname'] } } });
+          snowplow('enableFormTracking', { options: { fields: { allowlist: ['lname'] } } });
           break;
         case 'filter':
           snowplow('enableFormTracking', {
             options: {
-              forms: { whitelist: ['formy-mcformface'] },
+              forms: { allowlist: ['formy-mcformface'] },
               fields: { filter: formFilter },
             },
           });
           break;
         case 'excludedForm':
-          snowplow('enableFormTracking', { options: { forms: { blacklist: ['excluded-form'] } } });
+          snowplow('enableFormTracking', { options: { forms: { denylist: ['excluded-form'] } } });
           break;
         default:
           snowplow('enableFormTracking', {
