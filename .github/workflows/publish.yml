@@ -28,24 +28,24 @@ jobs:
           key: ${{ runner.os }}-pnpm-${{ hashFiles('common/config/rush/pnpm-lock.yaml') }}
           restore-keys: ${{ runner.os }}-pnpm-
 
-      - name: Install
+      - name: Rush Install
         run: node common/scripts/install-run-rush.js install
 
-      - name: Build
-        run: node common/scripts/install-run-rush.js rebuild --verbose
-
-      - name: Test
-        run: node common/scripts/install-run-rush.js test --verbose
-
-      - name: Setup git
+      - name: Setup git for Rush
         uses: oleksiyrudenko/gha-git-credentials@v2-latest
         with:
           token: '${{ secrets.GITHUB_TOKEN }}'
 
-      - name: Version
+      - name: Rush Version
         run: node common/scripts/install-run-rush.js version --bump --target-branch master
 
-      - name: Publish
+      - name: Rush Build
+        run: node common/scripts/install-run-rush.js rebuild --verbose
+
+      - name: Rush Test
+        run: node common/scripts/install-run-rush.js test --verbose
+
+      - name: Rush Publish
         run: node common/scripts/install-run-rush.js publish --apply --include-all --publish --target-branch master --set-access-level public
 
       - name: Create release
