@@ -69,6 +69,7 @@ import {
   ActivityTrackingConfigurationCallback,
   DisableAnonymousTrackingConfiguration,
   EnableAnonymousTrackingConfiguration,
+  FlushBufferConfiguration,
 } from './types';
 
 /** Repesents an instance of an activity tracking configuration */
@@ -109,7 +110,7 @@ type ActivityTrackingConfig = {
  * @param version The current version of the JavaScript Tracker
  * @param endpoint The collector endpoint to send events to
  * @param sharedState An object containing state which is shared across tracker instances
- * @param configuration Dictionary of configuration options
+ * @param trackerConfiguration Dictionary of configuration options
  */
 export function Tracker(
   trackerId: string,
@@ -117,7 +118,7 @@ export function Tracker(
   version: string,
   endpoint: string,
   sharedState: SharedState,
-  configuration?: TrackerConfiguration
+  trackerConfiguration?: TrackerConfiguration
 ): BrowserTracker {
   const newTracker = (
     trackerId: string,
@@ -125,15 +126,14 @@ export function Tracker(
     version: string,
     endpoint: string,
     state: SharedState,
-    configuration?: TrackerConfiguration
+    trackerConfiguration: TrackerConfiguration = {}
   ) => {
     /************************************************************
      * Private members
      ************************************************************/
 
-    const argmap = configuration ?? {};
-    //use POST if eventMethod isn't present on the argmap
-    argmap.eventMethod = argmap.eventMethod ?? 'post';
+    //use POST if eventMethod isn't present on the newTrackerConfiguration
+    trackerConfiguration.eventMethod = trackerConfiguration.eventMethod ?? 'post';
 
     const getStateStorageStrategy = (config: TrackerConfiguration) =>
         config.stateStorageStrategy ?? 'cookieAndLocalStorage',
@@ -149,20 +149,18 @@ export function Tracker(
         }
         return config.anonymousTracking?.withServerAnonymisation === true ?? false;
       },
-      getAnonymousTracking = (config: TrackerConfiguration) => !!config.anonymousTracking,
-      // Maximum delay to wait for events to send on beforeUnload
-      configPageUnloadTimer = argmap.pageUnloadTimer ?? 500;
+      getAnonymousTracking = (config: TrackerConfiguration) => !!config.anonymousTracking;
 
     // Get all injected plugins
-    let plugins = argmap.plugins ?? [];
-    if (argmap?.contexts?.webPage ?? true) {
+    let plugins = trackerConfiguration.plugins ?? [];
+    if (trackerConfiguration?.contexts?.webPage ?? true) {
       plugins.push(getWebPagePlugin()); // Defaults to including the Web Page context
     }
 
     let // Tracker core
-      core = trackerCore(argmap.encodeBase64 ?? true, plugins, function (payloadBuilder) {
+      core = trackerCore(trackerConfiguration.encodeBase64 ?? true, plugins, function (payloadBuilder) {
         addBrowserData(payloadBuilder);
-        sendRequest(payloadBuilder, configPageUnloadTimer);
+        sendRequest(payloadBuilder);
       }),
       // Aliases
       documentAlias = document,
@@ -178,17 +176,17 @@ export function Tracker(
       configReferrerUrl = locationArray[2],
       customReferrer: string,
       // Platform defaults to web for this tracker
-      configPlatform = argmap.platform ?? 'web',
+      configPlatform = trackerConfiguration.platform ?? 'web',
       // This forces the tracker to be HTTPS even if the page is not secure
-      forceSecureTracker = argmap.forceSecureTracker ?? false,
+      forceSecureTracker = trackerConfiguration.forceSecureTracker ?? false,
       // This forces the tracker to be HTTP even if the page is secure
-      forceUnsecureTracker = !forceSecureTracker && (argmap.forceUnsecureTracker ?? false),
+      forceUnsecureTracker = !forceSecureTracker && (trackerConfiguration.forceUnsecureTracker ?? false),
       // Snowplow collector URL
       configCollectorUrl = asCollectorUrl(endpoint),
       // Custom path for post requests (to get around adblockers)
-      configPostPath = argmap.postPath ?? '/com.snowplowanalytics.snowplow/tp2',
+      configPostPath = trackerConfiguration.postPath ?? '/com.snowplowanalytics.snowplow/tp2',
       // Site ID
-      configTrackerSiteId = argmap.appId ?? '',
+      configTrackerSiteId = trackerConfiguration.appId ?? '',
       // Document URL
       configCustomUrl: string,
       // Document title
@@ -196,44 +194,44 @@ export function Tracker(
       // Custom title
       lastConfigTitle: string | null | undefined,
       // Controls whether activity tracking page ping event timers are reset on page view events
-      resetActivityTrackingOnPageView = argmap.resetActivityTrackingOnPageView ?? true,
+      resetActivityTrackingOnPageView = trackerConfiguration.resetActivityTrackingOnPageView ?? true,
       // Disallow hash tags in URL. TODO: Should this be set to true by default?
       configDiscardHashTag: boolean,
       // Disallow brace in URL.
       configDiscardBrace: boolean,
       // First-party cookie name prefix
-      configCookieNamePrefix = argmap.cookieName ?? '_sp_',
+      configCookieNamePrefix = trackerConfiguration.cookieName ?? '_sp_',
       // First-party cookie domain
       // User agent defaults to origin hostname
-      configCookieDomain = argmap.cookieDomain ?? undefined,
+      configCookieDomain = trackerConfiguration.cookieDomain ?? undefined,
       // First-party cookie path
       // Default is user agent defined.
       configCookiePath = '/',
       // First-party cookie samesite attribute
-      configCookieSameSite = argmap.cookieSameSite ?? 'None',
+      configCookieSameSite = trackerConfiguration.cookieSameSite ?? 'None',
       // First-party cookie secure attribute
-      configCookieSecure = argmap.cookieSecure ?? true,
+      configCookieSecure = trackerConfiguration.cookieSecure ?? true,
       // Do Not Track browser feature
       dnt = navigatorAlias.doNotTrack || (navigatorAlias as any).msDoNotTrack || windowAlias.doNotTrack,
       // Do Not Track
       configDoNotTrack =
-        typeof argmap.respectDoNotTrack !== 'undefined'
-          ? argmap.respectDoNotTrack && (dnt === 'yes' || dnt === '1')
+        typeof trackerConfiguration.respectDoNotTrack !== 'undefined'
+          ? trackerConfiguration.respectDoNotTrack && (dnt === 'yes' || dnt === '1')
           : false,
       // Opt out of cookie tracking
       configOptOutCookie: string,
       // Life of the visitor cookie (in seconds)
-      configVisitorCookieTimeout = argmap.cookieLifetime ?? 63072000, // 2 years
+      configVisitorCookieTimeout = trackerConfiguration.cookieLifetime ?? 63072000, // 2 years
       // Life of the session cookie (in seconds)
-      configSessionCookieTimeout = argmap.sessionCookieTimeout ?? 1800, // 30 minutes
+      configSessionCookieTimeout = trackerConfiguration.sessionCookieTimeout ?? 1800, // 30 minutes
       // Allows tracking user session (using cookies or local storage), can only be used with anonymousTracking
-      configAnonymousSessionTracking = getAnonymousSessionTracking(argmap),
+      configAnonymousSessionTracking = getAnonymousSessionTracking(trackerConfiguration),
       // Will send a header to server to prevent returning cookie and capturing IP
-      configAnonymousServerTracking = getAnonymousServerTracking(argmap),
+      configAnonymousServerTracking = getAnonymousServerTracking(trackerConfiguration),
       // Sets tracker to work in anonymous mode without accessing client storage
-      configAnonymousTracking = getAnonymousTracking(argmap),
+      configAnonymousTracking = getAnonymousTracking(trackerConfiguration),
       // Strategy defining how to store the state: cookie, localStorage, cookieAndLocalStorage or none
-      configStateStorageStrategy = getStateStorageStrategy(argmap),
+      configStateStorageStrategy = getStateStorageStrategy(trackerConfiguration),
       // Last activity timestamp
       lastActivityTime: number,
       // The last time an event was fired on the page - used to invalidate session if cookies are disabled
@@ -260,13 +258,13 @@ export function Tracker(
         trackerId,
         state,
         configStateStorageStrategy == 'localStorage' || configStateStorageStrategy == 'cookieAndLocalStorage',
-        argmap.eventMethod,
+        trackerConfiguration.eventMethod,
         configPostPath,
-        argmap.bufferSize ?? 1,
-        argmap.maxPostBytes ?? 40000,
-        argmap.useStm ?? true,
-        argmap.maxLocalStorageQueueSize ?? 1000,
-        argmap.connectionTimeout ?? 5000,
+        trackerConfiguration.bufferSize ?? 1,
+        trackerConfiguration.maxPostBytes ?? 40000,
+        trackerConfiguration.useStm ?? true,
+        trackerConfiguration.maxLocalStorageQueueSize ?? 1000,
+        trackerConfiguration.connectionTimeout ?? 5000,
         configAnonymousServerTracking
       ),
       // Whether pageViewId should be regenerated after each trackPageView. Affect web_page context
@@ -280,7 +278,7 @@ export function Tracker(
         configurations: {},
       };
 
-    if (argmap.hasOwnProperty('discoverRootDomain') && argmap.discoverRootDomain) {
+    if (trackerConfiguration.hasOwnProperty('discoverRootDomain') && trackerConfiguration.discoverRootDomain) {
       configCookieDomain = findRootDomain(configCookieSameSite, configCookieSecure);
     }
 
@@ -302,8 +300,8 @@ export function Tracker(
 
     initializeIdsAndCookies();
 
-    if (argmap.crossDomainLinker) {
-      decorateLinks(argmap.crossDomainLinker);
+    if (trackerConfiguration.crossDomainLinker) {
+      decorateLinks(trackerConfiguration.crossDomainLinker);
     }
 
     /**
@@ -418,9 +416,7 @@ export function Tracker(
     /*
      * Send request
      */
-    function sendRequest(request: PayloadBuilder, delay: number) {
-      var now = new Date();
-
+    function sendRequest(request: PayloadBuilder) {
       // Set to true if Opt-out cookie is defined
       var toOptoutByCookie;
       if (configOptOutCookie) {
@@ -431,7 +427,6 @@ export function Tracker(
 
       if (!(configDoNotTrack || toOptoutByCookie)) {
         outQueue.enqueueRequest(request.build(), configCollectorUrl);
-        state.expireDateTime = now.getTime() + delay;
       }
     }
 
@@ -1172,12 +1167,15 @@ export function Tracker(
         outQueue.setCollectorUrl(configCollectorUrl);
       },
 
-      /**
-       * Send all events in the outQueue
-       * Use only when sending POSTs with a bufferSize of at least 2
-       */
-      flushBuffer: function () {
+      setBufferSize: function (newBufferSize: number) {
+        outQueue.setBufferSize(newBufferSize);
+      },
+
+      flushBuffer: function (configuration: FlushBufferConfiguration = {}) {
         outQueue.executeQueue();
+        if (configuration.newBufferSize) {
+          outQueue.setBufferSize(configuration.newBufferSize);
+        }
       },
 
       trackPageView: function (event: PageViewEvent & CommonEventProperties = {}) {
@@ -1190,16 +1188,16 @@ export function Tracker(
 
       disableAnonymousTracking: function (configuration?: DisableAnonymousTrackingConfiguration) {
         if (configuration && configuration.stateStorageStrategy) {
-          argmap.stateStorageStrategy = configuration.stateStorageStrategy;
-          argmap.anonymousTracking = false;
-          configStateStorageStrategy = getStateStorageStrategy(argmap);
+          trackerConfiguration.stateStorageStrategy = configuration.stateStorageStrategy;
+          trackerConfiguration.anonymousTracking = false;
+          configStateStorageStrategy = getStateStorageStrategy(trackerConfiguration);
         } else {
-          argmap.anonymousTracking = false;
+          trackerConfiguration.anonymousTracking = false;
         }
 
-        configAnonymousTracking = getAnonymousTracking(argmap);
-        configAnonymousSessionTracking = getAnonymousSessionTracking(argmap);
-        configAnonymousServerTracking = getAnonymousServerTracking(argmap);
+        configAnonymousTracking = getAnonymousTracking(trackerConfiguration);
+        configAnonymousSessionTracking = getAnonymousSessionTracking(trackerConfiguration);
+        configAnonymousServerTracking = getAnonymousServerTracking(trackerConfiguration);
 
         outQueue.setUseLocalStorage(
           configStateStorageStrategy == 'localStorage' || configStateStorageStrategy == 'cookieAndLocalStorage'
@@ -1212,11 +1210,11 @@ export function Tracker(
       },
 
       enableAnonymousTracking: function (configuration?: EnableAnonymousTrackingConfiguration) {
-        argmap.anonymousTracking = (configuration && configuration?.options) || true;
+        trackerConfiguration.anonymousTracking = (configuration && configuration?.options) || true;
 
-        configAnonymousTracking = getAnonymousTracking(argmap);
-        configAnonymousSessionTracking = getAnonymousSessionTracking(argmap);
-        configAnonymousServerTracking = getAnonymousServerTracking(argmap);
+        configAnonymousTracking = getAnonymousTracking(trackerConfiguration);
+        configAnonymousSessionTracking = getAnonymousSessionTracking(trackerConfiguration);
+        configAnonymousServerTracking = getAnonymousServerTracking(trackerConfiguration);
 
         // Reset the page view, if not tracking the session, so can't stitch user into new events on the page view id
         if (!configAnonymousSessionTracking) {
@@ -1239,7 +1237,14 @@ export function Tracker(
   };
 
   // Initialise the tracker
-  const { plugins, ...tracker } = newTracker(trackerId, namespace, version, endpoint, sharedState, configuration);
+  const { plugins, ...tracker } = newTracker(
+    trackerId,
+    namespace,
+    version,
+    endpoint,
+    sharedState,
+    trackerConfiguration
+  );
 
   // Initialise each plugin with the tracker
   plugins.forEach((p) => {

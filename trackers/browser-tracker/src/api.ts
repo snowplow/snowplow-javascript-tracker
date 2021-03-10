@@ -35,6 +35,7 @@ import {
   BrowserTracker,
   DisableAnonymousTrackingConfiguration,
   EnableAnonymousTrackingConfiguration,
+  FlushBufferConfiguration,
   getTrackers,
   PageViewEvent,
 } from '@snowplow/browser-tracker-core';
@@ -275,13 +276,29 @@ export function setCollectorUrl(rawUrl: string, trackers?: Array<string>) {
 }
 
 /**
- * Send all events in the outQueue
- * Use only when sending POSTs with a bufferSize of at least 2
+ * Set the buffer size
+ * Can be useful if you want to stop batching requests to ensure events start
+ * sending closer to event creation
+ *
+ * @param newBufferSize The value with which to update the bufferSize to
  * @param trackers The tracker identifiers which will be flushed
  */
-export function flushBuffer(trackers?: Array<string>) {
+export function setBufferSize(newBufferSize: number, trackers?: Array<string>) {
   dispatch(trackers, (t) => {
-    t.flushBuffer();
+    t.setBufferSize(newBufferSize);
+  });
+}
+
+/**
+ * Send all events in the outQueue
+ * Only need to use this when sending events with a bufferSize of at least 2
+ *
+ * @param configuration The configuration to use following flushing the buffer
+ * @param trackers The tracker identifiers which will be flushed
+ */
+export function flushBuffer(configuration?: FlushBufferConfiguration, trackers?: Array<string>) {
+  dispatch(trackers, (t) => {
+    t.flushBuffer(configuration);
   });
 }
 
