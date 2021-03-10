@@ -102,12 +102,6 @@ export type TrackerConfiguration = {
    * @defaultValue false
    */
   respectDoNotTrack?: boolean;
-  /**
-   * How long to attempt to wait to send events before unloading the page
-   * Has limited impact on most browsers
-   * @defaultValue 500 (milliseconds)
-   */
-  pageUnloadTimer?: number;
   /** Force all events to be sent using HTTPS */
   forceSecureTracker?: boolean;
   /** Force all events to be sent using HTTP */
@@ -257,6 +251,10 @@ export interface DisableAnonymousTrackingConfiguration {
 
 export interface EnableAnonymousTrackingConfiguration {
   options?: AnonymousTrackingOptions;
+}
+
+export interface FlushBufferConfiguration {
+  newBufferSize?: number;
 }
 
 /**
@@ -441,10 +439,21 @@ export interface BrowserTracker {
   setCollectorUrl: (rawUrl: string) => void;
 
   /**
-   * Send all events in the outQueue
-   * Use only when sending POSTs with a bufferSize of at least 2
+   * Alter buffer size
+   * Can be useful if you want to stop batching requests to ensure events start
+   * sending closer to event creation
+   *
+   * @param newBufferSize The new buffer size that will be used for all future tracking
    */
-  flushBuffer: () => void;
+  setBufferSize: (newBufferSize: number) => void;
+
+  /**
+   * Send all events in the outQueue
+   * Only need to use this when sending events with a bufferSize of at least 2
+   *
+   * @param configuration The configuration to use following flushing the buffer
+   */
+  flushBuffer: (configuration?: FlushBufferConfiguration) => void;
 
   /**
    * Stop regenerating `pageViewId` (available from `web_page` context)
@@ -462,11 +471,15 @@ export interface BrowserTracker {
    * Disables anonymous tracking if active (ie. tracker initialized with `anonymousTracking`)
    * For stateStorageStrategy override, uses supplied value first,
    * falls back to one defined in initial config, otherwise uses cookieAndLocalStorage.
+   *
+   * @param configuration The configuration to use following disabling anonymous tracking
    */
   disableAnonymousTracking: (configuration?: DisableAnonymousTrackingConfiguration) => void;
 
   /**
    * Enables anonymous tracking (ie. tracker initialized without `anonymousTracking`)
+   *
+   * @param configuration The configuration to use following activating anonymous tracking
    */
   enableAnonymousTracking: (configuration?: EnableAnonymousTrackingConfiguration) => void;
 
