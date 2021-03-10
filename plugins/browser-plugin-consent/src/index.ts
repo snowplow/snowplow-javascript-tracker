@@ -38,7 +38,7 @@ import {
 } from '@snowplow/tracker-core';
 import { Gdpr } from './contexts';
 
-const _trackers: Record<string, { tracker: BrowserTracker; gdpr?: Gdpr }> = {};
+export { ConsentGrantedEvent, ConsentWithdrawnEvent };
 
 export enum gdprBasis {
   consent = 'consent',
@@ -62,6 +62,8 @@ export interface GdprContextConfiguration {
   /** A descrtiption of the document */
   documentDescription?: string;
 }
+
+const _trackers: Record<string, { tracker: BrowserTracker; gdpr?: Gdpr }> = {};
 
 /**
  * Enable the GDPR context for each event

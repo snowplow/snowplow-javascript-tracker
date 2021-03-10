@@ -38,6 +38,8 @@ import {
   SocialInteractionEvent,
 } from '@snowplow/tracker-core';
 
+export { SocialInteractionEvent, SiteSearchEvent };
+
 const _trackers: Record<string, BrowserTracker> = {};
 
 export function SiteTrackingPlugin(): BrowserPlugin {
