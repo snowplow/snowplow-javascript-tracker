@@ -28,13 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import {
-  warn,
-  attemptWriteLocalStorage,
-  attemptWriteSessionStorage,
-  attemptGetSessionStorage,
-  isString,
-} from '../helpers';
+import { warn, attemptWriteLocalStorage, isString } from '../helpers';
 import { SharedState } from '../state';
 import { localStorageAccessible } from '../detectors';
 import { Payload } from '@snowplow/tracker-core';
@@ -45,6 +39,7 @@ export interface OutQueue {
   setUseLocalStorage: (localStorage: boolean) => void;
   setAnonymousTracking: (anonymous: boolean) => void;
   setCollectorUrl: (url: string) => void;
+  setBufferSize: (bufferSize: number) => void;
 }
 
 /**
@@ -82,43 +77,36 @@ export function OutQueueManager(
     bytes: number;
   };
 
-  var localStorageAlias = window.localStorage,
-    queueName: string,
-    executingQueue = false,
+  let executingQueue = false,
     configCollectorUrl: string,
-    outQueue: Array<PostEvent> | Array<string> = [],
-    preflightName: string,
-    beaconPreflight: boolean;
+    outQueue: Array<PostEvent> | Array<string> = [];
 
   //Force to lower case if its a string
   eventMethod = typeof eventMethod === 'string' ? eventMethod.toLowerCase() : eventMethod;
 
   // Use the Beacon API if eventMethod is set null, true, or 'beacon'.
-  var isBeaconRequested =
-    eventMethod === null || eventMethod === true || eventMethod === 'beacon' || eventMethod === 'true';
-  // Fall back to POST or GET for browsers which don't support Beacon API
-  var isBeaconAvailable = Boolean(isBeaconRequested && navigator && navigator.sendBeacon);
-  var useBeacon = isBeaconAvailable && isBeaconRequested;
-
-  // Use GET if specified
-  var isGetRequested = eventMethod === 'get';
-
-  // Don't use XhrHttpRequest for browsers which don't support CORS XMLHttpRequests (e.g. IE <= 9)
-  var useXhr = Boolean(window.XMLHttpRequest && 'withCredentials' in new XMLHttpRequest());
-
-  // Use POST if specified
-  var usePost = !isGetRequested && useXhr && (eventMethod === 'post' || isBeaconRequested);
-
-  // Resolve all options and capabilities and decide path
-  var path = usePost ? postPath : '/i';
+  const localStorageAlias = window.localStorage,
+    navigatorAlias = window.navigator,
+    isBeaconRequested =
+      eventMethod === null || eventMethod === true || eventMethod === 'beacon' || eventMethod === 'true',
+    // Fall back to POST or GET for browsers which don't support Beacon API
+    isBeaconAvailable = Boolean(
+      isBeaconRequested && navigatorAlias && navigatorAlias.sendBeacon && !hasWebKitBeaconBug(navigatorAlias.userAgent)
+    ),
+    useBeacon = isBeaconAvailable && isBeaconRequested,
+    // Use GET if specified
+    isGetRequested = eventMethod === 'get',
+    // Don't use XhrHttpRequest for browsers which don't support CORS XMLHttpRequests (e.g. IE <= 9)
+    useXhr = Boolean(window.XMLHttpRequest && 'withCredentials' in new XMLHttpRequest()),
+    // Use POST if specified
+    usePost = !isGetRequested && useXhr && (eventMethod === 'post' || isBeaconRequested),
+    // Resolve all options and capabilities and decide path
+    path = usePost ? postPath : '/i',
+    // Different queue names for GET and POST since they are stored differently
+    queueName = `snowplowOutQueue_${id}_${usePost ? 'post2' : 'get'}`;
 
   // Get buffer size or set 1 if unable to buffer
   bufferSize = (localStorageAccessible() && useLocalStorage && usePost && bufferSize) || 1;
-
-  // Different queue names for GET and POST since they are stored differently
-  queueName = `snowplowOutQueue_${id}_${usePost ? 'post2' : 'get'}`;
-  // Storage name for checking if preflight POST has been sent for Beacon API
-  preflightName = `spBeaconPreflight_${id}`;
 
   if (useLocalStorage) {
     // Catch any JSON parse errors or localStorage that might be thrown
@@ -137,9 +125,9 @@ export function OutQueueManager(
   sharedSate.outQueues.push(outQueue);
 
   if (useXhr && bufferSize > 1) {
-    sharedSate.bufferFlushers.push(function () {
+    sharedSate.bufferFlushers.push(function (sync) {
       if (!executingQueue) {
-        executeQueue();
+        executeQueue(sync);
       }
     });
   }
@@ -177,7 +165,7 @@ export function OutQueueManager(
    * Convert numeric fields to strings to match payload_data schema
    */
   function getBody(request: Payload): PostEvent {
-    var cleanedRequest = Object.keys(request)
+    const cleanedRequest = Object.keys(request)
       .map<[string, unknown]>((k) => [k, request[k]])
       .reduce((acc, [key, value]) => {
         acc[key] = (value as Object).toString();
@@ -197,9 +185,9 @@ export function OutQueueManager(
    * @return number Length of s in bytes when UTF-8 encoded
    */
   function getUTF8Length(s: string) {
-    var len = 0;
-    for (var i = 0; i < s.length; i++) {
-      var code = s.charCodeAt(i);
+    let len = 0;
+    for (let i = 0; i < s.length; i++) {
+      const code = s.charCodeAt(i);
       if (code <= 0x7f) {
         len += 1;
       } else if (code <= 0x7ff) {
@@ -228,10 +216,10 @@ export function OutQueueManager(
   function enqueueRequest(request: Payload, url: string) {
     configCollectorUrl = url + path;
     if (usePost) {
-      var body = getBody(request);
+      const body = getBody(request);
       if (body.bytes >= maxPostBytes) {
         warn('Event (' + body.bytes + 'B) too big, max is ' + maxPostBytes);
-        var xhr = initializeXMLHttpRequest(configCollectorUrl, true);
+        const xhr = initializeXMLHttpRequest(configCollectorUrl, true, false);
         xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent([body.evt])));
         return;
       } else {
@@ -240,7 +228,7 @@ export function OutQueueManager(
     } else {
       (outQueue as Array<string>).push(getQuerystring(request));
     }
-    var savedToLocalStorage = false;
+    let savedToLocalStorage = false;
     if (useLocalStorage) {
       savedToLocalStorage = attemptWriteLocalStorage(
         queueName,
@@ -258,7 +246,7 @@ export function OutQueueManager(
    * Run through the queue of requests, sending them one at a time.
    * Stops processing when we run out of queued requests, or we get an error.
    */
-  function executeQueue() {
+  function executeQueue(sync: boolean = false) {
     // Failsafe in case there is some way for a bad value like "null" to end up in the outQueue
     while (outQueue.length && typeof outQueue[0] !== 'string' && typeof outQueue[0] !== 'object') {
       outQueue.shift();
@@ -295,11 +283,11 @@ export function OutQueueManager(
       let url: string, xhr: XMLHttpRequest, numberToSend: number;
       if (postable(outQueue)) {
         url = configCollectorUrl;
-        xhr = initializeXMLHttpRequest(url, true);
+        xhr = initializeXMLHttpRequest(url, true, sync);
         numberToSend = chooseHowManyToSend(outQueue);
       } else {
         url = createGetUrl(outQueue[0]);
-        xhr = initializeXMLHttpRequest(url, false);
+        xhr = initializeXMLHttpRequest(url, false, sync);
         numberToSend = 1;
       }
 
@@ -312,7 +300,7 @@ export function OutQueueManager(
       // The events (`numberToSend` of them), have been sent, so we remove them from the outQueue
       // We also call executeQueue() again, to let executeQueue() check if we should keep running through the queue
       const onPostSuccess = (numberToSend: number): void => {
-        for (var deleteCount = 0; deleteCount < numberToSend; deleteCount++) {
+        for (let deleteCount = 0; deleteCount < numberToSend; deleteCount++) {
           outQueue.shift();
         }
         if (useLocalStorage) {
@@ -324,9 +312,6 @@ export function OutQueueManager(
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status < 400) {
           clearTimeout(xhrTimeout);
-          if (useBeacon && !beaconPreflight) {
-            attemptWriteSessionStorage(preflightName, '*');
-          }
           onPostSuccess(numberToSend);
         } else if (xhr.readyState === 4 && xhr.status >= 400) {
           clearTimeout(xhrTimeout);
@@ -343,14 +328,11 @@ export function OutQueueManager(
         if (batch.length > 0) {
           let beaconStatus = false;
 
-          //If using Beacon, check we have sent at least one request using POST as Safari doesn't preflight Beacon
-          beaconPreflight = beaconPreflight || (useBeacon && !!attemptGetSessionStorage(preflightName));
-
           const eventBatch = batch.map(function (x) {
             return x.evt;
           });
 
-          if (beaconPreflight) {
+          if (useBeacon) {
             const blob = new Blob([encloseInPayloadDataEnvelope(attachStmToEvent(eventBatch))], {
               type: 'application/json',
             });
@@ -360,13 +342,12 @@ export function OutQueueManager(
               beaconStatus = false;
             }
           }
+
           // When beaconStatus is true, we can't _guarantee_ that it was successful (beacon queues asynchronously)
           // but the browser has taken it out of our hands, so we want to flush the queue assuming it will do its job
           if (beaconStatus === true) {
             onPostSuccess(numberToSend);
-          }
-
-          if (!useBeacon || !beaconStatus) {
+          } else {
             xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent(eventBatch)));
           }
         }
@@ -411,13 +392,13 @@ export function OutQueueManager(
    * @param string url The destination URL
    * @return object The XMLHttpRequest
    */
-  function initializeXMLHttpRequest(url: string, post: boolean) {
-    var xhr = new XMLHttpRequest();
+  function initializeXMLHttpRequest(url: string, post: boolean, sync: boolean) {
+    const xhr = new XMLHttpRequest();
     if (post) {
-      xhr.open('POST', url, true);
+      xhr.open('POST', url, !sync);
       xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
     } else {
-      xhr.open('GET', url, true);
+      xhr.open('GET', url, !sync);
     }
     xhr.withCredentials = true;
     if (anonymousTracking) {
@@ -445,8 +426,8 @@ export function OutQueueManager(
    * @param events the events to attach the STM to
    */
   function attachStmToEvent(events: Array<Record<string, unknown>>) {
-    var stm = new Date().getTime().toString();
-    for (var i = 0; i < events.length; i++) {
+    const stm = new Date().getTime().toString();
+    for (let i = 0; i < events.length; i++) {
       events[i]['stm'] = stm;
     }
     return events;
@@ -481,5 +462,39 @@ export function OutQueueManager(
     setCollectorUrl: (url: string) => {
       configCollectorUrl = url + path;
     },
+    setBufferSize: (newBufferSize: number) => {
+      bufferSize = newBufferSize;
+    },
   };
+
+  function hasWebKitBeaconBug(useragent: string) {
+    return (
+      isIosVersionLessThanOrEqualTo(13, useragent) ||
+      (isMacosxVersionLessThanOrEqualTo(10, 15, useragent) && isSafari(useragent))
+    );
+
+    function isIosVersionLessThanOrEqualTo(major: number, useragent: string) {
+      const match = useragent.match('(iP.+; CPU .*OS (d+)[_d]*.*) AppleWebKit/');
+      if (match && match.length) {
+        return parseInt(match[0]) <= major;
+      }
+      return false;
+    }
+
+    function isMacosxVersionLessThanOrEqualTo(major: number, minor: number, useragent: string) {
+      const match = useragent.match('(Macintosh;.*Mac OS X (d+)_(d+)[_d]*.*) AppleWebKit/');
+      if (match && match.length) {
+        return parseInt(match[0]) <= major || (parseInt(match[0]) === major && parseInt(match[1]) <= minor);
+      }
+      return false;
+    }
+
+    function isSafari(useragent: string) {
+      return useragent.match('Version/.* Safari/') && !isChromiumBased(useragent);
+    }
+
+    function isChromiumBased(useragent: string) {
+      return useragent.match('Chrom(e|ium)');
+    }
+  }
 }

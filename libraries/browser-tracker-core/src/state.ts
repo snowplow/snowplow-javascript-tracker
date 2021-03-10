@@ -43,10 +43,7 @@ declare global {
 export class SharedState {
   /* List of request queues - one per Tracker instance */
   outQueues: Array<unknown> = [];
-  bufferFlushers: Array<() => void> = [];
-
-  /* Time at which to stop blocking excecution */
-  expireDateTime?: number;
+  bufferFlushers: Array<(sync: boolean) => void> = [];
 
   /* DOM Ready */
   hasLoaded: boolean = false;
@@ -63,38 +60,23 @@ export function createSharedState(): SharedState {
     sharedState = new SharedState();
 
   /*
-   * Handle beforeunload event
-   *
-   * Subject to Safari's "Runaway JavaScript Timer" and
-   * Chrome V8 extension that terminates JS that exhibits
-   * "slow unload", i.e., calling getTime() > 1000 times
+   * Handle page visibility event
+   * Works everywhere except IE9
    */
-  function beforeUnloadHandler() {
-    var now;
+  function visibilityChangeHandler() {
+    if (documentAlias.visibilityState == 'hidden') {
+      // Flush all POST queues
+      sharedState.bufferFlushers.forEach(function (flusher) {
+        flusher(false);
+      });
+    }
+  }
 
+  function flushBuffers() {
     // Flush all POST queues
     sharedState.bufferFlushers.forEach(function (flusher) {
-      flusher();
+      flusher(false);
     });
-
-    /*
-     * Delay/pause (blocks UI)
-     */
-    if (sharedState.expireDateTime) {
-      // the things we do for backwards compatibility...
-      // in ECMA-262 5th ed., we could simply use:
-      //     while (Date.now() < mutSnowplowState.expireDateTime) { }
-      do {
-        now = new Date();
-        if (
-          Array.prototype.filter.call(sharedState.outQueues, function (queue) {
-            return queue.length > 0;
-          }).length === 0
-        ) {
-          break;
-        }
-      } while (now.getTime() < sharedState.expireDateTime);
-    }
   }
 
   /*
@@ -139,7 +121,12 @@ export function createSharedState(): SharedState {
    ************************************************************/
 
   // initialize the Snowplow singleton
-  addEventListener(windowAlias, 'beforeunload', beforeUnloadHandler, false);
+  if (document.visibilityState) {
+    // Flush for mobile and modern browsers
+    addEventListener(documentAlias, 'visibilitychange', visibilityChangeHandler, false);
+  }
+  // Last attempt at flushing in beforeunload
+  addEventListener(windowAlias, 'beforeunload', flushBuffers, false);
   addReadyListener();
 
   return sharedState;
