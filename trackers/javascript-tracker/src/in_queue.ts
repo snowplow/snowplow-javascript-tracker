@@ -32,8 +32,8 @@ import {
   warn,
   isFunction,
   addTracker,
-  SharedState,
   createSharedState,
+  SharedState,
   BrowserTracker,
 } from '@snowplow/browser-tracker-core';
 import * as Snowplow from '@snowplow/browser-tracker';

@@ -41,6 +41,8 @@ import {
   EcommerceTransactionItemEvent,
 } from '@snowplow/tracker-core';
 
+export { AddToCartEvent, RemoveFromCartEvent, EcommerceTransactionEvent, EcommerceTransactionItemEvent };
+
 interface Transaction {
   transaction?: EcommerceTransactionEvent & CommonEventProperties;
   items: Array<EcommerceTransactionItemEvent & CommonEventProperties>;

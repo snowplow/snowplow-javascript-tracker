@@ -46,8 +46,24 @@ import {
   ConditionalContextProvider,
   ContextPrimitive,
   SelfDescribingEvent,
+  SelfDescribingJson,
   StructuredEvent,
 } from '@snowplow/tracker-core';
+
+export {
+  ActivityTrackingConfiguration,
+  ActivityTrackingConfigurationCallback,
+  FlushBufferConfiguration,
+  PageViewEvent,
+  EnableAnonymousTrackingConfiguration,
+  DisableAnonymousTrackingConfiguration,
+  ConditionalContextProvider,
+  ContextPrimitive,
+  SelfDescribingEvent,
+  SelfDescribingJson,
+  CommonEventProperties,
+  StructuredEvent,
+};
 
 const dispatch = (trackers: Array<string> = allTrackerNames(), fn: (t: BrowserTracker) => void) => {
   getTrackers(trackers).forEach(fn);

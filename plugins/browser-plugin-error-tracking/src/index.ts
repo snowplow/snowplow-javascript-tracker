@@ -97,7 +97,7 @@ export function trackError(
 /**
  * The configuration for automatic error tracking
  */
-interface ErrorTrackingConfiguration {
+export interface ErrorTrackingConfiguration {
   /** A callback which allows on certain errors to be tracked */
   filter?: (error: ErrorEvent) => boolean;
   /** A callback to dynamically add extra context based on the error */
