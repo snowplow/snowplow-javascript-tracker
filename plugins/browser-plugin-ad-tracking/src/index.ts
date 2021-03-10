@@ -39,6 +39,8 @@ import {
   CommonEventProperties,
 } from '@snowplow/tracker-core';
 
+export { AdClickEvent, AdImpressionEvent, AdConversionEvent };
+
 const _trackers: Record<string, BrowserTracker> = {};
 
 /**
