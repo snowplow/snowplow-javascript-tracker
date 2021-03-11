@@ -8,31 +8,31 @@ importers:
       tslib: 2.1.0
       uuid: 3.4.0
     devDependencies:
-      '@ampproject/rollup-plugin-closure-compiler': 0.26.0_rollup@2.35.1
-      '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
-      '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
+      '@ampproject/rollup-plugin-closure-compiler': 0.26.0_rollup@2.41.1
+      '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.1
+      '@rollup/plugin-node-resolve': 11.2.0_rollup@2.41.1
       '@types/jest': 26.0.20
       '@types/jsdom': 16.2.6
       '@types/sha1': 1.1.2
       '@types/uuid': 3.4.9
       '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.41.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-environment-jsdom: 26.6.2
       jest-environment-jsdom-global: 2.0.4_jest-environment-jsdom@26.6.2
       jest-standard-reporter: 2.0.0
-      rollup: 2.35.1
-      rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
-      rollup-plugin-license: 2.2.0_rollup@2.35.1
-      rollup-plugin-terser: 7.0.2_rollup@2.35.1
+      rollup: 2.41.1
+      rollup-plugin-cleanup: 3.2.1_rollup@2.41.1
+      rollup-plugin-license: 2.2.0_rollup@2.41.1
+      rollup-plugin-terser: 7.0.2_rollup@2.41.1
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
       typescript: 4.2.3
     specifiers:
       '@ampproject/rollup-plugin-closure-compiler': ^0.26.0
-      '@rollup/plugin-commonjs': ^17.0.0
-      '@rollup/plugin-node-resolve': ^11.0.0
+      '@rollup/plugin-commonjs': ^17.1.0
+      '@rollup/plugin-node-resolve': ^11.2.0
       '@snowplow/tracker-core': 'workspace:*'
       '@types/jest': ^26.0.20
       '@types/jsdom': ^16.2.6
@@ -46,7 +46,7 @@ importers:
       jest-environment-jsdom: ^26.6.2
       jest-environment-jsdom-global: ^2.0.4
       jest-standard-reporter: ^2.0.0
-      rollup: ^2.34.0
+      rollup: ^2.41.1
       rollup-plugin-cleanup: ^3.2.1
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
@@ -60,25 +60,25 @@ importers:
       tslib: 2.1.0
       uuid: 3.4.0
     devDependencies:
-      '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
-      '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
+      '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.1
+      '@rollup/plugin-node-resolve': 11.2.0_rollup@2.41.1
       '@types/node': 14.14.14
       '@types/uuid': 3.4.9
       '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.41.1+typescript@4.2.3
       ava: 3.14.0
       eslint: 7.16.0
       jest-standard-reporter: 2.0.0
-      rollup: 2.35.1
-      rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
-      rollup-plugin-license: 2.2.0_rollup@2.35.1
-      rollup-plugin-terser: 7.0.2_rollup@2.35.1
+      rollup: 2.41.1
+      rollup-plugin-cleanup: 3.2.1_rollup@2.41.1
+      rollup-plugin-license: 2.2.0_rollup@2.41.1
+      rollup-plugin-terser: 7.0.2_rollup@2.41.1
       ts-node: 9.1.1_typescript@4.2.3
       typescript: 4.2.3
     specifiers:
-      '@rollup/plugin-commonjs': ^17.0.0
-      '@rollup/plugin-node-resolve': ^11.0.0
+      '@rollup/plugin-commonjs': ^17.1.0
+      '@rollup/plugin-node-resolve': ^11.2.0
       '@types/node': ^14.6.0
       '@types/uuid': ^3.4.6
       '@typescript-eslint/eslint-plugin': ^4.9.0
@@ -87,7 +87,7 @@ importers:
       ava: ^3.13.0
       eslint: ^7.7.0
       jest-standard-reporter: ^2.0.0
-      rollup: ^2.34.0
+      rollup: ^2.41.1
       rollup-plugin-cleanup: ^3.2.1
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
@@ -101,24 +101,24 @@ importers:
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
       tslib: 2.1.0
     devDependencies:
-      '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
-      '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
+      '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.1
+      '@rollup/plugin-node-resolve': 11.2.0_rollup@2.41.1
       '@types/jest': 26.0.20
       '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.41.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
-      rollup: 2.35.1
-      rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
-      rollup-plugin-license: 2.2.0_rollup@2.35.1
-      rollup-plugin-terser: 7.0.2_rollup@2.35.1
+      rollup: 2.41.1
+      rollup-plugin-cleanup: 3.2.1_rollup@2.41.1
+      rollup-plugin-license: 2.2.0_rollup@2.41.1
+      rollup-plugin-terser: 7.0.2_rollup@2.41.1
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
       typescript: 4.2.3
     specifiers:
-      '@rollup/plugin-commonjs': ^17.0.0
-      '@rollup/plugin-node-resolve': ^11.0.0
+      '@rollup/plugin-commonjs': ^17.1.0
+      '@rollup/plugin-node-resolve': ^11.2.0
       '@snowplow/browser-tracker-core': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
       '@types/jest': ^26.0.20
@@ -128,7 +128,7 @@ importers:
       eslint: ^7.7.0
       jest: ^26.6.3
       jest-standard-reporter: ^2.0.0
-      rollup: ^2.34.0
+      rollup: ^2.41.1
       rollup-plugin-cleanup: ^3.2.1
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
@@ -140,28 +140,28 @@ importers:
       '@snowplow/browser-tracker-core': 'link:../../libraries/browser-tracker-core'
       tslib: 2.1.0
     devDependencies:
-      '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
-      '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
+      '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.1
+      '@rollup/plugin-node-resolve': 11.2.0_rollup@2.41.1
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
       '@types/jest': 26.0.20
       '@types/jsdom': 16.2.6
       '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.41.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-environment-jsdom: 26.6.2
       jest-environment-jsdom-global: 2.0.4_jest-environment-jsdom@26.6.2
       jest-standard-reporter: 2.0.0
-      rollup: 2.35.1
-      rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
-      rollup-plugin-license: 2.2.0_rollup@2.35.1
-      rollup-plugin-terser: 7.0.2_rollup@2.35.1
+      rollup: 2.41.1
+      rollup-plugin-cleanup: 3.2.1_rollup@2.41.1
+      rollup-plugin-license: 2.2.0_rollup@2.41.1
+      rollup-plugin-terser: 7.0.2_rollup@2.41.1
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
       typescript: 4.2.3
     specifiers:
-      '@rollup/plugin-commonjs': ^17.0.0
-      '@rollup/plugin-node-resolve': ^11.0.0
+      '@rollup/plugin-commonjs': ^17.1.0
+      '@rollup/plugin-node-resolve': ^11.2.0
       '@snowplow/browser-tracker-core': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
       '@types/jest': ^26.0.20
@@ -174,7 +174,7 @@ importers:
       jest-environment-jsdom: ^26.6.2
       jest-environment-jsdom-global: ^2.0.4
       jest-standard-reporter: ^2.0.0
-      rollup: ^2.34.0
+      rollup: ^2.41.1
       rollup-plugin-cleanup: ^3.2.1
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
@@ -186,24 +186,24 @@ importers:
       '@snowplow/browser-tracker-core': 'link:../../libraries/browser-tracker-core'
       tslib: 2.1.0
     devDependencies:
-      '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
-      '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
+      '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.1
+      '@rollup/plugin-node-resolve': 11.2.0_rollup@2.41.1
       '@types/jest': 26.0.20
       '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.41.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
-      rollup: 2.35.1
-      rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
-      rollup-plugin-license: 2.2.0_rollup@2.35.1
-      rollup-plugin-terser: 7.0.2_rollup@2.35.1
+      rollup: 2.41.1
+      rollup-plugin-cleanup: 3.2.1_rollup@2.41.1
+      rollup-plugin-license: 2.2.0_rollup@2.41.1
+      rollup-plugin-terser: 7.0.2_rollup@2.41.1
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
       typescript: 4.2.3
     specifiers:
-      '@rollup/plugin-commonjs': ^17.0.0
-      '@rollup/plugin-node-resolve': ^11.0.0
+      '@rollup/plugin-commonjs': ^17.1.0
+      '@rollup/plugin-node-resolve': ^11.2.0
       '@snowplow/browser-tracker-core': 'workspace:*'
       '@types/jest': ^26.0.20
       '@typescript-eslint/eslint-plugin': ^4.9.0
@@ -212,7 +212,7 @@ importers:
       eslint: ^7.7.0
       jest: ^26.6.3
       jest-standard-reporter: ^2.0.0
-      rollup: ^2.34.0
+      rollup: ^2.41.1
       rollup-plugin-cleanup: ^3.2.1
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
@@ -225,24 +225,24 @@ importers:
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
       tslib: 2.1.0
     devDependencies:
-      '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
-      '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
+      '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.1
+      '@rollup/plugin-node-resolve': 11.2.0_rollup@2.41.1
       '@types/jest': 26.0.20
       '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.41.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
-      rollup: 2.35.1
-      rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
-      rollup-plugin-license: 2.2.0_rollup@2.35.1
-      rollup-plugin-terser: 7.0.2_rollup@2.35.1
+      rollup: 2.41.1
+      rollup-plugin-cleanup: 3.2.1_rollup@2.41.1
+      rollup-plugin-license: 2.2.0_rollup@2.41.1
+      rollup-plugin-terser: 7.0.2_rollup@2.41.1
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
       typescript: 4.2.3
     specifiers:
-      '@rollup/plugin-commonjs': ^17.0.0
-      '@rollup/plugin-node-resolve': ^11.0.0
+      '@rollup/plugin-commonjs': ^17.1.0
+      '@rollup/plugin-node-resolve': ^11.2.0
       '@snowplow/browser-tracker-core': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
       '@types/jest': ^26.0.20
@@ -252,7 +252,7 @@ importers:
       eslint: ^7.7.0
       jest: ^26.6.3
       jest-standard-reporter: ^2.0.0
-      rollup: ^2.34.0
+      rollup: ^2.41.1
       rollup-plugin-cleanup: ^3.2.1
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
@@ -265,24 +265,24 @@ importers:
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
       tslib: 2.1.0
     devDependencies:
-      '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
-      '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
+      '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.1
+      '@rollup/plugin-node-resolve': 11.2.0_rollup@2.41.1
       '@types/jest': 26.0.20
       '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.41.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
-      rollup: 2.35.1
-      rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
-      rollup-plugin-license: 2.2.0_rollup@2.35.1
-      rollup-plugin-terser: 7.0.2_rollup@2.35.1
+      rollup: 2.41.1
+      rollup-plugin-cleanup: 3.2.1_rollup@2.41.1
+      rollup-plugin-license: 2.2.0_rollup@2.41.1
+      rollup-plugin-terser: 7.0.2_rollup@2.41.1
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
       typescript: 4.2.3
     specifiers:
-      '@rollup/plugin-commonjs': ^17.0.0
-      '@rollup/plugin-node-resolve': ^11.0.0
+      '@rollup/plugin-commonjs': ^17.1.0
+      '@rollup/plugin-node-resolve': ^11.2.0
       '@snowplow/browser-tracker-core': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
       '@types/jest': ^26.0.20
@@ -292,7 +292,7 @@ importers:
       eslint: ^7.7.0
       jest: ^26.6.3
       jest-standard-reporter: ^2.0.0
-      rollup: ^2.34.0
+      rollup: ^2.41.1
       rollup-plugin-cleanup: ^3.2.1
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
@@ -305,26 +305,26 @@ importers:
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
       tslib: 2.1.0
     devDependencies:
-      '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
-      '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
+      '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.1
+      '@rollup/plugin-node-resolve': 11.2.0_rollup@2.41.1
       '@types/jest': 26.0.20
       '@types/lodash': 4.14.168
       '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.41.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
       lodash: 4.17.20
-      rollup: 2.35.1
-      rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
-      rollup-plugin-license: 2.2.0_rollup@2.35.1
-      rollup-plugin-terser: 7.0.2_rollup@2.35.1
+      rollup: 2.41.1
+      rollup-plugin-cleanup: 3.2.1_rollup@2.41.1
+      rollup-plugin-license: 2.2.0_rollup@2.41.1
+      rollup-plugin-terser: 7.0.2_rollup@2.41.1
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
       typescript: 4.2.3
     specifiers:
-      '@rollup/plugin-commonjs': ^17.0.0
-      '@rollup/plugin-node-resolve': ^11.0.0
+      '@rollup/plugin-commonjs': ^17.1.0
+      '@rollup/plugin-node-resolve': ^11.2.0
       '@snowplow/browser-tracker-core': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
       '@types/jest': ^26.0.20
@@ -336,7 +336,7 @@ importers:
       jest: ^26.6.3
       jest-standard-reporter: ^2.0.0
       lodash: ^4.17.20
-      rollup: ^2.34.0
+      rollup: ^2.41.1
       rollup-plugin-cleanup: ^3.2.1
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
@@ -349,24 +349,24 @@ importers:
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
       tslib: 2.1.0
     devDependencies:
-      '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
-      '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
+      '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.1
+      '@rollup/plugin-node-resolve': 11.2.0_rollup@2.41.1
       '@types/jest': 26.0.20
       '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.41.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
-      rollup: 2.35.1
-      rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
-      rollup-plugin-license: 2.2.0_rollup@2.35.1
-      rollup-plugin-terser: 7.0.2_rollup@2.35.1
+      rollup: 2.41.1
+      rollup-plugin-cleanup: 3.2.1_rollup@2.41.1
+      rollup-plugin-license: 2.2.0_rollup@2.41.1
+      rollup-plugin-terser: 7.0.2_rollup@2.41.1
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
       typescript: 4.2.3
     specifiers:
-      '@rollup/plugin-commonjs': ^17.0.0
-      '@rollup/plugin-node-resolve': ^11.0.0
+      '@rollup/plugin-commonjs': ^17.1.0
+      '@rollup/plugin-node-resolve': ^11.2.0
       '@snowplow/browser-tracker-core': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
       '@types/jest': ^26.0.20
@@ -376,7 +376,7 @@ importers:
       eslint: ^7.7.0
       jest: ^26.6.3
       jest-standard-reporter: ^2.0.0
-      rollup: ^2.34.0
+      rollup: ^2.41.1
       rollup-plugin-cleanup: ^3.2.1
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
@@ -389,24 +389,24 @@ importers:
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
       tslib: 2.1.0
     devDependencies:
-      '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
-      '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
+      '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.1
+      '@rollup/plugin-node-resolve': 11.2.0_rollup@2.41.1
       '@types/jest': 26.0.20
       '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.41.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
-      rollup: 2.35.1
-      rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
-      rollup-plugin-license: 2.2.0_rollup@2.35.1
-      rollup-plugin-terser: 7.0.2_rollup@2.35.1
+      rollup: 2.41.1
+      rollup-plugin-cleanup: 3.2.1_rollup@2.41.1
+      rollup-plugin-license: 2.2.0_rollup@2.41.1
+      rollup-plugin-terser: 7.0.2_rollup@2.41.1
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
       typescript: 4.2.3
     specifiers:
-      '@rollup/plugin-commonjs': ^17.0.0
-      '@rollup/plugin-node-resolve': ^11.0.0
+      '@rollup/plugin-commonjs': ^17.1.0
+      '@rollup/plugin-node-resolve': ^11.2.0
       '@snowplow/browser-tracker-core': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
       '@types/jest': ^26.0.20
@@ -416,7 +416,7 @@ importers:
       eslint: ^7.7.0
       jest: ^26.6.3
       jest-standard-reporter: ^2.0.0
-      rollup: ^2.34.0
+      rollup: ^2.41.1
       rollup-plugin-cleanup: ^3.2.1
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
@@ -429,24 +429,24 @@ importers:
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
       tslib: 2.1.0
     devDependencies:
-      '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
-      '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
+      '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.1
+      '@rollup/plugin-node-resolve': 11.2.0_rollup@2.41.1
       '@types/jest': 26.0.20
       '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.41.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
-      rollup: 2.35.1
-      rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
-      rollup-plugin-license: 2.2.0_rollup@2.35.1
-      rollup-plugin-terser: 7.0.2_rollup@2.35.1
+      rollup: 2.41.1
+      rollup-plugin-cleanup: 3.2.1_rollup@2.41.1
+      rollup-plugin-license: 2.2.0_rollup@2.41.1
+      rollup-plugin-terser: 7.0.2_rollup@2.41.1
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
       typescript: 4.2.3
     specifiers:
-      '@rollup/plugin-commonjs': ^17.0.0
-      '@rollup/plugin-node-resolve': ^11.0.0
+      '@rollup/plugin-commonjs': ^17.1.0
+      '@rollup/plugin-node-resolve': ^11.2.0
       '@snowplow/browser-tracker-core': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
       '@types/jest': ^26.0.20
@@ -456,7 +456,7 @@ importers:
       eslint: ^7.7.0
       jest: ^26.6.3
       jest-standard-reporter: ^2.0.0
-      rollup: ^2.34.0
+      rollup: ^2.41.1
       rollup-plugin-cleanup: ^3.2.1
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
@@ -469,24 +469,24 @@ importers:
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
       tslib: 2.1.0
     devDependencies:
-      '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
-      '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
+      '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.1
+      '@rollup/plugin-node-resolve': 11.2.0_rollup@2.41.1
       '@types/jest': 26.0.20
       '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.41.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
-      rollup: 2.35.1
-      rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
-      rollup-plugin-license: 2.2.0_rollup@2.35.1
-      rollup-plugin-terser: 7.0.2_rollup@2.35.1
+      rollup: 2.41.1
+      rollup-plugin-cleanup: 3.2.1_rollup@2.41.1
+      rollup-plugin-license: 2.2.0_rollup@2.41.1
+      rollup-plugin-terser: 7.0.2_rollup@2.41.1
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
       typescript: 4.2.3
     specifiers:
-      '@rollup/plugin-commonjs': ^17.0.0
-      '@rollup/plugin-node-resolve': ^11.0.0
+      '@rollup/plugin-commonjs': ^17.1.0
+      '@rollup/plugin-node-resolve': ^11.2.0
       '@snowplow/browser-tracker-core': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
       '@types/jest': ^26.0.20
@@ -496,7 +496,7 @@ importers:
       eslint: ^7.7.0
       jest: ^26.6.3
       jest-standard-reporter: ^2.0.0
-      rollup: ^2.34.0
+      rollup: ^2.41.1
       rollup-plugin-cleanup: ^3.2.1
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
@@ -509,24 +509,24 @@ importers:
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
       tslib: 2.1.0
     devDependencies:
-      '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
-      '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
+      '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.1
+      '@rollup/plugin-node-resolve': 11.2.0_rollup@2.41.1
       '@types/jest': 26.0.20
       '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.41.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
-      rollup: 2.35.1
-      rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
-      rollup-plugin-license: 2.2.0_rollup@2.35.1
-      rollup-plugin-terser: 7.0.2_rollup@2.35.1
+      rollup: 2.41.1
+      rollup-plugin-cleanup: 3.2.1_rollup@2.41.1
+      rollup-plugin-license: 2.2.0_rollup@2.41.1
+      rollup-plugin-terser: 7.0.2_rollup@2.41.1
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
       typescript: 4.2.3
     specifiers:
-      '@rollup/plugin-commonjs': ^17.0.0
-      '@rollup/plugin-node-resolve': ^11.0.0
+      '@rollup/plugin-commonjs': ^17.1.0
+      '@rollup/plugin-node-resolve': ^11.2.0
       '@snowplow/browser-tracker-core': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
       '@types/jest': ^26.0.20
@@ -536,7 +536,7 @@ importers:
       eslint: ^7.7.0
       jest: ^26.6.3
       jest-standard-reporter: ^2.0.0
-      rollup: ^2.34.0
+      rollup: ^2.41.1
       rollup-plugin-cleanup: ^3.2.1
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
@@ -549,24 +549,24 @@ importers:
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
       tslib: 2.1.0
     devDependencies:
-      '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
-      '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
+      '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.1
+      '@rollup/plugin-node-resolve': 11.2.0_rollup@2.41.1
       '@types/jest': 26.0.20
       '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.41.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
-      rollup: 2.35.1
-      rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
-      rollup-plugin-license: 2.2.0_rollup@2.35.1
-      rollup-plugin-terser: 7.0.2_rollup@2.35.1
+      rollup: 2.41.1
+      rollup-plugin-cleanup: 3.2.1_rollup@2.41.1
+      rollup-plugin-license: 2.2.0_rollup@2.41.1
+      rollup-plugin-terser: 7.0.2_rollup@2.41.1
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
       typescript: 4.2.3
     specifiers:
-      '@rollup/plugin-commonjs': ^17.0.0
-      '@rollup/plugin-node-resolve': ^11.0.0
+      '@rollup/plugin-commonjs': ^17.1.0
+      '@rollup/plugin-node-resolve': ^11.2.0
       '@snowplow/browser-tracker-core': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
       '@types/jest': ^26.0.20
@@ -576,7 +576,7 @@ importers:
       eslint: ^7.7.0
       jest: ^26.6.3
       jest-standard-reporter: ^2.0.0
-      rollup: ^2.34.0
+      rollup: ^2.41.1
       rollup-plugin-cleanup: ^3.2.1
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
@@ -589,24 +589,24 @@ importers:
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
       tslib: 2.1.0
     devDependencies:
-      '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
-      '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
+      '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.1
+      '@rollup/plugin-node-resolve': 11.2.0_rollup@2.41.1
       '@types/jest': 26.0.20
       '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.41.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
-      rollup: 2.35.1
-      rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
-      rollup-plugin-license: 2.2.0_rollup@2.35.1
-      rollup-plugin-terser: 7.0.2_rollup@2.35.1
+      rollup: 2.41.1
+      rollup-plugin-cleanup: 3.2.1_rollup@2.41.1
+      rollup-plugin-license: 2.2.0_rollup@2.41.1
+      rollup-plugin-terser: 7.0.2_rollup@2.41.1
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
       typescript: 4.2.3
     specifiers:
-      '@rollup/plugin-commonjs': ^17.0.0
-      '@rollup/plugin-node-resolve': ^11.0.0
+      '@rollup/plugin-commonjs': ^17.1.0
+      '@rollup/plugin-node-resolve': ^11.2.0
       '@snowplow/browser-tracker-core': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
       '@types/jest': ^26.0.20
@@ -616,7 +616,7 @@ importers:
       eslint: ^7.7.0
       jest: ^26.6.3
       jest-standard-reporter: ^2.0.0
-      rollup: ^2.34.0
+      rollup: ^2.41.1
       rollup-plugin-cleanup: ^3.2.1
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
@@ -628,24 +628,24 @@ importers:
       '@snowplow/browser-tracker-core': 'link:../../libraries/browser-tracker-core'
       tslib: 2.1.0
     devDependencies:
-      '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
-      '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
+      '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.1
+      '@rollup/plugin-node-resolve': 11.2.0_rollup@2.41.1
       '@types/jest': 26.0.20
       '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.41.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
-      rollup: 2.35.1
-      rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
-      rollup-plugin-license: 2.2.0_rollup@2.35.1
-      rollup-plugin-terser: 7.0.2_rollup@2.35.1
+      rollup: 2.41.1
+      rollup-plugin-cleanup: 3.2.1_rollup@2.41.1
+      rollup-plugin-license: 2.2.0_rollup@2.41.1
+      rollup-plugin-terser: 7.0.2_rollup@2.41.1
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
       typescript: 4.2.3
     specifiers:
-      '@rollup/plugin-commonjs': ^17.0.0
-      '@rollup/plugin-node-resolve': ^11.0.0
+      '@rollup/plugin-commonjs': ^17.1.0
+      '@rollup/plugin-node-resolve': ^11.2.0
       '@snowplow/browser-tracker-core': 'workspace:*'
       '@types/jest': ^26.0.20
       '@typescript-eslint/eslint-plugin': ^4.9.0
@@ -654,7 +654,7 @@ importers:
       eslint: ^7.7.0
       jest: ^26.6.3
       jest-standard-reporter: ^2.0.0
-      rollup: ^2.34.0
+      rollup: ^2.41.1
       rollup-plugin-cleanup: ^3.2.1
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
@@ -667,24 +667,24 @@ importers:
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
       tslib: 2.1.0
     devDependencies:
-      '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
-      '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
+      '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.1
+      '@rollup/plugin-node-resolve': 11.2.0_rollup@2.41.1
       '@types/jest': 26.0.20
       '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.41.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
-      rollup: 2.35.1
-      rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
-      rollup-plugin-license: 2.2.0_rollup@2.35.1
-      rollup-plugin-terser: 7.0.2_rollup@2.35.1
+      rollup: 2.41.1
+      rollup-plugin-cleanup: 3.2.1_rollup@2.41.1
+      rollup-plugin-license: 2.2.0_rollup@2.41.1
+      rollup-plugin-terser: 7.0.2_rollup@2.41.1
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
       typescript: 4.2.3
     specifiers:
-      '@rollup/plugin-commonjs': ^17.0.0
-      '@rollup/plugin-node-resolve': ^11.0.0
+      '@rollup/plugin-commonjs': ^17.1.0
+      '@rollup/plugin-node-resolve': ^11.2.0
       '@snowplow/browser-tracker-core': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
       '@types/jest': ^26.0.20
@@ -694,7 +694,7 @@ importers:
       eslint: ^7.7.0
       jest: ^26.6.3
       jest-standard-reporter: ^2.0.0
-      rollup: ^2.34.0
+      rollup: ^2.41.1
       rollup-plugin-cleanup: ^3.2.1
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
@@ -707,24 +707,24 @@ importers:
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
       tslib: 2.1.0
     devDependencies:
-      '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
-      '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
+      '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.1
+      '@rollup/plugin-node-resolve': 11.2.0_rollup@2.41.1
       '@types/jest': 26.0.20
       '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.41.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
-      rollup: 2.35.1
-      rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
-      rollup-plugin-license: 2.2.0_rollup@2.35.1
-      rollup-plugin-terser: 7.0.2_rollup@2.35.1
+      rollup: 2.41.1
+      rollup-plugin-cleanup: 3.2.1_rollup@2.41.1
+      rollup-plugin-license: 2.2.0_rollup@2.41.1
+      rollup-plugin-terser: 7.0.2_rollup@2.41.1
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
       typescript: 4.2.3
     specifiers:
-      '@rollup/plugin-commonjs': ^17.0.0
-      '@rollup/plugin-node-resolve': ^11.0.0
+      '@rollup/plugin-commonjs': ^17.1.0
+      '@rollup/plugin-node-resolve': ^11.2.0
       '@snowplow/browser-tracker-core': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
       '@types/jest': ^26.0.20
@@ -734,7 +734,7 @@ importers:
       eslint: ^7.7.0
       jest: ^26.6.3
       jest-standard-reporter: ^2.0.0
-      rollup: ^2.34.0
+      rollup: ^2.41.1
       rollup-plugin-cleanup: ^3.2.1
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
@@ -748,27 +748,27 @@ importers:
       jstimezonedetect: 1.0.7
       tslib: 2.1.0
     devDependencies:
-      '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
-      '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
+      '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.1
+      '@rollup/plugin-node-resolve': 11.2.0_rollup@2.41.1
       '@types/jest': 26.0.20
       '@types/jsdom': 16.2.6
       '@types/jstimezonedetect': 1.0.3
       '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.41.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
       moment-timezone: 0.5.32
-      rollup: 2.35.1
-      rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
-      rollup-plugin-license: 2.2.0_rollup@2.35.1
-      rollup-plugin-terser: 7.0.2_rollup@2.35.1
+      rollup: 2.41.1
+      rollup-plugin-cleanup: 3.2.1_rollup@2.41.1
+      rollup-plugin-license: 2.2.0_rollup@2.41.1
+      rollup-plugin-terser: 7.0.2_rollup@2.41.1
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
       typescript: 4.2.3
     specifiers:
-      '@rollup/plugin-commonjs': ^17.0.0
-      '@rollup/plugin-node-resolve': ^11.0.0
+      '@rollup/plugin-commonjs': ^17.1.0
+      '@rollup/plugin-node-resolve': ^11.2.0
       '@snowplow/browser-tracker-core': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
       '@types/jest': ^26.0.20
@@ -782,7 +782,7 @@ importers:
       jest-standard-reporter: ^2.0.0
       jstimezonedetect: 1.0.7
       moment-timezone: ^0.5.26
-      rollup: ^2.34.0
+      rollup: ^2.41.1
       rollup-plugin-cleanup: ^3.2.1
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
@@ -795,33 +795,33 @@ importers:
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
       tslib: 2.1.0
     devDependencies:
-      '@ampproject/rollup-plugin-closure-compiler': 0.26.0_rollup@2.35.1
-      '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
-      '@rollup/plugin-json': 4.1.0_rollup@2.35.1
-      '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
+      '@ampproject/rollup-plugin-closure-compiler': 0.26.0_rollup@2.41.1
+      '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.1
+      '@rollup/plugin-json': 4.1.0_rollup@2.41.1
+      '@rollup/plugin-node-resolve': 11.2.0_rollup@2.41.1
       '@types/jest': 26.0.20
       '@types/jsdom': 16.2.6
       '@types/lodash': 4.14.168
       '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
       '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.41.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-environment-jsdom: 26.6.2
       jest-environment-jsdom-global: 2.0.4_jest-environment-jsdom@26.6.2
       jest-standard-reporter: 2.0.0
       lodash: 4.17.20
-      rollup: 2.35.1
-      rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
-      rollup-plugin-license: 2.2.0_rollup@2.35.1
-      rollup-plugin-terser: 7.0.2_rollup@2.35.1
+      rollup: 2.41.1
+      rollup-plugin-cleanup: 3.2.1_rollup@2.41.1
+      rollup-plugin-license: 2.2.0_rollup@2.41.1
+      rollup-plugin-terser: 7.0.2_rollup@2.41.1
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
       typescript: 4.2.3
     specifiers:
       '@ampproject/rollup-plugin-closure-compiler': ^0.26.0
-      '@rollup/plugin-commonjs': ^17.0.0
+      '@rollup/plugin-commonjs': ^17.1.0
       '@rollup/plugin-json': ^4.1.0
-      '@rollup/plugin-node-resolve': ^11.0.0
+      '@rollup/plugin-node-resolve': ^11.2.0
       '@snowplow/browser-tracker-core': 'workspace:*'
       '@snowplow/tracker-core': 'workspace:*'
       '@types/jest': ^26.0.20
@@ -836,7 +836,7 @@ importers:
       jest-environment-jsdom-global: ^2.0.4
       jest-standard-reporter: ^2.0.0
       lodash: ^4.17.20
-      rollup: ^2.34.0
+      rollup: ^2.41.1
       rollup-plugin-cleanup: ^3.2.1
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
@@ -866,13 +866,12 @@ importers:
       '@snowplow/browser-tracker-core': 'link:../../libraries/browser-tracker-core'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
       tslib: 2.1.0
-      uuid: 3.4.0
     devDependencies:
-      '@ampproject/rollup-plugin-closure-compiler': 0.26.0_rollup@2.35.1
-      '@rollup/plugin-alias': 3.1.2_rollup@2.35.1
-      '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
-      '@rollup/plugin-json': 4.1.0_rollup@2.35.1
-      '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
+      '@ampproject/rollup-plugin-closure-compiler': 0.26.0_rollup@2.41.1
+      '@rollup/plugin-alias': 3.1.2_rollup@2.41.1
+      '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.1
+      '@rollup/plugin-json': 4.1.0_rollup@2.41.1
+      '@rollup/plugin-node-resolve': 11.2.0_rollup@2.41.1
       '@types/dockerode': 3.2.2
       '@types/jest': 26.0.20
       '@types/lodash': 4.14.168
@@ -884,7 +883,7 @@ importers:
       '@wdio/spec-reporter': 6.11.0_@wdio+cli@6.12.1
       '@wdio/static-server-service': 6.10.10
       '@wdio/sync': 6.11.0
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.41.1+typescript@4.2.3
       chromedriver: 88.0.0
       dockerode: 3.2.1
       gulp: 4.0.2
@@ -892,12 +891,12 @@ importers:
       jest-standard-reporter: 2.0.0
       lodash: 4.17.20
       npm-run-all: 4.1.5
-      rollup: 2.35.1
-      rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
+      rollup: 2.41.1
+      rollup-plugin-cleanup: 3.2.1_rollup@2.41.1
       rollup-plugin-filesize: 9.1.0
-      rollup-plugin-license: 2.2.0_rollup@2.35.1
-      rollup-plugin-sizes: 1.0.3_rollup@2.35.1
-      rollup-plugin-terser: 7.0.2_rollup@2.35.1
+      rollup-plugin-license: 2.2.0_rollup@2.41.1
+      rollup-plugin-sizes: 1.0.3_rollup@2.41.1
+      rollup-plugin-terser: 7.0.2_rollup@2.41.1
       saucelabs: 4.6.2
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
       ts-node: 9.1.1_typescript@4.2.3
@@ -906,9 +905,9 @@ importers:
     specifiers:
       '@ampproject/rollup-plugin-closure-compiler': ^0.26.0
       '@rollup/plugin-alias': ^3.1.2
-      '@rollup/plugin-commonjs': ^17.0.0
+      '@rollup/plugin-commonjs': ^17.1.0
       '@rollup/plugin-json': ^4.1.0
-      '@rollup/plugin-node-resolve': ^11.0.0
+      '@rollup/plugin-node-resolve': ^11.2.0
       '@snowplow/browser-plugin-ad-tracking': 'workspace:*'
       '@snowplow/browser-plugin-browser-features': 'workspace:*'
       '@snowplow/browser-plugin-client-hints': 'workspace:*'
@@ -948,7 +947,7 @@ importers:
       jest-standard-reporter: ^2.0.0
       lodash: ^4.17.20
       npm-run-all: ^4.1.5
-      rollup: ^2.34.0
+      rollup: ^2.41.1
       rollup-plugin-cleanup: ^3.2.1
       rollup-plugin-filesize: ^9.0.2
       rollup-plugin-license: ^2.2.0
@@ -959,7 +958,6 @@ importers:
       ts-node: ^9.1.1
       tslib: ^2.1.0
       typescript: ^4.2.3
-      uuid: ^3.4.0
       wdio-chromedriver-service: ^6.0.4
 lockfileVersion: 5.2
 packages:
@@ -972,7 +970,7 @@ packages:
       node: '>=6.0.0'
     resolution:
       integrity: sha512-a4EztS9/GOVQjX5Ol+Iz33TFhaXvYBF7aB6D8+Qz0/SCIxOm3UNRhGZiwcCuJ8/Ifc6NCogp3S48kc5hFxRpUw==
-  /@ampproject/rollup-plugin-closure-compiler/0.26.0_rollup@2.35.1:
+  /@ampproject/rollup-plugin-closure-compiler/0.26.0_rollup@2.41.1:
     dependencies:
       '@ampproject/remapping': 0.2.0
       acorn: 7.2.0
@@ -980,7 +978,7 @@ packages:
       estree-walker: 2.0.1
       google-closure-compiler: 20200517.0.0
       magic-string: 0.25.7
-      rollup: 2.35.1
+      rollup: 2.41.1
       uuid: 8.1.0
     dev: true
     engines:
@@ -2317,9 +2315,9 @@ packages:
     dev: true
     resolution:
       integrity: sha512-G8c86g9cQHyRINosIcpovzv0BkXQc3urhL1ORf3KTe4TS4UBsg2O4Z2feca/W3pfzdHEJzc83ETBW4aKbb3SaA==
-  /@rollup/plugin-alias/3.1.2_rollup@2.35.1:
+  /@rollup/plugin-alias/3.1.2_rollup@2.41.1:
     dependencies:
-      rollup: 2.35.1
+      rollup: 2.41.1
       slash: 3.0.0
     dev: true
     engines:
@@ -2328,54 +2326,54 @@ packages:
       rollup: ^1.20.0||^2.0.0
     resolution:
       integrity: sha512-wzDnQ6v7CcoRzS0qVwFPrFdYA4Qlr+ookA217Y2Z3DPZE1R8jrFNM3jvGgOf6o6DMjbnQIn5lCIJgHPe1Bt3uw==
-  /@rollup/plugin-commonjs/17.0.0_rollup@2.35.1:
+  /@rollup/plugin-commonjs/17.1.0_rollup@2.41.1:
     dependencies:
-      '@rollup/pluginutils': 3.1.0_rollup@2.35.1
+      '@rollup/pluginutils': 3.1.0_rollup@2.41.1
       commondir: 1.0.1
       estree-walker: 2.0.2
       glob: 7.1.6
       is-reference: 1.2.1
       magic-string: 0.25.7
       resolve: 1.19.0
-      rollup: 2.35.1
+      rollup: 2.41.1
     dev: true
     engines:
       node: '>= 8.0.0'
     peerDependencies:
       rollup: ^2.30.0
     resolution:
-      integrity: sha512-/omBIJG1nHQc+bgkYDuLpb/V08QyutP9amOrJRUSlYJZP+b/68gM//D8sxJe3Yry2QnYIr3QjR3x4AlxJEN3GA==
-  /@rollup/plugin-json/4.1.0_rollup@2.35.1:
+      integrity: sha512-PoMdXCw0ZyvjpCMT5aV4nkL0QywxP29sODQsSGeDpr/oI49Qq9tRtAsb/LbYbDzFlOydVEqHmmZWFtXJEAX9ew==
+  /@rollup/plugin-json/4.1.0_rollup@2.41.1:
     dependencies:
-      '@rollup/pluginutils': 3.1.0_rollup@2.35.1
-      rollup: 2.35.1
+      '@rollup/pluginutils': 3.1.0_rollup@2.41.1
+      rollup: 2.41.1
     dev: true
     peerDependencies:
       rollup: ^1.20.0 || ^2.0.0
     resolution:
       integrity: sha512-yfLbTdNS6amI/2OpmbiBoW12vngr5NW2jCJVZSBEz+H5KfUJZ2M7sDjk0U6GOOdCWFVScShte29o9NezJ53TPw==
-  /@rollup/plugin-node-resolve/11.0.1_rollup@2.35.1:
+  /@rollup/plugin-node-resolve/11.2.0_rollup@2.41.1:
     dependencies:
-      '@rollup/pluginutils': 3.1.0_rollup@2.35.1
+      '@rollup/pluginutils': 3.1.0_rollup@2.41.1
       '@types/resolve': 1.17.1
       builtin-modules: 3.2.0
       deepmerge: 4.2.2
       is-module: 1.0.0
       resolve: 1.19.0
-      rollup: 2.35.1
+      rollup: 2.41.1
     dev: true
     engines:
       node: '>= 10.0.0'
     peerDependencies:
       rollup: ^1.20.0||^2.0.0
     resolution:
-      integrity: sha512-ltlsj/4Bhwwhb+Nb5xCz/6vieuEj2/BAkkqVIKmZwC7pIdl8srmgmglE4S0jFlZa32K4qvdQ6NHdmpRKD/LwoQ==
-  /@rollup/pluginutils/3.1.0_rollup@2.35.1:
+      integrity: sha512-qHjNIKYt5pCcn+5RUBQxK8krhRvf1HnyVgUCcFFcweDS7fhkOLZeYh0mhHK6Ery8/bb9tvN/ubPzmfF0qjDCTA==
+  /@rollup/pluginutils/3.1.0_rollup@2.41.1:
     dependencies:
       '@types/estree': 0.0.39
       estree-walker: 1.0.1
       picomatch: 2.2.2
-      rollup: 2.35.1
+      rollup: 2.41.1
     dev: true
     engines:
       node: '>= 8.0.0'
@@ -2383,11 +2381,11 @@ packages:
       rollup: ^1.20.0||^2.0.0
     resolution:
       integrity: sha512-GksZ6pr6TpIjHm8h9lSQ8pi8BE9VeubNT0OMJ3B5uZJ8pz73NPiqOtCog/x2/QzM1ENChPKxMDhiQuRHsqc+lg==
-  /@rollup/pluginutils/4.1.0_rollup@2.35.1:
+  /@rollup/pluginutils/4.1.0_rollup@2.41.1:
     dependencies:
       estree-walker: 2.0.2
       picomatch: 2.2.2
-      rollup: 2.35.1
+      rollup: 2.41.1
     dev: true
     engines:
       node: '>= 8.0.0'
@@ -3071,7 +3069,7 @@ packages:
       node: '>=8.0.0'
     resolution:
       integrity: sha512-d7fHVGNbpMFhrwyiQrXlbmjtpmgKI3y0ns+THQNjA1exk6TY8tb6ZmUYn8KVXdCRjZUsvjedNpev/FO8OTTSyQ==
-  /@wessberg/rollup-plugin-ts/1.3.8_rollup@2.35.1+typescript@4.2.3:
+  /@wessberg/rollup-plugin-ts/1.3.8_rollup@2.41.1+typescript@4.2.3:
     dependencies:
       '@babel/core': 7.12.10
       '@babel/plugin-proposal-async-generator-functions': 7.12.1_@babel+core@7.12.10
@@ -3083,7 +3081,7 @@ packages:
       '@babel/plugin-transform-runtime': 7.12.10_@babel+core@7.12.10
       '@babel/preset-env': 7.12.11_@babel+core@7.12.10
       '@babel/runtime': 7.12.5
-      '@rollup/pluginutils': 4.1.0_rollup@2.35.1
+      '@rollup/pluginutils': 4.1.0_rollup@2.41.1
       '@types/babel__core': 7.1.12
       '@wessberg/browserslist-generator': 1.0.42
       '@wessberg/stringutil': 1.0.19
@@ -3091,7 +3089,7 @@ packages:
       browserslist: 4.16.0
       chalk: 4.1.0
       magic-string: 0.25.7
-      rollup: 2.35.1
+      rollup: 2.41.1
       slash: 3.0.0
       tslib: 2.1.0
       typescript: 4.2.3
@@ -6327,6 +6325,15 @@ packages:
       - darwin
     resolution:
       integrity: sha512-bTLYHSeC0UH/EFXS9KqWnXuOl/wHK5Z/d+ghd5AsFMYN7wIGkUCOJyzy88+wJKkZPGON8u4Z9f6U4FdgURE9qA==
+  /fsevents/2.3.2:
+    dev: true
+    engines:
+      node: ^8.16.0 || ^10.6.0 || >=11.0.0
+    optional: true
+    os:
+      - darwin
+    resolution:
+      integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==
   /function-bind/1.1.1:
     dev: true
     resolution:
@@ -10749,10 +10756,10 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==
-  /rollup-plugin-cleanup/3.2.1_rollup@2.35.1:
+  /rollup-plugin-cleanup/3.2.1_rollup@2.41.1:
     dependencies:
       js-cleanup: 1.2.0
-      rollup: 2.35.1
+      rollup: 2.41.1
       rollup-pluginutils: 2.8.2
     dev: true
     engines:
@@ -10776,7 +10783,7 @@ packages:
       node: '>=10.0.0'
     resolution:
       integrity: sha512-3umx+e2AzYH4lJaBtyeWk2kC7JafzZhy5AJwj2amudWWgqIFpI/QH7s2+9LWBwIvjK5ty6K6eM3i6dw7qF4GrQ==
-  /rollup-plugin-license/2.2.0_rollup@2.35.1:
+  /rollup-plugin-license/2.2.0_rollup@2.41.1:
     dependencies:
       commenting: 1.1.0
       glob: 7.1.6
@@ -10785,7 +10792,7 @@ packages:
       mkdirp: 1.0.4
       moment: 2.27.0
       package-name-regex: 1.0.8
-      rollup: 2.35.1
+      rollup: 2.41.1
       spdx-expression-validate: 2.0.0
       spdx-satisfies: 5.0.0
     dev: true
@@ -10795,21 +10802,21 @@ packages:
       rollup: ^1.0.0 || ^2.0.0
     resolution:
       integrity: sha512-xXb1vviEwlJMX+VGUSsglcMA/Rh9d2QzEm94awy4FlnsPqGrXoTYYGOR3UXR6gYIxiJFkr7qmkKF/NXfre/y8g==
-  /rollup-plugin-sizes/1.0.3_rollup@2.35.1:
+  /rollup-plugin-sizes/1.0.3_rollup@2.41.1:
     dependencies:
       filesize: 6.1.0
       module-details-from-path: 1.0.3
-      rollup: 2.35.1
+      rollup: 2.41.1
     dev: true
     peerDependencies:
       rollup: ^2.0.0
     resolution:
       integrity: sha512-4s/uOW3CykN4kMZrrvYngA309qTd4Hb18kplErDAtOUXUK7PrFAa3g7s2H5nW9hWZy7sNUkPMkH85klwacq19A==
-  /rollup-plugin-terser/7.0.2_rollup@2.35.1:
+  /rollup-plugin-terser/7.0.2_rollup@2.41.1:
     dependencies:
       '@babel/code-frame': 7.12.11
       jest-worker: 26.6.2
-      rollup: 2.35.1
+      rollup: 2.41.1
       serialize-javascript: 4.0.0
       terser: 5.5.1
     dev: true
@@ -10823,15 +10830,15 @@ packages:
     dev: true
     resolution:
       integrity: sha512-EEp9NhnUkwY8aif6bxgovPHMoMoNr2FulJziTndpt5H9RdwC47GSGuII9XxpSdzVGM0GWrNPHV6ie1LTNJPaLQ==
-  /rollup/2.35.1:
+  /rollup/2.41.1:
     dev: true
     engines:
       node: '>=10.0.0'
     hasBin: true
     optionalDependencies:
-      fsevents: 2.1.3
+      fsevents: 2.3.2
     resolution:
-      integrity: sha512-q5KxEyWpprAIcainhVy6HfRttD9kutQpHbeqDTWnqAFNJotiojetK6uqmcydNMymBEtC4I8bCYR+J3mTMqeaUA==
+      integrity: sha512-nepLFAW5W71/MWpS2Yr7r31eS7HRfYg2RXnxb6ehqN9zY42yACxKtEfb4xq8SmNfUohAzGMcyl6jkwdLOAiUbg==
   /rsvp/4.8.5:
     dev: true
     engines:
