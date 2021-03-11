@@ -24,7 +24,7 @@
     "@snowplow/tracker-core": "workspace:*",
     "sha1": "^1.1.1",
     "tslib": "^2.1.0",
-    "uuid": "^3.3.3"
+    "uuid": "^3.4.0"
   },
   "devDependencies": {
     "@ampproject/rollup-plugin-closure-compiler": "^0.26.0",
