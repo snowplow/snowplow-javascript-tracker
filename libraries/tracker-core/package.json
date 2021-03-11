@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "tslib": "^2.1.0",
-    "uuid": "^3.3.3"
+    "uuid": "^3.4.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",
