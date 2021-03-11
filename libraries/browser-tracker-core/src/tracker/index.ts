@@ -36,7 +36,7 @@ import {
   PayloadBuilder,
   SelfDescribingJson,
 } from '@snowplow/tracker-core';
-import sha1 from 'sha1';
+import hash from 'sha1';
 import { v4 as uuid } from 'uuid';
 import { detectDocumentSize, detectViewport } from '../detectors';
 import {
@@ -237,8 +237,6 @@ export function Tracker(
       maxXOffset: number,
       minYOffset: number,
       maxYOffset: number,
-      // Hash function
-      hash = sha1,
       // Domain hash value
       domainHash: string,
       // Domain unique user ID
