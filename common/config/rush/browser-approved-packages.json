@@ -7,27 +7,7 @@
       "allowedCategories": [ "libraries", "trackers" ]
     },
     {
-      "name": "@babel/core",
-      "allowedCategories": [ "trackers" ]
-    },
-    {
-      "name": "@babel/plugin-transform-runtime",
-      "allowedCategories": [ "trackers" ]
-    },
-    {
-      "name": "@babel/preset-env",
-      "allowedCategories": [ "trackers" ]
-    },
-    {
-      "name": "@babel/register",
-      "allowedCategories": [ "trackers" ]
-    },
-    {
       "name": "@rollup/plugin-alias",
-      "allowedCategories": [ "trackers" ]
-    },
-    {
-      "name": "@rollup/plugin-babel",
       "allowedCategories": [ "trackers" ]
     },
     {
@@ -151,10 +131,6 @@
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
-      "name": "@types/babel__core",
-      "allowedCategories": [ "trackers" ]
-    },
-    {
       "name": "@types/dockerode",
       "allowedCategories": [ "trackers" ]
     },
@@ -172,10 +148,6 @@
     },
     {
       "name": "@types/lodash",
-      "allowedCategories": [ "libraries", "plugins", "trackers" ]
-    },
-    {
-      "name": "@types/lodash-es",
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
@@ -227,24 +199,12 @@
       "allowedCategories": [ "trackers" ]
     },
     {
-      "name": "@wessberg/browserslist-generator",
-      "allowedCategories": [ "libraries", "plugins", "trackers" ]
-    },
-    {
       "name": "@wessberg/rollup-plugin-ts",
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "ava",
       "allowedCategories": [ "libraries", "plugins" ]
-    },
-    {
-      "name": "browser-env",
-      "allowedCategories": [ "libraries" ]
-    },
-    {
-      "name": "browser-environment",
-      "allowedCategories": [ "libraries" ]
     },
     {
       "name": "chromedriver",
@@ -261,10 +221,6 @@
     {
       "name": "gulp",
       "allowedCategories": [ "trackers" ]
-    },
-    {
-      "name": "helpers",
-      "allowedCategories": [ "plugins" ]
     },
     {
       "name": "jest",
@@ -299,12 +255,8 @@
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
-      "name": "lodash-es",
-      "allowedCategories": [ "libraries", "plugins", "trackers" ]
-    },
-    {
       "name": "moment-timezone",
-      "allowedCategories": [ "plugins", "trackers" ]
+      "allowedCategories": [ "plugins" ]
     },
     {
       "name": "npm-run-all",
@@ -317,10 +269,6 @@
     {
       "name": "rollup",
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
-    },
-    {
-      "name": "rollup-plugin-banner",
-      "allowedCategories": [ "trackers" ]
     },
     {
       "name": "rollup-plugin-cleanup",

@@ -5,7 +5,7 @@ importers:
     dependencies:
       '@snowplow/tracker-core': 'link:../tracker-core'
       sha1: 1.1.1
-      tslib: 2.0.3
+      tslib: 2.1.0
       uuid: 3.4.0
     devDependencies:
       '@ampproject/rollup-plugin-closure-compiler': 0.26.0_rollup@2.35.1
@@ -15,9 +15,9 @@ importers:
       '@types/jsdom': 16.2.6
       '@types/sha1': 1.1.2
       '@types/uuid': 3.4.9
-      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
-      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-environment-jsdom: 26.6.2
@@ -27,8 +27,8 @@ importers:
       rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
       rollup-plugin-license: 2.2.0_rollup@2.35.1
       rollup-plugin-terser: 7.0.2_rollup@2.35.1
-      ts-jest: 26.5.0_jest@26.6.3+typescript@4.1.3
-      typescript: 4.1.3
+      ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
+      typescript: 4.2.3
     specifiers:
       '@ampproject/rollup-plugin-closure-compiler': ^0.26.0
       '@rollup/plugin-commonjs': ^17.0.0
@@ -52,21 +52,21 @@ importers:
       rollup-plugin-terser: ^7.0.2
       sha1: ^1.1.1
       ts-jest: ^26.5.0
-      tslib: ^2.0.3
-      typescript: ^4.1.2
+      tslib: ^2.1.0
+      typescript: ^4.2.3
       uuid: ^3.3.3
   ../../libraries/tracker-core:
     dependencies:
-      tslib: 2.0.3
+      tslib: 2.1.0
       uuid: 3.4.0
     devDependencies:
       '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
       '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
       '@types/node': 14.14.14
       '@types/uuid': 3.4.9
-      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
-      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
       ava: 3.14.0
       eslint: 7.16.0
       jest-standard-reporter: 2.0.0
@@ -74,8 +74,8 @@ importers:
       rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
       rollup-plugin-license: 2.2.0_rollup@2.35.1
       rollup-plugin-terser: 7.0.2_rollup@2.35.1
-      ts-node: 9.1.1_typescript@4.1.3
-      typescript: 4.1.3
+      ts-node: 9.1.1_typescript@4.2.3
+      typescript: 4.2.3
     specifiers:
       '@rollup/plugin-commonjs': ^17.0.0
       '@rollup/plugin-node-resolve': ^11.0.0
@@ -92,21 +92,21 @@ importers:
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
       ts-node: ^9.1.1
-      tslib: ^2.0.3
-      typescript: ^4.1.2
+      tslib: ^2.1.0
+      typescript: ^4.2.3
       uuid: ^3.3.3
   ../../plugins/browser-plugin-ad-tracking:
     dependencies:
       '@snowplow/browser-tracker-core': 'link:../../libraries/browser-tracker-core'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
-      tslib: 2.0.3
+      tslib: 2.1.0
     devDependencies:
       '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
       '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
       '@types/jest': 26.0.20
-      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
-      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
@@ -114,8 +114,8 @@ importers:
       rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
       rollup-plugin-license: 2.2.0_rollup@2.35.1
       rollup-plugin-terser: 7.0.2_rollup@2.35.1
-      ts-jest: 26.5.0_jest@26.6.3+typescript@4.1.3
-      typescript: 4.1.3
+      ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
+      typescript: 4.2.3
     specifiers:
       '@rollup/plugin-commonjs': ^17.0.0
       '@rollup/plugin-node-resolve': ^11.0.0
@@ -133,21 +133,21 @@ importers:
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
       ts-jest: ^26.5.0
-      tslib: ^2.0.3
-      typescript: ^4.1.2
+      tslib: ^2.1.0
+      typescript: ^4.2.3
   ../../plugins/browser-plugin-browser-features:
     dependencies:
       '@snowplow/browser-tracker-core': 'link:../../libraries/browser-tracker-core'
-      tslib: 2.0.3
+      tslib: 2.1.0
     devDependencies:
       '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
       '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
       '@types/jest': 26.0.20
       '@types/jsdom': 16.2.6
-      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
-      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-environment-jsdom: 26.6.2
@@ -157,8 +157,8 @@ importers:
       rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
       rollup-plugin-license: 2.2.0_rollup@2.35.1
       rollup-plugin-terser: 7.0.2_rollup@2.35.1
-      ts-jest: 26.5.0_jest@26.6.3+typescript@4.1.3
-      typescript: 4.1.3
+      ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
+      typescript: 4.2.3
     specifiers:
       '@rollup/plugin-commonjs': ^17.0.0
       '@rollup/plugin-node-resolve': ^11.0.0
@@ -179,19 +179,19 @@ importers:
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
       ts-jest: ^26.5.0
-      tslib: ^2.0.3
-      typescript: ^4.1.2
+      tslib: ^2.1.0
+      typescript: ^4.2.3
   ../../plugins/browser-plugin-client-hints:
     dependencies:
       '@snowplow/browser-tracker-core': 'link:../../libraries/browser-tracker-core'
-      tslib: 2.0.3
+      tslib: 2.1.0
     devDependencies:
       '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
       '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
       '@types/jest': 26.0.20
-      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
-      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
@@ -199,8 +199,8 @@ importers:
       rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
       rollup-plugin-license: 2.2.0_rollup@2.35.1
       rollup-plugin-terser: 7.0.2_rollup@2.35.1
-      ts-jest: 26.5.0_jest@26.6.3+typescript@4.1.3
-      typescript: 4.1.3
+      ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
+      typescript: 4.2.3
     specifiers:
       '@rollup/plugin-commonjs': ^17.0.0
       '@rollup/plugin-node-resolve': ^11.0.0
@@ -217,20 +217,20 @@ importers:
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
       ts-jest: ^26.5.0
-      tslib: ^2.0.3
-      typescript: ^4.1.2
+      tslib: ^2.1.0
+      typescript: ^4.2.3
   ../../plugins/browser-plugin-consent:
     dependencies:
       '@snowplow/browser-tracker-core': 'link:../../libraries/browser-tracker-core'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
-      tslib: 2.0.3
+      tslib: 2.1.0
     devDependencies:
       '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
       '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
       '@types/jest': 26.0.20
-      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
-      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
@@ -238,8 +238,8 @@ importers:
       rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
       rollup-plugin-license: 2.2.0_rollup@2.35.1
       rollup-plugin-terser: 7.0.2_rollup@2.35.1
-      ts-jest: 26.5.0_jest@26.6.3+typescript@4.1.3
-      typescript: 4.1.3
+      ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
+      typescript: 4.2.3
     specifiers:
       '@rollup/plugin-commonjs': ^17.0.0
       '@rollup/plugin-node-resolve': ^11.0.0
@@ -257,20 +257,20 @@ importers:
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
       ts-jest: ^26.5.0
-      tslib: ^2.0.3
-      typescript: ^4.1.2
+      tslib: ^2.1.0
+      typescript: ^4.2.3
   ../../plugins/browser-plugin-ecommerce:
     dependencies:
       '@snowplow/browser-tracker-core': 'link:../../libraries/browser-tracker-core'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
-      tslib: 2.0.3
+      tslib: 2.1.0
     devDependencies:
       '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
       '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
       '@types/jest': 26.0.20
-      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
-      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
@@ -278,8 +278,8 @@ importers:
       rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
       rollup-plugin-license: 2.2.0_rollup@2.35.1
       rollup-plugin-terser: 7.0.2_rollup@2.35.1
-      ts-jest: 26.5.0_jest@26.6.3+typescript@4.1.3
-      typescript: 4.1.3
+      ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
+      typescript: 4.2.3
     specifiers:
       '@rollup/plugin-commonjs': ^17.0.0
       '@rollup/plugin-node-resolve': ^11.0.0
@@ -297,21 +297,21 @@ importers:
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
       ts-jest: ^26.5.0
-      tslib: ^2.0.3
-      typescript: ^4.1.2
+      tslib: ^2.1.0
+      typescript: ^4.2.3
   ../../plugins/browser-plugin-enhanced-ecommerce:
     dependencies:
       '@snowplow/browser-tracker-core': 'link:../../libraries/browser-tracker-core'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
-      tslib: 2.0.3
+      tslib: 2.1.0
     devDependencies:
       '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
       '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
       '@types/jest': 26.0.20
       '@types/lodash': 4.14.168
-      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
-      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
@@ -320,8 +320,8 @@ importers:
       rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
       rollup-plugin-license: 2.2.0_rollup@2.35.1
       rollup-plugin-terser: 7.0.2_rollup@2.35.1
-      ts-jest: 26.5.0_jest@26.6.3+typescript@4.1.3
-      typescript: 4.1.3
+      ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
+      typescript: 4.2.3
     specifiers:
       '@rollup/plugin-commonjs': ^17.0.0
       '@rollup/plugin-node-resolve': ^11.0.0
@@ -341,20 +341,20 @@ importers:
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
       ts-jest: ^26.5.0
-      tslib: ^2.0.3
-      typescript: ^4.1.2
+      tslib: ^2.1.0
+      typescript: ^4.2.3
   ../../plugins/browser-plugin-error-tracking:
     dependencies:
       '@snowplow/browser-tracker-core': 'link:../../libraries/browser-tracker-core'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
-      tslib: 2.0.3
+      tslib: 2.1.0
     devDependencies:
       '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
       '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
       '@types/jest': 26.0.20
-      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
-      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
@@ -362,8 +362,8 @@ importers:
       rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
       rollup-plugin-license: 2.2.0_rollup@2.35.1
       rollup-plugin-terser: 7.0.2_rollup@2.35.1
-      ts-jest: 26.5.0_jest@26.6.3+typescript@4.1.3
-      typescript: 4.1.3
+      ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
+      typescript: 4.2.3
     specifiers:
       '@rollup/plugin-commonjs': ^17.0.0
       '@rollup/plugin-node-resolve': ^11.0.0
@@ -381,20 +381,20 @@ importers:
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
       ts-jest: ^26.5.0
-      tslib: ^2.0.3
-      typescript: ^4.1.2
+      tslib: ^2.1.0
+      typescript: ^4.2.3
   ../../plugins/browser-plugin-form-tracking:
     dependencies:
       '@snowplow/browser-tracker-core': 'link:../../libraries/browser-tracker-core'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
-      tslib: 2.0.3
+      tslib: 2.1.0
     devDependencies:
       '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
       '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
       '@types/jest': 26.0.20
-      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
-      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
@@ -402,8 +402,8 @@ importers:
       rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
       rollup-plugin-license: 2.2.0_rollup@2.35.1
       rollup-plugin-terser: 7.0.2_rollup@2.35.1
-      ts-jest: 26.5.0_jest@26.6.3+typescript@4.1.3
-      typescript: 4.1.3
+      ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
+      typescript: 4.2.3
     specifiers:
       '@rollup/plugin-commonjs': ^17.0.0
       '@rollup/plugin-node-resolve': ^11.0.0
@@ -421,20 +421,20 @@ importers:
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
       ts-jest: ^26.5.0
-      tslib: ^2.0.3
-      typescript: ^4.1.2
+      tslib: ^2.1.0
+      typescript: ^4.2.3
   ../../plugins/browser-plugin-ga-cookies:
     dependencies:
       '@snowplow/browser-tracker-core': 'link:../../libraries/browser-tracker-core'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
-      tslib: 2.0.3
+      tslib: 2.1.0
     devDependencies:
       '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
       '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
       '@types/jest': 26.0.20
-      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
-      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
@@ -442,8 +442,8 @@ importers:
       rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
       rollup-plugin-license: 2.2.0_rollup@2.35.1
       rollup-plugin-terser: 7.0.2_rollup@2.35.1
-      ts-jest: 26.5.0_jest@26.6.3+typescript@4.1.3
-      typescript: 4.1.3
+      ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
+      typescript: 4.2.3
     specifiers:
       '@rollup/plugin-commonjs': ^17.0.0
       '@rollup/plugin-node-resolve': ^11.0.0
@@ -461,20 +461,20 @@ importers:
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
       ts-jest: ^26.5.0
-      tslib: ^2.0.3
-      typescript: ^4.1.2
+      tslib: ^2.1.0
+      typescript: ^4.2.3
   ../../plugins/browser-plugin-geolocation:
     dependencies:
       '@snowplow/browser-tracker-core': 'link:../../libraries/browser-tracker-core'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
-      tslib: 2.0.3
+      tslib: 2.1.0
     devDependencies:
       '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
       '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
       '@types/jest': 26.0.20
-      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
-      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
@@ -482,8 +482,8 @@ importers:
       rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
       rollup-plugin-license: 2.2.0_rollup@2.35.1
       rollup-plugin-terser: 7.0.2_rollup@2.35.1
-      ts-jest: 26.5.0_jest@26.6.3+typescript@4.1.3
-      typescript: 4.1.3
+      ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
+      typescript: 4.2.3
     specifiers:
       '@rollup/plugin-commonjs': ^17.0.0
       '@rollup/plugin-node-resolve': ^11.0.0
@@ -501,20 +501,20 @@ importers:
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
       ts-jest: ^26.5.0
-      tslib: ^2.0.3
-      typescript: ^4.1.2
+      tslib: ^2.1.0
+      typescript: ^4.2.3
   ../../plugins/browser-plugin-link-click-tracking:
     dependencies:
       '@snowplow/browser-tracker-core': 'link:../../libraries/browser-tracker-core'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
-      tslib: 2.0.3
+      tslib: 2.1.0
     devDependencies:
       '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
       '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
       '@types/jest': 26.0.20
-      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
-      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
@@ -522,8 +522,8 @@ importers:
       rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
       rollup-plugin-license: 2.2.0_rollup@2.35.1
       rollup-plugin-terser: 7.0.2_rollup@2.35.1
-      ts-jest: 26.5.0_jest@26.6.3+typescript@4.1.3
-      typescript: 4.1.3
+      ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
+      typescript: 4.2.3
     specifiers:
       '@rollup/plugin-commonjs': ^17.0.0
       '@rollup/plugin-node-resolve': ^11.0.0
@@ -541,20 +541,20 @@ importers:
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
       ts-jest: ^26.5.0
-      tslib: ^2.0.3
-      typescript: ^4.1.2
+      tslib: ^2.1.0
+      typescript: ^4.2.3
   ../../plugins/browser-plugin-optimizely:
     dependencies:
       '@snowplow/browser-tracker-core': 'link:../../libraries/browser-tracker-core'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
-      tslib: 2.0.3
+      tslib: 2.1.0
     devDependencies:
       '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
       '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
       '@types/jest': 26.0.20
-      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
-      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
@@ -562,8 +562,8 @@ importers:
       rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
       rollup-plugin-license: 2.2.0_rollup@2.35.1
       rollup-plugin-terser: 7.0.2_rollup@2.35.1
-      ts-jest: 26.5.0_jest@26.6.3+typescript@4.1.3
-      typescript: 4.1.3
+      ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
+      typescript: 4.2.3
     specifiers:
       '@rollup/plugin-commonjs': ^17.0.0
       '@rollup/plugin-node-resolve': ^11.0.0
@@ -581,20 +581,20 @@ importers:
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
       ts-jest: ^26.5.0
-      tslib: ^2.0.3
-      typescript: ^4.1.2
+      tslib: ^2.1.0
+      typescript: ^4.2.3
   ../../plugins/browser-plugin-optimizely-x:
     dependencies:
       '@snowplow/browser-tracker-core': 'link:../../libraries/browser-tracker-core'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
-      tslib: 2.0.3
+      tslib: 2.1.0
     devDependencies:
       '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
       '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
       '@types/jest': 26.0.20
-      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
-      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
@@ -602,8 +602,8 @@ importers:
       rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
       rollup-plugin-license: 2.2.0_rollup@2.35.1
       rollup-plugin-terser: 7.0.2_rollup@2.35.1
-      ts-jest: 26.5.0_jest@26.6.3+typescript@4.1.3
-      typescript: 4.1.3
+      ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
+      typescript: 4.2.3
     specifiers:
       '@rollup/plugin-commonjs': ^17.0.0
       '@rollup/plugin-node-resolve': ^11.0.0
@@ -621,19 +621,19 @@ importers:
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
       ts-jest: ^26.5.0
-      tslib: ^2.0.3
-      typescript: ^4.1.2
+      tslib: ^2.1.0
+      typescript: ^4.2.3
   ../../plugins/browser-plugin-parrable:
     dependencies:
       '@snowplow/browser-tracker-core': 'link:../../libraries/browser-tracker-core'
-      tslib: 2.0.3
+      tslib: 2.1.0
     devDependencies:
       '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
       '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
       '@types/jest': 26.0.20
-      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
-      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
@@ -641,8 +641,8 @@ importers:
       rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
       rollup-plugin-license: 2.2.0_rollup@2.35.1
       rollup-plugin-terser: 7.0.2_rollup@2.35.1
-      ts-jest: 26.5.0_jest@26.6.3+typescript@4.1.3
-      typescript: 4.1.3
+      ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
+      typescript: 4.2.3
     specifiers:
       '@rollup/plugin-commonjs': ^17.0.0
       '@rollup/plugin-node-resolve': ^11.0.0
@@ -659,20 +659,20 @@ importers:
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
       ts-jest: ^26.5.0
-      tslib: ^2.0.3
-      typescript: ^4.1.2
+      tslib: ^2.1.0
+      typescript: ^4.2.3
   ../../plugins/browser-plugin-performance-timing:
     dependencies:
       '@snowplow/browser-tracker-core': 'link:../../libraries/browser-tracker-core'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
-      tslib: 2.0.3
+      tslib: 2.1.0
     devDependencies:
       '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
       '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
       '@types/jest': 26.0.20
-      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
-      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
@@ -680,8 +680,8 @@ importers:
       rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
       rollup-plugin-license: 2.2.0_rollup@2.35.1
       rollup-plugin-terser: 7.0.2_rollup@2.35.1
-      ts-jest: 26.5.0_jest@26.6.3+typescript@4.1.3
-      typescript: 4.1.3
+      ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
+      typescript: 4.2.3
     specifiers:
       '@rollup/plugin-commonjs': ^17.0.0
       '@rollup/plugin-node-resolve': ^11.0.0
@@ -699,20 +699,20 @@ importers:
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
       ts-jest: ^26.5.0
-      tslib: ^2.0.3
-      typescript: ^4.1.2
+      tslib: ^2.1.0
+      typescript: ^4.2.3
   ../../plugins/browser-plugin-site-tracking:
     dependencies:
       '@snowplow/browser-tracker-core': 'link:../../libraries/browser-tracker-core'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
-      tslib: 2.0.3
+      tslib: 2.1.0
     devDependencies:
       '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
       '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
       '@types/jest': 26.0.20
-      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
-      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
@@ -720,8 +720,8 @@ importers:
       rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
       rollup-plugin-license: 2.2.0_rollup@2.35.1
       rollup-plugin-terser: 7.0.2_rollup@2.35.1
-      ts-jest: 26.5.0_jest@26.6.3+typescript@4.1.3
-      typescript: 4.1.3
+      ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
+      typescript: 4.2.3
     specifiers:
       '@rollup/plugin-commonjs': ^17.0.0
       '@rollup/plugin-node-resolve': ^11.0.0
@@ -739,23 +739,23 @@ importers:
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
       ts-jest: ^26.5.0
-      tslib: ^2.0.3
-      typescript: ^4.1.2
+      tslib: ^2.1.0
+      typescript: ^4.2.3
   ../../plugins/browser-plugin-timezone:
     dependencies:
       '@snowplow/browser-tracker-core': 'link:../../libraries/browser-tracker-core'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
       jstimezonedetect: 1.0.7
-      tslib: 2.0.3
+      tslib: 2.1.0
     devDependencies:
       '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
       '@rollup/plugin-node-resolve': 11.0.1_rollup@2.35.1
       '@types/jest': 26.0.20
       '@types/jsdom': 16.2.6
       '@types/jstimezonedetect': 1.0.3
-      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
-      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-standard-reporter: 2.0.0
@@ -764,8 +764,8 @@ importers:
       rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
       rollup-plugin-license: 2.2.0_rollup@2.35.1
       rollup-plugin-terser: 7.0.2_rollup@2.35.1
-      ts-jest: 26.5.0_jest@26.6.3+typescript@4.1.3
-      typescript: 4.1.3
+      ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
+      typescript: 4.2.3
     specifiers:
       '@rollup/plugin-commonjs': ^17.0.0
       '@rollup/plugin-node-resolve': ^11.0.0
@@ -787,13 +787,13 @@ importers:
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
       ts-jest: ^26.5.0
-      tslib: ^2.0.3
-      typescript: ^4.1.2
+      tslib: ^2.1.0
+      typescript: ^4.2.3
   ../../trackers/browser-tracker:
     dependencies:
       '@snowplow/browser-tracker-core': 'link:../../libraries/browser-tracker-core'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
-      tslib: 2.0.3
+      tslib: 2.1.0
     devDependencies:
       '@ampproject/rollup-plugin-closure-compiler': 0.26.0_rollup@2.35.1
       '@rollup/plugin-commonjs': 17.0.0_rollup@2.35.1
@@ -802,9 +802,9 @@ importers:
       '@types/jest': 26.0.20
       '@types/jsdom': 16.2.6
       '@types/lodash': 4.14.168
-      '@typescript-eslint/eslint-plugin': 4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4
-      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      '@typescript-eslint/eslint-plugin': 4.11.0_3261e8a6d4b016dd957834f001de0f18
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
       eslint: 7.16.0
       jest: 26.6.3
       jest-environment-jsdom: 26.6.2
@@ -815,8 +815,8 @@ importers:
       rollup-plugin-cleanup: 3.2.1_rollup@2.35.1
       rollup-plugin-license: 2.2.0_rollup@2.35.1
       rollup-plugin-terser: 7.0.2_rollup@2.35.1
-      ts-jest: 26.5.0_jest@26.6.3+typescript@4.1.3
-      typescript: 4.1.3
+      ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
+      typescript: 4.2.3
     specifiers:
       '@ampproject/rollup-plugin-closure-compiler': ^0.26.0
       '@rollup/plugin-commonjs': ^17.0.0
@@ -841,8 +841,8 @@ importers:
       rollup-plugin-license: ^2.2.0
       rollup-plugin-terser: ^7.0.2
       ts-jest: ^26.5.0
-      tslib: ^2.0.3
-      typescript: ^4.1.2
+      tslib: ^2.1.0
+      typescript: ^4.2.3
   ../../trackers/javascript-tracker:
     dependencies:
       '@snowplow/browser-plugin-ad-tracking': 'link:../../plugins/browser-plugin-ad-tracking'
@@ -865,7 +865,7 @@ importers:
       '@snowplow/browser-tracker': 'link:../browser-tracker'
       '@snowplow/browser-tracker-core': 'link:../../libraries/browser-tracker-core'
       '@snowplow/tracker-core': 'link:../../libraries/tracker-core'
-      tslib: 2.0.3
+      tslib: 2.1.0
     devDependencies:
       '@ampproject/rollup-plugin-closure-compiler': 0.26.0_rollup@2.35.1
       '@rollup/plugin-alias': 3.1.2_rollup@2.35.1
@@ -883,7 +883,7 @@ importers:
       '@wdio/spec-reporter': 6.11.0_@wdio+cli@6.12.1
       '@wdio/static-server-service': 6.10.10
       '@wdio/sync': 6.11.0
-      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.1.3
+      '@wessberg/rollup-plugin-ts': 1.3.8_rollup@2.35.1+typescript@4.2.3
       chromedriver: 88.0.0
       dockerode: 3.2.1
       gulp: 4.0.2
@@ -898,9 +898,9 @@ importers:
       rollup-plugin-sizes: 1.0.3_rollup@2.35.1
       rollup-plugin-terser: 7.0.2_rollup@2.35.1
       saucelabs: 4.6.2
-      ts-jest: 26.5.0_jest@26.6.3+typescript@4.1.3
-      ts-node: 9.1.1_typescript@4.1.3
-      typescript: 4.1.3
+      ts-jest: 26.5.0_jest@26.6.3+typescript@4.2.3
+      ts-node: 9.1.1_typescript@4.2.3
+      typescript: 4.2.3
       wdio-chromedriver-service: 6.0.4_5641968b929e879460c68c6bb367d837
     specifiers:
       '@ampproject/rollup-plugin-closure-compiler': ^0.26.0
@@ -956,8 +956,8 @@ importers:
       saucelabs: ^4.6.0
       ts-jest: ^26.5.0
       ts-node: ^9.1.1
-      tslib: ^2.0.3
-      typescript: ^4.1.2
+      tslib: ^2.1.0
+      typescript: ^4.2.3
       wdio-chromedriver-service: ^6.0.4
 lockfileVersion: 5.2
 packages:
@@ -2767,18 +2767,18 @@ packages:
     optional: true
     resolution:
       integrity: sha512-A1b8SU4D10uoPjwb0lnHmmu8wZhR9d+9o2PKBQT2jU5YPTKsxac6M2qGAdY7VcL+dHHhARVUDmeg0rOrcd9EjA==
-  /@typescript-eslint/eslint-plugin/4.11.0_1b9a0c47bb6bc72fe9ec08ec801e03a4:
+  /@typescript-eslint/eslint-plugin/4.11.0_3261e8a6d4b016dd957834f001de0f18:
     dependencies:
-      '@typescript-eslint/experimental-utils': 4.11.0_eslint@7.16.0+typescript@4.1.3
-      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.1.3
+      '@typescript-eslint/experimental-utils': 4.11.0_eslint@7.16.0+typescript@4.2.3
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.2.3
       '@typescript-eslint/scope-manager': 4.11.0
       debug: 4.3.1
       eslint: 7.16.0
       functional-red-black-tree: 1.0.1
       regexpp: 3.1.0
       semver: 7.3.4
-      tsutils: 3.17.1_typescript@4.1.3
-      typescript: 4.1.3
+      tsutils: 3.17.1_typescript@4.2.3
+      typescript: 4.2.3
     dev: true
     engines:
       node: ^10.12.0 || >=12.0.0
@@ -2791,12 +2791,12 @@ packages:
         optional: true
     resolution:
       integrity: sha512-x4arJMXBxyD6aBXLm3W7mSDZRiABzy+2PCLJbL7OPqlp53VXhaA1HKK7R2rTee5OlRhnUgnp8lZyVIqjnyPT6g==
-  /@typescript-eslint/experimental-utils/4.11.0_eslint@7.16.0+typescript@4.1.3:
+  /@typescript-eslint/experimental-utils/4.11.0_eslint@7.16.0+typescript@4.2.3:
     dependencies:
       '@types/json-schema': 7.0.6
       '@typescript-eslint/scope-manager': 4.11.0
       '@typescript-eslint/types': 4.11.0
-      '@typescript-eslint/typescript-estree': 4.11.0_typescript@4.1.3
+      '@typescript-eslint/typescript-estree': 4.11.0_typescript@4.2.3
       eslint: 7.16.0
       eslint-scope: 5.1.1
       eslint-utils: 2.1.0
@@ -2808,14 +2808,14 @@ packages:
       typescript: '*'
     resolution:
       integrity: sha512-1VC6mSbYwl1FguKt8OgPs8xxaJgtqFpjY/UzUYDBKq4pfQ5lBvN2WVeqYkzf7evW42axUHYl2jm9tNyFsb8oLg==
-  /@typescript-eslint/parser/4.11.0_eslint@7.16.0+typescript@4.1.3:
+  /@typescript-eslint/parser/4.11.0_eslint@7.16.0+typescript@4.2.3:
     dependencies:
       '@typescript-eslint/scope-manager': 4.11.0
       '@typescript-eslint/types': 4.11.0
-      '@typescript-eslint/typescript-estree': 4.11.0_typescript@4.1.3
+      '@typescript-eslint/typescript-estree': 4.11.0_typescript@4.2.3
       debug: 4.3.1
       eslint: 7.16.0
-      typescript: 4.1.3
+      typescript: 4.2.3
     dev: true
     engines:
       node: ^10.12.0 || >=12.0.0
@@ -2842,7 +2842,7 @@ packages:
       node: ^8.10.0 || ^10.13.0 || >=11.10.1
     resolution:
       integrity: sha512-XXOdt/NPX++txOQHM1kUMgJUS43KSlXGdR/aDyEwuAEETwuPt02Nc7v+s57PzuSqMbNLclblQdv3YcWOdXhQ7g==
-  /@typescript-eslint/typescript-estree/4.11.0_typescript@4.1.3:
+  /@typescript-eslint/typescript-estree/4.11.0_typescript@4.2.3:
     dependencies:
       '@typescript-eslint/types': 4.11.0
       '@typescript-eslint/visitor-keys': 4.11.0
@@ -2851,8 +2851,8 @@ packages:
       is-glob: 4.0.1
       lodash: 4.17.20
       semver: 7.3.4
-      tsutils: 3.17.1_typescript@4.1.3
-      typescript: 4.1.3
+      tsutils: 3.17.1_typescript@4.2.3
+      typescript: 4.2.3
     dev: true
     engines:
       node: ^10.12.0 || >=12.0.0
@@ -3069,7 +3069,7 @@ packages:
       node: '>=8.0.0'
     resolution:
       integrity: sha512-d7fHVGNbpMFhrwyiQrXlbmjtpmgKI3y0ns+THQNjA1exk6TY8tb6ZmUYn8KVXdCRjZUsvjedNpev/FO8OTTSyQ==
-  /@wessberg/rollup-plugin-ts/1.3.8_rollup@2.35.1+typescript@4.1.3:
+  /@wessberg/rollup-plugin-ts/1.3.8_rollup@2.35.1+typescript@4.2.3:
     dependencies:
       '@babel/core': 7.12.10
       '@babel/plugin-proposal-async-generator-functions': 7.12.1_@babel+core@7.12.10
@@ -3085,14 +3085,14 @@ packages:
       '@types/babel__core': 7.1.12
       '@wessberg/browserslist-generator': 1.0.42
       '@wessberg/stringutil': 1.0.19
-      '@wessberg/ts-clone-node': 0.3.18_typescript@4.1.3
+      '@wessberg/ts-clone-node': 0.3.18_typescript@4.2.3
       browserslist: 4.16.0
       chalk: 4.1.0
       magic-string: 0.25.7
       rollup: 2.35.1
       slash: 3.0.0
-      tslib: 2.0.3
-      typescript: 4.1.3
+      tslib: 2.1.0
+      typescript: 4.2.3
     dev: true
     engines:
       node: '>=10.0.0'
@@ -3107,9 +3107,9 @@ packages:
       node: '>=8.0.0'
     resolution:
       integrity: sha512-9AZHVXWlpN8Cn9k5BC/O0Dzb9E9xfEMXzYrNunwvkUTvuK7xgQPVRZpLo+jWCOZ5r8oBa8NIrHuPEu1hzbb6bg==
-  /@wessberg/ts-clone-node/0.3.18_typescript@4.1.3:
+  /@wessberg/ts-clone-node/0.3.18_typescript@4.2.3:
     dependencies:
-      typescript: 4.1.3
+      typescript: 4.2.3
     dev: true
     engines:
       node: '>=10.0.0'
@@ -4189,7 +4189,7 @@ packages:
   /camel-case/4.1.2:
     dependencies:
       pascal-case: 3.1.2
-      tslib: 2.0.3
+      tslib: 2.1.0
     dev: true
     resolution:
       integrity: sha512-gxGWBrTT1JuMx6R+o5PTXMmUnhnVzLQ9SNutD4YqKtI6ap897t3tKECYla6gCWEkplXnlNybEkZg9GEGxKFCgw==
@@ -4227,7 +4227,7 @@ packages:
   /capital-case/1.0.4:
     dependencies:
       no-case: 3.0.4
-      tslib: 2.0.3
+      tslib: 2.1.0
       upper-case-first: 2.0.2
     dev: true
     resolution:
@@ -4308,7 +4308,7 @@ packages:
       path-case: 3.0.4
       sentence-case: 3.0.4
       snake-case: 3.0.4
-      tslib: 2.0.3
+      tslib: 2.1.0
     dev: true
     resolution:
       integrity: sha512-bSxY2ws9OtviILG1EiY5K7NNxkqg/JnRnFxLtKQ96JaviiIxi7djMrSd0ECT9AC+lttClmYwKw53BWpOMblo7A==
@@ -4710,7 +4710,7 @@ packages:
   /constant-case/3.0.4:
     dependencies:
       no-case: 3.0.4
-      tslib: 2.0.3
+      tslib: 2.1.0
       upper-case: 2.0.2
     dev: true
     resolution:
@@ -5248,7 +5248,7 @@ packages:
   /dot-case/3.0.4:
     dependencies:
       no-case: 3.0.4
-      tslib: 2.0.3
+      tslib: 2.1.0
     dev: true
     resolution:
       integrity: sha512-Kv5nKlh6yRrdrGvxeJ2e5y2eRUpkUosIW4A2AS38zwSz27zu7ufDwQPi5Jhs3XAlGNetl3bmnGhQsMtkKJnj3w==
@@ -6872,7 +6872,7 @@ packages:
   /header-case/2.0.4:
     dependencies:
       capital-case: 1.0.4
-      tslib: 2.0.3
+      tslib: 2.1.0
     dev: true
     resolution:
       integrity: sha512-H/vuk5TEEVZwrR0lp2zed9OCo1uAILMlx0JEMgC26rzyJJ3N1v6XkwHHXJQdR2doSjcGPM6OKPYoJgf0plJ11Q==
@@ -7800,7 +7800,7 @@ packages:
       jest-validate: 26.6.2
       micromatch: 4.0.2
       pretty-format: 26.6.2
-      ts-node: 9.1.1_typescript@4.1.3
+      ts-node: 9.1.1_typescript@4.2.3
     dev: true
     engines:
       node: '>= 10.14.2'
@@ -8718,7 +8718,7 @@ packages:
       integrity: sha512-Hesni4s5UkWkwCGJMQGAh71PaLUmKFM60dHvq0zi/vDhhrzuk+4GgNbTXJ12YYQJn6ZKBDNIjYcuQGKudvqrIw==
   /lower-case/2.0.2:
     dependencies:
-      tslib: 2.0.3
+      tslib: 2.1.0
     dev: true
     resolution:
       integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==
@@ -9206,7 +9206,7 @@ packages:
   /no-case/3.0.4:
     dependencies:
       lower-case: 2.0.2
-      tslib: 2.0.3
+      tslib: 2.1.0
     dev: true
     resolution:
       integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==
@@ -9786,7 +9786,7 @@ packages:
   /param-case/3.0.4:
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.0.3
+      tslib: 2.1.0
     dev: true
     resolution:
       integrity: sha512-RXlj7zCYokReqWpOPH9oYivUzLYZ5vAPIfEmCTNViosC78F8F0H9y7T7gG2M39ymgutxF5gcFEsyZQSph9Bp3A==
@@ -9867,7 +9867,7 @@ packages:
   /pascal-case/3.1.2:
     dependencies:
       no-case: 3.0.4
-      tslib: 2.0.3
+      tslib: 2.1.0
     dev: true
     resolution:
       integrity: sha512-uWlGT3YSnK9x3BQJaOdcZwrnV6hPpd8jFH1/ucpiLRPh/2zCVJKS19E4GvYHvaCcACn3foXZ0cLB9Wrx1KGe5g==
@@ -9880,7 +9880,7 @@ packages:
   /path-case/3.0.4:
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.0.3
+      tslib: 2.1.0
     dev: true
     resolution:
       integrity: sha512-qO4qCFjXqVTrcbPt/hQfhTQ+VhFsqNKOPtytgNKkKxSoEp3XPUQ8ObFuePylOIok5gjn69ry8XiULxCwot3Wfg==
@@ -10994,7 +10994,7 @@ packages:
   /sentence-case/3.0.4:
     dependencies:
       no-case: 3.0.4
-      tslib: 2.0.3
+      tslib: 2.1.0
       upper-case-first: 2.0.2
     dev: true
     resolution:
@@ -11143,7 +11143,7 @@ packages:
   /snake-case/3.0.4:
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.0.3
+      tslib: 2.1.0
     dev: true
     resolution:
       integrity: sha512-LAOh4z89bGQvl9pFfNF8V146i7o7/CqFPbqzYgP+yYzDIDeS9HaNFtXABamRW+AQzEVODcvE79ljJ+8a9YSdMg==
@@ -11953,7 +11953,7 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha1-42RqLqTokTEr9+rObPsFOAvAHCE=
-  /ts-jest/26.5.0_jest@26.6.3+typescript@4.1.3:
+  /ts-jest/26.5.0_jest@26.6.3+typescript@4.2.3:
     dependencies:
       '@types/jest': 26.0.20
       bs-logger: 0.2.6
@@ -11966,7 +11966,7 @@ packages:
       make-error: 1.3.6
       mkdirp: 1.0.4
       semver: 7.3.4
-      typescript: 4.1.3
+      typescript: 4.2.3
       yargs-parser: 20.2.4
     dev: true
     engines:
@@ -11977,14 +11977,14 @@ packages:
       typescript: '>=3.8 <5.0'
     resolution:
       integrity: sha512-Ya4IQgvIFNa2Mgq52KaO8yBw2W8tWp61Ecl66VjF0f5JaV8u50nGoptHVILOPGoI7SDnShmEqnYQEmyHdQ+56g==
-  /ts-node/9.1.1_typescript@4.1.3:
+  /ts-node/9.1.1_typescript@4.2.3:
     dependencies:
       arg: 4.1.3
       create-require: 1.1.1
       diff: 4.0.2
       make-error: 1.3.6
       source-map-support: 0.5.19
-      typescript: 4.1.3
+      typescript: 4.2.3
       yn: 3.1.1
     dev: true
     engines:
@@ -11998,13 +11998,13 @@ packages:
     dev: true
     resolution:
       integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
-  /tslib/2.0.3:
+  /tslib/2.1.0:
     resolution:
-      integrity: sha512-uZtkfKblCEQtZKBF6EBXVZeQNl82yqtDQdv+eck8u7tdPxjLu2/lp5/uPW+um2tpuxINHWy3GhiccY7QgEaVHQ==
-  /tsutils/3.17.1_typescript@4.1.3:
+      integrity: sha512-hcVC3wYEziELGGmEEXue7D75zbwIIVUMWAVbHItGPx0ziyXxrOMQx4rQEVEV45Ut/1IotuEvwqPopzIOkDMf0A==
+  /tsutils/3.17.1_typescript@4.2.3:
     dependencies:
       tslib: 1.14.1
-      typescript: 4.1.3
+      typescript: 4.2.3
     dev: true
     engines:
       node: '>= 6'
@@ -12107,13 +12107,13 @@ packages:
     dev: true
     resolution:
       integrity: sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
-  /typescript/4.1.3:
+  /typescript/4.2.3:
     dev: true
     engines:
       node: '>=4.2.0'
     hasBin: true
     resolution:
-      integrity: sha512-B3ZIOf1IKeH2ixgHhj6la6xdwR9QrLC5d1VKeCSY4tvkqhF2eqd9O7txNlS0PO3GrBAFIdr3L1ndNwteUbZLYg==
+      integrity: sha512-qOcYwxaByStAWrBf4x0fibwZvMRG+r4cQoTjbPtUlrWjBHbmCAww1i448U0GJ+3cNNEtebDteo/cHOR3xJ4wEw==
   /ua-parser-js/0.7.23:
     dev: true
     resolution:
@@ -12275,13 +12275,13 @@ packages:
       integrity: sha512-BuVpRdlwxeIOvmc32AGYvO1KVdPlsmqSh8KDDBxS6kDE5VR7R8OMP1d8MdhaVBvxl4H3551k9akXr0Y1iIB2Wg==
   /upper-case-first/2.0.2:
     dependencies:
-      tslib: 2.0.3
+      tslib: 2.1.0
     dev: true
     resolution:
       integrity: sha512-514ppYHBaKwfJRK/pNC6c/OxfGa0obSnAl106u97Ed0I625Nin96KAjttZF6ZL3e1XLtphxnqrOi9iWgm+u+bg==
   /upper-case/2.0.2:
     dependencies:
-      tslib: 2.0.3
+      tslib: 2.1.0
     dev: true
     resolution:
       integrity: sha512-KgdgDGJt2TpuwBUIjgG6lzw2GWFRCW9Qkfkiv0DxqHHLYJHmtmdUIKcZd8rHgFSjopVTlw6ggzCm1b8MFQwikg==
