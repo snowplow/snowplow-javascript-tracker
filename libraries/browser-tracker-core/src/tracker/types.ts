@@ -102,10 +102,6 @@ export type TrackerConfiguration = {
    * @defaultValue false
    */
   respectDoNotTrack?: boolean;
-  /** Force all events to be sent using HTTPS */
-  forceSecureTracker?: boolean;
-  /** Force all events to be sent using HTTP */
-  forceUnsecureTracker?: boolean;
   /**
    * The preferred technique to use to send events
    * @defaultValue post
@@ -430,13 +426,12 @@ export interface BrowserTracker {
   setUserIdFromCookie: (cookieName: string) => void;
 
   /**
+   * Specify the Snowplow collector URL. Specific http or https to force it
+   * or leave it off to match the website protocol.
    *
-   * Specify the Snowplow collector URL. No need to include HTTP
-   * or HTTPS - we will add this.
-   *
-   * @param rawUrl The collector URL minus protocol and /i
+   * @param collectorUrl The collector URL, with or without protocol
    */
-  setCollectorUrl: (rawUrl: string) => void;
+  setCollectorUrl: (collectorUrl: string) => void;
 
   /**
    * Alter buffer size
