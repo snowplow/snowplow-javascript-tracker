@@ -278,16 +278,15 @@ export function setUserIdFromCookie(cookieName: string, trackers?: Array<string>
 }
 
 /**
+ * Specify the Snowplow collector URL. Specific http or https to force it
+ * or leave it off to match the website protocol.
  *
- * Specify the Snowplow collector URL. No need to include HTTP
- * or HTTPS - we will add this.
- *
- * @param rawUrl The collector URL minus protocol and /i
+ * @param collectorUrl The collector URL, with or without protocol
  * @param trackers The tracker identifiers which will be configured
  */
-export function setCollectorUrl(rawUrl: string, trackers?: Array<string>) {
+export function setCollectorUrl(collectorUrl: string, trackers?: Array<string>) {
   dispatch(trackers, (t) => {
-    t.setCollectorUrl(rawUrl);
+    t.setCollectorUrl(collectorUrl);
   });
 }
 
