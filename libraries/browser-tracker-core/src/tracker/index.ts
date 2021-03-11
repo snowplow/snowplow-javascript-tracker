@@ -108,7 +108,7 @@ type ActivityTrackingConfig = {
  * @param trackerId The unique identifier of the tracker
  * @param namespace The namespace of the tracker object
  * @param version The current version of the JavaScript Tracker
- * @param endpoint The collector endpoint to send events to
+ * @param endpoint The collector endpoint to send events to, with or without protocol
  * @param sharedState An object containing state which is shared across tracker instances
  * @param trackerConfiguration Dictionary of configuration options
  */
@@ -177,10 +177,6 @@ export function Tracker(
       customReferrer: string,
       // Platform defaults to web for this tracker
       configPlatform = trackerConfiguration.platform ?? 'web',
-      // This forces the tracker to be HTTPS even if the page is not secure
-      forceSecureTracker = trackerConfiguration.forceSecureTracker ?? false,
-      // This forces the tracker to be HTTP even if the page is secure
-      forceUnsecureTracker = !forceSecureTracker && (trackerConfiguration.forceUnsecureTracker ?? false),
       // Snowplow collector URL
       configCollectorUrl = asCollectorUrl(endpoint),
       // Custom path for post requests (to get around adblockers)
@@ -756,19 +752,17 @@ export function Tracker(
     }
 
     /**
-     * Adds the protocol in front of our collector URL, and i to the end
+     * Adds the protocol in front of our collector URL
      *
-     * @param string rawUrl The collector URL without protocol
+     * @param string collectorUrl The collector URL with or without protocol
      * @returns string collectorUrl The tracker URL with protocol
      */
-    function asCollectorUrl(rawUrl: string) {
-      if (forceSecureTracker) {
-        return 'https' + '://' + rawUrl;
+    function asCollectorUrl(collectorUrl: string) {
+      if (collectorUrl.indexOf('http') === 0) {
+        return collectorUrl;
       }
-      if (forceUnsecureTracker) {
-        return 'http' + '://' + rawUrl;
-      }
-      return ('https:' === documentAlias.location.protocol ? 'https' : 'http') + '://' + rawUrl;
+
+      return ('https:' === documentAlias.location.protocol ? 'https' : 'http') + '://' + collectorUrl;
     }
 
     /**
@@ -1162,8 +1156,8 @@ export function Tracker(
         businessUserId = cookie(cookieName);
       },
 
-      setCollectorUrl: function (rawUrl: string) {
-        configCollectorUrl = asCollectorUrl(rawUrl);
+      setCollectorUrl: function (collectorUrl: string) {
+        configCollectorUrl = asCollectorUrl(collectorUrl);
         outQueue.setCollectorUrl(configCollectorUrl);
       },
 
