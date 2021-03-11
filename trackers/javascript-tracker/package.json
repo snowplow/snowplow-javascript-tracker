@@ -56,7 +56,7 @@
     "@snowplow/browser-tracker": "workspace:*",
     "@snowplow/browser-tracker-core": "workspace:*",
     "@snowplow/tracker-core": "workspace:*",
-    "tslib": "^2.0.3"
+    "tslib": "^2.1.0"
   },
   "devDependencies": {
     "@ampproject/rollup-plugin-closure-compiler": "^0.26.0",
@@ -92,7 +92,7 @@
     "saucelabs": "^4.6.0",
     "ts-jest": "^26.5.0",
     "ts-node": "^9.1.1",
-    "typescript": "^4.1.2",
+    "typescript": "^4.2.3",
     "wdio-chromedriver-service": "^6.0.4"
   }
 }
