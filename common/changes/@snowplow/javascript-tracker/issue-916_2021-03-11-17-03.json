@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Bump rollup to 2.41 (#916)",
+      "type": "none",
+      "packageName": "@snowplow/javascript-tracker"
+    }
+  ],
+  "packageName": "@snowplow/javascript-tracker",
+  "email": "paul@snowplowanalytics.com"
+}
