@@ -284,6 +284,14 @@ export interface TrackerCore {
    * @param contexts An array containing either contexts or a conditional contexts
    */
   removeGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive>): void;
+
+  addPlugin(plugin: CorePlugin): void;
+}
+
+export interface CoreConfiguration {
+  base64?: boolean;
+  corePlugins?: Array<CorePlugin>;
+  callback?: (PayloadData: PayloadBuilder) => void;
 }
 
 /**
@@ -294,205 +302,219 @@ export interface TrackerCore {
  * @param callback Function applied to every payload dictionary object
  * @return Tracker core
  */
-export function trackerCore(
-  base64?: boolean,
-  corePlugins?: Array<CorePlugin>,
-  callback?: (PayloadData: PayloadBuilder) => void
-): TrackerCore {
-  const plugins = corePlugins ?? [],
-    pluginContextsHelper: PluginContexts = pluginContexts(plugins),
-    globalContextsHelper: GlobalContexts = globalContexts();
+export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore {
+  function newCore(base64: boolean, corePlugins: Array<CorePlugin>, callback?: (PayloadData: PayloadBuilder) => void) {
+    const pluginContextsHelper: PluginContexts = pluginContexts(corePlugins),
+      globalContextsHelper: GlobalContexts = globalContexts();
 
-  let encodeBase64 = base64 ?? true,
-    payloadPairs: Payload = {}; // Dictionary of key-value pairs which get added to every payload, e.g. tracker version
+    let encodeBase64 = base64,
+      payloadPairs: Payload = {}; // Dictionary of key-value pairs which get added to every payload, e.g. tracker version
 
-  /**
-   * Wraps an array of custom contexts in a self-describing JSON
-   *
-   * @param contexts Array of custom context self-describing JSONs
-   * @return Outer JSON
-   */
-  function completeContexts(
-    contexts?: Array<SelfDescribingJson>
-  ): SelfDescribingJsonArray<SelfDescribingJson> | undefined {
-    if (contexts && contexts.length) {
-      return {
-        schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0',
-        data: contexts,
-      };
-    }
-    return undefined;
-  }
-
-  /**
-   * Adds all global contexts to a contexts array
-   *
-   * @param pb PayloadData
-   * @param contexts Custom contexts relating to the event
-   */
-  function attachGlobalContexts(
-    pb: PayloadBuilder,
-    contexts?: Array<SelfDescribingJson> | null
-  ): Array<SelfDescribingJson> {
-    const applicableContexts: Array<SelfDescribingJson> = globalContextsHelper.getApplicableContexts(pb);
-    const returnedContexts: Array<SelfDescribingJson> = [];
-    if (contexts && contexts.length) {
-      returnedContexts.push(...contexts);
-    }
-    if (applicableContexts && applicableContexts.length) {
-      returnedContexts.push(...applicableContexts);
-    }
-    return returnedContexts;
-  }
-
-  /**
-   * Gets called by every trackXXX method
-   * Adds context and payloadPairs name-value pairs to the payload
-   * Applies the callback to the built payload
-   *
-   * @param pb Payload
-   * @param context Custom contexts relating to the event
-   * @param timestamp Timestamp of the event
-   * @return Payload after the callback is applied
-   */
-  function track(
-    pb: PayloadBuilder,
-    context?: Array<SelfDescribingJson> | null,
-    timestamp?: Timestamp | null
-  ): PayloadBuilder {
-    pb.setBase64Encoding(encodeBase64);
-    pb.add('eid', uuid());
-    pb.addDict(payloadPairs);
-    const tstamp = getTimestamp(timestamp);
-    pb.add(tstamp.type, tstamp.value.toString());
-    const allContexts = attachGlobalContexts(pb, pluginContextsHelper.addPluginContexts(context));
-    const wrappedContexts = completeContexts(allContexts);
-    if (wrappedContexts !== undefined) {
-      pb.addJson('cx', 'co', wrappedContexts);
-    }
-
-    plugins.forEach((plugin) => {
-      try {
-        if (plugin.beforeTrack) {
-          plugin.beforeTrack(pb);
-        }
-      } catch (ex) {
-        console.warn('Snowplow: error with plugin beforeTrack', ex);
+    /**
+     * Wraps an array of custom contexts in a self-describing JSON
+     *
+     * @param contexts Array of custom context self-describing JSONs
+     * @return Outer JSON
+     */
+    function completeContexts(
+      contexts?: Array<SelfDescribingJson>
+    ): SelfDescribingJsonArray<SelfDescribingJson> | undefined {
+      if (contexts && contexts.length) {
+        return {
+          schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0',
+          data: contexts,
+        };
       }
-    });
-
-    if (typeof callback === 'function') {
-      callback(pb);
+      return undefined;
     }
 
-    plugins.forEach((plugin) => {
-      try {
-        if (plugin.afterTrack) {
-          plugin.afterTrack(pb.build());
-        }
-      } catch (ex) {
-        console.warn('Snowplow: error with plugin ', ex);
+    /**
+     * Adds all global contexts to a contexts array
+     *
+     * @param pb PayloadData
+     * @param contexts Custom contexts relating to the event
+     */
+    function attachGlobalContexts(
+      pb: PayloadBuilder,
+      contexts?: Array<SelfDescribingJson> | null
+    ): Array<SelfDescribingJson> {
+      const applicableContexts: Array<SelfDescribingJson> = globalContextsHelper.getApplicableContexts(pb);
+      const returnedContexts: Array<SelfDescribingJson> = [];
+      if (contexts && contexts.length) {
+        returnedContexts.push(...contexts);
       }
-    });
+      if (applicableContexts && applicableContexts.length) {
+        returnedContexts.push(...applicableContexts);
+      }
+      return returnedContexts;
+    }
 
-    return pb;
+    /**
+     * Gets called by every trackXXX method
+     * Adds context and payloadPairs name-value pairs to the payload
+     * Applies the callback to the built payload
+     *
+     * @param pb Payload
+     * @param context Custom contexts relating to the event
+     * @param timestamp Timestamp of the event
+     * @return Payload after the callback is applied
+     */
+    function track(
+      pb: PayloadBuilder,
+      context?: Array<SelfDescribingJson> | null,
+      timestamp?: Timestamp | null
+    ): PayloadBuilder {
+      pb.setBase64Encoding(encodeBase64);
+      pb.add('eid', uuid());
+      pb.addDict(payloadPairs);
+      const tstamp = getTimestamp(timestamp);
+      pb.add(tstamp.type, tstamp.value.toString());
+      const allContexts = attachGlobalContexts(pb, pluginContextsHelper.addPluginContexts(context));
+      const wrappedContexts = completeContexts(allContexts);
+      if (wrappedContexts !== undefined) {
+        pb.addJson('cx', 'co', wrappedContexts);
+      }
+
+      corePlugins.forEach((plugin) => {
+        try {
+          if (plugin.beforeTrack) {
+            plugin.beforeTrack(pb);
+          }
+        } catch (ex) {
+          console.warn('Snowplow: error with plugin beforeTrack', ex);
+        }
+      });
+
+      if (typeof callback === 'function') {
+        callback(pb);
+      }
+
+      corePlugins.forEach((plugin) => {
+        try {
+          if (plugin.afterTrack) {
+            plugin.afterTrack(pb.build());
+          }
+        } catch (ex) {
+          console.warn('Snowplow: error with plugin ', ex);
+        }
+      });
+
+      return pb;
+    }
+
+    /**
+     * Set a persistent key-value pair to be added to every payload
+     *
+     * @param key Field name
+     * @param value Field value
+     */
+    function addPayloadPair(key: string, value: string | number): void {
+      payloadPairs[key] = value;
+    }
+
+    const core = {
+      track,
+
+      addPayloadPair,
+
+      getBase64Encoding() {
+        return encodeBase64;
+      },
+
+      setBase64Encoding(encode: boolean) {
+        encodeBase64 = encode;
+      },
+
+      addPayloadDict(dict: Payload) {
+        for (const key in dict) {
+          if (Object.prototype.hasOwnProperty.call(dict, key)) {
+            payloadPairs[key] = dict[key];
+          }
+        }
+      },
+
+      resetPayloadPairs(dict: Payload) {
+        payloadPairs = isJson(dict) ? dict : {};
+      },
+
+      setTrackerVersion(version: string) {
+        addPayloadPair('tv', version);
+      },
+
+      setTrackerNamespace(name: string) {
+        addPayloadPair('tna', name);
+      },
+
+      setAppId(appId: string) {
+        addPayloadPair('aid', appId);
+      },
+
+      setPlatform(value: string) {
+        addPayloadPair('p', value);
+      },
+
+      setUserId(userId: string) {
+        addPayloadPair('uid', userId);
+      },
+
+      setScreenResolution(width: string, height: string) {
+        addPayloadPair('res', width + 'x' + height);
+      },
+
+      setViewport(width: string, height: string) {
+        addPayloadPair('vp', width + 'x' + height);
+      },
+
+      setColorDepth(depth: string) {
+        addPayloadPair('cd', depth);
+      },
+
+      setTimezone(timezone: string) {
+        addPayloadPair('tz', timezone);
+      },
+
+      setLang(lang: string) {
+        addPayloadPair('lang', lang);
+      },
+
+      setIpAddress(ip: string) {
+        addPayloadPair('ip', ip);
+      },
+
+      setUseragent(useragent: string) {
+        addPayloadPair('ua', useragent);
+      },
+
+      addGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive>) {
+        globalContextsHelper.addGlobalContexts(contexts);
+      },
+
+      clearGlobalContexts(): void {
+        globalContextsHelper.clearGlobalContexts();
+      },
+
+      removeGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive>) {
+        globalContextsHelper.removeGlobalContexts(contexts);
+      },
+    };
+
+    return core;
   }
 
-  /**
-   * Set a persistent key-value pair to be added to every payload
-   *
-   * @param key Field name
-   * @param value Field value
-   */
-  function addPayloadPair(key: string, value: string | number): void {
-    payloadPairs[key] = value;
-  }
+  const { base64, corePlugins, callback } = configuration,
+    plugins = corePlugins ?? [],
+    partialCore = newCore(base64 ?? true, plugins, callback),
+    core = {
+      ...partialCore,
+      addPlugin: (plugin: CorePlugin) => {
+        plugins.push(plugin);
+        plugin.activateCorePlugin?.(core);
+      },
+    };
 
-  const core = {
-    track,
-
-    addPayloadPair,
-
-    getBase64Encoding() {
-      return encodeBase64;
-    },
-
-    setBase64Encoding(encode: boolean) {
-      encodeBase64 = encode;
-    },
-
-    addPayloadDict(dict: Payload) {
-      for (const key in dict) {
-        if (Object.prototype.hasOwnProperty.call(dict, key)) {
-          payloadPairs[key] = dict[key];
-        }
-      }
-    },
-
-    resetPayloadPairs(dict: Payload) {
-      payloadPairs = isJson(dict) ? dict : {};
-    },
-
-    setTrackerVersion(version: string) {
-      addPayloadPair('tv', version);
-    },
-
-    setTrackerNamespace(name: string) {
-      addPayloadPair('tna', name);
-    },
-
-    setAppId(appId: string) {
-      addPayloadPair('aid', appId);
-    },
-
-    setPlatform(value: string) {
-      addPayloadPair('p', value);
-    },
-
-    setUserId(userId: string) {
-      addPayloadPair('uid', userId);
-    },
-
-    setScreenResolution(width: string, height: string) {
-      addPayloadPair('res', width + 'x' + height);
-    },
-
-    setViewport(width: string, height: string) {
-      addPayloadPair('vp', width + 'x' + height);
-    },
-
-    setColorDepth(depth: string) {
-      addPayloadPair('cd', depth);
-    },
-
-    setTimezone(timezone: string) {
-      addPayloadPair('tz', timezone);
-    },
-
-    setLang(lang: string) {
-      addPayloadPair('lang', lang);
-    },
-
-    setIpAddress(ip: string) {
-      addPayloadPair('ip', ip);
-    },
-
-    setUseragent(useragent: string) {
-      addPayloadPair('ua', useragent);
-    },
-
-    addGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive>) {
-      globalContextsHelper.addGlobalContexts(contexts);
-    },
-
-    clearGlobalContexts(): void {
-      globalContextsHelper.clearGlobalContexts();
-    },
-
-    removeGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive>) {
-      globalContextsHelper.removeGlobalContexts(contexts);
-    },
-  };
+  plugins?.forEach((plugin) => {
+    plugin.activateCorePlugin?.(core);
+  });
 
   return core;
 }

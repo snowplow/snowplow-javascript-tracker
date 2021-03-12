@@ -28,6 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import { isStringArray } from '@snowplow/tracker-core';
 import {
   warn,
   isFunction,
@@ -35,9 +36,17 @@ import {
   createSharedState,
   SharedState,
   BrowserTracker,
+  addEventListener,
 } from '@snowplow/browser-tracker-core';
 import * as Snowplow from '@snowplow/browser-tracker';
 import { Plugins } from './features';
+import { JavaScriptTrackerConfiguration } from './configuration';
+
+declare global {
+  interface Window {
+    [key: string]: unknown;
+  }
+}
 
 /*
  * Proxy object
@@ -48,13 +57,23 @@ export interface Queue {
   push: (...args: any[]) => void;
 }
 
+interface PluginQueueItem {
+  timeout: number;
+}
+
+type FunctionParameters = [Record<string, unknown>, Array<string>] | [Array<string>];
+
 /*
  * Proxy object
  * This allows the caller to continue push()'ing after the Tracker has been initialized and loaded
  */
 export function InQueueManager(functionName: string, asyncQueue: Array<unknown>): Queue {
-  const sharedState: SharedState = createSharedState(),
-    availableTrackers: Record<string, Record<string, BrowserTracker>> = { [functionName]: {} };
+  const windowAlias = window,
+    documentAlias = document,
+    sharedState: SharedState = createSharedState(),
+    availableTrackers: Record<string, Record<string, BrowserTracker>> = { [functionName]: {} },
+    pendingPlugins: Record<string, PluginQueueItem> = {},
+    pendingQueue: Array<[string, FunctionParameters]> = [];
 
   let version: string, availableFunctions: Record<string, Function>;
   ({ version, ...availableFunctions } = Snowplow);
@@ -76,6 +95,127 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
     return Object.keys(availableTrackers[functionName]).map((k) => availableTrackers[functionName][k]);
   }
 
+  function dispatch(f: string, parameters: FunctionParameters) {
+    if (availableFunctions[f]) {
+      try {
+        availableFunctions[f].apply(null, parameters);
+      } catch (ex) {
+        warn(f + ' did not succeed');
+      }
+    } else {
+      warn(f + ' is not an available function');
+    }
+  }
+
+  function tryProcessQueue() {
+    if (Object.keys(pendingPlugins).length === 0) {
+      pendingQueue.forEach((q) => {
+        dispatch(q[0], q[1]);
+      });
+    }
+  }
+
+  function updateAvailableFunctions(newFunctions: Record<string, Function>) {
+    // Spread in any new methods
+    availableFunctions = {
+      ...availableFunctions,
+      ...newFunctions,
+    };
+  }
+
+  function newTracker(parameterArray: Array<unknown>) {
+    if (
+      typeof parameterArray[0] === 'string' &&
+      typeof parameterArray[1] === 'string' &&
+      (typeof parameterArray[2] === 'undefined' || typeof parameterArray[2] === 'object')
+    ) {
+      const trackerId = `${functionName}_${parameterArray[0]}`,
+        trackerConfiguration = parameterArray[2] as JavaScriptTrackerConfiguration,
+        plugins = Plugins(trackerConfiguration),
+        tracker = addTracker(trackerId, parameterArray[0], version, parameterArray[1], sharedState, {
+          ...trackerConfiguration,
+          plugins: plugins.map((p) => p[0]),
+        });
+
+      if (tracker) {
+        availableTrackers[functionName][trackerId] = tracker;
+      } else {
+        warn(parameterArray[0] + ' already exists');
+        return;
+      }
+
+      plugins.forEach((p) => {
+        updateAvailableFunctions(p[1]);
+      });
+    } else {
+      warn('Invalid newTracker call');
+    }
+  }
+
+  function addPlugin(parameterArray: Array<unknown>, trackerIdentifiers: Array<string>) {
+    function postScriptHandler(scriptSrc: string) {
+      if (Object.prototype.hasOwnProperty.call(pendingPlugins, scriptSrc)) {
+        windowAlias.clearTimeout(pendingPlugins[scriptSrc].timeout);
+        delete pendingPlugins[scriptSrc];
+        tryProcessQueue();
+      }
+    }
+
+    if (isStringArray(parameterArray[0]) && typeof parameterArray[1] === 'string') {
+      const scriptSrc = parameterArray[1],
+        constructorPath = parameterArray[0],
+        pauseTracking = parameterArray[2] ?? true;
+
+      if (pauseTracking) {
+        const timeout = windowAlias.setTimeout(() => {
+          postScriptHandler(scriptSrc);
+        }, 5000);
+        pendingPlugins[scriptSrc] = {
+          timeout: timeout,
+        };
+      }
+      const pluginScript = documentAlias.createElement('script');
+      pluginScript.setAttribute('src', scriptSrc);
+      addEventListener(
+        pluginScript,
+        'error',
+        () => {
+          postScriptHandler(scriptSrc);
+          warn(`failed to load plugin ${constructorPath[0]} from ${scriptSrc}`);
+        },
+        true
+      );
+      addEventListener(
+        pluginScript,
+        'load',
+        () => {
+          const [windowFn, innerFn] = constructorPath,
+            plugin = windowAlias[windowFn];
+          if (plugin && typeof plugin === 'object') {
+            const { [innerFn]: pluginConstructor, ...api } = plugin as Record<string, Function>;
+            availableFunctions['addPlugin'].apply(null, [{ plugin: pluginConstructor() }, trackerIdentifiers]);
+            updateAvailableFunctions(api);
+          }
+          postScriptHandler(scriptSrc);
+        },
+        true
+      );
+      documentAlias.head.appendChild(pluginScript);
+      return;
+    }
+
+    if (typeof parameterArray[0] === 'string' && typeof parameterArray[1] === 'object') {
+      const plugin = parameterArray[1],
+        constructorPath = parameterArray[0];
+      if (plugin) {
+        const { [constructorPath]: pluginConstructor, ...api } = plugin as Record<string, Function>;
+
+        availableFunctions['addPlugin'].apply(null, [{ plugin: pluginConstructor() }, trackerIdentifiers]);
+        updateAvailableFunctions(api);
+      }
+    }
+  }
+
   /**
    * apply wrapper
    *
@@ -95,6 +235,7 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
         try {
           let fnTrackers: Record<string, BrowserTracker> = {};
           for (const tracker of trackersForFunctionName()) {
+            // Strip GlobalSnowplowNamespace from ID
             fnTrackers[tracker.id.replace(`${functionName}_`, '')] = tracker;
           }
           input.apply(fnTrackers, parameterArray);
@@ -110,52 +251,32 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
         names = parsedString[1];
 
       if (f === 'newTracker') {
-        const trackerId = `${functionName}_${parameterArray[0]}`;
-        const plugins = Plugins(parameterArray[2]);
-        const tracker = addTracker(trackerId, parameterArray[0], version, parameterArray[1], sharedState, {
-          ...parameterArray[2],
-          plugins: plugins.map((p) => p[0]),
-        });
-        if (tracker) {
-          availableTrackers[functionName][trackerId] = tracker;
-        } else {
-          warn(parameterArray[0] + ' already exists');
-          continue;
-        }
-
-        plugins.forEach((p) => {
-          // Spread in any new plugin methods
-          availableFunctions = {
-            ...availableFunctions,
-            ...p[1],
-          };
-        });
-
+        newTracker(parameterArray);
         continue;
       }
 
-      if (availableFunctions[f]) {
-        let fnParameters: Array<unknown>;
-        if (parameterArray[0]) {
-          fnParameters = [parameterArray[0]];
-        } else {
-          fnParameters = availableFunctions[f].length === 2 ? [{}] : [];
-        }
+      const trackerIdentifiers = names
+        ? names.map((n) => `${functionName}_${n}`)
+        : trackersForFunctionName().map((t) => t.id);
 
-        if (names) {
-          fnParameters.push(names.map((n) => `${functionName}_${n}`));
-        } else {
-          fnParameters.push(trackersForFunctionName().map((t) => t.id));
-        }
-
-        try {
-          availableFunctions[f].apply(null, fnParameters);
-        } catch (ex) {
-          warn(f + ' did not succeed');
-        }
-      } else {
-        warn(f + ' is not an available function');
+      if (f === 'addPlugin') {
+        addPlugin(parameterArray, trackerIdentifiers);
+        continue;
       }
+
+      let fnParameters: FunctionParameters;
+      if (parameterArray[0]) {
+        fnParameters = [parameterArray[0], trackerIdentifiers];
+      } else {
+        fnParameters = availableFunctions[f].length === 2 ? [{}, trackerIdentifiers] : [trackerIdentifiers];
+      }
+
+      if (Object.keys(pendingPlugins).length > 0) {
+        pendingQueue.push([f, fnParameters]);
+        continue;
+      }
+
+      dispatch(f, fnParameters);
     }
   }
 

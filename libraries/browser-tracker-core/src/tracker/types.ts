@@ -482,4 +482,6 @@ export interface BrowserTracker {
    * Clears all cookies and local storage containing user and session identifiers
    */
   clearUserData: () => void;
+
+  addPlugin: (plugin: BrowserPlugin) => void;
 }

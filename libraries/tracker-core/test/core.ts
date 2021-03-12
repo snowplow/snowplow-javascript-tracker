@@ -56,7 +56,10 @@ import { PayloadBuilder, Payload } from '../src/payload';
 const selfDescribingEventSchema = 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0';
 let beforeCount = 0,
   afterCount = 0;
-const tracker = trackerCore(false, [{ beforeTrack: () => (beforeCount += 1), afterTrack: () => (afterCount += 1) }]);
+const tracker = trackerCore({
+  base64: false,
+  corePlugins: [{ beforeTrack: () => (beforeCount += 1), afterTrack: () => (afterCount += 1) }],
+});
 function compare(result: PayloadBuilder, expected: Payload, t: ExecutionContext) {
   const res = result.build();
   t.truthy(res['eid'], 'A UUID should be attached to all events');
@@ -674,7 +677,7 @@ test('should track a page view with a timestamp', (t) => {
   );
 });
 test('should add individual name-value pairs to the payload', (t) => {
-  const tracker = trackerCore(false);
+  const tracker = trackerCore({ base64: false });
   const pageUrl = 'http://www.example.com';
   const pageTitle = 'title';
   const referrer = 'https://www.google.com';
@@ -691,7 +694,7 @@ test('should add individual name-value pairs to the payload', (t) => {
   compare(tracker.track(buildPageView({ pageUrl, pageTitle, referrer })), expected, t);
 });
 test('should add a dictionary of name-value pairs to the payload', (t) => {
-  const tracker = trackerCore(false);
+  const tracker = trackerCore({ base64: false });
   const pageUrl = 'http://www.example.com';
   const pageTitle = 'title';
   const referrer = 'https://www.google.com';
@@ -712,7 +715,7 @@ test('should add a dictionary of name-value pairs to the payload', (t) => {
   compare(tracker.track(buildPageView({ pageUrl, pageTitle, referrer })), expected, t);
 });
 test('should reset payload name-value pairs', (t) => {
-  const tracker = trackerCore(false);
+  const tracker = trackerCore({ base64: false });
   const pageUrl = 'http://www.example.com';
   const pageTitle = 'title';
   const referrer = 'https://www.google.com';
@@ -728,9 +731,13 @@ test('should reset payload name-value pairs', (t) => {
   compare(tracker.track(buildPageView({ pageUrl, pageTitle, referrer })), expected, t);
 });
 test('should execute a callback', (t) => {
-  const tracker = trackerCore(false, [], function (payload) {
-    const callbackTarget = payload;
-    compare(callbackTarget, expected, t);
+  const tracker = trackerCore({
+    base64: false,
+    corePlugins: [],
+    callback: function (payload) {
+      const callbackTarget = payload;
+      compare(callbackTarget, expected, t);
+    },
   });
   const pageUrl = 'http://www.example.com';
   const pageTitle = 'title';
@@ -744,7 +751,7 @@ test('should execute a callback', (t) => {
   tracker.track(buildPageView({ pageUrl, pageTitle, referrer }));
 });
 test('should use setter methods', (t) => {
-  const tracker = trackerCore(false);
+  const tracker = trackerCore({ base64: false });
   tracker.setTrackerVersion('js-3.0.0');
   tracker.setTrackerNamespace('sp1');
   tracker.setAppId('my-app');

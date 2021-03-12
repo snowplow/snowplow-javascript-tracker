@@ -71,6 +71,7 @@ import {
   EnableAnonymousTrackingConfiguration,
   FlushBufferConfiguration,
 } from './types';
+import { BrowserPlugin } from '../plugins';
 
 /** Repesents an instance of an activity tracking configuration */
 type ActivityConfig = {
@@ -118,7 +119,7 @@ export function Tracker(
   version: string,
   endpoint: string,
   sharedState: SharedState,
-  trackerConfiguration?: TrackerConfiguration
+  trackerConfiguration: TrackerConfiguration = {}
 ): BrowserTracker {
   const newTracker = (
     trackerId: string,
@@ -126,7 +127,7 @@ export function Tracker(
     version: string,
     endpoint: string,
     state: SharedState,
-    trackerConfiguration: TrackerConfiguration = {}
+    trackerConfiguration: TrackerConfiguration
   ) => {
     /************************************************************
      * Private members
@@ -152,15 +153,19 @@ export function Tracker(
       getAnonymousTracking = (config: TrackerConfiguration) => !!config.anonymousTracking;
 
     // Get all injected plugins
-    let plugins = trackerConfiguration.plugins ?? [];
+    trackerConfiguration.plugins = trackerConfiguration.plugins ?? [];
     if (trackerConfiguration?.contexts?.webPage ?? true) {
-      plugins.push(getWebPagePlugin()); // Defaults to including the Web Page context
+      trackerConfiguration.plugins.push(getWebPagePlugin()); // Defaults to including the Web Page context
     }
 
     let // Tracker core
-      core = trackerCore(trackerConfiguration.encodeBase64 ?? true, plugins, function (payloadBuilder) {
-        addBrowserData(payloadBuilder);
-        sendRequest(payloadBuilder);
+      core = trackerCore({
+        base64: trackerConfiguration.encodeBase64,
+        corePlugins: trackerConfiguration.plugins,
+        callback: function (payloadBuilder) {
+          addBrowserData(payloadBuilder);
+          sendRequest(payloadBuilder);
+        },
       }),
       // Aliases
       documentAlias = document,
@@ -1224,22 +1229,21 @@ export function Tracker(
       id: trackerId,
       core: core,
       sharedState: state,
-      plugins: plugins,
     };
   };
 
   // Initialise the tracker
-  const { plugins, ...tracker } = newTracker(
-    trackerId,
-    namespace,
-    version,
-    endpoint,
-    sharedState,
-    trackerConfiguration
-  );
+  const partialTracker = newTracker(trackerId, namespace, version, endpoint, sharedState, trackerConfiguration),
+    tracker = {
+      ...partialTracker,
+      addPlugin: (plugin: BrowserPlugin) => {
+        trackerConfiguration.plugins?.push(plugin);
+        plugin.activateBrowserPlugin?.(tracker);
+      },
+    };
 
   // Initialise each plugin with the tracker
-  plugins.forEach((p) => {
+  trackerConfiguration.plugins?.forEach((p) => {
     p.activateBrowserPlugin?.(tracker);
   });
 
