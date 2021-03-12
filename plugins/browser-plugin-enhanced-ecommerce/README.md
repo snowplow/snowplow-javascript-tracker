@@ -36,7 +36,7 @@ Initialize your tracker with the EnhancedEcommercePlugin:
 import { newTracker } from '@snowplow/browser-tracker';
 import { EnhancedEcommercePlugin } from '@snowplow/browser-plugin-enhanced-ecommerce';
 
-newTracker('sp1', '{{collector}}', { Plugins: [ EnhancedEcommercePlugin() ] }); // Also stores reference at module level
+newTracker('sp1', '{{collector}}', { plugins: [ EnhancedEcommercePlugin() ] }); // Also stores reference at module level
 ```
 
 Then use the available functions from this package to track to all trackers which have been initialized with this plugin:

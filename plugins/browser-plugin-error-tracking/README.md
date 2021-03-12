@@ -36,7 +36,7 @@ Initialize your tracker with the ErrorTrackingPlugin:
 import { newTracker } from '@snowplow/browser-tracker';
 import { ErrorTrackingPlugin } from '@snowplow/browser-plugin-error-tracking';
 
-newTracker('sp1', '{{collector}}', { Plugins: [ ErrorTrackingPlugin() ] }); // Also stores reference at module level
+newTracker('sp1', '{{collector}}', { plugins: [ ErrorTrackingPlugin() ] }); // Also stores reference at module level
 ```
 
 Then use the available functions from this package to track to all trackers which have been initialized with this plugin:

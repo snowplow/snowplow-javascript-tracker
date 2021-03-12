@@ -36,7 +36,7 @@ Initialize your tracker with the PerformanceTimingPlugin:
 import { newTracker } from '@snowplow/browser-tracker';
 import { TimezonePlugin } from '@snowplow/browser-plugin-timezone';
 
-newTracker('sp1', '{{collector}}', { Plugins: [ TimezonePlugin() ] }); 
+newTracker('sp1', '{{collector}}', { plugins: [ TimezonePlugin() ] }); 
 ```
 
 ## Copyright and license

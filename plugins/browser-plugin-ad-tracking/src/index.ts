@@ -57,15 +57,8 @@ export function AdTrackingPlugin(): BrowserPlugin {
 /**
  * Track an ad being served
  *
- * @param string impressionId Identifier for a particular ad impression
- * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'
- * @param number cost Cost
- * @param string bannerId Identifier for the ad banner displayed
- * @param string zoneId Identifier for the ad zone
- * @param string advertiserId Identifier for the advertiser
- * @param string campaignId Identifier for the campaign which the banner belongs to
- * @param object Custom context relating to the event
- * @param timestamp number or Timestamp object
+ * @param event The event information
+ * @param trackers The tracker identifiers which the event will be sent to
  */
 export function trackAdImpression(
   event: AdImpressionEvent & CommonEventProperties,
@@ -81,17 +74,8 @@ export function trackAdImpression(
 /**
  * Track an ad being clicked
  *
- * @param string clickId Identifier for the ad click
- * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'
- * @param number cost Cost
- * @param string targetUrl (required) The link's target URL
- * @param string bannerId Identifier for the ad banner displayed
- * @param string zoneId Identifier for the ad zone
- * @param string impressionId Identifier for a particular ad impression
- * @param string advertiserId Identifier for the advertiser
- * @param string campaignId Identifier for the campaign which the banner belongs to
- * @param object Custom context relating to the event
- * @param timestamp number or Timestamp object
+ * @param event The event information
+ * @param trackers The tracker identifiers which the event will be sent to
  */
 export function trackAdClick(
   event: AdClickEvent & CommonEventProperties,
@@ -107,17 +91,8 @@ export function trackAdClick(
 /**
  * Track an ad conversion event
  *
- * @param string conversionId Identifier for the ad conversion event
- * @param number cost Cost
- * @param string category The name you supply for the group of objects you want to track
- * @param string action A string that is uniquely paired with each category
- * @param string property Describes the object of the conversion or the action performed on it
- * @param number initialValue Revenue attributable to the conversion at time of conversion
- * @param string advertiserId Identifier for the advertiser
- * @param string costModel The cost model. 'cpa', 'cpc', or 'cpm'
- * @param string campaignId Identifier for the campaign which the banner belongs to
- * @param object Custom context relating to the event
- * @param timestamp number or Timestamp object
+ * @param event The event information
+ * @param trackers The tracker identifiers which the event will be sent to
  */
 export function trackAdConversion(
   event: AdConversionEvent & CommonEventProperties,

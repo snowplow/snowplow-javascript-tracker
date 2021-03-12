@@ -36,7 +36,7 @@ Initialize your tracker with the ParrablePlugin:
 import { newTracker } from '@snowplow/browser-tracker';
 import { ParrablePlugin } from '@snowplow/browser-plugin-parrable';
 
-newTracker('sp1', '{{collector}}', { Plugins: [ ParrablePlugin() ] }); 
+newTracker('sp1', '{{collector}}', { plugins: [ ParrablePlugin() ] }); 
 ```
 
 ## Copyright and license

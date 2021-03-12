@@ -36,7 +36,7 @@ Initialize your tracker with the AdTrackingPlugin:
 import { newTracker } from '@snowplow/browser-tracker';
 import { AdTrackingPlugin } from '@snowplow/browser-plugin-ad-tracking';
 
-newTracker('sp1', '{{collector}}', { Plugins: [ AdTrackingPlugin() ] }); // Also stores reference at module level
+newTracker('sp1', '{{collector}}', { plugins: [ AdTrackingPlugin() ] }); // Also stores reference at module level
 ```
 
 Then use the `trackX` functions from this package to track to all trackers which have been initialized with this plugin:
