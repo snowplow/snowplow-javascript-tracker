@@ -37,8 +37,8 @@ import { PerformanceTimingPlugin } from '@snowplow/browser-plugin-performance-ti
 import { ClientHintsPlugin } from '@snowplow/browser-plugin-client-hints';
 import { FormTrackingPlugin, enableFormTracking } from '@snowplow/browser-plugin-form-tracking';
 
-newTracker('sp1', '{{collector}}', { Plugins: [ PerformanceTimingPlugin(), SiteTrackingPlugin(), ClientHintsPlugin(), FormTrackingPlugin() ] }); // Also stores reference at module level
-newTracker('sp2', '{{collector}}', { Plugins: [ PerformanceTimingPlugin(), SiteTrackingPlugin() ] }); // You can have multiple trackers with different configs!
+newTracker('sp1', '{{collector}}', { plugins: [ PerformanceTimingPlugin(), SiteTrackingPlugin(), ClientHintsPlugin(), FormTrackingPlugin() ] }); // Also stores reference at module level
+newTracker('sp2', '{{collector}}', { plugins: [ PerformanceTimingPlugin(), SiteTrackingPlugin() ] }); // You can have multiple trackers with different configs!
 
 enableFormTracking() // Switch on form tracking
 

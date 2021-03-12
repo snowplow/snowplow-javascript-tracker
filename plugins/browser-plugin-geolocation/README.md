@@ -37,7 +37,7 @@ import { newTracker } from '@snowplow/browser-tracker';
 import { GeolocationPlugin, enableGeolocationContext } from '@snowplow/browser-plugin-geolocation';
 
 // Enables at tracker load - set to `false` to load later with `enableGeolocationContext`
-newTracker('sp1', '{{collector}}', { Plugins: [ GeolocationPlugin(true) ] }); 
+newTracker('sp1', '{{collector}}', { plugins: [ GeolocationPlugin(true) ] }); 
 
 enableGeolocationContext(); // If initializing with `false`, call this to switch it on
 ```

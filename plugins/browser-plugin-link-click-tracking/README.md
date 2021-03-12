@@ -36,7 +36,7 @@ Initialize your tracker with the LinkClickTrackingPlugin:
 import { newTracker } from '@snowplow/browser-tracker';
 import { LinkClickTrackingPlugin } from '@snowplow/browser-plugin-lick-click-tracking';
 
-newTracker('sp1', '{{collector}}', { Plugins: [ LinkClickTrackingPlugin() ] }); // Also stores reference at module level
+newTracker('sp1', '{{collector}}', { plugins: [ LinkClickTrackingPlugin() ] }); // Also stores reference at module level
 ```
 
 Then use the available functions from this package to track to all trackers which have been initialized with this plugin:

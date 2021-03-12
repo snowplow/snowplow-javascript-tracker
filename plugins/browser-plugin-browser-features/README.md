@@ -36,7 +36,7 @@ Initialize your tracker with the BrowserFeaturesPlugin:
 import { newTracker } from '@snowplow/browser-tracker';
 import { BrowserFeaturesPlugin } from '@snowplow/browser-plugin-browser-features';
 
-newTracker('sp1', '{{collector}}', { Plugins: [ BrowserFeaturesPlugin() ] }); // Also stores reference at module level
+newTracker('sp1', '{{collector}}', { plugins: [ BrowserFeaturesPlugin() ] }); // Also stores reference at module level
 ```
 
 ## Copyright and license
