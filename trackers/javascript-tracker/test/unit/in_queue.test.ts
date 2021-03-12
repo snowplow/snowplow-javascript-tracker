@@ -36,11 +36,12 @@ import {
   trackPageView,
   updatePageActivity,
 } from '@snowplow/browser-tracker';
-import { BrowserTracker, addTracker, isFunction } from '@snowplow/browser-tracker-core';
+import { BrowserTracker, addTracker, isFunction, getTrackers } from '@snowplow/browser-tracker-core';
 
 jest.mock('@snowplow/browser-tracker');
 jest.mock('@snowplow/browser-tracker-core');
 const mockNewTracker = addTracker as jest.Mock<BrowserTracker>;
+const mockGetTrackers = getTrackers as jest.Mock<Array<BrowserTracker>>;
 const mockEnableActivityTracking = enableActivityTracking as jest.Mock<void>;
 const mockSetVisitorCookieTimeout = setVisitorCookieTimeout as jest.Mock<void>;
 const mockTrackPageView = trackPageView as jest.Mock<void>;
@@ -68,33 +69,37 @@ describe('InQueueManager', () => {
     };
   };
 
-  const mockTracker: Record<string, any> = {};
+  const mockTrackers: Record<string, any> = {};
   mockNewTracker.mockImplementation((name: string) => {
-    mockTracker[name] = newTracker(name);
-    return mockTracker[name];
+    mockTrackers[name] = newTracker(name);
+    return mockTrackers[name];
+  });
+
+  mockGetTrackers.mockImplementation((_: Array<string>) => {
+    return Object.values(mockTrackers);
   });
 
   mockEnableActivityTracking.mockImplementation(function (event: { n: number }, trackers: string[]) {
     trackers.forEach((t) => {
-      mockTracker[t].enableActivityTracking(event);
+      mockTrackers[t].enableActivityTracking(event);
     });
   });
 
   mockSetVisitorCookieTimeout.mockImplementation(function (event: { p: number }, trackers: string[]) {
     trackers.forEach((t) => {
-      mockTracker[t].setVisitorCookieTimeout(event);
+      mockTrackers[t].setVisitorCookieTimeout(event);
     });
   });
 
   mockTrackPageView.mockImplementation(function (trackers: string[]) {
     trackers.forEach((t) => {
-      mockTracker[t].trackPageView();
+      mockTrackers[t].trackPageView();
     });
   });
 
   mockUpdatePageActivity.mockImplementation(function (trackers: string[]) {
     trackers.forEach((t) => {
-      mockTracker[t].updatePageActivity();
+      mockTrackers[t].updatePageActivity();
     });
   });
 

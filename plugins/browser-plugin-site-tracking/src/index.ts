@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { BrowserPlugin, BrowserTracker } from '@snowplow/browser-tracker-core';
+import { BrowserPlugin, BrowserTracker, dispatchToTrackersInCollection } from '@snowplow/browser-tracker-core';
 import {
   buildSelfDescribingEvent,
   buildSiteSearch,
@@ -60,10 +60,8 @@ export function trackSocialInteraction(
   event: SocialInteractionEvent & CommonEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackers.forEach((t) => {
-    if (_trackers[t]) {
-      _trackers[t].core.track(buildSocialInteraction(event), event.context, event.timestamp);
-    }
+  dispatchToTrackersInCollection(trackers, _trackers, (t) => {
+    t.core.track(buildSocialInteraction(event), event.context, event.timestamp);
   });
 }
 
@@ -77,10 +75,8 @@ export function trackSiteSearch(
   event: SiteSearchEvent & CommonEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackers.forEach((t) => {
-    if (_trackers[t]) {
-      _trackers[t].core.track(buildSiteSearch(event), event.context, event.timestamp);
-    }
+  dispatchToTrackersInCollection(trackers, _trackers, (t) => {
+    t.core.track(buildSiteSearch(event), event.context, event.timestamp);
   });
 }
 
@@ -107,23 +103,21 @@ export function trackTiming(
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   const { category, variable, timing, label, context, timestamp } = event;
-  trackers.forEach((t) => {
-    if (_trackers[t]) {
-      _trackers[t].core.track(
-        buildSelfDescribingEvent({
-          event: {
-            schema: 'iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0',
-            data: {
-              category,
-              variable,
-              timing,
-              label,
-            },
+  dispatchToTrackersInCollection(trackers, _trackers, (t) => {
+    t.core.track(
+      buildSelfDescribingEvent({
+        event: {
+          schema: 'iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0',
+          data: {
+            category,
+            variable,
+            timing,
+            label,
           },
-        }),
-        context,
-        timestamp
-      );
-    }
+        },
+      }),
+      context,
+      timestamp
+    );
   });
 }

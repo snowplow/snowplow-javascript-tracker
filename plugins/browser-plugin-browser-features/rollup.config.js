@@ -46,11 +46,13 @@ export default [
   {
     input: './src/index.ts',
     plugins: [...umdPlugins, banner()],
+    treeshake: { moduleSideEffects: ['sha1'] },
     output: [{ file: pkg.main, format: 'umd', sourcemap: true, name: umdName }],
   },
   {
     input: './src/index.ts',
     plugins: [...umdPlugins, compiler(), terser(), cleanup({ comments: 'none' }), banner()],
+    treeshake: { moduleSideEffects: ['sha1'] },
     output: [{ file: pkg.main.replace('.js', '.min.js'), format: 'umd', sourcemap: true, name: umdName }],
   },
   {
