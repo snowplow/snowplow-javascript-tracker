@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Ensure browser-tracker API methods catch exceptions (#919)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-parrable"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-parrable",
+  "email": "paul@snowplowanalytics.com"
+}

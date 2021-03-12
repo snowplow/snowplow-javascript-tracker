@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Ensure browser-tracker API methods catch exceptions (#919)",
+      "type": "none",
+      "packageName": "@snowplow/browser-tracker"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker",
+  "email": "paul@snowplowanalytics.com"
+}

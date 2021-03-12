@@ -37,6 +37,7 @@ import {
   SharedState,
   BrowserTracker,
   addEventListener,
+  getTrackers,
 } from '@snowplow/browser-tracker-core';
 import * as Snowplow from '@snowplow/browser-tracker';
 import { Plugins } from './features';
@@ -53,7 +54,14 @@ declare global {
  * This allows the caller to continue push()'ing after the Tracker has been initialized and loaded
  */
 export interface Queue {
-  /* Allows the call to push events */
+  /**
+   * Allows the caller to push events
+   *
+   * @param array parameterArray An array comprising either:
+   *      [ 'functionName', optional_parameters ]
+   * or:
+   *      [ functionObject, optional_parameters ]
+   */
   push: (...args: any[]) => void;
 }
 
@@ -63,26 +71,23 @@ interface PluginQueueItem {
 
 type FunctionParameters = [Record<string, unknown>, Array<string>] | [Array<string>];
 
-/*
- * Proxy object
+/**
  * This allows the caller to continue push()'ing after the Tracker has been initialized and loaded
+ *
+ * @param functionName The global function name this script has been created on
+ * @param asyncQueue The existing queue of items to be processed
  */
 export function InQueueManager(functionName: string, asyncQueue: Array<unknown>): Queue {
   const windowAlias = window,
     documentAlias = document,
     sharedState: SharedState = createSharedState(),
-    availableTrackers: Record<string, Record<string, BrowserTracker>> = { [functionName]: {} },
+    availableTrackerIds: Array<string> = [],
     pendingPlugins: Record<string, PluginQueueItem> = {},
     pendingQueue: Array<[string, FunctionParameters]> = [];
 
   let version: string, availableFunctions: Record<string, Function>;
   ({ version, ...availableFunctions } = Snowplow);
 
-  /**
-   * Output an array of the form ['functionName', [trackerName1, trackerName2, ...]]
-   *
-   * @param inputString The functionName string
-   */
   function parseInputString(inputString: string): [string, string[] | undefined] {
     const separatedString = inputString.split(':'),
       extractedFunction = separatedString[0],
@@ -91,15 +96,11 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
     return [extractedFunction, extractedNames];
   }
 
-  function trackersForFunctionName() {
-    return Object.keys(availableTrackers[functionName]).map((k) => availableTrackers[functionName][k]);
-  }
-
   function dispatch(f: string, parameters: FunctionParameters) {
     if (availableFunctions[f]) {
       try {
         availableFunctions[f].apply(null, parameters);
-      } catch (ex) {
+      } catch {
         warn(f + ' did not succeed');
       }
     } else {
@@ -138,7 +139,7 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
         });
 
       if (tracker) {
-        availableTrackers[functionName][trackerId] = tracker;
+        availableTrackerIds.push(tracker.id);
       } else {
         warn(parameterArray[0] + ' already exists');
         return;
@@ -209,7 +210,6 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
         constructorPath = parameterArray[0];
       if (plugin) {
         const { [constructorPath]: pluginConstructor, ...api } = plugin as Record<string, Function>;
-
         availableFunctions['addPlugin'].apply(null, [{ plugin: pluginConstructor() }, trackerIdentifiers]);
         updateAvailableFunctions(api);
       }
@@ -234,7 +234,7 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
       if (isFunction(input)) {
         try {
           let fnTrackers: Record<string, BrowserTracker> = {};
-          for (const tracker of trackersForFunctionName()) {
+          for (const tracker of getTrackers(availableTrackerIds)) {
             // Strip GlobalSnowplowNamespace from ID
             fnTrackers[tracker.id.replace(`${functionName}_`, '')] = tracker;
           }
@@ -255,9 +255,7 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
         continue;
       }
 
-      const trackerIdentifiers = names
-        ? names.map((n) => `${functionName}_${n}`)
-        : trackersForFunctionName().map((t) => t.id);
+      const trackerIdentifiers = names ? names.map((n) => `${functionName}_${n}`) : availableTrackerIds;
 
       if (f === 'addPlugin') {
         addPlugin(parameterArray, trackerIdentifiers);

@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { BrowserPlugin, BrowserTracker } from '@snowplow/browser-tracker-core';
+import { BrowserPlugin, BrowserTracker, dispatchToTrackersInCollection } from '@snowplow/browser-tracker-core';
 import {
   buildAdClick,
   buildAdConversion,
@@ -64,10 +64,8 @@ export function trackAdImpression(
   event: AdImpressionEvent & CommonEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackers.forEach((t) => {
-    if (_trackers[t]) {
-      _trackers[t].core.track(buildAdImpression(event), event.context, event.timestamp);
-    }
+  dispatchToTrackersInCollection(trackers, _trackers, (t) => {
+    t.core.track(buildAdImpression(event), event.context, event.timestamp);
   });
 }
 
@@ -81,10 +79,8 @@ export function trackAdClick(
   event: AdClickEvent & CommonEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackers.forEach((t) => {
-    if (_trackers[t]) {
-      _trackers[t].core.track(buildAdClick(event), event.context, event.timestamp);
-    }
+  dispatchToTrackersInCollection(trackers, _trackers, (t) => {
+    t.core.track(buildAdClick(event), event.context, event.timestamp);
   });
 }
 
@@ -98,9 +94,7 @@ export function trackAdConversion(
   event: AdConversionEvent & CommonEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackers.forEach((t) => {
-    if (_trackers[t]) {
-      _trackers[t].core.track(buildAdConversion(event), event.context, event.timestamp);
-    }
+  dispatchToTrackersInCollection(trackers, _trackers, (t) => {
+    t.core.track(buildAdConversion(event), event.context, event.timestamp);
   });
 }

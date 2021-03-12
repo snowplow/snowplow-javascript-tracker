@@ -31,14 +31,12 @@
 import {
   ActivityTrackingConfiguration,
   ActivityTrackingConfigurationCallback,
-  allTrackerNames,
   BrowserPlugin,
-  BrowserTracker,
   DisableAnonymousTrackingConfiguration,
   EnableAnonymousTrackingConfiguration,
   FlushBufferConfiguration,
-  getTrackers,
   PageViewEvent,
+  dispatchToTrackers,
 } from '@snowplow/browser-tracker-core';
 import {
   buildSelfDescribingEvent,
@@ -66,17 +64,13 @@ export {
   StructuredEvent,
 };
 
-const dispatch = (trackers: Array<string> = allTrackerNames(), fn: (t: BrowserTracker) => void) => {
-  getTrackers(trackers).forEach(fn);
-};
-
 /**
  * Expires current session and starts a new session.
  *
  * @param trackers The tracker identifiers which will have their session refreshed
  */
 export function newSession(trackers?: Array<string>) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.newSession();
   });
 }
@@ -88,7 +82,7 @@ export function newSession(trackers?: Array<string>) {
  * @param trackers The tracker identifiers which will be configured
  */
 export function setReferrerUrl(url: string, trackers?: Array<string>) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.setReferrerUrl(url);
   });
 }
@@ -100,7 +94,7 @@ export function setReferrerUrl(url: string, trackers?: Array<string>) {
  * @param trackers The tracker identifiers which will be configured
  */
 export function setCustomUrl(url: string, trackers?: Array<string>) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.setCustomUrl(url);
   });
 }
@@ -112,7 +106,7 @@ export function setCustomUrl(url: string, trackers?: Array<string>) {
  * @param trackers The tracker identifiers which will be configured
  */
 export function setDocumentTitle(title: string, trackers?: Array<string>) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.setDocumentTitle(title);
   });
 }
@@ -124,7 +118,7 @@ export function setDocumentTitle(title: string, trackers?: Array<string>) {
  * @param trackers The tracker identifiers which will be configured
  */
 export function discardHashTag(enable: boolean, trackers?: Array<string>) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.discardHashTag(enable);
   });
 }
@@ -136,7 +130,7 @@ export function discardHashTag(enable: boolean, trackers?: Array<string>) {
  * @param trackers The tracker identifiers which will be configured
  */
 export function discardBrace(enable: boolean, trackers?: Array<string>) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.discardBrace(enable);
   });
 }
@@ -148,7 +142,7 @@ export function discardBrace(enable: boolean, trackers?: Array<string>) {
  * @param trackers The tracker identifiers which will be configured
  */
 export function setCookiePath(path: string, trackers?: Array<string>) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.setCookiePath(path);
   });
 }
@@ -160,7 +154,7 @@ export function setCookiePath(path: string, trackers?: Array<string>) {
  * @param trackers The tracker identifiers which will be configured
  */
 export function setVisitorCookieTimeout(timeout: number, trackers?: Array<string>) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.setVisitorCookieTimeout(timeout);
   });
 }
@@ -175,7 +169,7 @@ export function crossDomainLinker(
   crossDomainLinkerCriterion: (elt: HTMLAnchorElement | HTMLAreaElement) => boolean,
   trackers?: Array<string>
 ) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.crossDomainLinker(crossDomainLinkerCriterion);
   });
 }
@@ -187,7 +181,7 @@ export function crossDomainLinker(
  * @param trackers The tracker identifiers which will be configured
  */
 export function enableActivityTracking(configuration: ActivityTrackingConfiguration, trackers?: Array<string>) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.enableActivityTracking(configuration);
   });
 }
@@ -202,7 +196,7 @@ export function enableActivityTrackingCallback(
   configuration: ActivityTrackingConfiguration & ActivityTrackingConfigurationCallback,
   trackers?: Array<string>
 ) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.enableActivityTrackingCallback(configuration);
   });
 }
@@ -213,7 +207,7 @@ export function enableActivityTrackingCallback(
  * @param trackers The tracker identifiers which will be updated
  */
 export function updatePageActivity(trackers?: Array<string>) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.updatePageActivity();
   });
 }
@@ -225,7 +219,7 @@ export function updatePageActivity(trackers?: Array<string>) {
  * @param trackers The tracker identifiers which will be configured
  */
 export function setOptOutCookie(name: string, trackers?: Array<string>) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.setOptOutCookie(name);
   });
 }
@@ -237,7 +231,7 @@ export function setOptOutCookie(name: string, trackers?: Array<string>) {
  * @param trackers The tracker identifiers which will be configured
  */
 export function setUserId(userId: string, trackers?: Array<string>) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.setUserId(userId);
   });
 }
@@ -249,7 +243,7 @@ export function setUserId(userId: string, trackers?: Array<string>) {
  * @param trackers The tracker identifiers which will be configured
  */
 export function setUserIdFromLocation(querystringField: string, trackers?: Array<string>) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.setUserIdFromLocation(querystringField);
   });
 }
@@ -261,7 +255,7 @@ export function setUserIdFromLocation(querystringField: string, trackers?: Array
  * @param trackers The tracker identifiers which will be configured
  */
 export function setUserIdFromReferrer(querystringField: string, trackers?: Array<string>) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.setUserIdFromReferrer(querystringField);
   });
 }
@@ -273,7 +267,7 @@ export function setUserIdFromReferrer(querystringField: string, trackers?: Array
  * @param trackers The tracker identifiers which will be configured
  */
 export function setUserIdFromCookie(cookieName: string, trackers?: Array<string>) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.setUserIdFromCookie(cookieName);
   });
 }
@@ -286,7 +280,7 @@ export function setUserIdFromCookie(cookieName: string, trackers?: Array<string>
  * @param trackers The tracker identifiers which will be configured
  */
 export function setCollectorUrl(collectorUrl: string, trackers?: Array<string>) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.setCollectorUrl(collectorUrl);
   });
 }
@@ -300,7 +294,7 @@ export function setCollectorUrl(collectorUrl: string, trackers?: Array<string>) 
  * @param trackers The tracker identifiers which will be flushed
  */
 export function setBufferSize(newBufferSize: number, trackers?: Array<string>) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.setBufferSize(newBufferSize);
   });
 }
@@ -313,7 +307,7 @@ export function setBufferSize(newBufferSize: number, trackers?: Array<string>) {
  * @param trackers The tracker identifiers which will be flushed
  */
 export function flushBuffer(configuration?: FlushBufferConfiguration, trackers?: Array<string>) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.flushBuffer(configuration);
   });
 }
@@ -325,7 +319,7 @@ export function flushBuffer(configuration?: FlushBufferConfiguration, trackers?:
  * @param trackers The tracker identifiers which the event will be sent to
  */
 export function trackPageView(event?: PageViewEvent & CommonEventProperties, trackers?: Array<string>) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.trackPageView(event);
   });
 }
@@ -340,7 +334,7 @@ export function trackPageView(event?: PageViewEvent & CommonEventProperties, tra
  * @param trackers The tracker identifiers which the event will be sent to
  */
 export function trackStructEvent(event: StructuredEvent & CommonEventProperties, trackers?: Array<string>) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.core.track(buildStructEvent(event), event.context, event.timestamp);
   });
 }
@@ -354,7 +348,7 @@ export function trackStructEvent(event: StructuredEvent & CommonEventProperties,
  * @param trackers The tracker identifiers which the event will be sent to
  */
 export function trackSelfDescribingEvent(event: SelfDescribingEvent & CommonEventProperties, trackers?: Array<string>) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.core.track(buildSelfDescribingEvent({ event: event.event }), event.context, event.timestamp);
   });
 }
@@ -369,7 +363,7 @@ export function addGlobalContexts(
   contexts: Array<ConditionalContextProvider | ContextPrimitive>,
   trackers?: Array<string>
 ) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.core.addGlobalContexts(contexts);
   });
 }
@@ -384,7 +378,7 @@ export function removeGlobalContexts(
   contexts: Array<ConditionalContextProvider | ContextPrimitive>,
   trackers?: Array<string>
 ) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.core.removeGlobalContexts(contexts);
   });
 }
@@ -395,7 +389,7 @@ export function removeGlobalContexts(
  * @param trackers The tracker identifiers which the global contexts will be cleared from
  */
 export function clearGlobalContexts(trackers?: Array<string>) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.core.clearGlobalContexts();
   });
 }
@@ -406,7 +400,7 @@ export function clearGlobalContexts(trackers?: Array<string>) {
  * @param trackers The tracker identifiers which the event will preserve their Page View Ids
  */
 export function preservePageViewId(trackers?: Array<string>) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.preservePageViewId();
   });
 }
@@ -423,7 +417,7 @@ export function disableAnonymousTracking(
   configuration?: DisableAnonymousTrackingConfiguration,
   trackers?: Array<string>
 ) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.disableAnonymousTracking(configuration);
   });
 }
@@ -438,7 +432,7 @@ export function enableAnonymousTracking(
   configuration?: EnableAnonymousTrackingConfiguration,
   trackers?: Array<string>
 ) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.enableAnonymousTracking(configuration);
   });
 }
@@ -449,13 +443,13 @@ export function enableAnonymousTracking(
  * @param trackers The tracker identifiers which the event will be sent to
  */
 export function clearUserData(trackers?: Array<string>) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.clearUserData();
   });
 }
 
 export function addPlugin(configuration: { plugin: BrowserPlugin }, trackers?: Array<string>) {
-  dispatch(trackers, (t) => {
+  dispatchToTrackers(trackers, (t) => {
     t.addPlugin(configuration.plugin);
   });
 }
