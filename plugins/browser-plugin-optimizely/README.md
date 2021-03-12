@@ -36,7 +36,7 @@ Initialize your tracker with the OptimizelyPlugin:
 import { newTracker } from '@snowplow/browser-tracker';
 import { OptimizelyPlugin } from '@snowplow/browser-plugin-optimizely';
 
-newTracker('sp1', '{{collector}}', { Plugins: [ OptimizelyPlugin(true, true, true, false, false) ] }); 
+newTracker('sp1', '{{collector}}', { plugins: [ OptimizelyPlugin(true, true, true, false, false) ] }); 
 ```
 
 ## Copyright and license

@@ -36,7 +36,7 @@ Initialize your tracker with the GaCookiesPlugin:
 import { newTracker } from '@snowplow/browser-tracker';
 import { GaCookiesPlugin } from '@snowplow/browser-plugin-ga-cookies';
 
-newTracker('sp1', '{{collector}}', { Plugins: [ GaCookiesPlugin() ] }); // Also stores reference at module level
+newTracker('sp1', '{{collector}}', { plugins: [ GaCookiesPlugin() ] }); // Also stores reference at module level
 ```
 
 ## Copyright and license

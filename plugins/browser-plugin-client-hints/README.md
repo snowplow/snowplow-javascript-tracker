@@ -36,7 +36,7 @@ Initialize your tracker with the BrowserFeaturesPlugin:
 import { newTracker } from '@snowplow/browser-tracker';
 import { ClientHintsPlugin } from '@snowplow/browser-plugin-client-hints';
 
-newTracker('sp1', '{{collector}}', { Plugins: [ ClientHintsPlugin() ] }); // Also stores reference at module level
+newTracker('sp1', '{{collector}}', { plugins: [ ClientHintsPlugin() ] }); // Also stores reference at module level
 ```
 
 ## Copyright and license
