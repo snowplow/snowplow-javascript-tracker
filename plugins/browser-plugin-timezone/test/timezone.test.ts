@@ -35,10 +35,13 @@ import { TimezonePlugin } from '../src/index';
 
 describe('Timezone Plugin', () => {
   it('Returns a value for the current timezone', (done) => {
-    const core = trackerCore(false, [], (payloadBuilder) => {
-      const payload = payloadBuilder.build();
-      expect(tz.names().includes(payload['tz'] as string)).toBeTruthy();
-      done();
+    const core = trackerCore({
+      base64: false,
+      callback: (payloadBuilder) => {
+        const payload = payloadBuilder.build();
+        expect(tz.names().includes(payload['tz'] as string)).toBeTruthy();
+        done();
+      },
     });
     TimezonePlugin().activateBrowserPlugin?.({ core } as BrowserTracker);
     core.track(buildLinkClick({ targetUrl: 'https://example.com' }));

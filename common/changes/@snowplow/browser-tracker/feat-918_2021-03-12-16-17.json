@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Allow plugins to be dynamically loaded when using tracker (#918)",
+      "type": "none",
+      "packageName": "@snowplow/browser-tracker"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker",
+  "email": "paul@snowplowanalytics.com"
+}

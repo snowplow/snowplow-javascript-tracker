@@ -32,6 +32,7 @@ import {
   ActivityTrackingConfiguration,
   ActivityTrackingConfigurationCallback,
   allTrackerNames,
+  BrowserPlugin,
   BrowserTracker,
   DisableAnonymousTrackingConfiguration,
   EnableAnonymousTrackingConfiguration,
@@ -450,5 +451,11 @@ export function enableAnonymousTracking(
 export function clearUserData(trackers?: Array<string>) {
   dispatch(trackers, (t) => {
     t.clearUserData();
+  });
+}
+
+export function addPlugin(configuration: { plugin: BrowserPlugin }, trackers?: Array<string>) {
+  dispatch(trackers, (t) => {
+    t.addPlugin(configuration.plugin);
   });
 }
