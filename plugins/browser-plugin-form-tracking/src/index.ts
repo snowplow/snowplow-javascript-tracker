@@ -30,9 +30,9 @@
 
 import { BrowserPlugin, BrowserTracker } from '@snowplow/browser-tracker-core';
 import { DynamicContext } from '@snowplow/tracker-core';
-import { TrackerAndFormConfiguration, FormTrackingConfig, addFormListeners, configureFormTracking } from './helpers';
+import { FormTrackingOptions, addFormListeners } from './helpers';
 
-const _trackers: Record<string, TrackerAndFormConfiguration> = {};
+const _trackers: Record<string, BrowserTracker> = {};
 
 /**
  * A plugin which enabled automatic form tracking
@@ -40,7 +40,7 @@ const _trackers: Record<string, TrackerAndFormConfiguration> = {};
 export function FormTrackingPlugin(): BrowserPlugin {
   return {
     activateBrowserPlugin: (tracker: BrowserTracker) => {
-      _trackers[tracker.id] = { tracker: tracker };
+      _trackers[tracker.id] = tracker;
     },
   };
 }
@@ -48,7 +48,7 @@ export function FormTrackingPlugin(): BrowserPlugin {
 /** The form tracking configuration */
 export interface FormTrackingConfiguration {
   /** The options which can be configured for the form tracking events */
-  options?: FormTrackingConfig;
+  options?: FormTrackingOptions;
   /** The dyanmic context which will be evaluated for each form event */
   context?: DynamicContext | null;
 }
@@ -68,13 +68,11 @@ export function enableFormTracking(
   const { options, context } = configuration;
   trackers.forEach((t) => {
     if (_trackers[t]) {
-      if (_trackers[t].tracker.sharedState.hasLoaded) {
-        configureFormTracking(_trackers[t], options);
-        addFormListeners(_trackers[t], context);
+      if (_trackers[t].sharedState.hasLoaded) {
+        addFormListeners(_trackers[t], options, context);
       } else {
-        _trackers[t].tracker.sharedState.registeredOnLoadHandlers.push(function () {
-          configureFormTracking(_trackers[t], options);
-          addFormListeners(_trackers[t], context);
+        _trackers[t].sharedState.registeredOnLoadHandlers.push(function () {
+          addFormListeners(_trackers[t], options, context);
         });
       }
     }

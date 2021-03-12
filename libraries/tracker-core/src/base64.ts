@@ -62,6 +62,8 @@ export function base64urlencode(data: string): string {
   return enc.replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 }
 
+const b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+
 /**
  * Encode string as base64.
  * Any type can be passed, but will be stringified
@@ -85,7 +87,6 @@ export function base64encode(data: string): string {
   // example 3: base64_encode('✓ à la mode');
   // returns 3: '4pyTIMOgIGxhIG1vZGU='
 
-  const b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
   let o1,
     o2,
     o3,
@@ -168,7 +169,6 @@ export function base64decode(encodedData: string): string {
     );
   };
 
-  const b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
   let o1,
     o2,
     o3,

@@ -33,10 +33,12 @@ import {
   BrowserTracker,
   parseAndValidateFloat,
   parseAndValidateInt,
+  dispatchToTrackersInCollection,
 } from '@snowplow/browser-tracker-core';
 import { buildSelfDescribingEvent, CommonEventProperties, SelfDescribingJson } from '@snowplow/tracker-core';
 
-const _trackers: Record<string, [BrowserTracker, Array<SelfDescribingJson>]> = {};
+const _trackers: Record<string, BrowserTracker> = {};
+const _context: Record<string, Array<SelfDescribingJson>> = {};
 
 /**
  * For tracking GA Enhanced Ecommerce events and contexts
@@ -45,7 +47,8 @@ const _trackers: Record<string, [BrowserTracker, Array<SelfDescribingJson>]> = {
 export function EnhancedEcommercePlugin(): BrowserPlugin {
   return {
     activateBrowserPlugin: (tracker) => {
-      _trackers[tracker.id] = [tracker, []];
+      _trackers[tracker.id] = tracker;
+      _context[tracker.id] = [];
     },
   };
 }
@@ -70,24 +73,22 @@ export function trackEnhancedEcommerceAction(
   event: EnhancedEcommerceAction & CommonEventProperties = {},
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackers.forEach((t) => {
-    if (_trackers[t]) {
-      const combinedContexts = _trackers[t][1].concat(event.context || []);
-      _trackers[t][1].length = 0;
+  dispatchToTrackersInCollection(trackers, _trackers, (t) => {
+    const combinedContexts = _context[t.id].concat(event.context || []);
+    _context[t.id].length = 0;
 
-      _trackers[t][0].core.track(
-        buildSelfDescribingEvent({
-          event: {
-            schema: 'iglu:com.google.analytics.enhanced-ecommerce/action/jsonschema/1-0-0',
-            data: {
-              action: event.action,
-            },
+    t.core.track(
+      buildSelfDescribingEvent({
+        event: {
+          schema: 'iglu:com.google.analytics.enhanced-ecommerce/action/jsonschema/1-0-0',
+          data: {
+            action: event.action,
           },
-        }),
-        combinedContexts,
-        event.timestamp
-      );
-    }
+        },
+      }),
+      combinedContexts,
+      event.timestamp
+    );
   });
 }
 
@@ -129,9 +130,9 @@ export function addEnhancedEcommerceActionContext(
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   const { id, affiliation, revenue, tax, shipping, coupon, list, step, option, currency } = context;
-  trackers.forEach((t) => {
-    if (_trackers[t]) {
-      _trackers[t][1].push({
+  trackers.forEach((trackerId) => {
+    if (_context[trackerId]) {
+      _context[trackerId].push({
         schema: 'iglu:com.google.analytics.enhanced-ecommerce/actionFieldObject/jsonschema/1-0-0',
         data: {
           id: id,
@@ -185,9 +186,9 @@ export function addEnhancedEcommerceImpressionContext(
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   const { id, name, list, brand, category, variant, position, price, currency } = context;
-  trackers.forEach((t) => {
-    if (_trackers[t]) {
-      _trackers[t][1].push({
+  trackers.forEach((trackerId) => {
+    if (_context[trackerId]) {
+      _context[trackerId].push({
         schema: 'iglu:com.google.analytics.enhanced-ecommerce/impressionFieldObject/jsonschema/1-0-0',
         data: {
           id: id,
@@ -244,9 +245,9 @@ export function addEnhancedEcommerceProductContext(
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   const { id, name, list, brand, category, variant, price, quantity, coupon, position, currency } = context;
-  trackers.forEach((t) => {
-    if (_trackers[t]) {
-      _trackers[t][1].push({
+  trackers.forEach((trackerId) => {
+    if (_context[trackerId]) {
+      _context[trackerId].push({
         schema: 'iglu:com.google.analytics.enhanced-ecommerce/productFieldObject/jsonschema/1-0-0',
         data: {
           id: id,
@@ -293,9 +294,9 @@ export function addEnhancedEcommercePromoContext(
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   const { id, name, creative, position, currency } = context;
-  trackers.forEach((t) => {
-    if (_trackers[t]) {
-      _trackers[t][1].push({
+  trackers.forEach((trackerId) => {
+    if (_context[trackerId]) {
+      _context[trackerId].push({
         schema: 'iglu:com.google.analytics.enhanced-ecommerce/promoFieldObject/jsonschema/1-0-0',
         data: {
           id,

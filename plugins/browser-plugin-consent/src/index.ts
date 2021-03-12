@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { BrowserPlugin, BrowserTracker, warn } from '@snowplow/browser-tracker-core';
+import { BrowserPlugin, BrowserTracker, dispatchToTrackersInCollection, warn } from '@snowplow/browser-tracker-core';
 import {
   buildConsentGranted,
   buildConsentWithdrawn,
@@ -63,7 +63,8 @@ export interface GdprContextConfiguration {
   documentDescription?: string;
 }
 
-const _trackers: Record<string, { tracker: BrowserTracker; gdpr?: Gdpr }> = {};
+const _trackers: Record<string, BrowserTracker> = {};
+const _context: Record<string, Gdpr> = {};
 
 /**
  * Enable the GDPR context for each event
@@ -85,7 +86,7 @@ export function enableGdprContext(
   } else {
     trackers.forEach((t) => {
       if (_trackers[t]) {
-        _trackers[t].gdpr = {
+        _context[t] = {
           basisForProcessing: basis,
           documentId: documentId ?? null,
           documentVersion: documentVersion ?? null,
@@ -106,15 +107,13 @@ export function trackConsentGranted(
   event: ConsentGrantedEvent & CommonEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackers.forEach((t) => {
-    if (_trackers[t]) {
-      const builtEvent = buildConsentGranted(event);
-      _trackers[t].tracker.core.track(
-        builtEvent.event,
-        event.context ? event.context.concat(builtEvent.context) : builtEvent.context,
-        event.timestamp
-      );
-    }
+  dispatchToTrackersInCollection(trackers, _trackers, (t) => {
+    const builtEvent = buildConsentGranted(event);
+    t.core.track(
+      builtEvent.event,
+      event.context ? event.context.concat(builtEvent.context) : builtEvent.context,
+      event.timestamp
+    );
   });
 }
 
@@ -128,15 +127,13 @@ export function trackConsentWithdrawn(
   event: ConsentWithdrawnEvent & CommonEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackers.forEach((t) => {
-    if (_trackers[t]) {
-      const builtEvent = buildConsentWithdrawn(event);
-      _trackers[t].tracker.core.track(
-        builtEvent.event,
-        event.context ? event.context.concat(builtEvent.context) : builtEvent.context,
-        event.timestamp
-      );
-    }
+  dispatchToTrackersInCollection(trackers, _trackers, (t) => {
+    const builtEvent = buildConsentWithdrawn(event);
+    t.core.track(
+      builtEvent.event,
+      event.context ? event.context.concat(builtEvent.context) : builtEvent.context,
+      event.timestamp
+    );
   });
 }
 
@@ -152,15 +149,14 @@ export function ConsentPlugin(): BrowserPlugin {
   return {
     activateBrowserPlugin: (tracker) => {
       trackerId = tracker.id;
-      _trackers[tracker.id] = { tracker };
+      _trackers[tracker.id] = tracker;
     },
     contexts: () => {
-      const gdpr = _trackers[trackerId].gdpr;
-      if (gdpr) {
+      if (_context[trackerId]) {
         return [
           {
             schema: 'iglu:com.snowplowanalytics.snowplow/gdpr/jsonschema/1-0-0',
-            data: gdpr,
+            data: _context[trackerId],
           },
         ];
       }

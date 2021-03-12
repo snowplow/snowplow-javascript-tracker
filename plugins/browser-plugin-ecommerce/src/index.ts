@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { BrowserPlugin, BrowserTracker } from '@snowplow/browser-tracker-core';
+import { BrowserPlugin, BrowserTracker, dispatchToTrackersInCollection } from '@snowplow/browser-tracker-core';
 import {
   AddToCartEvent,
   RemoveFromCartEvent,
@@ -54,7 +54,8 @@ function ecommerceTransactionTemplate(): Transaction {
   };
 }
 
-const _trackers: Record<string, [BrowserTracker, Transaction]> = {};
+const _trackers: Record<string, BrowserTracker> = {};
+const _transactions: Record<string, Transaction> = {};
 
 /**
  * Adds ecommerce and cart tracking
@@ -62,7 +63,8 @@ const _trackers: Record<string, [BrowserTracker, Transaction]> = {};
 export function EcommercePlugin(): BrowserPlugin {
   return {
     activateBrowserPlugin: (tracker) => {
-      _trackers[tracker.id] = [tracker, ecommerceTransactionTemplate()];
+      _trackers[tracker.id] = tracker;
+      _transactions[tracker.id] = ecommerceTransactionTemplate();
     },
   };
 }
@@ -78,8 +80,8 @@ export function addTrans(
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
-    if (_trackers[t]) {
-      _trackers[t][1].transaction = event;
+    if (_transactions[t]) {
+      _transactions[t].transaction = event;
     }
   });
 }
@@ -95,8 +97,8 @@ export function addItem(
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   trackers.forEach((t) => {
-    if (_trackers[t]) {
-      _trackers[t][1].items.push(event);
+    if (_transactions[t]) {
+      _transactions[t].items.push(event);
     }
   });
 }
@@ -108,19 +110,17 @@ export function addItem(
  * This call will send the data specified with addTrans, ddItem methods to the tracking server.
  */
 export function trackTrans(trackers: Array<string> = Object.keys(_trackers)) {
-  trackers.forEach((t) => {
-    if (_trackers[t]) {
-      const transaction = _trackers[t][1].transaction;
-      if (transaction) {
-        _trackers[t][0].core.track(buildEcommerceTransaction(transaction), transaction.context, transaction.timestamp);
-      }
-      for (var i = 0; i < _trackers[t][1].items.length; i++) {
-        const item = _trackers[t][1].items[i];
-        _trackers[t][0].core.track(buildEcommerceTransactionItem(item), item.context, item.timestamp);
-      }
-
-      _trackers[t][1] = ecommerceTransactionTemplate();
+  dispatchToTrackersInCollection(trackers, _trackers, (t) => {
+    const transaction = _transactions[t.id].transaction;
+    if (transaction) {
+      t.core.track(buildEcommerceTransaction(transaction), transaction.context, transaction.timestamp);
     }
+    for (var i = 0; i < _transactions[t.id].items.length; i++) {
+      const item = _transactions[t.id].items[i];
+      t.core.track(buildEcommerceTransactionItem(item), item.context, item.timestamp);
+    }
+
+    _transactions[t.id] = ecommerceTransactionTemplate();
   });
 }
 
@@ -134,10 +134,8 @@ export function trackAddToCart(
   event: AddToCartEvent & CommonEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackers.forEach((t) => {
-    if (_trackers[t]) {
-      _trackers[t][0].core.track(buildAddToCart(event), event.context, event.timestamp);
-    }
+  dispatchToTrackersInCollection(trackers, _trackers, (t) => {
+    t.core.track(buildAddToCart(event), event.context, event.timestamp);
   });
 }
 
@@ -151,9 +149,7 @@ export function trackRemoveFromCart(
   event: RemoveFromCartEvent & CommonEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackers.forEach((t) => {
-    if (_trackers[t]) {
-      _trackers[t][0].core.track(buildRemoveFromCart(event), event.context, event.timestamp);
-    }
+  dispatchToTrackersInCollection(trackers, _trackers, (t) => {
+    t.core.track(buildRemoveFromCart(event), event.context, event.timestamp);
   });
 }

@@ -43,18 +43,15 @@ import {
   buildFormSubmission,
 } from '@snowplow/tracker-core';
 
-export interface FormTrackingConfig {
+export interface FormTrackingOptions {
   forms: FilterCriterion<HTMLElement>;
   fields: FilterCriterion<TrackedHTMLElement> & { transform: transformFn };
 }
 
-export interface TrackerAndFormConfiguration {
-  tracker: BrowserTracker;
-  config?: {
-    formFilter: (_: HTMLFormElement) => boolean;
-    fieldFilter: (_: TrackedHTMLElement) => boolean;
-    fieldTransform: transformFn;
-  };
+export interface FormConfiguration {
+  formFilter: (_: HTMLFormElement) => boolean;
+  fieldFilter: (_: TrackedHTMLElement) => boolean;
+  fieldTransform: transformFn;
 }
 
 export interface TrackedHTMLElementTagNameMap {
@@ -79,17 +76,61 @@ export const innerElementTags: Array<keyof TrackedHTMLElementTagNameMap> = ['tex
 const defaultTransformFn: transformFn = (x) => x;
 
 /*
+ * Add submission event listeners to all form elements
+ * Add value change event listeners to all mutable inner form elements
+ */
+export function addFormListeners(
+  tracker: BrowserTracker,
+  formConfiguration?: FormTrackingOptions,
+  context?: DynamicContext | null
+) {
+  const trackingMarker = tracker.id + 'form',
+    config = getConfigurationForOptions(formConfiguration);
+
+  Array.prototype.slice.call(document.getElementsByTagName('form')).forEach(function (form) {
+    if (config.formFilter(form) && !form[trackingMarker]) {
+      Array.prototype.slice.call(innerElementTags).forEach(function (tagname) {
+        Array.prototype.slice.call(form.getElementsByTagName(tagname)).forEach(function (innerElement) {
+          if (
+            config.fieldFilter(innerElement) &&
+            !(innerElement as any)[trackingMarker] &&
+            innerElement.type.toLowerCase() !== 'password'
+          ) {
+            addEventListener(
+              innerElement,
+              'focus',
+              getFormChangeListener(tracker, config, 'focus_form', context),
+              false
+            );
+            addEventListener(
+              innerElement,
+              'change',
+              getFormChangeListener(tracker, config, 'change_form', context),
+              false
+            );
+            (innerElement as any)[trackingMarker] = true;
+          }
+        });
+      });
+
+      addEventListener(form, 'submit', getFormSubmissionListener(tracker, config, trackingMarker, context));
+      form[trackingMarker] = true;
+    }
+  });
+}
+
+/*
  * Configures form tracking: which forms and fields will be tracked, and the context to attach
  */
-export function configureFormTracking(trackerConfig: TrackerAndFormConfiguration, config?: FormTrackingConfig) {
-  if (config) {
-    trackerConfig.config = {
-      formFilter: getFilterByClass(config.forms),
-      fieldFilter: getFilterByName<TrackedHTMLElement>(config.fields),
-      fieldTransform: getTransform(config.fields),
+function getConfigurationForOptions(options?: FormTrackingOptions) {
+  if (options) {
+    return {
+      formFilter: getFilterByClass(options.forms),
+      fieldFilter: getFilterByName<TrackedHTMLElement>(options.fields),
+      fieldTransform: getTransform(options.fields),
     };
   } else {
-    trackerConfig.config = {
+    return {
       formFilter: () => true,
       fieldFilter: () => true,
       fieldTransform: defaultTransformFn,
@@ -102,50 +143,12 @@ export function configureFormTracking(trackerConfig: TrackerAndFormConfiguration
  *
  * @param object criterion {transform: function (elt) {return the result of transform function applied to element}
  */
-export function getTransform(criterion: { transform: transformFn }): transformFn {
+function getTransform(criterion: { transform: transformFn }): transformFn {
   if (Object.prototype.hasOwnProperty.call(criterion, 'transform')) {
     return criterion.transform;
   }
 
   return defaultTransformFn;
-}
-
-/*
- * Add submission event listeners to all form elements
- * Add value change event listeners to all mutable inner form elements
- */
-export function addFormListeners(trackerConfiguration: TrackerAndFormConfiguration, context?: DynamicContext | null) {
-  const trackingMarker = trackerConfiguration.tracker.id + 'form';
-  Array.prototype.slice.call(document.getElementsByTagName('form')).forEach(function (form) {
-    if (trackerConfiguration.config?.formFilter(form) && !form[trackingMarker]) {
-      Array.prototype.slice.call(innerElementTags).forEach(function (tagname) {
-        Array.prototype.slice.call(form.getElementsByTagName(tagname)).forEach(function (innerElement) {
-          if (
-            trackerConfiguration.config?.fieldFilter(innerElement) &&
-            !(innerElement as any)[trackingMarker] &&
-            innerElement.type.toLowerCase() !== 'password'
-          ) {
-            addEventListener(
-              innerElement,
-              'focus',
-              getFormChangeListener(trackerConfiguration, 'focus_form', context),
-              false
-            );
-            addEventListener(
-              innerElement,
-              'change',
-              getFormChangeListener(trackerConfiguration, 'change_form', context),
-              false
-            );
-            (innerElement as any)[trackingMarker] = true;
-          }
-        });
-      });
-
-      addEventListener(form, 'submit', getFormSubmissionListener(trackerConfiguration, trackingMarker, context));
-      form[trackingMarker] = true;
-    }
-  });
 }
 
 /*
@@ -213,7 +216,8 @@ function getInnerFormElements(trackingMarker: string, elt: HTMLFormElement) {
  * Return function to handle form field change event
  */
 function getFormChangeListener(
-  trackerConfiguration: TrackerAndFormConfiguration,
+  tracker: BrowserTracker,
+  config: FormConfiguration,
   event_type: 'change_form' | 'focus_form',
   context?: DynamicContext | null
 ) {
@@ -222,11 +226,9 @@ function getFormChangeListener(
     if (elt) {
       var type = elt.nodeName && elt.nodeName.toUpperCase() === 'INPUT' ? elt.type : null;
       var value =
-        elt.type === 'checkbox' && !(elt as HTMLInputElement).checked
-          ? null
-          : trackerConfiguration.config?.fieldTransform(elt.value, elt);
+        elt.type === 'checkbox' && !(elt as HTMLInputElement).checked ? null : config.fieldTransform(elt.value, elt);
       if (event_type === 'change_form' || (type !== 'checkbox' && type !== 'radio')) {
-        trackerConfiguration.tracker.core.track(
+        tracker.core.track(
           buildFormFocusOrChange({
             schema: event_type,
             formId: getParentFormIdentifier(elt) ?? '',
@@ -247,7 +249,8 @@ function getFormChangeListener(
  * Return function to handle form submission event
  */
 function getFormSubmissionListener(
-  trackerConfiguration: TrackerAndFormConfiguration,
+  tracker: BrowserTracker,
+  config: FormConfiguration,
   trackingMarker: string,
   context?: DynamicContext | null
 ) {
@@ -255,10 +258,9 @@ function getFormSubmissionListener(
     var elt = e.target as HTMLFormElement;
     var innerElements = getInnerFormElements(trackingMarker, elt);
     innerElements.forEach(function (innerElement) {
-      innerElement.value =
-        trackerConfiguration.config?.fieldTransform(innerElement.value, innerElement) ?? innerElement.value;
+      innerElement.value = config.fieldTransform(innerElement.value, innerElement) ?? innerElement.value;
     });
-    trackerConfiguration.tracker.core.track(
+    tracker.core.track(
       buildFormSubmission({
         formId: getElementIdentifier(elt) ?? '',
         formClasses: getCssClasses(elt),

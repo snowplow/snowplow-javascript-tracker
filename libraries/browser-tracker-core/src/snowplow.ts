@@ -36,6 +36,39 @@ import { BrowserTracker, TrackerConfiguration } from './tracker/types';
 const namedTrackers: Record<string, BrowserTracker> = {};
 
 /**
+ * Dispatch function to all specified trackers
+ *
+ * @param trackers An optional list of trackers to send the event to, or will send to all trackers
+ * @param fn The function which will run against each tracker
+ */
+export function dispatchToTrackers(trackers: Array<string> | undefined, fn: (t: BrowserTracker) => void) {
+  try {
+    getTrackers(trackers ?? allTrackerNames()).forEach(fn);
+  } catch {
+    warn('function failed');
+  }
+}
+
+/**
+ * Dispatch function to all specified trackers from the supplied collection
+ *
+ * @param trackers An optional list of trackers to send the event to, or will send to all trackers
+ * @param trackerCollection The collection which the trackers will be selected from
+ * @param fn The function which will run against each tracker
+ */
+export function dispatchToTrackersInCollection(
+  trackers: Array<string> | undefined,
+  trackerCollection: Record<string, BrowserTracker>,
+  fn: (t: BrowserTracker) => void
+) {
+  try {
+    getTrackersFromCollection(trackers ?? Object.keys(trackerCollection), trackerCollection).forEach(fn);
+  } catch {
+    warn('function failed');
+  }
+}
+
+/**
  * Checks if a tracker has been created for a particular identifier
  * @param trackerId The unique identifier of the tracker
  */
@@ -87,15 +120,7 @@ export function getTracker(trackerId: string) {
  * @returns The tracker instances, or empty list if none found
  */
 export function getTrackers(trackerIds: Array<string>): Array<BrowserTracker> {
-  const trackers: Array<BrowserTracker> = [];
-  for (const namespace of trackerIds) {
-    if (namedTrackers.hasOwnProperty(namespace)) {
-      trackers.push(namedTrackers[namespace]);
-    } else {
-      warn(namespace + ' not configured');
-    }
-  }
-  return trackers;
+  return getTrackersFromCollection(trackerIds, namedTrackers);
 }
 
 /**
@@ -110,4 +135,19 @@ export function allTrackers() {
  */
 export function allTrackerNames() {
   return Object.keys(namedTrackers);
+}
+
+function getTrackersFromCollection(
+  trackerIds: Array<string>,
+  trackerCollection: Record<string, BrowserTracker>
+): Array<BrowserTracker> {
+  const trackers: Array<BrowserTracker> = [];
+  for (const id of trackerIds) {
+    if (trackerCollection.hasOwnProperty(id)) {
+      trackers.push(trackerCollection[id]);
+    } else {
+      warn(id + ' not configured');
+    }
+  }
+  return trackers;
 }

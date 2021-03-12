@@ -36,6 +36,7 @@ import {
   FilterCriterion,
   BrowserPlugin,
   BrowserTracker,
+  dispatchToTrackersInCollection,
 } from '@snowplow/browser-tracker-core';
 import {
   resolveDynamicContext,
@@ -46,7 +47,6 @@ import {
 } from '@snowplow/tracker-core';
 
 interface LinkClickConfiguration {
-  tracker: BrowserTracker;
   linkTrackingFilter?: (element: HTMLElement) => boolean;
   // Whether pseudo clicks are tracked
   linkTrackingPseudoClicks?: boolean | null | undefined;
@@ -58,6 +58,7 @@ interface LinkClickConfiguration {
   lastTarget?: EventTarget | null;
 }
 
+const _trackers: Record<string, BrowserTracker> = {};
 const _configuration: Record<string, LinkClickConfiguration> = {};
 
 /**
@@ -69,7 +70,7 @@ const _configuration: Record<string, LinkClickConfiguration> = {};
 export function LinkClickTrackingPlugin(): BrowserPlugin {
   return {
     activateBrowserPlugin: (tracker: BrowserTracker) => {
-      _configuration[tracker.id] = { tracker };
+      _trackers[tracker.id] = tracker;
     },
   };
 }
@@ -101,18 +102,18 @@ export interface LinkClickTrackingConfiguration {
  */
 export function enableLinkClickTracking(
   configuration: LinkClickTrackingConfiguration = {},
-  trackers: Array<string> = Object.keys(_configuration)
+  trackers: Array<string> = Object.keys(_trackers)
 ) {
   const { options, pseudoClicks, trackContent, context } = configuration;
   trackers.forEach((id) => {
-    if (_configuration[id]) {
-      if (_configuration[id].tracker.sharedState.hasLoaded) {
+    if (_trackers[id]) {
+      if (_trackers[id].sharedState.hasLoaded) {
         // the load event has already fired, add the click listeners now
         configureLinkClickTracking({ options, pseudoClicks, trackContent, context }, id);
         addClickListeners(id);
       } else {
         // defer until page has loaded
-        _configuration[id].tracker.sharedState.registeredOnLoadHandlers.push(function () {
+        _trackers[id].sharedState.registeredOnLoadHandlers.push(function () {
           configureLinkClickTracking({ options, pseudoClicks, trackContent, context }, id);
           addClickListeners(id);
         });
@@ -127,13 +128,13 @@ export function enableLinkClickTracking(
  *
  * @param trackers The tracker identifiers which the have their link click state refreshed
  */
-export function refreshLinkClickTracking(trackers: Array<string> = Object.keys(_configuration)) {
+export function refreshLinkClickTracking(trackers: Array<string> = Object.keys(_trackers)) {
   trackers.forEach((id) => {
-    if (_configuration[id]) {
-      if (_configuration[id].tracker.sharedState.hasLoaded) {
+    if (_trackers[id]) {
+      if (_trackers[id].sharedState.hasLoaded) {
         addClickListeners(id);
       } else {
-        _configuration[id].tracker.sharedState.registeredOnLoadHandlers.push(function () {
+        _trackers[id].sharedState.registeredOnLoadHandlers.push(function () {
           addClickListeners(id);
         });
       }
@@ -151,10 +152,8 @@ export function trackLinkClick(
   event: LinkClickEvent & CommonEventProperties,
   trackers: Array<string> = Object.keys(_configuration)
 ) {
-  trackers.forEach((id) => {
-    if (_configuration[id]) {
-      _configuration[id].tracker.core.track(buildLinkClick(event), event.context, event.timestamp);
-    }
+  dispatchToTrackersInCollection(trackers, _trackers, (t) => {
+    t.core.track(buildLinkClick(event), event.context, event.timestamp);
   });
 }
 
@@ -218,7 +217,7 @@ function getClickHandler(tracker: string, context?: DynamicContext | null): Even
     // Using evt.type (added in IE4), we avoid defining separate handlers for mouseup and mousedown.
     if (evt.type === 'click') {
       if (target) {
-        processClick(_configuration[tracker].tracker, target as Element, context);
+        processClick(_trackers[tracker], target as Element, context);
       }
     } else if (evt.type === 'mousedown') {
       if ((button === 1 || button === 2) && target) {
@@ -229,7 +228,7 @@ function getClickHandler(tracker: string, context?: DynamicContext | null): Even
       }
     } else if (evt.type === 'mouseup') {
       if (button === _configuration[tracker].lastButton && target === _configuration[tracker].lastTarget) {
-        processClick(_configuration[tracker].tracker, target as Element, context);
+        processClick(_trackers[tracker], target as Element, context);
       }
       _configuration[tracker].lastButton = _configuration[tracker].lastTarget = null;
     }
@@ -273,7 +272,6 @@ function configureLinkClickTracking(
   tracker: string
 ) {
   _configuration[tracker] = {
-    tracker: _configuration[tracker].tracker,
     linkTrackingContent: trackContent,
     linkTrackingContext: context,
     linkTrackingPseudoClicks: pseudoClicks,
