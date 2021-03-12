@@ -33,13 +33,13 @@ import { InQueueManager, Queue } from './in_queue';
 declare global {
   interface Window {
     GlobalSnowplowNamespace: Array<string>;
-    [key: string]: { q: Array<unknown> | Queue };
+    [key: string]: unknown;
   }
 }
 
 const windowAlias = window,
   functionName = windowAlias.GlobalSnowplowNamespace.shift() as string,
-  queue = windowAlias[functionName];
+  queue = windowAlias[functionName] as { q: Queue | Array<unknown> };
 
 // Now replace initialization array with queue manager object
 queue.q = InQueueManager(functionName, queue.q as Array<unknown>);

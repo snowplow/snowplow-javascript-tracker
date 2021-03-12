@@ -45,11 +45,14 @@ describe('Browser Features plugin', () => {
       configurable: true,
     });
 
-    const core = trackerCore(false, [], (payloadBuilder) => {
-      const payload = payloadBuilder.build();
-      expect(payload['f_pdf']).toBe('0');
-      expect(payload['f_qt']).toBeUndefined();
-      done();
+    const core = trackerCore({
+      base64: false,
+      callback: (payloadBuilder) => {
+        const payload = payloadBuilder.build();
+        expect(payload['f_pdf']).toBe('0');
+        expect(payload['f_qt']).toBeUndefined();
+        done();
+      },
     });
 
     BrowserFeaturesPlugin().activateBrowserPlugin?.({ core } as BrowserTracker);
@@ -73,18 +76,21 @@ describe('Browser Features plugin', () => {
       configurable: true,
     });
 
-    const core = trackerCore(false, [], (payloadBuilder) => {
-      const payload = payloadBuilder.build();
-      expect(payload['f_pdf']).toBe('1');
-      expect(payload['f_qt']).toBe('1');
-      expect(payload['f_realp']).toBe('1');
-      expect(payload['f_wma']).toBe('1');
-      expect(payload['f_dir']).toBe('1');
-      expect(payload['f_fla']).toBe('1');
-      expect(payload['f_java']).toBe('1');
-      expect(payload['f_gears']).toBe('1');
-      expect(payload['f_ag']).toBe('1');
-      done();
+    const core = trackerCore({
+      base64: false,
+      callback: (payloadBuilder) => {
+        const payload = payloadBuilder.build();
+        expect(payload['f_pdf']).toBe('1');
+        expect(payload['f_qt']).toBe('1');
+        expect(payload['f_realp']).toBe('1');
+        expect(payload['f_wma']).toBe('1');
+        expect(payload['f_dir']).toBe('1');
+        expect(payload['f_fla']).toBe('1');
+        expect(payload['f_java']).toBe('1');
+        expect(payload['f_gears']).toBe('1');
+        expect(payload['f_ag']).toBe('1');
+        done();
+      },
     });
 
     BrowserFeaturesPlugin().activateBrowserPlugin?.({ core } as BrowserTracker);
