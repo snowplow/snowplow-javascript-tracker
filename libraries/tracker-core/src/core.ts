@@ -29,7 +29,7 @@
  */
 
 import { v4 as uuid } from 'uuid';
-import { payloadBuilder, PayloadBuilder, Payload, isJson } from './payload';
+import { payloadBuilder, PayloadBuilder, Payload, isJson, payloadJsonProcessor } from './payload';
 import {
   globalContexts,
   ConditionalContextProvider,
@@ -146,7 +146,7 @@ export interface TrackerCore {
     context?: Array<SelfDescribingJson> | null,
     /** Timestamp override */
     timestamp?: Timestamp | null
-  ) => PayloadBuilder;
+  ) => Payload;
 
   /**
    * Set a persistent key-value pair to be added to every payload
@@ -363,8 +363,8 @@ export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore 
       pb: PayloadBuilder,
       context?: Array<SelfDescribingJson> | null,
       timestamp?: Timestamp | null
-    ): PayloadBuilder {
-      pb.setBase64Encoding(encodeBase64);
+    ): Payload {
+      pb.withJsonProcessor(payloadJsonProcessor(encodeBase64));
       pb.add('eid', uuid());
       pb.addDict(payloadPairs);
       const tstamp = getTimestamp(timestamp);
@@ -389,17 +389,19 @@ export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore 
         callback(pb);
       }
 
+      const finalPayload = pb.build();
+
       corePlugins.forEach((plugin) => {
         try {
           if (plugin.afterTrack) {
-            plugin.afterTrack(pb.build());
+            plugin.afterTrack(finalPayload);
           }
         } catch (ex) {
           console.warn('Snowplow: error with plugin ', ex);
         }
       });
 
-      return pb;
+      return finalPayload;
     }
 
     /**

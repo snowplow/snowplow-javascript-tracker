@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Prevent base64 encoder being bundled into each plugin (#921)",
+      "type": "none",
+      "packageName": "@snowplow/tracker-core"
+    }
+  ],
+  "packageName": "@snowplow/tracker-core",
+  "email": "paul@snowplowanalytics.com"
+}
