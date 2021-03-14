@@ -36,15 +36,19 @@ import { base64urlencode } from './base64';
 export type Payload = Record<string, unknown>;
 
 /**
+ * An array of tuples which represented the unprocessed JSON to be added to the Payload
+ */
+export type JsonForProcessing = Array<[keyIfEncoded: string, keyIfNotEncoded: string, json: Record<string, unknown>]>;
+
+/**
+ * A function which will processor the Json onto the injected PayloadBuilder
+ */
+export type JsonProcessor = (payloadBuilder: PayloadBuilder, jsonForProcessing: JsonForProcessing) => void;
+
+/**
  * Interface for mutable object encapsulating tracker payload
  */
 export interface PayloadBuilder {
-  /**
-   * Sets whether the JSON within the payload should be base64 encoded
-   * @param base64 Toggle for base64 encoding
-   */
-  setBase64Encoding: (base64: boolean) => void;
-
   /**
    * Adds an entry to the Payload
    * @param key Key for Payload dictionary entry
@@ -67,10 +71,77 @@ export interface PayloadBuilder {
   addJson: (keyIfEncoded: string, keyIfNotEncoded: string, json: Record<string, unknown>) => void;
 
   /**
+   * Adds a function which will be executed when building
+   * the payload to process the JSON which has been added to this payload
+   * @param jsonProcessor The JsonProcessor function for this builder
+   */
+  withJsonProcessor: (jsonProcessor: JsonProcessor) => void;
+
+  /**
    * Builds and returns the Payload
    * @param base64Encode configures if cached json should be encoded
    */
   build: () => Payload;
+}
+
+export function payloadBuilder(): PayloadBuilder {
+  const dict: Payload = {},
+    jsonForProcessing: JsonForProcessing = [];
+  let processor: JsonProcessor | undefined;
+
+  const add = (key: string, value: unknown): void => {
+    if (value != null && value !== '') {
+      // null also checks undefined
+      dict[key] = value;
+    }
+  };
+
+  const addDict = (dict: Payload): void => {
+    for (const key in dict) {
+      if (Object.prototype.hasOwnProperty.call(dict, key)) {
+        add(key, dict[key]);
+      }
+    }
+  };
+
+  const addJson = (keyIfEncoded: string, keyIfNotEncoded: string, json?: Record<string, unknown>): void => {
+    if (json && isNonEmptyJson(json)) {
+      jsonForProcessing.push([keyIfEncoded, keyIfNotEncoded, json]);
+    }
+  };
+
+  return {
+    add,
+    addDict,
+    addJson,
+    withJsonProcessor: (jsonProcessor) => {
+      processor = jsonProcessor;
+    },
+    build: function () {
+      processor?.(this, jsonForProcessing);
+      return dict;
+    },
+  };
+}
+
+/**
+ * A helper to build a Snowplow request from a set of name-value pairs, provided using the add methods.
+ * Will base64 encode JSON, if desired, on build
+ *
+ * @return The request builder, with add and build methods
+ */
+export function payloadJsonProcessor(encodeBase64: boolean): JsonProcessor {
+  return (payloadBuilder: PayloadBuilder, jsonForProcessing: JsonForProcessing) => {
+    for (const json of jsonForProcessing) {
+      const str = JSON.stringify(json[2]);
+      if (encodeBase64) {
+        payloadBuilder.add(json[0], base64urlencode(str));
+      } else {
+        payloadBuilder.add(json[1], str);
+      }
+    }
+    jsonForProcessing.length = 0;
+  };
 }
 
 /**
@@ -99,63 +170,4 @@ export function isJson(property?: Record<string, unknown>): boolean {
     property !== null &&
     (property.constructor === {}.constructor || property.constructor === [].constructor)
   );
-}
-
-/**
- * A helper to build a Snowplow request from a set of name-value pairs, provided using the add methods.
- * Will base64 encode JSON, if desired, on build
- *
- * @return The request builder, with add and build methods
- */
-export function payloadBuilder(): PayloadBuilder {
-  const dict: Payload = {};
-  const jsonForEncoding: Array<[string, string, Record<string, unknown>]> = [];
-  let encodeBase64: boolean = true;
-
-  const setBase64Encoding = (base64: boolean) => {
-    encodeBase64 = base64;
-  };
-
-  const add = (key: string, value: unknown): void => {
-    if (value != null && value !== '') {
-      // null also checks undefined
-      dict[key] = value;
-    }
-  };
-
-  const addDict = (dict: Payload): void => {
-    for (const key in dict) {
-      if (Object.prototype.hasOwnProperty.call(dict, key)) {
-        add(key, dict[key]);
-      }
-    }
-  };
-
-  const addJson = (keyIfEncoded: string, keyIfNotEncoded: string, json?: Record<string, unknown>): void => {
-    if (json && isNonEmptyJson(json)) {
-      jsonForEncoding.push([keyIfEncoded, keyIfNotEncoded, json]);
-    }
-  };
-
-  const build = (): Payload => {
-    for (const json of jsonForEncoding) {
-      const str = JSON.stringify(json[2]);
-      if (encodeBase64) {
-        add(json[0], base64urlencode(str));
-      } else {
-        add(json[1], str);
-      }
-    }
-    jsonForEncoding.length = 0;
-
-    return dict;
-  };
-
-  return {
-    setBase64Encoding,
-    add,
-    addDict,
-    addJson,
-    build,
-  };
 }

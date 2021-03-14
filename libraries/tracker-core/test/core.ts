@@ -51,7 +51,7 @@ import {
   buildStructEvent,
   trackerCore,
 } from '../src/core';
-import { PayloadBuilder, Payload } from '../src/payload';
+import { Payload } from '../src/payload';
 
 const selfDescribingEventSchema = 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0';
 let beforeCount = 0,
@@ -60,13 +60,12 @@ const tracker = trackerCore({
   base64: false,
   corePlugins: [{ beforeTrack: () => (beforeCount += 1), afterTrack: () => (afterCount += 1) }],
 });
-function compare(result: PayloadBuilder, expected: Payload, t: ExecutionContext) {
-  const res = result.build();
-  t.truthy(res['eid'], 'A UUID should be attached to all events');
-  delete res['eid'];
-  t.truthy(res['dtm'], 'A timestamp should be attached to all events');
-  delete res['dtm'];
-  t.deepEqual(res, expected);
+function compare(result: Payload, expected: Payload, t: ExecutionContext) {
+  t.truthy(result['eid'], 'A UUID should be attached to all events');
+  delete result['eid'];
+  t.truthy(result['dtm'], 'A timestamp should be attached to all events');
+  delete result['dtm'];
+  t.deepEqual(result, expected);
 }
 
 test('should track a page view', (t) => {
@@ -670,9 +669,11 @@ test('should track a page view with custom context', (t) => {
 test('should track a page view with a timestamp', (t) => {
   const timestamp = 1000000000000;
   t.is(
-    tracker
-      .track(buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'title', referrer: 'ref' }), [], timestamp)
-      .build()['dtm'],
+    tracker.track(
+      buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'title', referrer: 'ref' }),
+      [],
+      timestamp
+    )['dtm'],
     '1000000000000'
   );
 });
@@ -736,7 +737,7 @@ test('should execute a callback', (t) => {
     corePlugins: [],
     callback: function (payload) {
       const callbackTarget = payload;
-      compare(callbackTarget, expected, t);
+      compare(callbackTarget.build(), expected, t);
     },
   });
   const pageUrl = 'http://www.example.com';
@@ -790,9 +791,10 @@ test('should set true timestamp', (t) => {
   const pageUrl = 'http://www.example.com';
   const pageTitle = 'title page';
   const referrer = 'https://www.google.com';
-  const result = tracker
-    .track(buildPageView({ pageUrl, pageTitle, referrer }), undefined, { type: 'ttm', value: 1477403862 })
-    .build();
+  const result = tracker.track(buildPageView({ pageUrl, pageTitle, referrer }), undefined, {
+    type: 'ttm',
+    value: 1477403862,
+  });
   t.true('ttm' in result);
   t.is(result['ttm'], '1477403862');
   t.false('dtm' in result);
@@ -805,9 +807,10 @@ test('should set device timestamp as ADT', (t) => {
       name: 'Eric',
     },
   };
-  const result = tracker
-    .track(buildSelfDescribingEvent({ event: inputJson }), [inputJson], { type: 'dtm', value: 1477403869 })
-    .build();
+  const result = tracker.track(buildSelfDescribingEvent({ event: inputJson }), [inputJson], {
+    type: 'dtm',
+    value: 1477403869,
+  });
   t.true('dtm' in result);
   t.is(result['dtm'], '1477403869');
   t.false('ttm' in result);

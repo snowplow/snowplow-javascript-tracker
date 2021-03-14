@@ -29,7 +29,7 @@
  */
 
 import test from 'ava';
-import { isJson, isNonEmptyJson, payloadBuilder } from '../src/payload';
+import { isJson, isNonEmptyJson, payloadBuilder, payloadJsonProcessor } from '../src/payload';
 
 const sampleJson = {
   schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0',
@@ -124,15 +124,23 @@ test('Add a dictionary of name-value pairs to the payload', (t) => {
 
 test('Add a JSON to the payload', (t) => {
   const sb = payloadBuilder();
-  sb.setBase64Encoding(false);
+  sb.withJsonProcessor(payloadJsonProcessor(false));
   sb.addJson('cx', 'co', sampleJson);
 
   t.deepEqual(sb.build(), expectedPayloads[0], 'JSON should be added correctly');
 });
 
 test('Add a base 64 encoded JSON to the payload', (t) => {
-  const sb = payloadBuilder(); // base64 encoding on by default
+  const sb = payloadBuilder();
+  sb.withJsonProcessor(payloadJsonProcessor(true));
   sb.addJson('cx', 'co', sampleJson);
 
   t.deepEqual(sb.build(), expectedPayloads[1], 'JSON should be encoded correctly');
+});
+
+test('payloadBuilder with no json processor, processes no json', (t) => {
+  const sb = payloadBuilder();
+  sb.addJson('cx', 'co', sampleJson);
+
+  t.deepEqual(sb.build(), {}, 'JSON should be missing');
 });
