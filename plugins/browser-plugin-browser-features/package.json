@@ -10,9 +10,9 @@
   },
   "license": "BSD-3-Clause",
   "author": "Paul Boocock",
-  "main": "./dist/browser-plugin-browser-features.umd.js",
-  "module": "./dist/browser-plugin-browser-features.module.js",
-  "types": "./dist/browser-plugin-browser-features.module.d.ts",
+  "main": "./dist/index.umd.js",
+  "module": "./dist/index.module.js",
+  "types": "./dist/index.module.d.ts",
   "files": [
     "dist"
   ],

@@ -52,6 +52,9 @@ jobs:
         id: get_version
         uses: battila7/get-version-action@v2
 
+      - name: Zip release
+        run: zip -r plugins-umd.zip ./plugins/*/dist/*.umd*.js*
+
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -61,7 +64,6 @@ jobs:
             ./trackers/javascript-tracker/dist/sp.js.map
             ./trackers/javascript-tracker/dist/sp.lite.js
             ./trackers/javascript-tracker/dist/sp.lite.js.map
-            ./plugins/*/dist/*.umd.min.js
-            ./plugins/*/dist/*.umd.min.js.map
+            ./plugins.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
