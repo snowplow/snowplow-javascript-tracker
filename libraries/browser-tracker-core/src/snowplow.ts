@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { warn } from './helpers';
+import { LOG } from '@snowplow/tracker-core';
 import { SharedState } from './state';
 import { Tracker } from './tracker';
 import { BrowserTracker, TrackerConfiguration } from './tracker/types';
@@ -44,8 +44,8 @@ const namedTrackers: Record<string, BrowserTracker> = {};
 export function dispatchToTrackers(trackers: Array<string> | undefined, fn: (t: BrowserTracker) => void) {
   try {
     getTrackers(trackers ?? allTrackerNames()).forEach(fn);
-  } catch {
-    warn('function failed');
+  } catch (ex) {
+    LOG.error('Function failed', ex);
   }
 }
 
@@ -63,8 +63,8 @@ export function dispatchToTrackersInCollection(
 ) {
   try {
     getTrackersFromCollection(trackers ?? Object.keys(trackerCollection), trackerCollection).forEach(fn);
-  } catch {
-    warn('function failed');
+  } catch (ex) {
+    LOG.error('Function failed', ex);
   }
 }
 
@@ -110,7 +110,7 @@ export function getTracker(trackerId: string) {
     return namedTrackers[trackerId];
   }
 
-  warn(trackerId + ' not configured');
+  LOG.warn(trackerId + ' not configured');
   return null;
 }
 
@@ -146,7 +146,7 @@ function getTrackersFromCollection(
     if (trackerCollection.hasOwnProperty(id)) {
       trackers.push(trackerCollection[id]);
     } else {
-      warn(id + ' not configured');
+      LOG.warn(id + ' not configured');
     }
   }
   return trackers;

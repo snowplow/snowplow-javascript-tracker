@@ -29,6 +29,7 @@
  */
 
 import { TrackerCore, SelfDescribingJson } from './core';
+import { Logger } from './logger';
 import { Payload, PayloadBuilder } from './payload';
 
 /**
@@ -57,4 +58,9 @@ export interface CorePlugin {
    * Useful for adding additional context to events
    */
   contexts?: () => SelfDescribingJson[];
+  /**
+   * Passed a logger instance which can be used to send log information
+   * to the active logger
+   */
+  logger?: (logger: Logger) => void;
 }

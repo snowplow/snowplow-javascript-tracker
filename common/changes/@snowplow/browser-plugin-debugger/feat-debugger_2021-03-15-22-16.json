@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Add debug mode (#381)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-debugger"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-debugger",
+  "email": "paul@snowplowanalytics.com"
+}

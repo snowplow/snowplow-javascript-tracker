@@ -28,9 +28,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { isStringArray } from '@snowplow/tracker-core';
+import { isStringArray, LOG } from '@snowplow/tracker-core';
 import {
-  warn,
   isFunction,
   addTracker,
   createSharedState,
@@ -100,11 +99,11 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
     if (availableFunctions[f]) {
       try {
         availableFunctions[f].apply(null, parameters);
-      } catch {
-        warn(f + ' did not succeed');
+      } catch (ex) {
+        LOG.error(f + ' failed', ex);
       }
     } else {
-      warn(f + ' is not an available function');
+      LOG.warn(f + ' is not an available function');
     }
   }
 
@@ -141,7 +140,7 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
       if (tracker) {
         availableTrackerIds.push(tracker.id);
       } else {
-        warn(parameterArray[0] + ' already exists');
+        LOG.warn(parameterArray[0] + ' already exists');
         return;
       }
 
@@ -149,7 +148,7 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
         updateAvailableFunctions(p[1]);
       });
     } else {
-      warn('Invalid newTracker call');
+      LOG.error('newTracker failed', new Error('Invalid parameters'));
     }
   }
 
@@ -182,7 +181,7 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
         'error',
         () => {
           postScriptHandler(scriptSrc);
-          warn(`failed to load plugin ${constructorPath[0]} from ${scriptSrc}`);
+          LOG.warn(`failed to load plugin ${constructorPath[0]} from ${scriptSrc}`);
         },
         true
       );
@@ -239,8 +238,8 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
             fnTrackers[tracker.id.replace(`${functionName}_`, '')] = tracker;
           }
           input.apply(fnTrackers, parameterArray);
-        } catch (e) {
-          warn(`Custom callback error - ${e}`);
+        } catch (ex) {
+          LOG.error('Tracker callback failed', ex);
         } finally {
           continue;
         }
