@@ -56,6 +56,16 @@ jobs:
         working-directory: ./trackers/javascript-tracker
         run: node ../../common/scripts/install-run-rushx.js test:e2e:sauce
 
+      - name: Pack
+        run: node common/scripts/install-run-rush.js publish -p --pack --include-all
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v2
+        with:
+          name: packages
+          path: |
+            ./common/temp/artifacts/packages/*
+
       - name: Upload sp.js artifact
         uses: actions/upload-artifact@v2
         with:
@@ -67,3 +77,13 @@ jobs:
         with:
           name: sp.lite.js
           path: trackers/javascript-tracker/dist/sp.lite.js
+
+      - name: Upload plugins
+        uses: actions/upload-artifact@v2
+        with:
+          name: plugins-umd
+          path: |
+            ./plugins/*/dist/*.umd.js
+            ./plugins/*/dist/*.umd.js.map
+            ./plugins/*/dist/*.umd.min.js
+            ./plugins/*/dist/*.umd.min.js.map
