@@ -57,7 +57,11 @@ jobs:
         with:
           name: v${{ steps.get_version.outputs.version }}
           files: |
-            ./trackers/javascript-tracker/dist/sp.lite.js
             ./trackers/javascript-tracker/dist/sp.js
+            ./trackers/javascript-tracker/dist/sp.js.map
+            ./trackers/javascript-tracker/dist/sp.lite.js
+            ./trackers/javascript-tracker/dist/sp.lite.js.map
+            ./plugins/*/dist/*.umd.min.js
+            ./plugins/*/dist/*.umd.min.js.map
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

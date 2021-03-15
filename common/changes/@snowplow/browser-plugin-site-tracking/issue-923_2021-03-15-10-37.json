@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Publish UMD versions of plugins to GitHub release (#923)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-site-tracking"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-site-tracking",
+  "email": "paul@snowplowanalytics.com"
+}
