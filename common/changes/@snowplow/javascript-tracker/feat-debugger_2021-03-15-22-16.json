@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Add debug mode (#381)",
+      "type": "none",
+      "packageName": "@snowplow/javascript-tracker"
+    }
+  ],
+  "packageName": "@snowplow/javascript-tracker",
+  "email": "paul@snowplowanalytics.com"
+}

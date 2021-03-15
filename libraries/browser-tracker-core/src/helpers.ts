@@ -34,7 +34,7 @@ declare global {
   }
 }
 
-var windowAlias = window,
+const windowAlias = window,
   documentAlias = document,
   localStorageAlias = window.localStorage,
   sessionStorageAlias = window.sessionStorage;
@@ -198,15 +198,6 @@ export function fromQuerystring(field: string, url: string) {
     return null;
   }
   return decodeURIComponent(match[1].replace(/\+/g, ' '));
-}
-
-/**
- * Only log deprecation warnings if they won't cause an error
- */
-export function warn(message: string) {
-  if (typeof console !== 'undefined') {
-    console.warn('Snowplow: ' + message);
-  }
 }
 
 /**

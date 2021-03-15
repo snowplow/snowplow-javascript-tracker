@@ -30,7 +30,7 @@
 
 import test from 'ava';
 import * as contexts from '../src/contexts';
-import { payloadBuilder, Payload } from '../src/payload';
+import { payloadBuilder } from '../src/payload';
 import { SelfDescribingJson } from '../src/core';
 
 test('Identify context primitives', (t) => {
@@ -334,24 +334,17 @@ test('Get applicable contexts', (t) => {
     [geolocationContext, eventTypeContextGenerator],
   ];
 
-  const eventJson: Payload = {
-    e: 'ue',
-    ue_px: {
-      schema: 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0',
-      data: {
-        schema: 'iglu:com.acme_company/some_event/jsonschema/1-0-0',
-        data: {},
-      },
-    },
-  };
   const contextArray = [filterProvider, ruleSetProvider, geolocationContext, eventTypeContextGenerator];
   const globalContexts = contexts.globalContexts();
   const event = payloadBuilder();
-  for (const property in eventJson) {
-    if (Object.prototype.hasOwnProperty.call(eventJson, property)) {
-      event.add(property, eventJson[property]);
-    }
-  }
+  event.add('e', 'ue');
+  event.addJson('ue_px', 'ue_pr', {
+    schema: 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0',
+    data: {
+      schema: 'iglu:com.acme_company/some_event/jsonschema/1-0-0',
+      data: {},
+    },
+  });
 
   globalContexts.addGlobalContexts(contextArray);
   t.is(globalContexts.getApplicableContexts(event).length, 6);

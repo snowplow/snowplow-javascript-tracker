@@ -28,13 +28,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { BrowserPlugin, BrowserTracker, dispatchToTrackersInCollection, warn } from '@snowplow/browser-tracker-core';
+import { BrowserPlugin, BrowserTracker, dispatchToTrackersInCollection } from '@snowplow/browser-tracker-core';
 import {
   buildConsentGranted,
   buildConsentWithdrawn,
   CommonEventProperties,
   ConsentGrantedEvent,
   ConsentWithdrawnEvent,
+  Logger,
 } from '@snowplow/tracker-core';
 import { Gdpr } from './contexts';
 
@@ -65,6 +66,39 @@ export interface GdprContextConfiguration {
 
 const _trackers: Record<string, BrowserTracker> = {};
 const _context: Record<string, Gdpr> = {};
+let LOG: Logger;
+
+/**
+ * The Consent Plugin
+ *
+ * Adds Consent Granted and Withdrawn events
+ * and the ability to add the GDPR context to events
+ */
+export function ConsentPlugin(): BrowserPlugin {
+  let trackerId: string;
+
+  return {
+    activateBrowserPlugin: (tracker) => {
+      trackerId = tracker.id;
+      _trackers[tracker.id] = tracker;
+    },
+    contexts: () => {
+      if (_context[trackerId]) {
+        return [
+          {
+            schema: 'iglu:com.snowplowanalytics.snowplow/gdpr/jsonschema/1-0-0',
+            data: _context[trackerId],
+          },
+        ];
+      }
+
+      return [];
+    },
+    logger: (logger) => {
+      LOG = logger;
+    },
+  };
+}
 
 /**
  * Enable the GDPR context for each event
@@ -79,7 +113,7 @@ export function enableGdprContext(
   let basis = gdprBasis[basisForProcessing];
 
   if (!basis) {
-    warn(
+    LOG.warn(
       'enableGdprContext: basisForProcessing must be one of: consent, contract, legalObligation, vitalInterests, publicTask, legitimateInterests'
     );
     return;
@@ -135,33 +169,4 @@ export function trackConsentWithdrawn(
       event.timestamp
     );
   });
-}
-
-/**
- * The Consent Plugin
- *
- * Adds Consent Granted and Withdrawn events
- * and the ability to add the GDPR context to events
- */
-export function ConsentPlugin(): BrowserPlugin {
-  let trackerId: string;
-
-  return {
-    activateBrowserPlugin: (tracker) => {
-      trackerId = tracker.id;
-      _trackers[tracker.id] = tracker;
-    },
-    contexts: () => {
-      if (_context[trackerId]) {
-        return [
-          {
-            schema: 'iglu:com.snowplowanalytics.snowplow/gdpr/jsonschema/1-0-0',
-            data: _context[trackerId],
-          },
-        ];
-      }
-
-      return [];
-    },
-  };
 }

@@ -36,14 +36,19 @@ import { base64urlencode } from './base64';
 export type Payload = Record<string, unknown>;
 
 /**
- * An array of tuples which represented the unprocessed JSON to be added to the Payload
+ * A tuple which represents the unprocessed JSON to be added to the Payload
  */
-export type JsonForProcessing = Array<[keyIfEncoded: string, keyIfNotEncoded: string, json: Record<string, unknown>]>;
+export type EventJsonWithKeys = [keyIfEncoded: string, keyIfNotEncoded: string, json: Record<string, unknown>];
+
+/**
+ * An array of tuples which represents the unprocessed JSON to be added to the Payload
+ */
+export type EventJson = Array<EventJsonWithKeys>;
 
 /**
  * A function which will processor the Json onto the injected PayloadBuilder
  */
-export type JsonProcessor = (payloadBuilder: PayloadBuilder, jsonForProcessing: JsonForProcessing) => void;
+export type JsonProcessor = (payloadBuilder: PayloadBuilder, jsonForProcessing: EventJson) => void;
 
 /**
  * Interface for mutable object encapsulating tracker payload
@@ -71,6 +76,16 @@ export interface PayloadBuilder {
   addJson: (keyIfEncoded: string, keyIfNotEncoded: string, json: Record<string, unknown>) => void;
 
   /**
+   * Gets the current payload, before cached JSON is processed
+   */
+  getPayload: () => Payload;
+
+  /**
+   * Gets all JSON objects added to payload
+   */
+  getJson: () => EventJson;
+
+  /**
    * Adds a function which will be executed when building
    * the payload to process the JSON which has been added to this payload
    * @param jsonProcessor The JsonProcessor function for this builder
@@ -79,14 +94,15 @@ export interface PayloadBuilder {
 
   /**
    * Builds and returns the Payload
-   * @param base64Encode configures if cached json should be encoded
+   * @param base64Encode configures if unprocessed, cached json should be encoded
    */
   build: () => Payload;
 }
 
 export function payloadBuilder(): PayloadBuilder {
   const dict: Payload = {},
-    jsonForProcessing: JsonForProcessing = [];
+    allJson: EventJson = [],
+    jsonForProcessing: EventJson = [];
   let processor: JsonProcessor | undefined;
 
   const add = (key: string, value: unknown): void => {
@@ -106,7 +122,9 @@ export function payloadBuilder(): PayloadBuilder {
 
   const addJson = (keyIfEncoded: string, keyIfNotEncoded: string, json?: Record<string, unknown>): void => {
     if (json && isNonEmptyJson(json)) {
-      jsonForProcessing.push([keyIfEncoded, keyIfNotEncoded, json]);
+      const jsonWithKeys: EventJsonWithKeys = [keyIfEncoded, keyIfNotEncoded, json];
+      jsonForProcessing.push(jsonWithKeys);
+      allJson.push(jsonWithKeys);
     }
   };
 
@@ -114,6 +132,8 @@ export function payloadBuilder(): PayloadBuilder {
     add,
     addDict,
     addJson,
+    getPayload: () => dict,
+    getJson: () => allJson,
     withJsonProcessor: (jsonProcessor) => {
       processor = jsonProcessor;
     },
@@ -131,7 +151,7 @@ export function payloadBuilder(): PayloadBuilder {
  * @return The request builder, with add and build methods
  */
 export function payloadJsonProcessor(encodeBase64: boolean): JsonProcessor {
-  return (payloadBuilder: PayloadBuilder, jsonForProcessing: JsonForProcessing) => {
+  return (payloadBuilder: PayloadBuilder, jsonForProcessing: EventJson) => {
     for (const json of jsonForProcessing) {
       const str = JSON.stringify(json[2]);
       if (encodeBase64) {

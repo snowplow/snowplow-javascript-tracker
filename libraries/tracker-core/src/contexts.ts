@@ -30,8 +30,8 @@
 
 import { PayloadBuilder, Payload, isNonEmptyJson } from './payload';
 import { SelfDescribingJson } from './core';
-import { base64urldecode } from './base64';
 import { CorePlugin } from './plugins';
+import { LOG } from './logger';
 
 /**
  * Argument for {@link ContextGenerator} and {@link ContextFilter} callback
@@ -148,7 +148,7 @@ export function globalContexts(): GlobalContexts {
    * @param event The event to check for applicable global contexts for
    * @returns An array of contexts
    */
-  const assembleAllContexts = (event: Payload): Array<SelfDescribingJson> => {
+  const assembleAllContexts = (event: PayloadBuilder): Array<SelfDescribingJson> => {
     const eventSchema = getUsefulSchema(event);
     const eventType = getEventType(event);
     const contexts: Array<SelfDescribingJson> = [];
@@ -202,13 +202,7 @@ export function globalContexts(): GlobalContexts {
     },
 
     getApplicableContexts(event: PayloadBuilder): Array<SelfDescribingJson> {
-      const builtEvent = event.build();
-      if (isEventJson(builtEvent)) {
-        const decodedEvent = getDecodedEvent(builtEvent);
-        return assembleAllContexts(decodedEvent);
-      } else {
-        return [];
-      }
+      return assembleAllContexts(event);
     },
   };
 }
@@ -237,7 +231,7 @@ export function pluginContexts(plugins: Array<CorePlugin>): PluginContexts {
             combinedContexts.push(...plugin.contexts());
           }
         } catch (ex) {
-          console.warn('Snowplow: error with plugin context', ex);
+          LOG.error('Error adding plugin contexts', ex);
         }
       });
 
@@ -391,17 +385,6 @@ export function isSelfDescribingJson(input: unknown): input is SelfDescribingJso
   const sdj = input as SelfDescribingJson;
   if (isNonEmptyJson(sdj))
     if ('schema' in sdj && 'data' in sdj) return typeof sdj.schema === 'string' && typeof sdj.data === 'object';
-  return false;
-}
-
-/**
- * Check if a variable to is a valid, non-empty Payload event by looking for the 'e' parameter of a Payload
- * @param input The variable to validate
- * @returns True if a valid Payload
- */
-export function isEventJson(input: unknown): input is Payload {
-  const payload = input as Payload;
-  if (isNonEmptyJson(payload) && 'e' in payload) return typeof payload.e === 'string';
   return false;
 }
 
@@ -568,38 +551,29 @@ function matchPart(rule: string, schema: string): boolean {
 }
 
 // Returns the "useful" schema, i.e. what would someone want to use to identify events.
-// The idea being that you can determine the event type from 'e', so getting the schema from
-// 'ue_px.schema'/'ue_pr.schema' would be redundant - it'll return the unstruct_event schema.
-// Instead the schema nested inside the unstruct_event is more useful!
-// This doesn't decode ue_px, it works because it's called by code that has already decoded it
-function getUsefulSchema(sb: Payload): string {
-  if (typeof (sb['ue_px'] as SelfDescribingJson<SelfDescribingJson>)?.['data']?.['schema'] === 'string')
-    return (sb['ue_px'] as SelfDescribingJson<SelfDescribingJson>)?.['data']?.['schema'];
-  else if (typeof (sb['ue_pr'] as SelfDescribingJson<SelfDescribingJson>)?.['data']?.['schema'] === 'string')
-    return (sb['ue_pr'] as SelfDescribingJson<SelfDescribingJson>)?.['data']?.['schema'];
-  else if (typeof (sb as SelfDescribingJson)?.['schema'] === 'string') return (sb as SelfDescribingJson)?.['schema'];
+// For some events this is the 'e' property but for unstructured events, this is the
+// 'schema' from the 'ue_px' field.
+function getUsefulSchema(sb: PayloadBuilder): string {
+  let eventJson = sb.getJson();
+  for (const json of eventJson) {
+    if (json.length === 3 && json[0] === 'ue_px' && typeof json[2]['data'] === 'object') {
+      const schema = (json[2]['data'] as Record<string, unknown>)['schema'];
+      if (typeof schema == 'string') {
+        return schema;
+      }
+    }
+  }
   return '';
 }
 
-function getDecodedEvent(sb: Payload): Payload {
-  const decodedEvent = { ...sb }; // spread operator, instantiates new object
-  try {
-    if (Object.prototype.hasOwnProperty.call(decodedEvent, 'ue_px')) {
-      decodedEvent['ue_px'] = JSON.parse(base64urldecode(decodedEvent['ue_px'] as string));
-    }
-    return decodedEvent;
-  } catch (e) {
-    return decodedEvent;
-  }
-}
-
-function getEventType(sb: Record<string, unknown>): string {
-  return (sb?.['e'] ?? '') as string;
+function getEventType(payloadBuilder: PayloadBuilder): string {
+  const eventType = payloadBuilder.getPayload()['e'];
+  return typeof eventType === 'string' ? eventType : '';
 }
 
 function buildGenerator(
   generator: ContextGenerator,
-  event: Payload,
+  event: PayloadBuilder,
   eventType: string,
   eventSchema: string
 ): SelfDescribingJson | Array<SelfDescribingJson> | undefined {
@@ -607,7 +581,7 @@ function buildGenerator(
   try {
     // try to evaluate context generator
     const args = {
-      event: event,
+      event: event.getPayload(),
       eventType: eventType,
       eventSchema: eventSchema,
     };
@@ -635,7 +609,7 @@ function normalizeToArray<T>(input: Array<T> | T): Array<T> {
 
 function generatePrimitives(
   contextPrimitives: Array<ContextPrimitive> | ContextPrimitive,
-  event: Payload,
+  event: PayloadBuilder,
   eventType: string,
   eventSchema: string
 ): Array<SelfDescribingJson> {
@@ -655,7 +629,7 @@ function generatePrimitives(
 
 function evaluatePrimitive(
   contextPrimitive: ContextPrimitive,
-  event: Payload,
+  event: PayloadBuilder,
   eventType: string,
   eventSchema: string
 ): Array<SelfDescribingJson> | undefined {
@@ -674,7 +648,7 @@ function evaluatePrimitive(
 
 function evaluateProvider(
   provider: ConditionalContextProvider,
-  event: Payload,
+  event: PayloadBuilder,
   eventType: string,
   eventSchema: string
 ): Array<SelfDescribingJson> {
@@ -683,7 +657,7 @@ function evaluateProvider(
     let filterResult = false;
     try {
       const args = {
-        event: event,
+        event: event.getPayload(),
         eventType: eventType,
         eventSchema: eventSchema,
       };
@@ -704,7 +678,7 @@ function evaluateProvider(
 
 function generateConditionals(
   providers: Array<ConditionalContextProvider> | ConditionalContextProvider,
-  event: Payload,
+  event: PayloadBuilder,
   eventType: string,
   eventSchema: string
 ): Array<SelfDescribingJson> {

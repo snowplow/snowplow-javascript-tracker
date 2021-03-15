@@ -39,6 +39,7 @@ import {
   pluginContexts,
 } from './contexts';
 import { CorePlugin } from './plugins';
+import { LOG } from './logger';
 
 /**
  * export interface for any Self-Describing JSON such as context or Self Describing events
@@ -285,6 +286,10 @@ export interface TrackerCore {
    */
   removeGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive>): void;
 
+  /**
+   * Add a plugin into the plugin collection after Core has already been initialised
+   * @param plugin The plugin to add
+   */
   addPlugin(plugin: CorePlugin): void;
 }
 
@@ -381,7 +386,7 @@ export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore 
             plugin.beforeTrack(pb);
           }
         } catch (ex) {
-          console.warn('Snowplow: error with plugin beforeTrack', ex);
+          LOG.error('Plugin beforeTrack', ex);
         }
       });
 
@@ -397,7 +402,7 @@ export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore 
             plugin.afterTrack(finalPayload);
           }
         } catch (ex) {
-          console.warn('Snowplow: error with plugin ', ex);
+          LOG.error('Plugin afterTrack', ex);
         }
       });
 
@@ -515,6 +520,7 @@ export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore 
     };
 
   plugins?.forEach((plugin) => {
+    plugin.logger?.(LOG);
     plugin.activateCorePlugin?.(core);
   });
 

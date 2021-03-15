@@ -514,6 +514,12 @@
       "projectFolder": "plugins/browser-plugin-site-tracking",
       "reviewCategory": "plugins",
       "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-plugin-debugger",
+      "projectFolder": "plugins/browser-plugin-debugger",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
     }
   ]
 }

@@ -28,10 +28,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { warn, attemptWriteLocalStorage, isString } from '../helpers';
+import { attemptWriteLocalStorage, isString } from '../helpers';
 import { SharedState } from '../state';
 import { localStorageAccessible } from '../detectors';
-import { Payload } from '@snowplow/tracker-core';
+import { LOG, Payload } from '@snowplow/tracker-core';
 
 export interface OutQueue {
   enqueueRequest: (request: Payload, url: string) => void;
@@ -218,7 +218,7 @@ export function OutQueueManager(
     if (usePost) {
       const body = getBody(request);
       if (body.bytes >= maxPostBytes) {
-        warn('Event (' + body.bytes + 'B) too big, max is ' + maxPostBytes);
+        LOG.warn('Event (' + body.bytes + 'B) too big, max is ' + maxPostBytes);
         const xhr = initializeXMLHttpRequest(configCollectorUrl, true, false);
         xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent([body.evt])));
         return;

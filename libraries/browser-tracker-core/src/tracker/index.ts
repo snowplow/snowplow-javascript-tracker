@@ -35,6 +35,7 @@ import {
   CommonEventProperties,
   PayloadBuilder,
   SelfDescribingJson,
+  LOG,
 } from '@snowplow/tracker-core';
 import hash from 'sha1';
 import { v4 as uuid } from 'uuid';
@@ -52,7 +53,6 @@ import {
   attemptDeleteLocalStorage,
   deleteCookie,
   fixupTitle,
-  warn,
   fromQuerystring,
   isInteger,
 } from '../helpers';
@@ -102,6 +102,11 @@ type ActivityTrackingConfig = {
   /** Stores the configuration for each type of activity tracking */
   configurations: ActivityConfigurations;
 };
+
+const documentAlias = document,
+  windowAlias = window,
+  navigatorAlias = navigator,
+  screenAlias = screen;
 
 /**
  * The Snowplow Tracker
@@ -168,10 +173,6 @@ export function Tracker(
         },
       }),
       // Aliases
-      documentAlias = document,
-      windowAlias = window,
-      navigatorAlias = navigator,
-      screenAlias = screen,
       browserLanguage = (navigatorAlias as any).userLanguage || navigatorAlias.language,
       documentCharset = documentAlias.characterSet || documentAlias.charset,
       // Current URL and Referrer URL
@@ -1027,7 +1028,9 @@ export function Tracker(
         };
       }
 
-      warn('Activity tracking not enabled, please provide integer values for minimumVisitLength and heartbeatDelay.');
+      LOG.warn(
+        'Activity tracking not enabled, please provide integer values for minimumVisitLength and heartbeatDelay.'
+      );
       return undefined;
     }
 

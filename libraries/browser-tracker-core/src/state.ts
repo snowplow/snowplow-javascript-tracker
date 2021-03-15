@@ -37,6 +37,9 @@ declare global {
   }
 }
 
+const documentAlias = document,
+  windowAlias = window;
+
 /**
  * A set of variables which are shared among all initialised trackers
  */
@@ -55,9 +58,7 @@ export class SharedState {
 }
 
 export function createSharedState(): SharedState {
-  const documentAlias = document,
-    windowAlias = window,
-    sharedState = new SharedState();
+  const sharedState = new SharedState();
 
   /*
    * Handle page visibility event
