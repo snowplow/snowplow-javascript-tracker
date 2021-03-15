@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Publish UMD versions of plugins to GitHub release (#923)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-error-tracking"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-error-tracking",
+  "email": "paul@snowplowanalytics.com"
+}

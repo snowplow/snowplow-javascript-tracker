@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Publish UMD versions of plugins to GitHub release (#923)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-consent"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-consent",
+  "email": "paul@snowplowanalytics.com"
+}
