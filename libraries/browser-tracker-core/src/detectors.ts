@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-var windowAlias = window,
+const windowAlias = window,
   documentAlias = document;
 
 /*
