@@ -44,6 +44,5 @@ export const plugins = {
   adTracking: false,
   siteTracking: false,
   optimizely: false,
-  parrable: false,
   browserFeatures: false,
 };

@@ -44,7 +44,6 @@ export interface JavaScriptTrackerConfiguration extends TrackerConfiguration {
     optimizelyDimensions: boolean;
     optimizelySummary: boolean;
     optimizelyXSummary: boolean;
-    parrable: boolean;
     clientHints: boolean | { includeHighEntropy: boolean };
   };
 }
