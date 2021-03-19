@@ -393,8 +393,8 @@ test('should track a social interaction', (t) => {
 });
 test('should track an add-to-cart event', (t) => {
   const sku = '4q345';
-  const unitPrice = '17';
-  const quantity = '2';
+  const unitPrice = 17.0;
+  const quantity = 2;
   const name = 'red shoes';
   const category = 'clothing';
   const currency = 'USD';
@@ -420,8 +420,8 @@ test('should track an add-to-cart event', (t) => {
 });
 test('should track a remove-from-cart event', (t) => {
   const sku = '4q345';
-  const unitPrice = '17';
-  const quantity = '2';
+  const unitPrice = 17.0;
+  const quantity = 2;
   const name = 'red shoes';
   const category = 'clothing';
   const currency = 'USD';
@@ -845,7 +845,7 @@ test('should run plugin before and after track callbacks on each track event', (
       })
     ),
     tracker.track(buildPageView({ pageUrl: url, pageTitle: str, referrer: url })),
-    tracker.track(buildAddToCart({ category: str, name: str, quantity: str, sku: str, unitPrice: str })),
+    tracker.track(buildAddToCart({ category: str, name: str, quantity: num, sku: str, unitPrice: num })),
     tracker.track(buildScreenView({ id: str, name: str })),
     tracker.track(buildSiteSearch({ filters, pageResults: num, terms: arr, totalResults: num })),
     tracker.track(buildStructEvent({ category: str, action: str })),
@@ -875,7 +875,7 @@ test('should run plugin before and after track callbacks on each track event', (
       })
     ),
     tracker.track(buildFormSubmission({ elements: [], formClasses: [], formId: str })),
-    tracker.track(buildRemoveFromCart({ category: str, name: str, quantity: str, sku: str, unitPrice: str })),
+    tracker.track(buildRemoveFromCart({ category: str, name: str, quantity: num, sku: str, unitPrice: num })),
     tracker.track(buildConsentGranted({ id: str, version: str }).event),
     tracker.track(buildConsentWithdrawn({ all: true }).event),
     tracker.track(

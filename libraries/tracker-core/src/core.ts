@@ -1049,13 +1049,13 @@ export interface AddToCartEvent {
   /** A Product Stock Keeping Unit (SKU) */
   sku: string;
   /** The number added to the cart */
-  quantity: string;
+  quantity: number;
   /** The name of the product */
   name?: string;
   /** The category of the product */
   category?: string;
   /** The price of the product */
-  unitPrice?: string;
+  unitPrice?: number;
   /** The currency of the product */
   currency?: string;
 }
@@ -1094,13 +1094,13 @@ export interface RemoveFromCartEvent {
   /** A Product Stock Keeping Unit (SKU) */
   sku: string;
   /** The number removed from the cart */
-  quantity: string;
+  quantity: number;
   /** The name of the product */
   name?: string;
   /** The category of the product */
   category?: string;
   /** The price of the product */
-  unitPrice?: string;
+  unitPrice?: number;
   /** The currency of the product */
   currency?: string;
 }
