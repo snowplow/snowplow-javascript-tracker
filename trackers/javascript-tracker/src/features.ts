@@ -31,7 +31,6 @@
 import * as ClientHints from '@snowplow/browser-plugin-client-hints';
 import * as Optimizely from '@snowplow/browser-plugin-optimizely';
 import * as OptimizelyX from '@snowplow/browser-plugin-optimizely-x';
-import * as Parrable from '@snowplow/browser-plugin-parrable';
 import * as PerformanceTiming from '@snowplow/browser-plugin-performance-timing';
 import * as Consent from '@snowplow/browser-plugin-consent';
 import * as Geolocation from '@snowplow/browser-plugin-geolocation';
@@ -66,7 +65,6 @@ export function Plugins(configuration: JavaScriptTrackerConfiguration) {
     optimizelyDimensions,
     optimizelySummary,
     optimizelyXSummary,
-    parrable,
     clientHints,
   } = configuration?.contexts ?? {};
   const activatedPlugins: Array<[BrowserPlugin, {} | Record<string, Function>]> = [];
@@ -112,11 +110,6 @@ export function Plugins(configuration: JavaScriptTrackerConfiguration) {
       ClientHintsPlugin(typeof clientHints === 'object' && clientHints.includeHighEntropy),
       apiMethods,
     ]);
-  }
-
-  if (plugins.parrable && parrable) {
-    const { ParrablePlugin, ...apiMethods } = Parrable;
-    activatedPlugins.push([ParrablePlugin(), apiMethods]);
   }
 
   if (plugins.gaCookies && gaCookies) {

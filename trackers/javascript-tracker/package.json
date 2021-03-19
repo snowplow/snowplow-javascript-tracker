@@ -49,7 +49,6 @@
     "@snowplow/browser-plugin-link-click-tracking": "workspace:*",
     "@snowplow/browser-plugin-optimizely": "workspace:*",
     "@snowplow/browser-plugin-optimizely-x": "workspace:*",
-    "@snowplow/browser-plugin-parrable": "workspace:*",
     "@snowplow/browser-plugin-performance-timing": "workspace:*",
     "@snowplow/browser-plugin-site-tracking": "workspace:*",
     "@snowplow/browser-plugin-timezone": "workspace:*",
