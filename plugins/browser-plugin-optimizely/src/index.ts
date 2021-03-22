@@ -67,7 +67,7 @@ export function OptimizelyPlugin(
   audiences: boolean = true,
   dimensions: boolean = true
 ): BrowserPlugin {
-  const windowAlias = window;
+  const windowOptimizelyAlias = window.optimizely;
 
   /**
    * Check that *both* optimizely and optimizely.data exist and return
@@ -77,9 +77,9 @@ export function OptimizelyPlugin(
    * @param snd optional nested property
    */
   function getOptimizelyData(property: string, snd?: string) {
-    var data;
-    if (windowAlias.optimizely && windowAlias.optimizely.data) {
-      data = windowAlias.optimizely.data[property];
+    let data;
+    if (windowOptimizelyAlias && windowOptimizelyAlias.data) {
+      data = windowOptimizelyAlias.data[property];
       if (typeof snd !== 'undefined' && data !== undefined) {
         data = data[snd];
       }
@@ -325,7 +325,7 @@ export function OptimizelyPlugin(
       const combinedContexts = [];
 
       // Add Optimizely Contexts
-      if (windowAlias.optimizely) {
+      if (windowOptimizelyAlias) {
         if (summary) {
           combinedContexts.push(...getOptimizelySummaryContexts());
         }
