@@ -31,7 +31,7 @@
 import { createSharedState, addTracker, TrackerConfiguration, BrowserTracker } from '@snowplow/browser-tracker-core';
 import { version } from './version';
 
-const state = createSharedState();
+const state = typeof window !== 'undefined' ? createSharedState() : undefined;
 
 /**
  * Initialise a new tracker
@@ -56,7 +56,11 @@ export function newTracker(trackerId: string, endpoint: string, configuration: T
  * @param configuration The initialisation options of the tracker
  */
 export function newTracker(trackerId: string, endpoint: string, configuration: TrackerConfiguration = {}) {
-  return addTracker(trackerId, trackerId, version, endpoint, state, configuration);
+  if (state) {
+    return addTracker(trackerId, trackerId, version, endpoint, state, configuration);
+  } else {
+    return undefined;
+  }
 }
 
 export { version } from './version';

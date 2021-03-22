@@ -37,8 +37,7 @@ import {
 } from '@snowplow/browser-tracker-core';
 import { buildSelfDescribingEvent, CommonEventProperties, SelfDescribingJson } from '@snowplow/tracker-core';
 
-let windowAlias = window,
-  _trackers: Record<string, BrowserTracker> = {};
+let _trackers: Record<string, BrowserTracker> = {};
 
 export function ErrorTrackingPlugin(): BrowserPlugin {
   return {
@@ -126,7 +125,7 @@ export function enableErrorTracking(
       }
     };
 
-  addEventListener(windowAlias, 'error', captureError, true);
+  addEventListener(window, 'error', captureError, true);
 }
 
 function sendError(

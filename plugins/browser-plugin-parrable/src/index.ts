@@ -39,8 +39,6 @@ declare global {
   }
 }
 
-const windowAlias = window;
-
 /**
  * Adds Parrable Context to events
  */
@@ -52,7 +50,7 @@ export function ParrablePlugin(): BrowserPlugin {
      * @return object The Parrable context
      */
     contexts: () => {
-      var parrable = windowAlias['_hawk'];
+      var parrable = window['_hawk'];
       if (parrable) {
         var context: EncryptedPayload = { encryptedId: '', optout: 'false' };
         context['encryptedId'] = parrable.browserid;

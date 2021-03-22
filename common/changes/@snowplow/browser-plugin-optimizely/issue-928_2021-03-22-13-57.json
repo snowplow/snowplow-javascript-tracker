@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Remove module level references to window and document (close #928)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-optimizely"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-optimizely",
+  "email": "paul@snowplowanalytics.com"
+}

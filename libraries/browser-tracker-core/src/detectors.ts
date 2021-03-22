@@ -28,9 +28,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-const windowAlias = window,
-  documentAlias = document;
-
 /*
  * Checks whether sessionStorage is available, in a way that
  * does not throw a SecurityError in Firefox if "always ask"
@@ -38,7 +35,7 @@ const windowAlias = window,
  */
 export function hasSessionStorage() {
   try {
-    return !!windowAlias.sessionStorage;
+    return !!window.sessionStorage;
   } catch (e) {
     return true; // SecurityError when referencing it means it exists
   }
@@ -51,7 +48,7 @@ export function hasSessionStorage() {
  */
 export function hasLocalStorage() {
   try {
-    return !!windowAlias.localStorage;
+    return !!window.localStorage;
   } catch (e) {
     return true; // SecurityError when referencing it means it exists
   }
@@ -68,8 +65,9 @@ export function localStorageAccessible() {
     return false;
   }
   try {
-    windowAlias.localStorage.setItem(mod, mod);
-    windowAlias.localStorage.removeItem(mod);
+    const ls = window.localStorage;
+    ls.setItem(mod, mod);
+    ls.removeItem(mod);
     return true;
   } catch (e) {
     return false;
@@ -86,11 +84,11 @@ export function localStorageAccessible() {
 export function detectViewport() {
   var width, height;
 
-  if ('innerWidth' in windowAlias) {
-    width = windowAlias['innerWidth'];
-    height = windowAlias['innerHeight'];
+  if ('innerWidth' in window) {
+    width = window['innerWidth'];
+    height = window['innerHeight'];
   } else {
-    const e = documentAlias.documentElement || documentAlias.body;
+    const e = document.documentElement || document.body;
     width = e['clientWidth'];
     height = e['clientHeight'];
   }
@@ -110,8 +108,8 @@ export function detectViewport() {
  * - http://andylangton.co.uk/articles/javascript/get-viewport-size-javascript/
  */
 export function detectDocumentSize() {
-  var de = documentAlias.documentElement, // Alias
-    be = documentAlias.body,
+  var de = document.documentElement, // Alias
+    be = document.body,
     // document.body may not have rendered, so check whether be.offsetHeight is null
     bodyHeight = be ? Math.max(be.offsetHeight, be.scrollHeight) : 0;
   var w = Math.max(de.clientWidth, de.offsetWidth, de.scrollWidth);
