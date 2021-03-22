@@ -37,9 +37,8 @@ declare global {
   }
 }
 
-const windowAlias = window,
-  functionName = windowAlias.GlobalSnowplowNamespace.shift() as string,
-  queue = windowAlias[functionName] as { q: Queue | Array<unknown> };
+const functionName = window.GlobalSnowplowNamespace.shift() as string,
+  queue = window[functionName] as { q: Queue | Array<unknown> };
 
 // Now replace initialization array with queue manager object
 queue.q = InQueueManager(functionName, queue.q as Array<unknown>);

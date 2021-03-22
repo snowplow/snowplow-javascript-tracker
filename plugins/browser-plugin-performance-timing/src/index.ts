@@ -48,48 +48,48 @@ declare global {
  * for a given page view id when analysing in the warehouse
  */
 export function PerformanceTimingPlugin(): BrowserPlugin {
-  const windowAlias = window;
-
   /**
    * Creates a context from the window.performance.timing object
    *
    * @return object PerformanceTiming context
    */
   function getPerformanceTimingContext() {
-    var performance =
-      windowAlias.performance ||
-      windowAlias.mozPerformance ||
-      windowAlias.msPerformance ||
-      windowAlias.webkitPerformance;
+    var windowAlias = window,
+      performanceAlias =
+        windowAlias.performance ||
+        windowAlias.mozPerformance ||
+        windowAlias.msPerformance ||
+        windowAlias.webkitPerformance,
+      performanceTimingAlias = performanceAlias.timing;
 
-    if (performance) {
+    if (performanceAlias) {
       const performanceTiming: PerformanceTiming = {
-        navigationStart: performance.timing.navigationStart,
-        redirectStart: performance.timing.redirectStart,
-        redirectEnd: performance.timing.redirectEnd,
-        fetchStart: performance.timing.fetchStart,
-        domainLookupStart: performance.timing.domainLookupStart,
-        domainLookupEnd: performance.timing.domainLookupEnd,
-        connectStart: performance.timing.connectStart,
-        secureConnectionStart: performance.timing.secureConnectionStart,
-        connectEnd: performance.timing.connectEnd,
-        requestStart: performance.timing.requestStart,
-        responseStart: performance.timing.responseStart,
-        responseEnd: performance.timing.responseEnd,
-        unloadEventStart: performance.timing.unloadEventStart,
-        unloadEventEnd: performance.timing.unloadEventEnd,
-        domLoading: performance.timing.domLoading,
-        domInteractive: performance.timing.domInteractive,
-        domContentLoadedEventStart: performance.timing.domContentLoadedEventStart,
-        domContentLoadedEventEnd: performance.timing.domContentLoadedEventEnd,
-        domComplete: performance.timing.domComplete,
-        loadEventStart: performance.timing.loadEventStart,
-        loadEventEnd: performance.timing.loadEventEnd,
-        msFirstPaint: (<any>performance.timing).msFirstPaint,
-        chromeFirstPaint: (<any>performance.timing).chromeFirstPaint,
-        requestEnd: (<any>performance.timing).requestEnd,
-        proxyStart: (<any>performance.timing).proxyStart,
-        proxyEnd: (<any>performance.timing).proxyEnd,
+        navigationStart: performanceTimingAlias.navigationStart,
+        redirectStart: performanceTimingAlias.redirectStart,
+        redirectEnd: performanceTimingAlias.redirectEnd,
+        fetchStart: performanceTimingAlias.fetchStart,
+        domainLookupStart: performanceTimingAlias.domainLookupStart,
+        domainLookupEnd: performanceTimingAlias.domainLookupEnd,
+        connectStart: performanceTimingAlias.connectStart,
+        secureConnectionStart: performanceTimingAlias.secureConnectionStart,
+        connectEnd: performanceTimingAlias.connectEnd,
+        requestStart: performanceTimingAlias.requestStart,
+        responseStart: performanceTimingAlias.responseStart,
+        responseEnd: performanceTimingAlias.responseEnd,
+        unloadEventStart: performanceTimingAlias.unloadEventStart,
+        unloadEventEnd: performanceTimingAlias.unloadEventEnd,
+        domLoading: performanceTimingAlias.domLoading,
+        domInteractive: performanceTimingAlias.domInteractive,
+        domContentLoadedEventStart: performanceTimingAlias.domContentLoadedEventStart,
+        domContentLoadedEventEnd: performanceTimingAlias.domContentLoadedEventEnd,
+        domComplete: performanceTimingAlias.domComplete,
+        loadEventStart: performanceTimingAlias.loadEventStart,
+        loadEventEnd: performanceTimingAlias.loadEventEnd,
+        msFirstPaint: (<any>performanceTimingAlias).msFirstPaint,
+        chromeFirstPaint: (<any>performanceTimingAlias).chromeFirstPaint,
+        requestEnd: (<any>performanceTimingAlias).requestEnd,
+        proxyStart: (<any>performanceTimingAlias).proxyStart,
+        proxyEnd: (<any>performanceTimingAlias).proxyEnd,
       };
 
       return [

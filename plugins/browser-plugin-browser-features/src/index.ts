@@ -36,26 +36,24 @@ declare global {
   }
 }
 
-const windowAlias = window,
-  navigatorAlias = navigator,
-  pluginMap: Record<string, string> = {
-    // document types
-    pdf: 'application/pdf',
+const pluginMap: Record<string, string> = {
+  // document types
+  pdf: 'application/pdf',
 
-    // media players
-    qt: 'video/quicktime',
-    realp: 'audio/x-pn-realaudio-plugin',
-    wma: 'application/x-mplayer2',
+  // media players
+  qt: 'video/quicktime',
+  realp: 'audio/x-pn-realaudio-plugin',
+  wma: 'application/x-mplayer2',
 
-    // interactive multimedia
-    dir: 'application/x-director',
-    fla: 'application/x-shockwave-flash',
+  // interactive multimedia
+  dir: 'application/x-director',
+  fla: 'application/x-shockwave-flash',
 
-    // RIA
-    java: 'application/x-java-vm',
-    gears: 'application/x-googlegears',
-    ag: 'application/x-silverlight',
-  };
+  // RIA
+  java: 'application/x-java-vm',
+  gears: 'application/x-googlegears',
+  ag: 'application/x-silverlight',
+};
 
 /**
  * Adds the available MIME Types to each event
@@ -63,6 +61,7 @@ const windowAlias = window,
 export function BrowserFeaturesPlugin(): BrowserPlugin {
   return {
     activateBrowserPlugin: (tracker: BrowserTracker) => {
+      const navigatorAlias = navigator;
       // General plugin detection
       if (navigatorAlias.mimeTypes && navigatorAlias.mimeTypes.length) {
         for (const i in pluginMap) {
@@ -75,14 +74,8 @@ export function BrowserFeaturesPlugin(): BrowserPlugin {
         }
       }
 
-      // Safari and Opera
-      // IE6/IE7 navigator.javaEnabled can't be aliased, so test directly
-      if (navigatorAlias.javaEnabled && navigatorAlias.javaEnabled()) {
-        tracker.core.addPayloadPair('f_java', '1');
-      }
-
       // Firefox
-      if (isFunction((windowAlias as any).GearsFactory)) {
+      if (isFunction((window as any).GearsFactory)) {
         tracker.core.addPayloadPair('f_gears', '1');
       }
     },

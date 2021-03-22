@@ -103,11 +103,6 @@ type ActivityTrackingConfig = {
   configurations: ActivityConfigurations;
 };
 
-const documentAlias = document,
-  windowAlias = window,
-  navigatorAlias = navigator,
-  screenAlias = screen;
-
 /**
  * The Snowplow Tracker
  *
@@ -173,10 +168,10 @@ export function Tracker(
         },
       }),
       // Aliases
-      browserLanguage = (navigatorAlias as any).userLanguage || navigatorAlias.language,
-      documentCharset = documentAlias.characterSet || documentAlias.charset,
+      browserLanguage = (navigator as any).userLanguage || navigator.language,
+      documentCharset = document.characterSet || document.charset,
       // Current URL and Referrer URL
-      locationArray = fixupUrl(windowAlias.location.hostname, windowAlias.location.href, getReferrer()),
+      locationArray = fixupUrl(window.location.hostname, window.location.href, getReferrer()),
       domainAlias = fixupDomain(locationArray[0]),
       locationHrefAlias = locationArray[1],
       configReferrerUrl = locationArray[2],
@@ -192,7 +187,7 @@ export function Tracker(
       // Document URL
       configCustomUrl: string,
       // Document title
-      lastDocumentTitle = documentAlias.title,
+      lastDocumentTitle = document.title,
       // Custom title
       lastConfigTitle: string | null | undefined,
       // Controls whether activity tracking page ping event timers are reset on page view events
@@ -214,7 +209,7 @@ export function Tracker(
       // First-party cookie secure attribute
       configCookieSecure = trackerConfiguration.cookieSecure ?? true,
       // Do Not Track browser feature
-      dnt = navigatorAlias.doNotTrack || (navigatorAlias as any).msDoNotTrack || windowAlias.doNotTrack,
+      dnt = navigator.doNotTrack || (navigator as any).msDoNotTrack || window.doNotTrack,
       // Do Not Track
       configDoNotTrack =
         typeof trackerConfiguration.respectDoNotTrack !== 'undefined'
@@ -287,11 +282,11 @@ export function Tracker(
     core.setTrackerNamespace(namespace);
     core.setAppId(configTrackerSiteId);
     core.setPlatform(configPlatform);
-    core.addPayloadPair('cookie', navigatorAlias.cookieEnabled ? '1' : '0');
+    core.addPayloadPair('cookie', navigator.cookieEnabled ? '1' : '0');
     core.addPayloadPair('cs', documentCharset);
     core.addPayloadPair('lang', browserLanguage);
-    core.addPayloadPair('res', screenAlias.width + 'x' + screenAlias.height);
-    core.addPayloadPair('cd', screenAlias.colorDepth);
+    core.addPayloadPair('res', screen.width + 'x' + screen.height);
+    core.addPayloadPair('cd', screen.colorDepth);
 
     /*
      * Initialize tracker
@@ -308,7 +303,7 @@ export function Tracker(
      * Recalculate the domain, URL, and referrer
      */
     function refreshUrl() {
-      locationArray = fixupUrl(windowAlias.location.hostname, windowAlias.location.href, getReferrer());
+      locationArray = fixupUrl(window.location.hostname, window.location.href, getReferrer());
 
       // If this is a single-page app and the page URL has changed, then:
       //   - if the new URL's querystring contains a "refer(r)er" parameter, use it as the referrer
@@ -342,8 +337,8 @@ export function Tracker(
      * @param crossDomainLinker Function used to determine which links to decorate
      */
     function decorateLinks(crossDomainLinker: (elt: HTMLAnchorElement | HTMLAreaElement) => boolean) {
-      for (var i = 0; i < documentAlias.links.length; i++) {
-        var elt = documentAlias.links[i];
+      for (var i = 0; i < document.links.length; i++) {
+        var elt = document.links[i];
         if (!(elt as any).spDecorationEnabled && crossDomainLinker(elt)) {
           addEventListener(elt, 'click', linkDecorationHandler, true);
           addEventListener(elt, 'mousedown', linkDecorationHandler, true);
@@ -481,10 +476,8 @@ export function Tracker(
      */
     function getPageOffsets() {
       var iebody =
-        documentAlias.compatMode && documentAlias.compatMode !== 'BackCompat'
-          ? documentAlias.documentElement
-          : documentAlias.body;
-      return [iebody.scrollLeft || windowAlias.pageXOffset, iebody.scrollTop || windowAlias.pageYOffset];
+        document.compatMode && document.compatMode !== 'BackCompat' ? document.documentElement : document.body;
+      return [iebody.scrollLeft || window.pageXOffset, iebody.scrollTop || window.pageYOffset];
     }
 
     /*
@@ -766,7 +759,7 @@ export function Tracker(
         return collectorUrl;
       }
 
-      return ('https:' === documentAlias.location.protocol ? 'https' : 'http') + '://' + collectorUrl;
+      return ('https:' === document.location.protocol ? 'https' : 'http') + '://' + collectorUrl;
     }
 
     /**
@@ -879,7 +872,7 @@ export function Tracker(
       pageViewSent = true;
 
       // So we know what document.title was at the time of trackPageView
-      lastDocumentTitle = documentAlias.title;
+      lastDocumentTitle = document.title;
       lastConfigTitle = title;
 
       // Fixup page title
@@ -936,9 +929,9 @@ export function Tracker(
             : 'DOMMouseScroll'; // let's assume that remaining browsers are older Firefox
 
         if (Object.prototype.hasOwnProperty.call(detectPassiveEvents, 'hasSupport')) {
-          addEventListener(documentAlias, wheelEvent, activityHandler, { passive: true });
+          addEventListener(document, wheelEvent, activityHandler, { passive: true });
         } else {
-          addEventListener(documentAlias, wheelEvent, activityHandler);
+          addEventListener(document, wheelEvent, activityHandler);
         }
 
         // Capture our initial scroll points
@@ -949,11 +942,11 @@ export function Tracker(
         const documentHandlers = ['click', 'mouseup', 'mousedown', 'mousemove', 'keypress', 'keydown', 'keyup'];
         const windowHandlers = ['resize', 'focus', 'blur'];
         const listener = (_: Document | Window, handler = activityHandler) => (ev: string) =>
-          addEventListener(documentAlias, ev, handler);
+          addEventListener(document, ev, handler);
 
-        documentHandlers.forEach(listener(documentAlias));
-        windowHandlers.forEach(listener(windowAlias));
-        listener(windowAlias, scrollHandler)('scroll');
+        documentHandlers.forEach(listener(document));
+        windowHandlers.forEach(listener(window));
+        listener(window, scrollHandler)('scroll');
       }
 
       if (activityTrackingConfig.enabled && (resetActivityTrackingOnPageView || installingActivityTracking)) {
@@ -993,7 +986,7 @@ export function Tracker(
           executePagePing(config.callback, finalizeContexts(context, contextCallback));
         }
 
-        config.activityInterval = windowAlias.setInterval(heartbeat, config.configHeartBeatTimer);
+        config.activityInterval = window.setInterval(heartbeat, config.configHeartBeatTimer);
       };
 
       const heartbeat = () => {
@@ -1007,9 +1000,9 @@ export function Tracker(
       };
 
       if (config.configMinimumVisitLength != 0) {
-        config.activityInterval = windowAlias.setTimeout(timeout, config.configMinimumVisitLength);
+        config.activityInterval = window.setTimeout(timeout, config.configMinimumVisitLength);
       } else {
-        config.activityInterval = windowAlias.setInterval(heartbeat, config.configHeartBeatTimer);
+        config.activityInterval = window.setInterval(heartbeat, config.configHeartBeatTimer);
       }
     }
 
@@ -1039,7 +1032,7 @@ export function Tracker(
      * Not part of the public API - only called from logPageView() above.
      */
     function logPagePing({ context, minXOffset, minYOffset, maxXOffset, maxYOffset }: ActivityCallbackData) {
-      var newDocumentTitle = documentAlias.title;
+      var newDocumentTitle = document.title;
       if (newDocumentTitle !== lastDocumentTitle) {
         lastDocumentTitle = newDocumentTitle;
         lastConfigTitle = undefined;
@@ -1096,7 +1089,7 @@ export function Tracker(
 
       setDocumentTitle: function (title: string) {
         // So we know what document.title was at the time of trackPageView
-        lastDocumentTitle = documentAlias.title;
+        lastDocumentTitle = document.title;
         lastConfigTitle = title;
       },
 

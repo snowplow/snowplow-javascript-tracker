@@ -37,9 +37,6 @@ declare global {
   }
 }
 
-const documentAlias = document,
-  windowAlias = window;
-
 /**
  * A set of variables which are shared among all initialised trackers
  */
@@ -58,14 +55,16 @@ export class SharedState {
 }
 
 export function createSharedState(): SharedState {
-  const sharedState = new SharedState();
+  const sharedState = new SharedState(),
+    documentAlias = document,
+    windowAlias = window;
 
   /*
    * Handle page visibility event
    * Works everywhere except IE9
    */
   function visibilityChangeHandler() {
-    if (documentAlias.visibilityState == 'hidden') {
+    if (document.visibilityState == 'hidden') {
       // Flush all POST queues
       sharedState.bufferFlushers.forEach(function (flusher) {
         flusher(false);
@@ -122,7 +121,7 @@ export function createSharedState(): SharedState {
    ************************************************************/
 
   // initialize the Snowplow singleton
-  if (document.visibilityState) {
+  if (documentAlias.visibilityState) {
     // Flush for mobile and modern browsers
     addEventListener(documentAlias, 'visibilitychange', visibilityChangeHandler, false);
   }
