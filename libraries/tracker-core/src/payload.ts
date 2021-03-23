@@ -38,7 +38,7 @@ export type Payload = Record<string, unknown>;
 /**
  * A tuple which represents the unprocessed JSON to be added to the Payload
  */
-export type EventJsonWithKeys = [keyIfEncoded: string, keyIfNotEncoded: string, json: Record<string, unknown>];
+export type EventJsonWithKeys = { keyIfEncoded: string; keyIfNotEncoded: string; json: Record<string, unknown> };
 
 /**
  * An array of tuples which represents the unprocessed JSON to be added to the Payload
@@ -122,7 +122,7 @@ export function payloadBuilder(): PayloadBuilder {
 
   const addJson = (keyIfEncoded: string, keyIfNotEncoded: string, json?: Record<string, unknown>): void => {
     if (json && isNonEmptyJson(json)) {
-      const jsonWithKeys: EventJsonWithKeys = [keyIfEncoded, keyIfNotEncoded, json];
+      const jsonWithKeys = { keyIfEncoded, keyIfNotEncoded, json };
       jsonForProcessing.push(jsonWithKeys);
       allJson.push(jsonWithKeys);
     }
@@ -153,11 +153,11 @@ export function payloadBuilder(): PayloadBuilder {
 export function payloadJsonProcessor(encodeBase64: boolean): JsonProcessor {
   return (payloadBuilder: PayloadBuilder, jsonForProcessing: EventJson) => {
     for (const json of jsonForProcessing) {
-      const str = JSON.stringify(json[2]);
+      const str = JSON.stringify(json.json);
       if (encodeBase64) {
-        payloadBuilder.add(json[0], base64urlencode(str));
+        payloadBuilder.add(json.keyIfEncoded, base64urlencode(str));
       } else {
-        payloadBuilder.add(json[1], str);
+        payloadBuilder.add(json.keyIfNotEncoded, str);
       }
     }
     jsonForProcessing.length = 0;

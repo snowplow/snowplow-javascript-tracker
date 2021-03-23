@@ -51,7 +51,7 @@ export function DebuggerPlugin(logLevel: LOG_LEVEL = LOG_LEVEL.debug): BrowserPl
     return (payloadBuilder: PayloadBuilder, jsonForProcessing: EventJson) => {
       if (jsonForProcessing.length) {
         for (const json of jsonForProcessing) {
-          LOG.debug(`${tracker.id}: ${getJsonType(json)} JSON`, json[2]);
+          LOG.debug(`${tracker.id}: ${getJsonType(json)} JSON`, json.json);
         }
       }
       return payloadJsonProcessor(encodeBase64)(payloadBuilder, jsonForProcessing);
@@ -79,12 +79,12 @@ export function DebuggerPlugin(logLevel: LOG_LEVEL = LOG_LEVEL.debug): BrowserPl
 }
 
 function getJsonType(json: EventJsonWithKeys) {
-  switch (json[0]) {
+  switch (json.keyIfEncoded) {
     case 'cx':
       return 'Context';
     case 'ue_px':
       return 'Unstructured event';
     default:
-      return `${json[0]}, ${json[1]}`;
+      return `${json.keyIfEncoded}, ${json.keyIfNotEncoded}`;
   }
 }
