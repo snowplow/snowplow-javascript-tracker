@@ -63,5 +63,6 @@ export function newTracker(trackerId: string, endpoint: string, configuration: T
   }
 }
 
+export { BrowserTracker, TrackerConfiguration };
 export { version } from './version';
 export * from './api';
