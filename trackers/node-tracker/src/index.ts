@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Snowplow Analytics Ltd, 2010 Anthon Pang
+ * Copyright (c) 2021 Snowplow Analytics Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,20 +28,51 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import license from 'rollup-plugin-license';
+export { Emitter, HttpMethod, HttpProtocol } from './emitter';
+export { gotEmitter } from './got_emitter';
+export { tracker, Tracker } from './tracker';
+export { version } from './version';
 
-const mainCopyright = 'Copyright 2021 Snowplow Analytics Ltd, 2010 Anthon Pang';
-const altCopyright = 'Copyright 2021 Snowplow Analytics Ltd';
-
-const bannerContent = (alt) => `<%= pkg.description %> v<%= pkg.version %> (<%= pkg.homepage %>)
-${alt ? altCopyright : mainCopyright}
-Licensed under <%= pkg.license %>`;
-
-export const banner = (alt = false) =>
-  license({
-    sourcemap: true,
-    banner: {
-      content: bannerContent(alt),
-      commentStyle: 'ignored',
-    },
-  });
+export {
+  buildAdClick,
+  buildAdConversion,
+  buildAdImpression,
+  buildAddToCart,
+  buildConsentGranted,
+  buildConsentWithdrawn,
+  buildEcommerceTransaction,
+  buildEcommerceTransactionItem,
+  buildFormFocusOrChange,
+  buildFormSubmission,
+  buildLinkClick,
+  buildPagePing,
+  buildPageView,
+  buildRemoveFromCart,
+  buildScreenView,
+  buildSelfDescribingEvent,
+  buildSiteSearch,
+  buildSocialInteraction,
+  buildStructEvent,
+  AdClickEvent,
+  ContextEvent,
+  PagePingEvent,
+  PageViewEvent,
+  AddToCartEvent,
+  LinkClickEvent,
+  ScreenViewEvent,
+  SiteSearchEvent,
+  StructuredEvent,
+  AdConversionEvent,
+  AdImpressionEvent,
+  ConsentGrantedEvent,
+  FormSubmissionEvent,
+  RemoveFromCartEvent,
+  SelfDescribingEvent,
+  ConsentWithdrawnEvent,
+  FormFocusOrChangeEvent,
+  SocialInteractionEvent,
+  EcommerceTransactionEvent,
+  EcommerceTransactionItemEvent,
+  SelfDescribingJson,
+  Timestamp,
+} from '@snowplow/tracker-core';

@@ -170,4 +170,4 @@ All rights reserved.
 [npm-image]: https://img.shields.io/npm/v/@snowplow/tracker-core
 [docs]: https://docs.snowplowanalytics.com/docs/collecting-data/collecting-from-own-applications/node-js-tracker/javascript-tracker-core/
 [osi]: https://opensource.org/licenses/BSD-3-Clause
-[license-image]: https://img.shields.io/github/license/snowplow/snowplow-javascript-tracker
+[license-image]: https://img.shields.io/npm/l/@snowplow/tracker-core

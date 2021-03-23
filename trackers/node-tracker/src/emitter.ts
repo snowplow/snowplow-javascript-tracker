@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Snowplow Analytics Ltd, 2010 Anthon Pang
+ * Copyright (c) 2021 Snowplow Analytics Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,20 +28,46 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import license from 'rollup-plugin-license';
+import { Payload } from '@snowplow/tracker-core';
 
-const mainCopyright = 'Copyright 2021 Snowplow Analytics Ltd, 2010 Anthon Pang';
-const altCopyright = 'Copyright 2021 Snowplow Analytics Ltd';
+export interface Emitter {
+  flush: () => void;
+  input: (payload: Payload) => void;
+}
 
-const bannerContent = (alt) => `<%= pkg.description %> v<%= pkg.version %> (<%= pkg.homepage %>)
-${alt ? altCopyright : mainCopyright}
-Licensed under <%= pkg.license %>`;
+export enum HttpProtocol {
+  HTTP = 'http',
+  HTTPS = 'https',
+}
 
-export const banner = (alt = false) =>
-  license({
-    sourcemap: true,
-    banner: {
-      content: bannerContent(alt),
-      commentStyle: 'ignored',
-    },
-  });
+export enum HttpMethod {
+  GET = 'get',
+  POST = 'post',
+}
+
+/**
+ * Convert all fields in a payload dictionary to strings
+ *
+ * @param payload Payload on which the new dictionary is based
+ */
+export const preparePayload = (payload: Payload): Record<string, string> => {
+  const stringifiedPayload: Record<string, string> = {};
+
+  const finalPayload = addDeviceSentTimestamp(payload);
+
+  for (const key in finalPayload) {
+    if (Object.prototype.hasOwnProperty.call(finalPayload, key)) {
+      stringifiedPayload[key] = String(finalPayload[key]);
+    }
+  }
+  return stringifiedPayload;
+};
+
+/**
+ * Adds the 'stm' paramater with the current time to the payload
+ * @param payload The payload which will be mutated
+ */
+const addDeviceSentTimestamp = (payload: Payload): Payload => {
+  payload['stm'] = new Date().getTime().toString();
+  return payload;
+};

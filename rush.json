@@ -26,7 +26,7 @@
    * Specify one of: "pnpmVersion", "npmVersion", or "yarnVersion".  See the Rush documentation
    * for details about these alternatives.
    */
-  "pnpmVersion": "5.18.6",
+  "pnpmVersion": "5.18.8",
 
   // "npmVersion": "4.5.0",
   // "yarnVersion": "1.9.4",
@@ -396,6 +396,12 @@
     {
       "packageName": "@snowplow/javascript-tracker",
       "projectFolder": "trackers/javascript-tracker",
+      "reviewCategory": "trackers",
+      "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/node-tracker",
+      "projectFolder": "trackers/node-tracker",
       "reviewCategory": "trackers",
       "versionPolicyName": "tracker"
     },

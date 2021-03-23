@@ -54,4 +54,4 @@ All rights reserved.
 [npm-image]: https://img.shields.io/npm/v/@snowplow/browser-plugin-geolocation
 [docs]: https://docs.snowplowanalytics.com/docs/collecting-data/collecting-from-own-applications/javascript-tracker/
 [osi]: https://opensource.org/licenses/BSD-3-Clause
-[license-image]: https://img.shields.io/github/license/snowplow/snowplow-javascript-tracker
+[license-image]: https://img.shields.io/npm/l/@snowplow/browser-plugin-geolocation

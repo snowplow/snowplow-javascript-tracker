@@ -155,6 +155,10 @@
       "allowedCategories": [ "libraries", "trackers" ]
     },
     {
+      "name": "@types/sinon",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "@types/uuid",
       "allowedCategories": [ "libraries", "trackers" ]
     },
@@ -200,7 +204,7 @@
     },
     {
       "name": "ava",
-      "allowedCategories": [ "libraries", "plugins" ]
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "chromedriver",
@@ -213,6 +217,14 @@
     {
       "name": "eslint",
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
+    },
+    {
+      "name": "eslint-plugin-ava",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "got",
+      "allowedCategories": [ "trackers" ]
     },
     {
       "name": "gulp",
@@ -255,6 +267,10 @@
       "allowedCategories": [ "plugins" ]
     },
     {
+      "name": "nock",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "npm-run-all",
       "allowedCategories": [ "trackers" ]
     },
@@ -293,6 +309,10 @@
     {
       "name": "sha1",
       "allowedCategories": [ "libraries", "trackers" ]
+    },
+    {
+      "name": "sinon",
+      "allowedCategories": [ "trackers" ]
     },
     {
       "name": "ts-jest",
