@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Snowplow Analytics Ltd, 2010 Anthon Pang
+ * Copyright (c) 2021 Snowplow Analytics Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,20 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import license from 'rollup-plugin-license';
+import { version as pkgVersion } from '../package.json';
 
-const mainCopyright = 'Copyright 2021 Snowplow Analytics Ltd, 2010 Anthon Pang';
-const altCopyright = 'Copyright 2021 Snowplow Analytics Ltd';
-
-const bannerContent = (alt) => `<%= pkg.description %> v<%= pkg.version %> (<%= pkg.homepage %>)
-${alt ? altCopyright : mainCopyright}
-Licensed under <%= pkg.license %>`;
-
-export const banner = (alt = false) =>
-  license({
-    sourcemap: true,
-    banner: {
-      content: bannerContent(alt),
-      commentStyle: 'ignored',
-    },
-  });
+/** The current version of the tracker */
+export const version = 'js-' + pkgVersion;

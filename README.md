@@ -8,11 +8,10 @@
 
 ## Overview
 
-Add analytics to your websites and web apps with the [Snowplow][snowplow] event tracker for
-JavaScript.
+Add analytics to your websites, web apps and Node.js applications with the [Snowplow][snowplow] event trackers for JavaScript.
 
-With this tracker you can collect user event data (page views, e-commerce transactions etc) from the
-client-side tier of your websites and web apps.
+With these trackers you can collect user event data (page views, e-commerce transactions etc) from the
+client-side and server-side tiers of your websites and web apps.
 
 ## Find out more
 
@@ -49,7 +48,7 @@ To run unit tests:
 $ rush test
 ```
 
-To run e2e tests (locally):
+To run e2e browser tests (locally):
 
 ```bash
 $ cd trackers/javascript-tracker/
