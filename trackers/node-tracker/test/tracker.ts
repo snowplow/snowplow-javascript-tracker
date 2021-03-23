@@ -29,6 +29,11 @@
  */
 
 import {
+  tracker,
+  gotEmitter,
+  version,
+  HttpMethod,
+  HttpProtocol,
   buildEcommerceTransaction,
   buildEcommerceTransactionItem,
   buildPageView,
@@ -36,12 +41,10 @@ import {
   buildSelfDescribingEvent,
   buildStructEvent,
   Payload,
-} from '@snowplow/tracker-core';
+} from '../src/index';
 import test, { ExecutionContext } from 'ava';
 import nock from 'nock';
 import querystring from 'querystring';
-
-import { tracker, gotEmitter, version, HttpMethod, HttpProtocol } from '../src/index';
 
 const testMethods = [HttpMethod.GET, HttpMethod.POST];
 

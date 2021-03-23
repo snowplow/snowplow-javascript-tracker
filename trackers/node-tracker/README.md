@@ -31,7 +31,7 @@ npm install @snowplow/node-tracker
 Initialize your tracker with your desired configuration:
 
 ```js
-import { tracker, gotEmitter } from 'snowplow-tracker';
+import { tracker, gotEmitter } from '@snowplow/node-tracker';
 
 const e = gotEmitter(
   'collector.mydomain.net', // Collector endpoint
@@ -50,7 +50,7 @@ Then use the `track` function from this package, along with the `buildX` functio
 import {
   buildSelfDescribingEvent,
   buildPageView
-} from '@snowplow/tracker-core';
+} from '@snowplow/node-tracker';
 
 const context = [
   {
@@ -66,14 +66,14 @@ t.track(
   context
 );
 
-const evnetJson = {
+const eventJson = {
   schema: 'iglu:com.acme/viewed_product/jsonschema/1-0-0',
   data: {
     price: 20,
   },
 };
 
-track.track(buildSelfDescribingEvent({ event: evnetJson }), context);
+track.track(buildSelfDescribingEvent({ event: eventJson }), context);
 ```
 
 To enable success and failure callback debugging, run your application with `NODE_DEBUG=snowplow`.

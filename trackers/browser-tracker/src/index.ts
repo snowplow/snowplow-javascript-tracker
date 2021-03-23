@@ -28,7 +28,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { createSharedState, addTracker, TrackerConfiguration, BrowserTracker } from '@snowplow/browser-tracker-core';
+import {
+  createSharedState,
+  addTracker,
+  TrackerConfiguration,
+  BrowserTracker,
+  BrowserPlugin,
+} from '@snowplow/browser-tracker-core';
 import { version } from './version';
 
 const state = typeof window !== 'undefined' ? createSharedState() : undefined;
@@ -63,6 +69,6 @@ export function newTracker(trackerId: string, endpoint: string, configuration: T
   }
 }
 
-export { BrowserTracker, TrackerConfiguration };
+export { BrowserTracker, TrackerConfiguration, BrowserPlugin };
 export { version } from './version';
 export * from './api';
