@@ -75,4 +75,8 @@ export {
   EcommerceTransactionItemEvent,
   SelfDescribingJson,
   Timestamp,
+  PayloadBuilder,
+  Payload,
+  CorePlugin,
+  CoreConfiguration,
 } from '@snowplow/tracker-core';
