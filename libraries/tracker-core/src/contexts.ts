@@ -556,8 +556,8 @@ function matchPart(rule: string, schema: string): boolean {
 function getUsefulSchema(sb: PayloadBuilder): string {
   let eventJson = sb.getJson();
   for (const json of eventJson) {
-    if (json.length === 3 && json[0] === 'ue_px' && typeof json[2]['data'] === 'object') {
-      const schema = (json[2]['data'] as Record<string, unknown>)['schema'];
+    if (json.keyIfEncoded === 'ue_px' && typeof json.json['data'] === 'object') {
+      const schema = (json.json['data'] as Record<string, unknown>)['schema'];
       if (typeof schema == 'string') {
         return schema;
       }
