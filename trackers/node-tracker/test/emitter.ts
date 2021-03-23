@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Snowplow Analytics Ltd, 2010 Anthon Pang
+ * Copyright (c) 2021 Snowplow Analytics Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,20 +28,28 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import license from 'rollup-plugin-license';
+import test from 'ava';
+import sinon from 'sinon';
 
-const mainCopyright = 'Copyright 2021 Snowplow Analytics Ltd, 2010 Anthon Pang';
-const altCopyright = 'Copyright 2021 Snowplow Analytics Ltd';
+import { preparePayload } from '../src/emitter';
 
-const bannerContent = (alt) => `<%= pkg.description %> v<%= pkg.version %> (<%= pkg.homepage %>)
-${alt ? altCopyright : mainCopyright}
-Licensed under <%= pkg.license %>`;
+test('preparePayload should convert payload values to strings', (t) => {
+  const payload = { a: 1234, b: '1' };
 
-export const banner = (alt = false) =>
-  license({
-    sourcemap: true,
-    banner: {
-      content: bannerContent(alt),
-      commentStyle: 'ignored',
-    },
-  });
+  const result = preparePayload(payload);
+
+  t.like(result, { a: '1234', b: '1' });
+});
+
+test('preparePayload should add "stm" property', (t) => {
+  const testTime = new Date('2020-06-15T09:12:30.000Z').getTime();
+  const clock = sinon.useFakeTimers(testTime);
+
+  const payload = { a: '1' };
+
+  const result = preparePayload(payload);
+
+  t.deepEqual(result, { a: '1', stm: testTime.toString() });
+
+  clock.restore();
+});

@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Include @snowplow/node-tracker in monorepo (close #931)",
+      "type": "none",
+      "packageName": "@snowplow/tracker-core"
+    }
+  ],
+  "packageName": "@snowplow/tracker-core",
+  "email": "paul@snowplowanalytics.com"
+}
