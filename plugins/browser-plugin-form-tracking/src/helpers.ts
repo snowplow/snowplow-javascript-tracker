@@ -43,15 +43,17 @@ import {
   buildFormSubmission,
 } from '@snowplow/tracker-core';
 
-export interface FormTrackingOptions {
-  forms: FilterCriterion<HTMLElement>;
-  fields: FilterCriterion<TrackedHTMLElement> & { transform: transformFn };
+/** The form tracking configuration */
+export interface FormTrackingConfiguration {
+  /** The options which can be configured for the form tracking events */
+  options?: FormTrackingOptions;
+  /** The dyanmic context which will be evaluated for each form event */
+  context?: DynamicContext | null;
 }
 
-export interface FormConfiguration {
-  formFilter: (_: HTMLFormElement) => boolean;
-  fieldFilter: (_: TrackedHTMLElement) => boolean;
-  fieldTransform: transformFn;
+export interface FormTrackingOptions {
+  forms?: FilterCriterion<HTMLElement>;
+  fields?: FilterCriterion<TrackedHTMLElement> & { transform: transformFn };
 }
 
 export interface TrackedHTMLElementTagNameMap {
@@ -75,17 +77,20 @@ export const innerElementTags: Array<keyof TrackedHTMLElementTagNameMap> = ['tex
 
 const defaultTransformFn: transformFn = (x) => x;
 
+interface FormConfiguration {
+  formFilter: (_: HTMLFormElement) => boolean;
+  fieldFilter: (_: TrackedHTMLElement) => boolean;
+  fieldTransform: transformFn;
+}
+
 /*
  * Add submission event listeners to all form elements
  * Add value change event listeners to all mutable inner form elements
  */
-export function addFormListeners(
-  tracker: BrowserTracker,
-  formConfiguration?: FormTrackingOptions,
-  context?: DynamicContext | null
-) {
-  const trackingMarker = tracker.id + 'form',
-    config = getConfigurationForOptions(formConfiguration);
+export function addFormListeners(tracker: BrowserTracker, configuration: FormTrackingConfiguration) {
+  const { options, context } = configuration,
+    trackingMarker = tracker.id + 'form',
+    config = getConfigurationForOptions(options);
 
   Array.prototype.slice.call(document.getElementsByTagName('form')).forEach(function (form) {
     if (config.formFilter(form) && !form[trackingMarker]) {
@@ -143,8 +148,8 @@ function getConfigurationForOptions(options?: FormTrackingOptions) {
  *
  * @param object criterion {transform: function (elt) {return the result of transform function applied to element}
  */
-function getTransform(criterion: { transform: transformFn }): transformFn {
-  if (Object.prototype.hasOwnProperty.call(criterion, 'transform')) {
+function getTransform(criterion?: { transform: transformFn }): transformFn {
+  if (criterion && Object.prototype.hasOwnProperty.call(criterion, 'transform')) {
     return criterion.transform;
   }
 
