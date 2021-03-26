@@ -29,8 +29,9 @@
  */
 
 import { BrowserPlugin, BrowserTracker } from '@snowplow/browser-tracker-core';
-import { DynamicContext } from '@snowplow/tracker-core';
-import { FormTrackingOptions, addFormListeners } from './helpers';
+import { addFormListeners, FormTrackingConfiguration } from './helpers';
+
+export { FormTrackingConfiguration } from './helpers';
 
 const _trackers: Record<string, BrowserTracker> = {};
 
@@ -45,14 +46,6 @@ export function FormTrackingPlugin(): BrowserPlugin {
   };
 }
 
-/** The form tracking configuration */
-export interface FormTrackingConfiguration {
-  /** The options which can be configured for the form tracking events */
-  options?: FormTrackingOptions;
-  /** The dyanmic context which will be evaluated for each form event */
-  context?: DynamicContext | null;
-}
-
 /**
  * Enables automatic form tracking
  * An event will be fired when a form field is changed or a form submitted.
@@ -65,14 +58,13 @@ export function enableFormTracking(
   configuration: FormTrackingConfiguration = {},
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  const { options, context } = configuration;
   trackers.forEach((t) => {
     if (_trackers[t]) {
       if (_trackers[t].sharedState.hasLoaded) {
-        addFormListeners(_trackers[t], options, context);
+        addFormListeners(_trackers[t], configuration);
       } else {
         _trackers[t].sharedState.registeredOnLoadHandlers.push(function () {
-          addFormListeners(_trackers[t], options, context);
+          addFormListeners(_trackers[t], configuration);
         });
       }
     }
