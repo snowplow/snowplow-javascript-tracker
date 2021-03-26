@@ -104,17 +104,16 @@ export function enableLinkClickTracking(
   configuration: LinkClickTrackingConfiguration = {},
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  const { options, pseudoClicks, trackContent, context } = configuration;
   trackers.forEach((id) => {
     if (_trackers[id]) {
       if (_trackers[id].sharedState.hasLoaded) {
         // the load event has already fired, add the click listeners now
-        configureLinkClickTracking({ options, pseudoClicks, trackContent, context }, id);
+        configureLinkClickTracking(configuration, id);
         addClickListeners(id);
       } else {
         // defer until page has loaded
         _trackers[id].sharedState.registeredOnLoadHandlers.push(function () {
-          configureLinkClickTracking({ options, pseudoClicks, trackContent, context }, id);
+          configureLinkClickTracking(configuration, id);
           addClickListeners(id);
         });
       }
@@ -258,17 +257,7 @@ function addClickListener(tracker: string, element: HTMLAnchorElement | HTMLArea
  * whether to use pseudo click tracking, and what context to attach to link_click events
  */
 function configureLinkClickTracking(
-  {
-    options,
-    pseudoClicks,
-    trackContent,
-    context,
-  }: {
-    options?: FilterCriterion<HTMLElement> | null;
-    pseudoClicks?: boolean | null;
-    trackContent?: boolean | null;
-    context?: DynamicContext | null;
-  } = {},
+  { options, pseudoClicks, trackContent, context }: LinkClickTrackingConfiguration = {},
   tracker: string
 ) {
   _configuration[tracker] = {

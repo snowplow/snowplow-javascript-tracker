@@ -489,7 +489,7 @@ export function getFilterByClass(criterion?: FilterCriterion<HTMLElement> | null
  *                             or {denylist: [array of allowable strings]}
  *                             or {filter: function (elt) {return whether to track the element}
  */
-export function getFilterByName<T extends { name: string }>(criterion: FilterCriterion<T>): (elt: T) => boolean {
+export function getFilterByName<T extends { name: string }>(criterion?: FilterCriterion<T>): (elt: T) => boolean {
   // If the criterion argument is not an object, add listeners to all elements
   if (criterion == null || typeof criterion !== 'object' || Array.isArray(criterion)) {
     return function () {
