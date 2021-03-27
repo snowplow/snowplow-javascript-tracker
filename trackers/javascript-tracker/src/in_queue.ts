@@ -110,7 +110,15 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
   function tryProcessQueue() {
     if (Object.keys(pendingPlugins).length === 0) {
       pendingQueue.forEach((q) => {
-        dispatch(q[0], q[1]);
+        let fnParameters = q[1];
+        if (
+          typeof availableFunctions[q[0]] !== 'undefined' &&
+          availableFunctions[q[0]].length > fnParameters.length &&
+          Array.isArray(fnParameters[0])
+        ) {
+          fnParameters = [{}, fnParameters[0]];
+        }
+        dispatch(q[0], fnParameters);
       });
     }
   }
@@ -132,7 +140,7 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
       const trackerId = `${functionName}_${parameterArray[0]}`,
         trackerConfiguration = parameterArray[2] as JavaScriptTrackerConfiguration,
         plugins = Plugins(trackerConfiguration),
-        tracker = addTracker(trackerId, parameterArray[0], version, parameterArray[1], sharedState, {
+        tracker = addTracker(trackerId, parameterArray[0], `js-${version}`, parameterArray[1], sharedState, {
           ...trackerConfiguration,
           plugins: plugins.map((p) => p[0]),
         });
@@ -262,10 +270,12 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
       }
 
       let fnParameters: FunctionParameters;
-      if (parameterArray[0]) {
+      if (typeof parameterArray[0] !== 'undefined') {
         fnParameters = [parameterArray[0], trackerIdentifiers];
-      } else {
+      } else if (typeof availableFunctions[f] !== 'undefined') {
         fnParameters = availableFunctions[f].length === 2 ? [{}, trackerIdentifiers] : [trackerIdentifiers];
+      } else {
+        fnParameters = [trackerIdentifiers];
       }
 
       if (Object.keys(pendingPlugins).length > 0) {

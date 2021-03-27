@@ -259,6 +259,8 @@ export interface FlushBufferConfiguration {
 export interface BrowserTracker {
   /** The unique identifier of this tracker */
   id: string;
+  /** The tracker namespace */
+  namespace: string;
   /** The instance of the core library which this tracker has initialised */
   core: TrackerCore;
   /** The instance of shared state this tracker is using */

@@ -31,9 +31,9 @@
 export { Emitter, HttpMethod, HttpProtocol } from './emitter';
 export { gotEmitter } from './got_emitter';
 export { tracker, Tracker } from './tracker';
-export { version } from './version';
 
 export {
+  version,
   buildAdClick,
   buildAdConversion,
   buildAdImpression,
