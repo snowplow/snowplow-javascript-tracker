@@ -515,6 +515,7 @@ export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore 
       ...partialCore,
       addPlugin: (plugin: CorePlugin) => {
         plugins.push(plugin);
+        plugin.logger?.(LOG);
         plugin.activateCorePlugin?.(core);
       },
     };

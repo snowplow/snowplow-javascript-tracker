@@ -1223,6 +1223,7 @@ export function Tracker(
     return {
       ...apiMethods,
       id: trackerId,
+      namespace,
       core: core,
       sharedState: state,
     };
@@ -1233,7 +1234,7 @@ export function Tracker(
     tracker = {
       ...partialTracker,
       addPlugin: (plugin: BrowserPlugin) => {
-        trackerConfiguration.plugins?.push(plugin);
+        tracker.core.addPlugin(plugin);
         plugin.activateBrowserPlugin?.(tracker);
       },
     };

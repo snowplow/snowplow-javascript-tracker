@@ -16,7 +16,7 @@
     },
     {
       "name": "@rollup/plugin-json",
-      "allowedCategories": [ "trackers" ]
+      "allowedCategories": [ "libraries", "trackers" ]
     },
     {
       "name": "@rollup/plugin-node-resolve",
@@ -151,6 +151,10 @@
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
+      "name": "@types/randomcolor",
+      "allowedCategories": [ "plugins" ]
+    },
+    {
       "name": "@types/sha1",
       "allowedCategories": [ "libraries", "trackers" ]
     },
@@ -277,6 +281,10 @@
     {
       "name": "prettier",
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
+    },
+    {
+      "name": "randomcolor",
+      "allowedCategories": [ "plugins" ]
     },
     {
       "name": "rollup",

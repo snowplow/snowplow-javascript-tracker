@@ -35,7 +35,7 @@ import {
   BrowserTracker,
   BrowserPlugin,
 } from '@snowplow/browser-tracker-core';
-import { version } from './version';
+import { version } from '@snowplow/tracker-core';
 
 const state = typeof window !== 'undefined' ? createSharedState() : undefined;
 
@@ -63,12 +63,12 @@ export function newTracker(trackerId: string, endpoint: string, configuration: T
  */
 export function newTracker(trackerId: string, endpoint: string, configuration: TrackerConfiguration = {}) {
   if (state) {
-    return addTracker(trackerId, trackerId, version, endpoint, state, configuration);
+    return addTracker(trackerId, trackerId, `js-${version}`, endpoint, state, configuration);
   } else {
     return undefined;
   }
 }
 
 export { BrowserTracker, TrackerConfiguration, BrowserPlugin };
-export { version } from './version';
+export { version } from '@snowplow/tracker-core';
 export * from './api';
