@@ -28,9 +28,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { trackerCore, PayloadBuilder, TrackerCore } from '@snowplow/tracker-core';
+import { trackerCore, PayloadBuilder, TrackerCore, version } from '@snowplow/tracker-core';
 
-import { version } from './version';
 import { Emitter } from './emitter';
 
 export interface Tracker extends TrackerCore {

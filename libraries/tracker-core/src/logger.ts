@@ -76,13 +76,11 @@ function logger(logLevel: LOG_LEVEL = LOG_LEVEL.warn): Logger {
    */
   function warn(message: string, error?: Error, ...extraParams: unknown[]) {
     if (logLevel >= LOG_LEVEL.warn && typeof console !== 'undefined') {
-      if (typeof console !== 'undefined') {
-        const logMsg = label + message;
-        if (error) {
-          console.warn(logMsg + '\n', error, ...extraParams);
-        } else {
-          console.warn(logMsg, ...extraParams);
-        }
+      const logMsg = label + message;
+      if (error) {
+        console.warn(logMsg + '\n', error, ...extraParams);
+      } else {
+        console.warn(logMsg, ...extraParams);
       }
     }
   }
@@ -92,9 +90,7 @@ function logger(logLevel: LOG_LEVEL = LOG_LEVEL.warn): Logger {
    */
   function debug(message: string, ...extraParams: unknown[]) {
     if (logLevel >= LOG_LEVEL.debug && typeof console !== 'undefined') {
-      if (typeof console !== 'undefined') {
-        console.warn(label + message, ...extraParams);
-      }
+      console.debug(label + message, ...extraParams);
     }
   }
 
@@ -103,9 +99,7 @@ function logger(logLevel: LOG_LEVEL = LOG_LEVEL.warn): Logger {
    */
   function info(message: string, ...extraParams: unknown[]) {
     if (logLevel >= LOG_LEVEL.info && typeof console !== 'undefined') {
-      if (typeof console !== 'undefined') {
-        console.info(label + message, ...extraParams);
-      }
+      console.info(label + message, ...extraParams);
     }
   }
 

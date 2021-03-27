@@ -30,10 +30,9 @@
 
 import util from 'util';
 import got, { Response, RequestError, Agents, RequiredRetryOptions, ToughCookieJar, PromiseCookieJar } from 'got';
-import { Payload } from '@snowplow/tracker-core';
+import { Payload, version } from '@snowplow/tracker-core';
 
 import { Emitter, HttpProtocol, HttpMethod, preparePayload } from './emitter';
-import { version } from './version';
 
 /**
  * Create an emitter object, which uses the `got` library, that will send events to a collector
