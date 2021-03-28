@@ -169,10 +169,15 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
       }
     }
 
-    if (isStringArray(parameterArray[0]) && typeof parameterArray[1] === 'string') {
-      const scriptSrc = parameterArray[1],
-        constructorPath = parameterArray[0],
-        pauseTracking = parameterArray[2] ?? true;
+    if (
+      typeof parameterArray[0] === 'string' &&
+      isStringArray(parameterArray[1]) &&
+      (typeof parameterArray[2] === 'undefined' || Array.isArray(parameterArray[2]))
+    ) {
+      const scriptSrc = parameterArray[0],
+        constructorPath = parameterArray[1],
+        constructorParams = parameterArray[2],
+        pauseTracking = parameterArray[3] ?? true;
 
       if (pauseTracking) {
         const timeout = windowAlias.setTimeout(() => {
@@ -184,12 +189,13 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
       }
       const pluginScript = documentAlias.createElement('script');
       pluginScript.setAttribute('src', scriptSrc);
+      pluginScript.setAttribute('async', '1');
       addEventListener(
         pluginScript,
         'error',
         () => {
           postScriptHandler(scriptSrc);
-          LOG.warn(`failed to load plugin ${constructorPath[0]} from ${scriptSrc}`);
+          LOG.warn(`Failed to load plugin ${constructorPath[0]} from ${scriptSrc}`);
         },
         true
       );
@@ -201,7 +207,10 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
             plugin = windowAlias[windowFn];
           if (plugin && typeof plugin === 'object') {
             const { [innerFn]: pluginConstructor, ...api } = plugin as Record<string, Function>;
-            availableFunctions['addPlugin'].apply(null, [{ plugin: pluginConstructor() }, trackerIdentifiers]);
+            availableFunctions['addPlugin'].apply(null, [
+              { plugin: pluginConstructor.apply(null, constructorParams) },
+              trackerIdentifiers,
+            ]);
             updateAvailableFunctions(api);
           }
           postScriptHandler(scriptSrc);
@@ -212,15 +221,26 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
       return;
     }
 
-    if (typeof parameterArray[0] === 'string' && typeof parameterArray[1] === 'object') {
-      const plugin = parameterArray[1],
-        constructorPath = parameterArray[0];
+    if (
+      typeof parameterArray[0] === 'object' &&
+      typeof parameterArray[1] === 'string' &&
+      (typeof parameterArray[2] === 'undefined' || Array.isArray(parameterArray[2]))
+    ) {
+      const plugin = parameterArray[0],
+        constructorPath = parameterArray[1],
+        constructorParams = parameterArray[2];
       if (plugin) {
         const { [constructorPath]: pluginConstructor, ...api } = plugin as Record<string, Function>;
-        availableFunctions['addPlugin'].apply(null, [{ plugin: pluginConstructor() }, trackerIdentifiers]);
+        availableFunctions['addPlugin'].apply(null, [
+          { plugin: pluginConstructor.apply(null, constructorParams) },
+          trackerIdentifiers,
+        ]);
         updateAvailableFunctions(api);
+        return;
       }
     }
+
+    LOG.warn(`Failed to add Plugin: ${parameterArray[1]}`);
   }
 
   /**
