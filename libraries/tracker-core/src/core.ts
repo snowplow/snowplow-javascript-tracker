@@ -288,15 +288,29 @@ export interface TrackerCore {
 
   /**
    * Add a plugin into the plugin collection after Core has already been initialised
-   * @param plugin The plugin to add
+   * @param configuration The plugin to add
    */
-  addPlugin(plugin: CorePlugin): void;
+  addPlugin(configuration: CorePluginConfiguration): void;
 }
 
+/**
+ * The configuration object for the tracker core library
+ */
 export interface CoreConfiguration {
+  /* Should payloads be base64 encoded when built */
   base64?: boolean;
+  /* A list of all the plugins to include at load */
   corePlugins?: Array<CorePlugin>;
+  /* The callback which will fire each time `track()` is called */
   callback?: (PayloadData: PayloadBuilder) => void;
+}
+
+/**
+ * The configuration of the plugin to add
+ */
+export interface CorePluginConfiguration {
+  /* The plugin to add */
+  plugin: CorePlugin;
 }
 
 /**
@@ -513,7 +527,8 @@ export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore 
     partialCore = newCore(base64 ?? true, plugins, callback),
     core = {
       ...partialCore,
-      addPlugin: (plugin: CorePlugin) => {
+      addPlugin: (configuration: CorePluginConfiguration) => {
+        const { plugin } = configuration;
         plugins.push(plugin);
         plugin.logger?.(LOG);
         plugin.activateCorePlugin?.(core);

@@ -31,7 +31,7 @@
 import {
   ActivityTrackingConfiguration,
   ActivityTrackingConfigurationCallback,
-  BrowserPlugin,
+  BrowserPluginConfiguration,
   DisableAnonymousTrackingConfiguration,
   EnableAnonymousTrackingConfiguration,
   FlushBufferConfiguration,
@@ -448,8 +448,14 @@ export function clearUserData(trackers?: Array<string>) {
   });
 }
 
-export function addPlugin(configuration: { plugin: BrowserPlugin }, trackers?: Array<string>) {
+/**
+ * Add a plugin into the plugin collection after trackers have already been initialised
+ *
+ * @param configuration The plugin to add
+ * @param trackers The tracker identifiers which the plugin will be added to
+ */
+export function addPlugin(configuration: BrowserPluginConfiguration, trackers?: Array<string>) {
   dispatchToTrackers(trackers, (t) => {
-    t.addPlugin(configuration.plugin);
+    t.addPlugin(configuration);
   });
 }

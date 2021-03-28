@@ -70,8 +70,8 @@ import {
   DisableAnonymousTrackingConfiguration,
   EnableAnonymousTrackingConfiguration,
   FlushBufferConfiguration,
+  BrowserPluginConfiguration,
 } from './types';
-import { BrowserPlugin } from '../plugins';
 
 /** Repesents an instance of an activity tracking configuration */
 type ActivityConfig = {
@@ -1233,9 +1233,9 @@ export function Tracker(
   const partialTracker = newTracker(trackerId, namespace, version, endpoint, sharedState, trackerConfiguration),
     tracker = {
       ...partialTracker,
-      addPlugin: (plugin: BrowserPlugin) => {
-        tracker.core.addPlugin(plugin);
-        plugin.activateBrowserPlugin?.(tracker);
+      addPlugin: (configuration: BrowserPluginConfiguration) => {
+        tracker.core.addPlugin(configuration);
+        configuration.plugin.activateBrowserPlugin?.(tracker);
       },
     };
 

@@ -39,6 +39,6 @@ export * from './contexts';
 export * from './plugins';
 export * from './payload';
 export * from './core';
+export * from './logger';
 
 export { version } from '../package.json';
-export { LOG, LOG_LEVEL, Logger } from './logger';

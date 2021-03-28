@@ -29,7 +29,12 @@
  */
 
 import { BrowserPlugin } from '../plugins';
-import { CommonEventProperties, SelfDescribingJson, TrackerCore } from '@snowplow/tracker-core';
+import {
+  CommonEventProperties,
+  SelfDescribingJson,
+  TrackerCore,
+  CorePluginConfiguration,
+} from '@snowplow/tracker-core';
 import { SharedState } from '../state';
 
 /* Configuration for Anonymous Tracking */
@@ -241,16 +246,36 @@ export interface PageViewEvent {
   contextCallback?: (() => Array<SelfDescribingJson>) | null;
 }
 
+/**
+ * The configuration that can be changed when disabling anonymous tracking
+ */
 export interface DisableAnonymousTrackingConfiguration {
+  /* Available configurations for different storage strategies */
   stateStorageStrategy?: StateStorageStrategy;
 }
 
+/**
+ * The configuration that can be changed when enabling anonymous tracking
+ */
 export interface EnableAnonymousTrackingConfiguration {
+  /* Configuration for Anonymous Tracking */
   options?: AnonymousTrackingOptions;
 }
 
+/**
+ * The configuration that can be changed when flushing the buffer
+ */
 export interface FlushBufferConfiguration {
+  /* The size of the buffer after this flush */
   newBufferSize?: number;
+}
+
+/**
+ * The configuration of the plugin to add
+ */
+export interface BrowserPluginConfiguration extends CorePluginConfiguration {
+  /* The plugin to add */
+  plugin: BrowserPlugin;
 }
 
 /**
@@ -485,5 +510,9 @@ export interface BrowserTracker {
    */
   clearUserData: () => void;
 
-  addPlugin: (plugin: BrowserPlugin) => void;
+  /**
+   * Add a plugin into the plugin collection after Tracker has already been initialised
+   * @param configuration The plugin to add
+   */
+  addPlugin: (configuration: BrowserPluginConfiguration) => void;
 }
