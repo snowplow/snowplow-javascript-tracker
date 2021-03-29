@@ -63,7 +63,10 @@ common/deploy/
 common/temp/
 common/autoinstallers/*/.npmrc
 **/.rush/temp/
+
+# API Extractor
 trackers/browser-tracker/temp/
+trackers/node-tracker/temp/
 
 # Distribution files
 dist
