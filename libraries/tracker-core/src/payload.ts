@@ -56,22 +56,22 @@ export type JsonProcessor = (payloadBuilder: PayloadBuilder, jsonForProcessing: 
 export interface PayloadBuilder {
   /**
    * Adds an entry to the Payload
-   * @param key Key for Payload dictionary entry
-   * @param value Value for Payload dictionaty entry
+   * @param key - Key for Payload dictionary entry
+   * @param value - Value for Payload dictionaty entry
    */
   add: (key: string, value: unknown) => void;
 
   /**
    * Merges a payload into the existing payload
-   * @param dict The payload to merge
+   * @param dict - The payload to merge
    */
   addDict: (dict: Payload) => void;
 
   /**
    * Caches a JSON object to be added to payload on build
-   * @param keyIfEncoded key if base64 encoding is enabled
-   * @param keyIfNotEncoded key if base64 encoding is disabled
-   * @param json The json to be stringified and added to the payload
+   * @param keyIfEncoded - key if base64 encoding is enabled
+   * @param keyIfNotEncoded - key if base64 encoding is disabled
+   * @param json - The json to be stringified and added to the payload
    */
   addJson: (keyIfEncoded: string, keyIfNotEncoded: string, json: Record<string, unknown>) => void;
 
@@ -88,13 +88,13 @@ export interface PayloadBuilder {
   /**
    * Adds a function which will be executed when building
    * the payload to process the JSON which has been added to this payload
-   * @param jsonProcessor The JsonProcessor function for this builder
+   * @param jsonProcessor - The JsonProcessor function for this builder
    */
   withJsonProcessor: (jsonProcessor: JsonProcessor) => void;
 
   /**
    * Builds and returns the Payload
-   * @param base64Encode configures if unprocessed, cached json should be encoded
+   * @param base64Encode - configures if unprocessed, cached json should be encoded
    */
   build: () => Payload;
 }
@@ -166,7 +166,7 @@ export function payloadJsonProcessor(encodeBase64: boolean): JsonProcessor {
 
 /**
  * Is property a non-empty JSON?
- * @param property Checks if object is non-empty json
+ * @param property - Checks if object is non-empty json
  */
 export function isNonEmptyJson(property?: Record<string, unknown>): boolean {
   if (!isJson(property)) {
@@ -182,7 +182,7 @@ export function isNonEmptyJson(property?: Record<string, unknown>): boolean {
 
 /**
  * Is property a JSON?
- * @param property Checks if object is json
+ * @param property - Checks if object is json
  */
 export function isJson(property?: Record<string, unknown>): boolean {
   return (

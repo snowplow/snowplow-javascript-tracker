@@ -37,15 +37,15 @@ import { Emitter, HttpProtocol, HttpMethod, preparePayload } from './emitter';
 /**
  * Create an emitter object, which uses the `got` library, that will send events to a collector
  *
- * @param endpoint The collector to which events will be sent
- * @param protocol http or https
- * @param port The port for requests to use
- * @param method get or post
- * @param bufferSize Number of events which can be queued before flush is called
- * @param retry Configure the retry policy for `got` - https://github.com/sindresorhus/got/blob/v11.5.2/readme.md#retry
- * @param cookieJar Add a cookieJar to `got` - https://github.com/sindresorhus/got/blob/v11.5.2/readme.md#cookiejar
- * @param callback Callback called after a `got` request following retries - called with ErrorRequest (https://github.com/sindresorhus/got/blob/v11.5.2/readme.md#errors) and Response (https://github.com/sindresorhus/got/blob/v11.5.2/readme.md#response)
- * @param agents Set new http.Agent and https.Agent objects on `got` requests - https://github.com/sindresorhus/got/blob/v11.5.2/readme.md#agent
+ * @param endpoint - The collector to which events will be sent
+ * @param protocol - http or https
+ * @param port - The port for requests to use
+ * @param method - get or post
+ * @param bufferSize - Number of events which can be queued before flush is called
+ * @param retry - Configure the retry policy for `got` - https://github.com/sindresorhus/got/blob/v11.5.2/readme.md#retry
+ * @param cookieJar - Add a cookieJar to `got` - https://github.com/sindresorhus/got/blob/v11.5.2/readme.md#cookiejar
+ * @param callback - Callback called after a `got` request following retries - called with ErrorRequest (https://github.com/sindresorhus/got/blob/v11.5.2/readme.md#errors) and Response (https://github.com/sindresorhus/got/blob/v11.5.2/readme.md#response)
+ * @param agents - Set new http.Agent and https.Agent objects on `got` requests - https://github.com/sindresorhus/got/blob/v11.5.2/readme.md#agent
  */
 export function gotEmitter(
   endpoint: string,
@@ -67,7 +67,7 @@ export function gotEmitter(
 
   /**
    * Handles the callback on a successful response if the callback is present
-   * @param response The got response object
+   * @param response - The got response object
    */
   const handleSuccess = (response: Response<string>) => {
     if (callback) {
@@ -81,7 +81,7 @@ export function gotEmitter(
 
   /**
    * Handles the callback on a failed request if the callback is present
-   * @param error The got error object
+   * @param error - The got error object
    */
   const handleFailure = (error: RequestError) => {
     if (callback) {
@@ -139,7 +139,7 @@ export function gotEmitter(
 
   /**
    * Adds a payload to the internal buffer and sends if buffer >= bufferSize
-   * @param payload Payload to add to buffer
+   * @param payload - Payload to add to buffer
    */
   const input = (payload: Payload): void => {
     buffer.push(payload);

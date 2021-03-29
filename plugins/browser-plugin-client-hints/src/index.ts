@@ -58,7 +58,7 @@ const navigatorAlias = navigator;
 
 /**
  * Attaches Client Hint information where available
- * @param includeHighEntropy Should high entropy values be included
+ * @param includeHighEntropy - Should high entropy values be included
  */
 export function ClientHintsPlugin(includeHighEntropy?: boolean): BrowserPlugin {
   let uaClientHints: HttpClientHints;

@@ -38,8 +38,8 @@ const namedTrackers: Record<string, BrowserTracker> = {};
 /**
  * Dispatch function to all specified trackers
  *
- * @param trackers An optional list of trackers to send the event to, or will send to all trackers
- * @param fn The function which will run against each tracker
+ * @param trackers - An optional list of trackers to send the event to, or will send to all trackers
+ * @param fn - The function which will run against each tracker
  */
 export function dispatchToTrackers(trackers: Array<string> | undefined, fn: (t: BrowserTracker) => void) {
   try {
@@ -52,9 +52,9 @@ export function dispatchToTrackers(trackers: Array<string> | undefined, fn: (t: 
 /**
  * Dispatch function to all specified trackers from the supplied collection
  *
- * @param trackers An optional list of trackers to send the event to, or will send to all trackers
- * @param trackerCollection The collection which the trackers will be selected from
- * @param fn The function which will run against each tracker
+ * @param trackers - An optional list of trackers to send the event to, or will send to all trackers
+ * @param trackerCollection - The collection which the trackers will be selected from
+ * @param fn - The function which will run against each tracker
  */
 export function dispatchToTrackersInCollection(
   trackers: Array<string> | undefined,
@@ -70,7 +70,7 @@ export function dispatchToTrackersInCollection(
 
 /**
  * Checks if a tracker has been created for a particular identifier
- * @param trackerId The unique identifier of the tracker
+ * @param trackerId - The unique identifier of the tracker
  */
 export function trackerExists(trackerId: string) {
   return namedTrackers.hasOwnProperty(trackerId);
@@ -78,12 +78,12 @@ export function trackerExists(trackerId: string) {
 
 /**
  * Creates a Tracker and adds it to the internal collection
- * @param trackerId The unique identifier of the tracker
- * @param namespace The namespace of the tracker, tracked with each event as `tna`
- * @param version The current version of the tracker library
- * @param endpoint The endpoint to send events to
- * @param sharedState The instance of shared state to use for this tracker
- * @param configuration The configuration to use for this tracker instance
+ * @param trackerId - The unique identifier of the tracker
+ * @param namespace - The namespace of the tracker, tracked with each event as `tna`
+ * @param version - The current version of the tracker library
+ * @param endpoint - The endpoint to send events to
+ * @param sharedState - The instance of shared state to use for this tracker
+ * @param configuration - The configuration to use for this tracker instance
  */
 export function addTracker(
   trackerId: string,
@@ -102,7 +102,7 @@ export function addTracker(
 
 /**
  * Gets a single instance of the internal tracker object
- * @param trackerId The unique identifier of the tracker
+ * @param trackerId - The unique identifier of the tracker
  * @returns The tracker instance, or null if not found
  */
 export function getTracker(trackerId: string) {
@@ -116,7 +116,7 @@ export function getTracker(trackerId: string) {
 
 /**
  * Gets an array of tracker instances based on the list of identifiers
- * @param trackerIds An array of unique identifiers of the trackers
+ * @param trackerIds - An array of unique identifiers of the trackers
  * @returns The tracker instances, or empty list if none found
  */
 export function getTrackers(trackerIds: Array<string>): Array<BrowserTracker> {

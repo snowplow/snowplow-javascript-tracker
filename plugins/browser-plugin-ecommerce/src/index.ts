@@ -72,8 +72,8 @@ export function EcommercePlugin(): BrowserPlugin {
 /**
  * Track an ecommerce transaction
  *
- * @param event The event information
- * @param trackers The tracker identifiers which the event will be sent to
+ * @param event - The event information
+ * @param trackers - The tracker identifiers which the event will be sent to
  */
 export function addTrans(
   event: EcommerceTransactionEvent & CommonEventProperties,
@@ -89,8 +89,8 @@ export function addTrans(
 /**
  * Track an ecommerce transaction item
  *
- * @param event The event information
- * @param trackers The tracker identifiers which the event will be sent to
+ * @param event - The event information
+ * @param trackers - The tracker identifiers which the event will be sent to
  */
 export function addItem(
   event: EcommerceTransactionItemEvent & CommonEventProperties,
@@ -127,8 +127,8 @@ export function trackTrans(trackers: Array<string> = Object.keys(_trackers)) {
 /**
  * Track an add-to-cart event
  *
- * @param event The event information
- * @param trackers The tracker identifiers which the event will be sent to
+ * @param event - The event information
+ * @param trackers - The tracker identifiers which the event will be sent to
  */
 export function trackAddToCart(
   event: AddToCartEvent & CommonEventProperties,
@@ -142,8 +142,8 @@ export function trackAddToCart(
 /**
  * Track a remove-from-cart event
  *
- * @param event The event information
- * @param trackers The tracker identifiers which the event will be sent to
+ * @param event - The event information
+ * @param trackers - The tracker identifiers which the event will be sent to
  */
 export function trackRemoveFromCart(
   event: RemoveFromCartEvent & CommonEventProperties,

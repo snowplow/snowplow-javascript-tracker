@@ -57,8 +57,8 @@ export function AdTrackingPlugin(): BrowserPlugin {
 /**
  * Track an ad being served
  *
- * @param event The event information
- * @param trackers The tracker identifiers which the event will be sent to
+ * @param event - The event information
+ * @param trackers - The tracker identifiers which the event will be sent to
  */
 export function trackAdImpression(
   event: AdImpressionEvent & CommonEventProperties,
@@ -72,8 +72,8 @@ export function trackAdImpression(
 /**
  * Track an ad being clicked
  *
- * @param event The event information
- * @param trackers The tracker identifiers which the event will be sent to
+ * @param event - The event information
+ * @param trackers - The tracker identifiers which the event will be sent to
  */
 export function trackAdClick(
   event: AdClickEvent & CommonEventProperties,
@@ -87,8 +87,8 @@ export function trackAdClick(
 /**
  * Track an ad conversion event
  *
- * @param event The event information
- * @param trackers The tracker identifiers which the event will be sent to
+ * @param event - The event information
+ * @param trackers - The tracker identifiers which the event will be sent to
  */
 export function trackAdConversion(
   event: AdConversionEvent & CommonEventProperties,

@@ -66,8 +66,8 @@ export interface ErrorEventProperties {
 /**
  * Send error as self-describing event
  *
- * @param event The event information
- * @param trackers The tracker identifiers which the event will be sent to
+ * @param event - The event information
+ * @param trackers - The tracker identifiers which the event will be sent to
  */
 export function trackError(
   event: ErrorEventProperties & CommonEventProperties,
@@ -111,8 +111,8 @@ export interface ErrorTrackingConfiguration {
 
 /**
  * Enable automatic error tracking, added event handler for 'error' event on window
- * @param configuration The error tracking configuration
- * @param trackers The tracker identifiers which the event will be sent to
+ * @param configuration - The error tracking configuration
+ * @param trackers - The tracker identifiers which the event will be sent to
  */
 export function enableErrorTracking(
   configuration: ErrorTrackingConfiguration = {},

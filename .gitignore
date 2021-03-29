@@ -63,6 +63,7 @@ common/deploy/
 common/temp/
 common/autoinstallers/*/.npmrc
 **/.rush/temp/
+trackers/browser-tracker/temp/
 
 # Distribution files
 dist

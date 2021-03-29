@@ -56,7 +56,7 @@ export interface Queue {
   /**
    * Allows the caller to push events
    *
-   * @param array parameterArray An array comprising either:
+   * @param array - parameterArray An array comprising either:
    *      [ 'functionName', optional_parameters ]
    * or:
    *      [ functionObject, optional_parameters ]
@@ -73,8 +73,8 @@ type FunctionParameters = [Record<string, unknown>, Array<string>] | [Array<stri
 /**
  * This allows the caller to continue push()'ing after the Tracker has been initialized and loaded
  *
- * @param functionName The global function name this script has been created on
- * @param asyncQueue The existing queue of items to be processed
+ * @param functionName - The global function name this script has been created on
+ * @param asyncQueue - The existing queue of items to be processed
  */
 export function InQueueManager(functionName: string, asyncQueue: Array<unknown>): Queue {
   const windowAlias = window,
@@ -246,7 +246,7 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
   /**
    * apply wrapper
    *
-   * @param array parameterArray An array comprising either:
+   * @param array - parameterArray An array comprising either:
    *      [ 'functionName', optional_parameters ]
    * or:
    *      [ functionObject, optional_parameters ]

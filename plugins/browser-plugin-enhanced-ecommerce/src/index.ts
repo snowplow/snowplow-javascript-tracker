@@ -122,8 +122,8 @@ export interface EnhanacedCommerceActionContext {
 /**
  * Adds a GA Enhanced Ecommerce Action Context
  *
- * @param context The context to be stored
- * @param trackers The tracker identifiers which the context will be stored against
+ * @param context - The context to be stored
+ * @param trackers - The tracker identifiers which the context will be stored against
  */
 export function addEnhancedEcommerceActionContext(
   context: EnhanacedCommerceActionContext = {},
@@ -178,8 +178,8 @@ export interface EnhancedEcommerceImpressionContext {
 /**
  * Adds a GA Enhanced Ecommerce Impression Context
  *
- * @param context The context to be stored
- * @param trackers The tracker identifiers which the context will be stored against
+ * @param context - The context to be stored
+ * @param trackers - The tracker identifiers which the context will be stored against
  */
 export function addEnhancedEcommerceImpressionContext(
   context: EnhancedEcommerceImpressionContext = {},
@@ -237,8 +237,8 @@ export interface EnhancedEcommerceProductContext {
 /**
  * Adds a GA Enhanced Ecommerce Product Context
  *
- * @param context The context to be stored
- * @param trackers The tracker identifiers which the context will be stored against
+ * @param context - The context to be stored
+ * @param trackers - The tracker identifiers which the context will be stored against
  */
 export function addEnhancedEcommerceProductContext(
   context: EnhancedEcommerceProductContext = {},
@@ -286,8 +286,8 @@ export interface EnhancedEcommercePromoContext {
 /**
  * Adds a GA Enhanced Ecommerce Promo Context
  *
- * @param context The context to be stored
- * @param trackers The tracker identifiers which the context will be stored against
+ * @param context - The context to be stored
+ * @param trackers - The tracker identifiers which the context will be stored against
  */
 export function addEnhancedEcommercePromoContext(
   context: EnhancedEcommercePromoContext = {},

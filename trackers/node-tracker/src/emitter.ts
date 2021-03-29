@@ -48,7 +48,7 @@ export enum HttpMethod {
 /**
  * Convert all fields in a payload dictionary to strings
  *
- * @param payload Payload on which the new dictionary is based
+ * @param payload - Payload on which the new dictionary is based
  */
 export const preparePayload = (payload: Payload): Record<string, string> => {
   const stringifiedPayload: Record<string, string> = {};
@@ -65,7 +65,7 @@ export const preparePayload = (payload: Payload): Record<string, string> => {
 
 /**
  * Adds the 'stm' paramater with the current time to the payload
- * @param payload The payload which will be mutated
+ * @param payload - The payload which will be mutated
  */
 const addDeviceSentTimestamp = (payload: Payload): Payload => {
   payload['stm'] = new Date().getTime().toString();
