@@ -146,7 +146,7 @@ function getConfigurationForOptions(options?: FormTrackingOptions) {
 /**
  * Convert a criterion object to a transform function
  *
- * @param object criterion {transform: function (elt) {return the result of transform function applied to element}
+ * @param object - criterion {transform: function (elt) {return the result of transform function applied to element}
  */
 function getTransform(criterion?: { transform: transformFn }): transformFn {
   if (criterion && Object.prototype.hasOwnProperty.call(criterion, 'transform')) {

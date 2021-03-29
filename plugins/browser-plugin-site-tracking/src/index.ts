@@ -53,8 +53,8 @@ export function SiteTrackingPlugin(): BrowserPlugin {
 /**
  * Track a social interaction event
  *
- * @param event The event information
- * @param trackers The tracker identifiers which the event will be sent to
+ * @param event - The event information
+ * @param trackers - The tracker identifiers which the event will be sent to
  */
 export function trackSocialInteraction(
   event: SocialInteractionEvent & CommonEventProperties,
@@ -68,8 +68,8 @@ export function trackSocialInteraction(
 /**
  * Track an internal search event
  *
- * @param event The event information
- * @param trackers The tracker identifiers which the event will be sent to
+ * @param event - The event information
+ * @param trackers - The tracker identifiers which the event will be sent to
  */
 export function trackSiteSearch(
   event: SiteSearchEvent & CommonEventProperties,
@@ -95,8 +95,8 @@ export interface TimingEvent {
 /**
  * Track a timing event (such as the time taken for a resource to load)
  *
- * @param event The event information
- * @param trackers The tracker identifiers which the event will be sent to
+ * @param event - The event information
+ * @param trackers - The tracker identifiers which the event will be sent to
  */
 export function trackTiming(
   event: TimingEvent & CommonEventProperties,

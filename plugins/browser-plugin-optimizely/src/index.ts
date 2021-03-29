@@ -50,13 +50,13 @@ declare global {
 /**
  * Adds classic Opimizely context to events
  *
- * @param summary Add summary context
- * @param experiments Add experiments context
- * @param states Add states context
- * @param variations Add variations context
- * @param visitor Add visitor context
- * @param audiences Add audiences context
- * @param dimensions Add dimensions context
+ * @param summary - Add summary context
+ * @param experiments - Add experiments context
+ * @param states - Add states context
+ * @param variations - Add variations context
+ * @param visitor - Add visitor context
+ * @param audiences - Add audiences context
+ * @param dimensions - Add dimensions context
  */
 export function OptimizelyPlugin(
   summary: boolean = true,
@@ -73,8 +73,8 @@ export function OptimizelyPlugin(
    * Check that *both* optimizely and optimizely.data exist and return
    * optimizely.data.property
    *
-   * @param property optimizely data property
-   * @param snd optional nested property
+   * @param property - optimizely data property
+   * @param snd - optional nested property
    */
   function getOptimizelyData(property: string, snd?: string) {
     let data;

@@ -102,8 +102,8 @@ export function ConsentPlugin(): BrowserPlugin {
 
 /**
  * Enable the GDPR context for each event
- * @param configuration the configuration for the GDPR context
- * @param trackers The tracker identifiers which should have the GDPR context enabled
+ * @param configuration - the configuration for the GDPR context
+ * @param trackers - The tracker identifiers which should have the GDPR context enabled
  */
 export function enableGdprContext(
   configuration: GdprContextConfiguration,
@@ -134,8 +134,8 @@ export function enableGdprContext(
 /**
  * Track a consent granted action
  *
- * @param event The event information
- * @param trackers The tracker identifiers which the event will be sent to
+ * @param event - The event information
+ * @param trackers - The tracker identifiers which the event will be sent to
  */
 export function trackConsentGranted(
   event: ConsentGrantedEvent & CommonEventProperties,
@@ -154,8 +154,8 @@ export function trackConsentGranted(
 /**
  * Track a consent withdrawn action
  *
- * @param event The event information
- * @param trackers The tracker identifiers which the event will be sent to
+ * @param event - The event information
+ * @param trackers - The tracker identifiers which the event will be sent to
  */
 export function trackConsentWithdrawn(
   event: ConsentWithdrawnEvent & CommonEventProperties,

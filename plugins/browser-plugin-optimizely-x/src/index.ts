@@ -47,8 +47,8 @@ export function OptimizelyXPlugin(): BrowserPlugin {
   /**
    * Check that *both* optimizely and optimizely.get exist
    *
-   * @param property optimizely data property
-   * @param snd optional nested property
+   * @param property - optimizely data property
+   * @param snd - optional nested property
    */
   function getOptimizelyXData(property: string, snd?: string) {
     let data;

@@ -50,7 +50,7 @@ import { JavaScriptTrackerConfiguration } from './configuration';
 
 /**
  * Calculates the required plugins to intialise per tracker
- * @param configuration The tracker configuration object
+ * @param configuration - The tracker configuration object
  */
 export function Plugins(configuration: JavaScriptTrackerConfiguration) {
   const {

@@ -125,7 +125,7 @@ export function enableLinkClickTracking(
  * Add click event listeners to links which have been added to the page since the
  * last time enableLinkClickTracking or refreshLinkClickTracking was used
  *
- * @param trackers The tracker identifiers which the have their link click state refreshed
+ * @param trackers - The tracker identifiers which the have their link click state refreshed
  */
 export function refreshLinkClickTracking(trackers: Array<string> = Object.keys(_trackers)) {
   trackers.forEach((id) => {
@@ -144,8 +144,8 @@ export function refreshLinkClickTracking(trackers: Array<string> = Object.keys(_
 /**
  * Manually log a click
  *
- * @param event The event information
- * @param trackers The tracker identifiers which the event will be sent to
+ * @param event - The event information
+ * @param trackers - The tracker identifiers which the event will be sent to
  */
 export function trackLinkClick(
   event: LinkClickEvent & CommonEventProperties,

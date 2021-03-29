@@ -51,8 +51,8 @@ export function FormTrackingPlugin(): BrowserPlugin {
  * An event will be fired when a form field is changed or a form submitted.
  * This can be called multiple times: only forms not already tracked will be tracked.
  *
- * @param configuration The form tracking configuration
- * @param trackers The tracker identifiers which the events will be sent to
+ * @param configuration - The form tracking configuration
+ * @param trackers - The tracker identifiers which the events will be sent to
  */
 export function enableFormTracking(
   configuration: FormTrackingConfiguration = {},

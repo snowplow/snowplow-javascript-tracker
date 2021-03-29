@@ -336,49 +336,49 @@ export interface BrowserTracker {
   /**
    * Override referrer
    *
-   * @param url the custom referrer
+   * @param url - the custom referrer
    */
   setReferrerUrl: (url: string) => void;
 
   /**
    * Override url
    *
-   * @param url The custom url
+   * @param url - The custom url
    */
   setCustomUrl: (url: string) => void;
 
   /**
    * Override document.title
    *
-   * @param title The document title
+   * @param title - The document title
    */
   setDocumentTitle: (title: string) => void;
 
   /**
    * Strip hash tag (or anchor) from URL
    *
-   * @param enableFilter whether to enable this feature
+   * @param enableFilter - whether to enable this feature
    */
   discardHashTag: (enableFilter: boolean) => void;
 
   /**
    * Strip braces from URL
    *
-   * @param enableFilter whether to enable this feature
+   * @param enableFilter - whether to enable this feature
    */
   discardBrace: (enableFilter: boolean) => void;
 
   /**
    * Set first-party cookie path
    *
-   * @param path The path for cookies
+   * @param path - The path for cookies
    */
   setCookiePath: (path: string) => void;
 
   /**
    * Set visitor cookie timeout (in seconds)
    *
-   * @param timeout The timeout for the user identifier cookie
+   * @param timeout - The timeout for the user identifier cookie
    */
   setVisitorCookieTimeout: (timeout: number) => void;
 
@@ -390,7 +390,7 @@ export interface BrowserTracker {
   /**
    * Enable querystring decoration for links pasing a filter
    *
-   * @param crossDomainLinkerCriterion Function used to determine which links to decorate
+   * @param crossDomainLinkerCriterion - Function used to determine which links to decorate
    */
   crossDomainLinker: (crossDomainLinkerCriterion: (elt: HTMLAnchorElement | HTMLAreaElement) => boolean) => void;
 
@@ -398,14 +398,14 @@ export interface BrowserTracker {
    * Enables page activity tracking (sends page
    * pings to the Collector regularly).
    *
-   * @param configuration The activity tracking configuration
+   * @param configuration - The activity tracking configuration
    */
   enableActivityTracking: (configuration: ActivityTrackingConfiguration) => void;
 
   /**
    * Enables page activity tracking (replaces collector ping with callback).
    *
-   * @param configuration The activity tracking configuration
+   * @param configuration - The activity tracking configuration
    */
   enableActivityTrackingCallback: (
     configuration: ActivityTrackingConfiguration & ActivityTrackingConfigurationCallback
@@ -420,35 +420,35 @@ export interface BrowserTracker {
   /**
    * Sets the opt out cookie.
    *
-   * @param name of the opt out cookie
+   * @param name - of the opt out cookie
    */
   setOptOutCookie: (name: string) => void;
 
   /**
    * Set the business-defined user ID for this user.
    *
-   * @param userId The business-defined user ID
+   * @param userId - The business-defined user ID
    */
   setUserId: (userId: string) => void;
 
   /**
    * Set the business-defined user ID for this user using the location querystring.
    *
-   * @param querystringField Name of a querystring name-value pair
+   * @param querystringField - Name of a querystring name-value pair
    */
   setUserIdFromLocation: (querystringField: string) => void;
 
   /**
    * Set the business-defined user ID for this user using the referrer querystring.
    *
-   * @param querystringField Name of a querystring name-value pair
+   * @param querystringField - Name of a querystring name-value pair
    */
   setUserIdFromReferrer: (querystringField: string) => void;
 
   /**
    * Set the business-defined user ID for this user to the value of a cookie.
    *
-   * @param cookieName Name of the cookie whose value will be assigned to businessUserId
+   * @param cookieName - Name of the cookie whose value will be assigned to businessUserId
    */
   setUserIdFromCookie: (cookieName: string) => void;
 
@@ -456,7 +456,7 @@ export interface BrowserTracker {
    * Specify the Snowplow collector URL. Specific http or https to force it
    * or leave it off to match the website protocol.
    *
-   * @param collectorUrl The collector URL, with or without protocol
+   * @param collectorUrl - The collector URL, with or without protocol
    */
   setCollectorUrl: (collectorUrl: string) => void;
 
@@ -465,7 +465,7 @@ export interface BrowserTracker {
    * Can be useful if you want to stop batching requests to ensure events start
    * sending closer to event creation
    *
-   * @param newBufferSize The new buffer size that will be used for all future tracking
+   * @param newBufferSize - The new buffer size that will be used for all future tracking
    */
   setBufferSize: (newBufferSize: number) => void;
 
@@ -473,7 +473,7 @@ export interface BrowserTracker {
    * Send all events in the outQueue
    * Only need to use this when sending events with a bufferSize of at least 2
    *
-   * @param configuration The configuration to use following flushing the buffer
+   * @param configuration - The configuration to use following flushing the buffer
    */
   flushBuffer: (configuration?: FlushBufferConfiguration) => void;
 
@@ -485,7 +485,7 @@ export interface BrowserTracker {
   /**
    * Log visit to this page
    *
-   * @param event The Page View Event properties
+   * @param event - The Page View Event properties
    */
   trackPageView: (event?: PageViewEvent & CommonEventProperties) => void;
 
@@ -494,14 +494,14 @@ export interface BrowserTracker {
    * For stateStorageStrategy override, uses supplied value first,
    * falls back to one defined in initial config, otherwise uses cookieAndLocalStorage.
    *
-   * @param configuration The configuration to use following disabling anonymous tracking
+   * @param configuration - The configuration to use following disabling anonymous tracking
    */
   disableAnonymousTracking: (configuration?: DisableAnonymousTrackingConfiguration) => void;
 
   /**
    * Enables anonymous tracking (ie. tracker initialized without `anonymousTracking`)
    *
-   * @param configuration The configuration to use following activating anonymous tracking
+   * @param configuration - The configuration to use following activating anonymous tracking
    */
   enableAnonymousTracking: (configuration?: EnableAnonymousTrackingConfiguration) => void;
 
@@ -512,7 +512,7 @@ export interface BrowserTracker {
 
   /**
    * Add a plugin into the plugin collection after Tracker has already been initialised
-   * @param configuration The plugin to add
+   * @param configuration - The plugin to add
    */
   addPlugin: (configuration: BrowserPluginConfiguration) => void;
 }

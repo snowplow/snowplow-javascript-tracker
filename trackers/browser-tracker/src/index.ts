@@ -42,24 +42,24 @@ const state = typeof window !== 'undefined' ? createSharedState() : undefined;
 /**
  * Initialise a new tracker
  *
- * @param trackerId The tracker id - also known as tracker namespace
- * @param endpoint Collector endpoint in the form collector.mysite.com
+ * @param trackerId - The tracker id - also known as tracker namespace
+ * @param endpoint - Collector endpoint in the form collector.mysite.com
  */
 export function newTracker(trackerId: string, endpoint: string): BrowserTracker;
 /**
  * Initialise a new tracker
  *
- * @param trackerId The tracker id - also known as tracker namespace
- * @param endpoint Collector endpoint in the form collector.mysite.com
- * @param configuration The initialisation options of the tracker
+ * @param trackerId - The tracker id - also known as tracker namespace
+ * @param endpoint - Collector endpoint in the form collector.mysite.com
+ * @param configuration - The initialisation options of the tracker
  */
 export function newTracker(trackerId: string, endpoint: string, configuration: TrackerConfiguration): BrowserTracker;
 /**
  * Initialise a new tracker
  *
- * @param trackerId The tracker id - also known as tracker namespace
- * @param endpoint Collector endpoint in the form collector.mysite.com
- * @param configuration The initialisation options of the tracker
+ * @param trackerId - The tracker id - also known as tracker namespace
+ * @param endpoint - Collector endpoint in the form collector.mysite.com
+ * @param configuration - The initialisation options of the tracker
  */
 export function newTracker(trackerId: string, endpoint: string, configuration: TrackerConfiguration = {}) {
   if (state) {
@@ -70,5 +70,5 @@ export function newTracker(trackerId: string, endpoint: string, configuration: T
 }
 
 export { BrowserTracker, TrackerConfiguration, BrowserPlugin };
-export { version } from '@snowplow/tracker-core';
+export { version };
 export * from './api';

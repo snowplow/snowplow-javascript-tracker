@@ -81,7 +81,7 @@ jobs:
       - name: Upload plugins
         uses: actions/upload-artifact@v2
         with:
-          name: plugins-umd
+          name: plugins.umd
           path: |
             ./plugins/*/dist/*.umd.js
             ./plugins/*/dist/*.umd.js.map

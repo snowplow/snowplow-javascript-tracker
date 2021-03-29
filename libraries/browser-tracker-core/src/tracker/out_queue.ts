@@ -46,17 +46,17 @@ export interface OutQueue {
  * Object handling sending events to a collector.
  * Instantiated once per tracker instance.
  *
- * @param id The Snowplow function name (used to generate the localStorage key)
- * @param sharedSate Stores reference to the outbound queue so it can unload the page when all queues are empty
- * @param useLocalStorage Whether to use localStorage at all
- * @param eventMethod if null will use 'beacon' otherwise can be set to 'post', 'get', or 'beacon' to force.
- * @param postPath The path where events are to be posted
- * @param bufferSize How many events to batch in localStorage before sending them all
- * @param maxPostBytes Maximum combined size in bytes of the event JSONs in a POST request
- * @param useStm Whether to add timestamp to events
- * @param maxLocalStorageQueueSize Maximum number of queued events we will attempt to store in local storage
- * @param connectionTimeout Defines how long to wait before aborting the request
- * @param anonymousTracking Defines whether to set the SP-Anonymous header for anonymous tracking on GET and POST
+ * @param id - The Snowplow function name (used to generate the localStorage key)
+ * @param sharedSate - Stores reference to the outbound queue so it can unload the page when all queues are empty
+ * @param useLocalStorage - Whether to use localStorage at all
+ * @param eventMethod - if null will use 'beacon' otherwise can be set to 'post', 'get', or 'beacon' to force.
+ * @param postPath - The path where events are to be posted
+ * @param bufferSize - How many events to batch in localStorage before sending them all
+ * @param maxPostBytes - Maximum combined size in bytes of the event JSONs in a POST request
+ * @param useStm - Whether to add timestamp to events
+ * @param maxLocalStorageQueueSize - Maximum number of queued events we will attempt to store in local storage
+ * @param connectionTimeout - Defines how long to wait before aborting the request
+ * @param anonymousTracking - Defines whether to set the SP-Anonymous header for anonymous tracking on GET and POST
  * @returns object OutQueueManager instance
  */
 export function OutQueueManager(
@@ -181,7 +181,7 @@ export function OutQueueManager(
    * Count the number of bytes a string will occupy when UTF-8 encoded
    * Taken from http://stackoverflow.com/questions/2848462/count-bytes-in-textarea-using-javascript/
    *
-   * @param string s
+   * @param string - s
    * @return number Length of s in bytes when UTF-8 encoded
    */
   function getUTF8Length(s: string) {
@@ -389,7 +389,7 @@ export function OutQueueManager(
   /**
    * Open an XMLHttpRequest for a given endpoint with the correct credentials and header
    *
-   * @param string url The destination URL
+   * @param string - url The destination URL
    * @return object The XMLHttpRequest
    */
   function initializeXMLHttpRequest(url: string, post: boolean, sync: boolean) {
@@ -410,7 +410,7 @@ export function OutQueueManager(
   /**
    * Enclose an array of events in a self-describing payload_data JSON string
    *
-   * @param array events Batch of events
+   * @param array - events Batch of events
    * @return string payload_data self-describing JSON
    */
   function encloseInPayloadDataEnvelope(events: Array<Record<string, unknown>>) {
@@ -423,7 +423,7 @@ export function OutQueueManager(
   /**
    * Attaches the STM field to outbound POST events.
    *
-   * @param events the events to attach the STM to
+   * @param events - the events to attach the STM to
    */
   function attachStmToEvent(events: Array<Record<string, unknown>>) {
     const stm = new Date().getTime().toString();
@@ -436,7 +436,7 @@ export function OutQueueManager(
   /**
    * Creates the full URL for sending the GET request. Will append `stm` if enabled
    *
-   * @param nextRequest the query string of the next request
+   * @param nextRequest - the query string of the next request
    */
   function createGetUrl(nextRequest: string) {
     if (useStm) {

@@ -48,7 +48,7 @@ export interface FilterCriterion<T> {
 
 /**
  * Checks if an object is a string
- * @param str The object to check
+ * @param str - The object to check
  */
 export function isString(str: Object): str is string {
   if (str && typeof str.valueOf() === 'string') {
@@ -59,7 +59,7 @@ export function isString(str: Object): str is string {
 
 /**
  * Checks if an object is an integer
- * @param int The object to check
+ * @param int - The object to check
  */
 export function isInteger(int: Object): int is number {
   return (
@@ -69,7 +69,7 @@ export function isInteger(int: Object): int is number {
 
 /**
  * Checks if the input parameter is a function
- * @param func The object to check
+ * @param func - The object to check
  */
 export function isFunction(func: unknown) {
   if (func && typeof func === 'function') {
@@ -127,7 +127,7 @@ export function fixupDomain(domain: string) {
  * in the old URL. It will be returned unless overriden
  * by a "refer(r)er" parameter in the querystring.
  *
- * @param string oldLocation Optional.
+ * @param string - oldLocation Optional.
  * @return string The referrer
  */
 export function getReferrer(oldLocation?: string) {
@@ -198,9 +198,9 @@ export function fromQuerystring(field: string, url: string) {
 /**
  * Add a name-value pair to the querystring of a URL
  *
- * @param string url URL to decorate
- * @param string name Name of the querystring pair
- * @param string value Value of the querystring pair
+ * @param string - url URL to decorate
+ * @param string - name Name of the querystring pair
+ * @param string - value Value of the querystring pair
  */
 export function decorateQuerystring(url: string, name: string, value: string) {
   var initialQsParams = name + '=' + value;
@@ -234,7 +234,7 @@ export function decorateQuerystring(url: string, name: string, value: string) {
 /**
  * Attempt to get a value from localStorage
  *
- * @param string key
+ * @param string - key
  * @return string The value obtained from localStorage, or
  *                undefined if localStorage is inaccessible
  */
@@ -257,9 +257,9 @@ export function attemptGetLocalStorage(key: string) {
 /**
  * Attempt to write a value to localStorage
  *
- * @param string key
- * @param string value
- * @param number ttl Time to live in seconds, defaults to 2 years from Date.now()
+ * @param string - key
+ * @param string - value
+ * @param number - ttl Time to live in seconds, defaults to 2 years from Date.now()
  * @return boolean Whether the operation succeeded
  */
 export function attemptWriteLocalStorage(key: string, value: string, ttl = 63072000) {
@@ -277,7 +277,7 @@ export function attemptWriteLocalStorage(key: string, value: string, ttl = 63072
 /**
  * Attempt to delete a value from localStorage
  *
- * @param string key
+ * @param string - key
  * @return boolean Whether the operation succeeded
  */
 export function attemptDeleteLocalStorage(key: string) {
@@ -294,7 +294,7 @@ export function attemptDeleteLocalStorage(key: string) {
 /**
  * Attempt to get a value from sessionStorage
  *
- * @param string key
+ * @param string - key
  * @return string The value obtained from sessionStorage, or
  *                undefined if sessionStorage is inaccessible
  */
@@ -309,8 +309,8 @@ export function attemptGetSessionStorage(key: string) {
 /**
  * Attempt to write a value to sessionStorage
  *
- * @param string key
- * @param string value
+ * @param string - key
+ * @param string - value
  * @return boolean Whether the operation succeeded
  */
 export function attemptWriteSessionStorage(key: string, value: string) {
@@ -356,8 +356,8 @@ export function findRootDomain(sameSite: string, secure: boolean) {
 /**
  * Checks whether a value is present within an array
  *
- * @param val The value to check for
- * @param array The array to check within
+ * @param val - The value to check for
+ * @param array - The array to check within
  * @return boolean Whether it exists
  */
 export function isValueInArray<T>(val: T, array: T[]) {
@@ -372,8 +372,8 @@ export function isValueInArray<T>(val: T, array: T[]) {
 /**
  * Deletes an arbitrary cookie by setting the expiration date to the past
  *
- * @param cookieName The name of the cookie to delete
- * @param domainName The domain the cookie is in
+ * @param cookieName - The name of the cookie to delete
+ * @param domainName - The domain the cookie is in
  */
 export function deleteCookie(cookieName: string, domainName?: string, sameSite?: string, secure?: boolean) {
   cookie(cookieName, '', -1, '/', domainName, sameSite, secure);
@@ -382,7 +382,7 @@ export function deleteCookie(cookieName: string, domainName?: string, sameSite?:
 /**
  * Fetches the name of all cookies beginning with a certain prefix
  *
- * @param cookiePrefix The prefix to check for
+ * @param cookiePrefix - The prefix to check for
  * @return array The cookies that begin with the prefix
  */
 export function getCookiesWithPrefix(cookiePrefix: string) {
@@ -400,13 +400,13 @@ export function getCookiesWithPrefix(cookiePrefix: string) {
  * Get and set the cookies associated with the current document in browser
  * This implementation always returns a string, returns the cookie value if only name is specified
  *
- * @param name The cookie name (required)
- * @param value The cookie value
- * @param ttl The cookie Time To Live (seconds)
- * @param path The cookies path
- * @param domain The cookies domain
- * @param samesite The cookies samesite attribute
- * @param secure Boolean to specify if cookie should be secure
+ * @param name - The cookie name (required)
+ * @param value - The cookie value
+ * @param ttl - The cookie Time To Live (seconds)
+ * @param path - The cookies path
+ * @param domain - The cookies domain
+ * @param samesite - The cookies samesite attribute
+ * @param secure - Boolean to specify if cookie should be secure
  * @return string The cookies value
  */
 export function cookie(
@@ -437,7 +437,7 @@ export function cookie(
  * Parses an object and returns either the
  * integer or undefined.
  *
- * @param obj The object to parse
+ * @param obj - The object to parse
  * @return the result of the parse operation
  */
 export function parseAndValidateInt(obj: unknown) {
@@ -449,7 +449,7 @@ export function parseAndValidateInt(obj: unknown) {
  * Parses an object and returns either the
  * number or undefined.
  *
- * @param obj The object to parse
+ * @param obj - The object to parse
  * @return the result of the parse operation
  */
 export function parseAndValidateFloat(obj: unknown) {
@@ -460,10 +460,10 @@ export function parseAndValidateFloat(obj: unknown) {
 /**
  * Convert a criterion object to a filter function
  *
- * @param object criterion Either {allowlist: [array of allowable strings]}
+ * @param object - criterion Either {allowlist: [array of allowable strings]}
  *                             or {denylist: [array of allowable strings]}
  *                             or {filter: function (elt) {return whether to track the element}
- * @param boolean byClass Whether to allowlist/denylist based on an element's classes (for forms)
+ * @param boolean - byClass Whether to allowlist/denylist based on an element's classes (for forms)
  *                        or name attribute (for fields)
  */
 export function getFilterByClass(criterion?: FilterCriterion<HTMLElement> | null): (elt: HTMLElement) => boolean {
@@ -485,7 +485,7 @@ export function getFilterByClass(criterion?: FilterCriterion<HTMLElement> | null
 /**
  * Convert a criterion object to a filter function
  *
- * @param object criterion Either {allowlist: [array of allowable strings]}
+ * @param object - criterion Either {allowlist: [array of allowable strings]}
  *                             or {denylist: [array of allowable strings]}
  *                             or {filter: function (elt) {return whether to track the element}
  */

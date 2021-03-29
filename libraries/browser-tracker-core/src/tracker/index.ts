@@ -106,12 +106,12 @@ type ActivityTrackingConfig = {
 /**
  * The Snowplow Tracker
  *
- * @param trackerId The unique identifier of the tracker
- * @param namespace The namespace of the tracker object
- * @param version The current version of the JavaScript Tracker
- * @param endpoint The collector endpoint to send events to, with or without protocol
- * @param sharedState An object containing state which is shared across tracker instances
- * @param trackerConfiguration Dictionary of configuration options
+ * @param trackerId - The unique identifier of the tracker
+ * @param namespace - The namespace of the tracker object
+ * @param version - The current version of the JavaScript Tracker
+ * @param endpoint - The collector endpoint to send events to, with or without protocol
+ * @param sharedState - An object containing state which is shared across tracker instances
+ * @param trackerConfiguration - Dictionary of configuration options
  */
 export function Tracker(
   trackerId: string,
@@ -319,7 +319,7 @@ export function Tracker(
     /**
      * Decorate the querystring of a single link
      *
-     * @param event e The event targeting the link
+     * @param event - e The event targeting the link
      */
     function linkDecorationHandler(evt: Event) {
       var timestamp = new Date().getTime();
@@ -334,7 +334,7 @@ export function Tracker(
      * Whenever such a link is clicked on or navigated to via the keyboard,
      * add "_sp={{duid}}.{{timestamp}}" to its querystring
      *
-     * @param crossDomainLinker Function used to determine which links to decorate
+     * @param crossDomainLinker - Function used to determine which links to decorate
      */
     function decorateLinks(crossDomainLinker: (elt: HTMLAnchorElement | HTMLAreaElement) => boolean) {
       for (var i = 0; i < document.links.length; i++) {
@@ -751,7 +751,7 @@ export function Tracker(
     /**
      * Adds the protocol in front of our collector URL
      *
-     * @param string collectorUrl The collector URL with or without protocol
+     * @param string - collectorUrl The collector URL with or without protocol
      * @returns string collectorUrl The tracker URL with protocol
      */
     function asCollectorUrl(collectorUrl: string) {
@@ -853,8 +853,8 @@ export function Tracker(
     /**
      * Combine an array of unchanging contexts with the result of a context-creating function
      *
-     * @param staticContexts Array of custom contexts
-     * @param contextCallback Function returning an array of contexts
+     * @param staticContexts - Array of custom contexts
+     * @param contextCallback - Function returning an array of contexts
      */
     function finalizeContexts(
       staticContexts?: Array<SelfDescribingJson> | null,

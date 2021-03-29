@@ -45,12 +45,12 @@ export interface CorePlugin {
   activateCorePlugin?: (core: TrackerCore) => void;
   /**
    * Called just before the trackerCore callback fires
-   * @param payloadBuilder The payloadBuilder which will be sent to the callback, can be modified
+   * @param payloadBuilder - The payloadBuilder which will be sent to the callback, can be modified
    */
   beforeTrack?: (payloadBuilder: PayloadBuilder) => void;
   /**
    * Called just after the trackerCore callback fires
-   * @param payload The final built payload
+   * @param payload - The final built payload
    */
   afterTrack?: (payload: Payload) => void;
   /**

@@ -102,7 +102,7 @@ type TimestampPayload = TrueTimestamp | DeviceTimestamp;
 /**
  * Transform optional/old-behavior number timestamp into`Timestamp` ADT
  *
- * @param timestamp optional number or timestamp object
+ * @param timestamp - optional number or timestamp object
  * @returns correct timestamp object
  */
 function getTimestamp(timestamp?: Timestamp | null): TimestampPayload {
@@ -135,9 +135,9 @@ export interface TrackerCore {
    * Adds context and payloadPairs name-value pairs to the payload
    * Applies the callback to the built payload
    *
-   * @param pb Payload
-   * @param context Custom contexts relating to the event
-   * @param timestamp Timestamp of the event
+   * @param pb - Payload
+   * @param context - Custom contexts relating to the event
+   * @param timestamp - Timestamp of the event
    * @return Payload after the callback is applied
    */
   track: (
@@ -152,8 +152,8 @@ export interface TrackerCore {
   /**
    * Set a persistent key-value pair to be added to every payload
    *
-   * @param key Field name
-   * @param value Field value
+   * @param key - Field name
+   * @param value - Field value
    */
   addPayloadPair: (key: string, value: string | number) => void;
 
@@ -165,113 +165,113 @@ export interface TrackerCore {
   /**
    * Turn base 64 encoding on or off
    *
-   * @param encode Whether to encode payload
+   * @param encode - Whether to encode payload
    */
   setBase64Encoding(encode: boolean): void;
 
   /**
    * Merges a dictionary into payloadPairs
    *
-   * @param dict Adds a new payload dictionary to the existing one
+   * @param dict - Adds a new payload dictionary to the existing one
    */
   addPayloadDict(dict: Payload): void;
 
   /**
    * Replace payloadPairs with a new dictionary
    *
-   * @param dict Resets all current payload pairs with a new dictionary of pairs
+   * @param dict - Resets all current payload pairs with a new dictionary of pairs
    */
   resetPayloadPairs(dict: Payload): void;
 
   /**
    * Set the tracker version
    *
-   * @param version The version of the current tracker
+   * @param version - The version of the current tracker
    */
   setTrackerVersion(version: string): void;
 
   /**
    * Set the tracker namespace
    *
-   * @param name The trackers namespace
+   * @param name - The trackers namespace
    */
   setTrackerNamespace(name: string): void;
 
   /**
    * Set the application ID
    *
-   * @param appId An application ID which identifies the current application
+   * @param appId - An application ID which identifies the current application
    */
   setAppId(appId: string): void;
 
   /**
    * Set the platform
    *
-   * @param value A valid Snowplow platform value
+   * @param value - A valid Snowplow platform value
    */
   setPlatform(value: string): void;
 
   /**
    * Set the user ID
    *
-   * @param userId The custom user id
+   * @param userId - The custom user id
    */
   setUserId(userId: string): void;
 
   /**
    * Set the screen resolution
    *
-   * @param width screen resolution width
-   * @param height screen resolution height
+   * @param width - screen resolution width
+   * @param height - screen resolution height
    */
   setScreenResolution(width: string, height: string): void;
 
   /**
    * Set the viewport dimensions
    *
-   * @param width viewport width
-   * @param height viewport height
+   * @param width - viewport width
+   * @param height - viewport height
    */
   setViewport(width: string, height: string): void;
 
   /**
    * Set the color depth
    *
-   * @param depth A color depth value as string
+   * @param depth - A color depth value as string
    */
   setColorDepth(depth: string): void;
 
   /**
    * Set the timezone
    *
-   * @param timezone A timezone string
+   * @param timezone - A timezone string
    */
   setTimezone(timezone: string): void;
 
   /**
    * Set the language
    *
-   * @param lang A language string e.g. 'en-UK'
+   * @param lang - A language string e.g. 'en-UK'
    */
   setLang(lang: string): void;
 
   /**
    * Set the IP address
    *
-   * @param ip An IP Address string
+   * @param ip - An IP Address string
    */
   setIpAddress(ip: string): void;
 
   /**
    * Set the Useragent
    *
-   * @param useragent A useragent string
+   * @param useragent - A useragent string
    */
   setUseragent(useragent: string): void;
 
   /**
    * Adds contexts globally, contexts added here will be attached to all applicable events
-   * @param contexts An array containing either contexts or a conditional contexts
+   * @param contexts - An array containing either contexts or a conditional contexts
    */
   addGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive>): void;
 
@@ -282,13 +282,13 @@ export interface TrackerCore {
 
   /**
    * Removes previously added global context, performs a deep comparison of the contexts or conditional contexts
-   * @param contexts An array containing either contexts or a conditional contexts
+   * @param contexts - An array containing either contexts or a conditional contexts
    */
   removeGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive>): void;
 
   /**
    * Add a plugin into the plugin collection after Core has already been initialised
-   * @param configuration The plugin to add
+   * @param configuration - The plugin to add
    */
   addPlugin(configuration: CorePluginConfiguration): void;
 }
@@ -316,9 +316,9 @@ export interface CorePluginConfiguration {
 /**
  * Create a tracker core object
  *
- * @param base64 Whether to base 64 encode contexts and self describing event JSONs
- * @param corePlugins The core plugins to be processed with each event
- * @param callback Function applied to every payload dictionary object
+ * @param base64 - Whether to base 64 encode contexts and self describing event JSONs
+ * @param corePlugins - The core plugins to be processed with each event
+ * @param callback - Function applied to every payload dictionary object
  * @return Tracker core
  */
 export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore {
@@ -332,7 +332,7 @@ export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore 
     /**
      * Wraps an array of custom contexts in a self-describing JSON
      *
-     * @param contexts Array of custom context self-describing JSONs
+     * @param contexts - Array of custom context self-describing JSONs
      * @return Outer JSON
      */
     function completeContexts(
@@ -350,8 +350,8 @@ export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore 
     /**
      * Adds all global contexts to a contexts array
      *
-     * @param pb PayloadData
-     * @param contexts Custom contexts relating to the event
+     * @param pb - PayloadData
+     * @param contexts - Custom contexts relating to the event
      */
     function attachGlobalContexts(
       pb: PayloadBuilder,
@@ -373,9 +373,9 @@ export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore 
      * Adds context and payloadPairs name-value pairs to the payload
      * Applies the callback to the built payload
      *
-     * @param pb Payload
-     * @param context Custom contexts relating to the event
-     * @param timestamp Timestamp of the event
+     * @param pb - Payload
+     * @param context - Custom contexts relating to the event
+     * @param timestamp - Timestamp of the event
      * @return Payload after the callback is applied
      */
     function track(
@@ -426,8 +426,8 @@ export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore 
     /**
      * Set a persistent key-value pair to be added to every payload
      *
-     * @param key Field name
-     * @param value Field value
+     * @param key - Field name
+     * @param value - Field value
      */
     function addPayloadPair(key: string, value: string | number): void {
       payloadPairs[key] = value;
@@ -558,7 +558,7 @@ export interface SelfDescribingEvent {
  * A custom event type, allowing for an event to be tracked using your own custom schema
  * and a data object which conforms to the supplied schema
  *
- * @param event Contains the properties and schema location for the event
+ * @param event - Contains the properties and schema location for the event
  * @return PayloadBuilder to be sent to {@link Core.track()}
  */
 export function buildSelfDescribingEvent(event: SelfDescribingEvent): PayloadBuilder {
@@ -598,7 +598,7 @@ export interface PageViewEvent {
  * is loaded within the users browser. Often also fired on "virtual page views" within
  * Single Page Applications (SPA).
  *
- * @param event Contains the properties for the Page View event
+ * @param event - Contains the properties for the Page View event
  * @return PayloadBuilder to be sent to {@link Core.track()}
  */
 export function buildPageView(event: PageViewEvent): PayloadBuilder {
@@ -635,7 +635,7 @@ export interface PagePingEvent extends PageViewEvent {
  * Tracks same information as the last tracked Page View and includes scroll
  * information from the current page view
  *
- * @param event Contains the properties for the Page Ping event
+ * @param event - Contains the properties for the Page Ping event
  * @return PayloadBuilder to be sent to {@link Core.track()}
  */
 export function buildPagePing(event: PagePingEvent): PayloadBuilder {
@@ -673,7 +673,7 @@ export interface StructuredEvent {
  * systems. A loosely typed event, creating a Self Describing event is preferred, but
  * useful for interoperability.
  *
- * @param event Contains the properties for the Structured event
+ * @param event - Contains the properties for the Structured event
  * @return PayloadBuilder to be sent to {@link Core.track()}
  */
 export function buildStructEvent(event: StructuredEvent): PayloadBuilder {
@@ -720,7 +720,7 @@ export interface EcommerceTransactionEvent {
  * Allows for tracking common ecommerce events, this event is usually used when
  * a consumer completes a transaction.
  *
- * @param event Contains the properties for the Ecommerce Transactoion event
+ * @param event - Contains the properties for the Ecommerce Transactoion event
  * @return PayloadBuilder to be sent to {@link Core.track()}
  */
 export function buildEcommerceTransaction(event: EcommerceTransactionEvent): PayloadBuilder {
@@ -767,7 +767,7 @@ export interface EcommerceTransactionItemEvent {
  * Related to the {@link buildEcommerceTransaction}
  * Each Ecommerce Transaction may contain one or more EcommerceTransactionItem events
  *
- * @param event Contains the properties for the Ecommerce Transaction Item event
+ * @param event - Contains the properties for the Ecommerce Transaction Item event
  * @return PayloadBuilder to be sent to {@link Core.track()}
  */
 export function buildEcommerceTransactionItem(event: EcommerceTransactionItemEvent): PayloadBuilder {
@@ -804,7 +804,7 @@ export interface ScreenViewEvent {
  * Often used for mobile applications as the user is presented with
  * new views as they performance navigation events
  *
- * @param event Contains the properties for the Screen View event. One or more properties must be included.
+ * @param event - Contains the properties for the Screen View event. One or more properties must be included.
  * @return PayloadBuilder to be sent to {@link Core.track()}
  */
 export function buildScreenView(event: ScreenViewEvent): PayloadBuilder {
@@ -838,7 +838,7 @@ export interface LinkClickEvent {
  * Build a Link Click Event
  * Used when a user clicks on a link on a webpage, typically an anchor tag <a>
  *
- * @param event Contains the properties for the Link Click event
+ * @param event - Contains the properties for the Link Click event
  * @return PayloadBuilder to be sent to {@link Core.track()}
  */
 export function buildLinkClick(event: LinkClickEvent): PayloadBuilder {
@@ -884,7 +884,7 @@ export interface AdImpressionEvent {
  * @remark
  * If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field.
  *
- * @param event Contains the properties for the Ad Impression event
+ * @param event - Contains the properties for the Ad Impression event
  * @return PayloadBuilder to be sent to {@link Core.track()}
  */
 export function buildAdImpression(event: AdImpressionEvent): PayloadBuilder {
@@ -941,7 +941,7 @@ export interface AdClickEvent {
  * @remark
  * If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field.
  *
- * @param event Contains the properties for the Ad Click event
+ * @param event - Contains the properties for the Ad Click event
  * @return PayloadBuilder to be sent to {@link Core.track()}
  */
 export function buildAdClick(event: AdClickEvent): PayloadBuilder {
@@ -999,7 +999,7 @@ export interface AdConversionEvent {
  * @remark
  * If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field.
  *
- * @param event Contains the properties for the Ad Conversion event
+ * @param event - Contains the properties for the Ad Conversion event
  * @return PayloadBuilder to be sent to {@link Core.track()}
  */
 export function buildAdConversion(event: AdConversionEvent): PayloadBuilder {
@@ -1043,7 +1043,7 @@ export interface SocialInteractionEvent {
  * with Facebook, Twitter and Google + widgets
  * e.g. to capture “like this” or “tweet this” events.
  *
- * @param event Contains the properties for the Social Interaction event
+ * @param event - Contains the properties for the Social Interaction event
  * @return PayloadBuilder to be sent to {@link Core.track()}
  */
 export function buildSocialInteraction(event: SocialInteractionEvent): PayloadBuilder {
@@ -1081,7 +1081,7 @@ export interface AddToCartEvent {
  * For tracking users adding items from a cart
  * on an ecommerce site.
  *
- * @param event Contains the properties for the Add To Cart event
+ * @param event - Contains the properties for the Add To Cart event
  * @return PayloadBuilder to be sent to {@link Core.track()}
  */
 export function buildAddToCart(event: AddToCartEvent): PayloadBuilder {
@@ -1126,7 +1126,7 @@ export interface RemoveFromCartEvent {
  * For tracking users removing items from a cart
  * on an ecommerce site.
  *
- * @param event Contains the properties for the Remove From Cart event
+ * @param event - Contains the properties for the Remove From Cart event
  * @return PayloadBuilder to be sent to {@link Core.track()}
  */
 export function buildRemoveFromCart(event: RemoveFromCartEvent): PayloadBuilder {
@@ -1173,7 +1173,7 @@ export interface FormFocusOrChangeEvent {
  * When a user focuses on a form element or when a user makes a
  * change to a form element.
  *
- * @param event Contains the properties for the Form Focus or Change Form event
+ * @param event - Contains the properties for the Form Focus or Change Form event
  * @return PayloadBuilder to be sent to {@link Core.track()}
  */
 export function buildFormFocusOrChange(event: FormFocusOrChangeEvent): PayloadBuilder {
@@ -1226,7 +1226,7 @@ export interface FormSubmissionEvent {
  * Build a Form Submission Event
  * Used to track when a user submits a form
  *
- * @param event Contains the properties for the Form Submission event
+ * @param event - Contains the properties for the Form Submission event
  * @return PayloadBuilder to be sent to {@link Core.track()}
  */
 export function buildFormSubmission(event: FormSubmissionEvent): PayloadBuilder {
@@ -1258,7 +1258,7 @@ export interface SiteSearchEvent {
  * Build a Site Search Event
  * Used when a user performs a search action on a page
  *
- * @param event Contains the properties for the Site Search event
+ * @param event - Contains the properties for the Site Search event
  * @return PayloadBuilder to be sent to {@link Core.track()}
  */
 export function buildSiteSearch(event: SiteSearchEvent): PayloadBuilder {
@@ -1292,7 +1292,7 @@ export interface ConsentWithdrawnEvent {
  * Build a Consent Withdrawn Event
  * Used for tracking when a user withdraws their consent
  *
- * @param event Contains the properties for the Consent Withdrawn event
+ * @param event - Contains the properties for the Consent Withdrawn event
  * @return An object containing the PayloadBuilder to be sent to {@link Core.track()} and a 'consent_document' context
  */
 export function buildConsentWithdrawn(event: ConsentWithdrawnEvent) {
@@ -1336,7 +1336,7 @@ export interface ConsentGrantedEvent {
  * Build a Consent Granted Event
  * Used for tracking when a user grants their consent
  *
- * @param event Contains the properties for the Consent Granted event
+ * @param event - Contains the properties for the Consent Granted event
  * @return An object containing the PayloadBuilder to be sent to {@link Core.track()} and a 'consent_document' context
  */
 export function buildConsentGranted(event: ConsentGrantedEvent) {
@@ -1362,8 +1362,8 @@ export function buildConsentGranted(event: ConsentGrantedEvent) {
 /**
  * Returns a copy of a JSON with undefined and null properties removed
  *
- * @param event JSON object to clean
- * @param exemptFields Set of fields which should not be removed even if empty
+ * @param event - JSON object to clean
+ * @param exemptFields - Set of fields which should not be removed even if empty
  * @return A cleaned copy of eventJson
  */
 function removeEmptyProperties(

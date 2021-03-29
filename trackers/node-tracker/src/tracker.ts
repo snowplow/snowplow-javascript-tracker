@@ -36,14 +36,14 @@ export interface Tracker extends TrackerCore {
   /**
    * Set the domain user ID
    *
-   * @param userId The domain user id
+   * @param userId - The domain user id
    */
   setDomainUserId: (userId: string) => void;
 
   /**
    * Set the network user ID
    *
-   * @param userId The network user id
+   * @param userId - The network user id
    */
   setNetworkUserId: (userId: string) => void;
 }
@@ -51,10 +51,10 @@ export interface Tracker extends TrackerCore {
 /**
  * Snowplow Node.js Tracker
  *
- * @param string or array emitters The emitter or emitters to which events will be sent
- * @param string namespace The namespace of the tracker
- * @param string appId The application ID
- * @param boolean encodeBase64 Whether unstructured events and custom contexts should be base 64 encoded
+ * @param string - or array emitters The emitter or emitters to which events will be sent
+ * @param string - namespace The namespace of the tracker
+ * @param string - appId The application ID
+ * @param boolean - encodeBase64 Whether unstructured events and custom contexts should be base 64 encoded
  */
 export function tracker(
   emitters: Emitter | Array<Emitter>,
@@ -82,7 +82,7 @@ export function tracker(
   /**
    * Send the payload for an event to the endpoint
    *
-   * @param payload Dictionary of name-value pairs for the querystring
+   * @param payload - Dictionary of name-value pairs for the querystring
    */
   const sendPayload = (payload: PayloadBuilder): void => {
     addUserInformation(payload);
