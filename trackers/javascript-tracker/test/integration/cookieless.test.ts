@@ -104,12 +104,10 @@ describe('Anonymous tracking features', () => {
           event: {
             ...expected,
             user_ipaddress: 'unknown',
+            network_userid: '00000000-0000-0000-0000-000000000000',
           },
         })
       ).toBe(true);
-
-      // Each event should have different network_userids (therefore anonymous)
-      expect(F.get('event.network_userid', pageViews[0])).not.toEqual(F.get('event.network_userid', pageViews[1]));
     }
   });
 
