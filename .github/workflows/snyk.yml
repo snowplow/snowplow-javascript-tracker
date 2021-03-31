@@ -26,6 +26,6 @@ jobs:
         uses: snyk/actions/node@master
         with:
           command: monitor
-          args: --all-projects
+          args: --all-projects --exclude=common
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
