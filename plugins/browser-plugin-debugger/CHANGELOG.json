@@ -1,0 +1,17 @@
+{
+  "name": "@snowplow/browser-plugin-debugger",
+  "entries": [
+    {
+      "version": "3.0.0",
+      "tag": "@snowplow/browser-plugin-debugger_v3.0.0",
+      "date": "Wed, 31 Mar 2021 14:46:47 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add debug mode (#381)"
+          }
+        ]
+      }
+    }
+  ]
+}

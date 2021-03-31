@@ -1,4 +1,4 @@
-# Change Log - @snowplow/javascript-tracker
+# Change Log - @snowplow/tracker-core
 
 This log was last generated on Wed, 31 Mar 2021 14:46:47 GMT and should not be manually modified.
 
@@ -9,8 +9,10 @@ Wed, 31 Mar 2021 14:46:47 GMT
 
 - Allow plugins to be dynamically loaded when using tracker (#918)
 - Add debug mode (#381)
+- Include @snowplow/node-tracker in monorepo (close #931)
+- Bump uuid to 3.4.0 (close #915)
 - Bump rollup to 2.41 (#916)
-- Remove module level references to window and document (close #928)
+- Prevent base64 encoder being bundled into each plugin (#921)
 - Ensure browser-tracker API methods catch exceptions (#919)
 - Introduce TSDoc comments and extract interfaces where appropriate (#906)
 - Bump major version to v3 and update READMEs (#904)
@@ -30,4 +32,5 @@ Wed, 31 Mar 2021 14:46:47 GMT
 - Update publishing process for rush (#907)
 - Change white and black lists to allow and deny lists (#908)
 - Create rush change files for major version 3 release (#909)
+- [tracker-core] Don't overwrite custom user defined event id (#911)
 

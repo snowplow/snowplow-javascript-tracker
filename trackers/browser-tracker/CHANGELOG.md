@@ -1,4 +1,4 @@
-# Change Log - @snowplow/javascript-tracker
+# Change Log - @snowplow/browser-tracker
 
 This log was last generated on Wed, 31 Mar 2021 14:46:47 GMT and should not be manually modified.
 
@@ -8,7 +8,7 @@ Wed, 31 Mar 2021 14:46:47 GMT
 ### Updates
 
 - Allow plugins to be dynamically loaded when using tracker (#918)
-- Add debug mode (#381)
+- Remove forceSecureTracker and forceUnsecureTracker properties (#913)
 - Bump rollup to 2.41 (#916)
 - Remove module level references to window and document (close #928)
 - Ensure browser-tracker API methods catch exceptions (#919)
@@ -30,4 +30,5 @@ Wed, 31 Mar 2021 14:46:47 GMT
 - Update publishing process for rush (#907)
 - Change white and black lists to allow and deny lists (#908)
 - Create rush change files for major version 3 release (#909)
+- Improve event flushing options and remove pageUnloadTimer (#719)
 

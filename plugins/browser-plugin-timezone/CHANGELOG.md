@@ -1,4 +1,4 @@
-# Change Log - @snowplow/javascript-tracker
+# Change Log - @snowplow/browser-plugin-timezone
 
 This log was last generated on Wed, 31 Mar 2021 14:46:47 GMT and should not be manually modified.
 
@@ -8,9 +8,8 @@ Wed, 31 Mar 2021 14:46:47 GMT
 ### Updates
 
 - Allow plugins to be dynamically loaded when using tracker (#918)
-- Add debug mode (#381)
 - Bump rollup to 2.41 (#916)
-- Remove module level references to window and document (close #928)
+- Publish UMD versions of plugins to GitHub release (#923)
 - Ensure browser-tracker API methods catch exceptions (#919)
 - Introduce TSDoc comments and extract interfaces where appropriate (#906)
 - Bump major version to v3 and update READMEs (#904)

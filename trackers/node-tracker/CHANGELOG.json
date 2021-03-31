@@ -1,0 +1,17 @@
+{
+  "name": "@snowplow/node-tracker",
+  "entries": [
+    {
+      "version": "3.0.0",
+      "tag": "@snowplow/node-tracker_v3.0.0",
+      "date": "Wed, 31 Mar 2021 14:46:47 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Include @snowplow/node-tracker in monorepo (close #931)"
+          }
+        ]
+      }
+    }
+  ]
+}

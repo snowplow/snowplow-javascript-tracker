@@ -1,0 +1,77 @@
+{
+  "name": "@snowplow/browser-plugin-client-hints",
+  "entries": [
+    {
+      "version": "3.0.0",
+      "tag": "@snowplow/browser-plugin-client-hints_v3.0.0",
+      "date": "Wed, 31 Mar 2021 14:46:47 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump rollup to 2.41 (#916)"
+          },
+          {
+            "comment": "Publish UMD versions of plugins to GitHub release (#923)"
+          },
+          {
+            "comment": "Ensure browser-tracker API methods catch exceptions (#919)"
+          },
+          {
+            "comment": "Introduce TSDoc comments and extract interfaces where appropriate (#906)"
+          },
+          {
+            "comment": "Bump major version to v3 and update READMEs (#904)"
+          },
+          {
+            "comment": "Improve Core API for module bundlers which support treeshaking (#903)"
+          },
+          {
+            "comment": "Rename @snowplow/browser-core to @snowplow/browser-tracker-core (#901)"
+          },
+          {
+            "comment": "Publish lite version of sp.js (#900)"
+          },
+          {
+            "comment": "Ensure correct 3-Clause BSD License notices are being used (#316)"
+          },
+          {
+            "comment": "Improve API for module bundlers which support treeshaking (#899)"
+          },
+          {
+            "comment": "Bump rush to 5.39 (#895)"
+          },
+          {
+            "comment": "Port to TypeScript (#72)"
+          },
+          {
+            "comment": "Make sp.js build process modular (#450)"
+          },
+          {
+            "comment": "Create @snowplow/browser-tracker package for npm distribution (#541)"
+          },
+          {
+            "comment": "Split auto contexts into plugins (#880)"
+          },
+          {
+            "comment": "Add rush to manage monorepo (#883)"
+          },
+          {
+            "comment": "Add ES Module builds (#882)"
+          },
+          {
+            "comment": "Cleanup deprecated methods (#557)"
+          },
+          {
+            "comment": "Update publishing process for rush (#907)"
+          },
+          {
+            "comment": "Change white and black lists to allow and deny lists (#908)"
+          },
+          {
+            "comment": "Create rush change files for major version 3 release (#909)"
+          }
+        ]
+      }
+    }
+  ]
+}
