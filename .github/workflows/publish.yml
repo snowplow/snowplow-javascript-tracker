@@ -1,9 +1,11 @@
 name: Deploy Tracker
 
 on:
-  push:
-    tags:
-      - '[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'The release tag'
+        required: true
 
 jobs:
   deploy:
@@ -31,13 +33,23 @@ jobs:
       - name: Rush Install
         run: node common/scripts/install-run-rush.js install
 
-      - name: Setup git for Rush
+      - name: Setup git
         uses: oleksiyrudenko/gha-git-credentials@v2-latest
         with:
           token: '${{ secrets.GITHUB_TOKEN }}'
 
       - name: Rush Version
         run: node common/scripts/install-run-rush.js version --bump --target-branch master
+
+      - name: Get version
+        id: version
+        run: echo "##[set-output name=TRACKER_VERSION;]$(node -p "require('./trackers/javascript-tracker/package.json').version")"
+
+      - name: Fail if version mismatch
+        if: ${{ github.event.inputs.version != steps.version.outputs.TRACKER_VERSION }}
+        run: |
+          echo "Input version (${{ github.event.inputs.version }}) doesn't match version in project (${{ steps.version.outputs.TRACKER_VERSION }})"
+          exit 1
 
       - name: Rush Build
         run: node common/scripts/install-run-rush.js rebuild --verbose
@@ -48,17 +60,24 @@ jobs:
       - name: Rush Publish
         run: node common/scripts/install-run-rush.js publish --apply --include-all --publish --target-branch master --set-access-level public
 
-      - name: Get Version Information
-        id: get_version
-        uses: battila7/get-version-action@v2
+      - name: Push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v5.3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tag_prefix: ''
+          default_bump: false
+          custom_tag: ${{ github.event.inputs.version }}
 
-      - name: Zip release
+      - name: Zip plugins
         run: zip -r plugins.umd.zip ./plugins/*/dist/*.umd*.js*
 
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          name: v${{ steps.get_version.outputs.version }}
+          name: Version ${{ steps.tag_version.outputs.new_tag }}
+          tag_name: ${{ steps.tag_version.outputs.new_tag }}
+          body: ${{ steps.tag_version.outputs.changelog }}
           files: |
             ./trackers/javascript-tracker/dist/sp.js
             ./trackers/javascript-tracker/dist/sp.js.map
