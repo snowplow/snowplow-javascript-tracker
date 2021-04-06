@@ -44,8 +44,8 @@ var queueName,
   queue,
   windowAlias = window;
 
-if (windowAlias.GlobalSnowplowNamespace && windowAlias.GlobalSnowplowNamespace.length > 0) {
-  queueName = windowAlias.GlobalSnowplowNamespace.shift();
+if (windowAlias.UnbounceSnowplowNamespace && windowAlias.UnbounceSnowplowNamespace.length > 0) {
+  queueName = windowAlias.UnbounceSnowplowNamespace.shift();
   queue = windowAlias[queueName];
   queue.q = new Snowplow(queue.q, queueName);
 } else {
