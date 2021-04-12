@@ -112,7 +112,7 @@
     },
     {
       "name": "@snowplow/browser-tracker",
-      "allowedCategories": [ "trackers" ]
+      "allowedCategories": [ "plugins", "trackers" ]
     },
     {
       "name": "@snowplow/browser-tracker-core",
