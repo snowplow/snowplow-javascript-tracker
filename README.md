@@ -13,7 +13,7 @@ Add analytics to your websites, web apps and Node.js applications with the [Snow
 With these trackers you can collect user event data (page views, e-commerce transactions etc) from the
 client-side and server-side tiers of your websites and web apps.
 
-**Technical documentation can be found for each tracker in our [Documentation](docs).**
+**Technical documentation can be found for each tracker in our [Documentation][docs].**
 
 ### @snowplow/browser-tracker (npm)
 
@@ -41,7 +41,7 @@ client-side and server-side tiers of your websites and web apps.
 | Contributing                         |
 |--------------------------------------|
 | ![i7][contributing-image]            |
-| [Contributing](Contributing.md)      |
+| [Contributing](CONTRIBUTING.md)      |
 
 ### Contributing quick start
 
