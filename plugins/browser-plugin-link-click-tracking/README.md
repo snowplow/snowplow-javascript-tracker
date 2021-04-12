@@ -25,7 +25,7 @@ $ rush update
 With npm:
 
 ```bash
-npm install @snowplow/browser-plugin-lick-click-tracking
+npm install @snowplow/browser-plugin-link-click-tracking
 ```
 
 ## Usage
@@ -34,7 +34,7 @@ Initialize your tracker with the LinkClickTrackingPlugin:
 
 ```js
 import { newTracker } from '@snowplow/browser-tracker';
-import { LinkClickTrackingPlugin } from '@snowplow/browser-plugin-lick-click-tracking';
+import { LinkClickTrackingPlugin } from '@snowplow/browser-plugin-link-click-tracking';
 
 newTracker('sp1', '{{collector}}', { plugins: [ LinkClickTrackingPlugin() ] }); // Also stores reference at module level
 ```
@@ -42,7 +42,7 @@ newTracker('sp1', '{{collector}}', { plugins: [ LinkClickTrackingPlugin() ] }); 
 Then use the available functions from this package to track to all trackers which have been initialized with this plugin:
 
 ```js
-import { enableLinkClickTracking, refreshLinkClickTracking } from '@snowplow/browser-plugin-lick-click-tracking';
+import { enableLinkClickTracking, refreshLinkClickTracking } from '@snowplow/browser-plugin-link-click-tracking';
 
 enableLinkClickTracking({ options: { ... }, psuedoClicks: true });
 
