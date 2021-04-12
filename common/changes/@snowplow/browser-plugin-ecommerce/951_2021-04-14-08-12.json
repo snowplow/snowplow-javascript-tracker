@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Mark packages as sideEffect: false (#951)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-ecommerce"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-ecommerce",
+  "email": "paul@snowplowanalytics.com"
+}
