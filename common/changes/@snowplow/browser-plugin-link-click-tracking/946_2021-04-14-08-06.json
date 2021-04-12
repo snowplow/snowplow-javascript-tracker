@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Fix typo in link-click-tracking plugin (#946)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-link-click-tracking"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-link-click-tracking",
+  "email": "paul@snowplowanalytics.com"
+}
