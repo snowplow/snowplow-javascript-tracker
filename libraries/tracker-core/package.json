@@ -21,6 +21,7 @@
     "Fred Blundun",
     "Paul Boocock"
   ],
+  "sideEffects": false,
   "main": "./dist/index.js",
   "umd:main": "./dist/index.js",
   "jsdelivr": "./dist/index.umd.js",

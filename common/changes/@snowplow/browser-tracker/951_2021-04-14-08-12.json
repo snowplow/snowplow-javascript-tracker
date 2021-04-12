@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Mark packages as sideEffect: false (#951)",
+      "type": "none",
+      "packageName": "@snowplow/browser-tracker"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker",
+  "email": "paul@snowplowanalytics.com"
+}
