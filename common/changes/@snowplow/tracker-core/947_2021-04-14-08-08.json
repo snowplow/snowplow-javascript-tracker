@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Fix types on buildPageView in tracker-core (#947)",
+      "type": "none",
+      "packageName": "@snowplow/tracker-core"
+    }
+  ],
+  "packageName": "@snowplow/tracker-core",
+  "email": "paul@snowplowanalytics.com"
+}

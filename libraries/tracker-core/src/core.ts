@@ -585,11 +585,11 @@ export function buildSelfDescribingEvent(event: SelfDescribingEvent): PayloadBui
  */
 export interface PageViewEvent {
   /** The current URL visible in the users browser */
-  pageUrl: string | null;
+  pageUrl?: string | null;
   /** The current page title in the users browser */
-  pageTitle: string | null;
+  pageTitle?: string | null;
   /** The URL of the referring page */
-  referrer: string | null;
+  referrer?: string | null;
 }
 
 /**
