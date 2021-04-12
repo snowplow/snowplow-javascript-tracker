@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Add peerDependencies to plugins (#950)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-debugger"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-debugger",
+  "email": "paul@snowplowanalytics.com"
+}
