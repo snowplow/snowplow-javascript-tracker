@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Add unit tests to plugin track* functions (#954)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-geolocation"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-geolocation",
+  "email": "paul@snowplowanalytics.com"
+}

@@ -149,7 +149,7 @@ export function refreshLinkClickTracking(trackers: Array<string> = Object.keys(_
  */
 export function trackLinkClick(
   event: LinkClickEvent & CommonEventProperties,
-  trackers: Array<string> = Object.keys(_configuration)
+  trackers: Array<string> = Object.keys(_trackers)
 ) {
   dispatchToTrackersInCollection(trackers, _trackers, (t) => {
     t.core.track(buildLinkClick(event), event.context, event.timestamp);
