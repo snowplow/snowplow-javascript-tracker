@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'The release tag'
+        description: 'The prerelease tag'
         required: true
 
 jobs:
@@ -34,9 +34,11 @@ jobs:
         run: node common/scripts/install-run-rush.js install
 
       - name: Setup git
-        uses: oleksiyrudenko/gha-git-credentials@v2-latest
+        uses: oleksiyrudenko/gha-git-credentials@v2.1
         with:
           token: '${{ secrets.GITHUB_TOKEN }}'
+          name: github-actions[bot]
+          email: 41898282+github-actions[bot]@users.noreply.github.com
 
       - name: Rush Version
         run: node common/scripts/install-run-rush.js version --bump
@@ -60,14 +62,20 @@ jobs:
       - name: Rush Publish
         run: node common/scripts/install-run-rush.js publish --apply --include-all --publish --tag next --set-access-level public
 
-      - name: Push tag
+      - name: Generate Release Information
         id: tag_version
-        uses: mathieudutour/github-tag-action@v5.3
+        uses: mathieudutour/github-tag-action@v5.4
         with:
+          dry_run: true
           github_token: ${{ secrets.GITHUB_TOKEN }}
           tag_prefix: ''
           default_bump: false
           custom_tag: ${{ github.event.inputs.version }}
+
+      - name: Tag release
+        run: |
+          git tag -a ${{ steps.tag_version.outputs.new_tag }} -m "Version ${{ steps.tag_version.outputs.new_tag }}"
+          git push --tags
 
       - name: Zip plugins
         run: zip -r plugins.umd.zip ./plugins/*/dist/*.umd*.js*
