@@ -83,7 +83,7 @@ export function trackError(
           schema: 'iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1',
           data: {
             programmingLanguage: 'JAVASCRIPT',
-            message: message || "JS Exception. Browser doesn't support ErrorEvent API",
+            message: message ?? "JS Exception. Browser doesn't support ErrorEvent API",
             stackTrace: stack,
             lineNumber: lineno,
             lineColumn: colno,
