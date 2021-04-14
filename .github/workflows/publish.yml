@@ -41,7 +41,7 @@ jobs:
           email: 41898282+github-actions[bot]@users.noreply.github.com
 
       - name: Rush Version
-        run: node common/scripts/install-run-rush.js version --bump --target-branch master
+        run: node common/scripts/install-run-rush.js version --bump --target-branch master --ignore-git-hooks
 
       - name: Get version
         id: version
@@ -60,7 +60,7 @@ jobs:
         run: node common/scripts/install-run-rush.js test --verbose
 
       - name: Rush Publish
-        run: node common/scripts/install-run-rush.js publish --apply --include-all --publish --target-branch master --set-access-level public
+        run: node common/scripts/install-run-rush.js publish --apply --include-all --publish --target-branch master --set-access-level public --ignore-git-hooks
 
       - name: Generate Release Information
         id: tag_version
