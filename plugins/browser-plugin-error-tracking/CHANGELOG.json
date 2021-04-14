@@ -2,6 +2,24 @@
   "name": "@snowplow/browser-plugin-error-tracking",
   "entries": [
     {
+      "version": "3.0.1",
+      "tag": "@snowplow/browser-plugin-error-tracking_v3.0.1",
+      "date": "Wed, 14 Apr 2021 16:30:05 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add peerDependencies to plugins (#950)"
+          },
+          {
+            "comment": "Mark packages as sideEffect: false (#951)"
+          },
+          {
+            "comment": "Add unit tests to plugin track* functions (#954)"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.0.0",
       "tag": "@snowplow/browser-plugin-error-tracking_v3.0.0",
       "date": "Wed, 31 Mar 2021 14:46:47 GMT",
