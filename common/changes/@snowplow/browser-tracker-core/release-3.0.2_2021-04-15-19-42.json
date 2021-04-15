@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-tracker-core",
+      "comment": "Remove compatMode check in activity tracking page offsets (#958)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker-core",
+  "email": "paul@snowplowanalytics.com"
+}

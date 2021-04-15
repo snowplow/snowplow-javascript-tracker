@@ -471,26 +471,28 @@ export function Tracker(
     }
 
     /*
-     * Returns [pageXOffset, pageYOffset].
-     * Adapts code taken from: http://www.javascriptkit.com/javatutors/static2.shtml
+     * Returns [pageXOffset, pageYOffset]
      */
     function getPageOffsets() {
-      var iebody =
-        document.compatMode && document.compatMode !== 'BackCompat' ? document.documentElement : document.body;
-      return [iebody.scrollLeft || window.pageXOffset, iebody.scrollTop || window.pageYOffset];
+      const documentElement = document.documentElement;
+      if (documentElement) {
+        return [documentElement.scrollLeft || window.pageXOffset, documentElement.scrollTop || window.pageYOffset];
+      }
+
+      return [0, 0];
     }
 
     /*
      * Quick initialization/reset of max scroll levels
      */
     function resetMaxScrolls() {
-      var offsets = getPageOffsets();
+      const offsets = getPageOffsets();
 
-      var x = offsets[0];
+      const x = offsets[0];
       minXOffset = x;
       maxXOffset = x;
 
-      var y = offsets[1];
+      const y = offsets[1];
       minYOffset = y;
       maxYOffset = y;
     }
@@ -499,16 +501,16 @@ export function Tracker(
      * Check the max scroll levels, updating as necessary
      */
     function updateMaxScrolls() {
-      var offsets = getPageOffsets();
+      const offsets = getPageOffsets();
 
-      var x = offsets[0];
+      const x = offsets[0];
       if (x < minXOffset) {
         minXOffset = x;
       } else if (x > maxXOffset) {
         maxXOffset = x;
       }
 
-      var y = offsets[1];
+      const y = offsets[1];
       if (y < minYOffset) {
         minYOffset = y;
       } else if (y > maxYOffset) {
