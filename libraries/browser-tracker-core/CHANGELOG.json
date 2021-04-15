@@ -2,6 +2,18 @@
   "name": "@snowplow/browser-tracker-core",
   "entries": [
     {
+      "version": "3.0.2",
+      "tag": "@snowplow/browser-tracker-core_v3.0.2",
+      "date": "Thu, 15 Apr 2021 21:07:39 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Remove compatMode check in activity tracking page offsets (#958)"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.0.1",
       "tag": "@snowplow/browser-tracker-core_v3.0.1",
       "date": "Wed, 14 Apr 2021 16:30:05 GMT",

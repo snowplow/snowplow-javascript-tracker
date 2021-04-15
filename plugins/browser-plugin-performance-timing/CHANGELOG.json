@@ -2,6 +2,12 @@
   "name": "@snowplow/browser-plugin-performance-timing",
   "entries": [
     {
+      "version": "3.0.2",
+      "tag": "@snowplow/browser-plugin-performance-timing_v3.0.2",
+      "date": "Thu, 15 Apr 2021 21:07:39 GMT",
+      "comments": {}
+    },
+    {
       "version": "3.0.1",
       "tag": "@snowplow/browser-plugin-performance-timing_v3.0.1",
       "date": "Wed, 14 Apr 2021 16:30:05 GMT",

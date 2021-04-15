@@ -1,6 +1,11 @@
 # Change Log - @snowplow/browser-plugin-geolocation
 
-This log was last generated on Wed, 14 Apr 2021 16:30:05 GMT and should not be manually modified.
+This log was last generated on Thu, 15 Apr 2021 21:07:39 GMT and should not be manually modified.
+
+## 3.0.2
+Thu, 15 Apr 2021 21:07:39 GMT
+
+_Version update only_
 
 ## 3.0.1
 Wed, 14 Apr 2021 16:30:05 GMT
