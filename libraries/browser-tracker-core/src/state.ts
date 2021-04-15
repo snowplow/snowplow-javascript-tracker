@@ -64,7 +64,7 @@ export function createSharedState(): SharedState {
    * Works everywhere except IE9
    */
   function visibilityChangeHandler() {
-    if (document.visibilityState == 'hidden') {
+    if (documentAlias.visibilityState == 'hidden') {
       // Flush all POST queues
       sharedState.bufferFlushers.forEach(function (flusher) {
         flusher(false);
