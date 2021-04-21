@@ -1,6 +1,13 @@
 # Change Log - @snowplow/browser-tracker-core
 
-This log was last generated on Thu, 15 Apr 2021 21:07:39 GMT and should not be manually modified.
+This log was last generated on Wed, 21 Apr 2021 12:35:06 GMT and should not be manually modified.
+
+## 3.0.3
+Wed, 21 Apr 2021 12:35:06 GMT
+
+### Updates
+
+- Fix race condition when using Form and Link Click tracking (#962)
 
 ## 3.0.2
 Thu, 15 Apr 2021 21:07:39 GMT

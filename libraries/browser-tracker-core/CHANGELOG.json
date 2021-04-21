@@ -2,6 +2,18 @@
   "name": "@snowplow/browser-tracker-core",
   "entries": [
     {
+      "version": "3.0.3",
+      "tag": "@snowplow/browser-tracker-core_v3.0.3",
+      "date": "Wed, 21 Apr 2021 12:35:06 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fix race condition when using Form and Link Click tracking (#962)"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.0.2",
       "tag": "@snowplow/browser-tracker-core_v3.0.2",
       "date": "Thu, 15 Apr 2021 21:07:39 GMT",
