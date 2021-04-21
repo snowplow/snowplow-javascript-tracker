@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-tracker-core",
+      "comment": "Fix race condition when using Form and Link Click tracking (#962)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker-core",
+  "email": "paul@snowplowanalytics.com"
+}
