@@ -6,14 +6,20 @@
 [![Build Status][gh-actions-image]][gh-actions]
 [![Saucelabs Test Status][saucelabs-button-image]][saucelabs]
 
-## Overview
+![snowplow-logo](common/media/snowplow_logo.png)
 
-Add analytics to your websites, web apps and Node.js applications with the [Snowplow][snowplow] event trackers for JavaScript.
+Snowplow is a scalable open-source platform for rich, high quality, low-latency data collection. It is designed to collect high quality, complete behavioral data for enterprise business.
+
+**To find out more, please check out the [Snowplow website][website] and our [documentation][docs].**
+
+## Snowplow JavaScript Trackers Overview
+
+The Snowplow JavaScript Trackers allow you to add analytics to your websites, web apps and Node.js applications when using a [Snowplow][snowplow] pipeline.
 
 With these trackers you can collect user event data (page views, e-commerce transactions etc) from the
 client-side and server-side tiers of your websites and web apps.
 
-**Technical documentation can be found for each tracker in our [Documentation][docs].**
+**Technical documentation can be found for each tracker in our [Documentation][javascript-docs].**
 
 ### @snowplow/browser-tracker (npm)
 
@@ -86,9 +92,11 @@ Copyright (c) 2021 Snowplow Analytics Ltd, 2010 Anthon Pang.
 
 All rights reserved.
 
-[snowplow]: http://snowplowanalytics.com/
+[website]: https://snowplowanalytics.com
+[snowplow]: https://github.com/snowplow/snowplow
+[docs]: https://docs.snowplowanalytics.com/
 [docker-install]: https://docs.docker.com/install/
-[docs]: https://docs.snowplowanalytics.com/docs/collecting-data/collecting-from-own-applications/javascript-trackers/
+[javascript-docs]: https://docs.snowplowanalytics.com/docs/collecting-data/collecting-from-own-applications/javascript-trackers/
 [tech-docs-browser]: https://docs.snowplowanalytics.com/docs/collecting-data/collecting-from-own-applications/javascript-trackers/browser-tracker/browser-tracker-v3-reference/
 [setup-browser]: https://docs.snowplowanalytics.com/docs/collecting-data/collecting-from-own-applications/javascript-trackers/browser-tracker/quick-start-guide/
 [tech-docs-js]: https://docs.snowplowanalytics.com/docs/collecting-data/collecting-from-own-applications/javascript-trackers/javascript-tracker/javascript-tracker-v3/
