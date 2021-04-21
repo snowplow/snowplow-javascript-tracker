@@ -127,7 +127,12 @@ export function createSharedState(): SharedState {
   }
   // Last attempt at flushing in beforeunload
   addEventListener(windowAlias, 'beforeunload', flushBuffers, false);
-  addReadyListener();
+
+  if (document.readyState === 'loading') {
+    addReadyListener();
+  } else {
+    loadHandler();
+  }
 
   return sharedState;
 }
