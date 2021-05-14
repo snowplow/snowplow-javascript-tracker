@@ -2,6 +2,21 @@
   "name": "@snowplow/browser-tracker-core",
   "entries": [
     {
+      "version": "3.1.0",
+      "tag": "@snowplow/browser-tracker-core_v3.1.0",
+      "date": "Fri, 14 May 2021 10:45:32 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Clear in memory identifiers in clearUserData() (#968)"
+          },
+          {
+            "comment": "Allow stateStorageStrategy to be changed on enableAnonymousTracking (#969)"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.0.3",
       "tag": "@snowplow/browser-tracker-core_v3.0.3",
       "date": "Wed, 21 Apr 2021 12:35:06 GMT",
