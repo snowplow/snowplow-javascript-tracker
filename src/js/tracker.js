@@ -673,6 +673,20 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
     }
   }
 
+  function toggleAnonymousTracking(stateStorageStrategy) {
+    if (stateStorageStrategy) {
+      argmap.stateStorageStrategy = stateStorageStrategy;
+      configStateStorageStrategy = getStateStorageStrategy(argmap);
+    }
+  
+    configAnonymousTracking = getAnonymousTracking(argmap);
+    configAnonymousSessionTracking = getAnonymousSessionTracking(argmap);
+    configAnonymousServerTracking = getAnonymousServerTracking(argmap);
+  
+    outQueue.setUseLocalStorage(configStateStorageStrategy == 'localStorage' || configStateStorageStrategy == 'cookieAndLocalStorage');
+    outQueue.setAnonymousTracking(configAnonymousServerTracking);
+  }
+
   /**
    * Clears all cookie and local storage for id and ses values
    */
@@ -3080,20 +3094,9 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    * @param {string} stateStorageStrategy - Override for state storage
    */
   apiMethods.disableAnonymousTracking = function (stateStorageStrategy) {
-    if (stateStorageStrategy) {
-      argmap.stateStorageStrategy = stateStorageStrategy;
-      argmap.anonymousTracking = false;
-      configStateStorageStrategy = getStateStorageStrategy(argmap);
-    } else {
-      argmap.anonymousTracking = false;
-    }
+    argmap.anonymousTracking = false;
 
-    configAnonymousTracking = getAnonymousTracking(argmap);
-    configAnonymousSessionTracking = getAnonymousSessionTracking(argmap);
-    configAnonymousServerTracking = getAnonymousServerTracking(argmap);
-
-    outQueue.setUseLocalStorage(configStateStorageStrategy == 'localStorage' || configStateStorageStrategy == 'cookieAndLocalStorage');
-    outQueue.setAnonymousTracking(configAnonymousServerTracking);
+    toggleAnonymousTracking(stateStorageStrategy);
 
     initializeIdsAndCookies();
 
@@ -3103,19 +3106,15 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
   /**
    * Enables anonymous tracking (ie. tracker initialized without `anonymousTracking`)
    */
-  apiMethods.enableAnonymousTracking = function (anonymousArgs) {
+  apiMethods.enableAnonymousTracking = function (anonymousArgs, stateStorageStrategy) {
     argmap.anonymousTracking = anonymousArgs || true;
 
-    configAnonymousTracking = getAnonymousTracking(argmap);
-    configAnonymousSessionTracking = getAnonymousSessionTracking(argmap);
-    configAnonymousServerTracking = getAnonymousServerTracking(argmap);
+    toggleAnonymousTracking(stateStorageStrategy);
 
     // Reset the page view, if not tracking the session, so can't stitch user into new events on the page view id
     if (!configAnonymousSessionTracking) {
       resetPageView();
     }
-
-    outQueue.setAnonymousTracking(configAnonymousServerTracking);
   };
 
   /**
