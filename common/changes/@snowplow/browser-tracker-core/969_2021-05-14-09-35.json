@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-tracker-core",
+      "comment": "Allow stateStorageStrategy to be changed on enableAnonymousTracking (#969)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker-core",
+  "email": "paul@snowplowanalytics.com"
+}

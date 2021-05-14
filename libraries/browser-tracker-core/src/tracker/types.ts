@@ -260,6 +260,8 @@ export interface DisableAnonymousTrackingConfiguration {
 export interface EnableAnonymousTrackingConfiguration {
   /* Configuration for Anonymous Tracking */
   options?: AnonymousTrackingOptions;
+  /* Available configurations for different storage strategies */
+  stateStorageStrategy?: StateStorageStrategy;
 }
 
 /**
