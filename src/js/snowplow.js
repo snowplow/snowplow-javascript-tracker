@@ -247,7 +247,11 @@ export function Snowplow(asynchronousQueue, functionName) {
 
   // initialize the Snowplow singleton
   addEventListener(windowAlias, 'beforeunload', beforeUnloadHandler, false);
-  addReadyListener();
+  if (document.readyState === 'loading') {
+    addReadyListener();
+  } else {
+    loadHandler();
+  }
 
   // Now replace initialization array with queue manager object
   return new InQueueManager(Tracker, version, mutSnowplowState, asynchronousQueue, functionName);
