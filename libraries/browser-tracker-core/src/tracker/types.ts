@@ -263,6 +263,16 @@ export interface EnableAnonymousTrackingConfiguration {
 }
 
 /**
+ * The configuration that can be changed when enabling anonymous tracking
+ */
+export interface ClearUserDataConfiguration {
+  /* Store session information in memory for subsequent events */
+  preserveSession: boolean;
+  /* Store user information in memory for subsequent events */
+  preserveUser: boolean;
+}
+
+/**
  * The configuration that can be changed when flushing the buffer
  */
 export interface FlushBufferConfiguration {
@@ -508,7 +518,7 @@ export interface BrowserTracker {
   /**
    * Clears all cookies and local storage containing user and session identifiers
    */
-  clearUserData: () => void;
+  clearUserData: (configuration?: ClearUserDataConfiguration) => void;
 
   /**
    * Add a plugin into the plugin collection after Tracker has already been initialised

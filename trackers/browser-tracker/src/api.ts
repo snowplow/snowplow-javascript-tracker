@@ -37,6 +37,7 @@ import {
   FlushBufferConfiguration,
   PageViewEvent,
   dispatchToTrackers,
+  ClearUserDataConfiguration,
 } from '@snowplow/browser-tracker-core';
 import {
   buildSelfDescribingEvent,
@@ -443,9 +444,9 @@ export function enableAnonymousTracking(
  *
  * @param trackers - The tracker identifiers which the event will be sent to
  */
-export function clearUserData(trackers?: Array<string>) {
+export function clearUserData(configuration?: ClearUserDataConfiguration, trackers?: Array<string>) {
   dispatchToTrackers(trackers, (t) => {
-    t.clearUserData();
+    t.clearUserData(configuration);
   });
 }
 

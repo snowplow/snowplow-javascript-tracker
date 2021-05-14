@@ -71,6 +71,7 @@ import {
   EnableAnonymousTrackingConfiguration,
   FlushBufferConfiguration,
   BrowserPluginConfiguration,
+  ClearUserDataConfiguration,
 } from './types';
 
 /** Repesents an instance of an activity tracking configuration */
@@ -573,22 +574,23 @@ export function Tracker(
     }
 
     /**
-     * Generate a pseudo-unique ID to identify this user
-     */
-    function createNewDomainUserId() {
-      return uuid();
-    }
-
-    /**
      * Clears all cookie and local storage for id and ses values
      */
-    function deleteCookies() {
+    function clearUserDataAndCookies(configuration?: ClearUserDataConfiguration) {
       const idname = getSnowplowCookieName('id');
       const sesname = getSnowplowCookieName('ses');
       attemptDeleteLocalStorage(idname);
       attemptDeleteLocalStorage(sesname);
       deleteCookie(idname, configCookieDomain, configCookieSameSite, configCookieSecure);
       deleteCookie(sesname, configCookieDomain, configCookieSameSite, configCookieSecure);
+      if (!configuration?.preserveSession) {
+        memorizedSessionId = uuid();
+        memorizedVisitCount = 0;
+      }
+      if (!configuration?.preserveUser) {
+        domainUserId = uuid();
+        businessUserId = null;
+      }
     }
 
     /*
@@ -606,7 +608,7 @@ export function Tracker(
       if (idCookieComponents[1]) {
         domainUserId = idCookieComponents[1] as string;
       } else if (!configAnonymousTracking) {
-        domainUserId = createNewDomainUserId();
+        domainUserId = uuid();
         idCookieComponents[1] = domainUserId;
       } else {
         domainUserId = '';
@@ -703,7 +705,7 @@ export function Tracker(
       }
 
       if (configDoNotTrack || toOptoutByCookie) {
-        deleteCookies();
+        clearUserDataAndCookies();
         return;
       }
 
@@ -1219,7 +1221,7 @@ export function Tracker(
         outQueue.setAnonymousTracking(configAnonymousServerTracking);
       },
 
-      clearUserData: deleteCookies,
+      clearUserData: clearUserDataAndCookies,
     };
 
     return {
