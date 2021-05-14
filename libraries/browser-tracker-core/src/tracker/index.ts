@@ -593,6 +593,27 @@ export function Tracker(
       }
     }
 
+    /**
+     * Toggle Anaonymous Tracking
+     */
+    function toggleAnonymousTracking(
+      configuration?: EnableAnonymousTrackingConfiguration | DisableAnonymousTrackingConfiguration
+    ) {
+      if (configuration && configuration.stateStorageStrategy) {
+        trackerConfiguration.stateStorageStrategy = configuration.stateStorageStrategy;
+        configStateStorageStrategy = getStateStorageStrategy(trackerConfiguration);
+      }
+
+      configAnonymousTracking = getAnonymousTracking(trackerConfiguration);
+      configAnonymousSessionTracking = getAnonymousSessionTracking(trackerConfiguration);
+      configAnonymousServerTracking = getAnonymousServerTracking(trackerConfiguration);
+
+      outQueue.setUseLocalStorage(
+        configStateStorageStrategy == 'localStorage' || configStateStorageStrategy == 'cookieAndLocalStorage'
+      );
+      outQueue.setAnonymousTracking(configAnonymousServerTracking);
+    }
+
     /*
      * Load the domain user ID and the session ID
      * Set the cookies (if cookies are enabled)
@@ -1184,22 +1205,9 @@ export function Tracker(
       },
 
       disableAnonymousTracking: function (configuration?: DisableAnonymousTrackingConfiguration) {
-        if (configuration && configuration.stateStorageStrategy) {
-          trackerConfiguration.stateStorageStrategy = configuration.stateStorageStrategy;
-          trackerConfiguration.anonymousTracking = false;
-          configStateStorageStrategy = getStateStorageStrategy(trackerConfiguration);
-        } else {
-          trackerConfiguration.anonymousTracking = false;
-        }
+        trackerConfiguration.anonymousTracking = false;
 
-        configAnonymousTracking = getAnonymousTracking(trackerConfiguration);
-        configAnonymousSessionTracking = getAnonymousSessionTracking(trackerConfiguration);
-        configAnonymousServerTracking = getAnonymousServerTracking(trackerConfiguration);
-
-        outQueue.setUseLocalStorage(
-          configStateStorageStrategy == 'localStorage' || configStateStorageStrategy == 'cookieAndLocalStorage'
-        );
-        outQueue.setAnonymousTracking(configAnonymousServerTracking);
+        toggleAnonymousTracking(configuration);
 
         initializeIdsAndCookies();
 
@@ -1209,16 +1217,12 @@ export function Tracker(
       enableAnonymousTracking: function (configuration?: EnableAnonymousTrackingConfiguration) {
         trackerConfiguration.anonymousTracking = (configuration && configuration?.options) || true;
 
-        configAnonymousTracking = getAnonymousTracking(trackerConfiguration);
-        configAnonymousSessionTracking = getAnonymousSessionTracking(trackerConfiguration);
-        configAnonymousServerTracking = getAnonymousServerTracking(trackerConfiguration);
+        toggleAnonymousTracking(configuration);
 
         // Reset the page view, if not tracking the session, so can't stitch user into new events on the page view id
         if (!configAnonymousSessionTracking) {
           resetPageView();
         }
-
-        outQueue.setAnonymousTracking(configAnonymousServerTracking);
       },
 
       clearUserData: clearUserDataAndCookies,
