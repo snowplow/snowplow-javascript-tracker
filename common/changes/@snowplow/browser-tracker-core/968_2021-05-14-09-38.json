@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-tracker-core",
+      "comment": "Clear in memory identifiers in clearUserData() (#968)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker-core",
+  "email": "paul@snowplowanalytics.com"
+}
