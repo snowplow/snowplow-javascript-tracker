@@ -674,22 +674,23 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
   }
 
   /**
-   * Generate a pseudo-unique ID to identify this user
-   */
-  function createNewDomainUserId() {
-    return uuid();
-  }
-
-  /**
    * Clears all cookie and local storage for id and ses values
    */
-  function deleteCookies() {
+  function clearUserDataAndCookies(preserveSession, preserveUser) {
     const idname = getSnowplowCookieName('id');
     const sesname = getSnowplowCookieName('ses');
     attemptDeleteLocalStorage(idname);
     attemptDeleteLocalStorage(sesname);
     deleteCookie(idname, configCookieDomain, configCookieSameSite, configCookieSecure);
     deleteCookie(sesname, configCookieDomain, configCookieSameSite, configCookieSecure);
+    if (!preserveSession) {
+      memorizedSessionId = uuid();
+      memorizedVisitCount = 0;
+    }
+    if (!preserveUser) {
+      domainUserId = uuid();
+      businessUserId = null;
+    }
   }
 
   /*
@@ -707,7 +708,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
     if (idCookieComponents[1]) {
       domainUserId = idCookieComponents[1];
     } else if (!configAnonymousTracking) {
-      domainUserId = createNewDomainUserId();
+      domainUserId = uuid();
       idCookieComponents[1] = domainUserId;
     } else {
       domainUserId = '';
@@ -804,7 +805,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
     }
 
     if (configDoNotTrack || toOptoutByCookie) {
-      deleteCookies();
+      clearUserDataAndCookies();
       return;
     }
 
@@ -3120,7 +3121,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
   /**
    * Clears all cookies and local storage containing user and session identifiers
    */
-  apiMethods.clearUserData = deleteCookies;
+  apiMethods.clearUserData = clearUserDataAndCookies;
 
   apiMethods.setDebug = function (isDebug) {
     debug = Boolean(isDebug).valueOf();
