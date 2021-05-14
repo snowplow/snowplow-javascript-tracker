@@ -1,13 +1,19 @@
-Version 2.17.3 (2020-02-16)
+Version 2.18.0 (2021-05-14)
+---------------------------
+Allow stateStorageStrategy to be changed on enableAnonymousTracking (#969)
+Clear in memory identifiers in clearUserData() (#968)
+Fix race condition when using Form and Link Click tracking (#962)
+
+Version 2.17.3 (2021-02-16)
 ---------------------------
 Fix flushBuffer not working if first function call (#896)
 Bump wdio to 6.12 (#898) 
 
-Version 2.17.2 (2020-02-10)
+Version 2.17.2 (2021-02-10)
 ---------------------------
 Fix dynamic contexts not being evaluated on each page ping (#891)
 
-Version 2.17.1 (2020-02-03)
+Version 2.17.1 (2021-02-03)
 ---------------------------
 Prevent samesite cookie warning from triggering (#886)
 Remove server side anonymisation headers on Beacon (#887)
