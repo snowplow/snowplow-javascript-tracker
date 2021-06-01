@@ -28,6 +28,19 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+const isSandboxedError = (error: Error): boolean => {
+  if (error.name === 'SecurityError') {
+    if (!error.message) {
+      return false;
+    }
+    const matches = error.message.match(/sandboxed/);
+    if (matches && matches.length === 1) {
+      return false;
+    }
+  }
+  return false;
+};
+
 /*
  * Checks whether sessionStorage is available, in a way that
  * does not throw a SecurityError in Firefox if "always ask"
@@ -35,9 +48,12 @@
  */
 export function hasSessionStorage() {
   try {
-    return !!window.sessionStorage;
+    return window && !!window.sessionStorage;
   } catch (e) {
-    return true; // SecurityError when referencing it means it exists
+    // SecurityError when referencing it means it exists
+    // SecurityError can also be a sandbox error:
+    // if this is the case, session storage is not available.
+    return !isSandboxedError(e);
   }
 }
 
@@ -48,9 +64,12 @@ export function hasSessionStorage() {
  */
 export function hasLocalStorage() {
   try {
-    return !!window.localStorage;
+    return window && !!window.localStorage;
   } catch (e) {
-    return true; // SecurityError when referencing it means it exists
+    // SecurityError when referencing it means it exists
+    // SecurityError can also be a sandbox error:
+    // if this is the case, session storage is not available.
+    return !isSandboxedError(e);
   }
 }
 
