@@ -35,7 +35,7 @@
  */
 export function hasSessionStorage() {
   try {
-    return !!window.sessionStorage;
+    return window && !!window.sessionStorage;
   } catch (e) {
     return true; // SecurityError when referencing it means it exists
   }
@@ -48,7 +48,7 @@ export function hasSessionStorage() {
  */
 export function hasLocalStorage() {
   try {
-    return !!window.localStorage;
+    return window && !!window.localStorage;
   } catch (e) {
     return true; // SecurityError when referencing it means it exists
   }
