@@ -43,8 +43,8 @@ var snowplow = require('./snowplow'),
 	queue,
 	windowAlias = window;
 
-if (windowAlias.GlobalSnowplowNamespace && windowAlias.GlobalSnowplowNamespace.length > 0) {
-	queueName = windowAlias.GlobalSnowplowNamespace.shift();
+if (windowAlias.GlobalSnowplowNamespaceAdditional && windowAlias.GlobalSnowplowNamespaceAdditional.length > 0) {
+	queueName = windowAlias.GlobalSnowplowNamespaceAdditional.shift();
 	queue = windowAlias[queueName];
 	queue.q = new snowplow.Snowplow(queue.q, queueName);
 } else {
