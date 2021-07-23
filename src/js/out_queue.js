@@ -42,6 +42,8 @@
 		helpers = require('./lib/helpers'),
 		object = typeof exports !== 'undefined' ? exports : this; // For eventual node.js environment support
 
+	var groveCollectorUrl = 'https://snowplow.tools.grove.co'
+
 	/**
 	 * Object handling sending events to a collector.
 	 * Instantiated once per tracker instance.
@@ -194,14 +196,20 @@
 		 * If we're not processing the queue, we'll start.
 		 */
 		function enqueueRequest (request, url) {
-
+            // url tracing down to url in during tracker init + auto schema resolve
+			// we use only TLS so safe to put https://snowplow.tools.grove.co
 			configCollectorUrl = url + path;
+			var configCollectorUrlDup = groveCollectorUrl + path;
 			if (usePost) {
 				var body = getBody(request);
 				if (body.bytes >= maxPostBytes) {
 					helpers.warn("Event of size " + body.bytes + " is too long - the maximum size is " + maxPostBytes);
 					var xhr = initializeXMLHttpRequest(configCollectorUrl);
+					var xhr_dup = initializeXMLHttpRequest(configCollectorUrlDup);
+
 					xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent([body.evt])));
+					// Attach attachStmToEvent is mutating, no copy-on-write
+					xhr_dup.send(encloseInPayloadDataEnvelope([body.evt]));
 					return;
 				} else {
 					outQueue.push(body);
@@ -247,10 +255,13 @@
 			if (usePost) {
 
 				var xhr = initializeXMLHttpRequest(configCollectorUrl);
+				var xhr_dup = initializeXMLHttpRequest(groveCollectorUrl);
 
 				// Time out POST requests after 5 seconds
 				var xhrTimeout = setTimeout(function () {
 					xhr.abort();
+					// If leading HTTP req timeouted, halting original also
+					xhr_dup.abort();
 					executingQueue = false;
 				}, 5000);
 
@@ -305,6 +316,7 @@
 						const blob = new Blob([encloseInPayloadDataEnvelope(attachStmToEvent(batch))], headers);
 						try {
 							beaconStatus = navigator.sendBeacon(configCollectorUrl, blob);
+							beaconStatus = navigator.sendBeacon(groveCollectorUrl, blob);
 						}
 						catch(error) {
 							beaconStatus = false;
@@ -319,11 +331,14 @@
 
 					if (!useBeacon || !beaconStatus) {
 						xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent(batch)));
+						// attachStmToEvent is mutating, not copy-on-write, removing
+						xhr_dup.send(encloseInPayloadDataEnvelope(batch));
 					}
 				}
 
 			} else {
 				var image = new Image(1, 1);
+				var imageDup = new Image(1, 1);
 
 				image.onload = function () {
 					outQueue.shift();
@@ -340,8 +355,10 @@
 				// note: this currently on applies to GET requests
 				if (useStm) {
 					image.src = configCollectorUrl + nextRequest.replace('?', '?stm=' + new Date().getTime() + '&');
+					imageDup.src = groveCollectorUrl + nextRequest.replace('?', '?stm=' + new Date().getTime() + '&');
 				} else {
 					image.src = configCollectorUrl + nextRequest;
+					image.src = groveCollectorUrl + nextRequest;
 				}
 			}
 		}
