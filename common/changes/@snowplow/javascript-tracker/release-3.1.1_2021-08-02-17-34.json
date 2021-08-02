@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@snowplow/javascript-tracker",
-      "comment": " Bump snowplow-micro to 1.1.2 (#984)",
+      "comment": "Bump snowplow-micro to 1.1.2 (#984)",
       "type": "none"
     }
   ],
