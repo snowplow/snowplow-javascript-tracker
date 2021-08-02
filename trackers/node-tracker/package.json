@@ -43,7 +43,7 @@
   "dependencies": {
     "@snowplow/tracker-core": "workspace:*",
     "got": "^11.7.0",
-    "tslib": "^2.1.0"
+    "tslib": "^2.3.0"
   },
   "devDependencies": {
     "@rollup/plugin-json": "^4.1.0",

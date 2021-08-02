@@ -24,7 +24,7 @@
   "dependencies": {
     "@snowplow/tracker-core": "workspace:*",
     "sha1": "^1.1.1",
-    "tslib": "^2.1.0",
+    "tslib": "^2.3.0",
     "uuid": "^3.4.0"
   },
   "devDependencies": {
