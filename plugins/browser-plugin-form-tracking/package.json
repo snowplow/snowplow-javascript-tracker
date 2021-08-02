@@ -24,7 +24,7 @@
   "dependencies": {
     "@snowplow/browser-tracker-core": "workspace:*",
     "@snowplow/tracker-core": "workspace:*",
-    "tslib": "^2.1.0"
+    "tslib": "^2.3.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.1.0",

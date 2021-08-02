@@ -25,7 +25,7 @@
     "@snowplow/browser-tracker-core": "workspace:*",
     "@snowplow/tracker-core": "workspace:*",
     "randomcolor": "^0.6.2",
-    "tslib": "^2.1.0"
+    "tslib": "^2.3.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.1.0",
