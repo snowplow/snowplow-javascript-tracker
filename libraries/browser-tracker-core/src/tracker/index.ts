@@ -1048,9 +1048,7 @@ export function Tracker(
         };
       }
 
-      LOG.warn(
-        'Activity tracking not enabled, please provide integer values for minimumVisitLength and heartbeatDelay.'
-      );
+      LOG.error('Activity tracking minimumVisitLength & heartbeatDelay must be integers');
       return undefined;
     }
 
@@ -1142,18 +1140,22 @@ export function Tracker(
       },
 
       enableActivityTracking: function (configuration: ActivityTrackingConfiguration) {
-        activityTrackingConfig.enabled = true;
-        activityTrackingConfig.configurations.pagePing = configureActivityTracking({
-          ...configuration,
-          callback: logPagePing,
-        });
+        if (!activityTrackingConfig.configurations.pagePing) {
+          activityTrackingConfig.enabled = true;
+          activityTrackingConfig.configurations.pagePing = configureActivityTracking({
+            ...configuration,
+            callback: logPagePing,
+          });
+        }
       },
 
       enableActivityTrackingCallback: function (
         configuration: ActivityTrackingConfiguration & ActivityTrackingConfigurationCallback
       ) {
-        activityTrackingConfig.enabled = true;
-        activityTrackingConfig.configurations.callback = configureActivityTracking(configuration);
+        if (!activityTrackingConfig.configurations.callback) {
+          activityTrackingConfig.enabled = true;
+          activityTrackingConfig.configurations.callback = configureActivityTracking(configuration);
+        }
       },
 
       updatePageActivity: function () {
