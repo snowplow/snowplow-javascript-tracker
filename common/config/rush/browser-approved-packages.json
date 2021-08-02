@@ -203,10 +203,6 @@
       "allowedCategories": [ "trackers" ]
     },
     {
-      "name": "@wessberg/rollup-plugin-ts",
-      "allowedCategories": [ "libraries", "plugins", "trackers" ]
-    },
-    {
       "name": "ava",
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
@@ -308,6 +304,10 @@
     },
     {
       "name": "rollup-plugin-terser",
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
+    },
+    {
+      "name": "rollup-plugin-ts",
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
