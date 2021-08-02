@@ -85,13 +85,14 @@ export function OutQueueManager(
   eventMethod = typeof eventMethod === 'string' ? eventMethod.toLowerCase() : eventMethod;
 
   // Use the Beacon API if eventMethod is set null, true, or 'beacon'.
-  const localStorageAlias = window.localStorage,
-    navigatorAlias = window.navigator,
-    isBeaconRequested =
+  const isBeaconRequested =
       eventMethod === null || eventMethod === true || eventMethod === 'beacon' || eventMethod === 'true',
     // Fall back to POST or GET for browsers which don't support Beacon API
     isBeaconAvailable = Boolean(
-      isBeaconRequested && navigatorAlias && navigatorAlias.sendBeacon && !hasWebKitBeaconBug(navigatorAlias.userAgent)
+      isBeaconRequested &&
+        window.navigator &&
+        window.navigator.sendBeacon &&
+        !hasWebKitBeaconBug(window.navigator.userAgent)
     ),
     useBeacon = isBeaconAvailable && isBeaconRequested,
     // Use GET if specified
@@ -106,12 +107,12 @@ export function OutQueueManager(
     queueName = `snowplowOutQueue_${id}_${usePost ? 'post2' : 'get'}`;
 
   // Get buffer size or set 1 if unable to buffer
-  bufferSize = (localStorageAccessible() && useLocalStorage && usePost && bufferSize) || 1;
+  bufferSize = (useLocalStorage && localStorageAccessible() && usePost && bufferSize) || 1;
 
   if (useLocalStorage) {
     // Catch any JSON parse errors or localStorage that might be thrown
     try {
-      const localStorageQueue = localStorageAlias.getItem(queueName);
+      const localStorageQueue = window.localStorage.getItem(queueName);
       outQueue = localStorageQueue ? JSON.parse(localStorageQueue) : [];
     } catch (e) {}
   }
