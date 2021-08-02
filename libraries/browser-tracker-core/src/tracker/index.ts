@@ -690,7 +690,7 @@ export function Tracker(
         ];
       }
 
-      if (!tmpContainer[6]) {
+      if (!tmpContainer[6] || tmpContainer[6] === 'undefined') {
         // session id
         tmpContainer[6] = uuid();
       }
