@@ -966,8 +966,10 @@ export function Tracker(
         // @see http://quirksmode.org/dom/events
         const documentHandlers = ['click', 'mouseup', 'mousedown', 'mousemove', 'keypress', 'keydown', 'keyup'];
         const windowHandlers = ['resize', 'focus', 'blur'];
-        const listener = (_: Document | Window, handler = activityHandler) => (ev: string) =>
-          addEventListener(document, ev, handler);
+        const listener =
+          (_: Document | Window, handler = activityHandler) =>
+          (ev: string) =>
+            addEventListener(document, ev, handler);
 
         documentHandlers.forEach(listener(document));
         windowHandlers.forEach(listener(window));
@@ -1215,7 +1217,7 @@ export function Tracker(
       },
 
       enableAnonymousTracking: function (configuration?: EnableAnonymousTrackingConfiguration) {
-        trackerConfiguration.anonymousTracking = (configuration && configuration?.options) || true;
+        trackerConfiguration.anonymousTracking = (configuration && configuration?.options) ?? true;
 
         toggleAnonymousTracking(configuration);
 
