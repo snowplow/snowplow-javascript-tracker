@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Switch from @wessberg/rollup-plugin-ts to rollup-plugin-ts (#988)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-error-tracking"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-error-tracking",
+  "email": "paul@snowplowanalytics.com"
+}

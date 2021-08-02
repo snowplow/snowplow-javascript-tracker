@@ -1,4 +1,4 @@
-import ts from '@wessberg/rollup-plugin-ts'; // Prefered over @rollup/plugin-typescript as it bundles .d.ts files
+import ts from 'rollup-plugin-ts'; // Prefered over @rollup/plugin-typescript as it bundles .d.ts files
 import json from '@rollup/plugin-json';
 import { banner } from '../../banner';
 
