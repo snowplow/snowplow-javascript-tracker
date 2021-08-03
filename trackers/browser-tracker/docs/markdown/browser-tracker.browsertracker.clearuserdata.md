@@ -9,5 +9,5 @@ Clears all cookies and local storage containing user and session identifiers
 <b>Signature:</b>
 
 ```typescript
-clearUserData: () => void;
+clearUserData: (configuration?: ClearUserDataConfiguration) => void;
 ```

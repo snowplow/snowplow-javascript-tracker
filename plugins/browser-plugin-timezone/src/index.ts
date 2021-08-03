@@ -34,7 +34,7 @@ import { BrowserTracker, BrowserPlugin } from '@snowplow/browser-tracker-core';
 /**
  * Populated the Timezone field of the canonical event model
  *
- * @remark
+ * @remarks
  * Uses Intl where availble and has fallback in older browsers
  */
 export function TimezonePlugin(): BrowserPlugin {

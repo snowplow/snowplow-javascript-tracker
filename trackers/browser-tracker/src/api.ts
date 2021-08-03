@@ -29,14 +29,18 @@
  */
 
 import {
+  dispatchToTrackers,
   ActivityTrackingConfiguration,
   ActivityTrackingConfigurationCallback,
+  ActivityCallback,
+  ActivityCallbackData,
+  BrowserPlugin,
   BrowserPluginConfiguration,
   DisableAnonymousTrackingConfiguration,
   EnableAnonymousTrackingConfiguration,
+  AnonymousTrackingOptions,
   FlushBufferConfiguration,
   PageViewEvent,
-  dispatchToTrackers,
   ClearUserDataConfiguration,
 } from '@snowplow/browser-tracker-core';
 import {
@@ -45,25 +49,42 @@ import {
   CommonEventProperties,
   ConditionalContextProvider,
   ContextPrimitive,
+  ContextGenerator,
+  FilterProvider,
+  RuleSetProvider,
   SelfDescribingEvent,
   SelfDescribingJson,
   StructuredEvent,
+  ContextEvent,
+  ContextFilter,
+  RuleSet,
 } from '@snowplow/tracker-core';
 
 export {
   ActivityTrackingConfiguration,
   ActivityTrackingConfigurationCallback,
+  ActivityCallback,
+  ActivityCallbackData,
+  BrowserPlugin,
   BrowserPluginConfiguration,
   FlushBufferConfiguration,
   PageViewEvent,
   EnableAnonymousTrackingConfiguration,
   DisableAnonymousTrackingConfiguration,
+  AnonymousTrackingOptions,
+  ClearUserDataConfiguration,
   ConditionalContextProvider,
   ContextPrimitive,
   SelfDescribingEvent,
   SelfDescribingJson,
   CommonEventProperties,
   StructuredEvent,
+  ContextGenerator,
+  FilterProvider,
+  RuleSetProvider,
+  ContextEvent,
+  ContextFilter,
+  RuleSet,
 };
 
 /**

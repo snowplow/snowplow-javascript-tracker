@@ -116,7 +116,7 @@ export function OptimizelyPlugin(
   /**
    * Creates a context from the window['optimizely'].data.experiments object
    *
-   * @return Array Experiment contexts
+   * @returns Array Experiment contexts
    */
   function getOptimizelyExperimentContexts() {
     var experiments = getOptimizelyData('experiments');
@@ -148,7 +148,7 @@ export function OptimizelyPlugin(
   /**
    * Creates a context from the window['optimizely'].data.state object
    *
-   * @return Array State contexts
+   * @returns Array State contexts
    */
   function getOptimizelyStateContexts() {
     var experimentIds = [];
@@ -193,7 +193,7 @@ export function OptimizelyPlugin(
   /**
    * Creates a context from the window['optimizely'].data.variations object
    *
-   * @return Array Variation contexts
+   * @returns Array Variation contexts
    */
   function getOptimizelyVariationContexts() {
     var variations = getOptimizelyData('variations');
@@ -222,7 +222,7 @@ export function OptimizelyPlugin(
   /**
    * Creates a context from the window['optimizely'].data.visitor object
    *
-   * @return object Visitor context
+   * @returns object Visitor context
    */
   function getOptimizelyVisitorContexts() {
     var visitor = getOptimizelyData('visitor');
@@ -258,7 +258,7 @@ export function OptimizelyPlugin(
   /**
    * Creates a context from the window['optimizely'].data.visitor.audiences object
    *
-   * @return Array VisitorAudience contexts
+   * @returns Array VisitorAudience contexts
    */
   function getOptimizelyAudienceContexts() {
     var audienceIds = getOptimizelyData('visitor', 'audiences');
@@ -283,7 +283,7 @@ export function OptimizelyPlugin(
   /**
    * Creates a context from the window['optimizely'].data.visitor.dimensions object
    *
-   * @return Array VisitorDimension contexts
+   * @returns Array VisitorDimension contexts
    */
   function getOptimizelyDimensionContexts() {
     var dimensionIds = getOptimizelyData('visitor', 'dimensions');

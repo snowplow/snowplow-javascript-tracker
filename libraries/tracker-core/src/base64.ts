@@ -26,7 +26,7 @@ declare function unescape(s: string): string;
 
 /**
  * Decodes a url safe Base 64 encoded string
- * @remark See: {@link http://tools.ietf.org/html/rfc4648#page-7}
+ * @remarks See: {@link http://tools.ietf.org/html/rfc4648#page-7}
  * @param data - String to decode
  * @returns The decoded string
  */
@@ -49,7 +49,7 @@ export function base64urldecode(data: string): string {
 
 /**
  * Encodes a string into a url safe Base 64 encoded string
- * @remark See: {@link http://tools.ietf.org/html/rfc4648#page-7}
+ * @remarks See: {@link http://tools.ietf.org/html/rfc4648#page-7}
  * @param data - String to encode
  * @returns The url safe Base 64 string
  */

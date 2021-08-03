@@ -17,5 +17,5 @@ interface BrowserPlugin extends CorePlugin
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [activateBrowserPlugin?](./browser-tracker.browserplugin.activatebrowserplugin.md) | (tracker: BrowserTracker) =&gt; void | <i>(Optional)</i> Called when the plugin is initialised during the Tracker construction Use to capture the specific Tracker instance for each instance of a Browser Plugin |
+|  [activateBrowserPlugin?](./browser-tracker.browserplugin.activatebrowserplugin.md) | (tracker: BrowserTracker) =&gt; void | <i>(Optional)</i> Called when the plugin is initialised during the Tracker construction<!-- -->Use to capture the specific Tracker instance for each instance of a Browser Plugin |
 

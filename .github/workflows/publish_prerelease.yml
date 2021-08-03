@@ -59,6 +59,21 @@ jobs:
       - name: Rush Test
         run: node common/scripts/install-run-rush.js test --verbose
 
+      - name: Install API Extractor & Documenter
+        run: npm install -g @microsoft/api-extractor@^7.18.4 @microsoft/api-documenter@^7.13.34
+
+      - name: Create API documentation for @snowplow/browser-tracker
+        working-directory: ./trackers/browser-tracker
+        run: |
+          api-extractor run
+          api-documenter markdown --input-folder temp --output-folder docs/markdown
+
+      - name: Create API documentation for @snowplow/node-tracker
+        working-directory: ./trackers/node-tracker
+        run: |
+          api-extractor run
+          api-documenter markdown --input-folder temp --output-folder docs/markdown
+
       - name: Rush Publish
         run: node common/scripts/install-run-rush.js publish --apply --include-all --publish --tag next --set-access-level public --ignore-git-hooks
 

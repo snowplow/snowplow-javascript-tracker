@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-tracker",
+      "comment": "Automate api-extractor on release (#972)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker"
+}

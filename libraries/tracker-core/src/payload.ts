@@ -148,7 +148,7 @@ export function payloadBuilder(): PayloadBuilder {
  * A helper to build a Snowplow request from a set of name-value pairs, provided using the add methods.
  * Will base64 encode JSON, if desired, on build
  *
- * @return The request builder, with add and build methods
+ * @returns The request builder, with add and build methods
  */
 export function payloadJsonProcessor(encodeBase64: boolean): JsonProcessor {
   return (payloadBuilder: PayloadBuilder, jsonForProcessing: EventJson) => {
