@@ -51,7 +51,7 @@ client-side and server-side tiers of your websites and web apps.
 
 ### Contributing quick start
 
-Assuming [git](https://git-scm.com/downloads), [Node.js 10, 12 or 14 LTS](https://nodejs.org/en/download/releases/) are installed.
+Assuming [git](https://git-scm.com/downloads), [Node.js 12 or 14 LTS](https://nodejs.org/en/download/releases/) are installed.
 
 #### Clone repository
 
