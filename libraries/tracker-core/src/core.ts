@@ -138,7 +138,7 @@ export interface TrackerCore {
    * @param pb - Payload
    * @param context - Custom contexts relating to the event
    * @param timestamp - Timestamp of the event
-   * @return Payload after the callback is applied
+   * @returns Payload after the callback is applied
    */
   track: (
     /** A PayloadBuilder created by one of the `buildX` functions */
@@ -319,7 +319,7 @@ export interface CorePluginConfiguration {
  * @param base64 - Whether to base 64 encode contexts and self describing event JSONs
  * @param corePlugins - The core plugins to be processed with each event
  * @param callback - Function applied to every payload dictionary object
- * @return Tracker core
+ * @returns Tracker core
  */
 export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore {
   function newCore(base64: boolean, corePlugins: Array<CorePlugin>, callback?: (PayloadData: PayloadBuilder) => void) {
@@ -333,7 +333,7 @@ export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore 
      * Wraps an array of custom contexts in a self-describing JSON
      *
      * @param contexts - Array of custom context self-describing JSONs
-     * @return Outer JSON
+     * @returns Outer JSON
      */
     function completeContexts(
       contexts?: Array<SelfDescribingJson>
@@ -376,7 +376,7 @@ export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore 
      * @param pb - Payload
      * @param context - Custom contexts relating to the event
      * @param timestamp - Timestamp of the event
-     * @return Payload after the callback is applied
+     * @returns Payload after the callback is applied
      */
     function track(
       pb: PayloadBuilder,
@@ -559,7 +559,7 @@ export interface SelfDescribingEvent {
  * and a data object which conforms to the supplied schema
  *
  * @param event - Contains the properties and schema location for the event
- * @return PayloadBuilder to be sent to {@link Core.track()}
+ * @returns PayloadBuilder to be sent to {@link @snowplow/tracker-core#TrackerCore.track}
  */
 export function buildSelfDescribingEvent(event: SelfDescribingEvent): PayloadBuilder {
   const {
@@ -599,7 +599,7 @@ export interface PageViewEvent {
  * Single Page Applications (SPA).
  *
  * @param event - Contains the properties for the Page View event
- * @return PayloadBuilder to be sent to {@link Core.track()}
+ * @returns PayloadBuilder to be sent to {@link @snowplow/tracker-core#TrackerCore.track}
  */
 export function buildPageView(event: PageViewEvent): PayloadBuilder {
   const { pageUrl, pageTitle, referrer } = event,
@@ -636,7 +636,7 @@ export interface PagePingEvent extends PageViewEvent {
  * information from the current page view
  *
  * @param event - Contains the properties for the Page Ping event
- * @return PayloadBuilder to be sent to {@link Core.track()}
+ * @returns PayloadBuilder to be sent to {@link @snowplow/tracker-core#TrackerCore.track}
  */
 export function buildPagePing(event: PagePingEvent): PayloadBuilder {
   const { pageUrl, pageTitle, referrer, minXOffset, maxXOffset, minYOffset, maxYOffset } = event,
@@ -674,7 +674,7 @@ export interface StructuredEvent {
  * useful for interoperability.
  *
  * @param event - Contains the properties for the Structured event
- * @return PayloadBuilder to be sent to {@link Core.track()}
+ * @returns PayloadBuilder to be sent to {@link @snowplow/tracker-core#TrackerCore.track}
  */
 export function buildStructEvent(event: StructuredEvent): PayloadBuilder {
   const { category, action, label, property, value } = event,
@@ -721,7 +721,7 @@ export interface EcommerceTransactionEvent {
  * a consumer completes a transaction.
  *
  * @param event - Contains the properties for the Ecommerce Transactoion event
- * @return PayloadBuilder to be sent to {@link Core.track()}
+ * @returns PayloadBuilder to be sent to {@link @snowplow/tracker-core#TrackerCore.track}
  */
 export function buildEcommerceTransaction(event: EcommerceTransactionEvent): PayloadBuilder {
   const { orderId, total, affiliation, tax, shipping, city, state, country, currency } = event,
@@ -768,7 +768,7 @@ export interface EcommerceTransactionItemEvent {
  * Each Ecommerce Transaction may contain one or more EcommerceTransactionItem events
  *
  * @param event - Contains the properties for the Ecommerce Transaction Item event
- * @return PayloadBuilder to be sent to {@link Core.track()}
+ * @returns PayloadBuilder to be sent to {@link @snowplow/tracker-core#TrackerCore.track}
  */
 export function buildEcommerceTransactionItem(event: EcommerceTransactionItemEvent): PayloadBuilder {
   const { orderId, sku, price, name, category, quantity, currency } = event,
@@ -805,7 +805,7 @@ export interface ScreenViewEvent {
  * new views as they performance navigation events
  *
  * @param event - Contains the properties for the Screen View event. One or more properties must be included.
- * @return PayloadBuilder to be sent to {@link Core.track()}
+ * @returns PayloadBuilder to be sent to {@link @snowplow/tracker-core#TrackerCore.track}
  */
 export function buildScreenView(event: ScreenViewEvent): PayloadBuilder {
   const { name, id } = event;
@@ -839,7 +839,7 @@ export interface LinkClickEvent {
  * Used when a user clicks on a link on a webpage, typically an anchor tag <a>
  *
  * @param event - Contains the properties for the Link Click event
- * @return PayloadBuilder to be sent to {@link Core.track()}
+ * @returns PayloadBuilder to be sent to {@link @snowplow/tracker-core#TrackerCore.track}
  */
 export function buildLinkClick(event: LinkClickEvent): PayloadBuilder {
   const { targetUrl, elementId, elementClasses, elementTarget, elementContent } = event;
@@ -855,7 +855,7 @@ export function buildLinkClick(event: LinkClickEvent): PayloadBuilder {
  * An Ad Impression Event
  * Used to track an advertisement impression
  *
- * @remark
+ * @remarks
  * If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field.
  */
 export interface AdImpressionEvent {
@@ -881,11 +881,11 @@ export interface AdImpressionEvent {
  * Build a Ad Impression Event
  * Used to track an advertisement impression
  *
- * @remark
+ * @remarks
  * If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field.
  *
  * @param event - Contains the properties for the Ad Impression event
- * @return PayloadBuilder to be sent to {@link Core.track()}
+ * @returns PayloadBuilder to be sent to {@link @snowplow/tracker-core#TrackerCore.track}
  */
 export function buildAdImpression(event: AdImpressionEvent): PayloadBuilder {
   const { impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId } = event;
@@ -910,7 +910,7 @@ export function buildAdImpression(event: AdImpressionEvent): PayloadBuilder {
  * An Ad Click Event
  * Used to track an advertisement click
  *
- * @remark
+ * @remarks
  * If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field.
  */
 export interface AdClickEvent {
@@ -938,11 +938,11 @@ export interface AdClickEvent {
  * Build a Ad Click Event
  * Used to track an advertisement click
  *
- * @remark
+ * @remarks
  * If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field.
  *
  * @param event - Contains the properties for the Ad Click event
- * @return PayloadBuilder to be sent to {@link Core.track()}
+ * @returns PayloadBuilder to be sent to {@link @snowplow/tracker-core#TrackerCore.track}
  */
 export function buildAdClick(event: AdClickEvent): PayloadBuilder {
   const { targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId } = event;
@@ -968,7 +968,7 @@ export function buildAdClick(event: AdClickEvent): PayloadBuilder {
  * An Ad Conversion Event
  * Used to track an advertisement click
  *
- * @remark
+ * @remarks
  * If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field.
  */
 export interface AdConversionEvent {
@@ -996,11 +996,11 @@ export interface AdConversionEvent {
  * Build a Ad Conversion Event
  * Used to track an advertisement click
  *
- * @remark
+ * @remarks
  * If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field.
  *
  * @param event - Contains the properties for the Ad Conversion event
- * @return PayloadBuilder to be sent to {@link Core.track()}
+ * @returns PayloadBuilder to be sent to {@link @snowplow/tracker-core#TrackerCore.track}
  */
 export function buildAdConversion(event: AdConversionEvent): PayloadBuilder {
   const { conversionId, costModel, cost, category, action, property, initialValue, advertiserId, campaignId } = event;
@@ -1038,13 +1038,13 @@ export interface SocialInteractionEvent {
 }
 
 /**
- * Build a Social Interaction Event\
+ * Build a Social Interaction Event
  * Social tracking will be used to track the way users interact
  * with Facebook, Twitter and Google + widgets
  * e.g. to capture “like this” or “tweet this” events.
  *
  * @param event - Contains the properties for the Social Interaction event
- * @return PayloadBuilder to be sent to {@link Core.track()}
+ * @returns PayloadBuilder to be sent to {@link @snowplow/tracker-core#TrackerCore.track}
  */
 export function buildSocialInteraction(event: SocialInteractionEvent): PayloadBuilder {
   const { action, network, target } = event;
@@ -1082,7 +1082,7 @@ export interface AddToCartEvent {
  * on an ecommerce site.
  *
  * @param event - Contains the properties for the Add To Cart event
- * @return PayloadBuilder to be sent to {@link Core.track()}
+ * @returns PayloadBuilder to be sent to {@link @snowplow/tracker-core#TrackerCore.track}
  */
 export function buildAddToCart(event: AddToCartEvent): PayloadBuilder {
   const { sku, quantity, name, category, unitPrice, currency } = event;
@@ -1127,7 +1127,7 @@ export interface RemoveFromCartEvent {
  * on an ecommerce site.
  *
  * @param event - Contains the properties for the Remove From Cart event
- * @return PayloadBuilder to be sent to {@link Core.track()}
+ * @returns PayloadBuilder to be sent to {@link @snowplow/tracker-core#TrackerCore.track}
  */
 export function buildRemoveFromCart(event: RemoveFromCartEvent): PayloadBuilder {
   const { sku, quantity, name, category, unitPrice, currency } = event;
@@ -1174,7 +1174,7 @@ export interface FormFocusOrChangeEvent {
  * change to a form element.
  *
  * @param event - Contains the properties for the Form Focus or Change Form event
- * @return PayloadBuilder to be sent to {@link Core.track()}
+ * @returns PayloadBuilder to be sent to {@link @snowplow/tracker-core#TrackerCore.track}
  */
 export function buildFormFocusOrChange(event: FormFocusOrChangeEvent): PayloadBuilder {
   let event_schema = '';
@@ -1227,7 +1227,7 @@ export interface FormSubmissionEvent {
  * Used to track when a user submits a form
  *
  * @param event - Contains the properties for the Form Submission event
- * @return PayloadBuilder to be sent to {@link Core.track()}
+ * @returns PayloadBuilder to be sent to {@link @snowplow/tracker-core#TrackerCore.track}
  */
 export function buildFormSubmission(event: FormSubmissionEvent): PayloadBuilder {
   const { formId, formClasses, elements } = event;
@@ -1259,7 +1259,7 @@ export interface SiteSearchEvent {
  * Used when a user performs a search action on a page
  *
  * @param event - Contains the properties for the Site Search event
- * @return PayloadBuilder to be sent to {@link Core.track()}
+ * @returns PayloadBuilder to be sent to {@link @snowplow/tracker-core#TrackerCore.track}
  */
 export function buildSiteSearch(event: SiteSearchEvent): PayloadBuilder {
   const { terms, filters, totalResults, pageResults } = event;
@@ -1293,7 +1293,7 @@ export interface ConsentWithdrawnEvent {
  * Used for tracking when a user withdraws their consent
  *
  * @param event - Contains the properties for the Consent Withdrawn event
- * @return An object containing the PayloadBuilder to be sent to {@link Core.track()} and a 'consent_document' context
+ * @returns An object containing the PayloadBuilder to be sent to {@link @snowplow/tracker-core#TrackerCore.track} and a 'consent_document' context
  */
 export function buildConsentWithdrawn(event: ConsentWithdrawnEvent) {
   const { all, id, version, name, description } = event;
@@ -1337,7 +1337,7 @@ export interface ConsentGrantedEvent {
  * Used for tracking when a user grants their consent
  *
  * @param event - Contains the properties for the Consent Granted event
- * @return An object containing the PayloadBuilder to be sent to {@link Core.track()} and a 'consent_document' context
+ * @returns An object containing the PayloadBuilder to be sent to {@link @snowplow/tracker-core#TrackerCore.track} and a 'consent_document' context
  */
 export function buildConsentGranted(event: ConsentGrantedEvent) {
   const { expiry, id, version, name, description } = event;
@@ -1364,7 +1364,7 @@ export function buildConsentGranted(event: ConsentGrantedEvent) {
  *
  * @param event - JSON object to clean
  * @param exemptFields - Set of fields which should not be removed even if empty
- * @return A cleaned copy of eventJson
+ * @returns A cleaned copy of eventJson
  */
 function removeEmptyProperties(
   event: Record<string, unknown>,

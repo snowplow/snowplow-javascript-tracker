@@ -42,7 +42,7 @@ declare global {
 /**
  * Adds Performance Timing context to events
  *
- * @remark
+ * @remarks
  * May not be fully populated when inital Page View fires
  * Often a good idea to take the latest performance timing context
  * for a given page view id when analysing in the warehouse
@@ -51,7 +51,7 @@ export function PerformanceTimingPlugin(): BrowserPlugin {
   /**
    * Creates a context from the window.performance.timing object
    *
-   * @return object PerformanceTiming context
+   * @returns object PerformanceTiming context
    */
   function getPerformanceTimingContext() {
     var windowAlias = window,

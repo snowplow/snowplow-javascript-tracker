@@ -17,7 +17,7 @@ interface BrowserTracker
 |  Property | Type | Description |
 |  --- | --- | --- |
 |  [addPlugin](./browser-tracker.browsertracker.addplugin.md) | (configuration: BrowserPluginConfiguration) =&gt; void | Add a plugin into the plugin collection after Tracker has already been initialised |
-|  [clearUserData](./browser-tracker.browsertracker.clearuserdata.md) | () =&gt; void | Clears all cookies and local storage containing user and session identifiers |
+|  [clearUserData](./browser-tracker.browsertracker.clearuserdata.md) | (configuration?: ClearUserDataConfiguration) =&gt; void | Clears all cookies and local storage containing user and session identifiers |
 |  [core](./browser-tracker.browsertracker.core.md) | TrackerCore | The instance of the core library which this tracker has initialised |
 |  [crossDomainLinker](./browser-tracker.browsertracker.crossdomainlinker.md) | (crossDomainLinkerCriterion: (elt: HTMLAnchorElement \| HTMLAreaElement) =&gt; boolean) =&gt; void | Enable querystring decoration for links pasing a filter |
 |  [disableAnonymousTracking](./browser-tracker.browsertracker.disableanonymoustracking.md) | (configuration?: DisableAnonymousTrackingConfiguration) =&gt; void | Disables anonymous tracking if active (ie. tracker initialized with <code>anonymousTracking</code>) For stateStorageStrategy override, uses supplied value first, falls back to one defined in initial config, otherwise uses cookieAndLocalStorage. |

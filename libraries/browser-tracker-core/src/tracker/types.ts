@@ -51,12 +51,14 @@ export type EventMethod = 'post' | 'get' | 'beacon';
 /**
  * The configuration object for initialising the tracker
  * @example
+ * ```
  * newTracker('sp1', 'collector.my-website.com', {
  *  appId: 'my-app-id',
  *  platform: 'web',
  *  plugins: [ PerformanceTimingPlugin(), AdTrackingPlugin() ],
  *  stateStorageStrategy: 'cookieAndLocalStorage'
  * });
+ * ```
  */
 export type TrackerConfiguration = {
   /**
@@ -142,7 +144,7 @@ export type TrackerConfiguration = {
   /**
    * Whether the tracker should attempt to figure out what the root
    * domain is to store cookies on
-   * @remark
+   *
    * This sets cookies to try to determine the root domain, and some cookies may
    * fail to save. This is expected behavior.
    * @defaultValue false
@@ -156,7 +158,7 @@ export type TrackerConfiguration = {
   stateStorageStrategy?: StateStorageStrategy;
   /**
    * The maximum amount of events that will be buffered in local storage
-   * @remark
+   *
    * This is useful to ensure the Tracker doesn't fill the 5MB or 10MB available to
    * each website should the collector be unavailable due to lost connectivity.
    * Will drop events once the limit is hit
@@ -164,8 +166,7 @@ export type TrackerConfiguration = {
    */
   maxLocalStorageQueueSize?: number;
   /**
-   * Whether to reset the Activity Tracking counters on a new page view
-   * @remarks
+   * Whether to reset the Activity Tracking counters on a new page view.
    * Disabling this leads to legacy behavior due to a "bug".
    * Recommended to leave enabled, particularly on SPAs.
    * @defaultValue true
@@ -183,7 +184,7 @@ export type TrackerConfiguration = {
   anonymousTracking?: AnonymousTrackingOptions;
   /**
    * Use to configure built in contexts
-   * @defaultValue { webPage: true }
+   * @defaultValue `{ webPage: true }`
    */
   contexts?: { webPage: boolean };
   /**
