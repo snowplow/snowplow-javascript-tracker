@@ -43,7 +43,7 @@ let geolocation: SelfDescribingJson<Geolocation>,
  * The geolocation will be cached and will be only be requested once
  * @param enableAtLoad - Should the geolocation context be populated immediately
  *
- * @remark
+ * @remarks
  * Enabling this will produce a popup for the user asking for permission to read their location information
  */
 export function GeolocationPlugin(enableAtLoad: boolean = false): BrowserPlugin {

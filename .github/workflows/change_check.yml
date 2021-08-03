@@ -32,3 +32,17 @@ jobs:
 
       - name: Verify change files
         run: node common/scripts/install-run-rush.js change --verify
+
+      - name: Rush Build
+        run: node common/scripts/install-run-rush.js rebuild --verbose
+
+      - name: Install API Extractor
+        run: npm install -g @microsoft/api-extractor@^7.18.4
+
+      - name: Check for API changes to @snowplow/browser-tracker
+        working-directory: ./trackers/browser-tracker
+        run: api-extractor run
+
+      - name: Check for API changes to @snowplow/node-tracker
+        working-directory: ./trackers/node-tracker
+        run: api-extractor run

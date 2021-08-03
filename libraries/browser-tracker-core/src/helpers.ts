@@ -128,7 +128,7 @@ export function fixupDomain(domain: string) {
  * by a "refer(r)er" parameter in the querystring.
  *
  * @param string - oldLocation Optional.
- * @return string The referrer
+ * @returns string The referrer
  */
 export function getReferrer(oldLocation?: string) {
   let windowAlias = window,
@@ -235,7 +235,7 @@ export function decorateQuerystring(url: string, name: string, value: string) {
  * Attempt to get a value from localStorage
  *
  * @param string - key
- * @return string The value obtained from localStorage, or
+ * @returns string The value obtained from localStorage, or
  *                undefined if localStorage is inaccessible
  */
 export function attemptGetLocalStorage(key: string) {
@@ -260,7 +260,7 @@ export function attemptGetLocalStorage(key: string) {
  * @param string - key
  * @param string - value
  * @param number - ttl Time to live in seconds, defaults to 2 years from Date.now()
- * @return boolean Whether the operation succeeded
+ * @returns boolean Whether the operation succeeded
  */
 export function attemptWriteLocalStorage(key: string, value: string, ttl = 63072000) {
   try {
@@ -278,7 +278,7 @@ export function attemptWriteLocalStorage(key: string, value: string, ttl = 63072
  * Attempt to delete a value from localStorage
  *
  * @param string - key
- * @return boolean Whether the operation succeeded
+ * @returns boolean Whether the operation succeeded
  */
 export function attemptDeleteLocalStorage(key: string) {
   try {
@@ -295,7 +295,7 @@ export function attemptDeleteLocalStorage(key: string) {
  * Attempt to get a value from sessionStorage
  *
  * @param string - key
- * @return string The value obtained from sessionStorage, or
+ * @returns string The value obtained from sessionStorage, or
  *                undefined if sessionStorage is inaccessible
  */
 export function attemptGetSessionStorage(key: string) {
@@ -311,7 +311,7 @@ export function attemptGetSessionStorage(key: string) {
  *
  * @param string - key
  * @param string - value
- * @return boolean Whether the operation succeeded
+ * @returns boolean Whether the operation succeeded
  */
 export function attemptWriteSessionStorage(key: string, value: string) {
   try {
@@ -358,7 +358,7 @@ export function findRootDomain(sameSite: string, secure: boolean) {
  *
  * @param val - The value to check for
  * @param array - The array to check within
- * @return boolean Whether it exists
+ * @returns boolean Whether it exists
  */
 export function isValueInArray<T>(val: T, array: T[]) {
   for (var i = 0; i < array.length; i++) {
@@ -383,7 +383,7 @@ export function deleteCookie(cookieName: string, domainName?: string, sameSite?:
  * Fetches the name of all cookies beginning with a certain prefix
  *
  * @param cookiePrefix - The prefix to check for
- * @return array The cookies that begin with the prefix
+ * @returns array The cookies that begin with the prefix
  */
 export function getCookiesWithPrefix(cookiePrefix: string) {
   var cookies = document.cookie.split('; ');
@@ -407,7 +407,7 @@ export function getCookiesWithPrefix(cookiePrefix: string) {
  * @param domain - The cookies domain
  * @param samesite - The cookies samesite attribute
  * @param secure - Boolean to specify if cookie should be secure
- * @return string The cookies value
+ * @returns string The cookies value
  */
 export function cookie(
   name: string,
@@ -438,7 +438,7 @@ export function cookie(
  * integer or undefined.
  *
  * @param obj - The object to parse
- * @return the result of the parse operation
+ * @returns the result of the parse operation
  */
 export function parseAndValidateInt(obj: unknown) {
   var result = parseInt(obj as string);
@@ -450,7 +450,7 @@ export function parseAndValidateInt(obj: unknown) {
  * number or undefined.
  *
  * @param obj - The object to parse
- * @return the result of the parse operation
+ * @returns the result of the parse operation
  */
 export function parseAndValidateFloat(obj: unknown) {
   var result = parseFloat(obj as string);

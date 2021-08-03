@@ -219,7 +219,7 @@ export function pluginContexts(plugins: Array<CorePlugin>): PluginContexts {
    * Add common contexts to every event
    *
    * @param array - additionalContexts List of user-defined contexts
-   * @return userContexts combined with commonContexts
+   * @returns userContexts combined with commonContexts
    */
   return {
     addPluginContexts: (additionalContexts?: SelfDescribingJson[] | null): SelfDescribingJson[] => {

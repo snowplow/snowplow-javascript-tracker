@@ -106,7 +106,7 @@ export function addItem(
 /**
  * Commit the ecommerce transaction
  *
- * @remark
+ * @remarks
  * This call will send the data specified with addTrans, ddItem methods to the tracking server.
  */
 export function trackTrans(trackers: Array<string> = Object.keys(_trackers)) {

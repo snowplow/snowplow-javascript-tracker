@@ -11,7 +11,7 @@
 |  [addGlobalContexts(contexts, trackers)](./browser-tracker.addglobalcontexts.md) | All provided contexts will be sent with every event |
 |  [addPlugin(configuration, trackers)](./browser-tracker.addplugin.md) | Add a plugin into the plugin collection after trackers have already been initialised |
 |  [clearGlobalContexts(trackers)](./browser-tracker.clearglobalcontexts.md) | Clear all global contexts that are sent with events |
-|  [clearUserData(trackers)](./browser-tracker.clearuserdata.md) | Clears all cookies and local storage containing user and session identifiers |
+|  [clearUserData(configuration, trackers)](./browser-tracker.clearuserdata.md) | Clears all cookies and local storage containing user and session identifiers |
 |  [crossDomainLinker(crossDomainLinkerCriterion, trackers)](./browser-tracker.crossdomainlinker.md) | Enable querystring decoration for links pasing a filter |
 |  [disableAnonymousTracking(configuration, trackers)](./browser-tracker.disableanonymoustracking.md) | Disables anonymous tracking if active (ie. tracker initialized with <code>anonymousTracking</code>) For stateStorageStrategy override, uses supplied value first, falls back to one defined in initial config, otherwise uses cookieAndLocalStorage. |
 |  [discardBrace(enable, trackers)](./browser-tracker.discardbrace.md) | Strip braces from URL |
@@ -51,11 +51,14 @@
 |  [BrowserPlugin](./browser-tracker.browserplugin.md) | Interface which defines Core Plugins |
 |  [BrowserPluginConfiguration](./browser-tracker.browserpluginconfiguration.md) | The configuration of the plugin to add |
 |  [BrowserTracker](./browser-tracker.browsertracker.md) | The Browser Tracker |
+|  [ClearUserDataConfiguration](./browser-tracker.clearuserdataconfiguration.md) | The configuration that can be changed when enabling anonymous tracking |
 |  [CommonEventProperties](./browser-tracker.commoneventproperties.md) | Additional data points to set when tracking an event |
+|  [ContextEvent](./browser-tracker.contextevent.md) | Argument for [ContextGenerator](./browser-tracker.contextgenerator.md) and [ContextFilter](./browser-tracker.contextfilter.md) callback |
 |  [DisableAnonymousTrackingConfiguration](./browser-tracker.disableanonymoustrackingconfiguration.md) | The configuration that can be changed when disabling anonymous tracking |
 |  [EnableAnonymousTrackingConfiguration](./browser-tracker.enableanonymoustrackingconfiguration.md) | The configuration that can be changed when enabling anonymous tracking |
 |  [FlushBufferConfiguration](./browser-tracker.flushbufferconfiguration.md) | The configuration that can be changed when flushing the buffer |
 |  [PageViewEvent](./browser-tracker.pageviewevent.md) | A Page View event Used for tracking a page view |
+|  [RuleSet](./browser-tracker.ruleset.md) | A ruleset has accept or reject properties that contain rules for matching Iglu schema URIs |
 |  [SelfDescribingEvent](./browser-tracker.selfdescribingevent.md) | A Self Describing Event A custom event type, allowing for an event to be tracked using your own custom schema and a data object which conforms to the supplied schema |
 |  [StructuredEvent](./browser-tracker.structuredevent.md) | A Structured Event A classic style of event tracking, allows for easier movement between analytics systems. A loosely typed event, creating a Self Describing event is preferred, but useful for interoperability. |
 
@@ -69,8 +72,19 @@
 
 |  Type Alias | Description |
 |  --- | --- |
+|  [ActivityCallback](./browser-tracker.activitycallback.md) | The callback for enableActivityTrackingCallback |
+|  [ActivityCallbackData](./browser-tracker.activitycallbackdata.md) | The data which is passed to the Activity Tracking callback |
+|  [AnonymousTrackingOptions](./browser-tracker.anonymoustrackingoptions.md) |  |
 |  [ConditionalContextProvider](./browser-tracker.conditionalcontextprovider.md) | Conditional context providers are two element arrays used to decide when to attach contexts, where: - the first element is some conditional criterion - the second element is any number of context primitives |
+|  [ContextFilter](./browser-tracker.contextfilter.md) | A context filter is a user-supplied callback that is evaluated for each event to determine if the context associated with the filter should be attached to the event |
+|  [ContextGenerator](./browser-tracker.contextgenerator.md) | A context generator is a user-supplied callback that is evaluated for each event to allow an additional context to be dynamically attached to the event |
 |  [ContextPrimitive](./browser-tracker.contextprimitive.md) | A context primitive is either a self-describing JSON or a context generator |
+|  [CookieSameSite](./browser-tracker.cookiesamesite.md) |  |
+|  [EventMethod](./browser-tracker.eventmethod.md) |  |
+|  [FilterProvider](./browser-tracker.filterprovider.md) | A filter provider is a tuple that has two parts: a context filter and the context primitive(s) If the context filter evaluates to true, the tracker will attach the context primitive(s) |
+|  [Platform](./browser-tracker.platform.md) |  |
+|  [RuleSetProvider](./browser-tracker.rulesetprovider.md) | A ruleset provider is aa tuple that has two parts: a ruleset and the context primitive(s) If the ruleset allows the current event schema URI, the tracker will attach the context primitive(s) |
 |  [SelfDescribingJson](./browser-tracker.selfdescribingjson.md) | export interface for any Self-Describing JSON such as context or Self Describing events |
+|  [StateStorageStrategy](./browser-tracker.statestoragestrategy.md) |  |
 |  [TrackerConfiguration](./browser-tracker.trackerconfiguration.md) | The configuration object for initialising the tracker |
 

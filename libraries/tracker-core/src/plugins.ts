@@ -39,7 +39,7 @@ export interface CorePlugin {
   /**
    * Called when the plugin is initialised during the trackerCore construction
    *
-   * @remark
+   * @remarks
    * Use to capture the specific core instance for each instance of a core plugin
    */
   activateCorePlugin?: (core: TrackerCore) => void;

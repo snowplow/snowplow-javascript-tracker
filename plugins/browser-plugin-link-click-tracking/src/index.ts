@@ -93,7 +93,7 @@ export interface LinkClickTrackingConfiguration {
 /**
  * Enable link click tracking
  *
- * @remark
+ * @remarks
  * The default behaviour is to use actual click events. However, some browsers
  * (e.g., Firefox, Opera, and Konqueror) don't generate click events for the middle mouse button.
  *

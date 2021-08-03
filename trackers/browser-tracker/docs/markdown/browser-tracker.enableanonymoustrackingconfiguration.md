@@ -17,4 +17,5 @@ interface EnableAnonymousTrackingConfiguration
 |  Property | Type | Description |
 |  --- | --- | --- |
 |  [options?](./browser-tracker.enableanonymoustrackingconfiguration.options.md) | AnonymousTrackingOptions | <i>(Optional)</i> |
+|  [stateStorageStrategy?](./browser-tracker.enableanonymoustrackingconfiguration.statestoragestrategy.md) | StateStorageStrategy | <i>(Optional)</i> |
 

@@ -183,7 +183,7 @@ export function OutQueueManager(
    * Taken from http://stackoverflow.com/questions/2848462/count-bytes-in-textarea-using-javascript/
    *
    * @param string - s
-   * @return number Length of s in bytes when UTF-8 encoded
+   * @returns number Length of s in bytes when UTF-8 encoded
    */
   function getUTF8Length(s: string) {
     let len = 0;
@@ -391,7 +391,7 @@ export function OutQueueManager(
    * Open an XMLHttpRequest for a given endpoint with the correct credentials and header
    *
    * @param string - url The destination URL
-   * @return object The XMLHttpRequest
+   * @returns object The XMLHttpRequest
    */
   function initializeXMLHttpRequest(url: string, post: boolean, sync: boolean) {
     const xhr = new XMLHttpRequest();
@@ -412,7 +412,7 @@ export function OutQueueManager(
    * Enclose an array of events in a self-describing payload_data JSON string
    *
    * @param array - events Batch of events
-   * @return string payload_data self-describing JSON
+   * @returns string payload_data self-describing JSON
    */
   function encloseInPayloadDataEnvelope(events: Array<Record<string, unknown>>) {
     return JSON.stringify({

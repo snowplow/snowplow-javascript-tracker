@@ -41,5 +41,14 @@ type TrackerConfiguration = {
 
 ## Example
 
-newTracker('sp1', 'collector.my-website.com', { appId: 'my-app-id', platform: 'web', plugins: \[ PerformanceTimingPlugin(), AdTrackingPlugin() \], stateStorageStrategy: 'cookieAndLocalStorage' }<!-- -->);
+
+```
+newTracker('sp1', 'collector.my-website.com', {
+ appId: 'my-app-id',
+ platform: 'web',
+ plugins: [ PerformanceTimingPlugin(), AdTrackingPlugin() ],
+ stateStorageStrategy: 'cookieAndLocalStorage'
+});
+
+```
 

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/node-tracker",
+      "comment": "Automate api-extractor on release (#972)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/node-tracker"
+}
