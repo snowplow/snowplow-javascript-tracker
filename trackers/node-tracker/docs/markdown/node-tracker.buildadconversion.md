@@ -6,8 +6,6 @@
 
 Build a Ad Conversion Event Used to track an advertisement click
 
- If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field.
-
 <b>Signature:</b>
 
 ```typescript
@@ -18,9 +16,15 @@ declare function buildAdConversion(event: AdConversionEvent): PayloadBuilder;
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  event | AdConversionEvent | Contains the properties for the Ad Conversion event  PayloadBuilder to be sent to  |
+|  event | AdConversionEvent | Contains the properties for the Ad Conversion event |
 
 <b>Returns:</b>
 
 PayloadBuilder
+
+PayloadBuilder to be sent to 
+
+## Remarks
+
+If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field.
 

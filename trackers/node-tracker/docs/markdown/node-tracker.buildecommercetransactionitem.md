@@ -16,9 +16,11 @@ declare function buildEcommerceTransactionItem(event: EcommerceTransactionItemEv
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  event | EcommerceTransactionItemEvent | Contains the properties for the Ecommerce Transaction Item event  PayloadBuilder to be sent to  |
+|  event | EcommerceTransactionItemEvent | Contains the properties for the Ecommerce Transaction Item event |
 
 <b>Returns:</b>
 
 PayloadBuilder
+
+PayloadBuilder to be sent to 
 

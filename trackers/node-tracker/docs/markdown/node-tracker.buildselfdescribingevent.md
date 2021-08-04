@@ -16,9 +16,11 @@ declare function buildSelfDescribingEvent(event: SelfDescribingEvent): PayloadBu
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  event | SelfDescribingEvent | Contains the properties and schema location for the event  PayloadBuilder to be sent to  |
+|  event | SelfDescribingEvent | Contains the properties and schema location for the event |
 
 <b>Returns:</b>
 
 PayloadBuilder
+
+PayloadBuilder to be sent to 
 

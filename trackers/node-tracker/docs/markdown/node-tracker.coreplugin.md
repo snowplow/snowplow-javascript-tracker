@@ -16,7 +16,7 @@ interface CorePlugin
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [activateCorePlugin?](./node-tracker.coreplugin.activatecoreplugin.md) | (core: TrackerCore) =&gt; void | <i>(Optional)</i> Called when the plugin is initialised during the trackerCore construction Use to capture the specific core instance for each instance of a core plugin |
+|  [activateCorePlugin?](./node-tracker.coreplugin.activatecoreplugin.md) | (core: TrackerCore) =&gt; void | <i>(Optional)</i> Called when the plugin is initialised during the trackerCore construction |
 |  [afterTrack?](./node-tracker.coreplugin.aftertrack.md) | (payload: Payload) =&gt; void | <i>(Optional)</i> Called just after the trackerCore callback fires |
 |  [beforeTrack?](./node-tracker.coreplugin.beforetrack.md) | (payloadBuilder: PayloadBuilder) =&gt; void | <i>(Optional)</i> Called just before the trackerCore callback fires |
 |  [contexts?](./node-tracker.coreplugin.contexts.md) | () =&gt; SelfDescribingJson\[\] | <i>(Optional)</i> Called when constructing the context for each event Useful for adding additional context to events |

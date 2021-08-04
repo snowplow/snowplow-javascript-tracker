@@ -9,5 +9,5 @@ The URL of the referring page
 <b>Signature:</b>
 
 ```typescript
-referrer: string | null;
+referrer?: string | null;
 ```

@@ -22,9 +22,11 @@ declare function buildConsentGranted(event: ConsentGrantedEvent): {
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  event | ConsentGrantedEvent | Contains the properties for the Consent Granted event  An object containing the PayloadBuilder to be sent to  and a 'consent\_document' context |
+|  event | ConsentGrantedEvent | Contains the properties for the Consent Granted event |
 
 <b>Returns:</b>
 
 { event: PayloadBuilder; context: { schema: string; data: Record&lt;string, unknown&gt;; }\[\]; }
+
+An object containing the PayloadBuilder to be sent to  and a 'consent\_document' context
 

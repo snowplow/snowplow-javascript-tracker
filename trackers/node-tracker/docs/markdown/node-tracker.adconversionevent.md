@@ -6,13 +6,15 @@
 
 An Ad Conversion Event Used to track an advertisement click
 
- If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field.
-
 <b>Signature:</b>
 
 ```typescript
 interface AdConversionEvent 
 ```
+
+## Remarks
+
+If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field.
 
 ## Properties
 

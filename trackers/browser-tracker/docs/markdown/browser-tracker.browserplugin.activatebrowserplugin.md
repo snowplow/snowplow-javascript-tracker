@@ -6,10 +6,13 @@
 
 Called when the plugin is initialised during the Tracker construction
 
-Use to capture the specific Tracker instance for each instance of a Browser Plugin
-
 <b>Signature:</b>
 
 ```typescript
 activateBrowserPlugin?: (tracker: BrowserTracker) => void;
 ```
+
+## Remarks
+
+Use to capture the specific Tracker instance for each instance of a Browser Plugin
+

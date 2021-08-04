@@ -16,9 +16,11 @@ declare function buildAddToCart(event: AddToCartEvent): PayloadBuilder;
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  event | AddToCartEvent | Contains the properties for the Add To Cart event  PayloadBuilder to be sent to  |
+|  event | AddToCartEvent | Contains the properties for the Add To Cart event |
 
 <b>Returns:</b>
 
 PayloadBuilder
+
+PayloadBuilder to be sent to 
 

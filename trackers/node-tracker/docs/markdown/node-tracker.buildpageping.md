@@ -16,9 +16,11 @@ declare function buildPagePing(event: PagePingEvent): PayloadBuilder;
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  event | PagePingEvent | Contains the properties for the Page Ping event  PayloadBuilder to be sent to  |
+|  event | PagePingEvent | Contains the properties for the Page Ping event |
 
 <b>Returns:</b>
 
 PayloadBuilder
+
+PayloadBuilder to be sent to 
 

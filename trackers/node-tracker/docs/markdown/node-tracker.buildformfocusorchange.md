@@ -16,9 +16,11 @@ declare function buildFormFocusOrChange(event: FormFocusOrChangeEvent): PayloadB
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  event | FormFocusOrChangeEvent | Contains the properties for the Form Focus or Change Form event  PayloadBuilder to be sent to  |
+|  event | FormFocusOrChangeEvent | Contains the properties for the Form Focus or Change Form event |
 
 <b>Returns:</b>
 
 PayloadBuilder
+
+PayloadBuilder to be sent to 
 

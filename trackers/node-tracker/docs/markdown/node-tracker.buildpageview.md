@@ -16,9 +16,11 @@ declare function buildPageView(event: PageViewEvent): PayloadBuilder;
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  event | PageViewEvent | Contains the properties for the Page View event  PayloadBuilder to be sent to  |
+|  event | PageViewEvent | Contains the properties for the Page View event |
 
 <b>Returns:</b>
 
 PayloadBuilder
+
+PayloadBuilder to be sent to 
 

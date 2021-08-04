@@ -4,7 +4,7 @@
 
 ## buildSocialInteraction() function
 
-Build a Social Interaction Event<!-- -->\\ Social tracking will be used to track the way users interact with Facebook, Twitter and Google + widgets e.g. to capture “like this” or “tweet this” events.
+Build a Social Interaction Event Social tracking will be used to track the way users interact with Facebook, Twitter and Google + widgets e.g. to capture “like this” or “tweet this” events.
 
 <b>Signature:</b>
 
@@ -16,9 +16,11 @@ declare function buildSocialInteraction(event: SocialInteractionEvent): PayloadB
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  event | SocialInteractionEvent | Contains the properties for the Social Interaction event  PayloadBuilder to be sent to  |
+|  event | SocialInteractionEvent | Contains the properties for the Social Interaction event |
 
 <b>Returns:</b>
 
 PayloadBuilder
+
+PayloadBuilder to be sent to 
 

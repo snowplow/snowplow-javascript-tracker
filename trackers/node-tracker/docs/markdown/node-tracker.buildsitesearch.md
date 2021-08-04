@@ -16,9 +16,11 @@ declare function buildSiteSearch(event: SiteSearchEvent): PayloadBuilder;
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  event | SiteSearchEvent | Contains the properties for the Site Search event  PayloadBuilder to be sent to  |
+|  event | SiteSearchEvent | Contains the properties for the Site Search event |
 
 <b>Returns:</b>
 
 PayloadBuilder
+
+PayloadBuilder to be sent to 
 

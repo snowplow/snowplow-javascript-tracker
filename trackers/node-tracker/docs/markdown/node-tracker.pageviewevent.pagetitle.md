@@ -9,5 +9,5 @@ The current page title in the users browser
 <b>Signature:</b>
 
 ```typescript
-pageTitle: string | null;
+pageTitle?: string | null;
 ```

@@ -16,9 +16,11 @@ declare function buildRemoveFromCart(event: RemoveFromCartEvent): PayloadBuilder
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  event | RemoveFromCartEvent | Contains the properties for the Remove From Cart event  PayloadBuilder to be sent to  |
+|  event | RemoveFromCartEvent | Contains the properties for the Remove From Cart event |
 
 <b>Returns:</b>
 
 PayloadBuilder
+
+PayloadBuilder to be sent to 
 

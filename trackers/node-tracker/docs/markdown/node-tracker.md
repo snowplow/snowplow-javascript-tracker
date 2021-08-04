@@ -15,10 +15,10 @@
 
 |  Function | Description |
 |  --- | --- |
-|  [buildAdClick(event)](./node-tracker.buildadclick.md) | Build a Ad Click Event Used to track an advertisement click If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field. |
-|  [buildAdConversion(event)](./node-tracker.buildadconversion.md) | Build a Ad Conversion Event Used to track an advertisement click If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field. |
+|  [buildAdClick(event)](./node-tracker.buildadclick.md) | Build a Ad Click Event Used to track an advertisement click |
+|  [buildAdConversion(event)](./node-tracker.buildadconversion.md) | Build a Ad Conversion Event Used to track an advertisement click |
 |  [buildAddToCart(event)](./node-tracker.buildaddtocart.md) | Build a Add To Cart Event For tracking users adding items from a cart on an ecommerce site. |
-|  [buildAdImpression(event)](./node-tracker.buildadimpression.md) | Build a Ad Impression Event Used to track an advertisement impression If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field. |
+|  [buildAdImpression(event)](./node-tracker.buildadimpression.md) | Build a Ad Impression Event Used to track an advertisement impression |
 |  [buildConsentGranted(event)](./node-tracker.buildconsentgranted.md) | Build a Consent Granted Event Used for tracking when a user grants their consent |
 |  [buildConsentWithdrawn(event)](./node-tracker.buildconsentwithdrawn.md) | Build a Consent Withdrawn Event Used for tracking when a user withdraws their consent |
 |  [buildEcommerceTransaction(event)](./node-tracker.buildecommercetransaction.md) | Build an Ecommerce Transaction Event Allows for tracking common ecommerce events, this event is usually used when a consumer completes a transaction. |
@@ -32,7 +32,7 @@
 |  [buildScreenView(event)](./node-tracker.buildscreenview.md) | Build a Scren View Event Similar to a Page View but less focused on typical web properties Often used for mobile applications as the user is presented with new views as they performance navigation events |
 |  [buildSelfDescribingEvent(event)](./node-tracker.buildselfdescribingevent.md) | Build a self-describing event A custom event type, allowing for an event to be tracked using your own custom schema and a data object which conforms to the supplied schema |
 |  [buildSiteSearch(event)](./node-tracker.buildsitesearch.md) | Build a Site Search Event Used when a user performs a search action on a page |
-|  [buildSocialInteraction(event)](./node-tracker.buildsocialinteraction.md) | Build a Social Interaction Event<!-- -->\\ Social tracking will be used to track the way users interact with Facebook, Twitter and Google + widgets e.g. to capture “like this” or “tweet this” events. |
+|  [buildSocialInteraction(event)](./node-tracker.buildsocialinteraction.md) | Build a Social Interaction Event Social tracking will be used to track the way users interact with Facebook, Twitter and Google + widgets e.g. to capture “like this” or “tweet this” events. |
 |  [buildStructEvent(event)](./node-tracker.buildstructevent.md) | Build a Structured Event A classic style of event tracking, allows for easier movement between analytics systems. A loosely typed event, creating a Self Describing event is preferred, but useful for interoperability. |
 |  [gotEmitter(endpoint, protocol, port, method, bufferSize, retry, cookieJar, callback, agents)](./node-tracker.gotemitter.md) | Create an emitter object, which uses the <code>got</code> library, that will send events to a collector |
 |  [tracker(emitters, namespace, appId, encodeBase64)](./node-tracker.tracker.md) | Snowplow Node.js Tracker |
@@ -41,10 +41,10 @@
 
 |  Interface | Description |
 |  --- | --- |
-|  [AdClickEvent](./node-tracker.adclickevent.md) | An Ad Click Event Used to track an advertisement click If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field. |
-|  [AdConversionEvent](./node-tracker.adconversionevent.md) | An Ad Conversion Event Used to track an advertisement click If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field. |
+|  [AdClickEvent](./node-tracker.adclickevent.md) | An Ad Click Event Used to track an advertisement click |
+|  [AdConversionEvent](./node-tracker.adconversionevent.md) | An Ad Conversion Event Used to track an advertisement click |
 |  [AddToCartEvent](./node-tracker.addtocartevent.md) | An Add To Cart Event For tracking users adding items from a cart on an ecommerce site. |
-|  [AdImpressionEvent](./node-tracker.adimpressionevent.md) | An Ad Impression Event Used to track an advertisement impression If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field. |
+|  [AdImpressionEvent](./node-tracker.adimpressionevent.md) | An Ad Impression Event Used to track an advertisement impression |
 |  [ConsentGrantedEvent](./node-tracker.consentgrantedevent.md) | A Consent Granted Event Used for tracking when a user grants their consent |
 |  [ConsentWithdrawnEvent](./node-tracker.consentwithdrawnevent.md) | A Consent Withdrawn Event Used for tracking when a user withdraws their consent |
 |  [ContextEvent](./node-tracker.contextevent.md) | Argument for [ContextGenerator](./node-tracker.contextgenerator.md) and [ContextFilter](./node-tracker.contextfilter.md) callback |

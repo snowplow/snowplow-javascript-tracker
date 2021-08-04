@@ -6,8 +6,6 @@
 
 Build a Ad Impression Event Used to track an advertisement impression
 
- If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field.
-
 <b>Signature:</b>
 
 ```typescript
@@ -18,9 +16,15 @@ declare function buildAdImpression(event: AdImpressionEvent): PayloadBuilder;
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  event | AdImpressionEvent | Contains the properties for the Ad Impression event  PayloadBuilder to be sent to  |
+|  event | AdImpressionEvent | Contains the properties for the Ad Impression event |
 
 <b>Returns:</b>
 
 PayloadBuilder
+
+PayloadBuilder to be sent to 
+
+## Remarks
+
+If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field.
 

@@ -22,9 +22,11 @@ declare function buildConsentWithdrawn(event: ConsentWithdrawnEvent): {
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  event | ConsentWithdrawnEvent | Contains the properties for the Consent Withdrawn event  An object containing the PayloadBuilder to be sent to  and a 'consent\_document' context |
+|  event | ConsentWithdrawnEvent | Contains the properties for the Consent Withdrawn event |
 
 <b>Returns:</b>
 
 { event: PayloadBuilder; context: { schema: string; data: Record&lt;string, unknown&gt;; }\[\]; }
+
+An object containing the PayloadBuilder to be sent to  and a 'consent\_document' context
 

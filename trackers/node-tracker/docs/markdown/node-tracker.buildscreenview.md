@@ -16,9 +16,11 @@ declare function buildScreenView(event: ScreenViewEvent): PayloadBuilder;
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  event | ScreenViewEvent | Contains the properties for the Screen View event. One or more properties must be included.  PayloadBuilder to be sent to  |
+|  event | ScreenViewEvent | Contains the properties for the Screen View event. One or more properties must be included. |
 
 <b>Returns:</b>
 
 PayloadBuilder
+
+PayloadBuilder to be sent to 
 

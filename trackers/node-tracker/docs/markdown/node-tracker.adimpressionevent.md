@@ -6,13 +6,15 @@
 
 An Ad Impression Event Used to track an advertisement impression
 
- If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field.
-
 <b>Signature:</b>
 
 ```typescript
 interface AdImpressionEvent 
 ```
+
+## Remarks
+
+If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field.
 
 ## Properties
 

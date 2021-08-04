@@ -9,5 +9,5 @@ The current URL visible in the users browser
 <b>Signature:</b>
 
 ```typescript
-pageUrl: string | null;
+pageUrl?: string | null;
 ```

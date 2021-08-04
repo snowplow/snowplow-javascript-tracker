@@ -16,9 +16,11 @@ declare function buildLinkClick(event: LinkClickEvent): PayloadBuilder;
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  event | LinkClickEvent | Contains the properties for the Link Click event  PayloadBuilder to be sent to  |
+|  event | LinkClickEvent | Contains the properties for the Link Click event |
 
 <b>Returns:</b>
 
 PayloadBuilder
+
+PayloadBuilder to be sent to 
 

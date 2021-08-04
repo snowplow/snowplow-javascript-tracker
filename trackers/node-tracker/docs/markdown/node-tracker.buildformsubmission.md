@@ -16,9 +16,11 @@ declare function buildFormSubmission(event: FormSubmissionEvent): PayloadBuilder
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  event | FormSubmissionEvent | Contains the properties for the Form Submission event  PayloadBuilder to be sent to  |
+|  event | FormSubmissionEvent | Contains the properties for the Form Submission event |
 
 <b>Returns:</b>
 
 PayloadBuilder
+
+PayloadBuilder to be sent to 
 

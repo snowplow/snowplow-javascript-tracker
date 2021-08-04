@@ -6,8 +6,6 @@
 
 Build a Ad Click Event Used to track an advertisement click
 
- If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field.
-
 <b>Signature:</b>
 
 ```typescript
@@ -18,9 +16,15 @@ declare function buildAdClick(event: AdClickEvent): PayloadBuilder;
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  event | AdClickEvent | Contains the properties for the Ad Click event  PayloadBuilder to be sent to  |
+|  event | AdClickEvent | Contains the properties for the Ad Click event |
 
 <b>Returns:</b>
 
 PayloadBuilder
+
+PayloadBuilder to be sent to 
+
+## Remarks
+
+If you provide the cost field, you must also provide one of 'cpa', 'cpc', and 'cpm' for the costModel field.
 

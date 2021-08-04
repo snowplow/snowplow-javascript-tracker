@@ -6,10 +6,13 @@
 
 Called when the plugin is initialised during the trackerCore construction
 
- Use to capture the specific core instance for each instance of a core plugin
-
 <b>Signature:</b>
 
 ```typescript
 activateCorePlugin?: (core: TrackerCore) => void;
 ```
+
+## Remarks
+
+Use to capture the specific core instance for each instance of a core plugin
+

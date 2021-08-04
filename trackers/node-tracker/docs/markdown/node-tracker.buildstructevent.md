@@ -16,9 +16,11 @@ declare function buildStructEvent(event: StructuredEvent): PayloadBuilder;
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  event | StructuredEvent | Contains the properties for the Structured event  PayloadBuilder to be sent to  |
+|  event | StructuredEvent | Contains the properties for the Structured event |
 
 <b>Returns:</b>
 
 PayloadBuilder
+
+PayloadBuilder to be sent to 
 

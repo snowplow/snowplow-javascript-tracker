@@ -16,7 +16,7 @@ interface PageViewEvent
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [pageTitle](./node-tracker.pageviewevent.pagetitle.md) | string \| null | The current page title in the users browser |
-|  [pageUrl](./node-tracker.pageviewevent.pageurl.md) | string \| null | The current URL visible in the users browser |
-|  [referrer](./node-tracker.pageviewevent.referrer.md) | string \| null | The URL of the referring page |
+|  [pageTitle?](./node-tracker.pageviewevent.pagetitle.md) | string \| null | <i>(Optional)</i> The current page title in the users browser |
+|  [pageUrl?](./node-tracker.pageviewevent.pageurl.md) | string \| null | <i>(Optional)</i> The current URL visible in the users browser |
+|  [referrer?](./node-tracker.pageviewevent.referrer.md) | string \| null | <i>(Optional)</i> The URL of the referring page |
 
