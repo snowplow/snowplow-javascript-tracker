@@ -1,6 +1,15 @@
 # Change Log - @snowplow/browser-plugin-optimizely-x
 
-This log was last generated on Fri, 14 May 2021 10:45:32 GMT and should not be manually modified.
+This log was last generated on Wed, 04 Aug 2021 10:12:25 GMT and should not be manually modified.
+
+## 3.1.1
+Wed, 04 Aug 2021 10:12:25 GMT
+
+### Updates
+
+- Bump tslib to 2.3.0 (#986)
+- Bump typescript to 4.3.5 (#987)
+- Switch from @wessberg/rollup-plugin-ts to rollup-plugin-ts (#988)
 
 ## 3.1.0
 Fri, 14 May 2021 10:45:32 GMT

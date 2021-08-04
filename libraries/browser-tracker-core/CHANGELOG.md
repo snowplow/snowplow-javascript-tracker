@@ -1,6 +1,21 @@
 # Change Log - @snowplow/browser-tracker-core
 
-This log was last generated on Fri, 14 May 2021 10:45:32 GMT and should not be manually modified.
+This log was last generated on Wed, 04 Aug 2021 10:12:25 GMT and should not be manually modified.
+
+## 3.1.1
+Wed, 04 Aug 2021 10:12:25 GMT
+
+### Updates
+
+- Automate api-extractor on release (#972)
+- Allow tracker to load in fully sandboxes iframes (#981)
+- Allow options: false when calling enableAnonymousTracking (#977)
+- Prevent the Activity Tracking timer being enabled twice with duplicate enableActivityTracking calls (#975)
+- Bump tslib to 2.3.0 (#986)
+- Prevent the Activity Tracking timer being enabled twice with duplicate enableActivityTracking calls (#975)
+- Protect against invalid domain_sessionid values being used by the tracker (#978)
+- Bump typescript to 4.3.5 (#987)
+- Switch from @wessberg/rollup-plugin-ts to rollup-plugin-ts (#988)
 
 ## 3.1.0
 Fri, 14 May 2021 10:45:32 GMT

@@ -2,6 +2,42 @@
   "name": "@snowplow/browser-tracker-core",
   "entries": [
     {
+      "version": "3.1.1",
+      "tag": "@snowplow/browser-tracker-core_v3.1.1",
+      "date": "Wed, 04 Aug 2021 10:12:25 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Automate api-extractor on release (#972)"
+          },
+          {
+            "comment": "Allow tracker to load in fully sandboxes iframes (#981)"
+          },
+          {
+            "comment": "Allow options: false when calling enableAnonymousTracking (#977)"
+          },
+          {
+            "comment": "Prevent the Activity Tracking timer being enabled twice with duplicate enableActivityTracking calls (#975)"
+          },
+          {
+            "comment": "Bump tslib to 2.3.0 (#986)"
+          },
+          {
+            "comment": "Prevent the Activity Tracking timer being enabled twice with duplicate enableActivityTracking calls (#975)"
+          },
+          {
+            "comment": "Protect against invalid domain_sessionid values being used by the tracker (#978)"
+          },
+          {
+            "comment": "Bump typescript to 4.3.5 (#987)"
+          },
+          {
+            "comment": "Switch from @wessberg/rollup-plugin-ts to rollup-plugin-ts (#988)"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.1.0",
       "tag": "@snowplow/browser-tracker-core_v3.1.0",
       "date": "Fri, 14 May 2021 10:45:32 GMT",
