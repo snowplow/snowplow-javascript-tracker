@@ -71,8 +71,7 @@ export function OutQueueManager(
   connectionTimeout,
   anonymousTracking
 ) {
-  var localStorageAlias = window.localStorage,
-    queueName,
+  var queueName,
     executingQueue = false,
     configCollectorUrl,
     outQueue,
@@ -101,7 +100,7 @@ export function OutQueueManager(
   // Resolve all options and capabilities and decide path
   var path = usePost ? postPath : '/i';
 
-  bufferSize = (localStorageAccessible() && useLocalStorage && usePost && bufferSize) || 1;
+  bufferSize = (useLocalStorage && localStorageAccessible() && usePost && bufferSize) || 1;
 
   // Different queue names for GET and POST since they are stored differently
   queueName = `snowplowOutQueue_${functionName}_${namespace}_${usePost ? 'post2' : 'get'}`;
@@ -111,7 +110,7 @@ export function OutQueueManager(
   if (useLocalStorage) {
     // Catch any JSON parse errors or localStorage that might be thrown
     try {
-      outQueue = JSON.parse(localStorageAlias.getItem(queueName));
+      outQueue = JSON.parse(window.localStorage.getItem(queueName));
     } catch (e) {}
   }
 
