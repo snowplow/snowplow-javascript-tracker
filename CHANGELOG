@@ -1,3 +1,9 @@
+Version 2.18.1 (2021-08-04)
+---------------------------
+Protect against invalid domain_sessionid values being used by the tracker (#978)
+Prevent the Activity Tracking timer being enabled twice with duplicate enableActivityTracking calls (#975)
+Allow tracker to load in sandboxed iframes (#981)
+
 Version 2.18.0 (2021-05-14)
 ---------------------------
 Allow stateStorageStrategy to be changed on enableAnonymousTracking (#969)
