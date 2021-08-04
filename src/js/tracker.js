@@ -1711,7 +1711,7 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
       };
     }
 
-    warn('Activity tracking not enabled, please provide integer values for minimumVisitLength and heartBeatDelay.');
+    warn('Activity tracking minimumVisitLength & heartbeatDelay must be integers');
     return {};
   }
 
@@ -2164,12 +2164,14 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    * @param int heartBeatDelay Seconds to wait between pings
    */
   apiMethods.enableActivityTracking = function (minimumVisitLength, heartBeatDelay) {
-    activityTrackingConfig.enabled = true;
-    activityTrackingConfig.configurations.pagePing = configureActivityTracking(
-      minimumVisitLength,
-      heartBeatDelay,
-      logPagePing
-    );
+    if (!activityTrackingConfig.configurations.pagePing) {
+      activityTrackingConfig.enabled = true;
+      activityTrackingConfig.configurations.pagePing = configureActivityTracking(
+        minimumVisitLength,
+        heartBeatDelay,
+        logPagePing
+      );
+    }
   };
 
   /**
@@ -2180,12 +2182,14 @@ export function Tracker(functionName, namespace, version, mutSnowplowState, argm
    * @param function callback function called with ping data
    */
   apiMethods.enableActivityTrackingCallback = function (minimumVisitLength, heartBeatDelay, callback) {
-    activityTrackingConfig.enabled = true;
-    activityTrackingConfig.configurations.callback = configureActivityTracking(
-      minimumVisitLength,
-      heartBeatDelay,
-      callback
-    );
+    if (!activityTrackingConfig.configurations.callback) {
+      activityTrackingConfig.enabled = true;
+      activityTrackingConfig.configurations.callback = configureActivityTracking(
+        minimumVisitLength,
+        heartBeatDelay,
+        callback
+      );
+    }
   };
 
   /**
