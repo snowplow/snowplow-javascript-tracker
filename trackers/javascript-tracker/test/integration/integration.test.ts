@@ -390,8 +390,7 @@ describe('Snowplow Micro integration', () => {
         logContains({
           rawEvent: {
             parameters: {
-              co:
-                '{"schema":"iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0","data":[{"schema":"iglu:org.schema/WebPage/jsonschema/1-0-0","data":{"keywords":["tester"]}}]}',
+              co: '{"schema":"iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0","data":[{"schema":"iglu:org.schema/WebPage/jsonschema/1-0-0","data":{"keywords":["tester"]}}]}',
             },
           },
           event: {
@@ -776,6 +775,32 @@ describe('Snowplow Micro integration', () => {
           },
         })
       ).toBe(true);
+    });
+
+    it(`${method}: doesn't contain a structured event with a user id (unset with null)`, () => {
+      expect(
+        logContains({
+          event: {
+            app_id: `sp-${method}`,
+            event: 'struct',
+            se_category: 'userIdTest1',
+            user_id: 'Dave',
+          },
+        })
+      ).toBe(false);
+    });
+
+    it(`${method}: doesn't contain a structured event with a user id (unset with undefined)`, () => {
+      expect(
+        logContains({
+          event: {
+            app_id: `sp-${method}`,
+            event: 'struct',
+            se_category: 'userIdTest2',
+            user_id: 'Dave',
+          },
+        })
+      ).toBe(false);
     });
   });
 });

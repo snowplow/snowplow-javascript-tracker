@@ -217,7 +217,7 @@ export function Tracker(
           ? trackerConfiguration.respectDoNotTrack && (dnt === 'yes' || dnt === '1')
           : false,
       // Opt out of cookie tracking
-      configOptOutCookie: string,
+      configOptOutCookie: string | null | undefined,
       // Life of the visitor cookie (in seconds)
       configVisitorCookieTimeout = trackerConfiguration.cookieLifetime ?? 63072000, // 2 years
       // Life of the session cookie (in seconds)
@@ -248,7 +248,7 @@ export function Tracker(
       // Index for the current session - kept in memory in case cookies are disabled
       memorizedVisitCount = 1,
       // Business-defined unique user ID
-      businessUserId: string | null,
+      businessUserId: string | null | undefined,
       // Manager for local storage queue
       outQueue = OutQueueManager(
         trackerId,
@@ -703,8 +703,8 @@ export function Tracker(
      * Also sets the required cookies.
      */
     function addBrowserData(payloadBuilder: PayloadBuilder) {
-      const anonymizeOr = (value: string | number | null) => (configAnonymousTracking ? null : value);
-      const anonymizeSessionOr = (value: string | number) =>
+      const anonymizeOr = (value?: string | number | null) => (configAnonymousTracking ? null : value);
+      const anonymizeSessionOr = (value?: string | number | null) =>
         configAnonymousSessionTracking ? value : anonymizeOr(value);
 
       var nowTs = Math.round(new Date().getTime() / 1000),
@@ -1162,11 +1162,11 @@ export function Tracker(
         activityHandler();
       },
 
-      setOptOutCookie: function (name: string) {
+      setOptOutCookie: function (name?: string | null) {
         configOptOutCookie = name;
       },
 
-      setUserId: function (userId: string) {
+      setUserId: function (userId?: string | null) {
         businessUserId = userId;
       },
 

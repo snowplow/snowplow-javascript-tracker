@@ -401,6 +401,20 @@
         },
       });
 
+      window.snowplow('setUserId:sp', 'Dave');
+      window.snowplow('setUserId:sp', null);
+
+      window.snowplow('trackStructEvent:sp', {
+        category: 'userIdTest1',
+      });
+
+      window.snowplow('setUserId:sp', 'Dave');
+      window.snowplow('setUserId:sp', undefined);
+
+      window.snowplow('trackStructEvent:sp', {
+        category: 'userIdTest2',
+      });
+
       // Test for exception handling
       function raiseException() {
         notExistentObject.notExistentProperty();

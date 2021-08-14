@@ -241,7 +241,7 @@ export function updatePageActivity(trackers?: Array<string>) {
  * @param name - of the opt out cookie
  * @param trackers - The tracker identifiers which will be configured
  */
-export function setOptOutCookie(name: string, trackers?: Array<string>) {
+export function setOptOutCookie(name?: string | null, trackers?: Array<string>) {
   dispatchToTrackers(trackers, (t) => {
     t.setOptOutCookie(name);
   });
@@ -253,7 +253,7 @@ export function setOptOutCookie(name: string, trackers?: Array<string>) {
  * @param userId - The business-defined user ID
  * @param trackers - The tracker identifiers which will be configured
  */
-export function setUserId(userId: string, trackers?: Array<string>) {
+export function setUserId(userId?: string | null, trackers?: Array<string>) {
   dispatchToTrackers(trackers, (t) => {
     t.setUserId(userId);
   });

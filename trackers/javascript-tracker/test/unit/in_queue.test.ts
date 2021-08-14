@@ -35,6 +35,7 @@ import {
   setVisitorCookieTimeout,
   trackPageView,
   updatePageActivity,
+  setUserId,
 } from '@snowplow/browser-tracker';
 import { BrowserTracker, addTracker, isFunction, getTrackers } from '@snowplow/browser-tracker-core';
 
@@ -46,10 +47,13 @@ const mockEnableActivityTracking = enableActivityTracking as jest.Mock<void>;
 const mockSetVisitorCookieTimeout = setVisitorCookieTimeout as jest.Mock<void>;
 const mockTrackPageView = trackPageView as jest.Mock<void>;
 const mockUpdatePageActivity = updatePageActivity as jest.Mock<void>;
+const mockSetUserId = setUserId as jest.Mock<void>;
 const mockIsFunction = isFunction as jest.Mock<boolean>;
 
 describe('InQueueManager', () => {
   let output = 0;
+  let userId: string | null | undefined;
+
   const newTracker = (trackerId: string): any => {
     let attribute = 10;
     return {
@@ -59,6 +63,9 @@ describe('InQueueManager', () => {
       },
       setVisitorCookieTimeout: function ({ p }: { p: number }) {
         attribute = p;
+      },
+      setUserId: function (s?: string | null) {
+        userId = s;
       },
       trackPageView: function () {
         output = attribute;
@@ -103,6 +110,12 @@ describe('InQueueManager', () => {
     });
   });
 
+  mockSetUserId.mockImplementation(function (userId: string | null | undefined, trackers: string[]) {
+    trackers.forEach((t) => {
+      mockTrackers[t].setUserId(userId);
+    });
+  });
+
   mockIsFunction.mockImplementation(function (func: any) {
     if (func && typeof func === 'function') {
       return true;
@@ -125,6 +138,17 @@ describe('InQueueManager', () => {
     asyncQueue.push(['setVisitorCookieTimeout', { p: 7 }]);
     asyncQueue.push(['trackPageView']);
     expect(output).toEqual(7);
+  });
+
+  it('Set UserId to String, null and undefined', () => {
+    asyncQueue.push(['setUserId', 'snow123']);
+    expect(userId).toEqual('snow123');
+
+    asyncQueue.push(['setUserId', null]);
+    expect(userId).toEqual(null);
+
+    asyncQueue.push(['setUserId', undefined]);
+    expect(userId).toEqual(undefined);
   });
 
   it("Backward compatibility: Create a tracker using the legacy setCollectorUrl method, A second tracker is created and both trackers' attributes are added to output", () => {

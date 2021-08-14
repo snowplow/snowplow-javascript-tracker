@@ -85,9 +85,9 @@ export interface BrowserTracker {
     setCookiePath: (path: string) => void;
     setCustomUrl: (url: string) => void;
     setDocumentTitle: (title: string) => void;
-    setOptOutCookie: (name: string) => void;
+    setOptOutCookie: (name?: string | null) => void;
     setReferrerUrl: (url: string) => void;
-    setUserId: (userId: string) => void;
+    setUserId: (userId?: string | null) => void;
     setUserIdFromCookie: (cookieName: string) => void;
     setUserIdFromLocation: (querystringField: string) => void;
     setUserIdFromReferrer: (querystringField: string) => void;
@@ -266,13 +266,13 @@ export function setCustomUrl(url: string, trackers?: Array<string>): void;
 export function setDocumentTitle(title: string, trackers?: Array<string>): void;
 
 // @public
-export function setOptOutCookie(name: string, trackers?: Array<string>): void;
+export function setOptOutCookie(name?: string | null, trackers?: Array<string>): void;
 
 // @public
 export function setReferrerUrl(url: string, trackers?: Array<string>): void;
 
 // @public
-export function setUserId(userId: string, trackers?: Array<string>): void;
+export function setUserId(userId?: string | null, trackers?: Array<string>): void;
 
 // @public
 export function setUserIdFromCookie(cookieName: string, trackers?: Array<string>): void;

@@ -68,7 +68,7 @@ interface PluginQueueItem {
   timeout: number;
 }
 
-type FunctionParameters = [Record<string, unknown>, Array<string>] | [Array<string>];
+type FunctionParameters = [Record<string, unknown> | null | undefined, Array<string>] | [Array<string>];
 
 /**
  * This allows the caller to continue push()'ing after the Tracker has been initialized and loaded
@@ -290,7 +290,7 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
       }
 
       let fnParameters: FunctionParameters;
-      if (typeof parameterArray[0] !== 'undefined') {
+      if (parameterArray.length > 0) {
         fnParameters = [parameterArray[0], trackerIdentifiers];
       } else if (typeof availableFunctions[f] !== 'undefined') {
         fnParameters = availableFunctions[f].length === 2 ? [{}, trackerIdentifiers] : [trackerIdentifiers];
