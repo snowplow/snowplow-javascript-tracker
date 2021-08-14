@@ -435,14 +435,14 @@ export interface BrowserTracker {
    *
    * @param name - of the opt out cookie
    */
-  setOptOutCookie: (name: string) => void;
+  setOptOutCookie: (name?: string | null) => void;
 
   /**
    * Set the business-defined user ID for this user.
    *
    * @param userId - The business-defined user ID
    */
-  setUserId: (userId: string) => void;
+  setUserId: (userId?: string | null) => void;
 
   /**
    * Set the business-defined user ID for this user using the location querystring.
