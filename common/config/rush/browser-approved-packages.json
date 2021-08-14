@@ -227,10 +227,6 @@
       "allowedCategories": [ "trackers" ]
     },
     {
-      "name": "gulp",
-      "allowedCategories": [ "trackers" ]
-    },
-    {
       "name": "jest",
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
