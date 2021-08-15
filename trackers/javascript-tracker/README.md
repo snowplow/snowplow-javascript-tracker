@@ -8,14 +8,14 @@ Add Snowplow Tracking to your website via a tag solution.
 ## Maintainer quick start
 
 Part of the Snowplow JavaScript Tracker monorepo.  
-Build with [Node](https://nodejs.org/en/) (10+) and [Rush](https://rushjs.io/).
+Build with [Node.js](https://nodejs.org/en/) (12 LTS or 14 LTS) and [Rush](https://rushjs.io/).
 
 ### Setup repository
 
 ```bash
-$ npm install -g @microsoft/rush 
-$ git clone https://github.com/snowplow/snowplow-javascript-tracker.git
-$ rush update
+npm install -g @microsoft/rush 
+git clone https://github.com/snowplow/snowplow-javascript-tracker.git
+rush update
 ```
 
 ## Select your version

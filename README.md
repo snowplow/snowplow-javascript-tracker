@@ -49,22 +49,22 @@ client-side and server-side tiers of your websites and web apps.
 | ![i7][contributing-image]            |
 | [Contributing](CONTRIBUTING.md)      |
 
-### Contributing quick start
+### Maintainer quick start
 
-Assuming [git](https://git-scm.com/downloads), [Node.js 12 or 14 LTS](https://nodejs.org/en/download/releases/) are installed.
+Assuming [git](https://git-scm.com/downloads), [Node.js 12 LTS or 14 LTS](https://nodejs.org/en/download/releases/) are installed.
 
 #### Clone repository
 
 ```bash
-$ git clone https://github.com/snowplow/snowplow-javascript-tracker.git
+git clone https://github.com/snowplow/snowplow-javascript-tracker.git
 ```
 
 #### Building
 
 ```bash
-$ npm install -g @microsoft/rush
-$ rush update
-$ rush build
+npm install -g @microsoft/rush
+rush update
+rush build
 ```
 
 ## Testing
@@ -72,14 +72,16 @@ $ rush build
 To run unit tests:
 
 ```bash
-$ rush test
+rush test
 ```
 
 To run e2e browser tests (locally):
 
+- Add `127.0.0.1 snowplow-js-tracker.local` to your `hosts` file:
+
 ```bash
-$ cd trackers/javascript-tracker/
-$ rushx test:e2e:local
+cd trackers/javascript-tracker/
+rushx test:e2e:local
 ```
 
 [![Sauce Labs Test Status][saucelabs-matrix-image]][saucelabs]
