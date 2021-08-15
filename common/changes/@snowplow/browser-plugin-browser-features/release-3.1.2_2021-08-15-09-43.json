@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Update READMEs with correct Node requirements (#994)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-browser-features"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-browser-features",
+  "email": "paul@snowplowanalytics.com"
+}

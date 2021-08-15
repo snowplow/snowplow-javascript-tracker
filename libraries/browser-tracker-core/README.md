@@ -10,27 +10,27 @@ It should rarely be used alone, you probably want `@snowplow/browser-tracker`.
 ## Maintainer quick start
 
 Part of the Snowplow JavaScript Tracker monorepo.  
-Build with [Node](https://nodejs.org/en/) (10+) and [Rush](https://rushjs.io/).
+Build with [Node.js](https://nodejs.org/en/) (12 LTS or 14 LTS) and [Rush](https://rushjs.io/).
 
 ### Setup repository
 
 ```bash
-$ npm install -g @microsoft/rush 
-$ git clone https://github.com/snowplow/snowplow-javascript-tracker.git
-$ rush update
+npm install -g @microsoft/rush 
+git clone https://github.com/snowplow/snowplow-javascript-tracker.git
+rush update
 ```
 
 ### Building Browser Tracker Core
 
 ```bash
-$ cd libraries/browser-tracker-core
-$ rushx build
+cd libraries/browser-tracker-core
+rushx build
 ```
 
 ### Running tests
 
 ```bash
-$ rushx test
+rushx test
 ```
 
 ## Package Installation
@@ -55,7 +55,6 @@ const sameTracker = getTracker('snowplow_sp1');
 
 ```js
 const domainUserId = tracker.getDomainUserId();
-
 ```
 
 ## Other features
