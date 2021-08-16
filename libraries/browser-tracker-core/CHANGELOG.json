@@ -2,6 +2,21 @@
   "name": "@snowplow/browser-tracker-core",
   "entries": [
     {
+      "version": "3.1.2",
+      "tag": "@snowplow/browser-tracker-core_v3.1.2",
+      "date": "Mon, 16 Aug 2021 12:59:59 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fix undefined argument regression in setUserId and setOptOutCookie (#991)"
+          },
+          {
+            "comment": "Update READMEs with correct Node requirements (#994)"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.1.1",
       "tag": "@snowplow/browser-tracker-core_v3.1.1",
       "date": "Wed, 04 Aug 2021 10:12:25 GMT",

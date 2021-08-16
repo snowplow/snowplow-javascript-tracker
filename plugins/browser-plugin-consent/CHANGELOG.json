@@ -2,6 +2,18 @@
   "name": "@snowplow/browser-plugin-consent",
   "entries": [
     {
+      "version": "3.1.2",
+      "tag": "@snowplow/browser-plugin-consent_v3.1.2",
+      "date": "Mon, 16 Aug 2021 12:59:59 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Update READMEs with correct Node requirements (#994)"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.1.1",
       "tag": "@snowplow/browser-plugin-consent_v3.1.1",
       "date": "Wed, 04 Aug 2021 10:12:25 GMT",

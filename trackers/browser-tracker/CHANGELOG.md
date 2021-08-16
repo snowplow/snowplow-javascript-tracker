@@ -1,6 +1,14 @@
 # Change Log - @snowplow/browser-tracker
 
-This log was last generated on Wed, 04 Aug 2021 10:12:25 GMT and should not be manually modified.
+This log was last generated on Mon, 16 Aug 2021 12:59:59 GMT and should not be manually modified.
+
+## 3.1.2
+Mon, 16 Aug 2021 12:59:59 GMT
+
+### Updates
+
+- Fix undefined argument regression in setUserId and setOptOutCookie (#991)
+- Update READMEs with correct Node requirements (#994)
 
 ## 3.1.1
 Wed, 04 Aug 2021 10:12:25 GMT
