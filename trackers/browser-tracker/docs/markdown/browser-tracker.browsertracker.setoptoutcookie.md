@@ -9,5 +9,5 @@ Sets the opt out cookie.
 <b>Signature:</b>
 
 ```typescript
-setOptOutCookie: (name: string) => void;
+setOptOutCookie: (name?: string | null) => void;
 ```

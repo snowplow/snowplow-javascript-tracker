@@ -9,5 +9,5 @@ Set the business-defined user ID for this user.
 <b>Signature:</b>
 
 ```typescript
-setUserId: (userId: string) => void;
+setUserId: (userId?: string | null) => void;
 ```

@@ -9,14 +9,14 @@ Set the business-defined user ID for this user.
 <b>Signature:</b>
 
 ```typescript
-declare function setUserId(userId: string, trackers?: Array<string>): void;
+declare function setUserId(userId?: string | null, trackers?: Array<string>): void;
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  userId | string | The business-defined user ID |
+|  userId | string \| null | The business-defined user ID |
 |  trackers | Array&lt;string&gt; | The tracker identifiers which will be configured |
 
 <b>Returns:</b>

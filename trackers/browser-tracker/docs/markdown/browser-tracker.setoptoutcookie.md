@@ -9,14 +9,14 @@ Sets the opt out cookie.
 <b>Signature:</b>
 
 ```typescript
-declare function setOptOutCookie(name: string, trackers?: Array<string>): void;
+declare function setOptOutCookie(name?: string | null, trackers?: Array<string>): void;
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  name | string | of the opt out cookie |
+|  name | string \| null | of the opt out cookie |
 |  trackers | Array&lt;string&gt; | The tracker identifiers which will be configured |
 
 <b>Returns:</b>

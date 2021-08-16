@@ -42,9 +42,9 @@ interface BrowserTracker
 |  [setCookiePath](./browser-tracker.browsertracker.setcookiepath.md) | (path: string) =&gt; void | Set first-party cookie path |
 |  [setCustomUrl](./browser-tracker.browsertracker.setcustomurl.md) | (url: string) =&gt; void | Override url |
 |  [setDocumentTitle](./browser-tracker.browsertracker.setdocumenttitle.md) | (title: string) =&gt; void | Override document.title |
-|  [setOptOutCookie](./browser-tracker.browsertracker.setoptoutcookie.md) | (name: string) =&gt; void | Sets the opt out cookie. |
+|  [setOptOutCookie](./browser-tracker.browsertracker.setoptoutcookie.md) | (name?: string \| null) =&gt; void | Sets the opt out cookie. |
 |  [setReferrerUrl](./browser-tracker.browsertracker.setreferrerurl.md) | (url: string) =&gt; void | Override referrer |
-|  [setUserId](./browser-tracker.browsertracker.setuserid.md) | (userId: string) =&gt; void | Set the business-defined user ID for this user. |
+|  [setUserId](./browser-tracker.browsertracker.setuserid.md) | (userId?: string \| null) =&gt; void | Set the business-defined user ID for this user. |
 |  [setUserIdFromCookie](./browser-tracker.browsertracker.setuseridfromcookie.md) | (cookieName: string) =&gt; void | Set the business-defined user ID for this user to the value of a cookie. |
 |  [setUserIdFromLocation](./browser-tracker.browsertracker.setuseridfromlocation.md) | (querystringField: string) =&gt; void | Set the business-defined user ID for this user using the location querystring. |
 |  [setUserIdFromReferrer](./browser-tracker.browsertracker.setuseridfromreferrer.md) | (querystringField: string) =&gt; void | Set the business-defined user ID for this user using the referrer querystring. |
