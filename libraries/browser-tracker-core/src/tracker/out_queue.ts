@@ -401,7 +401,7 @@ export function OutQueueManager(
     } else {
       xhr.open('GET', url, !sync);
     }
-    xhr.withCredentials = true;
+    xhr.withCredentials = false;
     if (anonymousTracking) {
       xhr.setRequestHeader('SP-Anonymous', '*');
     }
