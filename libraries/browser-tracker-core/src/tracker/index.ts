@@ -931,6 +931,7 @@ export function Tracker(
                 get: function get() {
                   passive = true;
                 },
+                set: function set() {},
               });
               // note: have to set and remove a no-op listener instead of null
               // (which was used previously), becasue Edge v15 throws an error
