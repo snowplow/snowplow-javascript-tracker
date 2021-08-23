@@ -33,7 +33,7 @@
      * in the current branch.  When bumping versions, Rush uses this to determine the next version.
      * (The "version" field in package.json is NOT considered.)
      */
-    "version": "3.1.2",
+    "version": "3.1.3",
   
     /**
      * (Required) The type of bump that will be performed when publishing the next release.

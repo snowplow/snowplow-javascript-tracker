@@ -1,6 +1,6 @@
 {
   "name": "@snowplow/browser-plugin-client-hints",
-  "version": "3.1.2",
+  "version": "3.1.3",
   "description": "Attaches Client Hints to Snowplow events",
   "homepage": "http://bit.ly/sp-js",
   "bugs": "https://github.com/snowplow/snowplow-javascript-tracker/issues",
@@ -43,6 +43,6 @@
     "typescript": "^4.3.5"
   },
   "peerDependencies": {
-    "@snowplow/browser-tracker": "~3.1.2"
+    "@snowplow/browser-tracker": "~3.1.3"
   }
 }

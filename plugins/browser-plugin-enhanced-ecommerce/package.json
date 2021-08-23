@@ -1,6 +1,6 @@
 {
   "name": "@snowplow/browser-plugin-enhanced-ecommerce",
-  "version": "3.1.2",
+  "version": "3.1.3",
   "description": "Enhanced Ecommerce tracking for Snowplow",
   "homepage": "http://bit.ly/sp-js",
   "bugs": "https://github.com/snowplow/snowplow-javascript-tracker/issues",
@@ -46,6 +46,6 @@
     "typescript": "^4.3.5"
   },
   "peerDependencies": {
-    "@snowplow/browser-tracker": "~3.1.2"
+    "@snowplow/browser-tracker": "~3.1.3"
   }
 }
