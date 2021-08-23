@@ -1,6 +1,13 @@
 # Change Log - @snowplow/browser-tracker-core
 
-This log was last generated on Mon, 16 Aug 2021 12:59:59 GMT and should not be manually modified.
+This log was last generated on Mon, 23 Aug 2021 10:13:18 GMT and should not be manually modified.
+
+## 3.1.3
+Mon, 23 Aug 2021 10:13:18 GMT
+
+### Updates
+
+- Add missing setter to detectPassiveEvents (#995)
 
 ## 3.1.2
 Mon, 16 Aug 2021 12:59:59 GMT
