@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Snowplow Analytics Ltd, 2010 Anthon Pang
+ * Copyright (c) 2021 Snowplow Analytics Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,22 +28,37 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-export const plugins = {
-  performanceTiming: true,
-  gaCookies: true,
-  geolocation: true,
-  optimizelyX: true,
-  clientHints: true,
-  consent: true,
-  linkClickTracking: true,
-  formTracking: true,
-  errorTracking: true,
-  timezone: true,
-  ecommerce: true,
-  enhancedEcommerce: true,
-  adTracking: true,
-  siteTracking: true,
-  optimizely: false,
-  browserFeatures: false,
-  mediaTracking: true,
-};
+import { nodeResolve } from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
+import ts from 'rollup-plugin-ts';
+import { banner } from './banner';
+import compiler from '@ampproject/rollup-plugin-closure-compiler';
+import { terser } from 'rollup-plugin-terser';
+import cleanup from 'rollup-plugin-cleanup';
+import pkg from './package.json';
+import { builtinModules } from 'module';
+
+const umdPlugins = [nodeResolve({ browser: true }), commonjs(), ts()];
+const umdName = 'snowplowMediaTracking';
+
+export default [
+  // CommonJS (for Node) and ES module (for bundlers) build.
+  {
+    input: './src/index.ts',
+    plugins: [...umdPlugins, banner()],
+    treeshake: { moduleSideEffects: ['sha1'] },
+    output: [{ file: pkg.main, format: 'umd', sourcemap: true, name: umdName }],
+  },
+  {
+    input: './src/index.ts',
+    plugins: [...umdPlugins, compiler(), terser(), cleanup({ comments: 'none' }), banner()],
+    treeshake: { moduleSideEffects: ['sha1'] },
+    output: [{ file: pkg.main.replace('.js', '.min.js'), format: 'umd', sourcemap: true, name: umdName }],
+  },
+  {
+    input: './src/index.ts',
+    external: [...builtinModules, ...Object.keys(pkg.dependencies), ...Object.keys(pkg.devDependencies)],
+    plugins: [ts(), banner()],
+    output: [{ file: pkg.module, format: 'es', sourcemap: true }],
+  },
+];

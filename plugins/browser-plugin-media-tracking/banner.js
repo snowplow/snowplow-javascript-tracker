@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Snowplow Analytics Ltd, 2010 Anthon Pang
+ * Copyright (c) 2021 Snowplow Analytics Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,22 +28,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-export const plugins = {
-  performanceTiming: true,
-  gaCookies: true,
-  geolocation: true,
-  optimizelyX: true,
-  clientHints: true,
-  consent: true,
-  linkClickTracking: true,
-  formTracking: true,
-  errorTracking: true,
-  timezone: true,
-  ecommerce: true,
-  enhancedEcommerce: true,
-  adTracking: true,
-  siteTracking: true,
-  optimizely: false,
-  browserFeatures: false,
-  mediaTracking: true,
-};
+import license from 'rollup-plugin-license';
+
+const bannerContent = `<%= pkg.description %> v<%= pkg.version %> (<%= pkg.homepage %>)
+Copyright 2021 Snowplow Analytics Ltd
+Licensed under <%= pkg.license %>`;
+
+export const banner = () =>
+  license({
+    sourcemap: true,
+    banner: {
+      content: bannerContent,
+      commentStyle: 'ignored',
+    },
+  });

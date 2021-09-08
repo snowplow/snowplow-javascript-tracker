@@ -44,6 +44,7 @@ import * as Ecommerce from '@snowplow/browser-plugin-ecommerce';
 import * as EnhancedEcommerce from '@snowplow/browser-plugin-enhanced-ecommerce';
 import * as AdTracking from '@snowplow/browser-plugin-ad-tracking';
 import * as SiteTracking from '@snowplow/browser-plugin-site-tracking';
+import * as MediaTracking from '@snowplow/browser-plugin-media-tracking';
 import { plugins } from '../tracker.config';
 import { BrowserPlugin } from '@snowplow/browser-tracker-core';
 import { JavaScriptTrackerConfiguration } from './configuration';
@@ -170,6 +171,11 @@ export function Plugins(configuration: JavaScriptTrackerConfiguration) {
   if (plugins.timezone) {
     const { TimezonePlugin, ...apiMethods } = Timezone;
     activatedPlugins.push([TimezonePlugin(), apiMethods]);
+  }
+
+  if (plugins.mediaTracking) {
+    const { MediaTrackingPlugin, ...apiMethods } = MediaTracking;
+    activatedPlugins.push([MediaTrackingPlugin(), apiMethods]);
   }
 
   return activatedPlugins;

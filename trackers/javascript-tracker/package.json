@@ -55,6 +55,7 @@
     "@snowplow/browser-tracker": "workspace:*",
     "@snowplow/browser-tracker-core": "workspace:*",
     "@snowplow/tracker-core": "workspace:*",
+    "@snowplow/browser-plugin-media-tracking": "workspace:*",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
@@ -75,7 +76,7 @@
     "@wdio/static-server-service": "^6.10.10",
     "@wdio/sync": "^6.11.0",
     "rollup-plugin-ts": "^1.4.0",
-    "chromedriver": "^92.0.1",
+    "chromedriver": "^94.0.0",
     "dockerode": "^3.2.1",
     "jest": "^26.6.3",
     "jest-standard-reporter": "^2.0.0",
