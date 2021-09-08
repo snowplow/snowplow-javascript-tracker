@@ -1,0 +1,30 @@
+#!/bin/sh
+echo "Building Rush..."
+rush build &> /dev/null
+echo Packing...
+npm --silent --no-progress pack /Users/gregleonard/work/snowplow-javascript-tracker/plugins/browser-plugin-media-tracking 
+FILENAME=$(find snowplow-browser-plugin-media-tracking-*.*.*.tgz)
+
+
+TESTPATH="/Users/gregleonard/work/video-tracking"
+DISTDIR="/Users/gregleonard/work/snowplow-javascript-tracker/plugins/browser-plugin-media-tracking/dist"
+echo "Copying to sp.js test folder..."
+cp "$DISTDIR/index.umd.js" "/Users/gregleonard/work/simple-video-tracking"
+cp "$DISTDIR/index.umd.js.map" "/Users/gregleonard/work/simple-video-tracking"
+
+
+echo "Moving tarball..."
+mv "$FILENAME" "$TESTPATH"
+
+echo "Moving to test directory..."
+cd "$TESTPATH"
+echo "Uninstalling current media tracking plugin..."
+npm uninstall "@snowplow/browser-plugin-media-tracking" &> /dev/null
+echo "Removing /node_modules..."
+rm -rf "$TESTPATH"/node_modules
+echo "Removing package-lock.json..."
+rm -f "$TESTPATH"/package-lock.json
+echo "Installing all npm packages in package.json..."
+npm --quiet i 
+echo "Installing media tracking plugin..."
+npm --quiet i "$FILENAME"
