@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Fix linkDecorationHandler targeting (closes #1002)",
+      "type": "none",
+      "packageName": "@snowplow/browser-tracker-core"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker-core",
+  "email": "paul@snowplowanalytics.com"
+}
