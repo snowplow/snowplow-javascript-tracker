@@ -324,7 +324,7 @@ export function Tracker(
      */
     function linkDecorationHandler(evt: Event) {
       var timestamp = new Date().getTime();
-      let elt = evt.target as HTMLAnchorElement | HTMLAreaElement | null;
+      let elt = evt.currentTarget as HTMLAnchorElement | HTMLAreaElement | null;
       if (elt?.href) {
         elt.href = decorateQuerystring(elt.href, '_sp', domainUserId + '.' + timestamp);
       }
