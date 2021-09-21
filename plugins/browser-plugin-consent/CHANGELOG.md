@@ -1,6 +1,11 @@
 # Change Log - @snowplow/browser-plugin-consent
 
-This log was last generated on Mon, 23 Aug 2021 10:13:18 GMT and should not be manually modified.
+This log was last generated on Tue, 21 Sep 2021 14:59:36 GMT and should not be manually modified.
+
+## 3.1.4
+Tue, 21 Sep 2021 14:59:36 GMT
+
+_Version update only_
 
 ## 3.1.3
 Mon, 23 Aug 2021 10:13:18 GMT
