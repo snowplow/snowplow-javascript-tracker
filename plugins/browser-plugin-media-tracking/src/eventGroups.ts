@@ -1,13 +1,14 @@
 import { SnowplowMediaEvent } from './snowplowEvents';
 import { EventGroup } from './types';
-import { DocumentEvent, MediaEvent, TextTrackEvent, VideoEvent } from './wgEvents';
+import { DocumentEvent, MediaEvent, TextTrackEvent, VideoEvent } from './mediaEvents';
+import { enumValues } from './helperFunctions';
 
-export const AllEvents: any[] = Object.values(MediaEvent);
-for (let e of Object.values(SnowplowMediaEvent)) {
-  AllEvents.push(e);
-}
+const MediaEvents: EventGroup = enumValues(MediaEvent);
+const SnowplowEvents: EventGroup = enumValues(SnowplowMediaEvent);
 
-export const ControlEvents: EventGroup = [
+export const AllEvents: EventGroup = MediaEvents.concat(SnowplowEvents);
+
+export const DefaultEvents: EventGroup = [
   MediaEvent.PAUSE,
   MediaEvent.PLAY,
   MediaEvent.SEEKED,
