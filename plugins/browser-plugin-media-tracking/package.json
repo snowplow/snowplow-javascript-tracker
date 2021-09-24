@@ -1,8 +1,7 @@
 {
-  "private": true,
   "name": "@snowplow/browser-plugin-media-tracking",
   "version": "1.0.0",
-  "description": "Advanced Template for a plugin for the Snowplow JavaScript Trackers",
+  "description": "Audio/Video tracking for Snowplow",
   "homepage": "http://bit.ly/sp-js",
   "bugs": "https://github.com/snowplow/snowplow-javascript-tracker/issues",
   "repository": {
@@ -10,7 +9,7 @@
     "url": "https://github.com/snowplow/snowplow-javascript-tracker.git"
   },
   "license": "BSD-3-Clause",
-  "author": "Paul Boocock",
+  "author": "Greg Leonard",
   "main": "./dist/index.umd.js",
   "module": "./dist/index.module.js",
   "types": "./dist/index.module.d.ts",
