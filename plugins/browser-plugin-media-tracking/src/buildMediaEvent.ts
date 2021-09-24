@@ -2,7 +2,7 @@ import { NETWORK_STATE, READY_STATE } from './constants';
 import { MediaElement, MediaPlayerEvent } from './contexts';
 import { isElementFullScreen, textTrackListToJson, timeRangesToObjectArray } from './helperFunctions';
 import { SnowplowMediaEvent } from './snowplowEvents';
-import { MediaEntities, MediaEventData, MediaEventType, SnowplowData } from './types';
+import { HTMLAudioFormat, HTMLVideoFormat, MediaEntities, MediaEventData, MediaEventType, SnowplowData } from './types';
 import { MediaProperty, VideoProperty } from './mediaProperties';
 
 export function buildMediaEvent(
@@ -89,7 +89,7 @@ function getSnowplowEntities(
   eventDetail: any
 ): MediaEntities {
   const snowplowData: SnowplowData = {
-    file_extension: el[MediaProperty.CURRENTSRC].split('.').pop(),
+    file_extension: el[MediaProperty.CURRENTSRC].split('.').pop() as HTMLVideoFormat | HTMLAudioFormat,
     fullscreen: isElementFullScreen(mediaId),
     picture_in_picture: document.pictureInPictureElement?.id === mediaId,
   };
