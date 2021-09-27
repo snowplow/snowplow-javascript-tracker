@@ -234,19 +234,19 @@ export interface MediaPlayerEvent {
 
 export interface MediaPlayer {
   /**
-   * The percent of the way through the media
-   **/
-  percent_progress: number;
-
-  /**
    * The media file format
    **/
-  file_extension: string;
+  file_extension: 'aac' | 'aacp' | 'caf' | 'flac' | 'mp3' | 'mp4' | 'ogg' | 'wav' | 'webm';
 
   /**
    * If the video element is fullscreen
    **/
   fullscreen: boolean;
+
+  /**
+   * The percent of the way through the media
+   **/
+  percent_progress: number;
 
   /**
    * If the video element is showing Picture-In-Picture
