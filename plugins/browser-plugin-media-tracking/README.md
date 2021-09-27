@@ -38,10 +38,10 @@ import { MediaTrackingPlugin } from 'snowplow-browser-media-tracker';
 newTracker('sp2', '{{collector}}', { plugins: [ MediaTrackingPlugin() ] }); // Also stores reference at module level
 ```
 
-Then, use the `TrackMedia` function described below to produce events from your Video/Audio element(s).
+Then, use the `enableMediaTracking` function described below to produce events from your Video/Audio element(s).
 
 ```js
-TrackMedia( mediaId, [ config ])
+enableMediaTracking( mediaId, [ config ])
 ```
 
 ## Parameters
@@ -56,24 +56,24 @@ TrackMedia( mediaId, [ config ])
 | Parameter             | Type       | Default            | Description                                               |
 | --------------------- | ---------- | ------------------ | --------------------------------------------------------- |
 | `label`               | `string`   | -                  | An identifiable custom label sent with the event          |
-| `listenEvents`        | `string[]` | `ControlEvents`    | The name(s) of the events you want to listen for          |
+| `captureEvents`       | `string[]` | `DefaultEvents`    | The name(s) of the events you want to listen for          |
 | `percentageBoundries` | `number[]` | `[10, 25, 50, 75]` | The progress percentages to fire an event at (if enabled) |
 
 ### Pre-Made Event Groups
 
-#### `ControlEvents`
+#### `DefaultEvents`
 
-|Event| Description |
-|--|--|
-|pause | --- |
-|play | --- |
-|seeked | --- |
-|ratechange | --- |
-|volumechange | --- |
-|change | --- |
-|fullscreenchange | --- |
-|enterpictureinpicture | --- |
-|leavepictureinpicture | --- |
+| Event                 | Description |
+| --------------------- | ----------- |
+| pause                 | ---         |
+| play                  | ---         |
+| seeked                | ---         |
+| ratechange            | ---         |
+| volumechange          | ---         |
+| change                | ---         |
+| fullscreenchange      | ---         |
+| enterpictureinpicture | ---         |
+| leavepictureinpicture | ---         |
 
 ## Example Usage
 
@@ -91,13 +91,13 @@ TrackMedia( mediaId, [ config ])
 ```
 
 ```js
-import { TrackMedia } from '@snowplow/browser-plugin-media-tracking'
+import { enableMediaTracking } from '@snowplow/browser-plugin-media-tracking'
 
-TrackMedia(
+enableMediaTracking(
   "my-video",
   {
     label: "My Custom Video Label",
-    listenEvents: ["pause", "volumechange", "percentprogress"],
+    captureEvents: ["pause", "volumechange", "percentprogress"],
     percentageBoundries: [10, 25, 50, 75],
   }
 )
