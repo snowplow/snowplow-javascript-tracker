@@ -31,7 +31,7 @@ import { DefaultEvents } from './eventGroups';
 import { isTypeTextTrackEvent, isTypeDocumentEvent, percentBoundryErrorHandling } from './helperFunctions';
 import { SnowplowMediaEvent } from './snowplowEvents';
 import { DocumentEvent, MediaEvent } from './mediaEvents';
-import { MediaEventType, HTMLMediaElement, MediaConf } from './types';
+import { MediaEventType, HTMLMediaElement, MediaConf, TrackingOptions } from './types';
 import { BrowserPlugin, BrowserTracker, dispatchToTrackersInCollection } from '@snowplow/browser-tracker-core';
 import { buildSelfDescribingEvent, CommonEventProperties, SelfDescribingJson } from '@snowplow/tracker-core';
 import { MediaPlayerEvent } from './contexts';
@@ -65,21 +65,17 @@ export function MediaTrackingPlugin(): BrowserPlugin {
   };
 }
 
-function configSorter(mediaId: string, options?: MediaConf) {
+function configSorter(mediaId: string, options?: TrackingOptions) {
   let defaults = {
     mediaId: mediaId,
     captureEvents: DefaultEvents,
     percentBoundries: [10, 25, 50, 75],
     percentTimeoutIds: [],
   };
-  if (options === undefined) {
-    return defaults;
-  } else {
-    return { ...defaults, ...options };
-  }
+  return { ...defaults, ...options };
 }
 
-export function enableMediaTracking(mediaId: string, options?: MediaConf) {
+export function enableMediaTracking(mediaId: string, options?: TrackingOptions) {
   let conf = configSorter(mediaId, options);
 
   const eventsWithOtherFunctions: Record<string, Function> = {

@@ -13,6 +13,12 @@ export type HTMLVideoFormat = 'mp4' | 'ogg' | 'webm';
 // All Video formats can be used as Audio as well
 export type HTMLAudioFormat = 'aac' | 'aacp' | 'caf' | 'flac' | 'mp3' | 'wav' | HTMLVideoFormat;
 
+export interface TrackingOptions {
+  percentBoundries?: number[];
+  captureEvents?: EventGroup;
+  mediaLabel?: string;
+}
+
 export interface MediaConf {
   mediaId: string;
   percentBoundries: number[];
