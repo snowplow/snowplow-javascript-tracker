@@ -115,6 +115,10 @@
       "allowedCategories": [ "trackers" ]
     },
     {
+      "name": "@snowplow/browser-plugin-youtube-tracking",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "@snowplow/browser-tracker",
       "allowedCategories": [ "plugins", "trackers" ]
     },
@@ -169,6 +173,10 @@
     {
       "name": "@types/uuid",
       "allowedCategories": [ "libraries", "trackers" ]
+    },
+    {
+      "name": "@types/youtube",
+      "allowedCategories": [ "plugins" ]
     },
     {
       "name": "@typescript-eslint/eslint-plugin",

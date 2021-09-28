@@ -526,6 +526,12 @@
       "projectFolder": "plugins/browser-plugin-media-tracking",
       "reviewCategory": "plugins",
       "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-plugin-youtube-tracking",
+      "projectFolder": "plugins/browser-plugin-youtube-tracking",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
     }
   ]
 }

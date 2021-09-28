@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<head>
+  <title>Page for YouTube tracking testing with Snowplow Micro</title>
+  <script>
+    const collector_endpoint = document.cookie.split('container=')[1].split(';')[0].trim();
+    document.body.className += ' loaded';
+  </script>
+</head>
+<body>
+  <script>
+    (function (p, l, o, w, i, n, g) {
+      if (!p[i]) {
+        p.GlobalSnowplowNamespace = p.GlobalSnowplowNamespace || [];
+        p.GlobalSnowplowNamespace.push(i);
+        p[i] = function () {
+          (p[i].q = p[i].q || []).push(arguments);
+        };
+        p[i].q = p[i].q || [];
+        n = l.createElement(o);
+        g = l.getElementsByTagName(o)[0];
+        n.async = 1;
+        n.src = w;
+        g.parentNode.insertBefore(n, g);
+      }
+    })(window, document, 'script', '../snowplow.js', 'snowplow');
+
+    document.write(collector_endpoint);
+
+    window.snowplow('newTracker', 'sp2', collector_endpoint, {
+      appId: 'youtube-track-test',
+    });
+
+    let args = {
+      id: 'youtube',
+      options: {
+        label: 'test-label',
+        captureEvents: ['DefaultEvents'],
+      },
+    };
+
+    window.snowplow('enableYouTubeTracking', args);
+
+    let args2 = {
+      id: 'youtube-2',
+      options: {
+        label: 'test-label',
+        captureEvents: ['DefaultEvents'],
+      },
+    };
+
+    window.snowplow('enableYouTubeTracking', args2);
+  </script>
+  <iframe
+    id="youtube"
+    width="560"
+    height="315"
+    src="https://www.youtube.com/embed/zSM4ZyVe8xs"
+    title="YouTube video player"
+    rel="0"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen
+  ></iframe>
+  <iframe
+    id="youtube-2"
+    width="560"
+    height="315"
+    src="https://www.youtube.com/embed/zSM4ZyVe8xs"
+    title="YouTube video player"
+    rel="0"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen
+  ></iframe>
+</body>

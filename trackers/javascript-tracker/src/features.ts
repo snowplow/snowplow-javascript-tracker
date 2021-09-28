@@ -45,6 +45,7 @@ import * as EnhancedEcommerce from '@snowplow/browser-plugin-enhanced-ecommerce'
 import * as AdTracking from '@snowplow/browser-plugin-ad-tracking';
 import * as SiteTracking from '@snowplow/browser-plugin-site-tracking';
 import * as MediaTracking from '@snowplow/browser-plugin-media-tracking';
+import * as YouTubeTracking from '@snowplow/browser-plugin-youtube-tracking';
 import { plugins } from '../tracker.config';
 import { BrowserPlugin } from '@snowplow/browser-tracker-core';
 import { JavaScriptTrackerConfiguration } from './configuration';
@@ -176,6 +177,11 @@ export function Plugins(configuration: JavaScriptTrackerConfiguration) {
   if (plugins.mediaTracking) {
     const { MediaTrackingPlugin, ...apiMethods } = MediaTracking;
     activatedPlugins.push([MediaTrackingPlugin(), apiMethods]);
+  }
+  
+  if (plugins.youtubeTracking) {
+    const { YouTubeTrackingPlugin, ...apiMethods } = YouTubeTracking;
+    activatedPlugins.push([YouTubeTrackingPlugin(), apiMethods]);
   }
 
   return activatedPlugins;
