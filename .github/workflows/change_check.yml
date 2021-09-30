@@ -37,7 +37,7 @@ jobs:
         run: node common/scripts/install-run-rush.js rebuild --verbose
 
       - name: Install API Extractor
-        run: npm install -g @microsoft/api-extractor@^7.18.4
+        run: npm install -g @microsoft/api-extractor@7.18.4
 
       - name: Check for API changes to @snowplow/browser-tracker
         working-directory: ./trackers/browser-tracker
