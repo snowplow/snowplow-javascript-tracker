@@ -7,7 +7,7 @@ Tue, 21 Sep 2021 14:59:36 GMT
 
 ### Updates
 
-- Fix linkDecorationHandler targeting (closes #1002)
+- Fix linkDecorationHandler targeting (#1002)
 
 ## 3.1.3
 Mon, 23 Aug 2021 10:13:18 GMT

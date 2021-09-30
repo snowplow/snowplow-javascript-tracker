@@ -215,6 +215,68 @@ test('Add global contexts', (t) => {
   t.is(globalContexts.getConditionalProviders().length, 2, 'Correct number of conditional providers added');
 });
 
+test('Remove one of two global context primitives', (t) => {
+  const geolocationContext = {
+    schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
+    data: {
+      latitude: 40.0,
+      longitude: 55.1,
+    },
+  };
+
+  const webPageContext = {
+    schema: 'iglu:org.schema/WebPage/jsonschema/1-0-0',
+    data: {
+      genre: 'test',
+    },
+  };
+
+  const globalContexts = contexts.globalContexts();
+  globalContexts.addGlobalContexts([geolocationContext, webPageContext]);
+  globalContexts.removeGlobalContexts([geolocationContext]);
+  t.deepEqual(globalContexts.getGlobalPrimitives(), [webPageContext]);
+});
+
+test('Remove one of two global context conditional providers', (t) => {
+  const geolocationContext = {
+    schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
+    data: {
+      latitude: 40.0,
+      longitude: 55.1,
+    },
+  };
+
+  function eventTypeContextGenerator(args?: contexts.ContextEvent) {
+    const context: SelfDescribingJson = {
+      schema: 'iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1',
+      data: {
+        osType: 'ubuntu',
+        osVersion: '2018.04',
+        deviceManufacturer: 'ASUS',
+        deviceModel: args ? String(args['eventType']) : '',
+      },
+    };
+    return context;
+  }
+
+  const bothRuleSet = {
+    accept: ['iglu:com.snowplowanalytics.snowplow/*/jsonschema/*-*-*'],
+    reject: ['iglu:com.snowplowanalytics.snowplow/*/jsonschema/*-*-*'],
+  };
+
+  const filterFunction = function (args?: contexts.ContextEvent) {
+    return args?.eventType === 'ue';
+  };
+
+  const filterProvider: contexts.FilterProvider = [filterFunction, [geolocationContext, eventTypeContextGenerator]];
+  const ruleSetProvider: contexts.RuleSetProvider = [bothRuleSet, [geolocationContext, eventTypeContextGenerator]];
+  const globalContexts = contexts.globalContexts();
+
+  globalContexts.addGlobalContexts([filterProvider, ruleSetProvider]);
+  globalContexts.removeGlobalContexts([filterProvider]);
+  t.deepEqual(globalContexts.getConditionalProviders(), [ruleSetProvider]);
+});
+
 test('Remove global contexts', (t) => {
   const geolocationContext = {
     schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',

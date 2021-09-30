@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Fix removeGlobalContexts not removing expected context (#1006)",
+      "type": "none",
+      "packageName": "@snowplow/browser-tracker-core"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker-core",
+  "email": "paul@snowplowanalytics.com"
+}
