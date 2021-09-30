@@ -8,7 +8,7 @@
       "comments": {
         "none": [
           {
-            "comment": "Fix linkDecorationHandler targeting (closes #1002)"
+            "comment": "Fix linkDecorationHandler targeting (#1002)"
           }
         ]
       }

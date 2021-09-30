@@ -193,10 +193,10 @@ export function globalContexts(): GlobalContexts {
       for (const context of contexts) {
         if (isConditionalContextProvider(context)) {
           conditionalProviders = conditionalProviders.filter(
-            (item) => JSON.stringify(item) === JSON.stringify(context)
+            (item) => JSON.stringify(item) !== JSON.stringify(context)
           );
         } else if (isContextPrimitive(context)) {
-          globalPrimitives = globalPrimitives.filter((item) => JSON.stringify(item) === JSON.stringify(context));
+          globalPrimitives = globalPrimitives.filter((item) => JSON.stringify(item) !== JSON.stringify(context));
         }
       }
     },
