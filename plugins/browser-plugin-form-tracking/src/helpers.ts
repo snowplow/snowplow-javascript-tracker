@@ -93,7 +93,7 @@ export function addFormListeners(tracker: BrowserTracker, configuration: FormTra
     config = getConfigurationForOptions(options);
 
   Array.prototype.slice.call(document.getElementsByTagName('form')).forEach(function (form) {
-    if (config.formFilter(form) && !form[trackingMarker]) {
+    if (config.formFilter(form)) {
       Array.prototype.slice.call(innerElementTags).forEach(function (tagname) {
         Array.prototype.slice.call(form.getElementsByTagName(tagname)).forEach(function (innerElement) {
           if (
@@ -118,8 +118,10 @@ export function addFormListeners(tracker: BrowserTracker, configuration: FormTra
         });
       });
 
-      addEventListener(form, 'submit', getFormSubmissionListener(tracker, config, trackingMarker, context));
-      form[trackingMarker] = true;
+      if (!form[trackingMarker]) {
+        addEventListener(form, 'submit', getFormSubmissionListener(tracker, config, trackingMarker, context));
+        form[trackingMarker] = true;
+      }
     }
   });
 }
