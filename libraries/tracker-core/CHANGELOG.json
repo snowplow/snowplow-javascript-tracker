@@ -2,6 +2,18 @@
   "name": "@snowplow/tracker-core",
   "entries": [
     {
+      "version": "3.1.5",
+      "tag": "@snowplow/tracker-core_v3.1.5",
+      "date": "Fri, 01 Oct 2021 08:09:21 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fix removeGlobalContexts not removing expected context (#1006)"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.1.4",
       "tag": "@snowplow/tracker-core_v3.1.4",
       "date": "Tue, 21 Sep 2021 14:59:36 GMT",
