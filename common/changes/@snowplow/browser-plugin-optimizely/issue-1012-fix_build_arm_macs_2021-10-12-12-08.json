@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-optimizely",
+      "comment": "Fix failing build on ARM Macs",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-optimizely"
+}

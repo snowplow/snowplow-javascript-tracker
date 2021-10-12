@@ -4,7 +4,7 @@
   "packages": [
     {
       "name": "@ampproject/rollup-plugin-closure-compiler",
-      "allowedCategories": [ "libraries", "trackers" ]
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "@rollup/plugin-alias",
