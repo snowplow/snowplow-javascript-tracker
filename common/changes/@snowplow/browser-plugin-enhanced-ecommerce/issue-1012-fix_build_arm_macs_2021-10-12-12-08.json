@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-enhanced-ecommerce",
+      "comment": "Fix failing build on ARM Macs (#1012)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-enhanced-ecommerce"
+}

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-ad-tracking",
+      "comment": "Fix failing build on ARM Macs (#1012)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-ad-tracking"
+}
