@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<head>
+  <title>Page for YouTube tracking testing with Snowplow Micro</title>
+  <script>
+    const collector_endpoint = document.cookie.split('container=')[1].split(';')[0].trim();
+    document.body.className += ' loaded';
+  </script>
+  <script>
+    (function (p, l, o, w, i, n, g) {
+      if (!p[i]) {
+        p.GlobalSnowplowNamespace = p.GlobalSnowplowNamespace || [];
+        p.GlobalSnowplowNamespace.push(i);
+        p[i] = function () {
+          (p[i].q = p[i].q || []).push(arguments);
+        };
+        p[i].q = p[i].q || [];
+        n = l.createElement(o);
+        g = l.getElementsByTagName(o)[0];
+        n.async = 1;
+        n.src = w;
+        g.parentNode.insertBefore(n, g);
+      }
+    })(window, document, 'script', './sp.js', 'snowplow');
+
+    document.write(collector_endpoint);
+
+    window.snowplow('newTracker', 'sp2', collector_endpoint, {
+      appId: 'youtube-track-test',
+    });
+
+    window.snowplow(
+      'addPlugin',
+      'https://cdn.jsdelivr.net/npm/@snowplow/browser-plugin-debugger@latest/dist/index.umd.min.js',
+      ['snowplowDebugger', 'DebuggerPlugin'],
+      [4]
+    );
+
+    let args = {
+      id: "html5",
+      trackingOptions: {
+        captureEvents: ['DefaultEvents'],
+        percentBoundries: [50],
+        mediaLabel: "test-label"
+      }
+    }
+
+    window.snowplow('enableMediaTracking', args);
+  </script>
+</head>
+<body>
+    <!--
+        The element must be muted to avoid: 
+        javascript error: javascript error: play() failed because the user didn't interact with the document first. https://goo.gl/xX8pDD
+    -->
+    <video id="html5" width="100%" src="html5-test.mp4" controls muted>
+        <track kind="subtitles" src="text_track.vtt" srcLang="en" label="Example Subs"></track>
+    </video>
+</body>
