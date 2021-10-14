@@ -1,6 +1,6 @@
 import { SnowplowMediaEvent } from './snowplowEvents';
 import { EventGroup } from './types';
-import { DocumentEvent, MediaEvent, TextTrackEvent, VideoEvent } from './mediaEvents';
+import { DocumentEvent, MediaEvent } from './mediaEvents';
 import { enumValues } from './helperFunctions';
 
 const MediaEvents: EventGroup = enumValues(MediaEvent);
@@ -14,8 +14,12 @@ export const DefaultEvents: EventGroup = [
   MediaEvent.SEEKED,
   MediaEvent.RATECHANGE,
   MediaEvent.VOLUMECHANGE,
-  TextTrackEvent.CHANGE,
+  MediaEvent.ENDED,
   DocumentEvent.FULLSCREENCHANGE,
-  VideoEvent.ENTERPICTUREINPICTURE,
-  VideoEvent.LEAVEPICTUREINPICTURE,
+  SnowplowMediaEvent.PERCENTPROGRESS,
 ];
+
+export const EventGroups: { [eventGroup: string]: EventGroup } = {
+  AllEvents: AllEvents,
+  DefaultEvents: DefaultEvents,
+};

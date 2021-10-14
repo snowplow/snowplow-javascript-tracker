@@ -48,17 +48,14 @@ export function isElementFullScreen(mediaId: string): boolean {
   return false;
 }
 
-// IE doesn't support Object().values (or Number.isInteger), so enumKeys and enumValues are needed for TS
+// IE doesn't support Object().values, so enumKeys and enumValues are needed for TS
 // to be happy about getting enum values
 
-Number.isInteger =
-  Number.isInteger ||
-  function (value) {
-    return typeof value === 'number' && isFinite(value) && Math.floor(value) === value;
-  };
-
-function enumKeys<T>(enumObj: T): string[] {
-  return Object.keys(enumObj).filter((k) => !Number.isInteger(k));
+export function enumKeys<T extends Object>(enumObj: T): string[] {
+  return Object.keys(enumObj).filter((k) => {
+    let n = Number(k);
+    return !(typeof n === 'number' && isFinite(Number(k)) && Math.floor(n) === n);
+  });
 }
 
 export function enumValues<T>(enumObj: T): T[keyof T][] {

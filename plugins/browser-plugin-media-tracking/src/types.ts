@@ -1,8 +1,8 @@
-import { MediaElement, MediaPlayerEvent, VideoElement } from './contexts';
+import { MediaContext, MediaElement, MediaPlayer, MediaPlayerEvent, VideoElement } from './contexts';
 import { SnowplowMediaEvent } from './snowplowEvents';
 import { MediaEvent, TextTrackEvent, DocumentEvent, VideoEvent } from './mediaEvents';
 
-export type EventGroup = (DocumentEvent | MediaEvent | SnowplowMediaEvent | TextTrackEvent | VideoEvent)[];
+export type EventGroup = (DocumentEvent | MediaEvent | SnowplowMediaEvent | TextTrackEvent | VideoEvent | string)[];
 
 export type MediaEventType = DocumentEvent | MediaEvent | SnowplowMediaEvent | TextTrackEvent | VideoEvent;
 
@@ -13,18 +13,21 @@ export type HTMLVideoFormat = 'mp4' | 'ogg' | 'webm';
 // All Video formats can be used as Audio as well
 export type HTMLAudioFormat = 'aac' | 'aacp' | 'caf' | 'flac' | 'mp3' | 'wav' | HTMLVideoFormat;
 
-export interface TrackingOptions {
+export interface RecievedTrackingOptions {
   percentBoundries?: number[];
-  captureEvents?: EventGroup;
+  captureEvents: EventGroup | string[];
   mediaLabel?: string;
+  percentTimeoutIds?: any[];
 }
 
-export interface MediaConf {
+export interface TrackingOptions {
   mediaId: string;
-  percentBoundries: number[];
   captureEvents: EventGroup;
   mediaLabel?: string;
-  percentTimeoutIds: any[];
+  boundry?: {
+    percentBoundries: number[];
+    percentTimeoutIds: any[];
+  };
   volumeChangeTimeout?: any;
 }
 
@@ -43,7 +46,7 @@ export interface MediaEventData {
 
 export interface MediaEntities {
   schema: string;
-  data: MediaElement | VideoElement | SnowplowData;
+  data: MediaElement | VideoElement | SnowplowData | MediaContext | MediaPlayer;
 }
 
 export interface TextTrackObject {

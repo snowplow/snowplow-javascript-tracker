@@ -27,17 +27,17 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-import { DefaultEvents } from './eventGroups';
+import { DefaultEvents, EventGroups } from './eventGroups';
 import { isTypeTextTrackEvent, isTypeDocumentEvent, percentBoundryErrorHandling } from './helperFunctions';
 import { SnowplowMediaEvent } from './snowplowEvents';
 import { DocumentEvent, MediaEvent } from './mediaEvents';
-import { MediaEventType, HTMLMediaElement, MediaConf, TrackingOptions } from './types';
+import { MediaEventType, TrackingOptions, RecievedTrackingOptions } from './types';
 import { BrowserPlugin, BrowserTracker, dispatchToTrackersInCollection } from '@snowplow/browser-tracker-core';
 import { buildSelfDescribingEvent, CommonEventProperties, SelfDescribingJson } from '@snowplow/tracker-core';
 import { MediaPlayerEvent } from './contexts';
 import { findMediaElem } from './findMediaElement';
 import { buildMediaEvent } from './buildMediaEvent';
-import { progressHandler, setPercentageBoundTimeouts } from './snowplowPercentProgress';
+import { MediaProperty } from './mediaProperties';
 
 declare global {
   interface HTMLVideoElement {
@@ -65,24 +65,61 @@ export function MediaTrackingPlugin(): BrowserPlugin {
   };
 }
 
-function configSorter(mediaId: string, options?: TrackingOptions) {
-  let defaults = {
+function trackingOptionsParser(mediaId: string, trackingOptions?: RecievedTrackingOptions): TrackingOptions {
+  let defaults: TrackingOptions = {
     mediaId: mediaId,
     captureEvents: DefaultEvents,
-    percentBoundries: [10, 25, 50, 75],
-    percentTimeoutIds: [],
   };
-  return { ...defaults, ...options };
+  if (trackingOptions?.captureEvents) {
+    let namedEvents = [];
+    for (let ev of trackingOptions.captureEvents) {
+      // If an event is an EventGroup, get the events from that group
+      if (EventGroups.hasOwnProperty(ev)) {
+        for (let event of EventGroups[ev]) {
+          if (namedEvents.indexOf(event) === -1) {
+            // If Percent Progress is an event as part of a group
+            if (event === SnowplowMediaEvent.PERCENTPROGRESS) {
+              defaults.boundry = {
+                percentBoundries: trackingOptions.percentBoundries || [10, 25, 50, 75],
+                percentTimeoutIds: [],
+              };
+            }
+            namedEvents.push(event);
+          }
+        }
+      } else if (!Object.keys(MediaEvent).filter((k) => k === ev)) {
+        console.error(`'${ev}' is not a valid captureEvent.`);
+        // If Percent Progress is a standalone event
+      } else if (ev === SnowplowMediaEvent.PERCENTPROGRESS) {
+        defaults.boundry = {
+          percentBoundries: trackingOptions.percentBoundries || [10, 25, 50, 75],
+          percentTimeoutIds: [],
+        };
+      } else {
+        namedEvents.push(Object.keys(MediaEvent).filter((k) => k === ev)[0] || ev);
+      }
+    }
+
+    trackingOptions.captureEvents = namedEvents;
+  }
+  // Percent boundries are now included in the 'boundry' object, so it can be removed before spread
+  delete trackingOptions?.percentBoundries;
+  return { ...defaults, ...trackingOptions };
 }
 
-export function enableMediaTracking(mediaId: string, options?: TrackingOptions) {
-  let conf = configSorter(mediaId, options);
-
+export function enableMediaTracking(args: { id: string; trackingOptions?: RecievedTrackingOptions }) {
+  let conf: TrackingOptions = trackingOptionsParser(args.id, args.trackingOptions);
   const eventsWithOtherFunctions: Record<string, Function> = {
-    [DocumentEvent.FULLSCREENCHANGE]: (el: HTMLMediaElement, conf: MediaConf) => {
-      if (document.fullscreenElement?.id === conf.mediaId) {
+    [DocumentEvent.FULLSCREENCHANGE]: (el: HTMLMediaElement, conf: TrackingOptions) => {
+      if (document.fullscreenElement?.id === args.id) {
         mediaPlayerEvent(el, DocumentEvent.FULLSCREENCHANGE, conf);
       }
+    },
+    [MediaEvent.SEEKED]: (el: HTMLMediaElement, conf: TrackingOptions) => {
+      while (conf.boundry!.percentTimeoutIds.length) {
+        clearTimeout(conf.boundry!.percentTimeoutIds.pop());
+      }
+      setPercentageBoundTimeouts(el, conf);
     },
   };
 
@@ -94,21 +131,21 @@ export function enableMediaTracking(mediaId: string, options?: TrackingOptions) 
     eventHandlers[ev] = (el: HTMLMediaElement, e: MediaEventType) => mediaPlayerEvent(el, e, conf);
   }
 
-  let el = findMediaElem(mediaId);
+  let el = findMediaElem(args.id);
   if (!el) {
-    console.error(`Couldn't find a Media element with id ${mediaId}`);
+    console.error(`Couldn't find a Media element with id ${args.id}`);
     return;
   }
 
   for (let c of conf.captureEvents) {
     switch (c) {
       case SnowplowMediaEvent.PERCENTPROGRESS:
-        percentBoundryErrorHandling(conf.percentBoundries);
+        percentBoundryErrorHandling(conf.boundry!.percentBoundries);
         setPercentageBoundTimeouts(el, conf);
     }
   }
 
-  addCaptureEventListeners(el, captureEvents, eventHandlers);
+  addCaptureEventListeners(el, conf.captureEvents, eventHandlers);
 }
 
 function addCaptureEventListeners(el: HTMLMediaElement, captureEvents: any, eventHandlers: any): void {
@@ -130,9 +167,10 @@ function addCaptureEventListeners(el: HTMLMediaElement, captureEvents: any, even
   }
 }
 
-export function mediaPlayerEvent(el: HTMLMediaElement, e: MediaEventType, conf: MediaConf, eventDetail?: any): void {
+function mediaPlayerEvent(el: HTMLMediaElement, e: MediaEventType, conf: TrackingOptions, eventDetail?: any): void {
+  console.log(e);
   let event = buildMediaEvent(el, e, conf.mediaId, eventDetail, conf.mediaLabel);
-  if (conf.captureEvents.indexOf(SnowplowMediaEvent.PERCENTPROGRESS) === -1) {
+  if (conf.captureEvents.indexOf(SnowplowMediaEvent.PERCENTPROGRESS) !== -1) {
     progressHandler(e, el, conf);
   }
 
@@ -153,4 +191,48 @@ function trackMediaEvent(
   dispatchToTrackersInCollection(trackers, _trackers, (t) => {
     t.core.track(buildSelfDescribingEvent({ event }), event.context, event.timestamp);
   });
+}
+
+// Progress Tracking
+
+function progressHandler(e: MediaEventType, el: HTMLMediaElement, conf: TrackingOptions) {
+  if (e === MediaEvent.PAUSE) {
+    while (conf.boundry!.percentTimeoutIds.length) {
+      clearTimeout(conf.boundry!.percentTimeoutIds.pop());
+    }
+  }
+
+  if (e === MediaEvent.PLAY && el[MediaProperty.READYSTATE] > 0) {
+    setPercentageBoundTimeouts(el, conf);
+  }
+}
+
+function setPercentageBoundTimeouts(el: HTMLMediaElement, conf: TrackingOptions) {
+  console.log(conf);
+  for (let p of conf.boundry!.percentBoundries) {
+    let absoluteBoundryTimeMs = el[MediaProperty.DURATION] * (p / 100) * 1000;
+    let currentTimeMs = el[MediaProperty.CURRENTTIME] * 1000;
+    let timeUntilBoundryEvent = absoluteBoundryTimeMs - currentTimeMs;
+    // If the boundry is less than the current time, we don't need to bother setting it
+    if (0 < timeUntilBoundryEvent) {
+      conf.boundry!.percentTimeoutIds.push(
+        setTimeout(() => waitAnyRemainingTimeAfterTimeout(el, timeUntilBoundryEvent, p, conf), timeUntilBoundryEvent)
+      );
+    }
+  }
+}
+
+// Setting the timeout callback above as MediaPlayerEvent will result in a discrepency between the setTimeout time and
+// the current video time when the event fires of ~100 - 300ms
+
+// The below function waits any required amount of remaining time, to ensure the event is fired as close as possible to the
+// appropriate percentage boundry time.
+
+function waitAnyRemainingTimeAfterTimeout(el: HTMLMediaElement, percentTime: number, p: number, conf: TrackingOptions) {
+  if (el[MediaProperty.CURRENTTIME] * 1000 < percentTime) {
+    setTimeout(() => waitAnyRemainingTimeAfterTimeout(el, percentTime, p, conf), 10);
+  } else {
+    console.log('Firing percent event', p);
+    mediaPlayerEvent(el, SnowplowMediaEvent.PERCENTPROGRESS, conf, { percentThrough: p });
+  }
 }

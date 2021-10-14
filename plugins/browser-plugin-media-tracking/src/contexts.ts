@@ -78,6 +78,16 @@ export interface TextTracksInterface {
 }
 export interface MediaElement {
   /**
+   * If the media is a video element, or audio
+   **/
+  media_type: 'AUDIO' | 'VIDEO';
+
+  /**
+   * The HTML id of the element
+   **/
+  player_id: string;
+
+  /**
    * If playback should automatically begin as soon as enough media is available to do so without interruption.
    **/
   auto_play: boolean;
@@ -103,11 +113,6 @@ export interface MediaElement {
   current_source: string;
 
   /**
-   * The current playback time
-   **/
-  current_time: number;
-
-  /**
    * If audio is muted by default
    **/
   default_muted: boolean;
@@ -123,44 +128,14 @@ export interface MediaElement {
   disable_remote_playback?: boolean | null;
 
   /**
-   * Total length of media in seconds
-   **/
-  duration?: number | null;
-
-  /**
-   * If playback of the media has ended
-   **/
-  ended: boolean;
-
-  /**
    * An object of the latest error to occur, or null if no errors
    **/
   error?: object | null;
 
   /**
-   * If the video restarts after ended
-   **/
-  loop: boolean;
-
-  /**
-   * If the media element is muted
-   **/
-  muted: boolean;
-
-  /**
    * The current state of the fetching of media over the network
    **/
   network_state: 'NETWORK_EMPTY' | 'NETWORK_IDLE' | 'NETWORK_LOADING' | 'NETWORK_NO_SOURCE';
-
-  /**
-   * If the media element is paused
-   **/
-  paused: boolean;
-
-  /**
-   * Playback rate relative to 1 (normal speed)
-   **/
-  playback_rate: number;
 
   /**
    * An array of time ranges played
@@ -201,11 +176,49 @@ export interface MediaElement {
    * An array of TextTrack objects on the media element
    **/
   text_tracks?: TextTracksInterface[];
+  [key: string]: unknown;
+}
+
+export interface MediaContext {
+  /**
+   * The current playback time
+   **/
+  current_time: number;
 
   /**
    * Volume level
    **/
   volume: number;
+
+  /**
+   * If the media element is paused
+   **/
+  paused: boolean;
+
+  /**
+   * If the video restarts after ended
+   **/
+  loop: boolean;
+
+  /**
+   * If playback of the media has ended
+   **/
+  ended: boolean;
+
+  /**
+   * If the media element is muted
+   **/
+  muted: boolean;
+
+  /**
+   * Playback rate relative to 1 (normal speed)
+   **/
+  playback_rate: number;
+
+  /**
+   * Total length of media in seconds
+   **/
+  duration?: number | null;
   [key: string]: unknown;
 }
 
@@ -214,16 +227,6 @@ export interface MediaPlayerEvent {
    * The event fired by the media player
    **/
   type: string;
-
-  /**
-   * The HTML id of the video element
-   **/
-  player_id: string;
-
-  /**
-   * If the media is a video element, or audio
-   **/
-  media_type: 'AUDIO' | 'VIDEO';
 
   /**
    * The custom media identifier given by the user
@@ -241,16 +244,16 @@ export interface MediaPlayer {
   /**
    * If the video element is fullscreen
    **/
-  fullscreen: boolean;
+  fullscreen?: boolean | null;
 
   /**
    * The percent of the way through the media
    **/
-  percent_progress: number;
+  percent_progress?: number | null;
 
   /**
    * If the video element is showing Picture-In-Picture
    **/
-  picture_in_picture: boolean;
+  picture_in_picture?: boolean | null;
   [key: string]: unknown;
 }
