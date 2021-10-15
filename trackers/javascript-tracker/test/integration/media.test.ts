@@ -125,7 +125,7 @@ describe('Media Tracker', () => {
       elem.currentTime = elem.duration / 2 - 2;
       elem.play();
     });
-    browser.pause(5000);
+    await browser.pause(5000);
     return fetchMostRecentResult(docker.url).then((result) => {
       expect(result.event.unstruct_event.data.data.type).toEqual('percentprogress');
     });

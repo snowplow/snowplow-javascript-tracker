@@ -12,6 +12,16 @@
             "uri": "http://iglucentral.com"
           }
         }
+      },
+      {
+        "name": "Iglu Central Branch",
+        "priority": 0,
+        "vendorPrefixes": ["com.snowplowanalytics"],
+        "connection": {
+          "http": {
+            "uri": "https://raw.githubusercontent.com/snowplow/iglu-central/html5-media-schemas"
+          }
+        }
       }
     ]
   }
