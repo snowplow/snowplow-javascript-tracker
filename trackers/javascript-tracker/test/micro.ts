@@ -117,3 +117,6 @@ export const fetchResults = (containerUrl: string) =>
 export const fetchMostRecentResult = (containerUrl: string) => {
   return createMicroCall(`http://${containerUrl}/micro/good`)().then((good: unknown) => JSON.parse(good as string)[0]);
 };
+
+export const fetchBadResults = (containerUrl: string) =>
+  createMicroCall(`http://${containerUrl}/micro/bad`)().then((bad: unknown) => JSON.parse(bad as string));

@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { DockerWrapper, start, stop, fetchMostRecentResult } from '../micro';
+import { DockerWrapper, start, stop, fetchMostRecentResult, fetchBadResults } from '../micro';
 
 const itif = (condition: any) => (condition ? it : it.skip);
 
@@ -71,6 +71,9 @@ describe('Media Tracker', () => {
 
   it('tracks play', async () => {
     await browser.execute(() => (document.getElementById('html5') as HTMLVideoElement).play());
+
+    console.log(await fetchBadResults(docker.url).then((result) => console.log(result)));
+
     return fetchMostRecentResult(docker.url).then((result) => {
       expect(result.event.unstruct_event.data.data.type).toEqual('play');
     });
