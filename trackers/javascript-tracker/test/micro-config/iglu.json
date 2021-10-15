@@ -14,12 +14,12 @@
         }
       },
       {
-        "name": "Iglu Central Branch",
+        "name": "Github",
         "priority": 0,
         "vendorPrefixes": ["com.snowplowanalytics"],
         "connection": {
           "http": {
-            "uri": "https://raw.githubusercontent.com/snowplow/iglu-central/html5-media-schemas"
+            "uri": "https://raw.githubusercontent.com/snowplow/iglu-central/javascript-tracker-media-tracking"
           }
         }
       }
