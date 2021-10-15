@@ -627,6 +627,49 @@ importers:
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.3.5
       typescript: 4.3.5
 
+  ../../plugins/browser-plugin-media-tracking:
+    specifiers:
+      '@ampproject/rollup-plugin-closure-compiler': ^0.26.0
+      '@rollup/plugin-commonjs': ^17.1.0
+      '@rollup/plugin-node-resolve': ^11.2.0
+      '@snowplow/browser-tracker-core': workspace:*
+      '@snowplow/tracker-core': workspace:*
+      '@types/jest': ^26.0.20
+      '@typescript-eslint/eslint-plugin': ^4.9.0
+      '@typescript-eslint/parser': ^4.9.0
+      '@wessberg/rollup-plugin-ts': ^1.3.10
+      eslint: ^7.7.0
+      jest: ^26.6.3
+      jest-standard-reporter: ^2.0.0
+      rollup: ^2.41.1
+      rollup-plugin-cleanup: ^3.2.1
+      rollup-plugin-license: ^2.2.0
+      rollup-plugin-terser: ^7.0.2
+      ts-jest: ^26.5.0
+      tslib: ^2.3.0
+      typescript: ^4.3.5
+    dependencies:
+      '@snowplow/browser-tracker-core': link:../../libraries/browser-tracker-core
+      '@snowplow/tracker-core': link:../../libraries/tracker-core
+      tslib: 2.3.0
+    devDependencies:
+      '@ampproject/rollup-plugin-closure-compiler': 0.26.0_rollup@2.41.1
+      '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.1
+      '@rollup/plugin-node-resolve': 11.2.0_rollup@2.41.1
+      '@types/jest': 26.0.20
+      '@typescript-eslint/eslint-plugin': 4.11.0_03dc75c18e96dfbc156c58d5a8cd7146
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.3.5
+      '@wessberg/rollup-plugin-ts': 1.3.14_rollup@2.41.1+typescript@4.3.5
+      eslint: 7.16.0
+      jest: 26.6.3
+      jest-standard-reporter: 2.0.0
+      rollup: 2.41.1
+      rollup-plugin-cleanup: 3.2.1_rollup@2.41.1
+      rollup-plugin-license: 2.2.0_rollup@2.41.1
+      rollup-plugin-terser: 7.0.2_rollup@2.41.1
+      ts-jest: 26.5.0_jest@26.6.3+typescript@4.3.5
+      typescript: 4.3.5
+
   ../../plugins/browser-plugin-optimizely:
     specifiers:
       '@rollup/plugin-commonjs': ^17.1.0
@@ -921,6 +964,7 @@ importers:
       '@snowplow/browser-plugin-ga-cookies': workspace:*
       '@snowplow/browser-plugin-geolocation': workspace:*
       '@snowplow/browser-plugin-link-click-tracking': workspace:*
+      '@snowplow/browser-plugin-media-tracking': workspace:*
       '@snowplow/browser-plugin-optimizely': workspace:*
       '@snowplow/browser-plugin-optimizely-x': workspace:*
       '@snowplow/browser-plugin-performance-timing': workspace:*
@@ -940,7 +984,7 @@ importers:
       '@wdio/spec-reporter': ^6.11.0
       '@wdio/static-server-service': ^6.10.10
       '@wdio/sync': ^6.11.0
-      chromedriver: ^92.0.1
+      chromedriver: ^94.0.0
       dockerode: ^3.2.1
       jest: ^26.6.3
       jest-standard-reporter: ^2.0.0
@@ -971,6 +1015,7 @@ importers:
       '@snowplow/browser-plugin-ga-cookies': link:../../plugins/browser-plugin-ga-cookies
       '@snowplow/browser-plugin-geolocation': link:../../plugins/browser-plugin-geolocation
       '@snowplow/browser-plugin-link-click-tracking': link:../../plugins/browser-plugin-link-click-tracking
+      '@snowplow/browser-plugin-media-tracking': link:../../plugins/browser-plugin-media-tracking
       '@snowplow/browser-plugin-optimizely': link:../../plugins/browser-plugin-optimizely
       '@snowplow/browser-plugin-optimizely-x': link:../../plugins/browser-plugin-optimizely-x
       '@snowplow/browser-plugin-performance-timing': link:../../plugins/browser-plugin-performance-timing
@@ -997,7 +1042,7 @@ importers:
       '@wdio/spec-reporter': 6.11.0_@wdio+cli@6.12.1
       '@wdio/static-server-service': 6.10.10
       '@wdio/sync': 6.11.0
-      chromedriver: 92.0.1
+      chromedriver: 94.0.0
       dockerode: 3.2.1
       jest: 26.6.3_ts-node@9.1.1
       jest-standard-reporter: 2.0.0
@@ -1014,7 +1059,7 @@ importers:
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.3.5
       ts-node: 9.1.1_typescript@4.3.5
       typescript: 4.3.5
-      wdio-chromedriver-service: 6.0.4_4a3e955417911ce9093a06b981efd7b7
+      wdio-chromedriver-service: 6.0.4_25d7422259640475936d8a95dcd9427b
 
   ../../trackers/node-tracker:
     specifiers:
@@ -3673,9 +3718,69 @@ packages:
       '@wdio/logger': 6.10.10
     dev: true
 
+  /@wessberg/browserslist-generator/1.0.47:
+    resolution: {integrity: sha512-2xNrz5LoRgdtrRphXBwt/bLVstuqB939rAIcHs8qEs1wokLq+hol9fhOIaxtJsn5LeEcBBFLFxtGOr9PbZd5HA==}
+    engines: {node: '>=8.0.0'}
+    deprecated: wessberg/browserslist-generator has been renamed to browserslist-generator. Please use browserslist-generator instead
+    dependencies:
+      '@mdn/browser-compat-data': 3.3.13
+      '@types/object-path': 0.11.0
+      '@types/semver': 7.3.8
+      '@types/ua-parser-js': 0.7.36
+      browserslist: 4.16.3
+      caniuse-lite: 1.0.30001248
+      object-path: 0.11.5
+      semver: 7.3.5
+      ua-parser-js: 0.7.28
+    dev: true
+
+  /@wessberg/rollup-plugin-ts/1.3.14_rollup@2.41.1+typescript@4.3.5:
+    resolution: {integrity: sha512-k1a//kf27mGpDgX/duQ4TUOqUJ0d20tOoCS2mkS5TF5vu3ZC6xNaDXkrL/ZBOqP840GW12L1UqyHQmc3D9ULng==}
+    engines: {node: '>=10.0.0'}
+    deprecated: this package has been renamed to rollup-plugin-ts. Please install rollup-plugin-ts instead
+    peerDependencies:
+      rollup: '>=1.x || >=2.x'
+      typescript: '>=3.2.x || >= 4.x'
+    dependencies:
+      '@babel/core': 7.14.8
+      '@babel/plugin-proposal-async-generator-functions': 7.14.9_@babel+core@7.14.8
+      '@babel/plugin-proposal-json-strings': 7.14.5_@babel+core@7.14.8
+      '@babel/plugin-proposal-object-rest-spread': 7.14.7_@babel+core@7.14.8
+      '@babel/plugin-proposal-optional-catch-binding': 7.14.5_@babel+core@7.14.8
+      '@babel/plugin-proposal-unicode-property-regex': 7.14.5_@babel+core@7.14.8
+      '@babel/plugin-syntax-dynamic-import': 7.8.3_@babel+core@7.14.8
+      '@babel/plugin-transform-runtime': 7.14.5_@babel+core@7.14.8
+      '@babel/preset-env': 7.14.9_@babel+core@7.14.8
+      '@babel/runtime': 7.14.8
+      '@rollup/pluginutils': 4.1.0_rollup@2.41.1
+      '@types/babel__core': 7.1.14
+      '@wessberg/browserslist-generator': 1.0.47
+      '@wessberg/stringutil': 1.0.19
+      '@wessberg/ts-clone-node': 0.3.19_typescript@4.3.5
+      browserslist: 4.16.6
+      chalk: 4.1.2
+      magic-string: 0.25.7
+      rollup: 2.41.1
+      slash: 3.0.0
+      tslib: 2.3.0
+      typescript: 4.3.5
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
   /@wessberg/stringutil/1.0.19:
     resolution: {integrity: sha512-9AZHVXWlpN8Cn9k5BC/O0Dzb9E9xfEMXzYrNunwvkUTvuK7xgQPVRZpLo+jWCOZ5r8oBa8NIrHuPEu1hzbb6bg==}
     engines: {node: '>=8.0.0'}
+    dev: true
+
+  /@wessberg/ts-clone-node/0.3.19_typescript@4.3.5:
+    resolution: {integrity: sha512-BnJcU0ZwHxa5runiEkHzMZ6/ydxz+YYqBHOGQtf3eoxSZu2iWMPPaUfCum0O1/Ey5dqrrptUh+HmyMTzHPfdPA==}
+    engines: {node: '>=10.0.0'}
+    deprecated: this package has been renamed to ts-clone-node. Please install ts-clone-node instead
+    peerDependencies:
+      typescript: ^3.x || ^4.x
+    dependencies:
+      typescript: 4.3.5
     dev: true
 
   /abab/2.0.5:
@@ -4097,10 +4202,10 @@ packages:
     resolution: {integrity: sha512-xh1Rl34h6Fi1DC2WWKfxUTVqRsNnr6LsKz2+hfwDxQJWmrx8+c7ylaqBMcHfl1U1r2dsifOvKX3LQuLNZ+XSvA==}
     dev: true
 
-  /axios/0.21.1:
-    resolution: {integrity: sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA==}
+  /axios/0.21.4:
+    resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
     dependencies:
-      follow-redirects: 1.13.1
+      follow-redirects: 1.14.4
     transitivePeerDependencies:
       - debug
     dev: true
@@ -4400,6 +4505,18 @@ packages:
       object-path: 0.11.5
       semver: 7.3.5
       ua-parser-js: 0.7.28
+    dev: true
+
+  /browserslist/4.16.3:
+    resolution: {integrity: sha512-vIyhWmIkULaq04Gt93txdh+j02yX/JzlyhLYbV3YQCn/zvES3JnY7TifHHvvr1w5hTDluNKMkV05cs4vy8Q7sw==}
+    engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
+    hasBin: true
+    dependencies:
+      caniuse-lite: 1.0.30001248
+      colorette: 1.2.2
+      electron-to-chromium: 1.3.793
+      escalade: 3.1.1
+      node-releases: 1.1.71
     dev: true
 
   /browserslist/4.16.6:
@@ -4759,14 +4876,14 @@ packages:
       rimraf: 3.0.2
     dev: true
 
-  /chromedriver/92.0.1:
-    resolution: {integrity: sha512-LptlDVCs1GgyFNVbRoHzzy948JDVzTgGiVPXjNj385qXKQP3hjAVBIgyvb/Hco0xSEW8fjwJfsm1eQRmu6t4pQ==}
+  /chromedriver/94.0.0:
+    resolution: {integrity: sha512-x4hK7R7iOyAhdLHJEcOyGBW/oa2kno6AqpHVLd+n3G7c2Vk9XcAXMz84XhNItqykJvTc6E3z/JRIT1eHYH//Eg==}
     engines: {node: '>=10'}
     hasBin: true
     requiresBuild: true
     dependencies:
       '@testim/chrome-version': 1.0.7
-      axios: 0.21.1
+      axios: 0.21.4
       del: 6.0.0
       extract-zip: 2.0.1
       https-proxy-agent: 5.0.0
@@ -6306,8 +6423,8 @@ packages:
     resolution: {integrity: sha512-tW+UkmtNg/jv9CSofAKvgVcO7c2URjhTdW1ZTkcAritblu8tajiYy7YisnIflEwtKssCtOxpnBRoCB7iap0/TA==}
     dev: true
 
-  /follow-redirects/1.13.1:
-    resolution: {integrity: sha512-SSG5xmZh1mkPGyKzjZP8zLjltIfpW32Y5QpdNJyjcfGxK3qo3NDDkZOZSFiGn1A6SclQxY9GzEwAHQ3dmYRWpg==}
+  /follow-redirects/1.14.4:
+    resolution: {integrity: sha512-zwGkiSXC1MUJG/qmeIFH2HBJx9u0V46QGUe3YR1fXG8bXQxq7fLj0RjLZQ5nubr9qNJUZrH+xUcwXEoXNpfS+g==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'
@@ -11695,7 +11812,7 @@ packages:
       defaults: 1.0.3
     dev: true
 
-  /wdio-chromedriver-service/6.0.4_4a3e955417911ce9093a06b981efd7b7:
+  /wdio-chromedriver-service/6.0.4_25d7422259640475936d8a95dcd9427b:
     resolution: {integrity: sha512-ed0ctxRJ4KbhAX/BkGUFS/sy6zDrZ3oB1Tqvokrs3r7GPX115w/AcOySofXdAk7Pdjm2JLDW/marHG/LmVoBuw==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
@@ -11703,7 +11820,7 @@ packages:
       chromedriver: '*'
     dependencies:
       '@wdio/cli': 6.12.1
-      chromedriver: 92.0.1
+      chromedriver: 94.0.0
       fs-extra: 9.0.1
     dev: true
 

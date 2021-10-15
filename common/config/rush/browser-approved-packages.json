@@ -4,7 +4,7 @@
   "packages": [
     {
       "name": "@ampproject/rollup-plugin-closure-compiler",
-      "allowedCategories": [ "libraries", "trackers" ]
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "@rollup/plugin-alias",
@@ -88,6 +88,10 @@
     },
     {
       "name": "@snowplow/browser-plugin-link-click-tracking",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@snowplow/browser-plugin-media-tracking",
       "allowedCategories": [ "trackers" ]
     },
     {
@@ -201,6 +205,10 @@
     {
       "name": "@wdio/sync",
       "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@wessberg/rollup-plugin-ts",
+      "allowedCategories": [ "plugins" ]
     },
     {
       "name": "ava",
