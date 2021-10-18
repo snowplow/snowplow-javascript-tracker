@@ -32,8 +32,7 @@ import { SelfDescribingJson } from '@snowplow/tracker-core';
 import { BrowserPlugin } from '@snowplow/browser-tracker-core';
 import { Geolocation } from './contexts';
 
-const navigatorAlias = navigator,
-  _trackers: Record<string, [boolean, SelfDescribingJson<Geolocation> | undefined]> = {};
+const _trackers: Record<string, [boolean, SelfDescribingJson<Geolocation> | undefined]> = {};
 
 let geolocation: SelfDescribingJson<Geolocation>,
   geolocationContextAdded = false;
@@ -75,6 +74,8 @@ export function GeolocationPlugin(enableAtLoad: boolean = false): BrowserPlugin 
  * @param trackers - The tracker identifiers which the context will be sent to
  */
 export function enableGeolocationContext(trackers: Array<string> = Object.keys(_trackers)) {
+  const navigatorAlias = navigator;
+
   trackers.forEach((t) => {
     //Mark as enabled
     _trackers[t] = [true, geolocation]; // Geolocation might still be undefined but it could also be set already

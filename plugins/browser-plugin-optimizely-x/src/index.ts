@@ -43,7 +43,6 @@ declare global {
  * Adds Opimizely X context to events
  */
 export function OptimizelyXPlugin(): BrowserPlugin {
-  const windowOptimizelyAlias = window.optimizely;
   /**
    * Check that *both* optimizely and optimizely.get exist
    *
@@ -51,6 +50,7 @@ export function OptimizelyXPlugin(): BrowserPlugin {
    * @param snd - optional nested property
    */
   function getOptimizelyXData(property: string, snd?: string) {
+    const windowOptimizelyAlias = window.optimizely;
     let data;
     if (windowOptimizelyAlias && typeof windowOptimizelyAlias.get === 'function') {
       data = windowOptimizelyAlias.get(property);
@@ -104,7 +104,7 @@ export function OptimizelyXPlugin(): BrowserPlugin {
   return {
     contexts: () => {
       // Add Optimizely Contexts
-      if (windowOptimizelyAlias) {
+      if (window.optimizely) {
         return getOptimizelyXSummaryContexts();
       }
 
