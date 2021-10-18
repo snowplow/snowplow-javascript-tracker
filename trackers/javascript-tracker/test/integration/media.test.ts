@@ -28,7 +28,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { DockerWrapper, start, stop, fetchMostRecentResult, fetchBadResults } from '../micro';
+import { F } from 'lodash/fp';
+import { DockerWrapper, start, stop, fetchMostRecentResult, fetchBadResults, fetchResults } from '../micro';
 
 const itif = (condition: any) => (condition ? it : it.skip);
 
@@ -42,7 +43,18 @@ enum BrowserName {
 }
 
 describe('Media Tracker', () => {
+  if (browser.capabilities.browserName === BrowserName.IE) {
+    fit('Skip IE9', () => {});
+  }
+
   let docker: DockerWrapper;
+  const browser_wait_times: { [index: string]: number } = {
+    chrome: 10000,
+    firefox: 15000,
+  };
+  const EVENT_WAIT_TIME = browser.capabilities.browserName
+    ? browser_wait_times[browser.capabilities.browserName]
+    : 5000;
 
   beforeAll(async () => {
     await browser.call(() => {
@@ -61,11 +73,15 @@ describe('Media Tracker', () => {
       timeout: 10000,
       timeoutMsg: 'expected html5 after 5s',
     });
+
+    await browser.waitUntil(() =>
+      browser.execute(() => {
+        return (document.getElementById('html5') as HTMLVideoElement).readyState > 1;
+      })
+    );
   });
 
   afterAll(async () => {
-    console.log(await fetchBadResults(docker.url).then((result) => console.log(result)));
-
     await browser.call(() => {
       return stop(docker.container);
     });
@@ -73,8 +89,10 @@ describe('Media Tracker', () => {
 
   it('tracks play', async () => {
     await browser.execute(() => (document.getElementById('html5') as HTMLVideoElement).play());
-    return fetchMostRecentResult(docker.url).then((result) => {
-      expect(result.event.unstruct_event.data.data.type).toEqual('play');
+    await browser.pause(EVENT_WAIT_TIME);
+    return fetchResults(docker.url).then((result) => {
+      let events: Array<string> = result.map((r: any) => r.event.unstruct_event.data.data.type);
+      expect(events).toContain('play');
     });
   });
 
@@ -84,52 +102,67 @@ describe('Media Tracker', () => {
       elem.play();
       elem.pause();
     });
-    return fetchMostRecentResult(docker.url).then((result) => {
-      expect(result.event.unstruct_event.data.data.type).toEqual('pause');
+    await browser.pause(EVENT_WAIT_TIME);
+    return fetchResults(docker.url).then((result) => {
+      let events: Array<string> = result.map((r: any) => r.event.unstruct_event.data.data.type);
+      expect(events).toContain('pause');
     });
   });
 
   it('tracks seeked', async () => {
-    await browser.execute(() => ((document.getElementById('html5') as HTMLVideoElement).currentTime = 20));
-    return fetchMostRecentResult(docker.url).then((result) => {
-      expect(result.event.unstruct_event.data.data.type).toEqual('seeked');
+    await browser.execute(() => {
+      let elem = document.getElementById('html5') as HTMLVideoElement;
+      elem.play();
+      elem.currentTime = 5.0;
+    });
+    browser.pause(EVENT_WAIT_TIME);
+    return fetchResults(docker.url).then((result) => {
+      let events: Array<string> = result.map((r: any) => r.event.unstruct_event.data.data.type);
+      expect(events).toContain('seeked');
     });
   });
 
   it('tracks volume change', async () => {
     await browser.execute(() => ((document.getElementById('html5') as HTMLVideoElement).volume = 0.5));
-    return fetchMostRecentResult(docker.url).then((result) => {
-      expect(result.event.unstruct_event.data.data.type).toEqual('volumechange');
+    browser.pause(EVENT_WAIT_TIME);
+    return fetchResults(docker.url).then((result) => {
+      let events: Array<string> = result.map((r: any) => r.event.unstruct_event.data.data.type);
+      expect(events).toContain('volumechange');
     });
   });
 
   it('tracks playback rate change', async () => {
     await browser.execute(() => ((document.getElementById('html5') as HTMLVideoElement).playbackRate = 0.9));
-    return fetchMostRecentResult(docker.url).then((result) => {
-      expect(result.event.unstruct_event.data.data.type).toEqual('ratechange');
+    browser.pause(EVENT_WAIT_TIME);
+    return fetchResults(docker.url).then((result) => {
+      let events: Array<string> = result.map((r: any) => r.event.unstruct_event.data.data.type);
+      expect(events).toContain('ratechange');
     });
   });
 
   it('tracks ending', async () => {
     await browser.execute(() => {
       let elem = document.getElementById('html5') as HTMLVideoElement;
-      elem.currentTime = elem.duration - 2;
       elem.play();
+      elem.currentTime = elem.duration - 2;
     });
-    return fetchMostRecentResult(docker.url).then((result) => {
-      expect(result.event.unstruct_event.data.data.type).toEqual('ended');
+    await browser.pause(EVENT_WAIT_TIME);
+    return fetchResults(docker.url).then((result) => {
+      let events: Array<string> = result.map((r: any) => r.event.unstruct_event.data.data.type);
+      expect(events).toContain('ended');
     });
   });
 
   it('tracks progress', async () => {
     await browser.execute(() => {
       let elem = document.getElementById('html5') as HTMLVideoElement;
-      elem.currentTime = elem.duration / 2 - 2;
       elem.play();
+      elem.currentTime = elem.duration / 2 - 2;
     });
-    await browser.pause(5000);
-    return fetchMostRecentResult(docker.url).then((result) => {
-      expect(result.event.unstruct_event.data.data.type).toEqual('percentprogress');
+    await browser.pause(EVENT_WAIT_TIME);
+    return fetchResults(docker.url).then((result) => {
+      let events: Array<string> = result.map((r: any) => r.event.unstruct_event.data.data.type);
+      expect(events).toContain('percentprogress');
     });
   });
 });
