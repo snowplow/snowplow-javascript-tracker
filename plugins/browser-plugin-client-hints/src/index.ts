@@ -54,34 +54,41 @@ declare global {
   }
 }
 
-const navigatorAlias = navigator;
+let uaClientHints: HttpClientHints;
 
 /**
  * Attaches Client Hint information where available
  * @param includeHighEntropy - Should high entropy values be included
  */
 export function ClientHintsPlugin(includeHighEntropy?: boolean): BrowserPlugin {
-  let uaClientHints: HttpClientHints;
+  const populateClientHints = () => {
+    const navigatorAlias = navigator;
 
-  if (navigatorAlias.userAgentData) {
-    uaClientHints = {
-      isMobile: navigatorAlias.userAgentData.mobile,
-      brands: navigatorAlias.userAgentData.brands,
-    };
-    if (includeHighEntropy && navigatorAlias.userAgentData.getHighEntropyValues) {
-      navigatorAlias.userAgentData
-        .getHighEntropyValues(['platform', 'platformVersion', 'architecture', 'model', 'uaFullVersion'])
-        .then((res) => {
-          uaClientHints.architecture = res.architecture;
-          uaClientHints.model = res.model;
-          uaClientHints.platform = res.platform;
-          uaClientHints.uaFullVersion = res.uaFullVersion;
-          uaClientHints.platformVersion = res.platformVersion;
-        });
+    if (navigatorAlias.userAgentData) {
+      uaClientHints = {
+        isMobile: navigatorAlias.userAgentData.mobile,
+        brands: navigatorAlias.userAgentData.brands,
+      };
+      if (includeHighEntropy && navigatorAlias.userAgentData.getHighEntropyValues) {
+        navigatorAlias.userAgentData
+          .getHighEntropyValues(['platform', 'platformVersion', 'architecture', 'model', 'uaFullVersion'])
+          .then((res) => {
+            uaClientHints.architecture = res.architecture;
+            uaClientHints.model = res.model;
+            uaClientHints.platform = res.platform;
+            uaClientHints.uaFullVersion = res.uaFullVersion;
+            uaClientHints.platformVersion = res.platformVersion;
+          });
+      }
     }
-  }
+  };
 
   return {
+    activateBrowserPlugin: () => {
+      if (!uaClientHints) {
+        populateClientHints();
+      }
+    },
     contexts: () => {
       if (uaClientHints) {
         return [
