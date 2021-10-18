@@ -74,11 +74,7 @@ describe('Media Tracker', () => {
       timeoutMsg: 'expected html5 after 5s',
     });
 
-    await browser.waitUntil(() =>
-      browser.execute(() => {
-        return (document.getElementById('html5') as HTMLVideoElement).readyState > 1;
-      })
-    );
+    await browser.pause(20000); // Saucelabs takes some time to load the video
   });
 
   afterAll(async () => {
