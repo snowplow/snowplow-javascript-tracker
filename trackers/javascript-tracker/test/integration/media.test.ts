@@ -44,36 +44,35 @@ enum BrowserName {
 describe('Media Tracker', () => {
   let docker: DockerWrapper;
 
-  beforeAll(() => {
-    browser.call(() => {
+  beforeAll(async () => {
+    await browser.call(() => {
       return start().then((container) => {
         docker = container;
       });
     });
-    browser.url('/index.html');
-    browser.setCookies({ name: 'container', value: docker.url });
-    browser.pause(6000); // Time for micro to get started
+    await browser.url('/index.html');
+    await browser.setCookies({ name: 'container', value: docker.url });
+    await browser.pause(6000); // Time for micro to get started
   });
 
-  beforeEach(() => {
-    browser.url('/media-tracking.html');
-    browser.waitUntil(() => $('#html5').isExisting(), {
+  beforeEach(async () => {
+    await browser.url('/media-tracking.html');
+    await browser.waitUntil(() => $('#html5').isExisting(), {
       timeout: 10000,
       timeoutMsg: 'expected html5 after 5s',
     });
   });
 
-  afterAll(() => {
-    browser.call(() => {
+  afterAll(async () => {
+    console.log(await fetchBadResults(docker.url).then((result) => console.log(result)));
+
+    await browser.call(() => {
       return stop(docker.container);
     });
   });
 
   it('tracks play', async () => {
     await browser.execute(() => (document.getElementById('html5') as HTMLVideoElement).play());
-
-    console.log(await fetchBadResults(docker.url).then((result) => console.log(result)));
-
     return fetchMostRecentResult(docker.url).then((result) => {
       expect(result.event.unstruct_event.data.data.type).toEqual('play');
     });
