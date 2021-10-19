@@ -2,6 +2,18 @@
   "name": "@snowplow/browser-plugin-consent",
   "entries": [
     {
+      "version": "3.1.6",
+      "tag": "@snowplow/browser-plugin-consent_v3.1.6",
+      "date": "Tue, 19 Oct 2021 09:17:22 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fix failing build on ARM Macs (#1012)"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.1.5",
       "tag": "@snowplow/browser-plugin-consent_v3.1.5",
       "date": "Fri, 01 Oct 2021 08:09:20 GMT",

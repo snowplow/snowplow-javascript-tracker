@@ -1,6 +1,13 @@
 # Change Log - @snowplow/tracker-core
 
-This log was last generated on Fri, 01 Oct 2021 08:09:21 GMT and should not be manually modified.
+This log was last generated on Tue, 19 Oct 2021 09:17:22 GMT and should not be manually modified.
+
+## 3.1.6
+Tue, 19 Oct 2021 09:17:22 GMT
+
+### Updates
+
+- Fix failing build on ARM Macs (#1012)
 
 ## 3.1.5
 Fri, 01 Oct 2021 08:09:21 GMT

@@ -1,6 +1,14 @@
 # Change Log - @snowplow/browser-plugin-client-hints
 
-This log was last generated on Fri, 01 Oct 2021 08:09:20 GMT and should not be manually modified.
+This log was last generated on Tue, 19 Oct 2021 09:17:22 GMT and should not be manually modified.
+
+## 3.1.6
+Tue, 19 Oct 2021 09:17:22 GMT
+
+### Updates
+
+- Fix failing build on ARM Macs (#1012)
+- Fix issues importing some plugins in Next SSR (#1015)
 
 ## 3.1.5
 Fri, 01 Oct 2021 08:09:20 GMT
