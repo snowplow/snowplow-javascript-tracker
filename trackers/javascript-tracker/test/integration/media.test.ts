@@ -28,8 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { F } from 'lodash/fp';
-import { DockerWrapper, start, stop, fetchMostRecentResult, fetchBadResults, fetchResults } from '../micro';
+import { DockerWrapper, start, stop, fetchResults } from '../micro';
 
 const itif = (condition: any) => (condition ? it : it.skip);
 
@@ -43,122 +42,107 @@ enum BrowserName {
 }
 
 describe('Media Tracker', () => {
+  console.log(browser.capabilities);
   if (browser.capabilities.browserName === BrowserName.IE) {
     fit('Skip IE9', () => {});
   }
 
-  let docker: DockerWrapper;
-  const browser_wait_times: { [index: string]: number } = {
-    chrome: 10000,
-    firefox: 15000,
-  };
-  const EVENT_WAIT_TIME = browser.capabilities.browserName
-    ? browser_wait_times[browser.capabilities.browserName]
-    : 5000;
+  if (browser.capabilities.browserName === BrowserName.SAFARI && browser.capabilities.version === '8.0') {
+    fit('Skip Safari 8', () => {});
+  }
 
-  beforeAll(async () => {
-    await browser.call(() => {
+  let docker: DockerWrapper;
+  let log: Array<unknown>;
+
+  beforeAll(() => {
+    browser.call(() => {
       return start().then((container) => {
         docker = container;
       });
     });
-    await browser.url('/index.html');
-    await browser.setCookies({ name: 'container', value: docker.url });
-    await browser.pause(6000); // Time for micro to get started
-  });
-
-  beforeEach(async () => {
-    await browser.url('/media-tracking.html');
-    await browser.waitUntil(() => $('#html5').isExisting(), {
+    browser.url('/index.html');
+    browser.setCookies({ name: 'container', value: docker.url });
+    browser.pause(6000); // Time for micro to get started
+    browser.url('/media-tracking.html');
+    browser.waitUntil(() => $('#html5').isExisting(), {
       timeout: 10000,
       timeoutMsg: 'expected html5 after 5s',
     });
+    browser.pause(2000);
+    let actions = [
+      () => {
+        (document.getElementById('html5') as HTMLVideoElement).play();
+      },
+      () => {
+        (document.getElementById('html5') as HTMLVideoElement).play();
+      },
+      () => {
+        (document.getElementById('html5') as HTMLVideoElement).pause();
+      },
+      () => {
+        (document.getElementById('html5') as HTMLVideoElement).currentTime = 5.0;
+      },
+      () => {
+        (document.getElementById('html5') as HTMLVideoElement).volume = 0.5;
+      },
+      () => {
+        (document.getElementById('html5') as HTMLVideoElement).playbackRate = 0.9;
+      },
+      () => {
+        var el = document.getElementById('html5') as HTMLVideoElement;
+        el.currentTime = el.duration / 2 - 2;
+      },
+      () => {
+        var el = document.getElementById('html5') as HTMLVideoElement;
+        el.currentTime = el.duration - 5.0;
+        el.play();
+      },
+    ];
 
-    await browser.pause(20000); // Saucelabs takes some time to load the video
+    actions.forEach((a) => {
+      browser.execute(a);
+      browser.pause(5000);
+    });
+    browser.pause(5000);
+
+    browser.call(() =>
+      fetchResults(docker.url).then((result) => {
+        log = result.map((r: any) => r.event.unstruct_event.data.data.type);
+      })
+    );
   });
 
-  afterAll(async () => {
-    await browser.call(() => {
+  afterAll(() => {
+    browser.call(() => {
       return stop(docker.container);
     });
   });
 
-  it('tracks play', async () => {
-    await browser.execute(() => (document.getElementById('html5') as HTMLVideoElement).play());
-    await browser.pause(EVENT_WAIT_TIME);
-    return fetchResults(docker.url).then((result) => {
-      let events: Array<string> = result.map((r: any) => r.event.unstruct_event.data.data.type);
-      expect(events).toContain('play');
-    });
+  it('tracks play', () => {
+    expect(log).toContain('play');
   });
 
-  it('tracks pause', async () => {
-    await browser.execute(() => {
-      let elem = document.getElementById('html5') as HTMLVideoElement;
-      elem.play();
-      elem.pause();
-    });
-    await browser.pause(EVENT_WAIT_TIME);
-    return fetchResults(docker.url).then((result) => {
-      let events: Array<string> = result.map((r: any) => r.event.unstruct_event.data.data.type);
-      expect(events).toContain('pause');
-    });
+  it('tracks pause', () => {
+    expect(log).toContain('pause');
   });
 
-  it('tracks seeked', async () => {
-    await browser.execute(() => {
-      let elem = document.getElementById('html5') as HTMLVideoElement;
-      elem.play();
-      elem.currentTime = 5.0;
-    });
-    browser.pause(EVENT_WAIT_TIME);
-    return fetchResults(docker.url).then((result) => {
-      let events: Array<string> = result.map((r: any) => r.event.unstruct_event.data.data.type);
-      expect(events).toContain('seeked');
-    });
+  it('tracks seeked', () => {
+    expect(log).toContain('seeked');
   });
 
-  it('tracks volume change', async () => {
-    await browser.execute(() => ((document.getElementById('html5') as HTMLVideoElement).volume = 0.5));
-    browser.pause(EVENT_WAIT_TIME);
-    return fetchResults(docker.url).then((result) => {
-      let events: Array<string> = result.map((r: any) => r.event.unstruct_event.data.data.type);
-      expect(events).toContain('volumechange');
-    });
+  it('tracks volume change', () => {
+    expect(log).toContain('volumechange');
   });
 
-  it('tracks playback rate change', async () => {
-    await browser.execute(() => ((document.getElementById('html5') as HTMLVideoElement).playbackRate = 0.9));
-    browser.pause(EVENT_WAIT_TIME);
-    return fetchResults(docker.url).then((result) => {
-      let events: Array<string> = result.map((r: any) => r.event.unstruct_event.data.data.type);
-      expect(events).toContain('ratechange');
-    });
+  it('tracks playback rate change', () => {
+    expect(log).toContain('ratechange');
   });
 
-  it('tracks ending', async () => {
-    await browser.execute(() => {
-      let elem = document.getElementById('html5') as HTMLVideoElement;
-      elem.play();
-      elem.currentTime = elem.duration - 2;
-    });
-    await browser.pause(EVENT_WAIT_TIME);
-    return fetchResults(docker.url).then((result) => {
-      let events: Array<string> = result.map((r: any) => r.event.unstruct_event.data.data.type);
-      expect(events).toContain('ended');
-    });
+  it('tracks ending', () => {
+    expect(log).toContain('ended');
   });
 
-  it('tracks progress', async () => {
-    await browser.execute(() => {
-      let elem = document.getElementById('html5') as HTMLVideoElement;
-      elem.play();
-      elem.currentTime = elem.duration / 2 - 2;
-    });
-    await browser.pause(EVENT_WAIT_TIME);
-    return fetchResults(docker.url).then((result) => {
-      let events: Array<string> = result.map((r: any) => r.event.unstruct_event.data.data.type);
-      expect(events).toContain('percentprogress');
-    });
+  it('tracks progress', () => {
+    expect(log).toContain('percentprogress');
   });
 });
