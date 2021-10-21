@@ -167,9 +167,9 @@ function addCaptureEventListeners(el: HTMLMediaElement, captureEvents: any, even
   }
 }
 
-function mediaPlayerEvent(el: HTMLMediaElement, e: MediaEventType, conf: TrackingOptions, eventDetail?: any): void {
+function mediaPlayerEvent(el: HTMLMediaElement, e: MediaEventType, conf: TrackingOptions): void {
   console.log(e);
-  let event = buildMediaEvent(el, e, conf.mediaId, eventDetail, conf.mediaLabel);
+  let event = buildMediaEvent(el, e, conf.mediaLabel);
   if (conf.captureEvents.indexOf(SnowplowMediaEvent.PERCENTPROGRESS) !== -1) {
     progressHandler(e, el, conf);
   }
@@ -233,6 +233,6 @@ function waitAnyRemainingTimeAfterTimeout(el: HTMLMediaElement, percentTime: num
     setTimeout(() => waitAnyRemainingTimeAfterTimeout(el, percentTime, p, conf), 10);
   } else {
     console.log('Firing percent event', p);
-    mediaPlayerEvent(el, SnowplowMediaEvent.PERCENTPROGRESS, conf, { percentThrough: p });
+    mediaPlayerEvent(el, SnowplowMediaEvent.PERCENTPROGRESS, conf);
   }
 }

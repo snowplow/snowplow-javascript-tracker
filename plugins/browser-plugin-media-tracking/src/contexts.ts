@@ -85,7 +85,7 @@ export interface MediaElement {
   /**
    * The HTML id of the element
    **/
-  player_id: string;
+  html_id: string;
 
   /**
    * If playback should automatically begin as soon as enough media is available to do so without interruption.
@@ -166,11 +166,6 @@ export interface MediaElement {
    * The 'src' HTML attribute of the media element
    **/
   src: string;
-
-  /**
-   * The 'srcObject' property of the HTML media element
-   **/
-  src_object?: object | null;
 
   /**
    * An array of TextTrack objects on the media element

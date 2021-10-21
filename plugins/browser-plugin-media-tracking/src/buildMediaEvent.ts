@@ -1,22 +1,11 @@
 import { NETWORK_STATE, READY_STATE } from './constants';
 import { MediaElement } from './contexts';
 import { isElementFullScreen, textTrackListToJson, timeRangesToObjectArray } from './helperFunctions';
-import { SnowplowMediaEvent } from './snowplowEvents';
-import { HTMLAudioFormat, HTMLVideoFormat, MediaEntities, MediaEventData, MediaEventType, SnowplowData } from './types';
+import { HTMLAudioFormat, HTMLVideoFormat, MediaEntities, MediaEventData, MediaEventType } from './types';
 import { MediaProperty, VideoProperty } from './mediaProperties';
 
-export function buildMediaEvent(
-  el: HTMLMediaElement,
-  e: MediaEventType,
-  mediaId: string,
-  eventDetail: any,
-  mediaLabel?: string
-): MediaEventData {
-  let mediaContext = [
-    getHTMLMediaElementEntities(el),
-    getSnowplowMediaEntities(el),
-    getSnowplowEntities(e, el, mediaId, eventDetail),
-  ];
+export function buildMediaEvent(el: HTMLMediaElement, e: MediaEventType, mediaLabel?: string): MediaEventData {
+  let mediaContext = [getHTMLMediaElementEntities(el), getSnowplowMediaEntities(el)];
 
   if (el instanceof HTMLVideoElement) {
     mediaContext.push(getHTMLVideoElementEntities(el));
@@ -24,14 +13,14 @@ export function buildMediaEvent(
 
   return {
     schema: 'iglu:com.snowplowanalytics/media_player_event/jsonschema/1-0-0',
-    data: { type: e, media_label: mediaLabel },
+    data: { type: e, label: mediaLabel },
     context: mediaContext,
   };
 }
 
 function getSnowplowMediaEntities(el: HTMLMediaElement): MediaEntities {
   return {
-    schema: 'iglu:com.snowplowanalytics/media_context/jsonschema/1-0-0',
+    schema: 'iglu:com.snowplowanalytics/media_player/jsonschema/1-0-0',
     data: {
       current_time: el[MediaProperty.CURRENTTIME],
       duration: el[MediaProperty.DURATION],
@@ -47,7 +36,7 @@ function getSnowplowMediaEntities(el: HTMLMediaElement): MediaEntities {
 
 function getHTMLMediaElementEntities(el: HTMLMediaElement): MediaEntities {
   let data: MediaElement = {
-    player_id: el.id,
+    html_id: el.id,
     media_type: el.tagName as MediaElement['media_type'],
     auto_play: el[MediaProperty.AUTOPLAY],
     buffered: timeRangesToObjectArray(el[MediaProperty.BUFFERED]),
@@ -64,8 +53,10 @@ function getHTMLMediaElementEntities(el: HTMLMediaElement): MediaEntities {
     seekable: timeRangesToObjectArray(el[MediaProperty.SEEKABLE]),
     seeking: el[MediaProperty.SEEKING],
     src: el[MediaProperty.SRC],
-    src_object: el[MediaProperty.SRCOBJECT],
     text_tracks: textTrackListToJson(el[MediaProperty.TEXTTRACKS]),
+    file_extension: el[MediaProperty.CURRENTSRC].split('.').pop() as HTMLVideoFormat | HTMLAudioFormat,
+    fullscreen: isElementFullScreen(el.id),
+    picture_in_picture: document.pictureInPictureElement?.id === el.id,
   };
   return {
     schema: 'iglu:org.whatwg/media_element/jsonschema/1-0-0',
@@ -82,30 +73,6 @@ function getHTMLVideoElementEntities(el: HTMLVideoElement): MediaEntities {
       poster: el[VideoProperty.POSTER],
       video_height: el[VideoProperty.VIDEOHEIGHT],
       video_width: el[VideoProperty.VIDEOWIDTH],
-    },
-  };
-}
-
-function getSnowplowEntities(
-  e: MediaEventType,
-  el: HTMLMediaElement,
-  mediaId: string,
-  eventDetail: any
-): MediaEntities {
-  const snowplowData: SnowplowData = {
-    file_extension: el[MediaProperty.CURRENTSRC].split('.').pop() as HTMLVideoFormat | HTMLAudioFormat,
-    fullscreen: isElementFullScreen(mediaId),
-    picture_in_picture: document.pictureInPictureElement?.id === mediaId,
-  };
-
-  if (e === SnowplowMediaEvent.PERCENTPROGRESS) {
-    snowplowData.percent_progress = eventDetail.percentThrough;
-  }
-
-  return {
-    schema: 'iglu:com.snowplowanalytics/media_player/jsonschema/1-0-0',
-    data: {
-      ...snowplowData,
     },
   };
 }
