@@ -32,8 +32,17 @@ import { nodeResolve } from '@rollup/plugin-node-resolve';
 import ts from 'rollup-plugin-ts'; // Prefered over @rollup/plugin-typescript as it bundles .d.ts files
 import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
+import alias from '@rollup/plugin-alias';
 
-const plugins = [json(), nodeResolve({ browser: true }), commonjs(), ts({ tsconfig: './tsconfig.prod.json' })];
+const plugins = [
+  alias({
+    entries: [{ find: '../tracker.config', replacement: '../tracker.test.config' }],
+  }),
+  json(),
+  nodeResolve({ browser: true }),
+  commonjs(),
+  ts({ tsconfig: './tsconfig.prod.json' }),
+];
 
 export default [
   {
