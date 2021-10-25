@@ -30,8 +30,6 @@
 
 import { DockerWrapper, start, stop, fetchResults } from '../micro';
 
-const itif = (condition: any) => (condition ? it : it.skip);
-
 enum BrowserName {
   FIREFOX = 'firefox',
   CHROME = 'chrome',
@@ -42,7 +40,6 @@ enum BrowserName {
 }
 
 describe('Media Tracker', () => {
-  console.log(browser.capabilities);
   if (browser.capabilities.browserName === BrowserName.IE) {
     fit('Skip IE9', () => {});
   }
@@ -60,15 +57,18 @@ describe('Media Tracker', () => {
         docker = container;
       });
     });
+
+    browser.waitUntil(() => docker !== undefined);
+    browser.pause(20000); // Time for micro to get started
     browser.url('/index.html');
     browser.setCookies({ name: 'container', value: docker.url });
-    browser.pause(6000); // Time for micro to get started
     browser.url('/media-tracking.html');
+
     browser.waitUntil(() => $('#html5').isExisting(), {
       timeout: 10000,
       timeoutMsg: 'expected html5 after 5s',
     });
-    browser.pause(2000);
+
     let actions = [
       () => {
         (document.getElementById('html5') as HTMLVideoElement).play();
@@ -94,16 +94,17 @@ describe('Media Tracker', () => {
       },
       () => {
         var el = document.getElementById('html5') as HTMLVideoElement;
-        el.currentTime = el.duration - 5.0;
+        el.currentTime = 18;
         el.play();
       },
     ];
 
     actions.forEach((a) => {
       browser.execute(a);
-      browser.pause(5000);
+      browser.pause(1000);
     });
-    browser.pause(5000);
+
+    browser.pause(5000); // Wait for requests to get sent
 
     browser.call(() =>
       fetchResults(docker.url).then((result) => {
