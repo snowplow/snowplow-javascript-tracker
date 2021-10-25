@@ -4,7 +4,7 @@ import { isElementFullScreen, textTrackListToJson, timeRangesToObjectArray } fro
 import { HTMLAudioFormat, HTMLVideoFormat, MediaEntities, MediaEventData, MediaEventType } from './types';
 import { MediaProperty, VideoProperty } from './mediaProperties';
 
-export function buildMediaEvent(el: HTMLMediaElement, e: MediaEventType, mediaLabel?: string): MediaEventData {
+export function buildMediaEvent(el: HTMLMediaElement, e: MediaEventType, label: string): MediaEventData {
   let mediaContext = [getHTMLMediaElementEntities(el), getSnowplowMediaEntities(el)];
 
   if (el instanceof HTMLVideoElement) {
@@ -13,7 +13,7 @@ export function buildMediaEvent(el: HTMLMediaElement, e: MediaEventType, mediaLa
 
   return {
     schema: 'iglu:com.snowplowanalytics/media_player_event/jsonschema/1-0-0',
-    data: { type: e, label: mediaLabel },
+    data: { type: e, label: label },
     context: mediaContext,
   };
 }

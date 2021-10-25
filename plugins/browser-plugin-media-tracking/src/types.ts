@@ -16,14 +16,14 @@ export type HTMLAudioFormat = 'aac' | 'aacp' | 'caf' | 'flac' | 'mp3' | 'wav' | 
 export interface RecievedTrackingOptions {
   percentBoundries?: number[];
   captureEvents: EventGroup | string[];
-  mediaLabel?: string;
+  label?: string;
   percentTimeoutIds?: any[];
 }
 
 export interface TrackingOptions {
   mediaId: string;
   captureEvents: EventGroup;
-  mediaLabel?: string;
+  label: string;
   boundry?: {
     percentBoundries: number[];
     percentTimeoutIds: any[];

@@ -68,6 +68,7 @@ export function MediaTrackingPlugin(): BrowserPlugin {
 function trackingOptionsParser(mediaId: string, trackingOptions?: RecievedTrackingOptions): TrackingOptions {
   let defaults: TrackingOptions = {
     mediaId: mediaId,
+    label: 'default_label',
     captureEvents: DefaultEvents,
   };
   if (trackingOptions?.captureEvents) {
@@ -168,8 +169,7 @@ function addCaptureEventListeners(el: HTMLMediaElement, captureEvents: any, even
 }
 
 function mediaPlayerEvent(el: HTMLMediaElement, e: MediaEventType, conf: TrackingOptions): void {
-  console.log(e);
-  let event = buildMediaEvent(el, e, conf.mediaLabel);
+  let event = buildMediaEvent(el, e, conf.label);
   if (conf.captureEvents.indexOf(SnowplowMediaEvent.PERCENTPROGRESS) !== -1) {
     progressHandler(e, el, conf);
   }
@@ -208,7 +208,6 @@ function progressHandler(e: MediaEventType, el: HTMLMediaElement, conf: Tracking
 }
 
 function setPercentageBoundTimeouts(el: HTMLMediaElement, conf: TrackingOptions) {
-  console.log(conf);
   for (let p of conf.boundry!.percentBoundries) {
     let absoluteBoundryTimeMs = el[MediaProperty.DURATION] * (p / 100) * 1000;
     let currentTimeMs = el[MediaProperty.CURRENTTIME] * 1000;
