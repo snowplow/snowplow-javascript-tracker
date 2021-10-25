@@ -41,15 +41,17 @@ enum BrowserName {
 
 describe('Media Tracker', () => {
   if (browser.capabilities.browserName === BrowserName.IE) {
-    fit('Skip IE9', () => {});
+    it.only('Skip IE9', () => true);
+    return;
   }
 
   if (browser.capabilities.browserName === BrowserName.SAFARI && browser.capabilities.version === '8.0') {
-    fit('Skip Safari 8', () => {});
+    it.only('Skip Safari 8', () => true);
+    return;
   }
 
   let docker: DockerWrapper;
-  let log: Array<unknown>;
+  let log: Array<string> = [];
 
   beforeAll(() => {
     browser.call(() => {
@@ -58,59 +60,37 @@ describe('Media Tracker', () => {
       });
     });
 
-    browser.waitUntil(() => docker !== undefined);
-    browser.pause(20000); // Time for micro to get started
     browser.url('/index.html');
     browser.setCookies({ name: 'container', value: docker.url });
     browser.url('/media-tracking.html');
-
     browser.waitUntil(() => $('#html5').isExisting(), {
       timeout: 10000,
       timeoutMsg: 'expected html5 after 5s',
     });
 
     let actions = [
-      () => {
-        (document.getElementById('html5') as HTMLVideoElement).play();
-      },
-      () => {
-        (document.getElementById('html5') as HTMLVideoElement).play();
-      },
-      () => {
-        (document.getElementById('html5') as HTMLVideoElement).pause();
-      },
-      () => {
-        (document.getElementById('html5') as HTMLVideoElement).currentTime = 5.0;
-      },
-      () => {
-        (document.getElementById('html5') as HTMLVideoElement).volume = 0.5;
-      },
-      () => {
-        (document.getElementById('html5') as HTMLVideoElement).playbackRate = 0.9;
-      },
-      () => {
-        var el = document.getElementById('html5') as HTMLVideoElement;
-        el.currentTime = el.duration / 2 - 2;
-      },
-      () => {
-        var el = document.getElementById('html5') as HTMLVideoElement;
-        el.currentTime = 18;
-        el.play();
-      },
+      () => (document.getElementById('html5') as HTMLVideoElement).play(),
+      () => (document.getElementById('html5') as HTMLVideoElement).pause(),
+      () => ((document.getElementById('html5') as HTMLVideoElement).volume = 0.5),
+      () => ((document.getElementById('html5') as HTMLVideoElement).playbackRate = 0.9),
+      () => ((document.getElementById('html5') as HTMLVideoElement).currentTime = 15),
+      () => (document.getElementById('html5') as HTMLVideoElement).play(),
     ];
 
     actions.forEach((a) => {
       browser.execute(a);
-      browser.pause(1000);
+      browser.pause(200);
     });
 
-    browser.pause(5000); // Wait for requests to get sent
-
-    browser.call(() =>
-      fetchResults(docker.url).then((result) => {
-        log = result.map((r: any) => r.event.unstruct_event.data.data.type);
-      })
-    );
+    // 'ended' should be the final event, if not, try again
+    browser.waitUntil(() => {
+      return browser.call(() =>
+        fetchResults(docker.url).then((result) => {
+          log = result.map((r: any) => r.event.unstruct_event.data.data.type);
+          return log.includes('ended');
+        })
+      );
+    });
   });
 
   afterAll(() => {
@@ -139,11 +119,11 @@ describe('Media Tracker', () => {
     expect(log).toContain('ratechange');
   });
 
-  it('tracks ending', () => {
-    expect(log).toContain('ended');
+  it('tracks percentprogress', () => {
+    expect(log).toContain('percentprogress');
   });
 
-  it('tracks progress', () => {
-    expect(log).toContain('percentprogress');
+  it('tracks ended', () => {
+    expect(log).toContain('ended');
   });
 });
