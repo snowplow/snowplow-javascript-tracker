@@ -63,34 +63,42 @@ describe('Media Tracker', () => {
     browser.url('/index.html');
     browser.setCookies({ name: 'container', value: docker.url });
     browser.url('/media-tracking.html');
-    browser.waitUntil(() => $('#html5').isExisting(), {
+    $('#html5').waitForExist({
       timeout: 10000,
       timeoutMsg: 'expected html5 after 5s',
     });
 
-    let actions = [
-      () => (document.getElementById('html5') as HTMLVideoElement).play(),
-      () => (document.getElementById('html5') as HTMLVideoElement).pause(),
-      () => ((document.getElementById('html5') as HTMLVideoElement).volume = 0.5),
-      () => ((document.getElementById('html5') as HTMLVideoElement).playbackRate = 0.9),
-      () => ((document.getElementById('html5') as HTMLVideoElement).currentTime = 15),
-      () => (document.getElementById('html5') as HTMLVideoElement).play(),
-    ];
-
-    actions.forEach((a) => {
-      browser.execute(a);
-      browser.pause(200);
-    });
+    browser.execute(() => (document.getElementById('html5') as HTMLVideoElement).play());
+    browser.pause(3000);
+    browser.execute(() => (document.getElementById('html5') as HTMLVideoElement).pause());
+    browser.pause(1000);
+    browser.execute(() => ((document.getElementById('html5') as HTMLVideoElement).volume = 0.5));
+    browser.pause(500);
+    browser.execute(() => ((document.getElementById('html5') as HTMLVideoElement).playbackRate = 0.9));
+    browser.pause(500);
+    browser.execute(() => ((document.getElementById('html5') as HTMLVideoElement).currentTime = 15));
+    browser.pause(500);
+    browser.execute(() => (document.getElementById('html5') as HTMLVideoElement).play());
+    browser.pause(15000);
 
     // 'ended' should be the final event, if not, try again
-    browser.waitUntil(() => {
-      return browser.call(() =>
-        fetchResults(docker.url).then((result) => {
-          log = result.map((r: any) => r.event.unstruct_event.data.data.type);
-          return log.includes('ended');
-        })
-      );
-    });
+    browser.waitUntil(
+      () => {
+        return browser.call(() =>
+          fetchResults(docker.url).then((result) => {
+            log = result
+              .filter((r: any) => r.event.event === 'unstruct')
+              .map((r: any) => r.event.unstruct_event.data.data.type);
+            return log.includes('ended');
+          })
+        );
+      },
+      {
+        interval: 2000,
+        timeout: 120000,
+        timeoutMsg: 'All events not found before timeout',
+      }
+    );
   });
 
   afterAll(() => {
