@@ -72,6 +72,9 @@
         contexts: {
           webPage: true,
         },
+        customHeaders: {
+          'Content-Language': 'de-DE, en-CA',
+        },
       });
 
       window.secondSnowplow('newTracker', 'b64off', collector_endpoint, {

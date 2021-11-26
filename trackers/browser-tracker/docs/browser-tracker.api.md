@@ -331,6 +331,7 @@ export type TrackerConfiguration = {
         webPage: boolean;
     };
     plugins?: Array<BrowserPlugin>;
+    customHeaders?: Record<string, string>;
 };
 
 // @public

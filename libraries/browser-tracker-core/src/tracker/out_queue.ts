@@ -70,7 +70,8 @@ export function OutQueueManager(
   useStm: boolean,
   maxLocalStorageQueueSize: number,
   connectionTimeout: number,
-  anonymousTracking: boolean
+  anonymousTracking: boolean,
+  customHeaders: Record<string, string>
 ): OutQueue {
   type PostEvent = {
     evt: Record<string, unknown>;
@@ -404,6 +405,11 @@ export function OutQueueManager(
     xhr.withCredentials = true;
     if (anonymousTracking) {
       xhr.setRequestHeader('SP-Anonymous', '*');
+    }
+    for (const header in customHeaders) {
+      if (Object.prototype.hasOwnProperty.call(customHeaders, header)) {
+        xhr.setRequestHeader(header, customHeaders[header]);
+      }
     }
     return xhr;
   }
