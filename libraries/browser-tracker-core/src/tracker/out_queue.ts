@@ -63,7 +63,7 @@ export function OutQueueManager(
   id: string,
   sharedSate: SharedState,
   useLocalStorage: boolean,
-  eventMethod: string | boolean | null,
+  eventMethod: string | boolean,
   postPath: string,
   bufferSize: number,
   maxPostBytes: number,
@@ -85,9 +85,8 @@ export function OutQueueManager(
   //Force to lower case if its a string
   eventMethod = typeof eventMethod === 'string' ? eventMethod.toLowerCase() : eventMethod;
 
-  // Use the Beacon API if eventMethod is set null, true, or 'beacon'.
-  const isBeaconRequested =
-      eventMethod === null || eventMethod === true || eventMethod === 'beacon' || eventMethod === 'true',
+  // Use the Beacon API if eventMethod is set true, 'true', or 'beacon'.
+  const isBeaconRequested = eventMethod === true || eventMethod === 'beacon' || eventMethod === 'true',
     // Fall back to POST or GET for browsers which don't support Beacon API
     isBeaconAvailable = Boolean(
       isBeaconRequested &&
@@ -106,6 +105,10 @@ export function OutQueueManager(
     path = usePost ? postPath : '/i',
     // Different queue names for GET and POST since they are stored differently
     queueName = `snowplowOutQueue_${id}_${usePost ? 'post2' : 'get'}`;
+
+  // Ensure we don't set headers when beacon is the requested eventMethod as we might fallback to POST
+  // and end up sending them in older browsers which don't support beacon leading to inconsistencies
+  if (isBeaconRequested) customHeaders = {};
 
   // Get buffer size or set 1 if unable to buffer
   bufferSize = (useLocalStorage && localStorageAccessible() && usePost && bufferSize) || 1;
