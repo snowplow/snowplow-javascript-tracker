@@ -57,6 +57,7 @@ export interface OutQueue {
  * @param maxLocalStorageQueueSize - Maximum number of queued events we will attempt to store in local storage
  * @param connectionTimeout - Defines how long to wait before aborting the request
  * @param anonymousTracking - Defines whether to set the SP-Anonymous header for anonymous tracking on GET and POST
+ * @param allowCredentials - Sets the value of the `access-control-allow-credentials` in the request headers
  * @returns object OutQueueManager instance
  */
 export function OutQueueManager(
@@ -70,7 +71,8 @@ export function OutQueueManager(
   useStm: boolean,
   maxLocalStorageQueueSize: number,
   connectionTimeout: number,
-  anonymousTracking: boolean
+  anonymousTracking: boolean,
+  allowCredentials: boolean
 ): OutQueue {
   type PostEvent = {
     evt: Record<string, unknown>;
@@ -401,7 +403,7 @@ export function OutQueueManager(
     } else {
       xhr.open('GET', url, !sync);
     }
-    xhr.withCredentials = true;
+    xhr.withCredentials = allowCredentials;
     if (anonymousTracking) {
       xhr.setRequestHeader('SP-Anonymous', '*');
     }

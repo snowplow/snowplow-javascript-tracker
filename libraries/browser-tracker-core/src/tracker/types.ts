@@ -93,6 +93,12 @@ export type TrackerConfiguration = {
    */
   cookieLifetime?: number;
   /**
+   * Sets the `Access-Control-Allow-Credentials` header
+   * value to the specified boolean input value
+   * @defaultValue true
+   */
+  allowCredentials?: boolean;
+  /**
    * How long until a session expires
    * @defaultValue 1800 (30 minutes)
    */

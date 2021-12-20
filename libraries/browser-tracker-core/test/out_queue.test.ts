@@ -50,7 +50,8 @@ describe('OutQueueManager', () => {
       false,
       maxQueueSize,
       5000,
-      false
+      false,
+      true
     );
   });
 
