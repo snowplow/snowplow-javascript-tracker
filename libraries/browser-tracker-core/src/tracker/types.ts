@@ -192,6 +192,12 @@ export type TrackerConfiguration = {
    * @defaultValue []
    */
   plugins?: Array<BrowserPlugin>;
+  /**
+   * An object of key value pairs which represent headers to
+   * attach when sending a POST request, only works for POST
+   * @defaultValue `{}`
+   */
+  customHeaders?: Record<string, string>;
 };
 
 /**
