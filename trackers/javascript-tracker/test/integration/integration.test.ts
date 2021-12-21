@@ -802,5 +802,19 @@ describe('Snowplow Micro integration', () => {
         })
       ).toBe(false);
     });
+
+    it(`${method}: has custom headers attached if possible (not with Beacon or IE9)`, () => {
+      const results = log.filter(
+        (event: any) =>
+          event.rawEvent.context.headers.includes('Content-Language: de-DE, en-CA') &&
+          event.event.app_id === `sp-${method}`
+      ) as Array<any>;
+
+      if (method === 'beacon' || F.isMatch({ browserName: 'internet explorer', version: '9' }, browser.capabilities)) {
+        expect(results.length).toBe(0);
+      } else {
+        expect(results.length).toBeGreaterThanOrEqual(1);
+      }
+    });
   });
 });

@@ -261,7 +261,8 @@ export function Tracker(
         trackerConfiguration.useStm ?? true,
         trackerConfiguration.maxLocalStorageQueueSize ?? 1000,
         trackerConfiguration.connectionTimeout ?? 5000,
-        configAnonymousServerTracking
+        configAnonymousServerTracking,
+        trackerConfiguration.customHeaders ?? {}
       ),
       // Whether pageViewId should be regenerated after each trackPageView. Affect web_page context
       preservePageViewId = false,
