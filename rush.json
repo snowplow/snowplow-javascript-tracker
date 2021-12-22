@@ -520,6 +520,12 @@
       "projectFolder": "plugins/browser-plugin-debugger",
       "reviewCategory": "plugins",
       "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-plugin-media-tracking",
+      "projectFolder": "plugins/browser-plugin-media-tracking",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
     }
   ]
 }

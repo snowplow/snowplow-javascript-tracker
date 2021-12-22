@@ -28,24 +28,22 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { nodeResolve } from '@rollup/plugin-node-resolve';
-import ts from 'rollup-plugin-ts'; // Prefered over @rollup/plugin-typescript as it bundles .d.ts files
-import commonjs from '@rollup/plugin-commonjs';
-import json from '@rollup/plugin-json';
-import alias from '@rollup/plugin-alias';
-
-const plugins = [json(), nodeResolve({ browser: true }), commonjs(), ts({ tsconfig: './tsconfig.prod.json' })];
-
-export default [
-  {
-    input: './src/index.ts',
-    plugins: [
-      alias({
-        entries: [{ find: '../tracker.config', replacement: '../tracker.test.config' }],
-      }),
-      ...plugins,
-    ],
-    treeshake: { moduleSideEffects: ['jstimezonedetect'] },
-    output: [{ file: './test/pages/snowplow.js', format: 'iife' }],
-  },
-];
+export const plugins = {
+  performanceTiming: true,
+  gaCookies: true,
+  geolocation: true,
+  optimizelyX: true,
+  clientHints: true,
+  consent: true,
+  linkClickTracking: true,
+  formTracking: true,
+  errorTracking: true,
+  timezone: true,
+  ecommerce: true,
+  enhancedEcommerce: true,
+  adTracking: true,
+  siteTracking: true,
+  optimizely: false,
+  browserFeatures: false,
+  mediaTracking: true,
+};
