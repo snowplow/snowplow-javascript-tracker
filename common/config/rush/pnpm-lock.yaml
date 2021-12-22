@@ -653,6 +653,49 @@ importers:
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.3.5
       typescript: 4.3.5
 
+  ../../plugins/browser-plugin-media-tracking:
+    specifiers:
+      '@ampproject/rollup-plugin-closure-compiler': ^0.27.0
+      '@rollup/plugin-commonjs': ^17.1.0
+      '@rollup/plugin-node-resolve': ^11.2.0
+      '@snowplow/browser-tracker-core': workspace:*
+      '@snowplow/tracker-core': workspace:*
+      '@types/jest': ^26.0.20
+      '@typescript-eslint/eslint-plugin': ^4.9.0
+      '@typescript-eslint/parser': ^4.9.0
+      eslint: ^7.7.0
+      jest: ^26.6.3
+      jest-standard-reporter: ^2.0.0
+      rollup: ^2.41.1
+      rollup-plugin-cleanup: ^3.2.1
+      rollup-plugin-license: ^2.2.0
+      rollup-plugin-terser: ^7.0.2
+      rollup-plugin-ts: ^1.4.0
+      ts-jest: ^26.5.0
+      tslib: ^2.3.0
+      typescript: ^4.3.5
+    dependencies:
+      '@snowplow/browser-tracker-core': link:../../libraries/browser-tracker-core
+      '@snowplow/tracker-core': link:../../libraries/tracker-core
+      tslib: 2.3.0
+    devDependencies:
+      '@ampproject/rollup-plugin-closure-compiler': 0.27.0_rollup@2.41.1
+      '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.1
+      '@rollup/plugin-node-resolve': 11.2.0_rollup@2.41.1
+      '@types/jest': 26.0.20
+      '@typescript-eslint/eslint-plugin': 4.11.0_03dc75c18e96dfbc156c58d5a8cd7146
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.3.5
+      eslint: 7.16.0
+      jest: 26.6.3
+      jest-standard-reporter: 2.0.0
+      rollup: 2.41.1
+      rollup-plugin-cleanup: 3.2.1_rollup@2.41.1
+      rollup-plugin-license: 2.2.0_rollup@2.41.1
+      rollup-plugin-terser: 7.0.2_rollup@2.41.1
+      rollup-plugin-ts: 1.4.0_rollup@2.41.1+typescript@4.3.5
+      ts-jest: 26.5.0_jest@26.6.3+typescript@4.3.5
+      typescript: 4.3.5
+
   ../../plugins/browser-plugin-optimizely:
     specifiers:
       '@ampproject/rollup-plugin-closure-compiler': ^0.27.0
@@ -957,6 +1000,7 @@ importers:
       '@snowplow/browser-plugin-ga-cookies': workspace:*
       '@snowplow/browser-plugin-geolocation': workspace:*
       '@snowplow/browser-plugin-link-click-tracking': workspace:*
+      '@snowplow/browser-plugin-media-tracking': workspace:*
       '@snowplow/browser-plugin-optimizely': workspace:*
       '@snowplow/browser-plugin-optimizely-x': workspace:*
       '@snowplow/browser-plugin-performance-timing': workspace:*
@@ -976,7 +1020,7 @@ importers:
       '@wdio/spec-reporter': ^6.11.0
       '@wdio/static-server-service': ^6.10.10
       '@wdio/sync': ^6.11.0
-      chromedriver: ^92.0.1
+      chromedriver: ^94.0.0
       dockerode: ^3.2.1
       jest: ^26.6.3
       jest-standard-reporter: ^2.0.0
@@ -1007,6 +1051,7 @@ importers:
       '@snowplow/browser-plugin-ga-cookies': link:../../plugins/browser-plugin-ga-cookies
       '@snowplow/browser-plugin-geolocation': link:../../plugins/browser-plugin-geolocation
       '@snowplow/browser-plugin-link-click-tracking': link:../../plugins/browser-plugin-link-click-tracking
+      '@snowplow/browser-plugin-media-tracking': link:../../plugins/browser-plugin-media-tracking
       '@snowplow/browser-plugin-optimizely': link:../../plugins/browser-plugin-optimizely
       '@snowplow/browser-plugin-optimizely-x': link:../../plugins/browser-plugin-optimizely-x
       '@snowplow/browser-plugin-performance-timing': link:../../plugins/browser-plugin-performance-timing
@@ -1033,7 +1078,7 @@ importers:
       '@wdio/spec-reporter': 6.11.0_@wdio+cli@6.12.1
       '@wdio/static-server-service': 6.10.10
       '@wdio/sync': 6.11.0
-      chromedriver: 92.0.1
+      chromedriver: 94.0.0
       dockerode: 3.2.1
       jest: 26.6.3_ts-node@9.1.1
       jest-standard-reporter: 2.0.0
@@ -1050,7 +1095,7 @@ importers:
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.3.5
       ts-node: 9.1.1_typescript@4.3.5
       typescript: 4.3.5
-      wdio-chromedriver-service: 6.0.4_4a3e955417911ce9093a06b981efd7b7
+      wdio-chromedriver-service: 6.0.4_25d7422259640475936d8a95dcd9427b
 
   ../../trackers/node-tracker:
     specifiers:
@@ -4133,10 +4178,10 @@ packages:
     resolution: {integrity: sha512-xh1Rl34h6Fi1DC2WWKfxUTVqRsNnr6LsKz2+hfwDxQJWmrx8+c7ylaqBMcHfl1U1r2dsifOvKX3LQuLNZ+XSvA==}
     dev: true
 
-  /axios/0.21.1:
-    resolution: {integrity: sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA==}
+  /axios/0.21.4:
+    resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
     dependencies:
-      follow-redirects: 1.13.1
+      follow-redirects: 1.14.5
     transitivePeerDependencies:
       - debug
     dev: true
@@ -4795,14 +4840,14 @@ packages:
       rimraf: 3.0.2
     dev: true
 
-  /chromedriver/92.0.1:
-    resolution: {integrity: sha512-LptlDVCs1GgyFNVbRoHzzy948JDVzTgGiVPXjNj385qXKQP3hjAVBIgyvb/Hco0xSEW8fjwJfsm1eQRmu6t4pQ==}
+  /chromedriver/94.0.0:
+    resolution: {integrity: sha512-x4hK7R7iOyAhdLHJEcOyGBW/oa2kno6AqpHVLd+n3G7c2Vk9XcAXMz84XhNItqykJvTc6E3z/JRIT1eHYH//Eg==}
     engines: {node: '>=10'}
     hasBin: true
     requiresBuild: true
     dependencies:
       '@testim/chrome-version': 1.0.7
-      axios: 0.21.1
+      axios: 0.21.4
       del: 6.0.0
       extract-zip: 2.0.1
       https-proxy-agent: 5.0.0
@@ -6342,8 +6387,8 @@ packages:
     resolution: {integrity: sha512-tW+UkmtNg/jv9CSofAKvgVcO7c2URjhTdW1ZTkcAritblu8tajiYy7YisnIflEwtKssCtOxpnBRoCB7iap0/TA==}
     dev: true
 
-  /follow-redirects/1.13.1:
-    resolution: {integrity: sha512-SSG5xmZh1mkPGyKzjZP8zLjltIfpW32Y5QpdNJyjcfGxK3qo3NDDkZOZSFiGn1A6SclQxY9GzEwAHQ3dmYRWpg==}
+  /follow-redirects/1.14.5:
+    resolution: {integrity: sha512-wtphSXy7d4/OR+MvIFbCVBDzZ5520qV8XfPklSN5QtxuMUJZ+b0Wnst1e1lCDocfzuCkHqj8k0FpZqO+UIaKNA==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'
@@ -11726,7 +11771,7 @@ packages:
       defaults: 1.0.3
     dev: true
 
-  /wdio-chromedriver-service/6.0.4_4a3e955417911ce9093a06b981efd7b7:
+  /wdio-chromedriver-service/6.0.4_25d7422259640475936d8a95dcd9427b:
     resolution: {integrity: sha512-ed0ctxRJ4KbhAX/BkGUFS/sy6zDrZ3oB1Tqvokrs3r7GPX115w/AcOySofXdAk7Pdjm2JLDW/marHG/LmVoBuw==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
@@ -11734,7 +11779,7 @@ packages:
       chromedriver: '*'
     dependencies:
       '@wdio/cli': 6.12.1
-      chromedriver: 92.0.1
+      chromedriver: 94.0.0
       fs-extra: 9.0.1
     dev: true
 
