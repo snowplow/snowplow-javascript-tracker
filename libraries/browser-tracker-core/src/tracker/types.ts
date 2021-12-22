@@ -93,6 +93,12 @@ export type TrackerConfiguration = {
    */
   cookieLifetime?: number;
   /**
+   * Sets the value of the withCredentials flag
+   * on XMLHttpRequest (GET and POST) requests
+   * @defaultValue true
+   */
+  withCredentials?: boolean;
+  /**
    * How long until a session expires
    * @defaultValue 1800 (30 minutes)
    */
