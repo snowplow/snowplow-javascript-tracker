@@ -311,6 +311,7 @@ export type TrackerConfiguration = {
     cookieSameSite?: CookieSameSite;
     cookieSecure?: boolean;
     cookieLifetime?: number;
+    withCredentials?: boolean;
     sessionCookieTimeout?: number;
     appId?: string;
     platform?: Platform;
