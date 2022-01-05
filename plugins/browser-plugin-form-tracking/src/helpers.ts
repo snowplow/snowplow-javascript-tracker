@@ -75,6 +75,8 @@ export type transformFn = (x: string | null, elt: ElementData | TrackedHTMLEleme
 
 export const innerElementTags: Array<keyof TrackedHTMLElementTagNameMap> = ['textarea', 'input', 'select'];
 
+type TrackedHTMLElementWithMarker = TrackedHTMLElement & Record<string, boolean>;
+
 const defaultTransformFn: transformFn = (x) => x;
 
 interface FormConfiguration {
@@ -92,34 +94,38 @@ export function addFormListeners(tracker: BrowserTracker, configuration: FormTra
     trackingMarker = tracker.id + 'form',
     config = getConfigurationForOptions(options);
 
-  Array.prototype.slice.call(document.getElementsByTagName('form')).forEach(function (form) {
-    if (config.formFilter(form) && !form[trackingMarker]) {
-      Array.prototype.slice.call(innerElementTags).forEach(function (tagname) {
-        Array.prototype.slice.call(form.getElementsByTagName(tagname)).forEach(function (innerElement) {
-          if (
-            config.fieldFilter(innerElement) &&
-            !(innerElement as any)[trackingMarker] &&
-            innerElement.type.toLowerCase() !== 'password'
-          ) {
-            addEventListener(
-              innerElement,
-              'focus',
-              getFormChangeListener(tracker, config, 'focus_form', context),
-              false
-            );
-            addEventListener(
-              innerElement,
-              'change',
-              getFormChangeListener(tracker, config, 'change_form', context),
-              false
-            );
-            (innerElement as any)[trackingMarker] = true;
-          }
-        });
+  Array.prototype.slice.call(document.getElementsByTagName('form')).forEach(function (form: HTMLFormElement) {
+    if (config.formFilter(form)) {
+      Array.prototype.slice.call(innerElementTags).forEach(function (tagname: keyof TrackedHTMLElementTagNameMap) {
+        Array.prototype.slice
+          .call(form.getElementsByTagName(tagname))
+          .forEach(function (innerElement: TrackedHTMLElementWithMarker) {
+            if (
+              config.fieldFilter(innerElement) &&
+              !innerElement[trackingMarker] &&
+              innerElement.type.toLowerCase() !== 'password'
+            ) {
+              addEventListener(
+                innerElement,
+                'focus',
+                getFormChangeListener(tracker, config, 'focus_form', context),
+                false
+              );
+              addEventListener(
+                innerElement,
+                'change',
+                getFormChangeListener(tracker, config, 'change_form', context),
+                false
+              );
+              innerElement[trackingMarker] = true;
+            }
+          });
       });
 
-      addEventListener(form, 'submit', getFormSubmissionListener(tracker, config, trackingMarker, context));
-      form[trackingMarker] = true;
+      if (!form[trackingMarker]) {
+        addEventListener(form, 'submit', getFormSubmissionListener(tracker, config, trackingMarker, context));
+        form[trackingMarker] = true;
+      }
     }
   });
 }
