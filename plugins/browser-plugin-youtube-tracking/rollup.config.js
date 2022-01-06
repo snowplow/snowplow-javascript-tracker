@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Snowplow Analytics Ltd, 2010 Anthon Pang
+ * Copyright (c) 2021 Snowplow Analytics Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,23 +29,36 @@
  */
 
 import { nodeResolve } from '@rollup/plugin-node-resolve';
-import ts from 'rollup-plugin-ts'; // Prefered over @rollup/plugin-typescript as it bundles .d.ts files
 import commonjs from '@rollup/plugin-commonjs';
-import alias from '@rollup/plugin-alias';
-import json from '@rollup/plugin-json';
+import ts from 'rollup-plugin-ts';
+import { banner } from './banner';
+import compiler from '@ampproject/rollup-plugin-closure-compiler';
+import { terser } from 'rollup-plugin-terser';
+import cleanup from 'rollup-plugin-cleanup';
+import pkg from './package.json';
+import { builtinModules } from 'module';
 
-const plugins = [json(), nodeResolve({ browser: true }), commonjs(), ts({ tsconfig: './tsconfig.prod.json' })];
+const umdPlugins = [nodeResolve({ browser: true }), commonjs(), ts()];
+const umdName = 'snowplowYouTubeTracking';
 
 export default [
+  // CommonJS (for Node) and ES module (for bundlers) build.
   {
     input: './src/index.ts',
-    plugins: [
-      alias({
-        entries: [{ find: '../tracker.config', replacement: '../tracker.test.config' }],
-      }),
-      ...plugins,
-    ],
-    treeshake: { moduleSideEffects: ['jstimezonedetect'] },
-    output: [{ file: './test/pages/snowplow.js', format: 'iife' }],
+    plugins: [...umdPlugins, banner()],
+    treeshake: { moduleSideEffects: ['sha1'] },
+    output: [{ file: pkg.main, format: 'umd', sourcemap: true, name: umdName }],
+  },
+  {
+    input: './src/index.ts',
+    plugins: [...umdPlugins, compiler(), terser(), cleanup({ comments: 'none' }), banner()],
+    treeshake: { moduleSideEffects: ['sha1'] },
+    output: [{ file: pkg.main.replace('.js', '.min.js'), format: 'umd', sourcemap: true, name: umdName }],
+  },
+  {
+    input: './src/index.ts',
+    external: [...builtinModules, ...Object.keys(pkg.dependencies), ...Object.keys(pkg.devDependencies)],
+    plugins: [ts(), banner()],
+    output: [{ file: pkg.module, format: 'es', sourcemap: true }],
   },
 ];
