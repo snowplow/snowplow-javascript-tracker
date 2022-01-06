@@ -39,6 +39,8 @@ const isMatchWithCallback = F.isMatchWith((lt, rt) => (F.isFunction(rt) ? rt(lt)
 const SAFARI_EXPECTED_FIRST_NAME = 'Alex';
 const SAFARI_EXPECTED_MESSAGE = 'Changed message';
 
+declare var addField: () => void;
+
 describe('Auto tracking', () => {
   if (F.isMatch({ browserName: 'internet explorer', version: '9' }, browser.capabilities)) {
     fit('Skip IE9', () => {}); // Automated tests for IE autotracking features
@@ -296,6 +298,14 @@ describe('Auto tracking', () => {
 
     browser.pause(1000);
 
+    browser.execute(() => {
+      addField();
+    });
+
+    $('#newfield').click();
+
+    browser.pause(1000);
+
     loadUrlAndWait('/form-tracking.html?filter=exclude');
 
     $('#fname').click();
@@ -329,6 +339,30 @@ describe('Auto tracking', () => {
         log = result;
       })
     );
+  });
+
+  it('should send focus_form for the dynamically added form element', () => {
+    expect(
+      logContains({
+        event: {
+          event: 'unstruct',
+          app_id: 'autotracking',
+          unstruct_event: {
+            data: {
+              schema: 'iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0',
+              data: {
+                formId: 'myForm',
+                elementId: 'newfield',
+                nodeName: 'INPUT',
+                elementType: 'text',
+                elementClasses: [],
+                value: 'new',
+              },
+            },
+          },
+        },
+      })
+    ).toBe(true);
   });
 
   it('should send focus_form and change_form on text input', () => {

@@ -14,6 +14,20 @@
         return query;
       }
     </script>
+    <script type="text/javascript">
+      function addField() {
+        var fields = document.getElementById('fields');
+        fields.appendChild(document.createTextNode('New Field: '));
+        var input = document.createElement('input');
+        input.type = 'text';
+        input.id = 'newfield';
+        input.name = 'newfield';
+        input.value = 'new';
+        fields.appendChild(input);
+        fields.appendChild(document.createElement('br'));
+        snowplow('enableFormTracking');
+      }
+    </script>
   </head>
 
   <body>
@@ -21,7 +35,7 @@
     <div id="init"></div>
 
     <form id="myForm" class="formy-mcformface" action="/form-tracking.html">
-      <fieldset>
+      <fieldset id="fields">
         <legend>Personal Info:</legend>
         <label for="fname">First name:</label><br />
         <input type="text" id="fname" name="fname" value="John" class="test" /><br />
