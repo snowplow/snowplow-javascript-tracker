@@ -929,6 +929,51 @@ importers:
       ts-jest: 26.5.0_jest@26.6.3+typescript@4.3.5
       typescript: 4.3.5
 
+  ../../plugins/browser-plugin-youtube-tracking:
+    specifiers:
+      '@ampproject/rollup-plugin-closure-compiler': ^0.27.0
+      '@rollup/plugin-commonjs': ^17.1.0
+      '@rollup/plugin-node-resolve': ^11.2.0
+      '@snowplow/browser-tracker-core': workspace:*
+      '@snowplow/tracker-core': workspace:*
+      '@types/jest': ^26.0.20
+      '@types/youtube': ^0.0.46
+      '@typescript-eslint/eslint-plugin': ^4.9.0
+      '@typescript-eslint/parser': ^4.9.0
+      eslint: ^7.7.0
+      jest: ^26.6.3
+      jest-standard-reporter: ^2.0.0
+      rollup: ^2.41.1
+      rollup-plugin-cleanup: ^3.2.1
+      rollup-plugin-license: ^2.2.0
+      rollup-plugin-terser: ^7.0.2
+      rollup-plugin-ts: ^1.4.0
+      ts-jest: ^26.5.0
+      tslib: ^2.3.0
+      typescript: ^4.3.5
+    dependencies:
+      '@snowplow/browser-tracker-core': link:../../libraries/browser-tracker-core
+      '@snowplow/tracker-core': link:../../libraries/tracker-core
+      tslib: 2.3.0
+    devDependencies:
+      '@ampproject/rollup-plugin-closure-compiler': 0.27.0_rollup@2.41.1
+      '@rollup/plugin-commonjs': 17.1.0_rollup@2.41.1
+      '@rollup/plugin-node-resolve': 11.2.0_rollup@2.41.1
+      '@types/jest': 26.0.20
+      '@types/youtube': 0.0.46
+      '@typescript-eslint/eslint-plugin': 4.11.0_03dc75c18e96dfbc156c58d5a8cd7146
+      '@typescript-eslint/parser': 4.11.0_eslint@7.16.0+typescript@4.3.5
+      eslint: 7.16.0
+      jest: 26.6.3
+      jest-standard-reporter: 2.0.0
+      rollup: 2.41.1
+      rollup-plugin-cleanup: 3.2.1_rollup@2.41.1
+      rollup-plugin-license: 2.2.0_rollup@2.41.1
+      rollup-plugin-terser: 7.0.2_rollup@2.41.1
+      rollup-plugin-ts: 1.4.0_rollup@2.41.1+typescript@4.3.5
+      ts-jest: 26.5.0_jest@26.6.3+typescript@4.3.5
+      typescript: 4.3.5
+
   ../../trackers/browser-tracker:
     specifiers:
       '@ampproject/rollup-plugin-closure-compiler': ^0.27.0
@@ -1006,6 +1051,7 @@ importers:
       '@snowplow/browser-plugin-performance-timing': workspace:*
       '@snowplow/browser-plugin-site-tracking': workspace:*
       '@snowplow/browser-plugin-timezone': workspace:*
+      '@snowplow/browser-plugin-youtube-tracking': workspace:*
       '@snowplow/browser-tracker': workspace:*
       '@snowplow/browser-tracker-core': workspace:*
       '@snowplow/tracker-core': workspace:*
@@ -1057,6 +1103,7 @@ importers:
       '@snowplow/browser-plugin-performance-timing': link:../../plugins/browser-plugin-performance-timing
       '@snowplow/browser-plugin-site-tracking': link:../../plugins/browser-plugin-site-tracking
       '@snowplow/browser-plugin-timezone': link:../../plugins/browser-plugin-timezone
+      '@snowplow/browser-plugin-youtube-tracking': link:../../plugins/browser-plugin-youtube-tracking
       '@snowplow/browser-tracker': link:../browser-tracker
       '@snowplow/browser-tracker-core': link:../../libraries/browser-tracker-core
       '@snowplow/tracker-core': link:../../libraries/tracker-core
@@ -3468,6 +3515,10 @@ packages:
       '@types/node': 14.14.25
     dev: true
     optional: true
+
+  /@types/youtube/0.0.46:
+    resolution: {integrity: sha512-Yf1Y4bDj/QIn8v+zdy0l7+OW6s1uoUvzVn5cGqPNCsL4iUW4gYUlIdQIRtH9NOHVgwZNLbVeeRDEn6N4RMq6Nw==}
+    dev: true
 
   /@typescript-eslint/eslint-plugin/4.11.0_03dc75c18e96dfbc156c58d5a8cd7146:
     resolution: {integrity: sha512-x4arJMXBxyD6aBXLm3W7mSDZRiABzy+2PCLJbL7OPqlp53VXhaA1HKK7R2rTee5OlRhnUgnp8lZyVIqjnyPT6g==}

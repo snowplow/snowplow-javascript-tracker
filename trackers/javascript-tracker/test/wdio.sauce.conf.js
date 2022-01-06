@@ -37,7 +37,7 @@ exports.config = {
     {
       browserName: 'chrome',
       platformName: 'macOS 10.15',
-      browserVersion: 'latest',
+      browserVersion: '95',
       'sauce:options': {
         build: buildName,
       },

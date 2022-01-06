@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Snowplow Analytics Ltd, 2010 Anthon Pang
+ * Copyright (c) 2021 Snowplow Analytics Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,24 +28,17 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { nodeResolve } from '@rollup/plugin-node-resolve';
-import ts from 'rollup-plugin-ts'; // Prefered over @rollup/plugin-typescript as it bundles .d.ts files
-import commonjs from '@rollup/plugin-commonjs';
-import alias from '@rollup/plugin-alias';
-import json from '@rollup/plugin-json';
+import license from 'rollup-plugin-license';
 
-const plugins = [json(), nodeResolve({ browser: true }), commonjs(), ts({ tsconfig: './tsconfig.prod.json' })];
+const bannerContent = `<%= pkg.description %> v<%= pkg.version %> (<%= pkg.homepage %>)
+Copyright 2021 Snowplow Analytics Ltd
+Licensed under <%= pkg.license %>`;
 
-export default [
-  {
-    input: './src/index.ts',
-    plugins: [
-      alias({
-        entries: [{ find: '../tracker.config', replacement: '../tracker.test.config' }],
-      }),
-      ...plugins,
-    ],
-    treeshake: { moduleSideEffects: ['jstimezonedetect'] },
-    output: [{ file: './test/pages/snowplow.js', format: 'iife' }],
-  },
-];
+export const banner = () =>
+  license({
+    sourcemap: true,
+    banner: {
+      content: bannerContent,
+      commentStyle: 'ignored',
+    },
+  });
