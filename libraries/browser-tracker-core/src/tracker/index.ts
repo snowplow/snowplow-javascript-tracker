@@ -56,6 +56,7 @@ import {
   fromQuerystring,
   isInteger,
 } from '../helpers';
+import { BrowserPlugin } from '../plugins';
 import { OutQueueManager } from './out_queue';
 import { fixupUrl } from '../proxies';
 import { SharedState } from '../state';
@@ -122,6 +123,8 @@ export function Tracker(
   sharedState: SharedState,
   trackerConfiguration: TrackerConfiguration = {}
 ): BrowserTracker {
+  const browserPlugins: Array<BrowserPlugin> = [];
+
   const newTracker = (
     trackerId: string,
     namespace: string,
@@ -154,19 +157,17 @@ export function Tracker(
       getAnonymousTracking = (config: TrackerConfiguration) => !!config.anonymousTracking;
 
     // Get all injected plugins
-    trackerConfiguration.plugins = trackerConfiguration.plugins ?? [];
+    browserPlugins.push(getBrowserDataPlugin());
     if (trackerConfiguration?.contexts?.webPage ?? true) {
-      trackerConfiguration.plugins.push(getWebPagePlugin()); // Defaults to including the Web Page context
+      browserPlugins.push(getWebPagePlugin()); // Defaults to including the Web Page context
     }
+    browserPlugins.push(...(trackerConfiguration.plugins ?? []));
 
     let // Tracker core
       core = trackerCore({
         base64: trackerConfiguration.encodeBase64,
-        corePlugins: trackerConfiguration.plugins,
-        callback: function (payloadBuilder) {
-          addBrowserData(payloadBuilder);
-          sendRequest(payloadBuilder);
-        },
+        corePlugins: browserPlugins,
+        callback: sendRequest,
       }),
       // Aliases
       browserLanguage = (navigator as any).userLanguage || navigator.language,
@@ -325,8 +326,8 @@ export function Tracker(
      * @param event - e The event targeting the link
      */
     function linkDecorationHandler(evt: Event) {
-      var timestamp = new Date().getTime();
-      let elt = evt.currentTarget as HTMLAnchorElement | HTMLAreaElement | null;
+      const timestamp = new Date().getTime();
+      const elt = evt.currentTarget as HTMLAnchorElement | HTMLAreaElement | null;
       if (elt?.href) {
         elt.href = decorateQuerystring(elt.href, '_sp', domainUserId + '.' + timestamp);
       }
@@ -340,8 +341,8 @@ export function Tracker(
      * @param crossDomainLinker - Function used to determine which links to decorate
      */
     function decorateLinks(crossDomainLinker: (elt: HTMLAnchorElement | HTMLAreaElement) => boolean) {
-      for (var i = 0; i < document.links.length; i++) {
-        var elt = document.links[i];
+      for (let i = 0; i < document.links.length; i++) {
+        const elt = document.links[i];
         if (!(elt as any).spDecorationEnabled && crossDomainLinker(elt)) {
           addEventListener(elt, 'click', linkDecorationHandler, true);
           addEventListener(elt, 'mousedown', linkDecorationHandler, true);
@@ -359,7 +360,7 @@ export function Tracker(
      * or before being sent as GET parameters
      */
     function purify(url: string) {
-      var targetPattern;
+      let targetPattern;
 
       if (configDiscardHashTag) {
         targetPattern = new RegExp('#.*');
@@ -377,7 +378,7 @@ export function Tracker(
      * Extract scheme/protocol from URL
      */
     function getProtocolScheme(url: string) {
-      var e = new RegExp('^([a-z]+):'),
+      const e = new RegExp('^([a-z]+):'),
         matches = e.exec(url);
 
       return matches ? matches[1] : null;
@@ -389,7 +390,7 @@ export function Tracker(
      * Note: not as described in rfc3986 section 5.2
      */
     function resolveRelativeReference(baseUrl: string, url: string) {
-      var protocol = getProtocolScheme(url),
+      let protocol = getProtocolScheme(url),
         i;
 
       if (protocol) {
@@ -416,7 +417,7 @@ export function Tracker(
      */
     function sendRequest(request: PayloadBuilder) {
       // Set to true if Opt-out cookie is defined
-      var toOptoutByCookie;
+      let toOptoutByCookie;
       if (configOptOutCookie) {
         toOptoutByCookie = !!cookie(configOptOutCookie);
       } else {
@@ -439,7 +440,7 @@ export function Tracker(
      * Cookie getter.
      */
     function getSnowplowCookieValue(cookieName: string) {
-      var fullName = getSnowplowCookieName(cookieName);
+      const fullName = getSnowplowCookieName(cookieName);
       if (configStateStorageStrategy == 'localStorage') {
         return attemptGetLocalStorage(fullName);
       } else if (configStateStorageStrategy == 'cookie' || configStateStorageStrategy == 'cookieAndLocalStorage') {
@@ -461,7 +462,7 @@ export function Tracker(
      * For performance, this function must have low overhead.
      */
     function activityHandler() {
-      var now = new Date();
+      const now = new Date();
       lastActivityTime = now.getTime();
     }
 
@@ -533,8 +534,8 @@ export function Tracker(
      * Sets or renews the session cookie
      */
     function setSessionCookie() {
-      var cookieName = getSnowplowCookieName('ses');
-      var cookieValue = '*';
+      const cookieName = getSnowplowCookieName('ses');
+      const cookieValue = '*';
       setCookie(cookieName, cookieValue, configSessionCookieTimeout);
     }
 
@@ -550,8 +551,8 @@ export function Tracker(
       lastVisitTs: number,
       sessionId: string
     ) {
-      var cookieName = getSnowplowCookieName('id');
-      var cookieValue =
+      const cookieName = getSnowplowCookieName('id');
+      const cookieValue =
         domainUserId + '.' + createTs + '.' + visitCount + '.' + nowTs + '.' + lastVisitTs + '.' + sessionId;
       setCookie(cookieName, cookieValue, configVisitorCookieTimeout);
     }
@@ -625,8 +626,8 @@ export function Tracker(
         return;
       }
 
-      var sesCookieSet = configStateStorageStrategy != 'none' && !!getSnowplowCookieValue('ses');
-      var idCookieComponents = loadDomainUserIdCookie();
+      const sesCookieSet = configStateStorageStrategy != 'none' && !!getSnowplowCookieValue('ses');
+      const idCookieComponents = loadDomainUserIdCookie();
 
       if (idCookieComponents[1]) {
         domainUserId = idCookieComponents[1] as string;
@@ -666,7 +667,7 @@ export function Tracker(
       if (configStateStorageStrategy == 'none') {
         return [];
       }
-      var now = new Date(),
+      let now = new Date(),
         nowTs = Math.round(now.getTime() / 1000),
         id = getSnowplowCookieValue('id'),
         tmpContainer;
@@ -698,81 +699,6 @@ export function Tracker(
       }
 
       return tmpContainer;
-    }
-
-    /*
-     * Attaches common web fields to every request (resolution, url, referrer, etc.)
-     * Also sets the required cookies.
-     */
-    function addBrowserData(payloadBuilder: PayloadBuilder) {
-      const anonymizeOr = (value?: string | number | null) => (configAnonymousTracking ? null : value);
-      const anonymizeSessionOr = (value?: string | number | null) =>
-        configAnonymousSessionTracking ? value : anonymizeOr(value);
-
-      var nowTs = Math.round(new Date().getTime() / 1000),
-        ses = getSnowplowCookieValue('ses'),
-        id = loadDomainUserIdCookie(),
-        cookiesDisabled = id[0],
-        _domainUserId = id[1] as string, // We could use the global (domainUserId) but this is better etiquette
-        createTs = id[2] as number,
-        visitCount = id[3] as number,
-        currentVisitTs = id[4] as number,
-        lastVisitTs = id[5] as number,
-        sessionIdFromCookie = id[6] as string;
-
-      var toOptoutByCookie;
-      if (configOptOutCookie) {
-        toOptoutByCookie = !!cookie(configOptOutCookie);
-      } else {
-        toOptoutByCookie = false;
-      }
-
-      if (configDoNotTrack || toOptoutByCookie) {
-        clearUserDataAndCookies();
-        return;
-      }
-
-      // If cookies are enabled, base visit count and session ID on the cookies
-      if (cookiesDisabled === '0') {
-        memorizedSessionId = sessionIdFromCookie as string;
-
-        // New session?
-        if (!ses && configStateStorageStrategy != 'none') {
-          // New session (aka new visit)
-          (visitCount as number)++;
-          // Update the last visit timestamp
-          lastVisitTs = currentVisitTs;
-          // Regenerate the session ID
-          memorizedSessionId = uuid();
-        }
-
-        memorizedVisitCount = visitCount as number;
-      } else if (new Date().getTime() - lastEventTime > configSessionCookieTimeout * 1000) {
-        memorizedSessionId = uuid();
-        memorizedVisitCount++;
-      }
-
-      payloadBuilder.add('vp', detectViewport());
-      payloadBuilder.add('ds', detectDocumentSize());
-      payloadBuilder.add('vid', anonymizeSessionOr(memorizedVisitCount));
-      payloadBuilder.add('sid', anonymizeSessionOr(memorizedSessionId));
-      payloadBuilder.add('duid', anonymizeOr(_domainUserId)); // Set to our local variable
-      payloadBuilder.add('uid', anonymizeOr(businessUserId));
-
-      refreshUrl();
-
-      payloadBuilder.add('refr', purify(customReferrer || configReferrerUrl));
-
-      // Add the page URL last as it may take us over the IE limit (and we don't always need it)
-      payloadBuilder.add('url', purify(configCustomUrl || locationHrefAlias));
-
-      // Update cookies
-      if (configStateStorageStrategy != 'none') {
-        setDomainUserIdCookie(_domainUserId, createTs, memorizedVisitCount, nowTs, lastVisitTs, memorizedSessionId);
-        setSessionCookie();
-      }
-
-      lastEventTime = new Date().getTime();
     }
 
     /**
@@ -830,12 +756,91 @@ export function Tracker(
       };
     }
 
+    /*
+     * Attaches common web fields to every request (resolution, url, referrer, etc.)
+     * Also sets the required cookies.
+     */
+    function getBrowserDataPlugin() {
+      return {
+        beforeTrack: (payloadBuilder: PayloadBuilder) => {
+          const anonymizeOr = (value?: string | number | null) => (configAnonymousTracking ? null : value);
+          const anonymizeSessionOr = (value?: string | number | null) =>
+            configAnonymousSessionTracking ? value : anonymizeOr(value);
+
+          let nowTs = Math.round(new Date().getTime() / 1000),
+            ses = getSnowplowCookieValue('ses'),
+            id = loadDomainUserIdCookie(),
+            cookiesDisabled = id[0],
+            _domainUserId = id[1] as string, // We could use the global (domainUserId) but this is better etiquette
+            createTs = id[2] as number,
+            visitCount = id[3] as number,
+            currentVisitTs = id[4] as number,
+            lastVisitTs = id[5] as number,
+            sessionIdFromCookie = id[6] as string;
+
+          let toOptoutByCookie;
+          if (configOptOutCookie) {
+            toOptoutByCookie = !!cookie(configOptOutCookie);
+          } else {
+            toOptoutByCookie = false;
+          }
+
+          if (configDoNotTrack || toOptoutByCookie) {
+            clearUserDataAndCookies();
+            return;
+          }
+
+          // If cookies are enabled, base visit count and session ID on the cookies
+          if (cookiesDisabled === '0') {
+            memorizedSessionId = sessionIdFromCookie as string;
+
+            // New session?
+            if (!ses && configStateStorageStrategy != 'none') {
+              // New session (aka new visit)
+              (visitCount as number)++;
+              // Update the last visit timestamp
+              lastVisitTs = currentVisitTs;
+              // Regenerate the session ID
+              memorizedSessionId = uuid();
+            }
+
+            memorizedVisitCount = visitCount as number;
+          } else if (new Date().getTime() - lastEventTime > configSessionCookieTimeout * 1000) {
+            memorizedSessionId = uuid();
+            memorizedVisitCount++;
+          }
+
+          payloadBuilder.add('vp', detectViewport());
+          payloadBuilder.add('ds', detectDocumentSize());
+          payloadBuilder.add('vid', anonymizeSessionOr(memorizedVisitCount));
+          payloadBuilder.add('sid', anonymizeSessionOr(memorizedSessionId));
+          payloadBuilder.add('duid', anonymizeOr(_domainUserId)); // Set to our local variable
+          payloadBuilder.add('uid', anonymizeOr(businessUserId));
+
+          refreshUrl();
+
+          payloadBuilder.add('refr', purify(customReferrer || configReferrerUrl));
+
+          // Add the page URL last as it may take us over the IE limit (and we don't always need it)
+          payloadBuilder.add('url', purify(configCustomUrl || locationHrefAlias));
+
+          // Update cookies
+          if (configStateStorageStrategy != 'none') {
+            setDomainUserIdCookie(_domainUserId, createTs, memorizedVisitCount, nowTs, lastVisitTs, memorizedSessionId);
+            setSessionCookie();
+          }
+
+          lastEventTime = new Date().getTime();
+        },
+      };
+    }
+
     /**
      * Expires current session and starts a new session.
      */
     function newSession() {
       // If cookies are enabled, base visit count and session ID on the cookies
-      var nowTs = Math.round(new Date().getTime() / 1000),
+      let nowTs = Math.round(new Date().getTime() / 1000),
         id = loadDomainUserIdCookie(),
         cookiesDisabled = id[0],
         _domainUserId = id[1] as string, // We could use the global (domainUserId) but this is better etiquette
@@ -903,7 +908,7 @@ export function Tracker(
       lastConfigTitle = title;
 
       // Fixup page title
-      var pageTitle = fixupTitle(lastConfigTitle || lastDocumentTitle);
+      const pageTitle = fixupTitle(lastConfigTitle || lastDocumentTitle);
 
       // Log page view
       core.track(
@@ -917,19 +922,19 @@ export function Tracker(
       );
 
       // Send ping (to log that user has stayed on page)
-      var now = new Date();
-      var installingActivityTracking = false;
+      const now = new Date();
+      let installingActivityTracking = false;
 
       if (activityTrackingConfig.enabled && !activityTrackingConfig.installed) {
         activityTrackingConfig.installed = true;
         installingActivityTracking = true;
 
         // Add mousewheel event handler, detect passive event listeners for performance
-        var detectPassiveEvents: { update: () => void; hasSupport?: boolean } = {
+        const detectPassiveEvents: { update: () => void; hasSupport?: boolean } = {
           update: function update() {
             if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
-              var passive = false;
-              var options = Object.defineProperty({}, 'passive', {
+              let passive = false;
+              const options = Object.defineProperty({}, 'passive', {
                 get: function get() {
                   passive = true;
                 },
@@ -939,7 +944,7 @@ export function Tracker(
               // (which was used previously), becasue Edge v15 throws an error
               // when providing a null callback.
               // https://github.com/rafrex/detect-passive-events/pull/3
-              var noop = function noop() {};
+              const noop = function noop() {};
               window.addEventListener('testPassiveEventSupport', noop, options);
               window.removeEventListener('testPassiveEventSupport', noop, options);
               detectPassiveEvents.hasSupport = passive;
@@ -949,7 +954,7 @@ export function Tracker(
         detectPassiveEvents.update();
 
         // Detect available wheel event
-        var wheelEvent =
+        const wheelEvent =
           'onwheel' in document.createElement('div')
             ? 'wheel' // Modern browsers support "wheel"
             : (document as any).onmousewheel !== undefined
@@ -1008,7 +1013,7 @@ export function Tracker(
       };
 
       const timeout = () => {
-        var now = new Date();
+        const now = new Date();
 
         // There was activity during the heart beat period;
         // on average, this is going to overstate the visitDuration by configHeartBeatTimer/2
@@ -1020,7 +1025,7 @@ export function Tracker(
       };
 
       const heartbeat = () => {
-        var now = new Date();
+        const now = new Date();
 
         // There was activity during the heart beat period;
         // on average, this is going to overstate the visitDuration by configHeartBeatTimer/2
@@ -1060,7 +1065,7 @@ export function Tracker(
      * Not part of the public API - only called from logPageView() above.
      */
     function logPagePing({ context, minXOffset, minYOffset, maxXOffset, maxYOffset }: ActivityCallbackData) {
-      var newDocumentTitle = document.title;
+      const newDocumentTitle = document.title;
       if (newDocumentTitle !== lastDocumentTitle) {
         lastDocumentTitle = newDocumentTitle;
         lastConfigTitle = undefined;
@@ -1255,7 +1260,7 @@ export function Tracker(
     };
 
   // Initialise each plugin with the tracker
-  trackerConfiguration.plugins?.forEach((p) => {
+  browserPlugins.forEach((p) => {
     p.activateBrowserPlugin?.(tracker);
   });
 
