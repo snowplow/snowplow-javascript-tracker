@@ -14,6 +14,7 @@ export const DefaultEvents: EventGroup = [
   YTState.PLAYING,
   YTState.ENDED,
   SnowplowEvent.SEEK,
+  SnowplowEvent.VOLUMECHANGE,
   YTPlayerEvent.ONPLAYBACKQUALITYCHANGE,
   YTPlayerEvent.ONPLAYBACKRATECHANGE,
   SnowplowEvent.PERCENTPROGRESS,
