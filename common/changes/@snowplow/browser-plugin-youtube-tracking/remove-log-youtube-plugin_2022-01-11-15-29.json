@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-youtube-tracking",
+      "comment": "Remove additional console logging when Youtube iFrame API fails to load (#1027)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-youtube-tracking"
+}

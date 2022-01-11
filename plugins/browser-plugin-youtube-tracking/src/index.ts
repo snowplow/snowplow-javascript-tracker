@@ -38,7 +38,7 @@ import { buildYouTubeEvent } from './buildYouTubeEvent';
 import { YTEvent } from './youtubeEvents';
 
 const _trackers: Record<string, BrowserTracker> = {};
-const tracked_players: Record<string, TrackedPlayer> = {};
+const trackedPlayers: Record<string, TrackedPlayer> = {};
 const trackingQueue: Array<TrackingOptions> = [];
 let LOG: Logger;
 
@@ -110,7 +110,6 @@ function handleYouTubeIframeAPI() {
       setTimeout(handleYouTubeIframeAPI, iframeAPIRetryWait);
       iframeAPIRetryWait *= 2;
     } else {
-      console.log(YT);
       LOG.error('YouTube iframe API failed to load.');
     }
   } else {
@@ -123,19 +122,19 @@ function handleYouTubeIframeAPI() {
 
 function addListeners(conf: TrackingOptions) {
   const builtInEvents: Record<string, Function> = {
-    [YTPlayerEvent.ONREADY]: () => youtubeEvent(tracked_players[conf.mediaId].player, YTEvent.READY, conf),
+    [YTPlayerEvent.ONREADY]: () => youtubeEvent(trackedPlayers[conf.mediaId].player, YTEvent.READY, conf),
     [YTPlayerEvent.ONSTATECHANGE]: (e: YT.OnStateChangeEvent) => {
       if (conf.captureEvents.indexOf(YTStateEvent[e.data.toString()]) !== -1) {
-        youtubeEvent(tracked_players[conf.mediaId].player, YTStateEvent[e.data], conf);
+        youtubeEvent(trackedPlayers[conf.mediaId].player, YTStateEvent[e.data], conf);
       }
     },
     [YTPlayerEvent.ONPLAYBACKQUALITYCHANGE]: () =>
-      youtubeEvent(tracked_players[conf.mediaId].player, YTEvent.PLAYBACKQUALITYCHANGE, conf),
-    [YTPlayerEvent.ONAPICHANGE]: () => youtubeEvent(tracked_players[conf.mediaId].player, YTEvent.APICHANGE, conf),
+      youtubeEvent(trackedPlayers[conf.mediaId].player, YTEvent.PLAYBACKQUALITYCHANGE, conf),
+    [YTPlayerEvent.ONAPICHANGE]: () => youtubeEvent(trackedPlayers[conf.mediaId].player, YTEvent.APICHANGE, conf),
     [YTPlayerEvent.ONERROR]: (e: YT.OnErrorEvent) =>
-      youtubeEvent(tracked_players[conf.mediaId].player, YTEvent.ERROR, conf, { error: YTError[e.data] }),
+      youtubeEvent(trackedPlayers[conf.mediaId].player, YTEvent.ERROR, conf, { error: YTError[e.data] }),
     [YTPlayerEvent.ONPLAYBACKRATECHANGE]: () =>
-      youtubeEvent(tracked_players[conf.mediaId].player, YTEvent.PLAYBACKRATECHANGE, conf),
+      youtubeEvent(trackedPlayers[conf.mediaId].player, YTEvent.PLAYBACKRATECHANGE, conf),
   };
 
   const playerEvents: Record<string, Function> = {};
@@ -143,7 +142,7 @@ function addListeners(conf: TrackingOptions) {
     playerEvents[e] = builtInEvents[e];
   });
 
-  tracked_players[conf.mediaId] = {
+  trackedPlayers[conf.mediaId] = {
     player: new YT.Player(conf.mediaId, { events: { ...playerEvents } }),
     conf: conf,
     seekTracking: {
@@ -158,7 +157,7 @@ function addListeners(conf: TrackingOptions) {
 }
 
 function youtubeEvent(player: YT.Player, eventName: string, conf: TrackingOptions, eventData?: EventData) {
-  const playerInstance = tracked_players[conf.mediaId];
+  const playerInstance = trackedPlayers[conf.mediaId];
   if (!playerInstance.seekTracking.enabled && conf.captureEvents.indexOf('seek') !== 1) {
     enableSeekTracking(player, conf, eventData);
   }
@@ -219,12 +218,12 @@ function waitAnyRemainingTimeAfterTimeout(player: YT.Player, conf: TrackingOptio
 // Seek Tracking
 
 function enableSeekTracking(player: YT.Player, conf: TrackingOptions, eventData?: EventData) {
-  tracked_players[conf.mediaId].seekTracking.enabled = true;
+  trackedPlayers[conf.mediaId].seekTracking.enabled = true;
   setInterval(() => seekEventTracker(player, conf, eventData), conf.updateRate);
 }
 
 function seekEventTracker(player: YT.Player, conf: TrackingOptions, eventData?: EventData) {
-  const playerInstance = tracked_players[conf.mediaId];
+  const playerInstance = trackedPlayers[conf.mediaId];
   const playerTime = player.getCurrentTime();
   if (Math.abs(playerTime - (playerInstance.seekTracking.prevTime + 0.5)) > 1) {
     youtubeEvent(player, SnowplowEvent.SEEK, conf, eventData);
@@ -235,13 +234,13 @@ function seekEventTracker(player: YT.Player, conf: TrackingOptions, eventData?: 
 // Volume Tracking
 
 function enableVolumeTracking(player: YT.Player, conf: TrackingOptions, eventData?: EventData) {
-  tracked_players[conf.mediaId].volumeTracking.enabled = true;
-  tracked_players[conf.mediaId].volumeTracking.prevVolume = player.getVolume();
+  trackedPlayers[conf.mediaId].volumeTracking.enabled = true;
+  trackedPlayers[conf.mediaId].volumeTracking.prevVolume = player.getVolume();
   setInterval(() => volumeEventTracker(player, conf, eventData), conf.updateRate);
 }
 
 function volumeEventTracker(player: YT.Player, conf: TrackingOptions, eventData?: EventData) {
-  const playerVolumeTracking = tracked_players[conf.mediaId].volumeTracking;
+  const playerVolumeTracking = trackedPlayers[conf.mediaId].volumeTracking;
   const playerVolume = player.getVolume();
   if (playerVolume !== playerVolumeTracking.prevVolume) {
     youtubeEvent(player, SnowplowEvent.VOLUMECHANGE, conf, eventData);
