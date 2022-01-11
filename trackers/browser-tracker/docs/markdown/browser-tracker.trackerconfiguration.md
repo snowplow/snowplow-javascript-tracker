@@ -16,6 +16,7 @@ type TrackerConfiguration = {
     cookieSameSite?: CookieSameSite;
     cookieSecure?: boolean;
     cookieLifetime?: number;
+    withCredentials?: boolean;
     sessionCookieTimeout?: number;
     appId?: string;
     platform?: Platform;
@@ -36,6 +37,7 @@ type TrackerConfiguration = {
         webPage: boolean;
     };
     plugins?: Array<BrowserPlugin>;
+    customHeaders?: Record<string, string>;
 };
 ```
 
