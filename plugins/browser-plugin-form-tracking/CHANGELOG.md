@@ -1,6 +1,13 @@
 # Change Log - @snowplow/browser-plugin-form-tracking
 
-This log was last generated on Tue, 19 Oct 2021 09:17:22 GMT and should not be manually modified.
+This log was last generated on Tue, 11 Jan 2022 12:53:22 GMT and should not be manually modified.
+
+## 3.2.0
+Tue, 11 Jan 2022 12:53:22 GMT
+
+### Updates
+
+- Allow enableFormTracking to capture dynamic form changes (#748)
 
 ## 3.1.6
 Tue, 19 Oct 2021 09:17:22 GMT

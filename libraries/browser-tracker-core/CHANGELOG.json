@@ -2,6 +2,24 @@
   "name": "@snowplow/browser-tracker-core",
   "entries": [
     {
+      "version": "3.2.0",
+      "tag": "@snowplow/browser-tracker-core_v3.2.0",
+      "date": "Tue, 11 Jan 2022 12:53:22 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add support for custom headers (#1010)"
+          },
+          {
+            "comment": "Allow alternative Access-Control-Allow-Credentials values (#808)"
+          },
+          {
+            "comment": "Ensure Browser Data is added to Payload before plugin beforeTrack fires (#1025)"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.1.6",
       "tag": "@snowplow/browser-tracker-core_v3.1.6",
       "date": "Tue, 19 Oct 2021 09:17:22 GMT",

@@ -1,0 +1,17 @@
+{
+  "name": "@snowplow/browser-plugin-media-tracking",
+  "entries": [
+    {
+      "version": "3.2.0",
+      "tag": "@snowplow/browser-plugin-media-tracking_v3.2.0",
+      "date": "Tue, 11 Jan 2022 12:53:22 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add HTML5 Media Tracking plugin (#805)"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -2,6 +2,18 @@
   "name": "@snowplow/browser-plugin-form-tracking",
   "entries": [
     {
+      "version": "3.2.0",
+      "tag": "@snowplow/browser-plugin-form-tracking_v3.2.0",
+      "date": "Tue, 11 Jan 2022 12:53:22 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Allow enableFormTracking to capture dynamic form changes (#748)"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.1.6",
       "tag": "@snowplow/browser-plugin-form-tracking_v3.1.6",
       "date": "Tue, 19 Oct 2021 09:17:22 GMT",
