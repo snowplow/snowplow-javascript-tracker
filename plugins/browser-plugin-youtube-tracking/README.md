@@ -1,5 +1,6 @@
 # Snowplow YouTube Tracking
 
+[![npm version][npm-image]][npm-url]
 [![License][license-image]](LICENSE)
 
 Browser Plugin to be used with `@snowplow/browser-tracker`.
@@ -83,5 +84,8 @@ Copyright (c) 2021 Snowplow Analytics Ltd.
 
 All rights reserved.
 
+[npm-url]: https://www.npmjs.com/package/@snowplow/browser-plugin-form-tracking
+[npm-image]: https://img.shields.io/npm/v/@snowplow/browser-plugin-form-tracking
 [docs]: https://docs.snowplowanalytics.com/docs/collecting-data/collecting-from-own-applications/javascript-tracker/
 [osi]: https://opensource.org/licenses/BSD-3-Clause
+[license-image]: https://img.shields.io/npm/l/@snowplow/browser-plugin-form-tracking
