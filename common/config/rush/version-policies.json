@@ -42,6 +42,6 @@
      *
      * Valid values are: "prerelease", "release", "minor", "patch", "major"
      */
-    "nextBump": "minor"
+    "nextBump": "patch"
   }
 ]
