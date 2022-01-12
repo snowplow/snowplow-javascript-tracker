@@ -2,6 +2,24 @@
   "name": "@snowplow/browser-plugin-youtube-tracking",
   "entries": [
     {
+      "version": "3.2.1",
+      "tag": "@snowplow/browser-plugin-youtube-tracking_v3.2.1",
+      "date": "Wed, 12 Jan 2022 09:50:29 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add volume change to YouTube plugin default event group (#1032)"
+          },
+          {
+            "comment": "Fix License Badges in READMEs (#1028)"
+          },
+          {
+            "comment": "Remove additional console logging when Youtube iFrame API fails to load (#1027)"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.2.0",
       "tag": "@snowplow/browser-plugin-youtube-tracking_v3.2.0",
       "date": "Tue, 11 Jan 2022 12:53:22 GMT",

@@ -2,6 +2,12 @@
   "name": "@snowplow/browser-tracker-core",
   "entries": [
     {
+      "version": "3.2.1",
+      "tag": "@snowplow/browser-tracker-core_v3.2.1",
+      "date": "Wed, 12 Jan 2022 09:50:29 GMT",
+      "comments": {}
+    },
+    {
       "version": "3.2.0",
       "tag": "@snowplow/browser-tracker-core_v3.2.0",
       "date": "Tue, 11 Jan 2022 12:53:22 GMT",

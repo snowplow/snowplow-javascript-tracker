@@ -2,6 +2,18 @@
   "name": "@snowplow/browser-plugin-media-tracking",
   "entries": [
     {
+      "version": "3.2.1",
+      "tag": "@snowplow/browser-plugin-media-tracking_v3.2.1",
+      "date": "Wed, 12 Jan 2022 09:50:29 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": " Fix License Badges in READMEs (#1028) "
+          }
+        ]
+      }
+    },
+    {
       "version": "3.2.0",
       "tag": "@snowplow/browser-plugin-media-tracking_v3.2.0",
       "date": "Tue, 11 Jan 2022 12:53:22 GMT",
