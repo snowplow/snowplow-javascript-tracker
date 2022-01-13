@@ -189,7 +189,6 @@ function trackMediaEvent(
   event: SelfDescribingJson<MediaPlayerEvent> & CommonEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ): void {
-  console.log(event.data.type);
   dispatchToTrackersInCollection(trackers, _trackers, (t) => {
     t.core.track(buildSelfDescribingEvent({ event }), event.context, event.timestamp);
   });
