@@ -2,6 +2,18 @@
   "name": "@snowplow/browser-plugin-media-tracking",
   "entries": [
     {
+      "version": "3.2.2",
+      "tag": "@snowplow/browser-plugin-media-tracking_v3.2.2",
+      "date": "Fri, 14 Jan 2022 10:17:59 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Remove logging from event tracker in media plugin (#1035)"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.2.1",
       "tag": "@snowplow/browser-plugin-media-tracking_v3.2.1",
       "date": "Wed, 12 Jan 2022 09:50:29 GMT",
