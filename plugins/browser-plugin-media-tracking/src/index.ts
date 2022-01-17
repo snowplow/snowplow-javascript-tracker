@@ -216,7 +216,7 @@ function setPercentageBoundTimeouts(el: HTMLAudioElement | HTMLVideoElement, con
     if (0 < timeUntilBoundaryEvent) {
       conf.progress!.boundaryTimeoutIds.push(
         setTimeout(
-          () => waitAnyRemainingTimeAfterTimeout(el, timeUntilBoundaryEvent, boundary, conf),
+          () => waitAnyRemainingTimeAfterTimeout(el, absoluteBoundaryTimeMs, boundary, conf),
           timeUntilBoundaryEvent
         )
       );
@@ -229,13 +229,13 @@ function setPercentageBoundTimeouts(el: HTMLAudioElement | HTMLVideoElement, con
 
 function waitAnyRemainingTimeAfterTimeout(
   el: HTMLAudioElement | HTMLVideoElement,
-  timeUntilBoundaryEvent: number,
+  absoluteBoundaryTimeMs: number,
   boundary: number,
   conf: TrackingOptions
 ) {
-  if (el.currentTime * 1000 < timeUntilBoundaryEvent) {
-    setTimeout(function () {
-      waitAnyRemainingTimeAfterTimeout(el, timeUntilBoundaryEvent, boundary, conf);
+  if (el.currentTime * 1000 < absoluteBoundaryTimeMs) {
+    setTimeout(() => {
+      waitAnyRemainingTimeAfterTimeout(el, absoluteBoundaryTimeMs, boundary, conf);
     }, 10);
   } else {
     mediaPlayerEvent(SnowplowEvent.PERCENTPROGRESS, el, conf, { boundary: boundary });
