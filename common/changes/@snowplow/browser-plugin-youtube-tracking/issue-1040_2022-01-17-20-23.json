@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Bump Copyright to 2022 (#1040)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-youtube-tracking"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-youtube-tracking",
+  "email": "paul@snowplowanalytics.com"
+}

@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Bump Copyright to 2022 (#1040)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-geolocation"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-geolocation",
+  "email": "paul@snowplowanalytics.com"
+}
