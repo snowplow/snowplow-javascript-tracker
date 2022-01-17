@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Snowplow Analytics Ltd, 2010 Anthon Pang
+ * Copyright (c) 2022 Snowplow Analytics Ltd, 2010 Anthon Pang
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

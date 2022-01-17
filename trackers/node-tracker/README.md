@@ -82,7 +82,7 @@ To enable success and failure callback debugging, run your application with `NOD
 
 Licensed and distributed under the [BSD 3-Clause License](LICENSE) ([An OSI Approved License][osi]).
 
-Copyright (c) 2021 Snowplow Analytics Ltd.
+Copyright (c) 2022 Snowplow Analytics Ltd.
 
 All rights reserved.
 

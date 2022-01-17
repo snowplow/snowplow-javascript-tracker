@@ -46,7 +46,7 @@ enableGeolocationContext(); // If initializing with `false`, call this to switch
 
 Licensed and distributed under the [BSD 3-Clause License](LICENSE) ([An OSI Approved License][osi]).
 
-Copyright (c) 2021 Snowplow Analytics Ltd, 2010 Anthon Pang.
+Copyright (c) 2022 Snowplow Analytics Ltd, 2010 Anthon Pang.
 
 All rights reserved.
 
