@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Snowplow Analytics Ltd, 2010 Anthon Pang
+ * Copyright (c) 2022 Snowplow Analytics Ltd, 2010 Anthon Pang
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,18 +30,18 @@
 
 import license from 'rollup-plugin-license';
 
-const mainCopyright = 'Copyright 2021 Snowplow Analytics Ltd, 2010 Anthon Pang';
-const altCopyright = 'Copyright 2021 Snowplow Analytics Ltd';
+const mainCopyright = 'Copyright 2022 Snowplow Analytics Ltd, 2010 Anthon Pang';
+const snowplowCopyright = 'Copyright 2022 Snowplow Analytics Ltd';
 
-const bannerContent = (alt) => `<%= pkg.description %> v<%= pkg.version %> (<%= pkg.homepage %>)
-${alt ? altCopyright : mainCopyright}
+const bannerContent = (snowplowOnlyCopyright) => `<%= pkg.description %> v<%= pkg.version %> (<%= pkg.homepage %>)
+${snowplowOnlyCopyright ? snowplowCopyright : mainCopyright}
 Licensed under <%= pkg.license %>`;
 
-export const banner = (alt = false) =>
+export const banner = (snowplowOnlyCopyright = false) =>
   license({
     sourcemap: true,
     banner: {
-      content: bannerContent(alt),
+      content: bannerContent(snowplowOnlyCopyright),
       commentStyle: 'ignored',
     },
   });

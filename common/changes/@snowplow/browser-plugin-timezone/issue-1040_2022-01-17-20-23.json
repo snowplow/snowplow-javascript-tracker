@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Bump Copyright to 2022 (#1040)",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-timezone"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-timezone",
+  "email": "paul@snowplowanalytics.com"
+}

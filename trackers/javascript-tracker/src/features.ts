@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Snowplow Analytics Ltd, 2010 Anthon Pang
+ * Copyright (c) 2022 Snowplow Analytics Ltd, 2010 Anthon Pang
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -178,7 +178,7 @@ export function Plugins(configuration: JavaScriptTrackerConfiguration) {
     const { MediaTrackingPlugin, ...apiMethods } = MediaTracking;
     activatedPlugins.push([MediaTrackingPlugin(), apiMethods]);
   }
-  
+
   if (plugins.youtubeTracking) {
     const { YouTubeTrackingPlugin, ...apiMethods } = YouTubeTracking;
     activatedPlugins.push([YouTubeTrackingPlugin(), apiMethods]);

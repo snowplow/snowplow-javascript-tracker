@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Bump Copyright to 2022 (#1040)",
+      "type": "none",
+      "packageName": "@snowplow/tracker-core"
+    }
+  ],
+  "packageName": "@snowplow/tracker-core",
+  "email": "paul@snowplowanalytics.com"
+}
