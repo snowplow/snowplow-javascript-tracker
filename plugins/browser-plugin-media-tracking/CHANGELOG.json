@@ -2,6 +2,21 @@
   "name": "@snowplow/browser-plugin-media-tracking",
   "entries": [
     {
+      "version": "3.2.3",
+      "tag": "@snowplow/browser-plugin-media-tracking_v3.2.3",
+      "date": "Tue, 18 Jan 2022 16:23:52 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fix video progress event becoming out of sync on pause/play (#1038)"
+          },
+          {
+            "comment": "Bump Copyright to 2022 (#1040)"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.2.2",
       "tag": "@snowplow/browser-plugin-media-tracking_v3.2.2",
       "date": "Fri, 14 Jan 2022 10:17:59 GMT",

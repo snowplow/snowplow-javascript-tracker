@@ -2,6 +2,18 @@
   "name": "@snowplow/browser-plugin-performance-timing",
   "entries": [
     {
+      "version": "3.2.3",
+      "tag": "@snowplow/browser-plugin-performance-timing_v3.2.3",
+      "date": "Tue, 18 Jan 2022 16:23:52 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Copyright to 2022 (#1040)"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.2.2",
       "tag": "@snowplow/browser-plugin-performance-timing_v3.2.2",
       "date": "Fri, 14 Jan 2022 10:17:59 GMT",
