@@ -156,14 +156,14 @@ describe('YouTube Tracker', () => {
       },
       {
         interval: 5000,
-        timeout: 40000,
+        timeout: 60000,
         timeoutMsg: "No 'playbackqualitychange' event received",
       }
     );
 
     function increaseSpeedIE() {
       if (browser.capabilities.browserName === 'internet explorer') {
-        let actions = Array(11).fill('Tab');
+        let actions = Array(12).fill('Tab');
         actions = actions.concat(['Space', 'ArrowDown', 'Space', 'ArrowDown', 'Space', 'Escape']);
         actions.forEach((a) => {
           browser.keys(a);

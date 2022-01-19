@@ -84,17 +84,10 @@ describe('config parser', () => {
 
   it('parses youtube events', () => {
     let trackingOptions: MediaTrackingOptions = {
-      captureEvents: ['play', 'ready', 'error', 'playbackratechange', 'playbackqualitychange', 'apichange'],
+      captureEvents: ['play', 'error', 'playbackratechange', 'playbackqualitychange', 'apichange'],
     };
 
-    let expectedOutput = [
-      'onStateChange',
-      'onPlaybackQualityChange',
-      'onError',
-      'onPlaybackRateChange',
-      'onReady',
-      'onApiChange',
-    ];
+    let expectedOutput = ['onStateChange', 'onPlaybackQualityChange', 'onError', 'onPlaybackRateChange', 'onApiChange'];
     expect(trackingOptionsParser(id, trackingOptions).youtubeEvents).toEqual(expectedOutput);
   });
 
