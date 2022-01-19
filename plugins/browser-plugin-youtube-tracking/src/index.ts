@@ -80,17 +80,17 @@ export function enableYouTubeTracking(args: { id: string; options?: MediaTrackin
 
   // If the API is ready, we can immediately add the listeners
   if (typeof YT !== 'undefined' && typeof YT.Player !== 'undefined') {
-    addListeners(conf);
+    initialisePlayer(conf);
   } else {
     // If not, we put them into a queue that will have listeners added once the API is ready
     // and start trying to load the iframe API
     trackingQueue.push(conf);
-    handleYouTubeIframeAPI();
+    handleYouTubeIframeAPI(conf);
   }
 }
 
 let iframeAPIRetryWait = 100;
-function handleYouTubeIframeAPI() {
+function handleYouTubeIframeAPI(conf: TrackingOptions) {
   // First we check if the script tag exists in the DOM, and enable the API if not
   const scriptTags = Array.prototype.slice.call(document.getElementsByTagName('script'));
   if (!scriptTags.some((s) => s.src === YouTubeIFrameAPIURL)) {
@@ -107,7 +107,9 @@ function handleYouTubeIframeAPI() {
   // so we need to wait until 'YT' is defined to then check 'YT.Player'
   if (typeof YT === 'undefined' || typeof YT.Player === 'undefined') {
     if (iframeAPIRetryWait <= 6400) {
-      setTimeout(handleYouTubeIframeAPI, iframeAPIRetryWait);
+      setTimeout(() => {
+        handleYouTubeIframeAPI(conf);
+      }, iframeAPIRetryWait);
       iframeAPIRetryWait *= 2;
     } else {
       LOG.error('YouTube iframe API failed to load.');
@@ -115,14 +117,30 @@ function handleYouTubeIframeAPI() {
   } else {
     // Once the API is avaliable, listeners are attached to anything sitting in the queue
     while (trackingQueue.length) {
-      addListeners(trackingQueue.pop()!);
+      initialisePlayer(trackingQueue.pop()!);
     }
   }
 }
 
-function addListeners(conf: TrackingOptions) {
+function initialisePlayer(conf: TrackingOptions) {
+  trackedPlayers[conf.mediaId] = {
+    player: new YT.Player(conf.mediaId, { events: { onReady: (e: YT.PlayerEvent) => playerReady(e, conf) } }),
+    conf: conf,
+    seekTracking: {
+      prevTime: 0,
+      enabled: false,
+    },
+    volumeTracking: {
+      prevVolume: 0,
+      enabled: false,
+    },
+  };
+}
+
+function playerReady(event: YT.PlayerEvent, conf: TrackingOptions) {
+  const player: YT.Player = event.target;
+
   const builtInEvents: Record<string, Function> = {
-    [YTPlayerEvent.ONREADY]: () => youtubeEvent(trackedPlayers[conf.mediaId].player, YTEvent.READY, conf),
     [YTPlayerEvent.ONSTATECHANGE]: (e: YT.OnStateChangeEvent) => {
       if (conf.captureEvents.indexOf(YTStateEvent[e.data.toString()]) !== -1) {
         youtubeEvent(trackedPlayers[conf.mediaId].player, YTStateEvent[e.data], conf);
@@ -137,23 +155,11 @@ function addListeners(conf: TrackingOptions) {
       youtubeEvent(trackedPlayers[conf.mediaId].player, YTEvent.PLAYBACKRATECHANGE, conf),
   };
 
-  const playerEvents: Record<string, Function> = {};
-  conf.youtubeEvents.forEach((e) => {
-    playerEvents[e] = builtInEvents[e];
+  conf.youtubeEvents.forEach((youtubeEventName) => {
+    player.addEventListener(youtubeEventName, (eventData: YT.PlayerEvent) =>
+      builtInEvents[youtubeEventName](eventData)
+    );
   });
-
-  trackedPlayers[conf.mediaId] = {
-    player: new YT.Player(conf.mediaId, { events: { ...playerEvents } }),
-    conf: conf,
-    seekTracking: {
-      prevTime: 0,
-      enabled: false,
-    },
-    volumeTracking: {
-      prevVolume: 0,
-      enabled: false,
-    },
-  };
 }
 
 function youtubeEvent(player: YT.Player, eventName: string, conf: TrackingOptions, eventData?: EventData) {
