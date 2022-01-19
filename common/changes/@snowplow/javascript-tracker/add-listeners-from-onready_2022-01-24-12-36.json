@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/javascript-tracker",
+      "comment": "Fix YouTube plugin throwing errors on calling player methods (#1043)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/javascript-tracker"
+}

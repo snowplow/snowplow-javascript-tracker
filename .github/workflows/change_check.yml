@@ -6,6 +6,9 @@ jobs:
   check:
     runs-on: ubuntu-20.04
 
+    env:
+      BROWSERSLIST_IGNORE_OLD_DATA: true
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
