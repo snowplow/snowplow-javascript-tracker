@@ -9,7 +9,6 @@ export enum YTPlayerEvent {
   ONERROR = 'onError',
   ONAPICHANGE = 'onApiChange',
   ONPLAYBACKRATECHANGE = 'onPlaybackRateChange',
-  ONREADY = 'onReady',
 }
 
 export const YTStateEvent: Record<string, string> = {
@@ -22,7 +21,6 @@ export const YTStateEvent: Record<string, string> = {
 };
 
 export const CaptureEventToYouTubeEvent: Record<string, YTPlayerEvent> = {
-  ready: YTPlayerEvent.ONREADY,
   playbackratechange: YTPlayerEvent.ONPLAYBACKRATECHANGE,
   playbackqualitychange: YTPlayerEvent.ONPLAYBACKQUALITYCHANGE,
   error: YTPlayerEvent.ONERROR,

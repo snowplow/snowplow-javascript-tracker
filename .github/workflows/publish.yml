@@ -13,6 +13,7 @@ jobs:
 
     env:
       NPM_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+      BROWSERSLIST_IGNORE_OLD_DATA: true
 
     steps:
       - name: Checkout
