@@ -27,15 +27,23 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-import { trackingOptionsParser, addUrlParam, parseUrlParams } from './helperFunctions';
-import { YouTubeIFrameAPIURL, YTError, YTPlayerEvent, YTState, YTStateEvent } from './constants';
-import { EventData, MediaTrackingOptions, TrackedPlayer, TrackingOptions } from './types';
+import { addUrlParam, parseUrlParams } from './helperFunctions';
+import {
+  CaptureEventToYouTubeEvent,
+  YouTubeIFrameAPIURL,
+  YTError,
+  YTPlayerEvent,
+  YTState,
+  YTStateEvent,
+} from './constants';
+import { EventData, EventGroup, MediaTrackingOptions, TrackedPlayer, TrackingOptions } from './types';
 import { BrowserPlugin, BrowserTracker, dispatchToTrackersInCollection } from '@snowplow/browser-tracker-core';
 import { buildSelfDescribingEvent, CommonEventProperties, Logger, SelfDescribingJson } from '@snowplow/tracker-core';
 import { SnowplowEvent } from './snowplowEvents';
 import { MediaPlayerEvent } from './contexts';
 import { buildYouTubeEvent } from './buildYouTubeEvent';
 import { YTEvent } from './youtubeEvents';
+import { DefaultEvents, EventGroups, AllEvents } from './eventGroups';
 
 const _trackers: Record<string, BrowserTracker> = {};
 const trackedPlayers: Record<string, TrackedPlayer> = {};
@@ -60,6 +68,61 @@ function trackEvent(
   dispatchToTrackersInCollection(trackers, _trackers, (t) => {
     t.core.track(buildSelfDescribingEvent({ event }), event.context, event.timestamp);
   });
+}
+
+export function trackingOptionsParser(mediaId: string, conf?: MediaTrackingOptions): TrackingOptions {
+  const defaults: TrackingOptions = {
+    mediaId: mediaId,
+    captureEvents: DefaultEvents,
+    youtubeEvents: [
+      YTPlayerEvent.ONSTATECHANGE,
+      YTPlayerEvent.ONPLAYBACKQUALITYCHANGE,
+      YTPlayerEvent.ONERROR,
+      YTPlayerEvent.ONPLAYBACKRATECHANGE,
+    ],
+    updateRate: 500,
+    progress: {
+      boundaries: [10, 25, 50, 75],
+      boundaryTimeoutIds: [],
+    },
+  };
+
+  if (!conf) return defaults;
+  if (conf.label) defaults.label = conf.label;
+  defaults.updateRate = conf.updateRate || defaults.updateRate;
+  defaults.captureEvents = conf.captureEvents || defaults.captureEvents;
+
+  let parsedEvents: EventGroup = [];
+  for (let ev of defaults.captureEvents) {
+    // If an event is an EventGroup, get the events from that group
+    if (EventGroups.hasOwnProperty(ev)) {
+      parsedEvents = parsedEvents.concat(EventGroups[ev]);
+    } else if (!Object.keys(AllEvents).filter((k) => k === ev)) {
+      LOG.warn(`'${ev}' is not a valid event.`);
+    } else {
+      parsedEvents.push(ev);
+    }
+  }
+
+  defaults.captureEvents = parsedEvents;
+
+  for (let ev of defaults.captureEvents) {
+    if (
+      CaptureEventToYouTubeEvent.hasOwnProperty(ev) &&
+      defaults.youtubeEvents.indexOf(CaptureEventToYouTubeEvent[ev]) === -1
+    ) {
+      defaults.youtubeEvents.push(CaptureEventToYouTubeEvent[ev]);
+    }
+  }
+
+  if (defaults.captureEvents.indexOf(SnowplowEvent.PERCENTPROGRESS) !== -1) {
+    defaults.progress = {
+      boundaries: conf.boundaries || defaults.progress!.boundaries,
+      boundaryTimeoutIds: [],
+    };
+  }
+
+  return defaults;
 }
 
 export function enableYouTubeTracking(args: { id: string; options?: MediaTrackingOptions }) {
@@ -175,7 +238,7 @@ function youtubeEvent(player: YT.Player, eventName: string, conf: TrackingOption
     enableVolumeTracking(player, conf, eventData);
   }
 
-  if (conf.hasOwnProperty('boundaries')) {
+  if (conf.captureEvents.indexOf(SnowplowEvent.PERCENTPROGRESS) !== -1) {
     progressHandler(player, eventName, conf);
   }
 
@@ -198,15 +261,15 @@ function progressHandler(player: YT.Player, eventName: string, conf: TrackingOpt
 }
 
 function setPercentageBoundTimeouts(player: YT.Player, conf: TrackingOptions) {
-  const currentTime = player.getCurrentTime();
-  conf.progress?.boundaries!.forEach((p) => {
-    let percentTime = player.getDuration() * 1000 * (p / 100);
-    if (currentTime !== 0) {
-      percentTime -= currentTime * 1000;
-    }
-    if (p < percentTime) {
-      conf.progress?.boundaryTimeoutIds.push(
-        setTimeout(() => waitAnyRemainingTimeAfterTimeout(player, conf, percentTime, p), percentTime)
+  conf.progress?.boundaries!.forEach((boundary) => {
+    const absoluteBoundaryTimeMs = player.getDuration() * (boundary / 100) * 1000;
+    const timeUntilBoundaryEvent = absoluteBoundaryTimeMs - player.getCurrentTime() * 1000;
+    if (0 < timeUntilBoundaryEvent) {
+      conf.progress!.boundaryTimeoutIds.push(
+        setTimeout(
+          () => waitAnyRemainingTimeAfterTimeout(player, conf, absoluteBoundaryTimeMs, boundary),
+          timeUntilBoundaryEvent
+        )
       );
     }
   });

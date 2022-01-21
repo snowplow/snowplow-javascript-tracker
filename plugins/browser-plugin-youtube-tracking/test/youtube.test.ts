@@ -29,9 +29,10 @@
  */
 
 import { AllEvents, DefaultEvents } from '../src/eventGroups';
-import { addUrlParam, parseUrlParams, trackingOptionsParser } from '../src/helperFunctions';
+import { addUrlParam, parseUrlParams } from '../src/helperFunctions';
 import { MediaTrackingOptions, TrackingOptions } from '../src/types';
 import { YTPlayerEvent } from '../src/constants';
+import { trackingOptionsParser } from '../src';
 
 describe('config parser', () => {
   const id = 'youtube';
@@ -56,7 +57,7 @@ describe('config parser', () => {
     expect(test).toEqual(default_output);
   });
 
-  it('parses boundries', () => {
+  it('parses boundaries', () => {
     let trackingOptions: MediaTrackingOptions = {
       captureEvents: DefaultEvents,
       boundaries: [1, 4, 7, 9, 99],
