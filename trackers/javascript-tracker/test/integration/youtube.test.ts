@@ -145,19 +145,20 @@ describe('YouTube Tracker', () => {
 
     const player = $('#youtube');
     player.click(); // emits 'playbackqualitychange' and 'play';
+    player.keys(Array(3).fill('ArrowRight')); // Skips to the point just before 'percentprogress' fires
 
     browser.waitUntil(
       () => {
         return browser.call(() =>
           fetchResults(docker.url).then((result) => {
-            return result.length;
+            return result.some((r: any) => r.event.unstruct_event.data.data.type === 'percentprogress');
           })
         );
       },
       {
         interval: 5000,
-        timeout: 60000,
-        timeoutMsg: "No 'playbackqualitychange' event received",
+        timeout: 40000,
+        timeoutMsg: "No 'percentprogress' event received",
       }
     );
 
@@ -203,6 +204,7 @@ describe('YouTube Tracker', () => {
 
   const expected = {
     ready: { youtube: { cued: true } },
+    percentprogress: {},
     playbackqualitychange: {},
     play: {},
     playbackratechange: {},
