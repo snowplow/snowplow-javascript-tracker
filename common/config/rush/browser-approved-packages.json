@@ -215,7 +215,7 @@
       "allowedCategories": [ "trackers" ]
     },
     {
-      "name": "@wdio/sync",
+      "name": "@wdio/types",
       "allowedCategories": [ "trackers" ]
     },
     {
@@ -356,6 +356,10 @@
     },
     {
       "name": "wdio-chromedriver-service",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "webdriverio",
       "allowedCategories": [ "trackers" ]
     }
   ]

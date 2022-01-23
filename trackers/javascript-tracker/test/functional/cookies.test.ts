@@ -29,21 +29,21 @@
  */
 
 describe('Tracker created domain cookies', () => {
-  it('contain the expected cookie names', () => {
-    browser.url('/cookies.html');
-    browser.waitUntil(() => $('#init').getText() === 'true', {
+  it('contain the expected cookie names', async () => {
+    await browser.url('/cookies.html');
+    await browser.waitUntil(async () => (await $('#init').getText()) === 'true', {
       timeout: 5000,
       timeoutMsg: 'expected init after 5s',
       interval: 250,
     });
 
-    browser.waitUntil(() => $('#cookies').getText() !== '', {
+    await browser.waitUntil(async () => (await $('#cookies').getText()) !== '', {
       timeout: 5000,
       timeoutMsg: 'expected cookie to be set after 5s',
       interval: 250,
     });
 
-    const cookies = $('#cookies').getText();
+    const cookies = await $('#cookies').getText();
 
     expect(cookies).not.toContain('_sp_0ses.'); // Missing as tests are not HTTPS and `cookieSecure: true` by default
     expect(cookies).not.toContain('_sp_0id.');
@@ -63,15 +63,15 @@ describe('Tracker created domain cookies', () => {
     expect(cookies).toContain('_sp_6ses.');
     expect(cookies).toContain('_sp_6id.');
 
-    expect($('#getDomainUserId').getText()).toMatch(
+    expect(await $('#getDomainUserId').getText()).toMatch(
       /\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b/i
     );
-    expect($('#getDomainUserInfo').getText()).toMatch(
+    expect(await $('#getDomainUserInfo').getText()).toMatch(
       /\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b.[0-9]+.[0-9].[0-9]+.[0-9]+.\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b/i
     );
-    expect($('#getUserId').getText()).toBe('Dave');
-    expect($('#getCookieName').getText()).toMatch(/_sp_1id.[0-9a-z]{4}/i);
-    expect($('#getPageViewId').getText()).toMatch(
+    expect(await $('#getUserId').getText()).toBe('Dave');
+    expect(await $('#getCookieName').getText()).toMatch(/_sp_1id.[0-9a-z]{4}/i);
+    expect(await $('#getPageViewId').getText()).toMatch(
       /\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b/i
     );
   });
