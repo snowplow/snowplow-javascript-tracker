@@ -155,6 +155,10 @@
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
+      "name": "@types/nock",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "@types/node",
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
