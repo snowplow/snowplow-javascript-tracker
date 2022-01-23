@@ -1167,7 +1167,7 @@ importers:
       '@wdio/spec-reporter': ~6.11.0
       '@wdio/static-server-service': ~6.10.10
       '@wdio/sync': ~6.11.0
-      chromedriver: ~94.0.0
+      chromedriver: ~97.0.0
       dockerode: ~3.3.1
       jest: ~27.4.7
       jest-environment-jsdom: ~27.4.6
@@ -1228,7 +1228,7 @@ importers:
       '@wdio/spec-reporter': 6.11.0_@wdio+cli@6.12.1
       '@wdio/static-server-service': 6.10.10
       '@wdio/sync': 6.11.0
-      chromedriver: 94.0.0
+      chromedriver: 97.0.0
       dockerode: 3.3.1
       jest: 27.4.7
       jest-environment-jsdom: 27.4.6
@@ -1246,7 +1246,7 @@ importers:
       saucelabs: 4.6.2
       ts-jest: 27.1.3_a7e53b5e5b59e71a0fd4d8cf128393d5
       typescript: 4.5.5
-      wdio-chromedriver-service: 6.0.4_25d7422259640475936d8a95dcd9427b
+      wdio-chromedriver-service: 6.0.4_069ee4859685b73a7f2293d5be8a255e
 
   ../../trackers/node-tracker:
     specifiers:
@@ -2876,7 +2876,7 @@ packages:
     resolution: {integrity: sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ==}
     engines: {node: '>= 6.0.0'}
     dependencies:
-      debug: 4.3.1
+      debug: 4.3.3
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -3806,8 +3806,8 @@ packages:
       rimraf: 3.0.2
     dev: true
 
-  /chromedriver/94.0.0:
-    resolution: {integrity: sha512-x4hK7R7iOyAhdLHJEcOyGBW/oa2kno6AqpHVLd+n3G7c2Vk9XcAXMz84XhNItqykJvTc6E3z/JRIT1eHYH//Eg==}
+  /chromedriver/97.0.0:
+    resolution: {integrity: sha512-SZ9MW+/6/Ypz20CNdRKocsmRM2AJ/YwHaWpA1Np2QVPFUbhjhus6vBtqFD+l8M5qrktLWPQSjTwIsDckNfXIRg==}
     engines: {node: '>=10'}
     hasBin: true
     requiresBuild: true
@@ -5810,7 +5810,7 @@ packages:
     engines: {node: '>= 6'}
     dependencies:
       agent-base: 6.0.2
-      debug: 4.3.1
+      debug: 4.3.3
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -9991,7 +9991,7 @@ packages:
     dev: true
     optional: true
 
-  /wdio-chromedriver-service/6.0.4_25d7422259640475936d8a95dcd9427b:
+  /wdio-chromedriver-service/6.0.4_069ee4859685b73a7f2293d5be8a255e:
     resolution: {integrity: sha512-ed0ctxRJ4KbhAX/BkGUFS/sy6zDrZ3oB1Tqvokrs3r7GPX115w/AcOySofXdAk7Pdjm2JLDW/marHG/LmVoBuw==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
@@ -9999,7 +9999,7 @@ packages:
       chromedriver: '*'
     dependencies:
       '@wdio/cli': 6.12.1
-      chromedriver: 94.0.0
+      chromedriver: 97.0.0
       fs-extra: 9.0.1
     dev: true
 
