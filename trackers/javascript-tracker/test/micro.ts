@@ -42,7 +42,7 @@ const docker = new Docker();
 export const start = () => {
   return docker
     .createContainer({
-      Image: 'snowplow/snowplow-micro:1.1.2',
+      Image: 'snowplow/snowplow-micro:1.2.1',
       AttachStdin: false,
       AttachStdout: true,
       AttachStderr: true,
