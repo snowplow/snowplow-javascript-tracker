@@ -77,7 +77,7 @@
     "@wdio/spec-reporter": "~6.11.0",
     "@wdio/static-server-service": "~6.10.10",
     "@wdio/sync": "~6.11.0",
-    "chromedriver": "~94.0.0",
+    "chromedriver": "~97.0.0",
     "dockerode": "~3.3.1",
     "jest": "~27.4.7",
     "jest-environment-jsdom": "~27.4.6",
