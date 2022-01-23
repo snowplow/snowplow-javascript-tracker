@@ -1,9 +1,9 @@
-const { config } = require('./wdio.default.conf');
+import { config as defaultConfig } from './wdio.default.conf';
 
 const buildName = `snowplow-js-tracker-${process.env.GITHUB_WORKFLOW}/${process.env.GITHUB_RUN_NUMBER}-${process.env.GITHUB_REF}-${process.env.GITHUB_SHA}`;
 
-exports.config = {
-  ...config,
+export const config = {
+  ...defaultConfig,
 
   user: process.env.SAUCE_USERNAME,
   key: process.env.SAUCE_ACCESS_KEY,

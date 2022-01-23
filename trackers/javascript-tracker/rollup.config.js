@@ -45,7 +45,7 @@ const plugins = [
   json(),
   nodeResolve({ browser: true }),
   commonjs(),
-  ts({ tsconfig: './tsconfig.prod.json' }),
+  ts(),
   compiler(),
   terser(),
   cleanup({ comments: 'none' }),

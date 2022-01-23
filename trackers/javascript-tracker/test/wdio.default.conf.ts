@@ -1,5 +1,5 @@
-exports.config = {
-  specs: ['./test/functional/*.test.ts', './test/integration/*.test.ts'],
+export const config = {
+  specs: ['./test/functional/*.test.ts'],
   logLevel: 'warn',
   baseUrl: 'http://snowplow-js-tracker.local:8080',
   waitforTimeout: 30000,
@@ -8,7 +8,7 @@ exports.config = {
   specFileRetries: 1,
   framework: 'jasmine',
   reporters: ['spec'],
-  jasmineNodeOpts: {
+  jasmineOpts: {
     defaultTimeoutInterval: 120000,
   },
 };
