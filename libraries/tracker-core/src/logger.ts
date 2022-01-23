@@ -42,8 +42,8 @@ export interface Logger {
   setLogLevel: (level: LOG_LEVEL) => void;
   info: (message: string, ...extraParams: unknown[]) => void;
   debug: (message: string, ...extraParams: unknown[]) => void;
-  warn: (message: string, error?: Error, ...extraParams: unknown[]) => void;
-  error: (message: string, error?: Error, ...extraParams: unknown[]) => void;
+  warn: (message: string, error?: unknown, ...extraParams: unknown[]) => void;
+  error: (message: string, error?: unknown, ...extraParams: unknown[]) => void;
 }
 
 export const LOG = logger();
@@ -60,7 +60,7 @@ function logger(logLevel: LOG_LEVEL = LOG_LEVEL.warn): Logger {
   /**
    * Log errors, with or without error object
    */
-  function error(message: string, error?: Error, ...extraParams: unknown[]) {
+  function error(message: string, error?: unknown, ...extraParams: unknown[]) {
     if (logLevel >= LOG_LEVEL.error && typeof console !== 'undefined') {
       const logMsg = label + message + '\n';
       if (error) {
@@ -74,7 +74,7 @@ function logger(logLevel: LOG_LEVEL = LOG_LEVEL.warn): Logger {
   /**
    * Log warnings, with or without error object
    */
-  function warn(message: string, error?: Error, ...extraParams: unknown[]) {
+  function warn(message: string, error?: unknown, ...extraParams: unknown[]) {
     if (logLevel >= LOG_LEVEL.warn && typeof console !== 'undefined') {
       const logMsg = label + message;
       if (error) {
