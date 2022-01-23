@@ -7,6 +7,7 @@
     "declaration": true /* Generates corresponding '.d.ts' file. */,
     "resolveJsonModule": true,
     "importHelpers": true,
+    "types": ["sinon", "nock"],
 
     /* Strict Type-Checking Options */
     "strict": true /* Enable all strict type-checking options. */,
