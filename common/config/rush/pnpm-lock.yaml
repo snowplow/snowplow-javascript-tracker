@@ -1155,7 +1155,7 @@ importers:
       '@snowplow/browser-tracker': workspace:*
       '@snowplow/browser-tracker-core': workspace:*
       '@snowplow/tracker-core': workspace:*
-      '@types/dockerode': ~3.2.2
+      '@types/dockerode': ~3.3.1
       '@types/jest': ~27.4.0
       '@types/jsdom': ~16.2.14
       '@types/lodash': ~4.14.178
@@ -1168,7 +1168,7 @@ importers:
       '@wdio/static-server-service': ~6.10.10
       '@wdio/sync': ~6.11.0
       chromedriver: ~94.0.0
-      dockerode: ~3.2.1
+      dockerode: ~3.3.1
       jest: ~27.4.7
       jest-environment-jsdom: ~27.4.6
       jest-environment-jsdom-global: ~3.0.0
@@ -1216,7 +1216,7 @@ importers:
       '@rollup/plugin-commonjs': 21.0.1_rollup@2.66.0
       '@rollup/plugin-json': 4.1.0_rollup@2.66.0
       '@rollup/plugin-node-resolve': 13.1.3_rollup@2.66.0
-      '@types/dockerode': 3.2.2
+      '@types/dockerode': 3.3.1
       '@types/jest': 27.4.0
       '@types/jsdom': 16.2.14
       '@types/lodash': 4.14.178
@@ -1229,7 +1229,7 @@ importers:
       '@wdio/static-server-service': 6.10.10
       '@wdio/sync': 6.11.0
       chromedriver: 94.0.0
-      dockerode: 3.2.1
+      dockerode: 3.3.1
       jest: 27.4.7
       jest-environment-jsdom: 27.4.6
       jest-environment-jsdom-global: 3.0.0_jest-environment-jsdom@27.4.6
@@ -2197,9 +2197,17 @@ packages:
     resolution: {integrity: sha512-+GZV6xfN0MeN9shDCdny8GbC8N0+U6uca8cjyaJndcwmrUhwS6qOU2vmYn0d71EOwJF568/v3SxJ8VKxuZNYRw==}
     dev: true
 
-  /@types/dockerode/3.2.2:
-    resolution: {integrity: sha512-YtdVvc+WmxShwx0iBmn0AtiLL2Zbcak9gXqdeBp0UpiRyOcshZM0eVTOEkUKd4mIjHzSEpA+1P3lXb7ouYvDtQ==}
+  /@types/docker-modem/3.0.2:
+    resolution: {integrity: sha512-qC7prjoEYR2QEe6SmCVfB1x3rfcQtUr1n4x89+3e0wSTMQ/KYCyf+/RAA9n2tllkkNc6//JMUZePdFRiGIWfaQ==}
     dependencies:
+      '@types/node': 14.6.4
+      '@types/ssh2': 0.5.51
+    dev: true
+
+  /@types/dockerode/3.3.1:
+    resolution: {integrity: sha512-pjEOl3C/N2viC+nU2iEM6ImFcyu/RoLZvfsAGc3xIW2MlyEox+ZtJgPDXCFfFVh8ZNouxCRL673aa2Ywbx20EQ==}
+    dependencies:
+      '@types/docker-modem': 3.0.2
       '@types/node': 14.6.4
     dev: true
 
@@ -2305,23 +2313,19 @@ packages:
   /@types/lodash.flattendeep/4.4.6:
     resolution: {integrity: sha512-uLm2MaRVlqJSGsMK0RZpP5T3KqReq+9WbYDHCUhBhp98v56hMG/Yht52bsoTSui9xz2mUvQ9NfG3LrNGDL92Ng==}
     dependencies:
-      '@types/lodash': 4.14.168
+      '@types/lodash': 4.14.178
     dev: true
 
   /@types/lodash.pickby/4.6.6:
     resolution: {integrity: sha512-NFa13XxlMd9eFi0UFZFWIztpMpXhozbijrx3Yb1viYZphT7jyopIFVoIRF4eYMjruWNEG1rnyrRmg/8ej9T8Iw==}
     dependencies:
-      '@types/lodash': 4.14.168
+      '@types/lodash': 4.14.178
     dev: true
 
   /@types/lodash.union/4.6.6:
     resolution: {integrity: sha512-Wu0ZEVNcyCz8eAn6TlUbYWZoGbH9E+iOHxAZbwUoCEXdUiy6qpcz5o44mMXViM4vlPLLCPlkAubEP1gokoSZaw==}
     dependencies:
-      '@types/lodash': 4.14.168
-    dev: true
-
-  /@types/lodash/4.14.168:
-    resolution: {integrity: sha512-oVfRvqHV/V6D1yifJbVRU3TMp8OT6o6BG+U9MkwuJ3U8/CsDHvalRpsxBqivn71ztOFZBTfJMvETbqHiaNSj7Q==}
+      '@types/lodash': 4.14.178
     dev: true
 
   /@types/lodash/4.14.178:
@@ -2419,6 +2423,19 @@ packages:
     resolution: {integrity: sha512-XZbSLlox2KM7VaEJPZ5G/fMZXJNuAtYiFOax7UT51quZMAJRWKvugPMqNA0mV3jC9HIYpQSg6qbV+ilQMwLqyA==}
     dependencies:
       '@sinonjs/fake-timers': 7.1.2
+    dev: true
+
+  /@types/ssh2-streams/0.1.9:
+    resolution: {integrity: sha512-I2J9jKqfmvXLR5GomDiCoHrEJ58hAOmFrekfFqmCFd+A6gaEStvWnPykoWUwld1PNg4G5ag1LwdA+Lz1doRJqg==}
+    dependencies:
+      '@types/node': 14.6.4
+    dev: true
+
+  /@types/ssh2/0.5.51:
+    resolution: {integrity: sha512-aIq7ownezauW/+VWYaeXwd5J1Evnn4EXyeKi7bT3H6ZLBLoqsmhdvkHYPLpnZPM6unKKKsxTHIyQAVOZnPiJBw==}
+    dependencies:
+      '@types/node': 14.6.4
+      '@types/ssh2-streams': 0.1.9
     dev: true
 
   /@types/stack-utils/2.0.0:
@@ -4078,6 +4095,15 @@ packages:
     resolution: {integrity: sha1-tf1UIgqivFq1eqtxQMlAdUUDwac=}
     dev: true
 
+  /cpu-features/0.0.2:
+    resolution: {integrity: sha512-/2yieBqvMcRj8McNzkycjW2v3OIUOibBfd2dLEJ0nWts8NobAxwiyw9phVNS6oDL8x8tz9F7uNVFEVpJncQpeA==}
+    engines: {node: '>=8.0.0'}
+    requiresBuild: true
+    dependencies:
+      nan: 2.15.0
+    dev: true
+    optional: true
+
   /crc-32/1.2.0:
     resolution: {integrity: sha512-1uBwHxF+Y/4yF5G48fwnKq6QsIXheor3ZLPT80yGBV1oEUwpPojlEhQbWKVw1VwcTQyMGHK1/XMmTjmlsmTTGA==}
     engines: {node: '>=0.8'}
@@ -4432,23 +4458,23 @@ packages:
       path-type: 4.0.0
     dev: true
 
-  /docker-modem/2.1.4:
-    resolution: {integrity: sha512-vDTzZjjO1sXMY7m0xKjGdFMMZL7vIUerkC3G4l6rnrpOET2M6AOufM8ajmQoOB+6RfSn6I/dlikCUq/Y91Q1sQ==}
+  /docker-modem/3.0.3:
+    resolution: {integrity: sha512-Tgkn2a+yiNP9FoZgMa/D9Wk+D2Db///0KOyKSYZRJa8w4+DzKyzQMkczKSdR/adQ0x46BOpeNkoyEOKjPhCzjw==}
     engines: {node: '>= 8.0'}
     dependencies:
-      debug: 4.3.1
+      debug: 4.3.3
       readable-stream: 3.6.0
       split-ca: 1.0.1
-      ssh2: 0.8.9
+      ssh2: 1.5.0
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /dockerode/3.2.1:
-    resolution: {integrity: sha512-XsSVB5Wu5HWMg1aelV5hFSqFJaKS5x1aiV/+sT7YOzOq1IRl49I/UwV8Pe4x6t0iF9kiGkWu5jwfvbkcFVupBw==}
+  /dockerode/3.3.1:
+    resolution: {integrity: sha512-AS2mr8Lp122aa5n6d99HkuTNdRV1wkkhHwBdcnY6V0+28D3DSYwhxAk85/mM9XwD3RMliTxyr63iuvn5ZblFYQ==}
     engines: {node: '>= 8.0'}
     dependencies:
-      docker-modem: 2.1.4
+      docker-modem: 3.0.3
       tar-fs: 2.0.1
     transitivePeerDependencies:
       - supports-color
@@ -4998,7 +5024,7 @@ packages:
     engines: {node: '>= 10.17.0'}
     hasBin: true
     dependencies:
-      debug: 4.3.1
+      debug: 4.3.3
       get-stream: 5.2.0
       yauzl: 2.10.0
     optionalDependencies:
@@ -7508,6 +7534,11 @@ packages:
     resolution: {integrity: sha512-nnbWWOkoWyUsTjKrhgD0dcz22mdkSnpYqbEjIm2nhwhuxlSkpywJmBo8h0ZqJdkp73mb90SssHkN4rsRaBAfAA==}
     dev: true
 
+  /nan/2.15.0:
+    resolution: {integrity: sha512-8ZtvEnA2c5aYCZYd1cvgdnU6cqwixRoYg70xPLWUws5ORTa/lnw+u4amixRS/Ac5U5mQVgp9pnlSUnbNWFaWZQ==}
+    dev: true
+    optional: true
+
   /natural-compare/1.4.0:
     resolution: {integrity: sha1-Sr6/7tdUHywnrPspvbvRXI1bpPc=}
     dev: true
@@ -9123,20 +9154,16 @@ packages:
     resolution: {integrity: sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=}
     dev: true
 
-  /ssh2-streams/0.4.10:
-    resolution: {integrity: sha512-8pnlMjvnIZJvmTzUIIA5nT4jr2ZWNNVHwyXfMGdRJbug9TpI3kd99ffglgfSWqujVv/0gxwMsDn9j9RVst8yhQ==}
-    engines: {node: '>=5.2.0'}
+  /ssh2/1.5.0:
+    resolution: {integrity: sha512-iUmRkhH9KGeszQwDW7YyyqjsMTf4z+0o48Cp4xOwlY5LjtbIAvyd3fwnsoUZW/hXmTCRA3yt7S/Jb9uVjErVlA==}
+    engines: {node: '>=10.16.0'}
+    requiresBuild: true
     dependencies:
       asn1: 0.2.4
       bcrypt-pbkdf: 1.0.2
-      streamsearch: 0.1.2
-    dev: true
-
-  /ssh2/0.8.9:
-    resolution: {integrity: sha512-GmoNPxWDMkVpMFa9LVVzQZHF6EW3WKmBwL+4/GeILf2hFmix5Isxm7Amamo8o7bHiU0tC+wXsGcUXOxp8ChPaw==}
-    engines: {node: '>=5.2.0'}
-    dependencies:
-      ssh2-streams: 0.4.10
+    optionalDependencies:
+      cpu-features: 0.0.2
+      nan: 2.15.0
     dev: true
 
   /sshpk/1.16.1:
@@ -9184,11 +9211,6 @@ packages:
   /stream-buffers/3.0.2:
     resolution: {integrity: sha512-DQi1h8VEBA/lURbSwFtEHnSTb9s2/pwLEaFuNhXwy1Dx3Sa0lOuYT2yNUr4/j2fs8oCAMANtrZ5OrPZtyVs3MQ==}
     engines: {node: '>= 0.10.0'}
-    dev: true
-
-  /streamsearch/0.1.2:
-    resolution: {integrity: sha1-gIudDlb8Jz2Am6VzOOkpkZoanxo=}
-    engines: {node: '>=0.8.0'}
     dev: true
 
   /strict-uri-encode/1.1.0:
