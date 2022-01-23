@@ -56,7 +56,7 @@
     "@types/uuid": "~3.4.6",
     "@typescript-eslint/eslint-plugin": "~5.10.0",
     "@typescript-eslint/parser": "~5.10.0",
-    "ava": "~3.13.0",
+    "ava": "~4.0.1",
     "eslint": "~8.7.0",
     "jest-standard-reporter": "~2.0.0",
     "rollup": "~2.66.0",
@@ -64,7 +64,7 @@
     "rollup-plugin-license": "~2.6.1",
     "rollup-plugin-terser": "~7.0.2",
     "rollup-plugin-ts": "~2.0.5",
-    "ts-node": "~9.1.1",
+    "ts-node": "~10.4.0",
     "typescript": "~4.5.5"
   }
 }
