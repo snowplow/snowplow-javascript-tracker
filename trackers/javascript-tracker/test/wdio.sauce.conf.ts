@@ -1,6 +1,11 @@
 import { config as defaultConfig } from './wdio.default.conf';
 
-const buildName = `snowplow-js-tracker-${process.env.GITHUB_WORKFLOW}/${process.env.GITHUB_RUN_NUMBER}-${process.env.GITHUB_REF}-${process.env.GITHUB_SHA}`;
+let buildIdentifier = Math.floor(Math.random() * 1000000).toString();
+if (process.env.GITHUB_WORKFLOW) {
+  buildIdentifier = `${process.env.GITHUB_WORKFLOW}/${process.env.GITHUB_RUN_NUMBER}-${process.env.GITHUB_REF}-${process.env.GITHUB_SHA}`;
+}
+
+const buildName = `snowplow-js-tracker-${buildIdentifier}`;
 
 export const config = {
   ...defaultConfig,
@@ -22,6 +27,14 @@ export const config = {
       browserName: 'firefox',
       platformName: 'macOS 10.15',
       browserVersion: 'latest',
+      'sauce:options': {
+        build: buildName,
+      },
+    },
+    {
+      browserName: 'firefox',
+      browserVersion: '55.0',
+      platformName: 'Windows 10',
       'sauce:options': {
         build: buildName,
       },
@@ -79,7 +92,6 @@ export const config = {
       browserVersion: '14',
       platformName: 'macOS 11.00',
       'sauce:options': {
-        seleniumVersion: '3.14.0',
         build: buildName,
       },
     },
@@ -88,7 +100,6 @@ export const config = {
       browserVersion: '13.1',
       platformName: 'macOS 10.15',
       'sauce:options': {
-        seleniumVersion: '3.14.0',
         build: buildName,
       },
     },
@@ -97,7 +108,6 @@ export const config = {
       browserVersion: '12.1',
       platformName: 'macOS 10.13',
       'sauce:options': {
-        seleniumVersion: '3.14.0',
         build: buildName,
       },
     },
@@ -112,12 +122,6 @@ export const config = {
       browserName: 'internet explorer',
       platform: 'Windows 7',
       version: '9',
-      build: buildName,
-    },
-    {
-      browserName: 'firefox',
-      platform: 'Windows 10',
-      version: '53.0',
       build: buildName,
     },
     {
