@@ -1,7 +1,6 @@
 import { MediaPlayerEvent, YouTube } from './contexts';
 import { SnowplowEvent } from './snowplowEvents';
 import { EventData, MediaEntities, SnowplowMediaPlayer, TrackingOptions, UrlParameters } from './types';
-import { YTStateEvent } from './constants';
 
 export function buildYouTubeEvent(player: YT.Player, eventName: string, conf: TrackingOptions, eventData?: EventData) {
   const data: MediaPlayerEvent = { type: eventName };
@@ -21,27 +20,27 @@ export function buildYouTubeEvent(player: YT.Player, eventName: string, conf: Tr
 
 function getYouTubeEntities(player: YT.Player, urlParameters: UrlParameters, eventData?: EventData): MediaEntities {
   const spherical: YT.SphericalProperties = player.getSphericalProperties();
-  const playerStates: Record<string, boolean> = {
-    buffering: false,
-    cued: false,
-    unstarted: false,
+  const playerStates: Record<number, boolean> = {
+    [YT.PlayerState.BUFFERING]: false,
+    [YT.PlayerState.CUED]: false,
+    [YT.PlayerState.UNSTARTED]: false,
   };
 
   const state = player.getPlayerState();
-  if (playerStates.hasOwnProperty(YTStateEvent[state])) {
-    playerStates[YTStateEvent[state]] = true;
+  if (state in playerStates) {
+    playerStates[state] = true;
   }
 
   let data: YouTube = {
     autoPlay: urlParameters.autoplay === '1',
     avaliablePlaybackRates: player.getAvailablePlaybackRates(),
-    buffering: playerStates.buffering,
+    buffering: playerStates[YT.PlayerState.BUFFERING],
     controls: urlParameters.controls !== '0',
-    cued: playerStates.cued,
+    cued: playerStates[YT.PlayerState.CUED],
     loaded: parseInt(String(player.getVideoLoadedFraction() * 100)),
     playbackQuality: player.getPlaybackQuality(),
     playerId: player.getIframe().id,
-    unstarted: playerStates.unstarted,
+    unstarted: playerStates[YT.PlayerState.UNSTARTED],
     url: player.getVideoUrl(),
   };
 
@@ -72,23 +71,23 @@ function getMediaPlayerEntities(
   urlParameters: UrlParameters,
   eventData?: EventData
 ): MediaEntities {
-  const playerStates: Record<string, boolean> = {
-    ended: false,
-    paused: false,
+  const playerStates: Record<number, boolean> = {
+    [YT.PlayerState.ENDED]: false,
+    [YT.PlayerState.PAUSED]: false,
   };
 
   const state = player.getPlayerState();
-  if (playerStates.hasOwnProperty(YTStateEvent[state])) {
-    playerStates[YTStateEvent[state]] = true;
+  if (state in playerStates) {
+    playerStates[state] = true;
   }
 
   const data: SnowplowMediaPlayer = {
     currentTime: player.getCurrentTime(),
     duration: player.getDuration(),
-    ended: playerStates.ended,
+    ended: playerStates[YT.PlayerState.ENDED],
     loop: urlParameters.loop === '1',
     muted: player.isMuted(),
-    paused: playerStates.paused,
+    paused: playerStates[YT.PlayerState.PAUSED],
     playbackRate: player.getPlaybackRate(),
     volume: player.getVolume(),
   };
