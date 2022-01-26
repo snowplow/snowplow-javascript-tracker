@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-youtube-tracking",
+      "comment": "Fix 'paused' property never being true (#1047)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-youtube-tracking"
+}

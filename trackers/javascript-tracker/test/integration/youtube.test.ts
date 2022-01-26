@@ -161,20 +161,8 @@ describe('YouTube Tracker', () => {
       }
     );
 
-    function increaseSpeedIE() {
-      if (browser.capabilities.browserName === 'internet explorer') {
-        let actions = Array(12).fill('Tab');
-        actions = actions.concat(['Space', 'ArrowDown', 'Space', 'ArrowDown', 'Space', 'Escape']);
-        actions.forEach((a) => {
-          browser.keys(a);
-          browser.pause(100);
-        });
-      }
-    }
-
     const events = [
       () => player.keys(['Shift', '.', 'Shift']), // Increase playback rate
-      increaseSpeedIE,
       () => player.keys(['ArrowRight']), // Seek
       () => player.keys(['ArrowDown']), // Volume down
       () => player.keys(['k']), // Pause
@@ -217,13 +205,19 @@ describe('YouTube Tracker', () => {
     playbackqualitychange: {},
     play: {},
     playbackratechange: {},
-    seek: {},
-    volumechange: { mediaPlayer: {} },
-    pause: { mediaPlayer: {} },
+    seek: { mediaPlayer: { paused: jasmine.any(Boolean) } },
+    volumechange: { mediaPlayer: { paused: jasmine.any(Boolean) } },
+    pause: { mediaPlayer: { paused: true } },
     ended: { mediaPlayer: { ended: true } },
   };
 
   Object.entries(expected).forEach(([name, properties]) => {
+    if (browser.capabilities.browserName === 'internet explorer' && name === 'playbackratechange') {
+      return;
+      // The hotkey for playback rate change doesn't work in IE
+      // Trying to create a key sequence to change the option in the UI has proved to be
+      // very unreliable, so this test is skipped
+    }
     it('tracks ' + name, () => {
       const expected = makeExpectedEvent(name, properties);
       const received = getFirstEventOfEventType(name);
