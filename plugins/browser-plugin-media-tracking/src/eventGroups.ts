@@ -12,6 +12,7 @@ export const AllEvents: EventGroup = [
 ];
 
 export const DefaultEvents: EventGroup = [
+  MediaEvent.LOADEDMETADATA,
   MediaEvent.PAUSE,
   MediaEvent.PLAY,
   MediaEvent.SEEKED,

@@ -221,6 +221,7 @@ describe('Media Tracker', () => {
   });
 
   const expected = {
+    loadedmetadata: { mediaPlayer: { paused: true } },
     play: {},
     pause: { mediaPlayer: { paused: true } },
     volumechange: { mediaPlayer: { paused: true, volume: 50 } },
@@ -422,11 +423,6 @@ describe('Media Tracker - All Events', () => {
   };
 
   const expected = {
-    canplay: {
-      mediaPlayer: {
-        paused: true,
-      },
-    },
     canplaythrough: {
       mediaPlayer: {
         paused: true,
