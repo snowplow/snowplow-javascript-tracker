@@ -44,4 +44,5 @@ export const DocumentEvent = {
 
 export const SnowplowEvent = {
   PERCENTPROGRESS: 'percentprogress',
+  READY: 'ready',
 };
