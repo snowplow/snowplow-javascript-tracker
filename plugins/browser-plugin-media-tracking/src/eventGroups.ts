@@ -12,6 +12,7 @@ export const AllEvents: EventGroup = [
 ];
 
 export const DefaultEvents: EventGroup = [
+  SnowplowEvent.READY,
   MediaEvent.PAUSE,
   MediaEvent.PLAY,
   MediaEvent.SEEKED,

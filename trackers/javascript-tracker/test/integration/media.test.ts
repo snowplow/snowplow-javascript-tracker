@@ -221,6 +221,10 @@ describe('Media Tracker', () => {
   });
 
   const expected = {
+    ready: {
+      mediaPlayer: { paused: true, duration: jasmine.any(Number) },
+      videoElement: { videoHeight: jasmine.any(Number), videoWidth: jasmine.any(Number) },
+    },
     play: {},
     pause: { mediaPlayer: { paused: true } },
     volumechange: { mediaPlayer: { paused: true, volume: 50 } },
