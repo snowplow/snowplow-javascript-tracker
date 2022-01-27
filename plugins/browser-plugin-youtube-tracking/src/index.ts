@@ -160,6 +160,10 @@ function playerReady(event: YT.PlayerEvent, conf: TrackingOptions) {
       builtInEvents[youtubeEventName](eventData)
     );
   });
+
+  if (conf.captureEvents.indexOf(YTEvent.READY) !== -1) {
+    youtubeEvent(player, YTEvent.READY, conf);
+  }
 }
 
 function youtubeEvent(player: YT.Player, eventName: string, conf: TrackingOptions, eventData?: EventData) {
