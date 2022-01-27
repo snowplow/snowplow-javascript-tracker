@@ -146,6 +146,9 @@ function addCaptureEventListeners(
   conf: TrackingOptions,
   eventHandlers: Record<string, Function>
 ): void {
+  if (conf.captureEvents.indexOf(SnowplowEvent.READY) !== -1) {
+    mediaPlayerEvent(SnowplowEvent.READY, el, conf);
+  }
   conf.captureEvents.forEach((e) => {
     if (isType(e, TextTrackEvent)) {
       // IE10 doesn't support addEventListener for TextTrack objects
