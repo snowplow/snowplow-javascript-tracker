@@ -10,6 +10,7 @@ export const AllEvents: EventGroup = [
 ];
 
 export const DefaultEvents: EventGroup = [
+  YTEvent.READY,
   YTState.PAUSED,
   YTState.PLAYING,
   YTState.ENDED,

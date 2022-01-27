@@ -40,7 +40,7 @@ const makeExpectedEvent = (
       {
         schema: 'iglu:com.youtube/youtube/jsonschema/1-0-0',
         data: {
-          playbackQuality: jasmine.stringMatching(/small|medium|large|hd720|hd1080|highres|auto/),
+          playbackQuality: jasmine.stringMatching(/small|medium|large|hd720|hd1080|highres|auto|unknown/),
           cued: false,
           playerId: playerId,
           autoPlay: false,
@@ -202,6 +202,7 @@ describe('YouTube Tracker', () => {
   });
 
   const expected = {
+    ready: { youtube: { cued: true } },
     playbackqualitychange: {},
     play: {},
     playbackratechange: {},
