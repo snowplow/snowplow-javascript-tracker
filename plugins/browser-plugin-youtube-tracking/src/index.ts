@@ -231,10 +231,10 @@ function playerReady(event: YT.PlayerEvent, conf: TrackingOptions) {
 
 function youtubeEvent(player: YT.Player, eventName: string, conf: TrackingOptions, eventData?: EventData) {
   const playerInstance = trackedPlayers[conf.mediaId];
-  if (!playerInstance.seekTracking.enabled && conf.captureEvents.indexOf('seek') !== 1) {
+  if (!playerInstance.seekTracking.enabled && conf.captureEvents.indexOf(SnowplowEvent.SEEK) !== -1) {
     enableSeekTracking(player, conf, eventData);
   }
-  if (!playerInstance.volumeTracking.enabled && conf.captureEvents.indexOf('volume') !== 1) {
+  if (!playerInstance.volumeTracking.enabled && conf.captureEvents.indexOf(SnowplowEvent.VOLUMECHANGE) !== -1) {
     enableVolumeTracking(player, conf, eventData);
   }
 
