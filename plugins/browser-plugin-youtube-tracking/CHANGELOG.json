@@ -2,6 +2,30 @@
   "name": "@snowplow/browser-plugin-youtube-tracking",
   "entries": [
     {
+      "version": "3.3.0",
+      "tag": "@snowplow/browser-plugin-youtube-tracking_v3.3.0",
+      "date": "Mon, 31 Jan 2022 15:58:10 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fix YouTube plugin throwing errors on calling player methods (#1043)"
+          },
+          {
+            "comment": "Fix options.boundaries not being respected (#1044)"
+          },
+          {
+            "comment": "Fix 'paused' property never being true (#1047)"
+          },
+          {
+            "comment": "Add `ready` to YouTube Plugin DefaultEvents (#1049)"
+          },
+          {
+            "comment": "Fix YouTube Plugin enabling of seek/volume events (#1058)"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.2.3",
       "tag": "@snowplow/browser-plugin-youtube-tracking_v3.2.3",
       "date": "Tue, 18 Jan 2022 16:23:52 GMT",

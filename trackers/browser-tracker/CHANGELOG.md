@@ -1,6 +1,11 @@
 # Change Log - @snowplow/browser-tracker
 
-This log was last generated on Tue, 18 Jan 2022 16:23:52 GMT and should not be manually modified.
+This log was last generated on Mon, 31 Jan 2022 15:58:10 GMT and should not be manually modified.
+
+## 3.3.0
+Mon, 31 Jan 2022 15:58:10 GMT
+
+_Version update only_
 
 ## 3.2.3
 Tue, 18 Jan 2022 16:23:52 GMT

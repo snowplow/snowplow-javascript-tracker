@@ -2,6 +2,18 @@
   "name": "@snowplow/browser-plugin-media-tracking",
   "entries": [
     {
+      "version": "3.3.0",
+      "tag": "@snowplow/browser-plugin-media-tracking_v3.3.0",
+      "date": "Mon, 31 Jan 2022 15:58:10 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add ready to Media Plugin DefaultEvents (#1053)"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.2.3",
       "tag": "@snowplow/browser-plugin-media-tracking_v3.2.3",
       "date": "Tue, 18 Jan 2022 16:23:52 GMT",

@@ -1,6 +1,17 @@
 # Change Log - @snowplow/browser-plugin-youtube-tracking
 
-This log was last generated on Tue, 18 Jan 2022 16:23:52 GMT and should not be manually modified.
+This log was last generated on Mon, 31 Jan 2022 15:58:10 GMT and should not be manually modified.
+
+## 3.3.0
+Mon, 31 Jan 2022 15:58:10 GMT
+
+### Updates
+
+- Fix YouTube plugin throwing errors on calling player methods (#1043)
+- Fix options.boundaries not being respected (#1044)
+- Fix 'paused' property never being true (#1047)
+- Add `ready` to YouTube Plugin DefaultEvents (#1049)
+- Fix YouTube Plugin enabling of seek/volume events (#1058)
 
 ## 3.2.3
 Tue, 18 Jan 2022 16:23:52 GMT
