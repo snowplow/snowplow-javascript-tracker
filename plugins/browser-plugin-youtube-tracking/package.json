@@ -1,6 +1,6 @@
 {
   "name": "@snowplow/browser-plugin-youtube-tracking",
-  "version": "3.2.3",
+  "version": "3.3.0",
   "description": "YouTube tracking for Snowplow",
   "homepage": "http://bit.ly/sp-js",
   "bugs": "https://github.com/snowplow/snowplow-javascript-tracker/issues",
@@ -45,6 +45,6 @@
     "@types/youtube": "^0.0.46"
   },
   "peerDependencies": {
-    "@snowplow/browser-tracker": "~3.2.3"
+    "@snowplow/browser-tracker": "~3.3.0"
   }
 }
