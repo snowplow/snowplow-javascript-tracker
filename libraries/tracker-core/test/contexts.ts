@@ -459,3 +459,73 @@ test('Context generators which return empty are ignored', (t) => {
   const actual = contexts.resolveDynamicContext([contextGenerator, staticContext]);
   t.deepEqual(actual, expected);
 });
+
+test('Plugins context should be combined with the passed context', (t) => {
+  const initialContextArray = [
+    {
+      schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
+      data: {
+        latitude: 40.0,
+        longitude: 55.1,
+      },
+    },
+  ];
+
+  const webPageContext = {
+    schema: 'iglu:org.schema/WebPage/jsonschema/1-0-0',
+    data: {
+      genre: 'test',
+    },
+  };
+
+  const webPagePlugin = {
+    contexts: () => {
+      return [webPageContext];
+    },
+  };
+
+  const pluginContexts = contexts.pluginContexts([webPagePlugin]);
+  const result = pluginContexts.addPluginContexts(initialContextArray);
+
+  t.is(result.length, 2);
+  t.deepEqual(result, [...initialContextArray, webPageContext]);
+});
+
+test('Do not mutate context when adding plugin context', (t) => {
+  const initialContextArray = [
+    {
+      schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
+      data: {
+        latitude: 40.0,
+        longitude: 55.1,
+      },
+    },
+  ];
+
+  const webPageContext = {
+    schema: 'iglu:org.schema/WebPage/jsonschema/1-0-0',
+    data: {
+      genre: 'test',
+    },
+  };
+
+  const webPagePlugin = {
+    contexts: () => {
+      return [webPageContext];
+    },
+  };
+
+  const pluginContexts = contexts.pluginContexts([webPagePlugin]);
+  pluginContexts.addPluginContexts(initialContextArray);
+
+  t.is(initialContextArray.length, 1);
+  t.deepEqual(initialContextArray, [
+    {
+      schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
+      data: {
+        latitude: 40.0,
+        longitude: 55.1,
+      },
+    },
+  ]);
+});
