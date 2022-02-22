@@ -223,7 +223,7 @@ export function pluginContexts(plugins: Array<CorePlugin>): PluginContexts {
    */
   return {
     addPluginContexts: (additionalContexts?: SelfDescribingJson[] | null): SelfDescribingJson[] => {
-      const combinedContexts: SelfDescribingJson[] = additionalContexts ?? [];
+      const combinedContexts: SelfDescribingJson[] = additionalContexts ? [...additionalContexts] : [];
 
       plugins.forEach((plugin) => {
         try {

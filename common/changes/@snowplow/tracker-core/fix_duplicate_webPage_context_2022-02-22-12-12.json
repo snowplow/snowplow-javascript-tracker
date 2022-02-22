@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/tracker-core",
+      "comment": "Stop mutating context array with additional plugin contexts (#1061)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/tracker-core"
+}
