@@ -13,7 +13,7 @@ exports.config = {
     {
       browserName: 'firefox',
       platformName: 'Windows 10',
-      browserVersion: 'latest',
+      browserVersion: '96',
       'sauce:options': {
         build: buildName,
       },
@@ -21,7 +21,7 @@ exports.config = {
     {
       browserName: 'firefox',
       platformName: 'macOS 10.15',
-      browserVersion: 'latest',
+      browserVersion: '96',
       'sauce:options': {
         build: buildName,
       },
@@ -29,7 +29,7 @@ exports.config = {
     {
       browserName: 'chrome',
       platformName: 'Windows 10',
-      browserVersion: 'latest',
+      browserVersion: '95',
       'sauce:options': {
         build: buildName,
       },
@@ -45,7 +45,7 @@ exports.config = {
     {
       browserName: 'MicrosoftEdge',
       platformName: 'Windows 10',
-      browserVersion: 'latest',
+      browserVersion: '97',
       'sauce:options': {
         build: buildName,
       },
