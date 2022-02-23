@@ -1,6 +1,6 @@
 {
   "name": "@snowplow/browser-plugin-error-tracking",
-  "version": "3.3.0",
+  "version": "3.3.1",
   "description": "Error tracking for Snowplow",
   "homepage": "http://bit.ly/sp-js",
   "bugs": "https://github.com/snowplow/snowplow-javascript-tracker/issues",
@@ -47,6 +47,6 @@
     "typescript": "^4.3.5"
   },
   "peerDependencies": {
-    "@snowplow/browser-tracker": "~3.3.0"
+    "@snowplow/browser-tracker": "~3.3.1"
   }
 }
