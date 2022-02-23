@@ -2,6 +2,18 @@
   "name": "@snowplow/tracker-core",
   "entries": [
     {
+      "version": "3.3.1",
+      "tag": "@snowplow/tracker-core_v3.3.1",
+      "date": "Wed, 23 Feb 2022 19:27:40 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Stop mutating context array with additional plugin contexts (#1061)"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.3.0",
       "tag": "@snowplow/tracker-core_v3.3.0",
       "date": "Mon, 31 Jan 2022 15:58:10 GMT",
