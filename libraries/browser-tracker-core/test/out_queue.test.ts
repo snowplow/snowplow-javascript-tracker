@@ -34,7 +34,6 @@ import { SharedState } from '../src/state';
 describe('OutQueueManager', () => {
   const maxQueueSize = 2;
 
-  var outQueue: OutQueue;
   var xhrMock: Partial<XMLHttpRequest>;
   beforeEach(() => {
     localStorage.clear();
@@ -47,49 +46,110 @@ describe('OutQueueManager', () => {
     };
 
     jest.spyOn(window, 'XMLHttpRequest').mockImplementation(() => xhrMock as XMLHttpRequest);
-
-    outQueue = OutQueueManager(
-      'sp',
-      new SharedState(),
-      true,
-      'post',
-      '/com.snowplowanalytics.snowplow/tp2',
-      1,
-      40000,
-      false,
-      maxQueueSize,
-      5000,
-      false,
-      {},
-      true
-    );
   });
 
-  it('should add event to outQueue and store event in local storage', () => {
-    const expected = { e: 'pv', eid: '20269f92-f07c-44a6-87ef-43e171305076' };
-    outQueue.enqueueRequest(expected, 'http://example.com');
+  describe('POST requests', () => {
+    var outQueue: OutQueue;
 
-    const retrievedQueue = JSON.parse(
-      window.localStorage.getItem('snowplowOutQueue_sp_post2') ?? fail('Unable to find local storage queue')
-    );
-    expect(retrievedQueue).toHaveLength(1);
-    expect(retrievedQueue[0]).toMatchObject({ bytes: 55, evt: expected });
+    beforeEach(() => {
+      outQueue = OutQueueManager(
+        'sp',
+        new SharedState(),
+        true,
+        'post',
+        '/com.snowplowanalytics.snowplow/tp2',
+        1,
+        40000,
+        false,
+        false,
+        maxQueueSize,
+        5000,
+        false,
+        {},
+        true
+      );
+    });
+
+    it('should add event to outQueue and store event in local storage', () => {
+      const expected = { e: 'pv', eid: '20269f92-f07c-44a6-87ef-43e171305076' };
+      outQueue.enqueueRequest(expected, 'http://example.com');
+
+      const retrievedQueue = JSON.parse(
+        window.localStorage.getItem('snowplowOutQueue_sp_post2') ?? fail('Unable to find local storage queue')
+      );
+      expect(retrievedQueue).toHaveLength(1);
+      expect(retrievedQueue[0]).toMatchObject({ bytes: 55, evt: expected });
+    });
+
+    it('should add event to outQueue and store only events up to max local storage queue size in local storage', () => {
+      const expected1 = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
+      const expected2 = { e: 'pv', eid: '6000c7bd-08a6-49c2-b61c-9531d3d46200' };
+      const unexpected = { e: 'pv', eid: '7a3391a8-622b-4ce4-80ed-c941aa05baf5' };
+
+      outQueue.enqueueRequest(expected1, 'http://example.com');
+      outQueue.enqueueRequest(expected2, 'http://example.com');
+      outQueue.enqueueRequest(unexpected, 'http://example.com');
+
+      const retrievedQueue = JSON.parse(
+        window.localStorage.getItem('snowplowOutQueue_sp_post2') ?? fail('Unable to find local storage queue')
+      );
+      expect(retrievedQueue).toHaveLength(maxQueueSize);
+      expect(retrievedQueue[0]).toMatchObject({ bytes: 55, evt: expected1 });
+      expect(retrievedQueue[1]).toMatchObject({ bytes: 55, evt: expected2 });
+    });
   });
 
-  it('should add event to outQueue and store only events up to max local storage queue size in local storage', () => {
-    const expected1 = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
-    const expected2 = { e: 'pv', eid: '6000c7bd-08a6-49c2-b61c-9531d3d46200' };
-    const unexpected = { e: 'pv', eid: '7a3391a8-622b-4ce4-80ed-c941aa05baf5' };
+  describe('GET requests', () => {
+    var getOutQueue: (maxGetBytes: number | boolean) => OutQueue;
+    const getQuerystring = (p: object) =>
+      '?' +
+      Object.entries(p)
+        .map(([k, v]) => k + '=' + encodeURIComponent(v))
+        .join('&');
 
-    outQueue.enqueueRequest(expected1, 'http://example.com');
-    outQueue.enqueueRequest(expected2, 'http://example.com');
-    outQueue.enqueueRequest(unexpected, 'http://example.com');
+    beforeEach(() => {
+      getOutQueue = (maxGetBytes) =>
+        OutQueueManager(
+          'sp',
+          new SharedState(),
+          true,
+          'get',
+          '/com.snowplowanalytics.snowplow/tp2',
+          1,
+          40000,
+          maxGetBytes,
+          false,
+          maxQueueSize,
+          5000,
+          false,
+          {},
+          true
+        );
+    });
 
-    const retrievedQueue = JSON.parse(
-      window.localStorage.getItem('snowplowOutQueue_sp_post2') ?? fail('Unable to find local storage queue')
-    );
-    expect(retrievedQueue).toHaveLength(maxQueueSize);
-    expect(retrievedQueue[0]).toMatchObject({ bytes: 55, evt: expected1 });
-    expect(retrievedQueue[1]).toMatchObject({ bytes: 55, evt: expected2 });
+    it('should add large event to out queue without bytes limit', () => {
+      var outQueue = getOutQueue(false);
+
+      const expected = { e: 'pv', eid: '20269f92-f07c-44a6-87ef-43e171305076', aid: 'x'.repeat(1000) };
+      outQueue.enqueueRequest(expected, '');
+
+      const retrievedQueue = JSON.parse(
+        window.localStorage.getItem('snowplowOutQueue_sp_get') ?? fail('Unable to find local storage queue')
+      );
+      expect(retrievedQueue).toHaveLength(1);
+      expect(retrievedQueue[0]).toEqual(getQuerystring(expected));
+    });
+
+    it('should not add event larger than max bytes limit to queue', () => {
+      var outQueue = getOutQueue(100);
+      const consoleError = jest.fn();
+      global.console.error = consoleError;
+
+      const expected = { e: 'pv', eid: '20269f92-f07c-44a6-87ef-43e171305076', aid: 'x'.repeat(1000) };
+      outQueue.enqueueRequest(expected, '');
+
+      expect(window.localStorage.getItem('snowplowOutQueue_sp_get')).toBeNull;
+      expect(consoleError.mock.calls.length).toEqual(1);
+    });
   });
 });

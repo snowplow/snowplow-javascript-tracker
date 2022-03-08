@@ -143,10 +143,15 @@ export type TrackerConfiguration = {
    */
   crossDomainLinker?: (elt: HTMLAnchorElement | HTMLAreaElement) => boolean;
   /**
-   * The max size a request can be before the tracker will force send it
+   * The max size a POST request can be before the tracker will force send it
    * @defaultValue 40000
    */
   maxPostBytes?: number;
+  /**
+   * The max size a GET request (its complete URL) can be. Requests over this size will be ignored.
+   * @defaultValue unlimited
+   */
+  maxGetBytes?: number;
   /**
    * Whether the tracker should attempt to figure out what the root
    * domain is to store cookies on
