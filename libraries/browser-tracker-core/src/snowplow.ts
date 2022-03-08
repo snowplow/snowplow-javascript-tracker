@@ -45,7 +45,7 @@ export function dispatchToTrackers(trackers: Array<string> | undefined, fn: (t: 
   try {
     getTrackers(trackers ?? allTrackerNames()).forEach(fn);
   } catch (ex) {
-    LOG.error('Function failed', ex);
+    LOG.error('Function failed', ex instanceof Error ? ex : undefined);
   }
 }
 
@@ -64,7 +64,7 @@ export function dispatchToTrackersInCollection(
   try {
     getTrackersFromCollection(trackers ?? Object.keys(trackerCollection), trackerCollection).forEach(fn);
   } catch (ex) {
-    LOG.error('Function failed', ex);
+    LOG.error('Function failed', ex instanceof Error ? ex : undefined);
   }
 }
 

@@ -100,7 +100,7 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
       try {
         availableFunctions[f].apply(null, parameters);
       } catch (ex) {
-        LOG.error(f + ' failed', ex);
+        LOG.error(f + ' failed', ex instanceof Error ? ex : undefined);
       }
     } else {
       LOG.warn(f + ' is not an available function');
@@ -267,7 +267,7 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
           }
           input.apply(fnTrackers, parameterArray);
         } catch (ex) {
-          LOG.error('Tracker callback failed', ex);
+          LOG.error('Tracker callback failed', ex instanceof Error ? ex : undefined);
         } finally {
           continue;
         }

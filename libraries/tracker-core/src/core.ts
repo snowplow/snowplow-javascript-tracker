@@ -400,7 +400,7 @@ export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore 
             plugin.beforeTrack(pb);
           }
         } catch (ex) {
-          LOG.error('Plugin beforeTrack', ex);
+          LOG.error('Plugin beforeTrack', ex instanceof Error ? ex : undefined);
         }
       });
 
@@ -416,7 +416,7 @@ export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore 
             plugin.afterTrack(finalPayload);
           }
         } catch (ex) {
-          LOG.error('Plugin afterTrack', ex);
+          LOG.error('Plugin afterTrack', ex instanceof Error ? ex : undefined);
         }
       });
 

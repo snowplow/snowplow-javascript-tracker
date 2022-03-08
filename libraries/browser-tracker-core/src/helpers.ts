@@ -147,7 +147,7 @@ export function getReferrer(oldLocation?: string) {
   }
 
   try {
-    referrer = windowAlias.top.document.referrer;
+    referrer = windowAlias.top?.document.referrer ?? '';
   } catch (e) {
     if (windowAlias.parent) {
       try {

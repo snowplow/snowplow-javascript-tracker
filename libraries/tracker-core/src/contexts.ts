@@ -231,7 +231,7 @@ export function pluginContexts(plugins: Array<CorePlugin>): PluginContexts {
             combinedContexts.push(...plugin.contexts());
           }
         } catch (ex) {
-          LOG.error('Error adding plugin contexts', ex);
+          LOG.error('Error adding plugin contexts', ex instanceof Error ? ex : undefined);
         }
       });
 

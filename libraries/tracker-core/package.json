@@ -44,27 +44,27 @@
     ]
   },
   "dependencies": {
-    "tslib": "^2.3.0",
-    "uuid": "^3.4.0"
+    "tslib": "^2.3.1",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@ampproject/rollup-plugin-closure-compiler": "^0.27.0",
-    "@rollup/plugin-commonjs": "^17.1.0",
+    "@rollup/plugin-commonjs": "^21.0.2",
     "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^11.2.0",
-    "@types/node": "^14.6.0",
-    "@types/uuid": "^3.4.6",
-    "@typescript-eslint/eslint-plugin": "^4.9.0",
-    "@typescript-eslint/parser": "^4.9.0",
-    "rollup-plugin-ts": "^1.4.0",
-    "ava": "^3.13.0",
-    "eslint": "^7.7.0",
+    "@rollup/plugin-node-resolve": "^13.1.3",
+    "@types/node": "^17.0.21",
+    "@types/uuid": "^8.3.4",
+    "@typescript-eslint/eslint-plugin": "^5.14.0",
+    "@typescript-eslint/parser": "^5.14.0",
+    "rollup-plugin-ts": "^2.0.5",
+    "ava": "^4.1.0",
+    "eslint": "^8.10.0",
     "jest-standard-reporter": "^2.0.0",
-    "rollup": "^2.41.1",
+    "rollup": "^2.70.0",
     "rollup-plugin-cleanup": "^3.2.1",
-    "rollup-plugin-license": "^2.2.0",
+    "rollup-plugin-license": "^2.6.1",
     "rollup-plugin-terser": "^7.0.2",
-    "ts-node": "^9.1.1",
-    "typescript": "^4.3.5"
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.2"
   }
 }
