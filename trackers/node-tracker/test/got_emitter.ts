@@ -31,6 +31,8 @@
 import test from 'ava';
 import sinon from 'sinon';
 import nock from 'nock';
+import { promisify } from 'util';
+import { Response, RequestError } from 'got';
 import { HttpMethod, HttpProtocol, gotEmitter } from '../src/index';
 
 const endpoint = 'd3rkrsqld9gmqf.cloudfront.net';
@@ -56,213 +58,171 @@ test.after(() => {
   nock.cleanAll();
 });
 
-test.cb('gotEmitter should send an HTTP GET request', (t) => {
-  const e = gotEmitter(
-    endpoint,
-    HttpProtocol.HTTP,
-    80,
-    HttpMethod.GET,
-    undefined,
-    undefined,
-    undefined,
-    function (error, response) {
-      t.regex(response?.body as string, /\/i\?.*a=b.*/);
-      t.end(error);
-    }
-  );
-  e.input({ a: 'b' });
+test('gotEmitter should send an HTTP GET request', async (t) => {
+  const response = await promisify((cb: (error?: RequestError, response?: Response<string>) => void) => {
+    const e = gotEmitter(endpoint, HttpProtocol.HTTP, 80, HttpMethod.GET, undefined, undefined, undefined, cb);
+    e.input({ a: 'b' });
+  })();
+  t.regex(response?.body as string, /\/i\?.*a=b.*/);
 });
 
-test.cb('gotEmitter should send an HTTP POST request', (t) => {
-  const e = gotEmitter(
-    endpoint,
-    HttpProtocol.HTTP,
-    undefined,
-    HttpMethod.POST,
-    1,
-    undefined,
-    undefined,
-    function (error, response) {
-      t.like(JSON.parse(response?.body as string), { a: 'b' });
-      t.end(error);
-    }
-  );
-  e.input({ a: 'b' });
+test('gotEmitter should send an HTTP POST request', async (t) => {
+  const response = await promisify((cb: (error?: RequestError, response?: Response<string>) => void) => {
+    const e = gotEmitter(endpoint, HttpProtocol.HTTP, undefined, HttpMethod.POST, 1, undefined, undefined, cb);
+    e.input({ a: 'b' });
+  })();
+  t.like(JSON.parse(response?.body as string), { a: 'b' });
 });
 
-test.cb('gotEmitter should send an HTTPS GET request', (t) => {
-  const e = gotEmitter(
-    endpoint,
-    HttpProtocol.HTTPS,
-    443,
-    HttpMethod.GET,
-    undefined,
-    undefined,
-    undefined,
-    function (error, response) {
-      t.regex(response?.body as string, /\/i\?.*a=b.*/);
-      t.end(error);
-    }
-  );
-  e.input({ a: 'b' });
+test('gotEmitter should send an HTTPS GET request', async (t) => {
+  const response = await promisify((cb: (error?: RequestError, response?: Response<string>) => void) => {
+    const e = gotEmitter(endpoint, HttpProtocol.HTTPS, 443, HttpMethod.GET, undefined, undefined, undefined, cb);
+    e.input({ a: 'b' });
+  })();
+  t.regex(response?.body as string, /\/i\?.*a=b.*/);
 });
 
-test.cb('gotEmitter should send an HTTPS POST request', (t) => {
-  const e = gotEmitter(
-    endpoint,
-    HttpProtocol.HTTPS,
-    undefined,
-    HttpMethod.POST,
-    1,
-    undefined,
-    undefined,
-    function (error, response) {
-      t.like(JSON.parse(response?.body as string), { a: 'b' });
-      t.end(error);
-    }
-  );
-  e.input({ a: 'b' });
+test('gotEmitter should send an HTTPS POST request', async (t) => {
+  const response = await promisify((cb: (error?: RequestError, response?: Response<string>) => void) => {
+    const e = gotEmitter(endpoint, HttpProtocol.HTTPS, undefined, HttpMethod.POST, 1, undefined, undefined, cb);
+    e.input({ a: 'b' });
+  })();
+  t.like(JSON.parse(response?.body as string), { a: 'b' });
 });
 
-test.cb('gotEmitter should not send requests if the buffer is not full', (t) => {
-  const e = gotEmitter(endpoint, HttpProtocol.HTTPS, undefined, HttpMethod.POST, undefined, undefined, undefined, () =>
-    t.fail('Event unexpectedly emitted')
-  );
-  e.input({});
-  e.input({});
-  e.input({});
-  setTimeout(t.end, 250); //Give chance for emitter callback to fire
+test('gotEmitter should not send requests if the buffer is not full', async (t) => {
+  await promisify((cb: any) => {
+    const e = gotEmitter(
+      endpoint,
+      HttpProtocol.HTTPS,
+      undefined,
+      HttpMethod.POST,
+      undefined,
+      undefined,
+      undefined,
+      () => cb('Event unexpectedly emitted')
+    );
+    e.input({});
+    e.input({});
+    e.input({});
+    setTimeout(cb, 250); //Give chance for emitter callback to fire
+  })();
+  t.pass();
 });
 
-test.cb('gotEmitter should not send requests if the buffer is empty', (t) => {
-  const e = gotEmitter(endpoint, HttpProtocol.HTTPS, undefined, HttpMethod.POST, undefined, undefined, undefined, () =>
-    t.fail('Event unexpectedly emitted')
-  );
-  e.flush();
-  setTimeout(t.end, 250); //Give chance for emitter callback to fire
+test('gotEmitter should not send requests if the buffer is empty', async (t) => {
+  await promisify((cb: any) => {
+    const e = gotEmitter(
+      endpoint,
+      HttpProtocol.HTTPS,
+      undefined,
+      HttpMethod.POST,
+      undefined,
+      undefined,
+      undefined,
+      () => cb('Event unexpectedly emitted')
+    );
+    e.flush();
+    setTimeout(cb, 250); //Give chance for emitter callback to fire
+  })();
+  t.pass();
 });
 
-test.cb('gotEmitter should add STM querystring parameter when sending POST requests', (t) => {
+test('gotEmitter should add STM querystring parameter when sending POST requests', async (t) => {
   const testTime = new Date('1988-12-12T12:30:00.000Z').getTime();
   const clock = sinon.useFakeTimers(testTime);
 
-  const e = gotEmitter(
-    endpoint,
-    HttpProtocol.HTTP,
-    undefined,
-    HttpMethod.POST,
-    1,
-    undefined,
-    undefined,
-    function (error, response) {
-      t.like(JSON.parse(response?.body as string), { stm: testTime.toString() });
-      t.end(error);
-    }
-  );
-  e.input({ a: 'b' });
+  const response = await promisify((cb: (error?: RequestError, response?: Response<string>) => void) => {
+    const e = gotEmitter(endpoint, HttpProtocol.HTTP, undefined, HttpMethod.POST, 1, undefined, undefined, cb);
+    e.input({ a: 'b' });
 
-  clock.restore();
+    clock.restore();
+  })();
+  t.like(JSON.parse(response?.body as string), { stm: testTime.toString() });
 });
 
-test.cb('gotEmitter should add STM querystring parameter when sending GET requests', (t) => {
+test('gotEmitter should add STM querystring parameter when sending GET requests', async (t) => {
   const testTime = new Date('2020-06-15T09:12:30.000Z').getTime();
   const clock = sinon.useFakeTimers(testTime);
 
-  const e = gotEmitter(
-    endpoint,
-    HttpProtocol.HTTPS,
-    443,
-    HttpMethod.GET,
-    undefined,
-    undefined,
-    undefined,
-    function (error, response) {
-      t.regex(response?.body as string, new RegExp(`/i?.*stm=${testTime}.*`));
-      t.end(error);
-    }
-  );
-  e.input({ a: 'b' });
+  const response = await promisify((cb: (error?: RequestError, response?: Response<string>) => void) => {
+    const e = gotEmitter(endpoint, HttpProtocol.HTTPS, 443, HttpMethod.GET, undefined, undefined, undefined, cb);
+    e.input({ a: 'b' });
 
-  clock.restore();
+    clock.restore();
+  })();
+  t.regex(response?.body as string, new RegExp(`/i?.*stm=${testTime}.*`));
 });
 
-test.cb('gotEmitter should handle undefined callbacks on success situation', (t) => {
+test('gotEmitter should handle undefined callbacks on success situation', (t) => {
   t.notThrows(() => {
     const e = gotEmitter(endpoint, HttpProtocol.HTTPS, 443, HttpMethod.GET, undefined, undefined, undefined, undefined);
     e.input({ a: 'b' });
   });
-  t.end();
 });
 
-test.cb('gotEmitter should handle undefined callbacks on failure situation', (t) => {
+test('gotEmitter should handle undefined callbacks on failure situation', (t) => {
   t.notThrows(() => {
     const e = gotEmitter('invalid-url', HttpProtocol.HTTPS, 443, HttpMethod.POST, 1, undefined, undefined, undefined);
     e.input({ a: 'b' });
   });
-  t.end();
 });
 
-test.cb('gotEmitter should catch error in success situation', (t) => {
-  t.notThrows(() => {
-    const e = gotEmitter(
-      endpoint,
-      HttpProtocol.HTTPS,
-      443,
-      HttpMethod.GET,
-      undefined,
-      undefined,
-      undefined,
-      function () {
-        throw new Error('test error');
-      }
-    );
-    e.input({ a: 'b' });
-  });
-  t.end();
-});
-
-test.cb('gotEmitter should catch error in error situation', (t) => {
-  t.notThrows(() => {
-    const e = gotEmitter('invalid-url', HttpProtocol.HTTPS, 443, HttpMethod.POST, 1, undefined, undefined, function () {
-      throw new Error('test error');
+test('gotEmitter should catch error in success situation', async (t) => {
+  await promisify((cb: any) => {
+    t.notThrows(() => {
+      const e = gotEmitter(
+        endpoint,
+        HttpProtocol.HTTPS,
+        443,
+        HttpMethod.GET,
+        undefined,
+        undefined,
+        undefined,
+        function () {
+          throw new Error('test error');
+        }
+      );
+      e.input({ a: 'b' });
+      setTimeout(cb, 250); //Give chance for emitter callback to fire
     });
+  })();
+});
+
+test('gotEmitter should catch error in error situation', async (t) => {
+  await promisify((cb: any) => {
+    t.notThrows(() => {
+      const e = gotEmitter(
+        'invalid-url',
+        HttpProtocol.HTTPS,
+        443,
+        HttpMethod.POST,
+        1,
+        undefined,
+        undefined,
+        function () {
+          throw new Error('test error');
+        }
+      );
+      e.input({ a: 'b' });
+      setTimeout(cb, 250); //Give chance for emitter callback to fire
+    });
+  })();
+});
+
+test('gotEmitter should pass response in success situation', async (t) => {
+  const response = await promisify((cb: (error?: RequestError, response?: Response<string>) => void) => {
+    const e = gotEmitter(endpoint, HttpProtocol.HTTPS, 443, HttpMethod.GET, undefined, undefined, undefined, cb);
     e.input({ a: 'b' });
+  })();
+  t.truthy(response);
+});
+
+test('gotEmitter should pass error in error situation', async (t) => {
+  await t.throwsAsync(async () => {
+    await promisify((cb: (error?: RequestError, response?: Response<string>) => void) => {
+      const e = gotEmitter('invalid-url', HttpProtocol.HTTPS, 443, HttpMethod.POST, 1, undefined, undefined, cb);
+      e.input({ a: 'b' });
+    })();
   });
-  t.end();
-});
-
-test.cb('gotEmitter should pass response in success situation', (t) => {
-  const e = gotEmitter(
-    endpoint,
-    HttpProtocol.HTTPS,
-    443,
-    HttpMethod.GET,
-    undefined,
-    undefined,
-    undefined,
-    function (error, response) {
-      t.falsy(error);
-      t.truthy(response);
-      t.end();
-    }
-  );
-  e.input({ a: 'b' });
-});
-
-test.cb('gotEmitter should pass error in error situation', (t) => {
-  const e = gotEmitter(
-    'invalid-url',
-    HttpProtocol.HTTPS,
-    443,
-    HttpMethod.POST,
-    1,
-    undefined,
-    undefined,
-    function (error, response) {
-      t.truthy(error);
-      t.falsy(response);
-      t.end();
-    }
-  );
-  e.input({ a: 'b' });
 });

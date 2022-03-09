@@ -45,6 +45,9 @@ import {
 import test, { ExecutionContext } from 'ava';
 import nock from 'nock';
 import querystring from 'querystring';
+import { promisify } from 'util';
+import { Response, RequestError } from 'got';
+type Callback = (error?: RequestError, response?: Response<string>) => void;
 
 const testMethods = [HttpMethod.GET, HttpMethod.POST];
 
@@ -104,7 +107,7 @@ test.after(() => {
 });
 
 for (const method of testMethods) {
-  test.cb(method + ' method: trackPageView should send a page view event', (t) => {
+  test(method + ' method: trackPageView should send a page view event', async (t) => {
     const expected = {
       tv: 'node-' + version,
       tna: 'cf',
@@ -116,28 +119,19 @@ for (const method of testMethods) {
       refr: 'http://google.com',
     };
 
-    const e = gotEmitter(
-      endpoint,
-      HttpProtocol.HTTP,
-      undefined,
-      method,
-      0,
-      undefined,
-      undefined,
-      function (error, response) {
-        checkPayload(extractPayload(response?.body, method), expected, t);
-        t.end(error);
-      }
-    );
+    const response = await promisify((cb: Callback) => {
+      const e = gotEmitter(endpoint, HttpProtocol.HTTP, undefined, method, 0, undefined, undefined, cb);
 
-    const track = tracker(e, 'cf', 'cfe35', false);
-    track.track(
-      buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'example page', referrer: 'http://google.com' }),
-      context
-    );
+      const track = tracker(e, 'cf', 'cfe35', false);
+      track.track(
+        buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'example page', referrer: 'http://google.com' }),
+        context
+      );
+    })();
+    checkPayload(extractPayload(response?.body, method), expected, t);
   });
 
-  test.cb(method + ' method: trackStructEvent should send a structured event', (t) => {
+  test(method + ' method: trackStructEvent should send a structured event', async (t) => {
     const expected = {
       tv: 'node-' + version,
       tna: 'cf',
@@ -150,28 +144,20 @@ for (const method of testMethods) {
       se_va: '15',
     };
 
-    const e = gotEmitter(
-      endpoint,
-      HttpProtocol.HTTP,
-      undefined,
-      method,
-      0,
-      undefined,
-      undefined,
-      function (error, response) {
-        checkPayload(extractPayload(response?.body, method), expected, t);
-        t.end(error);
-      }
-    );
+    const response = await promisify((cb: Callback) => {
+      const e = gotEmitter(endpoint, HttpProtocol.HTTP, undefined, method, 0, undefined, undefined, cb);
 
-    const track = tracker(e, 'cf', 'cfe35', false);
-    track.track(
-      buildStructEvent({ category: 'clothes', action: 'add_to_basket', property: 'jumper', label: 'red', value: 15 }),
-      context
-    );
+      const track = tracker(e, 'cf', 'cfe35', false);
+      track.track(
+        buildStructEvent({ category: 'clothes', action: 'add_to_basket', property: 'jumper', label: 'red', value: 15 }),
+        context
+      );
+    })();
+
+    checkPayload(extractPayload(response?.body, method), expected, t);
   });
 
-  test.cb(method + ' method: trackEcommerceTransactionWithItems should track an ecommerce transaction', (t) => {
+  test(method + ' method: trackEcommerceTransactionWithItems should track an ecommerce transaction', async (t) => {
     const expectedTransaction = {
       e: 'tr',
       tr_id: 'order-7',
@@ -185,41 +171,32 @@ for (const method of testMethods) {
       tr_cu: 'GBP',
     };
 
-    const e = gotEmitter(
-      endpoint,
-      HttpProtocol.HTTP,
-      undefined,
-      method,
-      0,
-      undefined,
-      undefined,
-      function (error, response) {
-        const payloadDict = extractPayload(response?.body, method);
-        checkPayload(payloadDict, expectedTransaction, t);
-        t.end(error);
-      }
-    );
+    const response = await promisify((cb: Callback) => {
+      const e = gotEmitter(endpoint, HttpProtocol.HTTP, undefined, method, 0, undefined, undefined, cb);
 
-    const track = tracker(e, 'cf', 'cfe35', false);
-    track.track(
-      buildEcommerceTransaction({
-        orderId: 'order-7',
-        affiliation: 'affiliate',
-        total: 15,
-        tax: 5,
-        shipping: 0,
-        city: 'Dover',
-        state: 'Delaware',
-        country: 'US',
-        currency: 'GBP',
-      }),
-      context
-    );
+      const track = tracker(e, 'cf', 'cfe35', false);
+      track.track(
+        buildEcommerceTransaction({
+          orderId: 'order-7',
+          affiliation: 'affiliate',
+          total: 15,
+          tax: 5,
+          shipping: 0,
+          city: 'Dover',
+          state: 'Delaware',
+          country: 'US',
+          currency: 'GBP',
+        }),
+        context
+      );
+    })();
+    const payloadDict = extractPayload(response?.body, method);
+    checkPayload(payloadDict, expectedTransaction, t);
   });
 
-  test.cb(
+  test(
     method + ' method: trackEcommerceTransactionWithItems should track an ecommerce transaction and items',
-    (t) => {
+    async (t) => {
       const items = [
         {
           sku: 'item-729',
@@ -253,61 +230,52 @@ for (const method of testMethods) {
 
       let requestCount = items.length + 1;
 
-      const e = gotEmitter(
-        endpoint,
-        HttpProtocol.HTTP,
-        undefined,
-        method,
-        0,
-        undefined,
-        undefined,
-        function (error, response) {
-          const payloadDict = extractPayload(response?.body, method);
-          const expected = payloadDict['e'] === 'tr' ? expectedTransaction : expectedItem;
+      const response = await promisify((cb: Callback) => {
+        const e = gotEmitter(endpoint, HttpProtocol.HTTP, undefined, method, 0, undefined, undefined, cb);
 
-          checkPayload(payloadDict, expected, t);
-
-          requestCount--;
-          if (!requestCount) {
-            t.end(error);
-          }
-        }
-      );
-
-      const track = tracker(e, 'cf', 'cfe35', false);
-      track.track(
-        buildEcommerceTransaction({
-          orderId: 'order-7',
-          affiliation: 'affiliate',
-          total: 15,
-          tax: 5,
-          shipping: 0,
-          city: 'Dover',
-          state: 'Delaware',
-          country: 'US',
-          currency: 'GBP',
-        }),
-        context
-      );
-
-      items.forEach((item) => {
+        const track = tracker(e, 'cf', 'cfe35', false);
         track.track(
-          buildEcommerceTransactionItem({
+          buildEcommerceTransaction({
             orderId: 'order-7',
-            price: item.price,
-            sku: item.sku,
-            name: item.name,
-            category: item.category,
+            affiliation: 'affiliate',
+            total: 15,
+            tax: 5,
+            shipping: 0,
+            city: 'Dover',
+            state: 'Delaware',
+            country: 'US',
             currency: 'GBP',
-            quantity: item.quantity,
           }),
           context
         );
-      });
+
+        items.forEach((item) => {
+          track.track(
+            buildEcommerceTransactionItem({
+              orderId: 'order-7',
+              price: item.price,
+              sku: item.sku,
+              name: item.name,
+              category: item.category,
+              currency: 'GBP',
+              quantity: item.quantity,
+            }),
+            context
+          );
+        });
+      })();
+
+      const payloadDict = extractPayload(response?.body, method);
+      const expected = payloadDict['e'] === 'tr' ? expectedTransaction : expectedItem;
+
+      checkPayload(payloadDict, expected, t);
+
+      requestCount--;
+      t.assert(requestCount);
     }
   );
 
-  test.cb(method + ' method: trackUnstructEvent should send a structured event', (t) => {
+  test(method + ' method: trackUnstructEvent should send a structured event', async (t) => {
     const inputJson = {
       schema: 'iglu:com.acme/viewed_product/jsonschema/1-0-0',
       data: {
@@ -325,25 +293,16 @@ for (const method of testMethods) {
       }),
     };
 
-    const e = gotEmitter(
-      endpoint,
-      HttpProtocol.HTTP,
-      undefined,
-      method,
-      0,
-      undefined,
-      undefined,
-      function (error, response) {
-        checkPayload(extractPayload(response?.body, method), expected, t);
-        t.end(error);
-      }
-    );
+    const response = await promisify((cb: Callback) => {
+      const e = gotEmitter(endpoint, HttpProtocol.HTTP, undefined, method, 0, undefined, undefined, cb);
 
-    const track = tracker(e, 'cf', 'cfe35', false);
-    track.track(buildSelfDescribingEvent({ event: inputJson }), context);
+      const track = tracker(e, 'cf', 'cfe35', false);
+      track.track(buildSelfDescribingEvent({ event: inputJson }), context);
+    })();
+    checkPayload(extractPayload(response?.body, method), expected, t);
   });
 
-  test.cb(method + ' method: trackScreenView should send a screen view event', (t) => {
+  test(method + ' method: trackScreenView should send a screen view event', async (t) => {
     const expected = {
       tv: 'node-' + version,
       tna: 'cf',
@@ -361,25 +320,17 @@ for (const method of testMethods) {
       }),
     };
 
-    const e = gotEmitter(
-      endpoint,
-      HttpProtocol.HTTP,
-      undefined,
-      method,
-      0,
-      undefined,
-      undefined,
-      function (error, response) {
-        checkPayload(extractPayload(response?.body, method), expected, t);
-        t.end(error);
-      }
-    );
+    const response = await promisify((cb: Callback) => {
+      const e = gotEmitter(endpoint, HttpProtocol.HTTP, undefined, method, 0, undefined, undefined, cb);
 
-    const track = tracker(e, 'cf', 'cfe35', false);
-    track.track(buildScreenView({ name: 'title screen', id: '12345' }), context);
+      const track = tracker(e, 'cf', 'cfe35', false);
+      track.track(buildScreenView({ name: 'title screen', id: '12345' }), context);
+    })();
+
+    checkPayload(extractPayload(response?.body, method), expected, t);
   });
 
-  test.cb(method + ' method: setter methods should set user attributes', (t) => {
+  test(method + ' method: setter methods should set user attributes', async (t) => {
     const expected = {
       tv: 'node-' + version,
       tna: 'cf',
@@ -397,71 +348,58 @@ for (const method of testMethods) {
       dtm: '1000000000000',
     };
 
-    const e = gotEmitter(
-      endpoint,
-      HttpProtocol.HTTP,
-      undefined,
-      method,
-      0,
-      undefined,
-      undefined,
-      function (error, response) {
-        checkPayload(extractPayload(response?.body, method), expected, t);
-        t.end(error);
-      }
-    );
+    const response = await promisify((cb: Callback) => {
+      const e = gotEmitter(endpoint, HttpProtocol.HTTP, undefined, method, 0, undefined, undefined, cb);
 
-    const track = tracker(e, 'cf', 'cfe35', false);
+      const track = tracker(e, 'cf', 'cfe35', false);
 
-    track.setPlatform('web');
-    track.setUserId('jacob');
-    track.setScreenResolution('400', '200');
-    track.setViewport('500', '800');
-    track.setColorDepth('24');
-    track.setTimezone('Europe London');
+      track.setPlatform('web');
+      track.setUserId('jacob');
+      track.setScreenResolution('400', '200');
+      track.setViewport('500', '800');
+      track.setColorDepth('24');
+      track.setTimezone('Europe London');
 
-    track.track(
-      buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'example page', referrer: 'http://google.com' }),
-      context,
-      1000000000000
-    );
+      track.track(
+        buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'example page', referrer: 'http://google.com' }),
+        context,
+        1000000000000
+      );
+    })();
+
+    checkPayload(extractPayload(response?.body, method), expected, t);
   });
 
-  test.cb(method + ' method: base 64 encoding should base 64 encode unstructured events and custom contexts', (t) => {
-    const inputJson = {
-      schema: 'iglu:com.acme/viewed_product/jsonschema/1-0-0',
-      data: {
-        price: 20,
-      },
-    };
+  test(
+    method + ' method: base 64 encoding should base 64 encode unstructured events and custom contexts',
+    async (t) => {
+      const inputJson = {
+        schema: 'iglu:com.acme/viewed_product/jsonschema/1-0-0',
+        data: {
+          price: 20,
+        },
+      };
 
-    const e = gotEmitter(
-      endpoint,
-      HttpProtocol.HTTP,
-      undefined,
-      method,
-      0,
-      undefined,
-      undefined,
-      function (error, response) {
-        const pd = extractPayload(response?.body, method);
-        t.is(
-          pd['ue_px'],
-          'eyJzY2hlbWEiOiJpZ2x1OmNvbS5zbm93cGxvd2FuYWx5dGljcy5zbm93cGxvdy91bnN0cnVjdF9ldmVudC9qc29uc2NoZW1hLzEtMC0wIiwiZGF0YSI6eyJzY2hlbWEiOiJpZ2x1OmNvbS5hY21lL3ZpZXdlZF9wcm9kdWN0L2pzb25zY2hlbWEvMS0wLTAiLCJkYXRhIjp7InByaWNlIjoyMH19fQ'
-        );
-        t.is(
-          pd['cx'],
-          'eyJzY2hlbWEiOiJpZ2x1OmNvbS5zbm93cGxvd2FuYWx5dGljcy5zbm93cGxvdy9jb250ZXh0cy9qc29uc2NoZW1hLzEtMC0wIiwiZGF0YSI6W3sic2NoZW1hIjoiaWdsdTpjb20uYWNtZS91c2VyL2pzb25zY2hlbWEvMS0wLTAiLCJkYXRhIjp7InR5cGUiOiJ0ZXN0ZXIifX1dfQ'
-        );
-        t.end(error);
-      }
-    );
+      const response = await promisify((cb: Callback) => {
+        const e = gotEmitter(endpoint, HttpProtocol.HTTP, undefined, method, 0, undefined, undefined, cb);
 
-    const track = tracker(e, 'cf', 'cfe35', true);
-    track.track(buildSelfDescribingEvent({ event: inputJson }), context);
-  });
+        const track = tracker(e, 'cf', 'cfe35', true);
+        track.track(buildSelfDescribingEvent({ event: inputJson }), context);
+      })();
 
-  test.cb(method + ' method: multiple emitters should send an event to multiple collectors', (t) => {
+      const pd = extractPayload(response?.body, method);
+      t.is(
+        pd['ue_px'],
+        'eyJzY2hlbWEiOiJpZ2x1OmNvbS5zbm93cGxvd2FuYWx5dGljcy5zbm93cGxvdy91bnN0cnVjdF9ldmVudC9qc29uc2NoZW1hLzEtMC0wIiwiZGF0YSI6eyJzY2hlbWEiOiJpZ2x1OmNvbS5hY21lL3ZpZXdlZF9wcm9kdWN0L2pzb25zY2hlbWEvMS0wLTAiLCJkYXRhIjp7InByaWNlIjoyMH19fQ'
+      );
+      t.is(
+        pd['cx'],
+        'eyJzY2hlbWEiOiJpZ2x1OmNvbS5zbm93cGxvd2FuYWx5dGljcy5zbm93cGxvdy9jb250ZXh0cy9qc29uc2NoZW1hLzEtMC0wIiwiZGF0YSI6W3sic2NoZW1hIjoiaWdsdTpjb20uYWNtZS91c2VyL2pzb25zY2hlbWEvMS0wLTAiLCJkYXRhIjp7InR5cGUiOiJ0ZXN0ZXIifX1dfQ'
+      );
+    }
+  );
+
+  test(method + ' method: multiple emitters should send an event to multiple collectors', async (t) => {
     const expected = {
       tv: 'node-' + version,
       tna: 'cf',
@@ -474,81 +412,67 @@ for (const method of testMethods) {
     };
     let count = 2;
 
-    const e = gotEmitter(
-      endpoint,
-      HttpProtocol.HTTP,
-      undefined,
-      method,
-      0,
-      undefined,
-      undefined,
-      function (error, response) {
-        checkPayload(extractPayload(response?.body, method), expected, t);
-        count--;
-        if (count === 0) {
-          t.end(error);
+    await promisify((cb: any) => {
+      const e = gotEmitter(
+        endpoint,
+        HttpProtocol.HTTP,
+        undefined,
+        method,
+        0,
+        undefined,
+        undefined,
+        function (error, response) {
+          checkPayload(extractPayload(response?.body, method), expected, t);
+          count--;
+          if (count === 0) {
+            cb(error);
+          }
         }
-      }
-    );
+      );
 
-    const track = tracker([e, e], 'cf', 'cfe35', false);
-    track.track(
-      buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'example page', referrer: 'http://google.com' }),
-      context
-    );
+      const track = tracker([e, e], 'cf', 'cfe35', false);
+      track.track(
+        buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'example page', referrer: 'http://google.com' }),
+        context
+      );
+    })();
   });
 
-  test.cb(method + ' method: setDomainUserId should attach a duid property to event', (t) => {
+  test(method + ' method: setDomainUserId should attach a duid property to event', async (t) => {
     const expected = {
       duid: 'duid-test-1234',
     };
 
-    const e = gotEmitter(
-      endpoint,
-      HttpProtocol.HTTP,
-      undefined,
-      method,
-      0,
-      undefined,
-      undefined,
-      function (error, response) {
-        checkPayload(extractPayload(response?.body, method), expected, t);
-        t.end(error);
-      }
-    );
+    const response = await promisify((cb: Callback) => {
+      const e = gotEmitter(endpoint, HttpProtocol.HTTP, undefined, method, 0, undefined, undefined, cb);
 
-    const track = tracker(e, 'cf', 'cfe35', false);
-    track.setDomainUserId('duid-test-1234');
-    track.track(
-      buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'example page', referrer: 'http://google.com' }),
-      context
-    );
+      const track = tracker(e, 'cf', 'cfe35', false);
+      track.setDomainUserId('duid-test-1234');
+      track.track(
+        buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'example page', referrer: 'http://google.com' }),
+        context
+      );
+    })();
+
+    checkPayload(extractPayload(response?.body, method), expected, t);
   });
 
-  test.cb(method + ' method: setNetworkUserID should attach a nuid property to event', (t) => {
+  test(method + ' method: setNetworkUserID should attach a nuid property to event', async (t) => {
     const expected = {
       nuid: 'nuid-test-1234',
     };
 
-    const e = gotEmitter(
-      endpoint,
-      HttpProtocol.HTTP,
-      undefined,
-      method,
-      0,
-      undefined,
-      undefined,
-      function (error, response) {
-        checkPayload(extractPayload(response?.body, method), expected, t);
-        t.end(error);
-      }
-    );
+    const response = await promisify((cb: Callback) => {
+      const e = gotEmitter(endpoint, HttpProtocol.HTTP, undefined, method, 0, undefined, undefined, cb);
 
-    const track = tracker(e, 'cf', 'cfe35', false);
-    track.setNetworkUserId('nuid-test-1234');
-    track.track(
-      buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'example page', referrer: 'http://google.com' }),
-      context
-    );
+      const track = tracker(e, 'cf', 'cfe35', false);
+      track.setNetworkUserId('nuid-test-1234');
+      track.track(
+        buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'example page', referrer: 'http://google.com' }),
+        context
+      );
+    })();
+
+    checkPayload(extractPayload(response?.body, method), expected, t);
   });
 }
