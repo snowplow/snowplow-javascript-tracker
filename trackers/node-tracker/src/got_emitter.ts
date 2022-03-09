@@ -29,7 +29,7 @@
  */
 
 import util from 'util';
-import got, { Response, RequestError, Agents, RetryOptions, ToughCookieJar, PromiseCookieJar } from 'got';
+import got, { Response, RequestError, Agents, RequiredRetryOptions, ToughCookieJar, PromiseCookieJar } from 'got';
 import { Payload, version } from '@snowplow/tracker-core';
 
 import { Emitter, HttpProtocol, HttpMethod, preparePayload } from './emitter';
@@ -42,10 +42,10 @@ import { Emitter, HttpProtocol, HttpMethod, preparePayload } from './emitter';
  * @param port - The port for requests to use
  * @param method - get or post
  * @param bufferSize - Number of events which can be queued before flush is called
- * @param retry - Configure the retry policy for `got` - https://github.com/sindresorhus/got/blob/main/documentation/7-retry.md
- * @param cookieJar - Add a cookieJar to `got` - https://github.com/sindresorhus/got/blob/main/documentation/2-options.md#cookiejar
- * @param callback - Callback called after a `got` request following retries - called with ErrorRequest (https://github.com/sindresorhus/got/blob/main/documentation/8-errors.md) and Response (https://github.com/sindresorhus/got/blob/main/documentation/3-streams.md#response-2)
- * @param agents - Set new http.Agent and https.Agent objects on `got` requests - https://github.com/sindresorhus/got/blob/main/documentation/2-options.md#agent
+ * @param retry - Configure the retry policy for `got` - https://github.com/sindresorhus/got/blob/v11.5.2/readme.md#retry
+ * @param cookieJar - Add a cookieJar to `got` - https://github.com/sindresorhus/got/blob/v11.5.2/readme.md#cookiejar
+ * @param callback - Callback called after a `got` request following retries - called with ErrorRequest (https://github.com/sindresorhus/got/blob/v11.5.2/readme.md#errors) and Response (https://github.com/sindresorhus/got/blob/v11.5.2/readme.md#response)
+ * @param agents - Set new http.Agent and https.Agent objects on `got` requests - https://github.com/sindresorhus/got/blob/v11.5.2/readme.md#agent
  */
 export function gotEmitter(
   endpoint: string,
@@ -53,7 +53,7 @@ export function gotEmitter(
   port?: number,
   method?: HttpMethod,
   bufferSize?: number,
-  retry?: Partial<RetryOptions>,
+  retry?: number | Partial<RequiredRetryOptions>,
   cookieJar?: PromiseCookieJar | ToughCookieJar,
   callback?: (error?: RequestError, response?: Response<string>) => void,
   agents?: Agents
