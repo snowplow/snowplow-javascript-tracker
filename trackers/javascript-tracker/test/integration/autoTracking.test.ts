@@ -791,7 +791,7 @@ describe('Auto tracking', () => {
     ).toBe(false);
   });
 
-  it('should only track focus_form and not change_form events events when focus_form events are filtered', () => {
+  it('should only track focus_form and not change_form events when focus_form events are filtered', () => {
     expect(
       logContains({
         event: {
