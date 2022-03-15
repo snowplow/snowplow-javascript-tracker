@@ -115,6 +115,9 @@
         case 'excludedForm':
           snowplow('enableFormTracking', { options: { forms: { denylist: ['excluded-form'] } } });
           break;
+        case 'onlyFocus':
+          snowplow('enableFormTracking', { options: { events: ['focus_form'] } });
+          break;
         default:
           snowplow('enableFormTracking', {
             context: [
