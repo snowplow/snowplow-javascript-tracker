@@ -1,5 +1,5 @@
 exports.config = {
-  specs: ['./test/functional/*.test.ts', './test/integration/*.test.ts'],
+  specs: ['./test/integration/autoTracking.test.ts'],
   logLevel: 'warn',
   baseUrl: 'http://snowplow-js-tracker.local:8080',
   waitforTimeout: 30000,
