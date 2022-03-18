@@ -1260,7 +1260,7 @@ importers:
       eslint: ~8.11.0
       eslint-plugin-ava: ~13.2.0
       got: ^11.7.0
-      nock: ~13.2.2
+      nock: ~13.2.4
       rollup: ~2.70.1
       rollup-plugin-license: ~2.6.1
       rollup-plugin-ts: ~2.0.5
@@ -1281,7 +1281,7 @@ importers:
       ava: 4.1.0
       eslint: 8.11.0
       eslint-plugin-ava: 13.2.0_eslint@8.11.0
-      nock: 13.2.2
+      nock: 13.2.4
       rollup: 2.70.1
       rollup-plugin-license: 2.6.1_rollup@2.70.1
       rollup-plugin-ts: 2.0.5_rollup@2.70.1+typescript@4.6.2
@@ -7567,8 +7567,8 @@ packages:
       tslib: 2.3.1
     dev: true
 
-  /nock/13.2.2:
-    resolution: {integrity: sha512-PcBHuvl9i6zfaJ50A7LS55oU+nFLv8htXIhffJO+FxyfibdZ4jEvd9kTuvkrJireBFIGMZ+oUIRpMK5gU9h//g==}
+  /nock/13.2.4:
+    resolution: {integrity: sha512-8GPznwxcPNCH/h8B+XZcKjYPXnUV5clOKCjAqyjsiqA++MpNx9E9+t8YPp0MbThO+KauRo7aZJ1WuIZmOrT2Ug==}
     engines: {node: '>= 10.13'}
     dependencies:
       debug: 4.3.3
