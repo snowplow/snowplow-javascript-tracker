@@ -114,7 +114,7 @@ importers:
       '@snowplow/tracker-core': workspace:*
       '@types/jest': ~27.4.1
       '@types/jsdom': ~16.2.14
-      '@types/lodash': ~4.14.178
+      '@types/lodash': ~4.14.180
       '@typescript-eslint/eslint-plugin': ~5.15.0
       '@typescript-eslint/parser': ~5.15.0
       eslint: ~8.11.0
@@ -141,7 +141,7 @@ importers:
       '@rollup/plugin-node-resolve': 13.1.3_rollup@2.70.1
       '@types/jest': 27.4.1
       '@types/jsdom': 16.2.14
-      '@types/lodash': 4.14.178
+      '@types/lodash': 4.14.180
       '@typescript-eslint/eslint-plugin': 5.15.0_f2c49ce7d0e93ebcfdb4b7d25b131b28
       '@typescript-eslint/parser': 5.15.0_eslint@8.11.0+typescript@4.6.2
       eslint: 8.11.0
@@ -263,7 +263,7 @@ importers:
       '@snowplow/tracker-core': workspace:*
       '@types/jest': ~27.4.1
       '@types/jsdom': ~16.2.14
-      '@types/lodash': ~4.14.178
+      '@types/lodash': ~4.14.180
       '@typescript-eslint/eslint-plugin': ~5.15.0
       '@typescript-eslint/parser': ~5.15.0
       eslint: ~8.11.0
@@ -290,7 +290,7 @@ importers:
       '@rollup/plugin-node-resolve': 13.1.3_rollup@2.70.1
       '@types/jest': 27.4.1
       '@types/jsdom': 16.2.14
-      '@types/lodash': 4.14.178
+      '@types/lodash': 4.14.180
       '@typescript-eslint/eslint-plugin': 5.15.0_f2c49ce7d0e93ebcfdb4b7d25b131b28
       '@typescript-eslint/parser': 5.15.0_eslint@8.11.0+typescript@4.6.2
       eslint: 8.11.0
@@ -369,7 +369,7 @@ importers:
       '@snowplow/tracker-core': workspace:*
       '@types/jest': ~27.4.1
       '@types/jsdom': ~16.2.14
-      '@types/lodash': ~4.14.178
+      '@types/lodash': ~4.14.180
       '@typescript-eslint/eslint-plugin': ~5.15.0
       '@typescript-eslint/parser': ~5.15.0
       eslint: ~8.11.0
@@ -396,7 +396,7 @@ importers:
       '@rollup/plugin-node-resolve': 13.1.3_rollup@2.70.1
       '@types/jest': 27.4.1
       '@types/jsdom': 16.2.14
-      '@types/lodash': 4.14.178
+      '@types/lodash': 4.14.180
       '@typescript-eslint/eslint-plugin': 5.15.0_f2c49ce7d0e93ebcfdb4b7d25b131b28
       '@typescript-eslint/parser': 5.15.0_eslint@8.11.0+typescript@4.6.2
       eslint: 8.11.0
@@ -422,7 +422,7 @@ importers:
       '@snowplow/tracker-core': workspace:*
       '@types/jest': ~27.4.1
       '@types/jsdom': ~16.2.14
-      '@types/lodash': ~4.14.178
+      '@types/lodash': ~4.14.180
       '@typescript-eslint/eslint-plugin': ~5.15.0
       '@typescript-eslint/parser': ~5.15.0
       eslint: ~8.11.0
@@ -449,7 +449,7 @@ importers:
       '@rollup/plugin-node-resolve': 13.1.3_rollup@2.70.1
       '@types/jest': 27.4.1
       '@types/jsdom': 16.2.14
-      '@types/lodash': 4.14.178
+      '@types/lodash': 4.14.180
       '@typescript-eslint/eslint-plugin': 5.15.0_f2c49ce7d0e93ebcfdb4b7d25b131b28
       '@typescript-eslint/parser': 5.15.0_eslint@8.11.0+typescript@4.6.2
       eslint: 8.11.0
@@ -475,7 +475,7 @@ importers:
       '@snowplow/tracker-core': workspace:*
       '@types/jest': ~27.4.1
       '@types/jsdom': ~16.2.14
-      '@types/lodash': ~4.14.178
+      '@types/lodash': ~4.14.180
       '@typescript-eslint/eslint-plugin': ~5.15.0
       '@typescript-eslint/parser': ~5.15.0
       eslint: ~8.11.0
@@ -502,7 +502,7 @@ importers:
       '@rollup/plugin-node-resolve': 13.1.3_rollup@2.70.1
       '@types/jest': 27.4.1
       '@types/jsdom': 16.2.14
-      '@types/lodash': 4.14.178
+      '@types/lodash': 4.14.180
       '@typescript-eslint/eslint-plugin': 5.15.0_f2c49ce7d0e93ebcfdb4b7d25b131b28
       '@typescript-eslint/parser': 5.15.0_eslint@8.11.0+typescript@4.6.2
       eslint: 8.11.0
@@ -675,7 +675,7 @@ importers:
       '@snowplow/tracker-core': workspace:*
       '@types/jest': ~27.4.1
       '@types/jsdom': ~16.2.14
-      '@types/lodash': ~4.14.178
+      '@types/lodash': ~4.14.180
       '@typescript-eslint/eslint-plugin': ~5.15.0
       '@typescript-eslint/parser': ~5.15.0
       eslint: ~8.11.0
@@ -702,7 +702,7 @@ importers:
       '@rollup/plugin-node-resolve': 13.1.3_rollup@2.70.1
       '@types/jest': 27.4.1
       '@types/jsdom': 16.2.14
-      '@types/lodash': 4.14.178
+      '@types/lodash': 4.14.180
       '@typescript-eslint/eslint-plugin': 5.15.0_f2c49ce7d0e93ebcfdb4b7d25b131b28
       '@typescript-eslint/parser': 5.15.0_eslint@8.11.0+typescript@4.6.2
       eslint: 8.11.0
@@ -924,7 +924,7 @@ importers:
       '@snowplow/tracker-core': workspace:*
       '@types/jest': ~27.4.1
       '@types/jsdom': ~16.2.14
-      '@types/lodash': ~4.14.178
+      '@types/lodash': ~4.14.180
       '@typescript-eslint/eslint-plugin': ~5.15.0
       '@typescript-eslint/parser': ~5.15.0
       eslint: ~8.11.0
@@ -951,7 +951,7 @@ importers:
       '@rollup/plugin-node-resolve': 13.1.3_rollup@2.70.1
       '@types/jest': 27.4.1
       '@types/jsdom': 16.2.14
-      '@types/lodash': 4.14.178
+      '@types/lodash': 4.14.180
       '@typescript-eslint/eslint-plugin': 5.15.0_f2c49ce7d0e93ebcfdb4b7d25b131b28
       '@typescript-eslint/parser': 5.15.0_eslint@8.11.0+typescript@4.6.2
       eslint: 8.11.0
@@ -1083,7 +1083,7 @@ importers:
       '@snowplow/tracker-core': workspace:*
       '@types/jest': ~27.4.1
       '@types/jsdom': ~16.2.14
-      '@types/lodash': ~4.14.178
+      '@types/lodash': ~4.14.180
       '@typescript-eslint/eslint-plugin': ~5.15.0
       '@typescript-eslint/parser': ~5.15.0
       eslint: ~8.11.0
@@ -1110,7 +1110,7 @@ importers:
       '@rollup/plugin-node-resolve': 13.1.3_rollup@2.70.1
       '@types/jest': 27.4.1
       '@types/jsdom': 16.2.14
-      '@types/lodash': 4.14.178
+      '@types/lodash': 4.14.180
       '@typescript-eslint/eslint-plugin': 5.15.0_f2c49ce7d0e93ebcfdb4b7d25b131b28
       '@typescript-eslint/parser': 5.15.0_eslint@8.11.0+typescript@4.6.2
       eslint: 8.11.0
@@ -1158,7 +1158,7 @@ importers:
       '@types/dockerode': ~3.3.1
       '@types/jest': ~27.4.1
       '@types/jsdom': ~16.2.14
-      '@types/lodash': ~4.14.178
+      '@types/lodash': ~4.14.180
       '@types/node': ~14.6.0
       '@wdio/cli': ~6.12.1
       '@wdio/jasmine-framework': ~6.11.0
@@ -1219,7 +1219,7 @@ importers:
       '@types/dockerode': 3.3.1
       '@types/jest': 27.4.1
       '@types/jsdom': 16.2.14
-      '@types/lodash': 4.14.178
+      '@types/lodash': 4.14.180
       '@types/node': 14.6.4
       '@wdio/cli': 6.12.1
       '@wdio/jasmine-framework': 6.11.0_@wdio+cli@6.12.1
@@ -2324,23 +2324,23 @@ packages:
   /@types/lodash.flattendeep/4.4.6:
     resolution: {integrity: sha512-uLm2MaRVlqJSGsMK0RZpP5T3KqReq+9WbYDHCUhBhp98v56hMG/Yht52bsoTSui9xz2mUvQ9NfG3LrNGDL92Ng==}
     dependencies:
-      '@types/lodash': 4.14.178
+      '@types/lodash': 4.14.180
     dev: true
 
   /@types/lodash.pickby/4.6.6:
     resolution: {integrity: sha512-NFa13XxlMd9eFi0UFZFWIztpMpXhozbijrx3Yb1viYZphT7jyopIFVoIRF4eYMjruWNEG1rnyrRmg/8ej9T8Iw==}
     dependencies:
-      '@types/lodash': 4.14.178
+      '@types/lodash': 4.14.180
     dev: true
 
   /@types/lodash.union/4.6.6:
     resolution: {integrity: sha512-Wu0ZEVNcyCz8eAn6TlUbYWZoGbH9E+iOHxAZbwUoCEXdUiy6qpcz5o44mMXViM4vlPLLCPlkAubEP1gokoSZaw==}
     dependencies:
-      '@types/lodash': 4.14.178
+      '@types/lodash': 4.14.180
     dev: true
 
-  /@types/lodash/4.14.178:
-    resolution: {integrity: sha512-0d5Wd09ItQWH1qFbEyQ7oTQ3GZrMfth5JkbN3EvTKLXcHLRDSXeLnlvlOn0wvxVIwK5o2M8JzP/OWz7T3NRsbw==}
+  /@types/lodash/4.14.180:
+    resolution: {integrity: sha512-XOKXa1KIxtNXgASAnwj7cnttJxS4fksBRywK/9LzRV5YxrF80BXZIGeQSuoESQ/VkUj30Ae0+YcuHc15wJCB2g==}
     dev: true
 
   /@types/mime/2.0.3:
