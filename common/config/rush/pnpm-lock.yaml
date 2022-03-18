@@ -1155,7 +1155,7 @@ importers:
       '@snowplow/browser-tracker': workspace:*
       '@snowplow/browser-tracker-core': workspace:*
       '@snowplow/tracker-core': workspace:*
-      '@types/dockerode': ~3.3.1
+      '@types/dockerode': ~3.3.5
       '@types/jest': ~27.4.1
       '@types/jsdom': ~16.2.14
       '@types/lodash': ~4.14.180
@@ -1216,7 +1216,7 @@ importers:
       '@rollup/plugin-commonjs': 21.0.2_rollup@2.70.1
       '@rollup/plugin-json': 4.1.0_rollup@2.70.1
       '@rollup/plugin-node-resolve': 13.1.3_rollup@2.70.1
-      '@types/dockerode': 3.3.1
+      '@types/dockerode': 3.3.5
       '@types/jest': 27.4.1
       '@types/jsdom': 16.2.14
       '@types/lodash': 4.14.180
@@ -2215,8 +2215,8 @@ packages:
       '@types/ssh2': 0.5.51
     dev: true
 
-  /@types/dockerode/3.3.1:
-    resolution: {integrity: sha512-pjEOl3C/N2viC+nU2iEM6ImFcyu/RoLZvfsAGc3xIW2MlyEox+ZtJgPDXCFfFVh8ZNouxCRL673aa2Ywbx20EQ==}
+  /@types/dockerode/3.3.5:
+    resolution: {integrity: sha512-QEfaHvsENH5Iot+8vM2ePZRe8NZMlsjKmZnqvPo624VimRZe3KWkUakcsHMuTZ6GcGI/sW6sr4OVS28HCj7IUw==}
     dependencies:
       '@types/docker-modem': 3.0.2
       '@types/node': 14.6.4
