@@ -1167,7 +1167,7 @@ importers:
       '@wdio/spec-reporter': ~6.11.0
       '@wdio/static-server-service': ~6.10.10
       '@wdio/sync': ~6.11.0
-      chromedriver: ~97.0.0
+      chromedriver: ~99.0.0
       dockerode: ~3.3.1
       jest: ~27.4.7
       jest-environment-jsdom: ~27.4.6
@@ -1228,7 +1228,7 @@ importers:
       '@wdio/spec-reporter': 6.11.0_@wdio+cli@6.12.1
       '@wdio/static-server-service': 6.10.10
       '@wdio/sync': 6.11.0
-      chromedriver: 97.0.0
+      chromedriver: 99.0.0
       dockerode: 3.3.1
       jest: 27.4.7
       jest-environment-jsdom: 27.4.6
@@ -1246,7 +1246,7 @@ importers:
       saucelabs: 4.6.2
       ts-jest: 27.1.3_a7e53b5e5b59e71a0fd4d8cf128393d5
       typescript: 4.5.5
-      wdio-chromedriver-service: 6.0.4_069ee4859685b73a7f2293d5be8a255e
+      wdio-chromedriver-service: 6.0.4_c38ea68dd958902bc96335654f20d5c2
 
   ../../trackers/node-tracker:
     specifiers:
@@ -2118,8 +2118,8 @@ packages:
     dependencies:
       defer-to-connect: 2.0.0
 
-  /@testim/chrome-version/1.0.7:
-    resolution: {integrity: sha512-8UT/J+xqCYfn3fKtOznAibsHpiuDshCb0fwgWxRazTT19Igp9ovoXMPhXyLD6m3CKQGTMHgqoxaFfMWaL40Rnw==}
+  /@testim/chrome-version/1.1.2:
+    resolution: {integrity: sha512-1c4ZOETSRpI0iBfIFUqU4KqwBAB2lHUAlBjZz/YqOHqwM9dTTzjV6Km0ZkiEiSCx/tLr1BtESIKyWWMww+RUqw==}
     dev: true
 
   /@tootallnate/once/1.1.2:
@@ -2484,6 +2484,7 @@ packages:
 
   /@types/yauzl/2.9.1:
     resolution: {integrity: sha512-A1b8SU4D10uoPjwb0lnHmmu8wZhR9d+9o2PKBQT2jU5YPTKsxac6M2qGAdY7VcL+dHHhARVUDmeg0rOrcd9EjA==}
+    requiresBuild: true
     dependencies:
       '@types/node': 14.6.4
     dev: true
@@ -2885,7 +2886,7 @@ packages:
     resolution: {integrity: sha512-wn8fw19xKZwdGPO47jivonaHRTd+nGOMP1z11sgGeQzDy2xd5FG0R67dIMcKHDE2cJ5y+YXV30XVGUBPRSY7Hg==}
     engines: {node: '>= 8.0.0'}
     dependencies:
-      debug: 4.3.1
+      debug: 4.3.3
       depd: 1.1.2
       humanize-ms: 1.2.1
     transitivePeerDependencies:
@@ -3210,8 +3211,8 @@ packages:
     resolution: {integrity: sha512-xh1Rl34h6Fi1DC2WWKfxUTVqRsNnr6LsKz2+hfwDxQJWmrx8+c7ylaqBMcHfl1U1r2dsifOvKX3LQuLNZ+XSvA==}
     dev: true
 
-  /axios/0.21.4:
-    resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
+  /axios/0.24.0:
+    resolution: {integrity: sha512-Q6cWsys88HoPgAaFAVUb0WpPk0O8iTeisR9IMqy9G8AbO4NlpVknrnQS03zzF9PGAWgO3cgletO3VjV/P7VztA==}
     dependencies:
       follow-redirects: 1.14.5
     transitivePeerDependencies:
@@ -3806,14 +3807,14 @@ packages:
       rimraf: 3.0.2
     dev: true
 
-  /chromedriver/97.0.0:
-    resolution: {integrity: sha512-SZ9MW+/6/Ypz20CNdRKocsmRM2AJ/YwHaWpA1Np2QVPFUbhjhus6vBtqFD+l8M5qrktLWPQSjTwIsDckNfXIRg==}
+  /chromedriver/99.0.0:
+    resolution: {integrity: sha512-pyB+5LuyZdb7EBPL3i5D5yucZUD+SlkdiUtmpjaEnLd9zAXp+SvD/hP5xF4l/ZmWvUo/1ZLxAI1YBdhazGTpgA==}
     engines: {node: '>=10'}
     hasBin: true
     requiresBuild: true
     dependencies:
-      '@testim/chrome-version': 1.0.7
-      axios: 0.21.4
+      '@testim/chrome-version': 1.1.2
+      axios: 0.24.0
       del: 6.0.0
       extract-zip: 2.0.1
       https-proxy-agent: 5.0.0
@@ -4599,6 +4600,7 @@ packages:
 
   /encoding/0.1.13:
     resolution: {integrity: sha512-ETBauow1T35Y/WZMkio9jiM0Z5xjHHmJ4XmjZOq1l/dXz3lr2sRn87nJy20RupqSh1F2m3HHPSp8ShIPQJrJ3A==}
+    requiresBuild: true
     dependencies:
       iconv-lite: 0.6.2
     dev: true
@@ -5329,6 +5331,7 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
     deprecated: '"Please update to latest v2.3 or v2.2"'
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -5336,6 +5339,7 @@ packages:
     resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -5547,6 +5551,7 @@ packages:
     resolution: {integrity: sha512-byKi5ITUiWRvEIcQo76i1siVnOwrTmG+GNcBG4cJ7x8IE6+4ki9rG5pUe4+DOYHkfk52XU6XHt9aAAgCcFDKpg==}
     cpu: [x64, x86]
     os: [linux]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -5554,6 +5559,7 @@ packages:
     resolution: {integrity: sha512-iwyAY6dGj1FrrBdmfwKXkjtTGJnqe8F+9WZbfXxiBjkWLtIsJt2dD1+q7g/sw3w8mdHrGQAdxtDZP/usMwj/Rg==}
     cpu: [x64, x86, arm64]
     os: [darwin]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -5561,6 +5567,7 @@ packages:
     resolution: {integrity: sha512-VI+UUYwtGWDYwpiixrWRD8EklHgl6PMbiEaHxQSrQbH8PDXytwaOKqmsaH2lWYd5Y/BOZie2MzjY7F5JI69q1w==}
     cpu: [x64]
     os: [win32]
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -5800,7 +5807,7 @@ packages:
     engines: {node: '>= 6.0.0'}
     dependencies:
       agent-base: 5.1.1
-      debug: 4.3.1
+      debug: 4.3.3
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -9030,7 +9037,7 @@ packages:
     engines: {node: '>= 10'}
     dependencies:
       agent-base: 6.0.2
-      debug: 4.3.1
+      debug: 4.3.3
       socks: 2.6.1
     transitivePeerDependencies:
       - supports-color
@@ -9986,12 +9993,13 @@ packages:
 
   /wcwidth/1.0.1:
     resolution: {integrity: sha1-8LDc+RW8X/FSivrbLA4XtTLaL+g=}
+    requiresBuild: true
     dependencies:
       defaults: 1.0.3
     dev: true
     optional: true
 
-  /wdio-chromedriver-service/6.0.4_069ee4859685b73a7f2293d5be8a255e:
+  /wdio-chromedriver-service/6.0.4_c38ea68dd958902bc96335654f20d5c2:
     resolution: {integrity: sha512-ed0ctxRJ4KbhAX/BkGUFS/sy6zDrZ3oB1Tqvokrs3r7GPX115w/AcOySofXdAk7Pdjm2JLDW/marHG/LmVoBuw==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
@@ -9999,7 +10007,7 @@ packages:
       chromedriver: '*'
     dependencies:
       '@wdio/cli': 6.12.1
-      chromedriver: 97.0.0
+      chromedriver: 99.0.0
       fs-extra: 9.0.1
     dev: true
 
