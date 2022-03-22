@@ -116,9 +116,12 @@ exports.config = {
     },
     {
       browserName: 'firefox',
-      platform: 'Windows 10',
-      version: '53.0',
-      build: buildName,
+      platformName: 'Windows 10',
+      browserVersion: '60.0',
+      'sauce:options': {
+        seleniumVersion: '3.14.0',
+        build: buildName,
+      },
     },
     {
       browserName: 'chrome',

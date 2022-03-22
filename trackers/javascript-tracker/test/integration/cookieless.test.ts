@@ -43,6 +43,7 @@ describe('Anonymous tracking features', () => {
   const listContains = (items: Array<unknown>, ev: unknown) => F.some(F.isMatch(ev as object), items);
 
   beforeAll(() => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
     browser.call(() => {
       return start().then((container) => {
         docker = container;
@@ -50,6 +51,15 @@ describe('Anonymous tracking features', () => {
     });
     browser.url('/index.html');
     browser.setCookies({ name: 'container', value: docker.url });
+  });
+
+  afterAll(() => {
+    browser.call(() => {
+      return stop(docker.container);
+    });
+  });
+
+  it('should navigate the pages', () => {
     browser.url('/cookieless.html');
     browser.pause(5000); // Time for requests to get written
     browser.url('/cookieless.html?ieTest=true');
@@ -60,12 +70,6 @@ describe('Anonymous tracking features', () => {
         log = result;
       })
     );
-  });
-
-  afterAll(() => {
-    browser.call(() => {
-      return stop(docker.container);
-    });
   });
 
   it('should have no user information in page view when server anonymisation ', () => {

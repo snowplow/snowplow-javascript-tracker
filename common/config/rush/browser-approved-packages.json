@@ -353,6 +353,10 @@
     {
       "name": "wdio-chromedriver-service",
       "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "webdriverio",
+      "allowedCategories": [ "trackers" ]
     }
   ]
 }

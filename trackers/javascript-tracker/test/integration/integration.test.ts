@@ -75,6 +75,7 @@ describe('Snowplow Micro integration', () => {
   const logContainsFn = (ev: unknown) => F.some(isMatchWithCallback(ev as object), log);
 
   beforeAll(() => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
     browser.call(() => {
       return start().then((container) => {
         docker = container;
@@ -82,7 +83,15 @@ describe('Snowplow Micro integration', () => {
     });
     browser.url('/index.html');
     browser.setCookies({ name: 'container', value: docker.url });
+  });
 
+  afterAll(() => {
+    browser.call(() => {
+      return stop(docker.container);
+    });
+  });
+
+  it('should navigate the pages', () => {
     loadUrlAndWait('/integration.html?eventMethod=get');
     $('#bottomRight').scrollIntoView();
     browser.pause(10000); // Time for requests to get written
@@ -98,12 +107,6 @@ describe('Snowplow Micro integration', () => {
         log = result;
       })
     );
-  });
-
-  afterAll(() => {
-    browser.call(() => {
-      return stop(docker.container);
-    });
   });
 
   eventMethods.forEach((method) => {

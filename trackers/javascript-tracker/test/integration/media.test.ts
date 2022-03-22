@@ -167,6 +167,7 @@ describe('Media Tracker', () => {
   }
 
   beforeAll(() => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
     browser.call(() => {
       return start().then((container) => {
         docker = container;
@@ -175,6 +176,15 @@ describe('Media Tracker', () => {
 
     browser.url('/index.html');
     browser.setCookies({ name: 'container', value: docker.url });
+  });
+
+  afterAll(() => {
+    browser.waitUntil(() => {
+      return browser.call(() => clearCache(docker.url));
+    });
+  });
+
+  it('should navigate the pages', () => {
     browser.url('media/tracking.html');
 
     browser.waitUntil(() => $('#html5').isExisting(), {
@@ -212,12 +222,6 @@ describe('Media Tracker', () => {
         timeoutMsg: 'All events not found before timeout',
       }
     );
-  });
-
-  afterAll(() => {
-    browser.waitUntil(() => {
-      return browser.call(() => clearCache(docker.url));
-    });
   });
 
   const expected = {

@@ -129,6 +129,7 @@ describe('YouTube Tracker', () => {
   }
 
   beforeAll(() => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 180000;
     browser.call(() => {
       return start().then((container) => {
         docker = container;
@@ -137,6 +138,15 @@ describe('YouTube Tracker', () => {
 
     browser.url('/index.html');
     browser.setCookies({ name: 'container', value: docker.url });
+  });
+
+  afterAll(() => {
+    browser.waitUntil(() => {
+      return browser.call(() => clearCache(docker.url));
+    });
+  });
+
+  it('should navigate the pages', () => {
     browser.url('/youtube/tracking.html');
     browser.waitUntil(() => $('#youtube').isExisting(), {
       timeout: 5000,
@@ -227,12 +237,6 @@ describe('YouTube Tracker', () => {
       compare(expected, received);
     });
   });
-
-  afterAll(() => {
-    browser.waitUntil(() => {
-      return browser.call(() => clearCache(docker.url));
-    });
-  });
 });
 
 describe('YouTube Tracker (2 videos, 1 tracker)', () => {
@@ -244,8 +248,18 @@ describe('YouTube Tracker (2 videos, 1 tracker)', () => {
   };
 
   beforeAll(() => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 180000;
     browser.url('/index.html');
     browser.setCookies({ name: 'container', value: docker.url });
+  });
+
+  afterAll(() => {
+    browser.waitUntil(() => {
+      return browser.call(() => clearCache(docker.url));
+    });
+  });
+
+  it('should navigate the pages', () => {
     browser.url('/youtube/tracking-2-videos.html');
     browser.waitUntil(() => $('#youtube').isExisting(), {
       timeout: 5000,
@@ -284,12 +298,6 @@ describe('YouTube Tracker (2 videos, 1 tracker)', () => {
     );
   });
 
-  afterAll(() => {
-    browser.waitUntil(() => {
-      return browser.call(() => clearCache(docker.url));
-    });
-  });
-
   it('Tracks 2 YouTube players with a single tracker', () => {
     const expectedOne = makeExpectedEvent('playbackqualitychange');
     const recievedOne = getFirstEventOfEventTypeWithId('playbackqualitychange', 'youtube');
@@ -303,8 +311,18 @@ describe('YouTube Tracker (2 videos, 1 tracker)', () => {
 
 describe('YouTube Tracker (1 video, 2 trackers)', () => {
   beforeAll(() => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 180000;
     browser.url('/index.html');
     browser.setCookies({ name: 'container', value: docker.url });
+  });
+
+  afterAll(() => {
+    browser.call(() => {
+      return stop(docker.container);
+    });
+  });
+
+  it('should navigate the pages', () => {
     browser.url('/youtube/tracking-2-trackers.html');
     browser.waitUntil(() => $('#youtube').isExisting(), {
       timeout: 5000,
@@ -332,12 +350,6 @@ describe('YouTube Tracker (1 video, 2 trackers)', () => {
         timeoutMsg: 'All events not found before timeout',
       }
     );
-  });
-
-  afterAll(() => {
-    browser.call(() => {
-      return stop(docker.container);
-    });
   });
 
   const getTwoEventsOfEventType = (eventType: string): Array<any> => {

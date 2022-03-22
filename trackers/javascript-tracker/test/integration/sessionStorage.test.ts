@@ -41,6 +41,7 @@ describe('Sessions', () => {
   const logContains = (ev: unknown) => F.some(F.isMatch(ev as object), log);
 
   beforeAll(() => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
     browser.call(() => {
       return start().then((container) => {
         docker = container;
@@ -48,6 +49,15 @@ describe('Sessions', () => {
     });
     browser.url('/index.html');
     browser.setCookies({ name: 'container', value: docker.url });
+  });
+
+  afterAll(() => {
+    browser.call(() => {
+      return stop(docker.container);
+    });
+  });
+
+  it('should navigate the pages', () => {
     browser.url('/session-integration.html');
     browser.pause(6000); // Time for requests to get written
     browser.call(() =>
@@ -55,12 +65,6 @@ describe('Sessions', () => {
         log = result;
       })
     );
-  });
-
-  afterAll(() => {
-    browser.call(() => {
-      return stop(docker.container);
-    });
   });
 
   it('should count sessions using cookies', () => {

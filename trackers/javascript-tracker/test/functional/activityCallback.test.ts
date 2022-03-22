@@ -38,6 +38,10 @@ declare var findFirstEventForPageViewId: (id: string) => Record<string, unknown>
 declare var findLastEventForPageViewId: (id: string) => Record<string, unknown>;
 
 describe('Activity tracking with callbacks', () => {
+  beforeAll(() => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
+  });
+
   it('reports events on scroll', () => {
     browser.url('/activity-callback.html?test1');
     browser.waitUntil(() => $('#init').getText() === 'true', {

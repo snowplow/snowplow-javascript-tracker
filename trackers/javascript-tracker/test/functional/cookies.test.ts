@@ -29,6 +29,10 @@
  */
 
 describe('Tracker created domain cookies', () => {
+  beforeAll(() => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
+  });
+
   it('contain the expected cookie names', () => {
     browser.url('/cookies.html');
     browser.waitUntil(() => $('#init').getText() === 'true', {

@@ -61,6 +61,7 @@ describe('Auto tracking', () => {
   };
 
   beforeAll(() => {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
     browser.call(() => {
       return start().then((container) => {
         docker = container;
@@ -273,8 +274,9 @@ describe('Auto tracking', () => {
     browser.pause(250);
 
     $('#cars').click();
-    $('#cars').selectByAttribute('value', 'saab');
+    browser.pause(250);
     $('#cars').click();
+    $('#cars').selectByAttribute('value', 'saab');
 
     browser.pause(250);
 
