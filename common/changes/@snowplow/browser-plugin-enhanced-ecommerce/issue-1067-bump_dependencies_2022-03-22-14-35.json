@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-enhanced-ecommerce",
+      "comment": "Bump dependencies (#1067)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-enhanced-ecommerce"
+}

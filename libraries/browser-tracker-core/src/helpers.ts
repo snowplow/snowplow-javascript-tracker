@@ -132,7 +132,6 @@ export function fixupDomain(domain: string) {
  */
 export function getReferrer(oldLocation?: string) {
   let windowAlias = window,
-    referrer = '',
     fromQs =
       fromQuerystring('referrer', windowAlias.location.href) || fromQuerystring('referer', windowAlias.location.href);
 
@@ -147,20 +146,14 @@ export function getReferrer(oldLocation?: string) {
   }
 
   try {
-    referrer = windowAlias.top.document.referrer;
-  } catch (e) {
-    if (windowAlias.parent) {
-      try {
-        referrer = windowAlias.parent.document.referrer;
-      } catch (e2) {
-        referrer = '';
-      }
+    if (windowAlias.top) {
+      return windowAlias.top.document.referrer;
+    } else if (windowAlias.parent) {
+      return windowAlias.parent.document.referrer;
     }
-  }
-  if (referrer === '') {
-    referrer = document.referrer;
-  }
-  return referrer;
+  } catch {}
+
+  return document.referrer;
 }
 
 /**

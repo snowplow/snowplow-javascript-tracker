@@ -29,6 +29,7 @@
  */
 
 import F from 'lodash/fp';
+import { DockerWrapper, start, stop } from '../micro';
 
 declare var trackPageView: () => void;
 declare var findMaxX: () => number;
@@ -38,21 +39,39 @@ declare var findFirstEventForPageViewId: (id: string) => Record<string, unknown>
 declare var findLastEventForPageViewId: (id: string) => Record<string, unknown>;
 
 describe('Activity tracking with callbacks', () => {
-  it('reports events on scroll', () => {
-    browser.url('/activity-callback.html?test1');
-    browser.waitUntil(() => $('#init').getText() === 'true', {
+  let docker: DockerWrapper;
+
+  beforeAll(async () => {
+    await browser.call(async () => {
+      return await start().then((container) => {
+        docker = container;
+      });
+    });
+    await browser.url('/index.html');
+    await browser.setCookies({ name: 'container', value: docker.url });
+  });
+
+  afterAll(async () => {
+    await browser.call(async () => {
+      return await stop(docker.container);
+    });
+  });
+
+  it('reports events on scroll', async () => {
+    await browser.url('/activity-callback.html?test1');
+    await browser.waitUntil(async () => (await $('#init').getText()) === 'true', {
       timeout: 5000,
       timeoutMsg: 'expected init after 5s',
       interval: 250,
     });
 
-    $('#bottomRight').scrollIntoView();
+    await $('#bottomRight').scrollIntoView();
 
-    browser.waitUntil(() => +$('#numEvents').getText() >= 1, {
+    await browser.waitUntil(async () => +(await $('#numEvents').getText()) >= 1, {
       timeout: 10000,
       timeoutMsg: 'expected > 1 event after 10s',
     });
-    const [maxX, maxY] = browser.execute(() => {
+    const [maxX, maxY] = await browser.execute(() => {
       return [findMaxX(), findMaxY()];
     });
 
@@ -60,50 +79,50 @@ describe('Activity tracking with callbacks', () => {
     expect(maxY).toBeGreaterThan(100);
   });
 
-  it('carries pageviewid change through and resets scroll', () => {
-    browser.url('/activity-callback.html?test2');
-    browser.waitUntil(() => $('#init').getText() === 'true', {
+  it('carries pageviewid change through and resets scroll', async () => {
+    await browser.url('/activity-callback.html?test2');
+    await browser.waitUntil(async () => (await $('#init').getText()) === 'true', {
       timeout: 5000,
       timeoutMsg: 'expected init after 5s',
       interval: 250,
     });
 
-    browser.execute(() => window.scrollTo(0, 0));
+    await browser.execute(() => window.scrollTo(0, 0));
 
-    browser.execute(() => {
+    await browser.execute(() => {
       getCurrentPageViewId();
     });
-    const firstPageViewId = $('#currentPageViewId').getText();
+    const firstPageViewId = await $('#currentPageViewId').getText();
 
-    $('#bottomRight').scrollIntoView();
-    $('#middle').scrollIntoView();
-    browser.waitUntil(() => +$('#numEvents').getText() >= 1, {
+    await $('#bottomRight').scrollIntoView();
+    await $('#middle').scrollIntoView();
+    await browser.waitUntil(async () => +(await $('#numEvents').getText()) >= 1, {
       timeout: 10000,
       timeoutMsg: 'expected > 1 event after 10s',
     });
 
-    browser.execute(() => {
+    await browser.execute(() => {
       trackPageView();
     });
-    $('#bottomRight').scrollIntoView();
+    await $('#bottomRight').scrollIntoView();
 
-    browser.waitUntil(() => +$('#numEvents').getText() > 1, {
+    await browser.waitUntil(async () => +(await $('#numEvents').getText()) > 1, {
       timeout: 10000,
       timeoutMsg: 'expected > 1 event after 10s',
     });
 
-    browser.execute(() => {
+    await browser.execute(() => {
       getCurrentPageViewId();
     });
-    const secondPageViewId = $('#currentPageViewId').getText();
+    const secondPageViewId = await $('#currentPageViewId').getText();
 
     // sanity check
     expect(firstPageViewId).not.toEqual(secondPageViewId);
 
-    const first = browser.execute((id) => {
+    const first = await browser.execute((id) => {
       return findFirstEventForPageViewId(id);
     }, firstPageViewId);
-    const second = browser.execute((id) => {
+    const second = await browser.execute((id) => {
       return findLastEventForPageViewId(id);
     }, secondPageViewId);
 
