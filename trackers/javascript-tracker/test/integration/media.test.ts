@@ -29,6 +29,29 @@
 
 import _ from 'lodash';
 import { DockerWrapper, start, stop, fetchResults, clearCache } from '../micro';
+import util from 'util';
+
+const dumpLog = (log: Array<unknown>) => console.log(util.inspect(log, true, null, true));
+const playVideoElement1Callback = () => {
+  return (done: (_: void) => void) => {
+    const promise = (document.getElementById('html5') as HTMLVideoElement).play();
+    if (promise) {
+      promise.then(done);
+    } else {
+      done();
+    } // IE does not return a promise
+  };
+};
+const playVideoElement2Callback = () => {
+  return (done: (_: void) => void) => {
+    const promise = (document.getElementById('html5-2') as HTMLVideoElement).play();
+    if (promise) {
+      promise.then(done);
+    } else {
+      done();
+    } // IE does not return a promise
+  };
+};
 
 const makeExpectedEvent = (
   eventType: string,
@@ -166,45 +189,51 @@ describe('Media Tracker', () => {
     return;
   }
 
-  beforeAll(() => {
-    browser.call(() => {
-      return start().then((container) => {
-        docker = container;
-      });
-    });
+  beforeAll(async () => {
+    await browser.call(async () => (docker = await start()));
 
-    browser.url('/index.html');
-    browser.setCookies({ name: 'container', value: docker.url });
-    browser.url('media/tracking.html');
+    await browser.url('/index.html');
+    await browser.setCookies({ name: 'container', value: docker.url });
+    await browser.url('media/tracking.html');
 
-    browser.waitUntil(() => $('#html5').isExisting(), {
+    await browser.waitUntil(() => $('#html5').isExisting(), {
       timeout: 10000,
       timeoutMsg: 'expected html5 after 5s',
     });
 
     let actions = [
-      () => (document.getElementById('html5') as HTMLVideoElement).play(),
-      () => (document.getElementById('html5') as HTMLVideoElement).pause(),
-      () => ((document.getElementById('html5') as HTMLVideoElement).volume = 0.5),
-      () => ((document.getElementById('html5') as HTMLVideoElement).playbackRate = 0.9),
-      () => ((document.getElementById('html5') as HTMLVideoElement).currentTime = 18),
-      () => (document.getElementById('html5') as HTMLVideoElement).play(),
+      playVideoElement1Callback(),
+      (done: () => void) => {
+        (document.getElementById('html5') as HTMLVideoElement).pause();
+        done();
+      },
+      (done: () => void) => {
+        (document.getElementById('html5') as HTMLVideoElement).volume = 0.5;
+        done();
+      },
+      (done: () => void) => {
+        (document.getElementById('html5') as HTMLVideoElement).playbackRate = 0.9;
+        done();
+      },
+      (done: () => void) => {
+        (document.getElementById('html5') as HTMLVideoElement).currentTime = 18;
+        done();
+      },
+      playVideoElement1Callback(),
     ];
 
-    actions.forEach((a) => {
-      browser.execute(a);
-      browser.pause(500);
-    });
+    for (const a of actions) {
+      await browser.executeAsync(a);
+      await browser.pause(500);
+    }
 
     // 'ended' should be the final event, if not, try again
-    browser.waitUntil(
-      () => {
-        return browser.call(() =>
-          fetchResults(docker.url).then((result) => {
-            log = result;
-            return log.some((l: any) => l.event.unstruct_event.data.data.type === 'ended');
-          })
-        );
+    await browser.waitUntil(
+      async () => {
+        return await browser.call(async () => {
+          log = await fetchResults(docker.url);
+          return log.some((l: any) => l.event.unstruct_event.data.data.type === 'ended');
+        });
       },
       {
         interval: 2000,
@@ -214,9 +243,9 @@ describe('Media Tracker', () => {
     );
   });
 
-  afterAll(() => {
-    browser.waitUntil(() => {
-      return browser.call(() => clearCache(docker.url));
+  afterAll(async () => {
+    await browser.waitUntil(async () => {
+      return await browser.call(async () => await clearCache(docker.url));
     });
   });
 
@@ -246,35 +275,39 @@ describe('Media Tracker', () => {
 });
 
 describe('Media Tracker (2 videos, 1 tracker)', () => {
-  beforeAll(() => {
-    browser.url('/media/tracking-2-players.html');
+  beforeAll(async () => {
+    await browser.url('/media/tracking-2-players.html');
 
-    browser.waitUntil(() => $('#html5').isExisting(), {
+    await browser.waitUntil(() => $('#html5').isExisting(), {
       timeout: 10000,
       timeoutMsg: 'expected html5 after 5s',
     });
 
     let actions = [
-      () => (document.getElementById('html5') as HTMLVideoElement).play(),
-      () => (document.getElementById('html5-2') as HTMLVideoElement).play(),
-      () => (document.getElementById('html5') as HTMLVideoElement).pause(),
-      () => (document.getElementById('html5-2') as HTMLVideoElement).pause(),
+      playVideoElement1Callback(),
+      playVideoElement2Callback(),
+      (done: () => void) => {
+        (document.getElementById('html5') as HTMLVideoElement).pause();
+        done();
+      },
+      (done: () => void) => {
+        (document.getElementById('html5-2') as HTMLVideoElement).pause();
+        done();
+      },
     ];
 
-    actions.forEach((a) => {
-      browser.execute(a);
-      browser.pause(200);
-    });
+    for (const a of actions) {
+      await browser.executeAsync(a);
+      await browser.pause(200);
+    }
 
     // wait until we have 2 'pause' events
-    browser.waitUntil(
-      () => {
-        return browser.call(() =>
-          fetchResults(docker.url).then((result) => {
-            log = result;
-            return log.filter((l: any) => l.event.unstruct_event.data.data.type === 'pause').length === 2;
-          })
-        );
+    await browser.waitUntil(
+      async () => {
+        return await browser.call(async () => {
+          log = await fetchResults(docker.url);
+          return log.filter((l: any) => l.event.unstruct_event.data.data.type === 'pause').length === 2;
+        });
       },
       {
         interval: 2000,
@@ -284,9 +317,9 @@ describe('Media Tracker (2 videos, 1 tracker)', () => {
     );
   });
 
-  afterAll(() => {
-    browser.waitUntil(() => {
-      return browser.call(() => clearCache(docker.url));
+  afterAll(async () => {
+    await browser.waitUntil(async () => {
+      return await browser.call(async () => await clearCache(docker.url));
     });
   });
 
@@ -309,27 +342,25 @@ describe('Media Tracker (2 videos, 1 tracker)', () => {
 });
 
 describe('Media Tracker (1 video, 2 trackers)', () => {
-  beforeAll(() => {
-    browser.url('media/tracking-2-trackers.html');
+  beforeAll(async () => {
+    await browser.url('media/tracking-2-trackers.html');
 
-    browser.waitUntil(() => $('#html5').isExisting(), {
+    await browser.waitUntil(() => $('#html5').isExisting(), {
       timeout: 10000,
       timeoutMsg: 'expected html5 after 5s',
     });
 
-    browser.execute(() => (document.getElementById('html5') as HTMLVideoElement).play());
-    browser.pause(200);
-    browser.execute(() => (document.getElementById('html5') as HTMLVideoElement).pause());
+    await browser.executeAsync(playVideoElement1Callback());
+    await browser.pause(200);
+    await browser.execute(() => (document.getElementById('html5') as HTMLVideoElement).pause());
 
     // wait until we have 2 'pause' events
-    browser.waitUntil(
-      () => {
-        return browser.call(() =>
-          fetchResults(docker.url).then((result) => {
-            log = result;
-            return log.filter((l: any) => l.event.unstruct_event.data.data.type === 'pause').length === 2;
-          })
-        );
+    await browser.waitUntil(
+      async () => {
+        return await browser.call(async () => {
+          log = await fetchResults(docker.url);
+          return log.filter((l: any) => l.event.unstruct_event.data.data.type === 'pause').length === 2;
+        });
       },
       {
         interval: 2000,
@@ -339,9 +370,9 @@ describe('Media Tracker (1 video, 2 trackers)', () => {
     );
   });
 
-  afterAll(() => {
-    browser.waitUntil(() => {
-      return browser.call(() => clearCache(docker.url));
+  afterAll(async () => {
+    await browser.waitUntil(async () => {
+      return await browser.call(async () => await clearCache(docker.url));
     });
   });
 
@@ -363,48 +394,56 @@ describe('Media Tracker (1 video, 2 trackers)', () => {
 });
 
 describe('Media Tracker - All Events', () => {
-  beforeAll(() => {
-    browser.url('/index.html');
-    browser.setCookies({ name: 'container', value: docker.url });
-    browser.url('media/tracking-all-events.html');
+  beforeAll(async () => {
+    await browser.url('media/tracking-all-events.html');
 
-    browser.waitUntil(() => $('#html5').isExisting(), {
+    await browser.waitUntil(() => $('#html5').isExisting(), {
       timeout: 10000,
       timeoutMsg: 'expected html5 after 5s',
     });
 
-    const video_url = browser.execute(() => {
+    const video_url = await browser.execute(() => {
       return (document.getElementById('html5') as HTMLVideoElement).src;
     });
 
     let actions = [
-      () => (document.getElementById('html5') as HTMLVideoElement).play(),
-      () => (document.getElementById('html5') as HTMLVideoElement).pause(),
-      () => ((document.getElementById('html5') as HTMLVideoElement).currentTime = 18),
-      () => (document.getElementById('html5') as HTMLVideoElement).play(),
-      () => ((document.getElementById('html5') as HTMLVideoElement).textTracks[0].mode = 'disabled'),
-      () => ((document.getElementById('html5') as HTMLVideoElement).src = 'not-a-video.unsupported_format'),
+      playVideoElement1Callback(),
+      (done: () => void) => {
+        (document.getElementById('html5') as HTMLVideoElement).pause();
+        done();
+      },
+      (done: () => void) => {
+        (document.getElementById('html5') as HTMLVideoElement).currentTime = 18;
+        done();
+      },
+      playVideoElement1Callback(),
+      (done: () => void) => {
+        (document.getElementById('html5') as HTMLVideoElement).textTracks[0].mode = 'disabled';
+        done();
+      },
+      (done: () => void) => {
+        (document.getElementById('html5') as HTMLVideoElement).src = 'not-a-video.unsupported_format';
+        done();
+      },
     ];
 
-    actions.forEach((a) => {
-      browser.execute(a);
-      browser.pause(1000);
-    });
+    for (const a of actions) {
+      await browser.executeAsync(a);
+      await browser.pause(1000);
+    }
 
-    browser.execute((video_url) => {
+    await browser.execute((video_url) => {
       (document.getElementById('html5') as HTMLVideoElement).src = video_url;
     }, video_url);
 
-    browser.waitUntil(
-      () => {
-        return browser.call(() =>
-          fetchResults(docker.url).then((result) => {
-            log = result;
-            // Events can occur in any order, so we can't just check for the last event
-            // 40 - 45 events are expected, due to the timing of 'timeupdate' events
-            return result.length > 40;
-          })
-        );
+    await browser.waitUntil(
+      async () => {
+        return await browser.call(async () => {
+          log = await fetchResults(docker.url);
+          // Events can occur in any order, so we can't just check for the last event
+          // 40 - 45 events are expected, due to the timing of 'timeupdate' events
+          return log.length > 40;
+        });
       },
       {
         interval: 2000,
@@ -414,10 +453,8 @@ describe('Media Tracker - All Events', () => {
     );
   });
 
-  afterAll(() => {
-    browser.call(() => {
-      return stop(docker.container);
-    });
+  afterAll(async () => {
+    await browser.call(async () => await stop(docker.container));
   });
 
   const getFirstEventOfEventType = (eventType: string) => {

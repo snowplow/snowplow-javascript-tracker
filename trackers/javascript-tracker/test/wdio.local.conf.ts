@@ -1,7 +1,7 @@
-const { config } = require('./wdio.default.conf');
+import { config as defaultConfig } from './wdio.default.conf';
 
-exports.config = {
-  ...config,
+export const config = {
+  ...defaultConfig,
 
   maxInstances: 1,
   capabilities: [
