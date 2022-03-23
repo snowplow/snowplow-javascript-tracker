@@ -268,7 +268,7 @@ export function Tracker(
         configPostPath,
         trackerConfiguration.bufferSize ?? 1,
         trackerConfiguration.maxPostBytes ?? 40000,
-        trackerConfiguration.maxGetBytes ?? false,
+        trackerConfiguration.maxGetBytes ?? 0,
         trackerConfiguration.useStm ?? true,
         trackerConfiguration.maxLocalStorageQueueSize ?? 1000,
         trackerConfiguration.connectionTimeout ?? 5000,

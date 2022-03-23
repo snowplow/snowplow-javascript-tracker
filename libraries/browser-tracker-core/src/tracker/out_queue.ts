@@ -53,7 +53,7 @@ export interface OutQueue {
  * @param postPath - The path where events are to be posted
  * @param bufferSize - How many events to batch in localStorage before sending them all
  * @param maxPostBytes - Maximum combined size in bytes of the event JSONs in a POST request
- * @param maxGetBytes - Maximum size in bytes of the complete event URL string in a GET request
+ * @param maxGetBytes - Maximum size in bytes of the complete event URL string in a GET request. 0 for no limit.
  * @param useStm - Whether to add timestamp to events
  * @param maxLocalStorageQueueSize - Maximum number of queued events we will attempt to store in local storage
  * @param connectionTimeout - Defines how long to wait before aborting the request
@@ -70,7 +70,7 @@ export function OutQueueManager(
   postPath: string,
   bufferSize: number,
   maxPostBytes: number,
-  maxGetBytes: number | boolean,
+  maxGetBytes: number,
   useStm: boolean,
   maxLocalStorageQueueSize: number,
   connectionTimeout: number,
@@ -237,7 +237,7 @@ export function OutQueueManager(
       }
     } else {
       const querystring = getQuerystring(request);
-      if (maxGetBytes !== false) {
+      if (maxGetBytes > 0) {
         const requestUrl = createGetUrl(querystring);
         const bytes = getUTF8Length(requestUrl);
         if (bytes >= maxGetBytes) {

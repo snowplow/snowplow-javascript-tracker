@@ -60,7 +60,7 @@ describe('OutQueueManager', () => {
         '/com.snowplowanalytics.snowplow/tp2',
         1,
         40000,
-        false,
+        0, // maxGetBytes – 0 for no limit
         false,
         maxQueueSize,
         5000,
@@ -100,7 +100,7 @@ describe('OutQueueManager', () => {
   });
 
   describe('GET requests', () => {
-    var getOutQueue: (maxGetBytes: number | boolean) => OutQueue;
+    var getOutQueue: (maxGetBytes: number) => OutQueue;
     const getQuerystring = (p: object) =>
       '?' +
       Object.entries(p)
@@ -128,7 +128,7 @@ describe('OutQueueManager', () => {
     });
 
     it('should add large event to out queue without bytes limit', () => {
-      var outQueue = getOutQueue(false);
+      var outQueue = getOutQueue(0);
 
       const expected = { e: 'pv', eid: '20269f92-f07c-44a6-87ef-43e171305076', aid: 'x'.repeat(1000) };
       outQueue.enqueueRequest(expected, '');
