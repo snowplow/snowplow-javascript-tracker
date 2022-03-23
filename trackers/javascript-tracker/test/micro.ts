@@ -111,8 +111,10 @@ const createMicroCall = (url: string) => () =>
     req.end();
   });
 
-export const fetchResults = (containerUrl: string) =>
-  createMicroCall(`http://${containerUrl}/micro/good`)().then((good: unknown) => JSON.parse(good as string));
+export const fetchResults = async (containerUrl: string) =>
+  JSON.parse((await createMicroCall(`http://${containerUrl}/micro/good`)()) as string);
 
-export const clearCache = (containerUrl: string) =>
-  createMicroCall(`http://${containerUrl}/micro/reset`)().then((_: unknown) => true);
+export const clearCache = async (containerUrl: string) => {
+  await createMicroCall(`http://${containerUrl}/micro/reset`)();
+  return true;
+};
