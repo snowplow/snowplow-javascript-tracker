@@ -51,9 +51,28 @@ export interface FormTrackingConfiguration {
   context?: DynamicContext | null;
 }
 
+/** Events to capture in form tracking */
+export enum FormTrackingEvent {
+  /** Form field changed event */
+  CHANGE_FORM = 'change_form',
+  /** Form field focused event */
+  FOCUS_FORM = 'focus_form',
+  /** Form submitted event */
+  SUBMIT_FORM = 'submit_form',
+}
+
+/** List of form tracking events to capture */
+export type FormTrackingEvents = Array<FormTrackingEvent>;
+const defaultFormTrackingEvents = [
+  FormTrackingEvent.CHANGE_FORM,
+  FormTrackingEvent.FOCUS_FORM,
+  FormTrackingEvent.SUBMIT_FORM,
+];
+
 export interface FormTrackingOptions {
   forms?: FilterCriterion<HTMLElement>;
   fields?: FilterCriterion<TrackedHTMLElement> & { transform: transformFn };
+  events?: FormTrackingEvents;
 }
 
 export interface TrackedHTMLElementTagNameMap {
@@ -105,25 +124,31 @@ export function addFormListeners(tracker: BrowserTracker, configuration: FormTra
               !innerElement[trackingMarker] &&
               innerElement.type.toLowerCase() !== 'password'
             ) {
-              addEventListener(
-                innerElement,
-                'focus',
-                getFormChangeListener(tracker, config, 'focus_form', context),
-                false
-              );
-              addEventListener(
-                innerElement,
-                'change',
-                getFormChangeListener(tracker, config, 'change_form', context),
-                false
-              );
+              if (config.eventFilter(FormTrackingEvent.FOCUS_FORM)) {
+                addEventListener(
+                  innerElement,
+                  'focus',
+                  getFormChangeListener(tracker, config, 'focus_form', context),
+                  false
+                );
+              }
+              if (config.eventFilter(FormTrackingEvent.CHANGE_FORM)) {
+                addEventListener(
+                  innerElement,
+                  'change',
+                  getFormChangeListener(tracker, config, 'change_form', context),
+                  false
+                );
+              }
               innerElement[trackingMarker] = true;
             }
           });
       });
 
       if (!form[trackingMarker]) {
-        addEventListener(form, 'submit', getFormSubmissionListener(tracker, config, trackingMarker, context));
+        if (config.eventFilter(FormTrackingEvent.SUBMIT_FORM)) {
+          addEventListener(form, 'submit', getFormSubmissionListener(tracker, config, trackingMarker, context));
+        }
         form[trackingMarker] = true;
       }
     }
@@ -139,12 +164,14 @@ function getConfigurationForOptions(options?: FormTrackingOptions) {
       formFilter: getFilterByClass(options.forms),
       fieldFilter: getFilterByName<TrackedHTMLElement>(options.fields),
       fieldTransform: getTransform(options.fields),
+      eventFilter: (event: FormTrackingEvent) => (options.events ?? defaultFormTrackingEvents).indexOf(event) > -1,
     };
   } else {
     return {
       formFilter: () => true,
       fieldFilter: () => true,
       fieldTransform: defaultTransformFn,
+      eventFilter: () => true,
     };
   }
 }
