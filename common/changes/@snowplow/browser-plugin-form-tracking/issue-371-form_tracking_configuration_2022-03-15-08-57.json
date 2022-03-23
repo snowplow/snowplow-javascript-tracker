@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-form-tracking",
+      "comment": "Add ability to enable only form_change, or form_submit, focus_form or any combination (#371)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-form-tracking"
+}

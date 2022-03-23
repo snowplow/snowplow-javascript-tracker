@@ -243,40 +243,44 @@ describe('Auto tracking', () => {
   });
 
   it('should send form events', async () => {
+    async function formInteraction() {
+      await $('#fname').click();
+
+      // Safari 12.1 doesn't fire onchange events when clearing
+      // However some browsers don't support setValue
+      if (F.isMatch({ browserName: 'Safari', browserVersion: '12.1.1' }, browser.capabilities)) {
+        await $('#fname').setValue(SAFARI_EXPECTED_FIRST_NAME);
+      } else {
+        await $('#fname').clearValue();
+      }
+
+      await $('#lname').click();
+
+      await browser.pause(250);
+
+      await $('#bike').click();
+
+      await browser.pause(250);
+
+      await $('#cars').click();
+      await $('#cars').selectByAttribute('value', 'saab');
+      await $('#cars').click();
+
+      await browser.pause(250);
+
+      await $('#message').click();
+
+      // Safari 12.1 doesn't fire onchange events when clearing
+      // However some browsers don't support setValue
+      if (F.isMatch({ browserName: 'Safari', browserVersion: '12.1.1' }, browser.capabilities)) {
+        await $('#message').setValue(SAFARI_EXPECTED_MESSAGE);
+      } else {
+        await $('#message').clearValue();
+      }
+    }
+
     await loadUrlAndWait('/form-tracking.html');
-    await $('#fname').click();
-
-    // Safari 12.1 doesn't fire onchange events when clearing
-    // However some browsers don't support setValue
-    if (F.isMatch({ browserName: 'Safari', browserVersion: '12.1.1' }, browser.capabilities)) {
-      await $('#fname').setValue(SAFARI_EXPECTED_FIRST_NAME);
-    } else {
-      await $('#fname').clearValue();
-    }
-
-    await $('#lname').click();
-
-    await browser.pause(250);
-
-    await $('#bike').click();
-
-    await browser.pause(250);
-
-    await $('#cars').click();
-    await $('#cars').selectByAttribute('value', 'saab');
-    await $('#cars').click();
-
-    await browser.pause(250);
-
-    await $('#message').click();
-
-    // Safari 12.1 doesn't fire onchange events when clearing
-    // However some browsers don't support setValue
-    if (F.isMatch({ browserName: 'Safari', browserVersion: '12.1.1' }, browser.capabilities)) {
-      await $('#message').setValue(SAFARI_EXPECTED_MESSAGE);
-    } else {
-      await $('#message').clearValue();
-    }
+    await formInteraction();
 
     await browser.pause(250);
 
@@ -319,7 +323,12 @@ describe('Auto tracking', () => {
     await loadUrlAndWait('/form-tracking.html?filter=excludedForm');
 
     await $('#excluded-fname').click();
-    $('#excluded-submit').click();
+    await $('#excluded-submit').click();
+
+    await browser.pause(1000);
+
+    await loadUrlAndWait('/form-tracking.html?filter=onlyFocus');
+    await formInteraction();
 
     // time for activity to register and request to arrive
     await browser.pause(2500);
@@ -775,6 +784,38 @@ describe('Auto tracking', () => {
                 formId: 'excludedForm',
                 formClasses: ['excluded-form'],
               },
+            },
+          },
+        },
+      })
+    ).toBe(false);
+  });
+
+  it('should only track focus_form and not change_form events when focus_form events are filtered', () => {
+    expect(
+      logContains({
+        event: {
+          event: 'unstruct',
+          app_id: 'autotracking',
+          page_url: 'http://snowplow-js-tracker.local:8080/form-tracking.html?filter=onlyFocus',
+          unstruct_event: {
+            data: {
+              schema: 'iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0',
+            },
+          },
+        },
+      })
+    ).toBe(true);
+
+    expect(
+      logContains({
+        event: {
+          event: 'unstruct',
+          app_id: 'autotracking',
+          page_url: 'http://snowplow-js-tracker.local:8080/form-tracking.html?filter=onlyFocus',
+          unstruct_event: {
+            data: {
+              schema: 'iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0',
             },
           },
         },
