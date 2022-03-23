@@ -35,9 +35,18 @@ describe('OutQueueManager', () => {
   const maxQueueSize = 2;
 
   var outQueue: OutQueue;
-
+  var xhrMock: Partial<XMLHttpRequest>;
   beforeEach(() => {
     localStorage.clear();
+
+    xhrMock = {
+      open: jest.fn(),
+      send: jest.fn(),
+      setRequestHeader: jest.fn(),
+      withCredentials: true,
+    };
+
+    jest.spyOn(window, 'XMLHttpRequest').mockImplementation(() => xhrMock as XMLHttpRequest);
 
     outQueue = OutQueueManager(
       'sp',
@@ -58,7 +67,7 @@ describe('OutQueueManager', () => {
 
   it('should add event to outQueue and store event in local storage', () => {
     const expected = { e: 'pv', eid: '20269f92-f07c-44a6-87ef-43e171305076' };
-    outQueue.enqueueRequest(expected, '');
+    outQueue.enqueueRequest(expected, 'http://example.com');
 
     const retrievedQueue = JSON.parse(
       window.localStorage.getItem('snowplowOutQueue_sp_post2') ?? fail('Unable to find local storage queue')
@@ -72,9 +81,9 @@ describe('OutQueueManager', () => {
     const expected2 = { e: 'pv', eid: '6000c7bd-08a6-49c2-b61c-9531d3d46200' };
     const unexpected = { e: 'pv', eid: '7a3391a8-622b-4ce4-80ed-c941aa05baf5' };
 
-    outQueue.enqueueRequest(expected1, '');
-    outQueue.enqueueRequest(expected2, '');
-    outQueue.enqueueRequest(unexpected, '');
+    outQueue.enqueueRequest(expected1, 'http://example.com');
+    outQueue.enqueueRequest(expected2, 'http://example.com');
+    outQueue.enqueueRequest(unexpected, 'http://example.com');
 
     const retrievedQueue = JSON.parse(
       window.localStorage.getItem('snowplowOutQueue_sp_post2') ?? fail('Unable to find local storage queue')

@@ -157,7 +157,8 @@
       "description": "Runs the 'test' script within each project.json",
       "enableParallelism": true,
       "ignoreDependencyOrder": true,
-      "incremental": false
+      "incremental": false,
+      "disableBuildCache": true
     },
     {
       "name": "prettier",

@@ -51,54 +51,44 @@ describe('Auto tracking', () => {
 
   const logContains = (ev: unknown) => F.some(isMatchWithCallback(ev as object), log);
 
-  const loadUrlAndWait = (url: string) => {
-    browser.url(url);
-    browser.waitUntil(() => $('#init').getText() === 'true', {
+  const loadUrlAndWait = async (url: string) => {
+    await browser.url(url);
+    await browser.waitUntil(async () => (await $('#init').getText()) === 'true', {
       timeout: 5000,
       timeoutMsg: 'expected init after 5s',
       interval: 250,
     });
   };
 
-  beforeAll(() => {
-    browser.call(() => {
-      return start().then((container) => {
-        docker = container;
-      });
-    });
-    browser.url('/index.html');
-    browser.setCookies({ name: 'container', value: docker.url });
+  beforeAll(async () => {
+    await browser.call(async () => (docker = await start()));
+    await browser.url('/index.html');
+    await browser.setCookies({ name: 'container', value: docker.url });
   });
 
-  afterAll(() => {
-    browser.call(() => {
-      return stop(docker.container);
-    });
+  afterAll(async () => {
+    await browser.call(async () => await stop(docker.container));
   });
 
-  it('should send a link click events', () => {
-    loadUrlAndWait('/link-tracking.html');
-    $('#link-to-click').click();
+  it('should send a link click events', async () => {
+    await loadUrlAndWait('/link-tracking.html');
+    await $('#link-to-click').click();
 
-    loadUrlAndWait('/link-tracking.html?filter=exclude');
-    $('#link-to-not-track').click();
-    $('#link-to-click').click();
+    await loadUrlAndWait('/link-tracking.html?filter=exclude');
+    await $('#link-to-not-track').click();
+    await $('#link-to-click').click();
 
-    loadUrlAndWait('/link-tracking.html?filter=filter');
-    $('#link-to-filter').click();
-    $('#link-to-click').click();
+    await loadUrlAndWait('/link-tracking.html?filter=filter');
+    await $('#link-to-filter').click();
+    await $('#link-to-click').click();
 
-    loadUrlAndWait('/link-tracking.html?filter=include');
-    $('#link-to-filter').click();
-    $('#link-to-click').click();
+    await loadUrlAndWait('/link-tracking.html?filter=include');
+    await $('#link-to-filter').click();
+    await $('#link-to-click').click();
 
     // time for activity to register and request to arrive
-    browser.pause(5000);
-    browser.call(() =>
-      fetchResults(docker.url).then((result) => {
-        log = result;
-      })
-    );
+    await browser.pause(5000);
+    log = await browser.call(async () => await fetchResults(docker.url));
   });
 
   it('should send a link click event', () => {
@@ -252,93 +242,89 @@ describe('Auto tracking', () => {
     ).toBe(true);
   });
 
-  it('should send form events', () => {
-    loadUrlAndWait('/form-tracking.html');
-    $('#fname').click();
+  it('should send form events', async () => {
+    await loadUrlAndWait('/form-tracking.html');
+    await $('#fname').click();
 
     // Safari 12.1 doesn't fire onchange events when clearing
     // However some browsers don't support setValue
     if (F.isMatch({ browserName: 'Safari', browserVersion: '12.1.1' }, browser.capabilities)) {
-      $('#fname').setValue(SAFARI_EXPECTED_FIRST_NAME);
+      await $('#fname').setValue(SAFARI_EXPECTED_FIRST_NAME);
     } else {
-      $('#fname').clearValue();
+      await $('#fname').clearValue();
     }
 
-    $('#lname').click();
+    await $('#lname').click();
 
-    browser.pause(250);
+    await browser.pause(250);
 
-    $('#bike').click();
+    await $('#bike').click();
 
-    browser.pause(250);
+    await browser.pause(250);
 
-    $('#cars').click();
-    $('#cars').selectByAttribute('value', 'saab');
-    $('#cars').click();
+    await $('#cars').click();
+    await $('#cars').selectByAttribute('value', 'saab');
+    await $('#cars').click();
 
-    browser.pause(250);
+    await browser.pause(250);
 
-    $('#message').click();
+    await $('#message').click();
 
     // Safari 12.1 doesn't fire onchange events when clearing
     // However some browsers don't support setValue
     if (F.isMatch({ browserName: 'Safari', browserVersion: '12.1.1' }, browser.capabilities)) {
-      $('#message').setValue(SAFARI_EXPECTED_MESSAGE);
+      await $('#message').setValue(SAFARI_EXPECTED_MESSAGE);
     } else {
-      $('#message').clearValue();
+      await $('#message').clearValue();
     }
 
-    browser.pause(250);
+    await browser.pause(250);
 
-    $('#terms').click();
+    await $('#terms').click();
 
-    browser.pause(2000);
+    await browser.pause(2000);
 
-    $('#submit').click();
+    await $('#submit').click();
 
-    browser.pause(1000);
+    await browser.pause(1000);
 
-    browser.execute(() => {
+    await browser.execute(() => {
       addField();
     });
 
-    $('#newfield').click();
+    await $('#newfield').click();
 
-    browser.pause(1000);
+    await browser.pause(1000);
 
-    loadUrlAndWait('/form-tracking.html?filter=exclude');
+    await loadUrlAndWait('/form-tracking.html?filter=exclude');
 
-    $('#fname').click();
-    $('#lname').click();
+    await $('#fname').click();
+    await $('#lname').click();
 
-    browser.pause(1000);
+    await browser.pause(1000);
 
-    loadUrlAndWait('/form-tracking.html?filter=include');
+    await loadUrlAndWait('/form-tracking.html?filter=include');
 
-    $('#lname').click();
+    await $('#lname').click();
 
-    browser.pause(1000);
+    await browser.pause(1000);
 
-    loadUrlAndWait('/form-tracking.html?filter=filter');
+    await loadUrlAndWait('/form-tracking.html?filter=filter');
 
-    $('#fname').click();
-    $('#lname').click();
+    await $('#fname').click();
+    await $('#lname').click();
 
-    browser.pause(1000);
+    await browser.pause(1000);
 
-    loadUrlAndWait('/form-tracking.html?filter=excludedForm');
+    await loadUrlAndWait('/form-tracking.html?filter=excludedForm');
 
-    $('#excluded-fname').click();
+    await $('#excluded-fname').click();
     $('#excluded-submit').click();
 
     // time for activity to register and request to arrive
-    browser.pause(2500);
+    await browser.pause(2500);
 
-    browser.call(() =>
-      fetchResults(docker.url).then((result) => {
-        log = result;
-      })
-    );
+    log = await browser.call(async () => await fetchResults(docker.url));
   });
 
   it('should send focus_form for the dynamically added form element', () => {

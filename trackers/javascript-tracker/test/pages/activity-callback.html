@@ -10,6 +10,11 @@
     <div id="middle" style="position: absolute; top: 50%; left: 50%">Middle</div>
     <div id="bottomRight" style="position: absolute; bottom: 0; right: 0">Bottom right</div>
     <script>
+      var collector_endpoint = document.cookie.split('container=')[1].split(';')[0];
+      document.body.className += ' loaded';
+    </script>
+
+    <script>
       (function (p, l, o, w, i, n, g) {
         if (!p[i]) {
           p.GlobalSnowplowNamespace = p.GlobalSnowplowNamespace || [];
@@ -26,7 +31,9 @@
         }
       })(window, document, 'script', './snowplow.js', 'spActivity');
 
-      spActivity('newTracker', 'sp', 'snowplow-js-tracker.local:9090');
+      document.write(collector_endpoint);
+
+      spActivity('newTracker', 'sp', collector_endpoint);
       spActivity(function () {
         document.getElementById('init').innerText = 'true';
       });

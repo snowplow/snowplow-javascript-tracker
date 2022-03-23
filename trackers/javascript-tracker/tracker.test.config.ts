@@ -28,23 +28,21 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-export const plugins = {
-  performanceTiming: true,
-  gaCookies: true,
-  geolocation: true,
-  optimizelyX: true,
-  clientHints: true,
-  consent: true,
-  linkClickTracking: true,
-  formTracking: true,
-  errorTracking: true,
-  timezone: true,
-  ecommerce: true,
-  enhancedEcommerce: true,
-  adTracking: true,
-  siteTracking: true,
-  optimizely: false,
-  browserFeatures: false,
-  mediaTracking: true,
-  youtubeTracking: true,
-};
+export const performanceTiming = true;
+export const gaCookies = true;
+export const geolocation = true;
+export const optimizelyX = true;
+export const clientHints = true;
+export const consent = true;
+export const linkClickTracking = true;
+export const formTracking = true;
+export const errorTracking = true;
+export const timezone = true;
+export const ecommerce = true;
+export const enhancedEcommerce = true;
+export const adTracking = true;
+export const siteTracking = true;
+export const optimizely = true;
+export const browserFeatures = true;
+export const mediaTracking = true;
+export const youtubeTracking = true;

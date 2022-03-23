@@ -75,6 +75,15 @@ import {
   ClearUserDataConfiguration,
 } from './types';
 
+declare global {
+  interface Navigator {
+    msDoNotTrack: boolean;
+  }
+  interface Window {
+    doNotTrack: boolean;
+  }
+}
+
 /** Repesents an instance of an activity tracking configuration */
 type ActivityConfig = {
   /** The callback to fire based on heart beat */
@@ -211,7 +220,7 @@ export function Tracker(
       // First-party cookie secure attribute
       configCookieSecure = trackerConfiguration.cookieSecure ?? true,
       // Do Not Track browser feature
-      dnt = navigator.doNotTrack || (navigator as any).msDoNotTrack || window.doNotTrack,
+      dnt = navigator.doNotTrack || navigator.msDoNotTrack || window.doNotTrack,
       // Do Not Track
       configDoNotTrack =
         typeof trackerConfiguration.respectDoNotTrack !== 'undefined'
