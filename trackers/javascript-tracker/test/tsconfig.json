@@ -1,0 +1,7 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": ["node", "@wdio/types", "webdriverio/async", "@wdio/jasmine-framework", "jest"]
+  },
+  "include": ["./**/*.test.ts"]
+}

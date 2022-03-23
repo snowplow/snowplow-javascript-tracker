@@ -40,27 +40,17 @@ describe('Sessions', () => {
 
   const logContains = (ev: unknown) => F.some(F.isMatch(ev as object), log);
 
-  beforeAll(() => {
-    browser.call(() => {
-      return start().then((container) => {
-        docker = container;
-      });
-    });
-    browser.url('/index.html');
-    browser.setCookies({ name: 'container', value: docker.url });
-    browser.url('/session-integration.html');
-    browser.pause(6000); // Time for requests to get written
-    browser.call(() =>
-      fetchResults(docker.url).then((result) => {
-        log = result;
-      })
-    );
+  beforeAll(async () => {
+    await browser.call(async () => (docker = await start()));
+    await browser.url('/index.html');
+    await browser.setCookies({ name: 'container', value: docker.url });
+    await browser.url('/session-integration.html');
+    await browser.pause(6000); // Time for requests to get written
+    log = await browser.call(async () => await fetchResults(docker.url));
   });
 
-  afterAll(() => {
-    browser.call(() => {
-      return stop(docker.container);
-    });
+  afterAll(async () => {
+    browser.call(async () => await stop(docker.container));
   });
 
   it('should count sessions using cookies', () => {
