@@ -46,7 +46,7 @@ import * as AdTracking from '@snowplow/browser-plugin-ad-tracking';
 import * as SiteTracking from '@snowplow/browser-plugin-site-tracking';
 import * as MediaTracking from '@snowplow/browser-plugin-media-tracking';
 import * as YouTubeTracking from '@snowplow/browser-plugin-youtube-tracking';
-import { plugins } from '../tracker.config';
+import * as plugins from '../tracker.config';
 import { BrowserPlugin } from '@snowplow/browser-tracker-core';
 import { JavaScriptTrackerConfiguration } from './configuration';
 

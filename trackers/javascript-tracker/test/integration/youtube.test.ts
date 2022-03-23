@@ -29,6 +29,9 @@
  */
 
 import { DockerWrapper, start, stop, fetchResults, clearCache } from '../micro';
+import util from 'util';
+
+const dumpLog = (log: Array<unknown>) => console.log(util.inspect(log, true, null, true));
 
 const makeExpectedEvent = (
   eventType: string,
@@ -128,32 +131,27 @@ describe('YouTube Tracker', () => {
     return;
   }
 
-  beforeAll(() => {
-    browser.call(() => {
-      return start().then((container) => {
-        docker = container;
-      });
-    });
+  beforeAll(async () => {
+    await browser.call(async () => (docker = await start()));
 
-    browser.url('/index.html');
-    browser.setCookies({ name: 'container', value: docker.url });
-    browser.url('/youtube/tracking.html');
-    browser.waitUntil(() => $('#youtube').isExisting(), {
+    await browser.url('/index.html');
+    await browser.setCookies({ name: 'container', value: docker.url });
+    await browser.url('/youtube/tracking.html');
+    await browser.waitUntil(() => $('#youtube').isExisting(), {
       timeout: 5000,
       timeoutMsg: 'expected youtube after 5s',
     });
 
     const player = $('#youtube');
-    player.click(); // emits 'playbackqualitychange' and 'play';
-    player.keys(Array(3).fill('ArrowRight')); // Skips to the point just before 'percentprogress' fires
+    await player.click(); // emits 'playbackqualitychange' and 'play';
+    await player.keys(Array(3).fill('ArrowRight')); // Skips to the point just before 'percentprogress' fires
 
-    browser.waitUntil(
-      () => {
-        return browser.call(() =>
-          fetchResults(docker.url).then((result) => {
-            return result.some((r: any) => r.event.unstruct_event.data.data.type === 'percentprogress');
-          })
-        );
+    await browser.waitUntil(
+      async () => {
+        return await browser.call(async () => {
+          let result = await fetchResults(docker.url);
+          return result.some((r: any) => r.event.unstruct_event.data.data.type === 'percentprogress');
+        });
       },
       {
         interval: 5000,
@@ -163,32 +161,31 @@ describe('YouTube Tracker', () => {
     );
 
     const events = [
-      () => player.keys(['Shift', '.', 'Shift']), // Increase playback rate
-      () => player.keys(['ArrowRight']), // Seek
-      () => player.keys(['ArrowDown']), // Volume down
-      () => player.keys(['k']), // Pause
-      () => player.keys(['9']), // Skip as close as we can to the end
+      async () => await player.keys(['Shift', '.', 'Shift']), // Increase playback rate
+      async () => await player.keys(['ArrowRight']), // Seek
+      async () => await player.keys(['ArrowDown']), // Volume down
+      async () => await player.keys(['k']), // Pause
+      async () => await player.keys(['9']), // Skip as close as we can to the end
     ];
 
-    events.forEach((e: Function) => {
-      e();
-      browser.pause(200);
-    });
+    for (const e of events) {
+      await e();
+      await browser.pause(200);
+    }
 
-    browser.waitUntil(
-      () => {
+    await browser.waitUntil(
+      async () => {
         // We've got ~216 seconds left to skip, so we can make use of the waitUntil to skip in chunks
         for (let i = 0; i < 60; i++) {
           // Ended
-          player.keys(['ArrowRight']);
-          browser.pause(50);
+          await player.keys(['ArrowRight']);
+          await browser.pause(50);
         }
-        return browser.call(() =>
-          fetchResults(docker.url).then((result) => {
-            log = result;
-            return log.some((l: any) => l.event.unstruct_event.data.data.type === 'ended');
-          })
-        );
+        await browser.pause(500);
+        return await browser.call(async () => {
+          log = await fetchResults(docker.url);
+          return log.some((l: any) => l.event.unstruct_event.data.data.type === 'ended');
+        });
       },
       {
         interval: 2000,
@@ -199,7 +196,7 @@ describe('YouTube Tracker', () => {
 
     // YouTube saves the volume level in localstorage, meaning loading a new page will have the same
     // volume level as the end of this test, so we need to increase it again to return to the 'default' state
-    player.keys(['ArrowUp']);
+    await player.keys(['ArrowUp']);
   });
 
   const expected = {
@@ -228,9 +225,9 @@ describe('YouTube Tracker', () => {
     });
   });
 
-  afterAll(() => {
-    browser.waitUntil(() => {
-      return browser.call(() => clearCache(docker.url));
+  afterAll(async () => {
+    await browser.waitUntil(async () => {
+      return await browser.call(async () => await clearCache(docker.url));
     });
   });
 });
@@ -243,11 +240,11 @@ describe('YouTube Tracker (2 videos, 1 tracker)', () => {
     return results[results.length - 1];
   };
 
-  beforeAll(() => {
-    browser.url('/index.html');
-    browser.setCookies({ name: 'container', value: docker.url });
-    browser.url('/youtube/tracking-2-videos.html');
-    browser.waitUntil(() => $('#youtube').isExisting(), {
+  beforeAll(async () => {
+    await browser.url('/index.html');
+    await browser.setCookies({ name: 'container', value: docker.url });
+    await browser.url('/youtube/tracking-2-videos.html');
+    await browser.waitUntil(() => $('#youtube').isExisting(), {
       timeout: 5000,
       timeoutMsg: 'expected youtube after 5s',
     });
@@ -256,25 +253,23 @@ describe('YouTube Tracker (2 videos, 1 tracker)', () => {
     const player2 = $('#youtube-2');
 
     const actions = [
-      () => player1.click(), // emits 'playbackqualitychange' and 'play';
-      () => player1.keys(['k']), // Pause
-      () => player2.click(), // emits 'playbackqualitychange' and 'play';
-      () => player2.keys(['k']), // Pause
+      async () => await player1.click(), // emits 'playbackqualitychange' and 'play';
+      async () => await player1.keys(['k']), // Pause
+      async () => await player2.click(), // emits 'playbackqualitychange' and 'play';
+      async () => await player2.keys(['k']), // Pause
     ];
 
-    actions.forEach((a: Function) => {
-      a();
-      browser.pause(500);
-    });
+    for (const a of actions) {
+      await a();
+      await browser.pause(500);
+    }
 
-    browser.waitUntil(
-      () => {
-        return browser.call(() =>
-          fetchResults(docker.url).then((result) => {
-            log = result;
-            return Array.from(new Set(log.map((l: any) => l.event.contexts.data[0].data.playerId))).length === 2;
-          })
-        );
+    await browser.waitUntil(
+      async () => {
+        return await browser.call(async () => {
+          log = await fetchResults(docker.url);
+          return Array.from(new Set(log.map((l: any) => l.event.contexts.data[0].data.playerId))).length === 2;
+        });
       },
       {
         interval: 2000,
@@ -284,9 +279,9 @@ describe('YouTube Tracker (2 videos, 1 tracker)', () => {
     );
   });
 
-  afterAll(() => {
-    browser.waitUntil(() => {
-      return browser.call(() => clearCache(docker.url));
+  afterAll(async () => {
+    await browser.waitUntil(async () => {
+      return await browser.call(async () => await clearCache(docker.url));
     });
   });
 
@@ -302,29 +297,25 @@ describe('YouTube Tracker (2 videos, 1 tracker)', () => {
 });
 
 describe('YouTube Tracker (1 video, 2 trackers)', () => {
-  beforeAll(() => {
-    browser.url('/index.html');
-    browser.setCookies({ name: 'container', value: docker.url });
-    browser.url('/youtube/tracking-2-trackers.html');
-    browser.waitUntil(() => $('#youtube').isExisting(), {
+  beforeAll(async () => {
+    await browser.url('/index.html');
+    await browser.setCookies({ name: 'container', value: docker.url });
+    await browser.url('/youtube/tracking-2-trackers.html');
+    await browser.waitUntil(() => $('#youtube').isExisting(), {
       timeout: 5000,
       timeoutMsg: 'expected youtube after 5s',
     });
 
     const player = $('#youtube');
-    player.click(); // emits 'playbackqualitychange' and 'play';
-    player.keys(['k']); // Pause
+    await player.click(); // emits 'playbackqualitychange' and 'play';
+    await player.keys(['k']); // Pause
 
-    browser.waitUntil(
-      () => {
-        return browser.call(() =>
-          fetchResults(docker.url).then((result) => {
-            log = result;
-            return (
-              log.filter((l: any) => l.event.unstruct_event.data.data.type === 'playbackqualitychange').length === 2
-            );
-          })
-        );
+    await browser.waitUntil(
+      async () => {
+        return await browser.call(async () => {
+          log = await fetchResults(docker.url);
+          return log.filter((l: any) => l.event.unstruct_event.data.data.type === 'playbackqualitychange').length === 2;
+        });
       },
       {
         interval: 2000,
@@ -334,10 +325,8 @@ describe('YouTube Tracker (1 video, 2 trackers)', () => {
     );
   });
 
-  afterAll(() => {
-    browser.call(() => {
-      return stop(docker.container);
-    });
+  afterAll(async () => {
+    await browser.call(async () => await stop(docker.container));
   });
 
   const getTwoEventsOfEventType = (eventType: string): Array<any> => {

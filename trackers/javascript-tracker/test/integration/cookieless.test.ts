@@ -42,30 +42,20 @@ describe('Anonymous tracking features', () => {
 
   const listContains = (items: Array<unknown>, ev: unknown) => F.some(F.isMatch(ev as object), items);
 
-  beforeAll(() => {
-    browser.call(() => {
-      return start().then((container) => {
-        docker = container;
-      });
-    });
-    browser.url('/index.html');
-    browser.setCookies({ name: 'container', value: docker.url });
-    browser.url('/cookieless.html');
-    browser.pause(5000); // Time for requests to get written
-    browser.url('/cookieless.html?ieTest=true');
-    browser.pause(2500); // Time for requests to get written
+  beforeAll(async () => {
+    await browser.call(async () => (docker = await start()));
+    await browser.url('/index.html');
+    await browser.setCookies({ name: 'container', value: docker.url });
+    await browser.url('/cookieless.html');
+    await browser.pause(5000); // Time for requests to get written
+    await browser.url('/cookieless.html?ieTest=true');
+    await browser.pause(2500); // Time for requests to get written
 
-    browser.call(() =>
-      fetchResults(docker.url).then((result) => {
-        log = result;
-      })
-    );
+    await browser.call(async () => (log = await fetchResults(docker.url)));
   });
 
-  afterAll(() => {
-    browser.call(() => {
-      return stop(docker.container);
-    });
+  afterAll(async () => {
+    await browser.call(async () => await stop(docker.container));
   });
 
   it('should have no user information in page view when server anonymisation ', () => {

@@ -34,7 +34,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import alias from '@rollup/plugin-alias';
 import json from '@rollup/plugin-json';
 
-const plugins = [json(), nodeResolve({ browser: true }), commonjs(), ts({ tsconfig: './tsconfig.prod.json' })];
+const plugins = [json(), nodeResolve({ browser: true }), commonjs(), ts()];
 
 export default [
   {

@@ -37,13 +37,13 @@ const dumpLog = (log: Array<unknown>) => console.log(util.inspect(log, true, nul
 
 const retrieveSchemaData = (schema: unknown) => F.compose(F.get('data'), F.find({ schema }), F.get('data'));
 
-const loadUrlAndWait = (url: string) => {
-  browser.url(url);
-  browser.waitUntil(() => $('#init').getText() === 'true', {
+const loadUrlAndWait = async (url: string) => {
+  await browser.url(url);
+  await browser.waitUntil(async () => (await $('#init').getText()) === 'true', {
     timeout: 5000,
     timeoutMsg: 'expected init after 5s',
   });
-  browser.waitUntil(() => $('#secondInit').getText() === 'true', {
+  await browser.waitUntil(async () => (await $('#secondInit').getText()) === 'true', {
     timeout: 5000,
     timeoutMsg: 'expected init after 5s',
   });
@@ -74,36 +74,26 @@ describe('Snowplow Micro integration', () => {
   const logContains = (ev: unknown) => F.some(F.isMatch(ev as object), log);
   const logContainsFn = (ev: unknown) => F.some(isMatchWithCallback(ev as object), log);
 
-  beforeAll(() => {
-    browser.call(() => {
-      return start().then((container) => {
-        docker = container;
-      });
-    });
-    browser.url('/index.html');
-    browser.setCookies({ name: 'container', value: docker.url });
+  beforeAll(async () => {
+    await browser.call(async () => (docker = await start()));
+    await browser.url('/index.html');
+    await browser.setCookies({ name: 'container', value: docker.url });
 
-    loadUrlAndWait('/integration.html?eventMethod=get');
-    $('#bottomRight').scrollIntoView();
-    browser.pause(10000); // Time for requests to get written
-    loadUrlAndWait('/integration.html?eventMethod=post');
-    $('#bottomRight').scrollIntoView();
-    browser.pause(6000); // Time for requests to get written
-    loadUrlAndWait('/integration.html?eventMethod=beacon');
-    $('#bottomRight').scrollIntoView();
-    browser.pause(6000); // Time for requests to get written
+    await loadUrlAndWait('/integration.html?eventMethod=get');
+    await $('#bottomRight').scrollIntoView();
+    await browser.pause(10000); // Time for requests to get written
+    await loadUrlAndWait('/integration.html?eventMethod=post');
+    await $('#bottomRight').scrollIntoView();
+    await browser.pause(6000); // Time for requests to get written
+    await loadUrlAndWait('/integration.html?eventMethod=beacon');
+    await $('#bottomRight').scrollIntoView();
+    await browser.pause(6000); // Time for requests to get written
 
-    browser.call(() =>
-      fetchResults(docker.url).then((result) => {
-        log = result;
-      })
-    );
+    await browser.call(async () => (log = await fetchResults(docker.url)));
   });
 
-  afterAll(() => {
-    browser.call(() => {
-      return stop(docker.container);
-    });
+  afterAll(async () => {
+    await browser.call(async () => await stop(docker.container));
   });
 
   eventMethods.forEach((method) => {
