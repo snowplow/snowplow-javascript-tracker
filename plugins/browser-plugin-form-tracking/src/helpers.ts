@@ -165,9 +165,9 @@ function getConfigurationForOptions(options?: FormTrackingOptions) {
     var forms: HTMLCollectionOf<HTMLFormElement> | null = null;
     if (
       !options.forms ||
-      (options.forms as any).allowlist ||
-      (options.forms as any).denylist ||
-      (options.forms as any).filter
+      (options.forms as FilterCriterion<HTMLElement>).allowlist ||
+      (options.forms as FilterCriterion<HTMLElement>).denylist ||
+      (options.forms as FilterCriterion<HTMLElement>).filter
     ) {
       // options.forms is null or a filter
       formFilter = getFilterByClass(options.forms as FilterCriterion<HTMLElement> | undefined);
