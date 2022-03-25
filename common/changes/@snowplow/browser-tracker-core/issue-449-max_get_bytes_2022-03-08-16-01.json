@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-tracker-core",
+      "comment": "Add configurable max GET request size in bytes attribute (#449)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker-core"
+}

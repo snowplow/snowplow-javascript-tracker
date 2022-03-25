@@ -53,6 +53,7 @@ export interface OutQueue {
  * @param postPath - The path where events are to be posted
  * @param bufferSize - How many events to batch in localStorage before sending them all
  * @param maxPostBytes - Maximum combined size in bytes of the event JSONs in a POST request
+ * @param maxGetBytes - Maximum size in bytes of the complete event URL string in a GET request. 0 for no limit.
  * @param useStm - Whether to add timestamp to events
  * @param maxLocalStorageQueueSize - Maximum number of queued events we will attempt to store in local storage
  * @param connectionTimeout - Defines how long to wait before aborting the request
@@ -69,6 +70,7 @@ export function OutQueueManager(
   postPath: string,
   bufferSize: number,
   maxPostBytes: number,
+  maxGetBytes: number,
   useStm: boolean,
   maxLocalStorageQueueSize: number,
   connectionTimeout: number,
@@ -218,6 +220,16 @@ export function OutQueueManager(
     return typeof queue[0] === 'object';
   };
 
+  /**
+   * Send event as POST request right away without going to queue. Used when the request surpasses maxGetBytes or maxPostBytes
+   * @param body POST request body
+   * @param configCollectorUrl full collector URL with path
+   */
+  function sendPostRequestWithoutQueueing(body: PostEvent, configCollectorUrl: string) {
+    const xhr = initializeXMLHttpRequest(configCollectorUrl, true, false);
+    xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent([body.evt])));
+  }
+
   /*
    * Queue for submission to the collector and start processing queue
    */
@@ -227,14 +239,25 @@ export function OutQueueManager(
       const body = getBody(request);
       if (body.bytes >= maxPostBytes) {
         LOG.warn('Event (' + body.bytes + 'B) too big, max is ' + maxPostBytes);
-        const xhr = initializeXMLHttpRequest(configCollectorUrl, true, false);
-        xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent([body.evt])));
+        sendPostRequestWithoutQueueing(body, configCollectorUrl);
         return;
       } else {
         (outQueue as Array<PostEvent>).push(body);
       }
     } else {
-      (outQueue as Array<string>).push(getQuerystring(request));
+      const querystring = getQuerystring(request);
+      if (maxGetBytes > 0) {
+        const requestUrl = createGetUrl(querystring);
+        const bytes = getUTF8Length(requestUrl);
+        if (bytes >= maxGetBytes) {
+          LOG.error('Event (' + bytes + 'B) too big, max is ' + maxGetBytes + ', sending as POST.');
+          const body = getBody(request);
+          const postUrl = url + postPath;
+          sendPostRequestWithoutQueueing(body, postUrl);
+          return;
+        }
+      }
+      (outQueue as Array<string>).push(querystring);
     }
     let savedToLocalStorage = false;
     if (useLocalStorage) {
