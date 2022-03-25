@@ -54,7 +54,7 @@ export interface ContextEvent {
  * to allow an additional context to be dynamically attached to the event
  * @param args - - Object which contains the event information to help decide what should be included in the returned Context
  */
-export type ContextGenerator = (args?: ContextEvent) => SelfDescribingJson;
+export type ContextGenerator = (args?: ContextEvent) => SelfDescribingJson | SelfDescribingJson[] | undefined;
 
 /**
  * A context filter is a user-supplied callback that is evaluated for each event
