@@ -32,6 +32,26 @@ import { DockerWrapper, start, stop, fetchResults, clearCache } from '../micro';
 import util from 'util';
 
 const dumpLog = (log: Array<unknown>) => console.log(util.inspect(log, true, null, true));
+const playVideoElement1Callback = () => {
+  return (done: (_: void) => void) => {
+    const promise = (document.getElementById('html5') as HTMLVideoElement).play();
+    if (promise) {
+      promise.then(done);
+    } else {
+      done();
+    } // IE does not return a promise
+  };
+};
+const playVideoElement2Callback = () => {
+  return (done: (_: void) => void) => {
+    const promise = (document.getElementById('html5-2') as HTMLVideoElement).play();
+    if (promise) {
+      promise.then(done);
+    } else {
+      done();
+    } // IE does not return a promise
+  };
+};
 
 const makeExpectedEvent = (
   eventType: string,
@@ -182,16 +202,28 @@ describe('Media Tracker', () => {
     });
 
     let actions = [
-      () => (document.getElementById('html5') as HTMLVideoElement).play(),
-      () => (document.getElementById('html5') as HTMLVideoElement).pause(),
-      () => ((document.getElementById('html5') as HTMLVideoElement).volume = 0.5),
-      () => ((document.getElementById('html5') as HTMLVideoElement).playbackRate = 0.9),
-      () => ((document.getElementById('html5') as HTMLVideoElement).currentTime = 18),
-      () => (document.getElementById('html5') as HTMLVideoElement).play(),
+      playVideoElement1Callback(),
+      (done: () => void) => {
+        (document.getElementById('html5') as HTMLVideoElement).pause();
+        done();
+      },
+      (done: () => void) => {
+        (document.getElementById('html5') as HTMLVideoElement).volume = 0.5;
+        done();
+      },
+      (done: () => void) => {
+        (document.getElementById('html5') as HTMLVideoElement).playbackRate = 0.9;
+        done();
+      },
+      (done: () => void) => {
+        (document.getElementById('html5') as HTMLVideoElement).currentTime = 18;
+        done();
+      },
+      playVideoElement1Callback(),
     ];
 
     for (const a of actions) {
-      await browser.execute(a);
+      await browser.executeAsync(a);
       await browser.pause(500);
     }
 
@@ -252,14 +284,20 @@ describe('Media Tracker (2 videos, 1 tracker)', () => {
     });
 
     let actions = [
-      () => (document.getElementById('html5') as HTMLVideoElement).play(),
-      () => (document.getElementById('html5-2') as HTMLVideoElement).play(),
-      () => (document.getElementById('html5') as HTMLVideoElement).pause(),
-      () => (document.getElementById('html5-2') as HTMLVideoElement).pause(),
+      playVideoElement1Callback(),
+      playVideoElement2Callback(),
+      (done: () => void) => {
+        (document.getElementById('html5') as HTMLVideoElement).pause();
+        done();
+      },
+      (done: () => void) => {
+        (document.getElementById('html5-2') as HTMLVideoElement).pause();
+        done();
+      },
     ];
 
     for (const a of actions) {
-      await browser.execute(a);
+      await browser.executeAsync(a);
       await browser.pause(200);
     }
 
@@ -312,7 +350,7 @@ describe('Media Tracker (1 video, 2 trackers)', () => {
       timeoutMsg: 'expected html5 after 5s',
     });
 
-    await browser.execute(() => (document.getElementById('html5') as HTMLVideoElement).play());
+    await browser.executeAsync(playVideoElement1Callback());
     await browser.pause(200);
     await browser.execute(() => (document.getElementById('html5') as HTMLVideoElement).pause());
 
@@ -369,16 +407,28 @@ describe('Media Tracker - All Events', () => {
     });
 
     let actions = [
-      () => (document.getElementById('html5') as HTMLVideoElement).play(),
-      () => (document.getElementById('html5') as HTMLVideoElement).pause(),
-      () => ((document.getElementById('html5') as HTMLVideoElement).currentTime = 18),
-      () => (document.getElementById('html5') as HTMLVideoElement).play(),
-      () => ((document.getElementById('html5') as HTMLVideoElement).textTracks[0].mode = 'disabled'),
-      () => ((document.getElementById('html5') as HTMLVideoElement).src = 'not-a-video.unsupported_format'),
+      playVideoElement1Callback(),
+      (done: () => void) => {
+        (document.getElementById('html5') as HTMLVideoElement).pause();
+        done();
+      },
+      (done: () => void) => {
+        (document.getElementById('html5') as HTMLVideoElement).currentTime = 18;
+        done();
+      },
+      playVideoElement1Callback(),
+      (done: () => void) => {
+        (document.getElementById('html5') as HTMLVideoElement).textTracks[0].mode = 'disabled';
+        done();
+      },
+      (done: () => void) => {
+        (document.getElementById('html5') as HTMLVideoElement).src = 'not-a-video.unsupported_format';
+        done();
+      },
     ];
 
     for (const a of actions) {
-      await browser.execute(a);
+      await browser.executeAsync(a);
       await browser.pause(1000);
     }
 
