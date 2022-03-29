@@ -148,7 +148,7 @@ export type TrackerConfiguration = {
    */
   maxPostBytes?: number;
   /**
-   * The max size a GET request (its complete URL) can be. Requests over this size will be ignored.
+   * The max size a GET request (its complete URL) can be. Requests over this size will be tried as a POST request.
    * @defaultValue unlimited
    */
   maxGetBytes?: number;
