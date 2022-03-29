@@ -144,14 +144,14 @@ describe('OutQueueManager', () => {
 
     it('should not add event larger than max bytes limit to queue but should try to send it as POST', () => {
       var outQueue = getOutQueue(100);
-      const consoleError = jest.fn();
-      global.console.error = consoleError;
+      const consoleWarn = jest.fn();
+      global.console.warn = consoleWarn;
 
       const expected = { e: 'pv', eid: '20269f92-f07c-44a6-87ef-43e171305076', aid: 'x'.repeat(1000) };
       outQueue.enqueueRequest(expected, 'http://acme.com');
 
       expect(window.localStorage.getItem('snowplowOutQueue_sp_get')).toBeNull; // should not save to local storage
-      expect(consoleError.mock.calls.length).toEqual(1); // should log an error message
+      expect(consoleWarn.mock.calls.length).toEqual(1); // should log a warning message
       expect(xhrOpenMock).toHaveBeenCalledWith('POST', 'http://acme.com/com.snowplowanalytics.snowplow/tp2', true); // should make the POST request
     });
   });

@@ -235,10 +235,13 @@ export function OutQueueManager(
    */
   function enqueueRequest(request: Payload, url: string) {
     configCollectorUrl = url + path;
+    const eventTooBigWarning = (bytes: number, maxBytes: number) =>
+      LOG.warn('Event (' + bytes + 'B) too big, max is ' + maxBytes);
+
     if (usePost) {
       const body = getBody(request);
       if (body.bytes >= maxPostBytes) {
-        LOG.warn('Event (' + body.bytes + 'B) too big, max is ' + maxPostBytes);
+        eventTooBigWarning(body.bytes, maxPostBytes);
         sendPostRequestWithoutQueueing(body, configCollectorUrl);
         return;
       } else {
@@ -250,10 +253,12 @@ export function OutQueueManager(
         const requestUrl = createGetUrl(querystring);
         const bytes = getUTF8Length(requestUrl);
         if (bytes >= maxGetBytes) {
-          LOG.error('Event (' + bytes + 'B) too big, max is ' + maxGetBytes + ', sending as POST.');
-          const body = getBody(request);
-          const postUrl = url + postPath;
-          sendPostRequestWithoutQueueing(body, postUrl);
+          eventTooBigWarning(bytes, maxGetBytes);
+          if (useXhr) {
+            const body = getBody(request);
+            const postUrl = url + postPath;
+            sendPostRequestWithoutQueueing(body, postUrl);
+          }
           return;
         }
       }
