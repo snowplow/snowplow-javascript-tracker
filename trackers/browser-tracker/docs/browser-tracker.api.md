@@ -136,7 +136,7 @@ export interface ContextEvent {
 export type ContextFilter = (args?: ContextEvent) => boolean;
 
 // @public
-export type ContextGenerator = (args?: ContextEvent) => SelfDescribingJson;
+export type ContextGenerator = (args?: ContextEvent) => SelfDescribingJson | SelfDescribingJson[] | undefined;
 
 // @public
 export type ContextPrimitive = SelfDescribingJson | ContextGenerator;
