@@ -322,6 +322,7 @@ export type TrackerConfiguration = {
     bufferSize?: number;
     crossDomainLinker?: (elt: HTMLAnchorElement | HTMLAreaElement) => boolean;
     maxPostBytes?: number;
+    maxGetBytes?: number;
     discoverRootDomain?: boolean;
     stateStorageStrategy?: StateStorageStrategy;
     maxLocalStorageQueueSize?: number;
