@@ -70,7 +70,7 @@ const defaultFormTrackingEvents = [
 ];
 
 export interface FormTrackingOptions {
-  forms?: FilterCriterion<HTMLElement> | HTMLCollectionOf<HTMLElement>;
+  forms?: FilterCriterion<HTMLElement> | HTMLCollectionOf<HTMLElement> | NodeListOf<HTMLFormElement>;
   fields?: FilterCriterion<TrackedHTMLElement> & { transform: transformFn };
   events?: FormTrackingEvents;
 }
@@ -113,7 +113,7 @@ export function addFormListeners(tracker: BrowserTracker, configuration: FormTra
     trackingMarker = tracker.id + 'form',
     config = getConfigurationForOptions(options);
 
-  var forms = config.forms ?? document.getElementsByTagName('form');
+  let forms = config.forms ?? document.getElementsByTagName('form');
   Array.prototype.slice.call(forms).forEach(function (form: HTMLFormElement) {
     if (config.formFilter(form)) {
       Array.prototype.slice.call(innerElementTags).forEach(function (tagname: keyof TrackedHTMLElementTagNameMap) {
@@ -161,8 +161,8 @@ export function addFormListeners(tracker: BrowserTracker, configuration: FormTra
  */
 function getConfigurationForOptions(options?: FormTrackingOptions) {
   if (options) {
-    var formFilter = (_: HTMLElement) => true;
-    var forms: HTMLCollectionOf<HTMLFormElement> | null = null;
+    let formFilter = (_: HTMLElement) => true;
+    let forms: HTMLCollectionOf<HTMLFormElement> | NodeListOf<HTMLFormElement> | null = null;
     if (
       !options.forms ||
       (options.forms as FilterCriterion<HTMLElement>).allowlist ||
@@ -173,7 +173,7 @@ function getConfigurationForOptions(options?: FormTrackingOptions) {
       formFilter = getFilterByClass(options.forms as FilterCriterion<HTMLElement> | undefined);
     } else if ((options.forms as any).length !== undefined) {
       // options.forms is a collection of HTML form elements
-      forms = options.forms as HTMLCollectionOf<HTMLFormElement>;
+      forms = options.forms as HTMLCollectionOf<HTMLFormElement> | NodeListOf<HTMLFormElement>;
     }
     return {
       forms: forms,
