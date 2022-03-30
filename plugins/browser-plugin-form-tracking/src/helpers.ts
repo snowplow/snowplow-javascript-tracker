@@ -70,7 +70,7 @@ const defaultFormTrackingEvents = [
 ];
 
 export interface FormTrackingOptions {
-  forms?: FilterCriterion<HTMLElement> | HTMLCollectionOf<HTMLElement> | NodeListOf<HTMLFormElement>;
+  forms?: FilterCriterion<HTMLElement> | HTMLCollectionOf<HTMLFormElement> | NodeListOf<HTMLFormElement>;
   fields?: FilterCriterion<TrackedHTMLElement> & { transform: transformFn };
   events?: FormTrackingEvents;
 }
@@ -156,6 +156,15 @@ export function addFormListeners(tracker: BrowserTracker, configuration: FormTra
   });
 }
 
+/**
+ * Check if forms array is a collection of HTML form elements or a filter or undefined
+ */
+function isCollectionOfHTMLFormElements(
+  forms?: FilterCriterion<HTMLFormElement> | HTMLCollectionOf<HTMLFormElement> | NodeListOf<HTMLFormElement>
+): forms is HTMLCollectionOf<HTMLFormElement> | NodeListOf<HTMLFormElement> {
+  return forms != null && Array.prototype.slice.call(forms).length > 0;
+}
+
 /*
  * Configures form tracking: which forms and fields will be tracked, and the context to attach
  */
@@ -163,17 +172,12 @@ function getConfigurationForOptions(options?: FormTrackingOptions) {
   if (options) {
     let formFilter = (_: HTMLElement) => true;
     let forms: HTMLCollectionOf<HTMLFormElement> | NodeListOf<HTMLFormElement> | null = null;
-    if (
-      !options.forms ||
-      (options.forms as FilterCriterion<HTMLElement>).allowlist ||
-      (options.forms as FilterCriterion<HTMLElement>).denylist ||
-      (options.forms as FilterCriterion<HTMLElement>).filter
-    ) {
-      // options.forms is null or a filter
-      formFilter = getFilterByClass(options.forms as FilterCriterion<HTMLElement> | undefined);
-    } else if ((options.forms as any).length !== undefined) {
+    if (isCollectionOfHTMLFormElements(options.forms)) {
       // options.forms is a collection of HTML form elements
-      forms = options.forms as HTMLCollectionOf<HTMLFormElement> | NodeListOf<HTMLFormElement>;
+      forms = options.forms;
+    } else {
+      // options.forms is null or a filter
+      formFilter = getFilterByClass(options.forms);
     }
     return {
       forms: forms,
