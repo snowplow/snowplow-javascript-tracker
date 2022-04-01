@@ -330,6 +330,13 @@ describe('Auto tracking', () => {
     await loadUrlAndWait('/form-tracking.html?filter=onlyFocus');
     await formInteraction();
 
+    await browser.pause(1000);
+
+    await loadUrlAndWait('/form-tracking.html?filter=iframeForm');
+    let frame = await $('#form_iframe');
+    await browser.switchToFrame(frame);
+    await $('#fname').click();
+
     // time for activity to register and request to arrive
     await browser.pause(2500);
 
@@ -821,5 +828,22 @@ describe('Auto tracking', () => {
         },
       })
     ).toBe(false);
+  });
+
+  it('should track focus_form event from form in an iframe', () => {
+    expect(
+      logContains({
+        event: {
+          event: 'unstruct',
+          app_id: 'autotracking',
+          page_url: 'http://snowplow-js-tracker.local:8080/form-tracking.html?filter=iframeForm',
+          unstruct_event: {
+            data: {
+              schema: 'iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0',
+            },
+          },
+        },
+      })
+    ).toBe(true);
   });
 });
