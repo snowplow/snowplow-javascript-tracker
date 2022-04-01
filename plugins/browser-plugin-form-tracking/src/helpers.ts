@@ -70,7 +70,7 @@ const defaultFormTrackingEvents = [
 ];
 
 export interface FormTrackingOptions {
-  forms?: FilterCriterion<HTMLElement>;
+  forms?: FilterCriterion<HTMLElement> | HTMLCollectionOf<HTMLFormElement> | NodeListOf<HTMLFormElement>;
   fields?: FilterCriterion<TrackedHTMLElement> & { transform: transformFn };
   events?: FormTrackingEvents;
 }
@@ -113,7 +113,8 @@ export function addFormListeners(tracker: BrowserTracker, configuration: FormTra
     trackingMarker = tracker.id + 'form',
     config = getConfigurationForOptions(options);
 
-  Array.prototype.slice.call(document.getElementsByTagName('form')).forEach(function (form: HTMLFormElement) {
+  let forms = config.forms ?? document.getElementsByTagName('form');
+  Array.prototype.slice.call(forms).forEach(function (form: HTMLFormElement) {
     if (config.formFilter(form)) {
       Array.prototype.slice.call(innerElementTags).forEach(function (tagname: keyof TrackedHTMLElementTagNameMap) {
         Array.prototype.slice
@@ -155,19 +156,39 @@ export function addFormListeners(tracker: BrowserTracker, configuration: FormTra
   });
 }
 
+/**
+ * Check if forms array is a collection of HTML form elements or a filter or undefined
+ */
+function isCollectionOfHTMLFormElements(
+  forms?: FilterCriterion<HTMLFormElement> | HTMLCollectionOf<HTMLFormElement> | NodeListOf<HTMLFormElement>
+): forms is HTMLCollectionOf<HTMLFormElement> | NodeListOf<HTMLFormElement> {
+  return forms != null && Array.prototype.slice.call(forms).length > 0;
+}
+
 /*
  * Configures form tracking: which forms and fields will be tracked, and the context to attach
  */
 function getConfigurationForOptions(options?: FormTrackingOptions) {
   if (options) {
+    let formFilter = (_: HTMLElement) => true;
+    let forms: HTMLCollectionOf<HTMLFormElement> | NodeListOf<HTMLFormElement> | null = null;
+    if (isCollectionOfHTMLFormElements(options.forms)) {
+      // options.forms is a collection of HTML form elements
+      forms = options.forms;
+    } else {
+      // options.forms is null or a filter
+      formFilter = getFilterByClass(options.forms);
+    }
     return {
-      formFilter: getFilterByClass(options.forms),
+      forms: forms,
+      formFilter: formFilter,
       fieldFilter: getFilterByName<TrackedHTMLElement>(options.fields),
       fieldTransform: getTransform(options.fields),
       eventFilter: (event: FormTrackingEvent) => (options.events ?? defaultFormTrackingEvents).indexOf(event) > -1,
     };
   } else {
     return {
+      forms: null,
       formFilter: () => true,
       fieldFilter: () => true,
       fieldTransform: defaultTransformFn,
