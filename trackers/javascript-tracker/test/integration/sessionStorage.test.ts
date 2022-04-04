@@ -46,7 +46,7 @@ describe('Sessions', () => {
     await browser.setCookies({ name: 'container', value: docker.url });
     await browser.url('/session-integration.html');
     await browser.pause(6000); // Time for requests to get written
-    await browser.call(async () => (log = await fetchResults(docker.url)));
+    log = await browser.call(async () => await fetchResults(docker.url));
   });
 
   afterAll(async () => {

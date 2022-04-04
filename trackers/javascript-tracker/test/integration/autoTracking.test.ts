@@ -88,7 +88,7 @@ describe('Auto tracking', () => {
 
     // time for activity to register and request to arrive
     await browser.pause(5000);
-    await browser.call(async () => (log = await fetchResults(docker.url)));
+    log = await browser.call(async () => await fetchResults(docker.url));
   });
 
   it('should send a link click event', () => {
@@ -340,7 +340,7 @@ describe('Auto tracking', () => {
     // time for activity to register and request to arrive
     await browser.pause(2500);
 
-    await browser.call(async () => (log = await fetchResults(docker.url)));
+    log = await browser.call(async () => await fetchResults(docker.url));
   });
 
   it('should send focus_form for the dynamically added form element', () => {

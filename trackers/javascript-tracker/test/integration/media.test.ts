@@ -29,9 +29,8 @@
 
 import _ from 'lodash';
 import { DockerWrapper, start, stop, fetchResults, clearCache } from '../micro';
-import util from 'util';
+import { waitUntil } from './helpers';
 
-const dumpLog = (log: Array<unknown>) => console.log(util.inspect(log, true, null, true));
 const playVideoElement1Callback = () => {
   return (done: (_: void) => void) => {
     const promise = (document.getElementById('html5') as HTMLVideoElement).play();
@@ -196,7 +195,7 @@ describe('Media Tracker', () => {
     await browser.setCookies({ name: 'container', value: docker.url });
     await browser.url('media/tracking.html');
 
-    await browser.waitUntil(() => $('#html5').isExisting(), {
+    await waitUntil(browser, () => $('#html5').isExisting(), {
       timeout: 10000,
       timeoutMsg: 'expected html5 after 5s',
     });
@@ -228,10 +227,11 @@ describe('Media Tracker', () => {
     }
 
     // 'ended' should be the final event, if not, try again
-    await browser.waitUntil(
+    await waitUntil(
+      browser,
       async () => {
         return await browser.call(async () => {
-          log = await fetchResults(docker.url);
+          let log = await fetchResults(docker.url);
           return log.some((l: any) => l.event.unstruct_event.data.data.type === 'ended');
         });
       },
@@ -241,10 +241,12 @@ describe('Media Tracker', () => {
         timeoutMsg: 'All events not found before timeout',
       }
     );
+
+    log = await browser.call(async () => await fetchResults(docker.url));
   });
 
   afterAll(async () => {
-    await browser.waitUntil(async () => {
+    await waitUntil(browser, async () => {
       return await browser.call(async () => await clearCache(docker.url));
     });
   });
@@ -278,7 +280,7 @@ describe('Media Tracker (2 videos, 1 tracker)', () => {
   beforeAll(async () => {
     await browser.url('/media/tracking-2-players.html');
 
-    await browser.waitUntil(() => $('#html5').isExisting(), {
+    await waitUntil(browser, () => $('#html5').isExisting(), {
       timeout: 10000,
       timeoutMsg: 'expected html5 after 5s',
     });
@@ -302,10 +304,11 @@ describe('Media Tracker (2 videos, 1 tracker)', () => {
     }
 
     // wait until we have 2 'pause' events
-    await browser.waitUntil(
+    await waitUntil(
+      browser,
       async () => {
         return await browser.call(async () => {
-          log = await fetchResults(docker.url);
+          let log = await fetchResults(docker.url);
           return log.filter((l: any) => l.event.unstruct_event.data.data.type === 'pause').length === 2;
         });
       },
@@ -315,10 +318,12 @@ describe('Media Tracker (2 videos, 1 tracker)', () => {
         timeoutMsg: 'All events not found before timeout',
       }
     );
+
+    log = await browser.call(async () => await fetchResults(docker.url));
   });
 
   afterAll(async () => {
-    await browser.waitUntil(async () => {
+    await waitUntil(browser, async () => {
       return await browser.call(async () => await clearCache(docker.url));
     });
   });
@@ -345,7 +350,7 @@ describe('Media Tracker (1 video, 2 trackers)', () => {
   beforeAll(async () => {
     await browser.url('media/tracking-2-trackers.html');
 
-    await browser.waitUntil(() => $('#html5').isExisting(), {
+    await waitUntil(browser, () => $('#html5').isExisting(), {
       timeout: 10000,
       timeoutMsg: 'expected html5 after 5s',
     });
@@ -355,10 +360,11 @@ describe('Media Tracker (1 video, 2 trackers)', () => {
     await browser.execute(() => (document.getElementById('html5') as HTMLVideoElement).pause());
 
     // wait until we have 2 'pause' events
-    await browser.waitUntil(
+    await waitUntil(
+      browser,
       async () => {
         return await browser.call(async () => {
-          log = await fetchResults(docker.url);
+          let log = await fetchResults(docker.url);
           return log.filter((l: any) => l.event.unstruct_event.data.data.type === 'pause').length === 2;
         });
       },
@@ -368,10 +374,12 @@ describe('Media Tracker (1 video, 2 trackers)', () => {
         timeoutMsg: 'All events not found before timeout',
       }
     );
+
+    log = await browser.call(async () => await fetchResults(docker.url));
   });
 
   afterAll(async () => {
-    await browser.waitUntil(async () => {
+    await waitUntil(browser, async () => {
       return await browser.call(async () => await clearCache(docker.url));
     });
   });
@@ -397,7 +405,7 @@ describe('Media Tracker - All Events', () => {
   beforeAll(async () => {
     await browser.url('media/tracking-all-events.html');
 
-    await browser.waitUntil(() => $('#html5').isExisting(), {
+    await waitUntil(browser, () => $('#html5').isExisting(), {
       timeout: 10000,
       timeoutMsg: 'expected html5 after 5s',
     });
@@ -436,10 +444,11 @@ describe('Media Tracker - All Events', () => {
       (document.getElementById('html5') as HTMLVideoElement).src = video_url;
     }, video_url);
 
-    await browser.waitUntil(
+    await waitUntil(
+      browser,
       async () => {
         return await browser.call(async () => {
-          log = await fetchResults(docker.url);
+          let log = await fetchResults(docker.url);
           // Events can occur in any order, so we can't just check for the last event
           // 40 - 45 events are expected, due to the timing of 'timeupdate' events
           return log.length > 40;
@@ -451,6 +460,8 @@ describe('Media Tracker - All Events', () => {
         timeoutMsg: 'All events not found before timeout',
       }
     );
+
+    log = await browser.call(async () => await fetchResults(docker.url));
   });
 
   afterAll(async () => {

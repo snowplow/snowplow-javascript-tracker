@@ -29,9 +29,7 @@
  */
 
 import { DockerWrapper, start, stop, fetchResults, clearCache } from '../micro';
-import util from 'util';
-
-const dumpLog = (log: Array<unknown>) => console.log(util.inspect(log, true, null, true));
+import { waitUntil } from './helpers';
 
 const makeExpectedEvent = (
   eventType: string,
@@ -137,16 +135,17 @@ describe('YouTube Tracker', () => {
     await browser.url('/index.html');
     await browser.setCookies({ name: 'container', value: docker.url });
     await browser.url('/youtube/tracking.html');
-    await browser.waitUntil(() => $('#youtube').isExisting(), {
+    await waitUntil(browser, () => $('#youtube').isExisting(), {
       timeout: 5000,
       timeoutMsg: 'expected youtube after 5s',
     });
 
     const player = $('#youtube');
     await player.click(); // emits 'playbackqualitychange' and 'play';
-    await player.keys(Array(3).fill('ArrowRight')); // Skips to the point just before 'percentprogress' fires
+    await player.keys(Array(2).fill('ArrowRight')); // Skips to the point just before 'percentprogress' fires
 
-    await browser.waitUntil(
+    await waitUntil(
+      browser,
       async () => {
         return await browser.call(async () => {
           let result = await fetchResults(docker.url);
@@ -154,7 +153,7 @@ describe('YouTube Tracker', () => {
         });
       },
       {
-        interval: 5000,
+        interval: 2000,
         timeout: 40000,
         timeoutMsg: "No 'percentprogress' event received",
       }
@@ -173,7 +172,8 @@ describe('YouTube Tracker', () => {
       await browser.pause(200);
     }
 
-    await browser.waitUntil(
+    await waitUntil(
+      browser,
       async () => {
         // We've got ~216 seconds left to skip, so we can make use of the waitUntil to skip in chunks
         for (let i = 0; i < 60; i++) {
@@ -181,9 +181,8 @@ describe('YouTube Tracker', () => {
           await player.keys(['ArrowRight']);
           await browser.pause(50);
         }
-        await browser.pause(500);
         return await browser.call(async () => {
-          log = await fetchResults(docker.url);
+          let log = await fetchResults(docker.url);
           return log.some((l: any) => l.event.unstruct_event.data.data.type === 'ended');
         });
       },
@@ -193,6 +192,8 @@ describe('YouTube Tracker', () => {
         timeoutMsg: 'All events not found before timeout',
       }
     );
+
+    log = await browser.call(async () => await fetchResults(docker.url));
 
     // YouTube saves the volume level in localstorage, meaning loading a new page will have the same
     // volume level as the end of this test, so we need to increase it again to return to the 'default' state
@@ -226,7 +227,7 @@ describe('YouTube Tracker', () => {
   });
 
   afterAll(async () => {
-    await browser.waitUntil(async () => {
+    await waitUntil(browser, async () => {
       return await browser.call(async () => await clearCache(docker.url));
     });
   });
@@ -244,7 +245,7 @@ describe('YouTube Tracker (2 videos, 1 tracker)', () => {
     await browser.url('/index.html');
     await browser.setCookies({ name: 'container', value: docker.url });
     await browser.url('/youtube/tracking-2-videos.html');
-    await browser.waitUntil(() => $('#youtube').isExisting(), {
+    await waitUntil(browser, () => $('#youtube').isExisting(), {
       timeout: 5000,
       timeoutMsg: 'expected youtube after 5s',
     });
@@ -264,23 +265,25 @@ describe('YouTube Tracker (2 videos, 1 tracker)', () => {
       await browser.pause(500);
     }
 
-    await browser.waitUntil(
-      async () => {
-        return await browser.call(async () => {
-          log = await fetchResults(docker.url);
+    await waitUntil(
+      browser,
+      async () =>
+        await browser.call(async () => {
+          let log = await fetchResults(docker.url);
           return Array.from(new Set(log.map((l: any) => l.event.contexts.data[0].data.playerId))).length === 2;
-        });
-      },
+        }),
       {
         interval: 2000,
-        timeout: 60000,
+        timeout: 40000,
         timeoutMsg: 'All events not found before timeout',
       }
     );
+
+    log = await browser.call(async () => await fetchResults(docker.url));
   });
 
   afterAll(async () => {
-    await browser.waitUntil(async () => {
+    await waitUntil(browser, async () => {
       return await browser.call(async () => await clearCache(docker.url));
     });
   });
@@ -301,7 +304,7 @@ describe('YouTube Tracker (1 video, 2 trackers)', () => {
     await browser.url('/index.html');
     await browser.setCookies({ name: 'container', value: docker.url });
     await browser.url('/youtube/tracking-2-trackers.html');
-    await browser.waitUntil(() => $('#youtube').isExisting(), {
+    await waitUntil(browser, () => $('#youtube').isExisting(), {
       timeout: 5000,
       timeoutMsg: 'expected youtube after 5s',
     });
@@ -310,19 +313,21 @@ describe('YouTube Tracker (1 video, 2 trackers)', () => {
     await player.click(); // emits 'playbackqualitychange' and 'play';
     await player.keys(['k']); // Pause
 
-    await browser.waitUntil(
-      async () => {
-        return await browser.call(async () => {
-          log = await fetchResults(docker.url);
+    await waitUntil(
+      browser,
+      async () =>
+        await browser.call(async () => {
+          let log = await fetchResults(docker.url);
           return log.filter((l: any) => l.event.unstruct_event.data.data.type === 'playbackqualitychange').length === 2;
-        });
-      },
+        }),
       {
         interval: 2000,
         timeout: 40000,
         timeoutMsg: 'All events not found before timeout',
       }
     );
+
+    log = await browser.call(async () => await fetchResults(docker.url));
   });
 
   afterAll(async () => {

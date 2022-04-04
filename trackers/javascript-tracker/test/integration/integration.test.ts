@@ -89,7 +89,7 @@ describe('Snowplow Micro integration', () => {
     await $('#bottomRight').scrollIntoView();
     await browser.pause(6000); // Time for requests to get written
 
-    await browser.call(async () => (log = await fetchResults(docker.url)));
+    log = await browser.call(async () => await fetchResults(docker.url));
   });
 
   afterAll(async () => {
