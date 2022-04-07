@@ -9,5 +9,5 @@ A context generator is a user-supplied callback that is evaluated for each event
 <b>Signature:</b>
 
 ```typescript
-type ContextGenerator = (args?: ContextEvent) => SelfDescribingJson;
+type ContextGenerator = (args?: ContextEvent) => SelfDescribingJson | SelfDescribingJson[] | undefined;
 ```
