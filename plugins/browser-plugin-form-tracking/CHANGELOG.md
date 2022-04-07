@@ -1,6 +1,15 @@
 # Change Log - @snowplow/browser-plugin-form-tracking
 
-This log was last generated on Wed, 23 Feb 2022 19:27:40 GMT and should not be manually modified.
+This log was last generated on Thu, 07 Apr 2022 11:56:26 GMT and should not be manually modified.
+
+## 3.4.0
+Thu, 07 Apr 2022 11:56:26 GMT
+
+### Updates
+
+- Enable form tracking on forms embedded within iframes where possible (#1066)
+- Bump dependencies (#1067)
+- Add ability to enable only form_change, or form_submit, focus_form or any combination (#371)
 
 ## 3.3.1
 Wed, 23 Feb 2022 19:27:40 GMT
