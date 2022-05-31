@@ -33,6 +33,7 @@ import { TrackerConfiguration } from '@snowplow/browser-tracker-core';
 export interface JavaScriptTrackerConfiguration extends TrackerConfiguration {
   contexts: {
     webPage: boolean;
+    session: boolean;
     performanceTiming: boolean;
     gaCookies: boolean;
     geolocation: boolean;

@@ -197,7 +197,7 @@ export type TrackerConfiguration = {
    * Use to configure built in contexts
    * @defaultValue `{ webPage: true }`
    */
-  contexts?: { webPage: boolean };
+  contexts?: { webPage: boolean; session: boolean };
   /**
    * Inject plugins which will be evaluated for each event
    * @defaultValue []
