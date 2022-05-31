@@ -89,7 +89,7 @@ import {
   ClientSession,
   clientSessionFromIdCookie,
   incrementEventIndexInIdCookie,
-  emptyIdCookie
+  emptyIdCookie,
 } from './id_cookie';
 
 declare global {
@@ -592,15 +592,7 @@ export function Tracker(
       if (configStateStorageStrategy == 'localStorage') {
         attemptWriteLocalStorage(name, value, timeout);
       } else if (configStateStorageStrategy == 'cookie' || configStateStorageStrategy == 'cookieAndLocalStorage') {
-        cookie(
-          name,
-          value,
-          timeout,
-          configCookiePath,
-          configCookieDomain,
-          configCookieSameSite,
-          configCookieSecure
-        );
+        cookie(name, value, timeout, configCookiePath, configCookieDomain, configCookieSameSite, configCookieSecure);
       }
     }
 
@@ -815,22 +807,11 @@ export function Tracker(
     }
 
     function addSessionContextToPayload(payloadBuilder: PayloadBuilder, clientSession: ClientSession) {
-      let payload = payloadBuilder.build();
-
-      let context = {
-        schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0',
-        data: [],
-      };
-      if (payload.cx) {
-        context = JSON.parse(atob(payload.cx as string));
-      }
       let sessionContext: SelfDescribingJson<ClientSession> = {
         schema: 'iglu:com.snowplowanalytics.snowplow/client_session/jsonschema/1-0-2',
         data: clientSession,
       };
-      (context.data as any[]).push(sessionContext);
-
-      payloadBuilder.addJson('cx', 'co', context);
+      payloadBuilder.addContextEntity(sessionContext);
     }
 
     /**

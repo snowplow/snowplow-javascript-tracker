@@ -75,12 +75,12 @@ export function DebuggerPlugin(logLevel: LOG_LEVEL = LOG_LEVEL.debug): BrowserPl
   };
 
   function jsonInterceptor(encodeBase64: boolean): JsonProcessor {
-    const log = (json: EventJsonWithKeys, data: SelfDescribingJson) => {
+    const log = (jsonType: string, data: SelfDescribingJson) => {
       const schemaParts = getSchemaParts(data['schema']);
       debug(colours.event(), 'Event', [
         '%c%s%c%s%c%s\n%o',
         colours.json,
-        `${getJsonType(json)}: ${schemaParts ? schemaParts[1] : 'Unknown Schema'}`,
+        `${jsonType}: ${schemaParts ? schemaParts[1] : 'Unknown Schema'}`,
         colours.schemaVersion,
         schemaParts ? `Version: ${schemaParts[2]}-${schemaParts[3]}-${schemaParts[4]}` : 'Unknown Schema Version',
         colours.schema,
@@ -89,20 +89,29 @@ export function DebuggerPlugin(logLevel: LOG_LEVEL = LOG_LEVEL.debug): BrowserPl
       ]);
     };
 
-    return (payloadBuilder: PayloadBuilder, jsonForProcessing: EventJson) => {
+    return (
+      payloadBuilder: PayloadBuilder,
+      jsonForProcessing: EventJson,
+      contextEntitiesForProcessing: SelfDescribingJson[]
+    ) => {
       if (jsonForProcessing.length) {
         for (const json of jsonForProcessing) {
           const data = json.json['data'] as SelfDescribingJson;
           if (Array.isArray(data)) {
             data.forEach((d) => {
-              log(json, d);
+              log(getJsonType(json), d);
             });
           } else {
-            log(json, data);
+            log(getJsonType(json), data);
           }
         }
       }
-      return payloadJsonProcessor(encodeBase64)(payloadBuilder, jsonForProcessing);
+      if (contextEntitiesForProcessing.length) {
+        for (const entity of contextEntitiesForProcessing) {
+          log('Context', entity);
+        }
+      }
+      return payloadJsonProcessor(encodeBase64)(payloadBuilder, jsonForProcessing, contextEntitiesForProcessing);
     };
   }
 

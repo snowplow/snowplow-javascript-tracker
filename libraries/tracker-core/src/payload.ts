@@ -28,7 +28,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { base64urlencode } from './base64';
+import { base64urlencode, base64urldecode } from './base64';
+import type { SelfDescribingJson } from './core';
 
 /**
  * Type for a Payload dictionary
@@ -48,7 +49,11 @@ export type EventJson = Array<EventJsonWithKeys>;
 /**
  * A function which will processor the Json onto the injected PayloadBuilder
  */
-export type JsonProcessor = (payloadBuilder: PayloadBuilder, jsonForProcessing: EventJson) => void;
+export type JsonProcessor = (
+  payloadBuilder: PayloadBuilder,
+  jsonForProcessing: EventJson,
+  contextEntitiesForProcessing: SelfDescribingJson[]
+) => void;
 
 /**
  * Interface for mutable object encapsulating tracker payload
@@ -74,6 +79,12 @@ export interface PayloadBuilder {
    * @param json - The json to be stringified and added to the payload
    */
   addJson: (keyIfEncoded: string, keyIfNotEncoded: string, json: Record<string, unknown>) => void;
+
+  /**
+   * Caches a context entity to be added to payload on build
+   * @param entity - Context entity to add to the event
+   */
+  addContextEntity: (entity: SelfDescribingJson) => void;
 
   /**
    * Gets the current payload, before cached JSON is processed
@@ -102,7 +113,8 @@ export interface PayloadBuilder {
 export function payloadBuilder(): PayloadBuilder {
   const dict: Payload = {},
     allJson: EventJson = [],
-    jsonForProcessing: EventJson = [];
+    jsonForProcessing: EventJson = [],
+    contextEntitiesForProcessing: SelfDescribingJson[] = [];
   let processor: JsonProcessor | undefined;
 
   const add = (key: string, value: unknown): void => {
@@ -128,17 +140,22 @@ export function payloadBuilder(): PayloadBuilder {
     }
   };
 
+  const addContextEntity = (entity: SelfDescribingJson): void => {
+    contextEntitiesForProcessing.push(entity);
+  };
+
   return {
     add,
     addDict,
     addJson,
+    addContextEntity,
     getPayload: () => dict,
     getJson: () => allJson,
     withJsonProcessor: (jsonProcessor) => {
       processor = jsonProcessor;
     },
     build: function () {
-      processor?.(this, jsonForProcessing);
+      processor?.(this, jsonForProcessing, contextEntitiesForProcessing);
       return dict;
     },
   };
@@ -151,16 +168,61 @@ export function payloadBuilder(): PayloadBuilder {
  * @returns The request builder, with add and build methods
  */
 export function payloadJsonProcessor(encodeBase64: boolean): JsonProcessor {
-  return (payloadBuilder: PayloadBuilder, jsonForProcessing: EventJson) => {
-    for (const json of jsonForProcessing) {
-      const str = JSON.stringify(json.json);
+  return (
+    payloadBuilder: PayloadBuilder,
+    jsonForProcessing: EventJson,
+    contextEntitiesForProcessing: SelfDescribingJson[]
+  ) => {
+    const add = (json: any, keyIfEncoded: string, keyIfNotEncoded: string): void => {
+      const str = JSON.stringify(json);
       if (encodeBase64) {
-        payloadBuilder.add(json.keyIfEncoded, base64urlencode(str));
+        payloadBuilder.add(keyIfEncoded, base64urlencode(str));
       } else {
-        payloadBuilder.add(json.keyIfNotEncoded, str);
+        payloadBuilder.add(keyIfNotEncoded, str);
+      }
+    };
+
+    let context = undefined;
+    const getContextFromPayload = () => {
+      let payload = payloadBuilder.getPayload();
+      if (encodeBase64 ? payload.cx : payload.co) {
+        return JSON.parse(encodeBase64 ? base64urldecode(payload.cx as string) : (payload.co as string));
+      }
+      return undefined;
+    };
+
+    for (const json of jsonForProcessing) {
+      if (json.keyIfEncoded == 'cx') {
+        context = getContextFromPayload();
+        if (context) {
+          context.data = (context.data as any[]).concat(json.json.data as any[]);
+        } else {
+          context = json.json;
+        }
+      } else {
+        add(json.json, json.keyIfEncoded, json.keyIfNotEncoded);
       }
     }
     jsonForProcessing.length = 0;
+
+    if (contextEntitiesForProcessing.length) {
+      if (!context) {
+        context = getContextFromPayload();
+      }
+      if (!context) {
+        context = {
+          schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0',
+          data: [],
+        };
+      }
+
+      context.data = (context.data as any[]).concat(contextEntitiesForProcessing);
+      contextEntitiesForProcessing.length = 0;
+    }
+
+    if (context) {
+      add(context, 'cx', 'co');
+    }
   };
 }
 

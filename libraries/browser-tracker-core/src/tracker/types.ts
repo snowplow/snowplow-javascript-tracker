@@ -195,7 +195,7 @@ export type TrackerConfiguration = {
   anonymousTracking?: AnonymousTrackingOptions;
   /**
    * Use to configure built in contexts
-   * @defaultValue `{ webPage: true }`
+   * @defaultValue `{ webPage: true, session: false }`
    */
   contexts?: { webPage: boolean; session: boolean };
   /**
