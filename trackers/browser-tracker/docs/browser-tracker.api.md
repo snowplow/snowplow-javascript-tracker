@@ -331,6 +331,7 @@ export type TrackerConfiguration = {
     anonymousTracking?: AnonymousTrackingOptions;
     contexts?: {
         webPage: boolean;
+        session: boolean;
     };
     plugins?: Array<BrowserPlugin>;
     customHeaders?: Record<string, string>;
