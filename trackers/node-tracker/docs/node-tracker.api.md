@@ -283,6 +283,7 @@ export type Payload = Record<string, unknown>;
 // @public
 export interface PayloadBuilder {
     add: (key: string, value: unknown) => void;
+    addContextEntity: (entity: SelfDescribingJson) => void;
     addDict: (dict: Payload) => void;
     addJson: (keyIfEncoded: string, keyIfNotEncoded: string, json: Record<string, unknown>) => void;
     build: () => Payload;
