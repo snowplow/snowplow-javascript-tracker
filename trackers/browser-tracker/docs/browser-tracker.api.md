@@ -334,6 +334,8 @@ export type TrackerConfiguration = {
     };
     plugins?: Array<BrowserPlugin>;
     customHeaders?: Record<string, string>;
+    retryStatusCodes?: number[];
+    dontRetryStatusCodes?: number[];
 };
 
 // @public
