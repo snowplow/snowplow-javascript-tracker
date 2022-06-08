@@ -162,6 +162,15 @@ test('Maintain context entities after subsequent builds', (t) => {
   t.deepEqual(payload, expectedPayloads[1], 'JSON should be added correctly');
 });
 
+test('Add multiple context entities through addJson', (t) => {
+  const sb = payloadBuilder();
+  sb.withJsonProcessor(payloadJsonProcessor(true));
+  sb.addJson('cx', 'co', { schema: sampleJson.schema, data: [sampleJson.data[0]] });
+  sb.addJson('cx', 'co', { schema: sampleJson.schema, data: [sampleJson.data[1]] });
+  let payload = sb.build();
+  t.deepEqual(payload, expectedPayloads[1], 'JSON should be added correctly');
+});
+
 test('Combines context entities added through addJson and addContextEntity', (t) => {
   const sb = payloadBuilder();
   sb.withJsonProcessor(payloadJsonProcessor(true));

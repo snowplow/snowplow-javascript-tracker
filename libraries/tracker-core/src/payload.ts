@@ -29,7 +29,7 @@
  */
 
 import { base64urlencode, base64urldecode } from './base64';
-import type { SelfDescribingJson } from './core';
+import type { SelfDescribingJson, SelfDescribingJsonArray } from './core';
 
 /**
  * Type for a Payload dictionary
@@ -182,23 +182,33 @@ export function payloadJsonProcessor(encodeBase64: boolean): JsonProcessor {
       }
     };
 
-    let context = undefined;
     const getContextFromPayload = () => {
       let payload = payloadBuilder.getPayload();
       if (encodeBase64 ? payload.cx : payload.co) {
-        return JSON.parse(encodeBase64 ? base64urldecode(payload.cx as string) : (payload.co as string));
+        return JSON.parse(
+          encodeBase64 ? base64urldecode(payload.cx as string) : (payload.co as string)
+        ) as SelfDescribingJsonArray;
       }
       return undefined;
     };
 
+    const combineContexts = (
+      originalContext: SelfDescribingJsonArray | undefined,
+      newContext: SelfDescribingJsonArray
+    ) => {
+      let context = originalContext || getContextFromPayload();
+      if (context) {
+        context.data = context.data.concat(newContext.data);
+      } else {
+        context = newContext;
+      }
+      return context;
+    };
+
+    let context: SelfDescribingJsonArray | undefined = undefined;
     for (const json of jsonForProcessing) {
       if (json.keyIfEncoded == 'cx') {
-        context = getContextFromPayload();
-        if (context) {
-          context.data = (context.data as any[]).concat(json.json.data as any[]);
-        } else {
-          context = json.json;
-        }
+        context = combineContexts(context, json.json as SelfDescribingJsonArray);
       } else {
         add(json.json, json.keyIfEncoded, json.keyIfNotEncoded);
       }
@@ -206,17 +216,11 @@ export function payloadJsonProcessor(encodeBase64: boolean): JsonProcessor {
     jsonForProcessing.length = 0;
 
     if (contextEntitiesForProcessing.length) {
-      if (!context) {
-        context = getContextFromPayload();
-      }
-      if (!context) {
-        context = {
-          schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0',
-          data: [],
-        };
-      }
-
-      context.data = (context.data as any[]).concat(contextEntitiesForProcessing);
+      let newContext = {
+        schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0',
+        data: [...contextEntitiesForProcessing],
+      };
+      context = combineContexts(context, newContext);
       contextEntitiesForProcessing.length = 0;
     }
 
