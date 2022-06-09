@@ -274,7 +274,9 @@ export function Tracker(
         trackerConfiguration.connectionTimeout ?? 5000,
         configAnonymousServerTracking,
         trackerConfiguration.customHeaders ?? {},
-        trackerConfiguration.withCredentials ?? true
+        trackerConfiguration.withCredentials ?? true,
+        trackerConfiguration.retryStatusCodes ?? [],
+        (trackerConfiguration.dontRetryStatusCodes ?? []).concat([400, 401, 403, 410, 422])
       ),
       // Whether pageViewId should be regenerated after each trackPageView. Affect web_page context
       preservePageViewId = false,
