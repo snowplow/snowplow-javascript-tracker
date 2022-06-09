@@ -82,8 +82,8 @@ describe('OutQueueManager', () => {
         false,
         {},
         true,
-        [401],
-        [505]
+        [401], // retry status codes - override don't retry ones
+        [401, 505] // don't retry status codes
       );
     });
 
@@ -133,18 +133,6 @@ describe('OutQueueManager', () => {
       respondMockRequest(500);
       retrievedQueue = getQueue();
       expect(retrievedQueue).toHaveLength(1);
-    });
-
-    it('should remove events from queue on no-retry status code', () => {
-      const request = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
-      outQueue.enqueueRequest(request, 'http://example.com');
-
-      let retrievedQueue = getQueue();
-      expect(retrievedQueue).toHaveLength(1);
-
-      respondMockRequest(403);
-      retrievedQueue = getQueue();
-      expect(retrievedQueue).toHaveLength(0);
     });
 
     it('should retry on custom retry status code', () => {

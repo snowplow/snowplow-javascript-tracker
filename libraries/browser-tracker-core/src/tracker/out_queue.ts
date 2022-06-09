@@ -60,7 +60,7 @@ export interface OutQueue {
  * @param anonymousTracking - Defines whether to set the SP-Anonymous header for anonymous tracking on GET and POST
  * @param customHeaders - Allows custom headers to be defined and passed on XMLHttpRequest requests
  * @param withCredentials - Sets the value of the withCredentials flag on XMLHttpRequest (GET and POST) requests
- * @param retryStatusCodes – Failure HTTP response status codes from Collector for which sending events should be retried
+ * @param retryStatusCodes – Failure HTTP response status codes from Collector for which sending events should be retried (they can override the `dontRetryStatusCodes`)
  * @param dontRetryStatusCodes – Failure HTTP response status codes from Collector for which sending events should not be retried
  * @returns object OutQueueManager instance
  */
@@ -360,7 +360,7 @@ export function OutQueueManager(
             onPostSuccess(numberToSend);
           } else {
             if (!shouldRetryForStatusCode(xhr.status)) {
-              LOG.error(`Collector responded with status code ${xhr.status}, sending events won't be retried.`);
+              LOG.error(`Status ${xhr.status}, will not retry.`);
               removeEventsFromQueue(numberToSend);
             }
             executingQueue = false;
@@ -446,9 +446,8 @@ export function OutQueueManager(
       return true;
     }
 
-    // retry if status code *not* among custom user-supplied don't retry codes and default don't retry codes
-    const dontRetryStatusCodesDefault = [400, 401, 403, 410, 422];
-    return !dontRetryStatusCodes.includes(statusCode) && !dontRetryStatusCodesDefault.includes(statusCode);
+    // retry if status code *not* among the don't retry codes
+    return !dontRetryStatusCodes.includes(statusCode);
   }
 
   /**
