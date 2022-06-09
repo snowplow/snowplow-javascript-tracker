@@ -66,9 +66,9 @@ describe('parseIdCookie', () => {
     expect(createTsFromIdCookie(idCookie)).toBeLessThanOrEqual(after);
     expect(nowTsFromIdCookie(idCookie)).toBeGreaterThanOrEqual(before);
     expect(nowTsFromIdCookie(idCookie)).toBeLessThanOrEqual(after);
-    expect(lastVisitTsFromIdCookie(idCookie)).toBe('');
+    expect(lastVisitTsFromIdCookie(idCookie)).toBeUndefined();
     expect(firstEventIdFromIdCookie(idCookie)).toBe('');
-    expect(firstEventTsInMsFromIdCookie(idCookie)).toBe('');
+    expect(firstEventTsInMsFromIdCookie(idCookie)).toBeUndefined();
     expect(eventIndexFromIdCookie(idCookie)).toBe(0);
   });
 
@@ -83,7 +83,7 @@ describe('parseIdCookie', () => {
     expect(sessionIdFromIdCookie(idCookie)).toBeTruthy();
     expect(createTsFromIdCookie(idCookie)).toBe(ts);
     expect(firstEventIdFromIdCookie(idCookie)).toBe('');
-    expect(firstEventTsInMsFromIdCookie(idCookie)).toBe('');
+    expect(firstEventTsInMsFromIdCookie(idCookie)).toBeUndefined();
     expect(eventIndexFromIdCookie(idCookie)).toBe(0);
   });
 
@@ -137,7 +137,7 @@ describe('startNewIdCookieSession', () => {
     startNewIdCookieSession(idCookie);
 
     expect(firstEventIdFromIdCookie(idCookie)).toBeFalsy();
-    expect(firstEventTsInMsFromIdCookie(idCookie)).toBeFalsy();
+    expect(firstEventTsInMsFromIdCookie(idCookie)).toBeUndefined();
     expect(eventIndexFromIdCookie(idCookie)).toBe(0);
   });
 
@@ -159,7 +159,7 @@ describe('startNewIdCookieSession', () => {
     let idCookie = parseIdCookie('', '', '', 0);
     let nowTs = nowTsFromIdCookie(idCookie);
     startNewIdCookieSession(idCookie);
-    expect(lastVisitTsFromIdCookie(idCookie)).toBeFalsy();
+    expect(lastVisitTsFromIdCookie(idCookie)).toBeUndefined();
     expect(nowTsFromIdCookie(idCookie)).toBe(nowTs);
   });
 

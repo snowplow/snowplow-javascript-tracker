@@ -52,11 +52,11 @@ export type ParsedIdCookie = [
   number, // cookieCreateTs
   number, // visitCount
   number, // nowTs
-  string | number, // lastVisitTs
+  number | undefined, // lastVisitTs
   string, // sessionId
   string, // previousSessionId
   string, // firstEventId
-  string | number, // firstEventTs
+  number | undefined, // firstEventTs
   number // eventIndex
 ];
 
@@ -106,7 +106,7 @@ export interface ClientSession extends Record<string, unknown> {
 }
 
 export function emptyIdCookie() {
-  const idCookie: ParsedIdCookie = ['1', '', 0, 0, 0, '', '', '', '', '', 0];
+  const idCookie: ParsedIdCookie = ['1', '', 0, 0, 0, undefined, '', '', '', undefined, 0];
   return idCookie;
 }
 
@@ -118,7 +118,7 @@ export function emptyIdCookie() {
  * @returns Parsed ID cookie tuple
  */
 export function parseIdCookie(
-  id: string,
+  id: string | undefined,
   domainUserId: string,
   memorizedSessionId: string,
   memorizedVisitCount: number
@@ -171,18 +171,24 @@ export function parseIdCookie(
     tmpContainer[eventIndexIndex] = 0;
   }
 
+  const parseIntOr = (value: any, defaultValue: any) => {
+    let parsed = parseInt(value as string);
+    return isNaN(parsed) ? defaultValue : parsed;
+  };
+  const parseIntOrUndefined = (value: any) => (value ? parseIntOr(value, undefined) : undefined);
+
   const parsed: ParsedIdCookie = [
-    tmpContainer[0] as string,
-    tmpContainer[1] as string,
-    parseInt(tmpContainer[2] as string),
-    parseInt(tmpContainer[3] as string),
-    parseInt(tmpContainer[4] as string),
-    tmpContainer[5] ? parseInt(tmpContainer[5] as string) : (tmpContainer[5] as string),
-    tmpContainer[6] as string,
-    tmpContainer[7] as string,
-    tmpContainer[8] as string,
-    tmpContainer[9] ? parseInt(tmpContainer[9] as string) : (tmpContainer[9] as string),
-    parseInt(tmpContainer[10] as string),
+    tmpContainer[cookieDisabledIndex] as string,
+    tmpContainer[domainUserIdIndex] as string,
+    parseIntOr(tmpContainer[createTsIndex], nowTs),
+    parseIntOr(tmpContainer[visitCountIndex], memorizedVisitCount),
+    parseIntOr(tmpContainer[nowTsIndex], nowTs),
+    parseIntOrUndefined(tmpContainer[lastVisitTsIndex]),
+    tmpContainer[sessionIdIndex] as string,
+    tmpContainer[previousSessionIdIndex] as string,
+    tmpContainer[firstEventIdIndex] as string,
+    parseIntOrUndefined(tmpContainer[firstEventTsInMsIndex]),
+    parseIntOr(tmpContainer[eventIndexIndex], 0),
   ];
   return parsed;
 }
@@ -225,7 +231,7 @@ export function startNewIdCookieSession(idCookie: ParsedIdCookie, memorizedVisit
     // Set lastVisitTs to currentVisitTs
     idCookie[lastVisitTsIndex] = idCookie[nowTsIndex];
     // Increment the session ID
-    (idCookie[visitCountIndex] as number)++;
+    idCookie[visitCountIndex]++;
   } else {
     idCookie[visitCountIndex] = memorizedVisitCount;
   }
@@ -237,7 +243,7 @@ export function startNewIdCookieSession(idCookie: ParsedIdCookie, memorizedVisit
   // Reset event index and first event references
   idCookie[eventIndexIndex] = 0;
   idCookie[firstEventIdIndex] = '';
-  idCookie[firstEventTsInMsIndex] = '';
+  idCookie[firstEventTsInMsIndex] = undefined;
 
   return sessionId;
 }
@@ -259,11 +265,11 @@ export function updateNowTsInIdCookie(idCookie: ParsedIdCookie) {
  */
 export function updateFirstEventInIdCookie(idCookie: ParsedIdCookie, payloadBuilder: PayloadBuilder) {
   // Update first event references if new session or not present
-  if (idCookie[eventIndexIndex] == 0) {
+  if (idCookie[eventIndexIndex] === 0) {
     const payload = payloadBuilder.build();
     idCookie[firstEventIdIndex] = payload['eid'] as string;
     const ts = (payload['dtm'] || payload['ttm']) as string;
-    idCookie[firstEventTsInMsIndex] = ts ? parseInt(ts) : '';
+    idCookie[firstEventTsInMsIndex] = ts ? parseInt(ts) : undefined;
   }
 }
 
@@ -295,6 +301,7 @@ export function serializeIdCookie(idCookie: ParsedIdCookie) {
  * @returns Client session context entity
  */
 export function clientSessionFromIdCookie(idCookie: ParsedIdCookie, configStateStorageStrategy: string) {
+  const firstEventTsInMs = idCookie[firstEventTsInMsIndex];
   const clientSession: ClientSession = {
     userId: idCookie[domainUserIdIndex],
     sessionId: idCookie[sessionIdIndex],
@@ -303,9 +310,7 @@ export function clientSessionFromIdCookie(idCookie: ParsedIdCookie, configStateS
     previousSessionId: idCookie[previousSessionIdIndex] || null,
     storageMechanism: configStateStorageStrategy == 'localStorage' ? 'LOCAL_STORAGE' : 'COOKIE_1',
     firstEventId: idCookie[firstEventIdIndex] || null,
-    firstEventTimestamp: idCookie[firstEventTsInMsIndex]
-      ? new Date(idCookie[firstEventTsInMsIndex]).toISOString()
-      : null,
+    firstEventTimestamp: firstEventTsInMs ? new Date(firstEventTsInMs).toISOString() : null,
   };
 
   return clientSession;

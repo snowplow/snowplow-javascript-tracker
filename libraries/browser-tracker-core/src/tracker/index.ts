@@ -672,7 +672,7 @@ export function Tracker(
       if (configStateStorageStrategy == 'none') {
         return emptyIdCookie();
       }
-      let id = getSnowplowCookieValue('id') || '';
+      const id = getSnowplowCookieValue('id') || undefined;
       return parseIdCookie(id, domainUserId, memorizedSessionId, memorizedVisitCount);
     }
 
@@ -781,7 +781,7 @@ export function Tracker(
           payloadBuilder.add('ds', detectDocumentSize());
           payloadBuilder.add('vid', anonymizeSessionOr(memorizedVisitCount));
           payloadBuilder.add('sid', anonymizeSessionOr(memorizedSessionId));
-          payloadBuilder.add('duid', anonymizeOr(domainUserIdFromIdCookie(idCookie))); // Set to our local variable
+          payloadBuilder.add('duid', anonymizeOr(domainUserIdFromIdCookie(idCookie))); // Always load from cookie as this is better ettiquette than in-memory values
           payloadBuilder.add('uid', anonymizeOr(businessUserId));
 
           refreshUrl();

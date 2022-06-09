@@ -207,7 +207,7 @@ export function payloadJsonProcessor(encodeBase64: boolean): JsonProcessor {
 
     let context: SelfDescribingJsonArray | undefined = undefined;
     for (const json of jsonForProcessing) {
-      if (json.keyIfEncoded == 'cx') {
+      if (json.keyIfEncoded === 'cx') {
         context = combineContexts(context, json.json as SelfDescribingJsonArray);
       } else {
         add(json.json, json.keyIfEncoded, json.keyIfNotEncoded);
