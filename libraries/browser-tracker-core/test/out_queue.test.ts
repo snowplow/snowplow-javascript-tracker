@@ -50,8 +50,21 @@ describe('OutQueueManager', () => {
     jest.spyOn(window, 'XMLHttpRequest').mockImplementation(() => xhrMock as XMLHttpRequest);
   });
 
+  const respondMockRequest = (status: number) => {
+    (xhrMock as any).status = status;
+    (xhrMock as any).response = '';
+    (xhrMock as any).readyState = 4;
+    (xhrMock as any).onreadystatechange();
+  };
+
   describe('POST requests', () => {
     var outQueue: OutQueue;
+
+    const getQueue = () => {
+      return JSON.parse(
+        window.localStorage.getItem('snowplowOutQueue_sp_post2') ?? fail('Unable to find local storage queue')
+      );
+    };
 
     beforeEach(() => {
       outQueue = OutQueueManager(
@@ -68,7 +81,9 @@ describe('OutQueueManager', () => {
         5000,
         false,
         {},
-        true
+        true,
+        [401], // retry status codes - override don't retry ones
+        [401, 505] // don't retry status codes
       );
     });
 
@@ -76,9 +91,7 @@ describe('OutQueueManager', () => {
       const expected = { e: 'pv', eid: '20269f92-f07c-44a6-87ef-43e171305076' };
       outQueue.enqueueRequest(expected, 'http://example.com');
 
-      const retrievedQueue = JSON.parse(
-        window.localStorage.getItem('snowplowOutQueue_sp_post2') ?? fail('Unable to find local storage queue')
-      );
+      const retrievedQueue = getQueue();
       expect(retrievedQueue).toHaveLength(1);
       expect(retrievedQueue[0]).toMatchObject({ bytes: 55, evt: expected });
     });
@@ -92,12 +105,58 @@ describe('OutQueueManager', () => {
       outQueue.enqueueRequest(expected2, 'http://example.com');
       outQueue.enqueueRequest(unexpected, 'http://example.com');
 
-      const retrievedQueue = JSON.parse(
-        window.localStorage.getItem('snowplowOutQueue_sp_post2') ?? fail('Unable to find local storage queue')
-      );
+      const retrievedQueue = getQueue();
       expect(retrievedQueue).toHaveLength(maxQueueSize);
       expect(retrievedQueue[0]).toMatchObject({ bytes: 55, evt: expected1 });
       expect(retrievedQueue[1]).toMatchObject({ bytes: 55, evt: expected2 });
+    });
+
+    it('should remove events from event queue on success', () => {
+      const request = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
+      outQueue.enqueueRequest(request, 'http://example.com');
+
+      let retrievedQueue = getQueue();
+      expect(retrievedQueue).toHaveLength(1);
+
+      respondMockRequest(200);
+      retrievedQueue = getQueue();
+      expect(retrievedQueue).toHaveLength(0);
+    });
+
+    it('should keep events in queue on failure', () => {
+      const request = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
+      outQueue.enqueueRequest(request, 'http://example.com');
+
+      let retrievedQueue = getQueue();
+      expect(retrievedQueue).toHaveLength(1);
+
+      respondMockRequest(500);
+      retrievedQueue = getQueue();
+      expect(retrievedQueue).toHaveLength(1);
+    });
+
+    it('should retry on custom retry status code', () => {
+      const request = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
+      outQueue.enqueueRequest(request, 'http://example.com');
+
+      let retrievedQueue = getQueue();
+      expect(retrievedQueue).toHaveLength(1);
+
+      respondMockRequest(401);
+      retrievedQueue = getQueue();
+      expect(retrievedQueue).toHaveLength(1);
+    });
+
+    it("should not retry on custom don't retry status code", () => {
+      const request = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
+      outQueue.enqueueRequest(request, 'http://example.com');
+
+      let retrievedQueue = getQueue();
+      expect(retrievedQueue).toHaveLength(1);
+
+      respondMockRequest(505);
+      retrievedQueue = getQueue();
+      expect(retrievedQueue).toHaveLength(0);
     });
   });
 
@@ -125,7 +184,9 @@ describe('OutQueueManager', () => {
           5000,
           false,
           {},
-          true
+          true,
+          [],
+          []
         );
     });
 

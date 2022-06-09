@@ -60,6 +60,8 @@ export interface OutQueue {
  * @param anonymousTracking - Defines whether to set the SP-Anonymous header for anonymous tracking on GET and POST
  * @param customHeaders - Allows custom headers to be defined and passed on XMLHttpRequest requests
  * @param withCredentials - Sets the value of the withCredentials flag on XMLHttpRequest (GET and POST) requests
+ * @param retryStatusCodes – Failure HTTP response status codes from Collector for which sending events should be retried (they can override the `dontRetryStatusCodes`)
+ * @param dontRetryStatusCodes – Failure HTTP response status codes from Collector for which sending events should not be retried
  * @returns object OutQueueManager instance
  */
 export function OutQueueManager(
@@ -76,7 +78,9 @@ export function OutQueueManager(
   connectionTimeout: number,
   anonymousTracking: boolean,
   customHeaders: Record<string, string>,
-  withCredentials: boolean
+  withCredentials: boolean,
+  retryStatusCodes: number[],
+  dontRetryStatusCodes: number[]
 ): OutQueue {
   type PostEvent = {
     evt: Record<string, unknown>;
@@ -333,25 +337,34 @@ export function OutQueueManager(
         executingQueue = false;
       }, connectionTimeout);
 
-      // The events (`numberToSend` of them), have been sent, so we remove them from the outQueue
-      // We also call executeQueue() again, to let executeQueue() check if we should keep running through the queue
-      const onPostSuccess = (numberToSend: number): void => {
+      const removeEventsFromQueue = (numberToSend: number): void => {
         for (let deleteCount = 0; deleteCount < numberToSend; deleteCount++) {
           outQueue.shift();
         }
         if (useLocalStorage) {
           attemptWriteLocalStorage(queueName, JSON.stringify(outQueue.slice(0, maxLocalStorageQueueSize)));
         }
+      };
+
+      // The events (`numberToSend` of them), have been sent, so we remove them from the outQueue
+      // We also call executeQueue() again, to let executeQueue() check if we should keep running through the queue
+      const onPostSuccess = (numberToSend: number): void => {
+        removeEventsFromQueue(numberToSend);
         executeQueue();
       };
 
       xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status >= 200 && xhr.status < 400) {
+        if (xhr.readyState === 4 && xhr.status >= 200) {
           clearTimeout(xhrTimeout);
-          onPostSuccess(numberToSend);
-        } else if (xhr.readyState === 4 && xhr.status >= 400) {
-          clearTimeout(xhrTimeout);
-          executingQueue = false;
+          if (xhr.status < 300) {
+            onPostSuccess(numberToSend);
+          } else {
+            if (!shouldRetryForStatusCode(xhr.status)) {
+              LOG.error(`Status ${xhr.status}, will not retry.`);
+              removeEventsFromQueue(numberToSend);
+            }
+            executingQueue = false;
+          }
         }
       };
 
@@ -420,6 +433,21 @@ export function OutQueueManager(
     } else {
       executingQueue = false;
     }
+  }
+
+  function shouldRetryForStatusCode(statusCode: number) {
+    // success, don't retry
+    if (statusCode >= 200 && statusCode < 300) {
+      return false;
+    }
+
+    // retry if status code among custom user-supplied retry codes
+    if (retryStatusCodes.includes(statusCode)) {
+      return true;
+    }
+
+    // retry if status code *not* among the don't retry codes
+    return !dontRetryStatusCodes.includes(statusCode);
   }
 
   /**
