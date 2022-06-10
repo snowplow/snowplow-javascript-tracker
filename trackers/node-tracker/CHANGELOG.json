@@ -2,6 +2,18 @@
   "name": "@snowplow/node-tracker",
   "entries": [
     {
+      "version": "3.5.0",
+      "tag": "@snowplow/node-tracker_v3.5.0",
+      "date": "Fri, 10 Jun 2022 18:57:46 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add client session context entity (#1077)"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.4.0",
       "tag": "@snowplow/node-tracker_v3.4.0",
       "date": "Thu, 07 Apr 2022 11:56:26 GMT",
