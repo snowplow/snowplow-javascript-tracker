@@ -74,6 +74,23 @@ import {
   BrowserPluginConfiguration,
   ClearUserDataConfiguration,
 } from './types';
+import {
+  parseIdCookie,
+  initializeDomainUserId,
+  startNewIdCookieSession,
+  updateNowTsInIdCookie,
+  serializeIdCookie,
+  sessionIdFromIdCookie,
+  domainUserIdFromIdCookie,
+  updateFirstEventInIdCookie,
+  visitCountFromIdCookie,
+  cookiesEnabledInIdCookie,
+  ParsedIdCookie,
+  ClientSession,
+  clientSessionFromIdCookie,
+  incrementEventIndexInIdCookie,
+  emptyIdCookie,
+} from './id_cookie';
 
 declare global {
   interface Navigator {
@@ -287,7 +304,8 @@ export function Tracker(
         enabled: false,
         installed: false, // Guard against installing the activity tracker more than once per Tracker instance
         configurations: {},
-      };
+      },
+      configSessionContext = trackerConfiguration.contexts?.session ?? false;
 
     if (trackerConfiguration.hasOwnProperty('discoverRootDomain') && trackerConfiguration.discoverRootDomain) {
       configCookieDomain = findRootDomain(configCookieSameSite, configCookieSecure);
@@ -555,17 +573,9 @@ export function Tracker(
      * Sets the Visitor ID cookie: either the first time loadDomainUserIdCookie is called
      * or when there is a new visit or a new page view
      */
-    function setDomainUserIdCookie(
-      domainUserId: string,
-      createTs: number,
-      visitCount: number,
-      nowTs: number,
-      lastVisitTs: number,
-      sessionId: string
-    ) {
+    function setDomainUserIdCookie(idCookie: ParsedIdCookie) {
       const cookieName = getSnowplowCookieName('id');
-      const cookieValue =
-        domainUserId + '.' + createTs + '.' + visitCount + '.' + nowTs + '.' + lastVisitTs + '.' + sessionId;
+      const cookieValue = serializeIdCookie(idCookie);
       setCookie(cookieName, cookieValue, configVisitorCookieTimeout);
     }
 
@@ -639,36 +649,21 @@ export function Tracker(
       }
 
       const sesCookieSet = configStateStorageStrategy != 'none' && !!getSnowplowCookieValue('ses');
-      const idCookieComponents = loadDomainUserIdCookie();
+      const idCookie = loadDomainUserIdCookie();
 
-      if (idCookieComponents[1]) {
-        domainUserId = idCookieComponents[1] as string;
-      } else if (!configAnonymousTracking) {
-        domainUserId = uuid();
-        idCookieComponents[1] = domainUserId;
-      } else {
-        domainUserId = '';
-        idCookieComponents[1] = domainUserId;
-      }
-
-      memorizedSessionId = idCookieComponents[6] as string;
+      domainUserId = initializeDomainUserId(idCookie, configAnonymousTracking);
 
       if (!sesCookieSet) {
-        // Increment the session ID
-        (idCookieComponents[3] as number)++;
-        // Create a new sessionId
-        memorizedSessionId = uuid();
-        idCookieComponents[6] = memorizedSessionId;
-        // Set lastVisitTs to currentVisitTs
-        idCookieComponents[5] = idCookieComponents[4];
+        memorizedSessionId = startNewIdCookieSession(idCookie);
+      } else {
+        memorizedSessionId = sessionIdFromIdCookie(idCookie);
       }
 
       if (configStateStorageStrategy != 'none') {
         setSessionCookie();
         // Update currentVisitTs
-        idCookieComponents[4] = Math.round(new Date().getTime() / 1000);
-        idCookieComponents.shift();
-        setDomainUserIdCookie.apply(null, idCookieComponents as any); // TODO: Remove any
+        updateNowTsInIdCookie(idCookie);
+        setDomainUserIdCookie(idCookie);
       }
     }
 
@@ -677,40 +672,10 @@ export function Tracker(
      */
     function loadDomainUserIdCookie() {
       if (configStateStorageStrategy == 'none') {
-        return [];
+        return emptyIdCookie();
       }
-      let now = new Date(),
-        nowTs = Math.round(now.getTime() / 1000),
-        id = getSnowplowCookieValue('id'),
-        tmpContainer;
-
-      if (id) {
-        tmpContainer = id.split('.');
-        // cookies enabled
-        tmpContainer.unshift('0');
-      } else {
-        tmpContainer = [
-          // cookies disabled
-          '1',
-          // Domain user ID
-          domainUserId,
-          // Creation timestamp - seconds since Unix epoch
-          nowTs,
-          // visitCount - 0 = no previous visit
-          0,
-          // Current visit timestamp
-          nowTs,
-          // Last visit timestamp - blank meaning no previous visit
-          '',
-        ];
-      }
-
-      if (!tmpContainer[6] || tmpContainer[6] === 'undefined') {
-        // session id
-        tmpContainer[6] = uuid();
-      }
-
-      return tmpContainer;
+      const id = getSnowplowCookieValue('id') || undefined;
+      return parseIdCookie(id, domainUserId, memorizedSessionId, memorizedVisitCount);
     }
 
     /**
@@ -779,16 +744,8 @@ export function Tracker(
           const anonymizeSessionOr = (value?: string | number | null) =>
             configAnonymousSessionTracking ? value : anonymizeOr(value);
 
-          let nowTs = Math.round(new Date().getTime() / 1000),
-            ses = getSnowplowCookieValue('ses'),
-            id = loadDomainUserIdCookie(),
-            cookiesDisabled = id[0],
-            _domainUserId = id[1] as string, // We could use the global (domainUserId) but this is better etiquette
-            createTs = id[2] as number,
-            visitCount = id[3] as number,
-            currentVisitTs = id[4] as number,
-            lastVisitTs = id[5] as number,
-            sessionIdFromCookie = id[6] as string;
+          let ses = getSnowplowCookieValue('ses'),
+            idCookie = loadDomainUserIdCookie();
 
           let toOptoutByCookie;
           if (configOptOutCookie) {
@@ -803,30 +760,30 @@ export function Tracker(
           }
 
           // If cookies are enabled, base visit count and session ID on the cookies
-          if (cookiesDisabled === '0') {
-            memorizedSessionId = sessionIdFromCookie as string;
-
+          if (cookiesEnabledInIdCookie(idCookie)) {
             // New session?
             if (!ses && configStateStorageStrategy != 'none') {
-              // New session (aka new visit)
-              (visitCount as number)++;
-              // Update the last visit timestamp
-              lastVisitTs = currentVisitTs;
-              // Regenerate the session ID
-              memorizedSessionId = uuid();
+              memorizedSessionId = startNewIdCookieSession(idCookie);
+            } else {
+              memorizedSessionId = sessionIdFromIdCookie(idCookie);
             }
 
-            memorizedVisitCount = visitCount as number;
+            memorizedVisitCount = visitCountFromIdCookie(idCookie);
           } else if (new Date().getTime() - lastEventTime > configSessionCookieTimeout * 1000) {
-            memorizedSessionId = uuid();
             memorizedVisitCount++;
+            memorizedSessionId = startNewIdCookieSession(idCookie, memorizedVisitCount);
           }
+
+          // Update cookie
+          updateNowTsInIdCookie(idCookie);
+          updateFirstEventInIdCookie(idCookie, payloadBuilder);
+          incrementEventIndexInIdCookie(idCookie);
 
           payloadBuilder.add('vp', detectViewport());
           payloadBuilder.add('ds', detectDocumentSize());
           payloadBuilder.add('vid', anonymizeSessionOr(memorizedVisitCount));
           payloadBuilder.add('sid', anonymizeSessionOr(memorizedSessionId));
-          payloadBuilder.add('duid', anonymizeOr(_domainUserId)); // Set to our local variable
+          payloadBuilder.add('duid', anonymizeOr(domainUserIdFromIdCookie(idCookie))); // Always load from cookie as this is better ettiquette than in-memory values
           payloadBuilder.add('uid', anonymizeOr(businessUserId));
 
           refreshUrl();
@@ -836,9 +793,13 @@ export function Tracker(
           // Add the page URL last as it may take us over the IE limit (and we don't always need it)
           payloadBuilder.add('url', purify(configCustomUrl || locationHrefAlias));
 
+          if (configSessionContext && !configAnonymousSessionTracking && !configAnonymousTracking) {
+            addSessionContextToPayload(payloadBuilder, clientSessionFromIdCookie(idCookie, configStateStorageStrategy));
+          }
+
           // Update cookies
           if (configStateStorageStrategy != 'none') {
-            setDomainUserIdCookie(_domainUserId, createTs, memorizedVisitCount, nowTs, lastVisitTs, memorizedSessionId);
+            setDomainUserIdCookie(idCookie);
             setSessionCookie();
           }
 
@@ -847,47 +808,44 @@ export function Tracker(
       };
     }
 
+    function addSessionContextToPayload(payloadBuilder: PayloadBuilder, clientSession: ClientSession) {
+      let sessionContext: SelfDescribingJson<ClientSession> = {
+        schema: 'iglu:com.snowplowanalytics.snowplow/client_session/jsonschema/1-0-2',
+        data: clientSession,
+      };
+      payloadBuilder.addContextEntity(sessionContext);
+    }
+
     /**
      * Expires current session and starts a new session.
      */
     function newSession() {
       // If cookies are enabled, base visit count and session ID on the cookies
-      let nowTs = Math.round(new Date().getTime() / 1000),
-        id = loadDomainUserIdCookie(),
-        cookiesDisabled = id[0],
-        _domainUserId = id[1] as string, // We could use the global (domainUserId) but this is better etiquette
-        createTs = id[2] as number,
-        visitCount = id[3] as number,
-        currentVisitTs = id[4] as number,
-        lastVisitTs = id[5] as number,
-        sessionIdFromCookie = id[6] as string;
+      let idCookie = loadDomainUserIdCookie();
 
       // When cookies are enabled
-      if (cookiesDisabled === '0') {
-        memorizedSessionId = sessionIdFromCookie;
-
+      if (cookiesEnabledInIdCookie(idCookie)) {
         // When cookie/local storage is enabled - make a new session
         if (configStateStorageStrategy != 'none') {
-          // New session (aka new visit)
-          visitCount++;
-          // Update the last visit timestamp
-          lastVisitTs = currentVisitTs;
-          // Regenerate the session ID
-          memorizedSessionId = uuid();
+          memorizedSessionId = startNewIdCookieSession(idCookie);
+        } else {
+          memorizedSessionId = sessionIdFromIdCookie(idCookie);
         }
 
-        memorizedVisitCount = visitCount;
+        memorizedVisitCount = visitCountFromIdCookie(idCookie);
 
         // Create a new session cookie
         setSessionCookie();
       } else {
-        memorizedSessionId = uuid();
         memorizedVisitCount++;
+        memorizedSessionId = startNewIdCookieSession(idCookie, memorizedVisitCount);
       }
+
+      updateNowTsInIdCookie(idCookie);
 
       // Update cookies
       if (configStateStorageStrategy != 'none') {
-        setDomainUserIdCookie(_domainUserId, createTs, memorizedVisitCount, nowTs, lastVisitTs, memorizedSessionId);
+        setDomainUserIdCookie(idCookie);
         setSessionCookie();
       }
 

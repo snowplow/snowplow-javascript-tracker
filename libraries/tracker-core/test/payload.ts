@@ -142,3 +142,40 @@ test('payloadBuilder with no json processor, processes no json', (t) => {
 
   t.deepEqual(sb.build(), {}, 'JSON should be missing');
 });
+
+test('Add a context entity', (t) => {
+  const sb = payloadBuilder();
+  sb.withJsonProcessor(payloadJsonProcessor(false));
+  sb.addContextEntity(sampleJson.data[0]);
+  sb.addContextEntity(sampleJson.data[1]);
+  let payload = sb.build();
+  t.deepEqual(payload, expectedPayloads[0], 'JSON should be added correctly');
+});
+
+test('Maintain context entities after subsequent builds', (t) => {
+  const sb = payloadBuilder();
+  sb.withJsonProcessor(payloadJsonProcessor(true));
+  sb.addContextEntity(sampleJson.data[0]);
+  sb.build();
+  sb.addContextEntity(sampleJson.data[1]);
+  let payload = sb.build();
+  t.deepEqual(payload, expectedPayloads[1], 'JSON should be added correctly');
+});
+
+test('Add multiple context entities through addJson', (t) => {
+  const sb = payloadBuilder();
+  sb.withJsonProcessor(payloadJsonProcessor(true));
+  sb.addJson('cx', 'co', { schema: sampleJson.schema, data: [sampleJson.data[0]] });
+  sb.addJson('cx', 'co', { schema: sampleJson.schema, data: [sampleJson.data[1]] });
+  let payload = sb.build();
+  t.deepEqual(payload, expectedPayloads[1], 'JSON should be added correctly');
+});
+
+test('Combines context entities added through addJson and addContextEntity', (t) => {
+  const sb = payloadBuilder();
+  sb.withJsonProcessor(payloadJsonProcessor(true));
+  sb.addJson('cx', 'co', { schema: sampleJson.schema, data: [sampleJson.data[0]] });
+  sb.addContextEntity(sampleJson.data[1]);
+  let payload = sb.build();
+  t.deepEqual(payload, expectedPayloads[1], 'JSON should be added correctly');
+});

@@ -89,6 +89,77 @@ describe('Sessions', () => {
     ).toBe(true);
   });
 
+  it('should only add session context when enabled', () => {
+    const events = (ev: any) =>
+      F.get('event.name_tracker', ev) !== 'cookieSessionTracker' &&
+      F.get('contexts[0]', ev) === 'iglu:com.snowplowanalytics.snowplow/client_session/jsonschema/1-0-2';
+
+    expect(F.size(F.filter(events, log))).toBe(0);
+  });
+
+  it('should have the same information in session context as in event properties', () => {
+    const events = F.filter((ev: any) => F.get('event.name_tracker', ev) === 'cookieSessionTracker', log);
+
+    expect(F.size(events)).toBe(3);
+    expect(
+      F.size(
+        F.filter((e: any) => F.get('event.contexts.data[0].data.userId', e) === F.get('event.domain_userid', e), events)
+      )
+    ).toBe(3);
+    expect(
+      F.size(
+        F.filter(
+          (e: any) => F.get('event.contexts.data[0].data.sessionId', e) === F.get('event.domain_sessionid', e),
+          events
+        )
+      )
+    ).toBe(3);
+    expect(
+      F.size(
+        F.filter(
+          (e: any) => F.get('event.contexts.data[0].data.sessionIndex', e) === F.get('event.domain_sessionidx', e),
+          events
+        )
+      )
+    ).toBe(3);
+  });
+
+  it('should increment event index in session context', () => {
+    const events: any[] = F.filter((ev: any) => F.get('event.name_tracker', ev) === 'cookieSessionTracker', log);
+    events.sort((a, b) => a.event.dvce_created_tstamp.localeCompare(b.event.dvce_created_tstamp));
+    const getEventIndex = (e: any) => e.event.contexts.data[0].data.eventIndex;
+
+    expect(getEventIndex(events[0])).toBe(1);
+    expect(getEventIndex(events[1])).toBe(2);
+    expect(getEventIndex(events[2])).toBe(1);
+  });
+
+  it('should match first event references to first event in session', () => {
+    const events: any[] = F.filter((ev: any) => F.get('event.name_tracker', ev) === 'cookieSessionTracker', log);
+    events.sort((a, b) => a.event.dvce_created_tstamp.localeCompare(b.event.dvce_created_tstamp));
+    const getFirstEventId = (e: any) => e.event.contexts.data[0].data.firstEventId;
+    const getFirstEventTimestamp = (e: any) => e.event.contexts.data[0].data.firstEventTimestamp;
+
+    expect(getFirstEventId(events[0])).toBe(events[0].event.event_id);
+    expect(getFirstEventId(events[1])).toBe(events[0].event.event_id);
+    expect(getFirstEventId(events[2])).toBe(events[2].event.event_id);
+
+    expect(getFirstEventTimestamp(events[0])).toBe(events[0].event.dvce_created_tstamp);
+    expect(getFirstEventTimestamp(events[1])).toBe(events[0].event.dvce_created_tstamp);
+    expect(getFirstEventTimestamp(events[2])).toBe(events[2].event.dvce_created_tstamp);
+  });
+
+  it('should match previous session ID in session context', () => {
+    const events: any[] = F.filter((ev: any) => F.get('event.name_tracker', ev) === 'cookieSessionTracker', log);
+    events.sort((a, b) => a.event.dvce_created_tstamp.localeCompare(b.event.dvce_created_tstamp));
+    const getSessionId = (e: any) => e.event.domain_sessionid;
+    const getPreviousSessionId = (e: any) => e.event.contexts.data[0].data.previousSessionId;
+
+    expect(getPreviousSessionId(events[0])).toBeNull;
+    expect(getPreviousSessionId(events[1])).toBeNull;
+    expect(getPreviousSessionId(events[2])).toBe(getSessionId(events[0]));
+  });
+
   it('should only increment domain_sessionidx outside of session timeout (local storage)', () => {
     const withSingleVid = (ev: unknown) =>
       F.get('event.name_tracker', ev) === 'localStorageSessionTracker' && F.get('event.domain_sessionidx', ev) === 1;

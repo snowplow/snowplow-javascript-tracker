@@ -67,7 +67,7 @@ describe('Tracker created domain cookies', () => {
       /\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b/i
     );
     expect(await $('#getDomainUserInfo').getText()).toMatch(
-      /\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b.[0-9]+.[0-9].[0-9]+.[0-9]+.\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b/i
+      /\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b.[0-9]+.[0-9].[0-9]+.[0-9]*.\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b.(\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b)?.(\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b)?.[0-9]*.[0-9]+/i
     );
     expect(await $('#getUserId').getText()).toBe('Dave');
     expect(await $('#getCookieName').getText()).toMatch(/_sp_1id.[0-9a-z]{4}/i);
