@@ -17,6 +17,7 @@ interface PayloadBuilder
 |  Property | Type | Description |
 |  --- | --- | --- |
 |  [add](./node-tracker.payloadbuilder.add.md) | (key: string, value: unknown) =&gt; void | Adds an entry to the Payload |
+|  [addContextEntity](./node-tracker.payloadbuilder.addcontextentity.md) | (entity: SelfDescribingJson) =&gt; void | Caches a context entity to be added to payload on build |
 |  [addDict](./node-tracker.payloadbuilder.adddict.md) | (dict: Payload) =&gt; void | Merges a payload into the existing payload |
 |  [addJson](./node-tracker.payloadbuilder.addjson.md) | (keyIfEncoded: string, keyIfNotEncoded: string, json: Record&lt;string, unknown&gt;) =&gt; void | Caches a JSON object to be added to payload on build |
 |  [build](./node-tracker.payloadbuilder.build.md) | () =&gt; Payload | Builds and returns the Payload |
