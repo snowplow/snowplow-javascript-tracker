@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/tracker-core",
+      "comment": "Add client session context entity (#1077)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/tracker-core"
+}

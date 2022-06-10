@@ -32,6 +32,12 @@
 
       window.snowplow('newTracker', 'cookieSessionTracker', collector_endpoint, {
         sessionCookieTimeout: 1,
+        cookieSameSite: 'Lax',
+        cookieSecure: false,
+        contexts: {
+          session: true,
+          webPage: false,
+        },
       });
 
       setTimeout(function () {
