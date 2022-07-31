@@ -47,7 +47,9 @@ npm install @snowplow/tracker-core
 const trackerCore = require('@snowplow/tracker-core').trackerCore;
 
 // Create an instance with base 64 encoding set to false (it defaults to true)
-const core = trackerCore(false);
+const core = trackerCore({
+    base64: false
+});
 ```
 
 ### ES Module Example
@@ -56,7 +58,9 @@ const core = trackerCore(false);
 import { trackerCore } from '@snowplow/tracker-core';
 
 // Create an instance with base 64 encoding set to false (it defaults to true)
-const core = trackerCore(false)
+const core = trackerCore({
+    base64: false
+})
 ```
 
 ### Example
@@ -72,76 +76,78 @@ core.addPayloadDict({
 });
 
 // Add name-value pairs to all payloads using convenience methods
-core.setTrackerVersion('js-3.0.0');
+core.setTrackerVersion('js-3.5.0');
 core.setPlatform('web');
 core.setUserId('user-321');
-core.setColorDepth(24);
-core.setViewport(600, 400);
+core.setColorDepth('24');
+core.setViewport('600', '400');
 core.setUseragent('Snowplow/0.0.1');
 
 // Track a page view with URL and title
-const pageViewPayload = core.track(buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'landing page'});
+const pageViewPayload = core.track(
+    buildPageView({
+        pageUrl: 'http://www.example.com',
+        pageTitle: 'landing page',
+    })
+);
 
-console.log(pageViewPayload.build());
+console.log(pageViewPayload);
 /*
 {
     'e': 'pv',
     'url': 'http://www.example.com',
     'page': 'landing page',
     'uid': 'user-321',
-    'vd': 2,
+    'vid': 2,
     'ds': '1160x620',
-    'fp': 4070134789
-    'tv': 'js-3.0.0',
+    'fp': 4070134789,
+    'tv': 'js-3.5.0',
     'p': 'web',
-    'cd': 24,
+    'cd': '24',
     'vp': '600x400',
     'ua': 'Snowplow/0.0.1',
-    'dtm': 1406879959702,                          // timestamp
-    'eid': '0718a85a-45dc-4f71-a949-27870442ed7d'  // UUID
+    'dtm': '1406879959702',                          // timestamp
+    'eid': 'cd39f493-dd3c-4838-b096-6e6f31015409'    // UUID
 }
 */
 
-// Stop automatically adding tv, p, and dtm to the payload
-core.resetPayloadPairs();
+// Stop automatically adding tv, p, and dtm to the payload.
+core.resetPayloadPairs({});
 
 // Track an unstructured event
-const selfDescribingEventPayload = core.track(buildSelfDescribingEvent({ 
-    event: {
-        'schema': 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-0',
-        'data': {
-            'targetUrl': 'http://www.destination.com',
-            'elementId': 'bannerLink'
-        }
-    }
-});
-
-console.log(selfDescribingEventPayload.build());
-/*
-{
-    'e': 'ue',
-    'ue_pr': {
-        'schema': 'iglu:com.snowplowanalytics.snowplow/unstruct_even/jsonschema/1-0-0',
-        'data': {
+const selfDescribingEventPayload = core.track(
+    buildSelfDescribingEvent({
+        event: {
             'schema': 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-0',
             'data': {
                 'targetUrl': 'http://www.destination.com',
                 'elementId': 'bannerLink'
             }
         }
-    },
-    'dtm': 1406879973439,
-    'eid': '956c6670-cbf6-460b-9f96-143e0320fdf6'
+    })
+);
+
+console.log(selfDescribingEventPayload);
+/*
+{
+    'e': 'ue',
+    'eid': '4ed5da6b-7fff-4f24-a8a9-21bc749881c6',
+    'dtm': '1659086693634',
+    'ue_pr': "{\"schema\":\"iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0\",\"data\":{\"schema\":\"iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-0\",\"data\":{\"targetUrl\":\"http://www.destination.com\",\"elementId\":\"bannerLink\"}}}"
 }
 */
 ```
 
 ## Other features
 
-Core instances can be initialized with three parameters. The first is a boolean and determines whether custom contexts and unstructured events will be base 64 encoded. The second are optional Core Plugins, these can be used to intercept payload creation and add contexts on every event. The third is an optional callback function which gets applied to every payload created by the instance.
+Core instances can be initialized with a configuration object. `base64` Determines whether custom contexts and unstructured events will be base 64 encoded.  `corePlugins` are used to intercept payload creation and add contexts on every event. `callback` is an optional callback function which gets applied to every payload created by the instance.
 
 ```js
-const core = trackerCore(true, [], console.log);
+const core = trackerCore({
+    base64: true,
+    corePlugins: [/* Your plugins here*/],
+    callback: console.log
+});
 ```
 
 The above example would base 64 encode all unstructured events and custom contexts and would log each payload to the console.
