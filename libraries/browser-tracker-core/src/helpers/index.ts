@@ -28,6 +28,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+export * from './storage';
+
 declare global {
   interface EventTarget {
     attachEvent?: (type: string, fn: EventListenerOrEventListenerObject) => void;
@@ -222,97 +224,6 @@ export function decorateQuerystring(url: string, name: string, value: string) {
   }
   hashSplit[0] = beforeQuerystring + '?' + querystring;
   return hashSplit.join('#');
-}
-
-/**
- * Attempt to get a value from localStorage
- *
- * @param string - key
- * @returns string The value obtained from localStorage, or
- *                undefined if localStorage is inaccessible
- */
-export function attemptGetLocalStorage(key: string) {
-  try {
-    const localStorageAlias = window.localStorage,
-      exp = localStorageAlias.getItem(key + '.expires');
-    if (exp === null || +exp > Date.now()) {
-      return localStorageAlias.getItem(key);
-    } else {
-      localStorageAlias.removeItem(key);
-      localStorageAlias.removeItem(key + '.expires');
-    }
-    return undefined;
-  } catch (e) {
-    return undefined;
-  }
-}
-
-/**
- * Attempt to write a value to localStorage
- *
- * @param string - key
- * @param string - value
- * @param number - ttl Time to live in seconds, defaults to 2 years from Date.now()
- * @returns boolean Whether the operation succeeded
- */
-export function attemptWriteLocalStorage(key: string, value: string, ttl = 63072000) {
-  try {
-    const localStorageAlias = window.localStorage,
-      t = Date.now() + ttl * 1000;
-    localStorageAlias.setItem(`${key}.expires`, t.toString());
-    localStorageAlias.setItem(key, value);
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-
-/**
- * Attempt to delete a value from localStorage
- *
- * @param string - key
- * @returns boolean Whether the operation succeeded
- */
-export function attemptDeleteLocalStorage(key: string) {
-  try {
-    const localStorageAlias = window.localStorage;
-    localStorageAlias.removeItem(key);
-    localStorageAlias.removeItem(key + '.expires');
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-
-/**
- * Attempt to get a value from sessionStorage
- *
- * @param string - key
- * @returns string The value obtained from sessionStorage, or
- *                undefined if sessionStorage is inaccessible
- */
-export function attemptGetSessionStorage(key: string) {
-  try {
-    return window.sessionStorage.getItem(key);
-  } catch (e) {
-    return undefined;
-  }
-}
-
-/**
- * Attempt to write a value to sessionStorage
- *
- * @param string - key
- * @param string - value
- * @returns boolean Whether the operation succeeded
- */
-export function attemptWriteSessionStorage(key: string, value: string) {
-  try {
-    window.sessionStorage.setItem(key, value);
-    return true;
-  } catch (e) {
-    return false;
-  }
 }
 
 /**

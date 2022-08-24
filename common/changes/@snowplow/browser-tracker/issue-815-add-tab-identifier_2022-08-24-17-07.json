@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-tracker",
+      "comment": "Add tracker.getTabId() API.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker"
+}
