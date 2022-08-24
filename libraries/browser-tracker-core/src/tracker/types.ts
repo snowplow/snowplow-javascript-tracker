@@ -37,6 +37,18 @@ import {
 } from '@snowplow/tracker-core';
 import { SharedState } from '../state';
 
+type RequireAtLeastOne<T> = { [K in keyof T]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<keyof T, K>>> }[keyof T];
+
+/* Available built-in contexts */
+export type BuiltInContexts =
+  | RequireAtLeastOne<{
+      /* Toggles the web_page context */
+      webPage: boolean;
+      /* Toggles the session context */
+      session: boolean;
+    }>
+  | Record<string, never>;
+
 /* Configuration for Anonymous Tracking */
 export type AnonymousTrackingOptions = boolean | { withSessionTracking?: boolean; withServerAnonymisation?: boolean };
 /* Available configurations for different storage strategies */
@@ -139,7 +151,7 @@ export type TrackerConfiguration = {
   bufferSize?: number;
   /**
    * Configure the cross domain linker which will add user identifiers to
-   * links becaused on the callback
+   * links on the callback
    */
   crossDomainLinker?: (elt: HTMLAnchorElement | HTMLAreaElement) => boolean;
   /**
@@ -162,7 +174,7 @@ export type TrackerConfiguration = {
    */
   discoverRootDomain?: boolean;
   /**
-   * The storage strategy which the tracker will use for storing user and session identifers
+   * The storage strategy which the tracker will use for storing user and session identifiers
    * and if local storage is allowed for buffering the events
    * @defaultValue cookieAndLocalStorage
    */
@@ -189,7 +201,7 @@ export type TrackerConfiguration = {
    */
   connectionTimeout?: number;
   /**
-   * Condifugration for Anonymous Tracking
+   * Configuration for Anonymous Tracking
    * @defaultValue false
    */
   anonymousTracking?: AnonymousTrackingOptions;
@@ -197,7 +209,7 @@ export type TrackerConfiguration = {
    * Use to configure built in contexts
    * @defaultValue `{ webPage: true, session: false }`
    */
-  contexts?: { webPage: boolean; session: boolean };
+  contexts?: BuiltInContexts;
   /**
    * Inject plugins which will be evaluated for each event
    * @defaultValue []
@@ -432,7 +444,7 @@ export interface BrowserTracker {
   newSession: () => void;
 
   /**
-   * Enable querystring decoration for links pasing a filter
+   * Enable querystring decoration for links passing a filter
    *
    * @param crossDomainLinkerCriterion - Function used to determine which links to decorate
    */
