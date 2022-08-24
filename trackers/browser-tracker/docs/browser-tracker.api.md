@@ -98,6 +98,16 @@ export interface BrowserTracker {
     updatePageActivity: () => void;
 }
 
+// Warning: (ae-forgotten-export) The symbol "RequireAtLeastOne" needs to be exported by the entry point index.module.d.ts
+//
+// @public (undocumented)
+export type BuiltInContexts = RequireAtLeastOne<{
+    /* Toggles the web_page context */
+    webPage: boolean;
+    /* Toggles the session context */
+    session: boolean;
+}> | Record<string, never>;
+
 // @public
 export function clearGlobalContexts(trackers?: Array<string>): void;
 
@@ -329,10 +339,7 @@ export type TrackerConfiguration = {
     resetActivityTrackingOnPageView?: boolean;
     connectionTimeout?: number;
     anonymousTracking?: AnonymousTrackingOptions;
-    contexts?: {
-        webPage: boolean;
-        session: boolean;
-    };
+    contexts?: BuiltInContexts;
     plugins?: Array<BrowserPlugin>;
     customHeaders?: Record<string, string>;
     retryStatusCodes?: number[];
