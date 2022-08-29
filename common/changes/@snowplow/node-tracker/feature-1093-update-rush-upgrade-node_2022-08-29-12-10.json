@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/node-tracker",
+      "comment": "",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/node-tracker"
+}
