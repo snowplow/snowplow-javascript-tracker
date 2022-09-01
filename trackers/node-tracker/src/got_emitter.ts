@@ -49,7 +49,7 @@ import { Emitter, HttpProtocol, HttpMethod, preparePayload } from './emitter';
  */
 export function gotEmitter(
   endpoint: string,
-  protocol: HttpProtocol,
+  protocol: HttpProtocol = HttpProtocol.HTTPS,
   port?: number,
   method?: HttpMethod,
   bufferSize?: number,

@@ -35,7 +35,7 @@ import { tracker, gotEmitter } from '@snowplow/node-tracker';
 
 const e = gotEmitter(
   'collector.mydomain.net', // Collector endpoint
-  snowplow.HttpProtocol.HTTPS, // Optionally specify a method - http is the default
+  snowplow.HttpProtocol.HTTPS, // Optionally specify a method - https is the default
   8080, // Optionally specify a port
   snowplow.HttpMethod.POST, // Method - defaults to GET
   5 // Only send events once n are buffered. Defaults to 1 for GET requests and 10 for POST requests.
