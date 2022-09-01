@@ -60,7 +60,7 @@ test('gotEmitter should send an HTTP GET request', async (t) => {
   await new Promise((resolve, reject) => {
     const e = gotEmitter(
       endpoint,
-      HttpProtocol.HTTP,
+      HttpProtocol.HTTPS,
       80,
       HttpMethod.GET,
       undefined,
@@ -80,7 +80,7 @@ test('gotEmitter should send an HTTP POST request', async (t) => {
   await new Promise((resolve, reject) => {
     const e = gotEmitter(
       endpoint,
-      HttpProtocol.HTTP,
+      HttpProtocol.HTTPS,
       undefined,
       HttpMethod.POST,
       1,
@@ -185,7 +185,7 @@ test('gotEmitter should add STM querystring parameter when sending POST requests
   await new Promise((resolve, reject) => {
     const e = gotEmitter(
       endpoint,
-      HttpProtocol.HTTP,
+      HttpProtocol.HTTPS,
       undefined,
       HttpMethod.POST,
       1,
