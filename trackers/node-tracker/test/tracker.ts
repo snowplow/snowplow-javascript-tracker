@@ -133,7 +133,7 @@ for (const method of testMethods) {
     await new Promise((resolve, reject) => {
       const e = gotEmitter(
         endpoint,
-        HttpProtocol.HTTP,
+        HttpProtocol.HTTPS,
         undefined,
         method,
         0,
@@ -169,7 +169,7 @@ for (const method of testMethods) {
     await new Promise((resolve, reject) => {
       const e = gotEmitter(
         endpoint,
-        HttpProtocol.HTTP,
+        HttpProtocol.HTTPS,
         undefined,
         method,
         0,
@@ -207,7 +207,7 @@ for (const method of testMethods) {
     await new Promise((resolve, reject) => {
       const e = gotEmitter(
         endpoint,
-        HttpProtocol.HTTP,
+        HttpProtocol.HTTPS,
         undefined,
         method,
         0,
@@ -278,7 +278,7 @@ for (const method of testMethods) {
       await new Promise((resolve, reject) => {
         const e = gotEmitter(
           endpoint,
-          HttpProtocol.HTTP,
+          HttpProtocol.HTTPS,
           undefined,
           method,
           0,
@@ -354,7 +354,7 @@ for (const method of testMethods) {
     await new Promise((resolve, reject) => {
       const e = gotEmitter(
         endpoint,
-        HttpProtocol.HTTP,
+        HttpProtocol.HTTPS,
         undefined,
         method,
         0,
@@ -393,7 +393,7 @@ for (const method of testMethods) {
     await new Promise((resolve, reject) => {
       const e = gotEmitter(
         endpoint,
-        HttpProtocol.HTTP,
+        HttpProtocol.HTTPS,
         undefined,
         method,
         0,
@@ -432,7 +432,7 @@ for (const method of testMethods) {
     await new Promise((resolve, reject) => {
       const e = gotEmitter(
         endpoint,
-        HttpProtocol.HTTP,
+        HttpProtocol.HTTPS,
         undefined,
         method,
         0,
@@ -475,7 +475,7 @@ for (const method of testMethods) {
       await new Promise((resolve, reject) => {
         const e = gotEmitter(
           endpoint,
-          HttpProtocol.HTTP,
+          HttpProtocol.HTTPS,
           undefined,
           method,
           0,
@@ -518,7 +518,7 @@ for (const method of testMethods) {
     await new Promise((resolve, reject) => {
       const e = gotEmitter(
         endpoint,
-        HttpProtocol.HTTP,
+        HttpProtocol.HTTPS,
         undefined,
         method,
         0,
@@ -553,7 +553,7 @@ for (const method of testMethods) {
     await new Promise((resolve, reject) => {
       const e = gotEmitter(
         endpoint,
-        HttpProtocol.HTTP,
+        HttpProtocol.HTTPS,
         undefined,
         method,
         0,
@@ -583,7 +583,7 @@ for (const method of testMethods) {
     await new Promise((resolve, reject) => {
       const e = gotEmitter(
         endpoint,
-        HttpProtocol.HTTP,
+        HttpProtocol.HTTPS,
         undefined,
         method,
         0,

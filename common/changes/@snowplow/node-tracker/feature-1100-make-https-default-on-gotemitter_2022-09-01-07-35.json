@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/node-tracker",
+      "comment": "Make HTTPS the default collector protocol in gotEmitter (close #1100)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/node-tracker"
+}
