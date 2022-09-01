@@ -49,3 +49,9 @@ jobs:
       - name: Check for API changes to @snowplow/node-tracker
         working-directory: ./trackers/node-tracker
         run: api-extractor run
+
+      - name: Check bundle size using bundlemon
+        run: npx bundlemon@1.4.0
+        env:
+          BUNDLEMON_PROJECT_ID: 630fceda4ed824a9d3733ec0
+          CI_COMMIT_SHA: ${{github.event.pull_request.head.sha || github.sha}}
