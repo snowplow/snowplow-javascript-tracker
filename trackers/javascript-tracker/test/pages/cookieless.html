@@ -44,6 +44,7 @@
       document.write(collector_endpoint);
 
       var ieTest = parseQuery().ieTest;
+      var withSessionTracking = parseQuery().withSessionTracking;
 
       window.snowplow('newTracker', 'sp', collector_endpoint, {
         appId: ieTest ? 'ie' : 'anon',
@@ -52,6 +53,8 @@
           webPage: true,
         },
         anonymousTracking: { withServerAnonymisation: true },
+        cookieSameSite: 'Lax',
+        cookieSecure: false,
       });
 
       window.snowplow('setUserId', 'Malcolm');
@@ -66,6 +69,15 @@
           window.snowplow('enableAnonymousTracking');
           window.snowplow('trackPageView', { title: 'Client Anon' });
         }, 2000);
+      }
+
+      if (withSessionTracking) {
+        setTimeout(function () {
+          window.snowplow('disableAnonymousTracking', { stateStorageStrategy: 'cookieAndLocalStorage' });
+          window.snowplow('trackPageView', { title: 'No Anon' });
+          window.snowplow('enableAnonymousTracking', { options: { withSessionTracking: true } });
+          window.snowplow('trackPageView', { title: 'Client Anon' });
+        }, 500);
       }
     </script>
   </body>

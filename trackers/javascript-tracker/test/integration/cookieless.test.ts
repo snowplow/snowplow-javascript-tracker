@@ -39,6 +39,8 @@ const retrieveSchemaData = (schema: unknown) => F.compose(F.get('data'), F.find(
 describe('Anonymous tracking features', () => {
   let log: Array<unknown> = [];
   let docker: DockerWrapper;
+  let cookies: { name: string; value: string }[] = [];
+  let cookiesWithSessionTracking: { name: string; value: string }[] = [];
 
   const listContains = (items: Array<unknown>, ev: unknown) => F.some(F.isMatch(ev as object), items);
 
@@ -48,14 +50,33 @@ describe('Anonymous tracking features', () => {
     await browser.setCookies({ name: 'container', value: docker.url });
     await browser.url('/cookieless.html');
     await browser.pause(5000); // Time for requests to get written
+    cookies = await browser.getCookies();
+
     await browser.url('/cookieless.html?ieTest=true');
     await browser.pause(2500); // Time for requests to get written
 
     log = await browser.call(async () => await fetchResults(docker.url));
+
+    await browser.url('/cookieless.html?ieTest=true&withSessionTracking=true');
+    await browser.pause(2500); // Time for requests to get written
+    cookiesWithSessionTracking = await browser.getCookies();
   });
 
   afterAll(async () => {
     await browser.call(async () => await stop(docker.container));
+  });
+
+  describe('sp_id cookies with user and session IDs', () => {
+    it('should not have the cookie with full anonymous tracking', () => {
+      expect(cookies.filter((c) => c.name.includes('_sp_id')).length).toBe(0);
+    });
+
+    it('should have the cookie without user ID if session tracking', () => {
+      let cookie = cookiesWithSessionTracking.filter((c) => c.name.includes('_sp_id'))[0];
+      expect(cookie).toBeTruthy();
+      // the cookie should start with . which means without domain_userid
+      expect(cookie.value.startsWith('.')).toBeTrue();
+    });
   });
 
   it('should have no user information in page view when server anonymisation ', () => {

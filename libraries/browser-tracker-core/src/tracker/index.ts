@@ -642,9 +642,14 @@ export function Tracker(
     /*
      * Load the domain user ID and the session ID
      * Set the cookies (if cookies are enabled)
+     * If anonymous tracking is enabled, it clears the anonymised identifiers
      */
     function initializeIdsAndCookies() {
       if (configAnonymousTracking && !configAnonymousSessionTracking) {
+        clearUserDataAndCookies({
+          preserveSession: false,
+          preserveUser: false,
+        });
         return;
       }
 
@@ -1200,6 +1205,9 @@ export function Tracker(
         trackerConfiguration.anonymousTracking = (configuration && configuration?.options) ?? true;
 
         toggleAnonymousTracking(configuration);
+
+        // Re-initialize the ID cookie which clears the domain_userid (if session tracking) or clears the whole cookie
+        initializeIdsAndCookies();
 
         // Reset the page view, if not tracking the session, so can't stitch user into new events on the page view id
         if (!configAnonymousSessionTracking) {

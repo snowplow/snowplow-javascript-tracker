@@ -202,7 +202,7 @@ export function parseIdCookie(
  */
 export function initializeDomainUserId(idCookie: ParsedIdCookie, configAnonymousTracking: boolean) {
   let domainUserId;
-  if (idCookie[domainUserIdIndex]) {
+  if (idCookie[domainUserIdIndex] && !configAnonymousTracking) {
     domainUserId = idCookie[domainUserIdIndex];
   } else if (!configAnonymousTracking) {
     domainUserId = uuid();

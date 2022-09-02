@@ -111,11 +111,15 @@ describe('initializeDomainUserId', () => {
   it('Uses existing ID if present', () => {
     let idCookie = parseIdCookie(`abc.1653632272.10.1653632272.1653632272`, '', '', 0);
 
-    let duidAnonymous = initializeDomainUserId(idCookie, true);
-    expect(duidAnonymous).toBe('abc');
-
     let duidNonAnonymous = initializeDomainUserId(idCookie, false);
     expect(duidNonAnonymous).toBe('abc');
+  });
+
+  it('Clears existing domain user ID if anonymous tracking', () => {
+    let idCookie = parseIdCookie(`abc.1653632272.10.1653632272.1653632272`, '', '', 0);
+
+    let duidAnonymous = initializeDomainUserId(idCookie, true);
+    expect(duidAnonymous).toBe('');
   });
 
   it('Generates a new ID', () => {
