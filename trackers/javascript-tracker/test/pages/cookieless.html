@@ -74,9 +74,7 @@
       if (withSessionTracking) {
         setTimeout(function () {
           window.snowplow('disableAnonymousTracking', { stateStorageStrategy: 'cookieAndLocalStorage' });
-          window.snowplow('trackPageView', { title: 'No Anon' });
           window.snowplow('enableAnonymousTracking', { options: { withSessionTracking: true } });
-          window.snowplow('trackPageView', { title: 'Client Anon' });
         }, 500);
       }
     </script>
