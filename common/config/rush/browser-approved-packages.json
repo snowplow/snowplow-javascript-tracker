@@ -23,6 +23,10 @@
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
+      "name": "@rollup/plugin-replace",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "@snowplow/browser-core",
       "allowedCategories": [ "plugins", "trackers" ]
     },
@@ -221,6 +225,10 @@
     {
       "name": "ava",
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
+    },
+    {
+      "name": "chalk",
+      "allowedCategories": [ "trackers" ]
     },
     {
       "name": "chromedriver",
