@@ -52,11 +52,17 @@ describe('Anonymous tracking features', () => {
     await browser.pause(5000); // Time for requests to get written
     cookiesAnonymousTracking = await browser.getCookies();
 
-    await browser.url('/cookieless.html?ieTest=true&withSessionTracking=true');
+    await browser.url('/cookieless.html?ieTest=true');
     await browser.pause(2500); // Time for requests to get written
-    cookiesWithSessionTracking = await browser.getCookies();
 
     log = await browser.call(async () => await fetchResults(docker.url));
+
+    // IE crashes on the second browser.getCookies() call, skip
+    if (!F.isMatch({ browserName: 'internet explorer' }, browser.capabilities)) {
+      await browser.url('/cookieless.html?withSessionTracking=true');
+      await browser.pause(1000); // Time for requests to get written
+      cookiesWithSessionTracking = await browser.getCookies();
+    }
   });
 
   afterAll(async () => {
@@ -197,10 +203,13 @@ describe('Anonymous tracking features', () => {
     expect(cookiesAnonymousTracking.filter((c) => c.name.includes('_sp_id')).length).toBe(0);
   });
 
-  it('should have the sp_id cookie without user ID if session tracking', () => {
-    let cookie = cookiesWithSessionTracking.filter((c) => c.name.includes('_sp_id'))[0];
-    expect(cookie).toBeTruthy();
-    // the cookie should start with . which means without domain_userid
-    expect(cookie.value.startsWith('.')).toBeTrue();
-  });
+  // Can't read cookies from IE as it crashes on the second browser.getCookies() call
+  if (!F.isMatch({ browserName: 'internet explorer' }, browser.capabilities)) {
+    it('should have the sp_id cookie without user ID if session tracking', () => {
+      let cookie = cookiesWithSessionTracking.filter((c) => c.name.includes('_sp_id'))[0];
+      expect(cookie).toBeTruthy();
+      // the cookie should start with . which means without domain_userid
+      expect(cookie.value.startsWith('.')).toBeTrue();
+    });
+  }
 });
