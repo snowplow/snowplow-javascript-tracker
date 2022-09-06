@@ -642,7 +642,7 @@ export function Tracker(
     /*
      * Load the domain user ID and the session ID
      * Set the cookies (if cookies are enabled)
-     * If anonymous tracking is enabled, it clears the anonymised identifiers
+     * If anonymous tracking is enabled, it clears the stored identifiers that should be anonymous
      */
     function initializeIdsAndCookies() {
       if (configAnonymousTracking && !configAnonymousSessionTracking) {
