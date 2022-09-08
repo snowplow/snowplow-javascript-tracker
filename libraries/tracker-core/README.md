@@ -76,7 +76,7 @@ core.addPayloadDict({
 });
 
 // Add name-value pairs to all payloads using convenience methods
-core.setTrackerVersion('js-3.5.0');
+core.setTrackerVersion('js-3.6.0');
 core.setPlatform('web');
 core.setUserId('user-321');
 core.setColorDepth('24');
@@ -101,7 +101,7 @@ console.log(pageViewPayload);
     'vid': 2,
     'ds': '1160x620',
     'fp': 4070134789,
-    'tv': 'js-3.5.0',
+    'tv': 'js-3.6.0',
     'p': 'web',
     'cd': '24',
     'vp': '600x400',
