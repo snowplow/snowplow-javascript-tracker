@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-ga-cookies",
+      "comment": "",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-ga-cookies"
+}
