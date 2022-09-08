@@ -53,6 +53,8 @@ import {
 } from '../src/core';
 import { Payload } from '../src/payload';
 
+const UUID_REGEX = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
+
 const selfDescribingEventSchema = 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0';
 let beforeCount = 0,
   afterCount = 0;
@@ -67,6 +69,22 @@ function compare(result: Payload, expected: Payload, t: ExecutionContext) {
   delete result['dtm'];
   t.deepEqual(result, expected);
 }
+
+test('tracker.track API should return the eid attribute', (t) => {
+  const pageUrl = 'http://www.example.com';
+  const pageTitle = 'title page';
+  const referrer = 'https://www.google.com';
+  const expected = {
+    e: 'pv',
+    url: pageUrl,
+    page: pageTitle,
+    refr: referrer,
+  };
+  const eventPayload = tracker.track(buildPageView({ pageUrl, pageTitle, referrer }));
+  t.truthy(eventPayload.eid);
+  t.regex(eventPayload.eid as string, UUID_REGEX);
+  compare(eventPayload, expected, t);
+});
 
 test('should track a page view', (t) => {
   const pageUrl = 'http://www.example.com';
