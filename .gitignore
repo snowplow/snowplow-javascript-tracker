@@ -75,9 +75,6 @@ dist
 trackers/javascript-tracker/test/pages/*.js
 trackers/javascript-tracker/test/local/serve/
 
-# Generated tag
-trackers/javascript-tracker/tags/tag.min.js
-
 # IDE files
 .idea/
 .DS_Store
