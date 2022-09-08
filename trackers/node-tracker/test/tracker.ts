@@ -46,6 +46,8 @@ import test, { ExecutionContext } from 'ava';
 import nock from 'nock';
 import querystring from 'querystring';
 
+const UUID_REGEX = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
+
 const testMethods = [HttpMethod.GET, HttpMethod.POST];
 
 const endpoint = 'd3rkrsqld9gmqf.cloudfront.net';
@@ -104,6 +106,18 @@ test.after(() => {
 });
 
 for (const method of testMethods) {
+  test(method + ' method: track API should return eid in the payload', async (t) => {
+    const e = gotEmitter(endpoint, HttpProtocol.HTTP);
+
+    const track = tracker(e, 'cf', 'cfe35', false);
+    const eventPayload = track.track(
+      buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'example page', referrer: 'http://google.com' }),
+      context
+    );
+    t.truthy(eventPayload.eid);
+    t.regex(eventPayload.eid as string, UUID_REGEX);
+  });
+
   test(method + ' method: trackPageView should send a page view event', async (t) => {
     const expected = {
       tv: 'node-' + version,
