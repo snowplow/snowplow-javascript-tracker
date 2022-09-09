@@ -305,7 +305,8 @@ export function Tracker(
         installed: false, // Guard against installing the activity tracker more than once per Tracker instance
         configurations: {},
       },
-      configSessionContext = trackerConfiguration.contexts?.session ?? false;
+      configSessionContext = trackerConfiguration.contexts?.session ?? false,
+      toOptoutByCookie: string | boolean;
 
     if (trackerConfiguration.hasOwnProperty('discoverRootDomain') && trackerConfiguration.discoverRootDomain) {
       configCookieDomain = findRootDomain(configCookieSameSite, configCookieSecure);
@@ -446,14 +447,6 @@ export function Tracker(
      * Send request
      */
     function sendRequest(request: PayloadBuilder) {
-      // Set to true if Opt-out cookie is defined
-      let toOptoutByCookie;
-      if (configOptOutCookie) {
-        toOptoutByCookie = !!cookie(configOptOutCookie);
-      } else {
-        toOptoutByCookie = false;
-      }
-
       if (!(configDoNotTrack || toOptoutByCookie)) {
         outQueue.enqueueRequest(request.build(), configCollectorUrl);
       }
@@ -610,7 +603,7 @@ export function Tracker(
       deleteCookie(sesname, configCookieDomain, configCookieSameSite, configCookieSecure);
       if (!configuration?.preserveSession) {
         memorizedSessionId = uuid();
-        memorizedVisitCount = 0;
+        memorizedVisitCount = 1;
       }
       if (!configuration?.preserveUser) {
         domainUserId = uuid();
@@ -658,6 +651,8 @@ export function Tracker(
       } else {
         memorizedSessionId = sessionIdFromIdCookie(idCookie);
       }
+
+      memorizedVisitCount = visitCountFromIdCookie(idCookie);
 
       if (configStateStorageStrategy != 'none') {
         setSessionCookie();
@@ -738,16 +733,15 @@ export function Tracker(
      * Also sets the required cookies.
      */
     function getBrowserDataPlugin() {
+      const anonymizeOr = (value?: string | number | null) => (configAnonymousTracking ? null : value);
+      const anonymizeSessionOr = (value?: string | number | null) =>
+        configAnonymousSessionTracking ? value : anonymizeOr(value);
+
       return {
         beforeTrack: (payloadBuilder: PayloadBuilder) => {
-          const anonymizeOr = (value?: string | number | null) => (configAnonymousTracking ? null : value);
-          const anonymizeSessionOr = (value?: string | number | null) =>
-            configAnonymousSessionTracking ? value : anonymizeOr(value);
-
           let ses = getSnowplowCookieValue('ses'),
             idCookie = loadDomainUserIdCookie();
 
-          let toOptoutByCookie;
           if (configOptOutCookie) {
             toOptoutByCookie = !!cookie(configOptOutCookie);
           } else {
