@@ -42,6 +42,7 @@ export const ecommerce = false;
 export const enhancedEcommerce = false;
 export const adTracking = false;
 export const siteTracking = false;
+export const snowplowEcommerceTracking = false;
 export const optimizely = false;
 export const browserFeatures = false;
 export const mediaTracking = false;

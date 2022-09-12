@@ -28,22 +28,40 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-export const performanceTiming = true;
-export const gaCookies = true;
-export const geolocation = true;
-export const optimizelyX = true;
-export const clientHints = true;
-export const consent = true;
-export const linkClickTracking = true;
-export const formTracking = true;
-export const errorTracking = true;
-export const timezone = true;
-export const ecommerce = true;
-export const enhancedEcommerce = true;
-export const adTracking = true;
-export const siteTracking = true;
-export const snowplowEcommerceTracking = false;
-export const optimizely = false;
-export const browserFeatures = false;
-export const mediaTracking = false;
-export const youtubeTracking = false;
+import { nodeResolve } from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
+import ts from 'rollup-plugin-ts'; // Prefered over @rollup/plugin-typescript as it bundles .d.ts files
+import { banner } from '../../banner';
+import compiler from '@ampproject/rollup-plugin-closure-compiler';
+import { terser } from 'rollup-plugin-terser';
+import cleanup from 'rollup-plugin-cleanup';
+import pkg from './package.json';
+import { builtinModules } from 'module';
+
+const umdPlugins = [nodeResolve({ browser: true }), commonjs(), ts()];
+const umdName = 'snowplowEcommerceAccelerator';
+
+export default [
+  // CommonJS (for Node) and ES module (for bundlers) build.
+  {
+    input: './src/index.ts',
+    plugins: [...umdPlugins, banner()],
+    treeshake: { moduleSideEffects: ['sha1'] },
+    output: [{ file: pkg.main, format: 'umd', sourcemap: true, name: umdName }],
+  },
+  {
+    input: './src/index.ts',
+    plugins: [...umdPlugins, compiler(), terser(), cleanup({ comments: 'none' }), banner()],
+    treeshake: { moduleSideEffects: ['sha1'] },
+    output: [{ file: pkg.main.replace('.js', '.min.js'), format: 'umd', sourcemap: true, name: umdName }],
+  },
+  {
+    input: './src/index.ts',
+    external: [...builtinModules, ...Object.keys(pkg.dependencies), ...Object.keys(pkg.devDependencies)],
+    plugins: [
+      ts(), // so Rollup can convert TypeScript to JavaScript
+      banner(),
+    ],
+    output: [{ file: pkg.module, format: 'es', sourcemap: true }],
+  },
+];

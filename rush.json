@@ -529,6 +529,12 @@
       "projectFolder": "plugins/browser-plugin-youtube-tracking",
       "reviewCategory": "plugins",
       "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-plugin-snowplow-ecommerce",
+      "projectFolder": "plugins/browser-plugin-snowplow-ecommerce",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
     }
   ]
 }
