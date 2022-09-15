@@ -2,6 +2,24 @@
   "name": "@snowplow/browser-tracker-core",
   "entries": [
     {
+      "version": "3.6.0",
+      "tag": "@snowplow/browser-tracker-core_v3.6.0",
+      "date": "Thu, 15 Sep 2022 07:55:20 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fix newTracker built-in context typing"
+          },
+          {
+            "comment": "Added BuiltInContexts type"
+          },
+          {
+            "comment": "Correct initial session_index value and after clearUserData (closes #1106 #1107)"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.5.0",
       "tag": "@snowplow/browser-tracker-core_v3.5.0",
       "date": "Fri, 10 Jun 2022 18:57:46 GMT",

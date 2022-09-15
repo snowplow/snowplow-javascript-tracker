@@ -1,6 +1,15 @@
 # Change Log - @snowplow/browser-tracker-core
 
-This log was last generated on Fri, 10 Jun 2022 18:57:46 GMT and should not be manually modified.
+This log was last generated on Thu, 15 Sep 2022 07:55:20 GMT and should not be manually modified.
+
+## 3.6.0
+Thu, 15 Sep 2022 07:55:20 GMT
+
+### Updates
+
+- Fix newTracker built-in context typing
+- Added BuiltInContexts type
+- Correct initial session_index value and after clearUserData (closes #1106 #1107)
 
 ## 3.5.0
 Fri, 10 Jun 2022 18:57:46 GMT

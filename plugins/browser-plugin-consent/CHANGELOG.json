@@ -2,6 +2,12 @@
   "name": "@snowplow/browser-plugin-consent",
   "entries": [
     {
+      "version": "3.6.0",
+      "tag": "@snowplow/browser-plugin-consent_v3.6.0",
+      "date": "Thu, 15 Sep 2022 07:55:20 GMT",
+      "comments": {}
+    },
+    {
       "version": "3.5.0",
       "tag": "@snowplow/browser-plugin-consent_v3.5.0",
       "date": "Fri, 10 Jun 2022 18:57:46 GMT",

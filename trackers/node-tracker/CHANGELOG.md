@@ -1,6 +1,15 @@
 # Change Log - @snowplow/node-tracker
 
-This log was last generated on Fri, 10 Jun 2022 18:57:46 GMT and should not be manually modified.
+This log was last generated on Thu, 15 Sep 2022 07:55:20 GMT and should not be manually modified.
+
+## 3.6.0
+Thu, 15 Sep 2022 07:55:20 GMT
+
+### Updates
+
+- Add tests verifying that the track method returns event id (eid) in the payload (#1098)
+- Make HTTPS the default collector protocol in gotEmitter (close #1100)
+- Update got to 11.8.5 for a vulnerability fix
 
 ## 3.5.0
 Fri, 10 Jun 2022 18:57:46 GMT

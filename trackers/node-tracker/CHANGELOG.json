@@ -2,6 +2,24 @@
   "name": "@snowplow/node-tracker",
   "entries": [
     {
+      "version": "3.6.0",
+      "tag": "@snowplow/node-tracker_v3.6.0",
+      "date": "Thu, 15 Sep 2022 07:55:20 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add tests verifying that the track method returns event id (eid) in the payload (#1098)"
+          },
+          {
+            "comment": "Make HTTPS the default collector protocol in gotEmitter (close #1100)"
+          },
+          {
+            "comment": "Update got to 11.8.5 for a vulnerability fix"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.5.0",
       "tag": "@snowplow/node-tracker_v3.5.0",
       "date": "Fri, 10 Jun 2022 18:57:46 GMT",

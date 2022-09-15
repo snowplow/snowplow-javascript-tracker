@@ -2,6 +2,18 @@
   "name": "@snowplow/javascript-tracker",
   "entries": [
     {
+      "version": "3.6.0",
+      "tag": "@snowplow/javascript-tracker_v3.6.0",
+      "date": "Thu, 15 Sep 2022 07:55:20 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add whitelabel build capability for javascript tracker (#161)"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.5.0",
       "tag": "@snowplow/javascript-tracker_v3.5.0",
       "date": "Fri, 10 Jun 2022 18:57:46 GMT",
