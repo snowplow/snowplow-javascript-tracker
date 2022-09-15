@@ -9,7 +9,7 @@ Create an emitter object, which uses the `got` library, that will send events to
 <b>Signature:</b>
 
 ```typescript
-declare function gotEmitter(endpoint: string, protocol: HttpProtocol, port?: number, method?: HttpMethod, bufferSize?: number, retry?: number | Partial<RequiredRetryOptions>, cookieJar?: PromiseCookieJar | ToughCookieJar, callback?: (error?: RequestError, response?: Response<string>) => void, agents?: Agents): Emitter;
+declare function gotEmitter(endpoint: string, protocol?: HttpProtocol, port?: number, method?: HttpMethod, bufferSize?: number, retry?: number | Partial<RequiredRetryOptions>, cookieJar?: PromiseCookieJar | ToughCookieJar, callback?: (error?: RequestError, response?: Response<string>) => void, agents?: Agents): Emitter;
 ```
 
 ## Parameters

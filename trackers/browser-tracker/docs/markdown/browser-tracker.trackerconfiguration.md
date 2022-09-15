@@ -34,10 +34,7 @@ type TrackerConfiguration = {
     resetActivityTrackingOnPageView?: boolean;
     connectionTimeout?: number;
     anonymousTracking?: AnonymousTrackingOptions;
-    contexts?: {
-        webPage: boolean;
-        session: boolean;
-    };
+    contexts?: BuiltInContexts;
     plugins?: Array<BrowserPlugin>;
     customHeaders?: Record<string, string>;
     retryStatusCodes?: number[];

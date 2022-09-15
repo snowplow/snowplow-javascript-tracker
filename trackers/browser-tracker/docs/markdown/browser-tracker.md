@@ -75,6 +75,7 @@
 |  [ActivityCallback](./browser-tracker.activitycallback.md) | The callback for enableActivityTrackingCallback |
 |  [ActivityCallbackData](./browser-tracker.activitycallbackdata.md) | The data which is passed to the Activity Tracking callback |
 |  [AnonymousTrackingOptions](./browser-tracker.anonymoustrackingoptions.md) |  |
+|  [BuiltInContexts](./browser-tracker.builtincontexts.md) |  |
 |  [ConditionalContextProvider](./browser-tracker.conditionalcontextprovider.md) | Conditional context providers are two element arrays used to decide when to attach contexts, where: - the first element is some conditional criterion - the second element is any number of context primitives |
 |  [ContextFilter](./browser-tracker.contextfilter.md) | A context filter is a user-supplied callback that is evaluated for each event to determine if the context associated with the filter should be attached to the event |
 |  [ContextGenerator](./browser-tracker.contextgenerator.md) | A context generator is a user-supplied callback that is evaluated for each event to allow an additional context to be dynamically attached to the event |

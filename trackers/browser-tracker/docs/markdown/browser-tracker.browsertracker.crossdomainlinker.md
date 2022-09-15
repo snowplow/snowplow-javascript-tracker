@@ -4,7 +4,7 @@
 
 ## BrowserTracker.crossDomainLinker property
 
-Enable querystring decoration for links pasing a filter
+Enable querystring decoration for links passing a filter
 
 <b>Signature:</b>
 
