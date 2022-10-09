@@ -38,7 +38,7 @@ import {
 } from './constants';
 import { EventData, EventGroup, MediaTrackingOptions, TrackedPlayer, TrackingOptions } from './types';
 import { BrowserPlugin, BrowserTracker, dispatchToTrackersInCollection } from '@snowplow/browser-tracker-core';
-import { buildSelfDescribingEvent, CommonEventProperties, Logger, SelfDescribingJson } from '@snowplow/tracker-core';
+import { buildSelfDescribingEvent, CommonEventProperties, LOG, SelfDescribingJson } from '@snowplow/tracker-core';
 import { SnowplowEvent } from './snowplowEvents';
 import { MediaPlayerEvent } from './contexts';
 import { buildYouTubeEvent } from './buildYouTubeEvent';
@@ -48,15 +48,11 @@ import { DefaultEvents, EventGroups, AllEvents } from './eventGroups';
 const _trackers: Record<string, BrowserTracker> = {};
 const trackedPlayers: Record<string, TrackedPlayer> = {};
 const trackingQueue: Array<TrackingOptions> = [];
-let LOG: Logger;
 
 export function YouTubeTrackingPlugin(): BrowserPlugin {
   return {
     activateBrowserPlugin: (tracker: BrowserTracker) => {
       _trackers[tracker.id] = tracker;
-    },
-    logger: (logger) => {
-      LOG = logger;
     },
   };
 }
@@ -98,7 +94,7 @@ export function trackingOptionsParser(mediaId: string, conf?: MediaTrackingOptio
     if (EventGroups.hasOwnProperty(ev)) {
       parsedEvents = parsedEvents.concat(EventGroups[ev]);
     } else if (!Object.keys(AllEvents).filter((k) => k === ev)) {
-      LOG.warn(`'${ev}' is not a valid event.`);
+      LOG.warn(`'${ev}' is not a valid event`);
     } else {
       parsedEvents.push(ev);
     }
@@ -126,6 +122,10 @@ export function trackingOptionsParser(mediaId: string, conf?: MediaTrackingOptio
 }
 
 export function enableYouTubeTracking(args: { id: string; options?: MediaTrackingOptions }) {
+  if (!Object.keys(_trackers).length) {
+    LOG.error('Check YoutubeTrackingPlugin is initialized in tracker config');
+    return;
+  }
   const conf: TrackingOptions = trackingOptionsParser(args.id, args.options);
   const el: HTMLIFrameElement = document.getElementById(args.id) as HTMLIFrameElement;
   if (!el) {
@@ -175,7 +175,7 @@ function handleYouTubeIframeAPI(conf: TrackingOptions) {
       }, iframeAPIRetryWait);
       iframeAPIRetryWait *= 2;
     } else {
-      LOG.error('YouTube iframe API failed to load.');
+      LOG.error('YouTube iframe API failed to load');
     }
   } else {
     // Once the API is avaliable, listeners are attached to anything sitting in the queue
