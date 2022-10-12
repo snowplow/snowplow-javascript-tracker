@@ -25,6 +25,10 @@ function findMediaElementChild(el: Element): SearchResult {
     if (elem.length === 1) {
       if (isAudioElement(elem[0])) return { el: elem[0] };
       if (isVideoElement(elem[0])) return { el: elem[0] };
+    } else if (elem.length === 2 && tag === 'VIDEO' && isVideoElement(elem[0])) {
+      // Special JWPlayer case where two video elements are used for cover-video effect.
+      // In that case, we select the first video element.
+      return { el: elem[0] };
     } else if (elem.length > 1) {
       return { err: SEARCH_ERROR.MULTIPLE_ELEMENTS };
     }
