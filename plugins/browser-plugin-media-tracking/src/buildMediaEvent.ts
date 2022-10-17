@@ -56,7 +56,7 @@ function getHTMLMediaElementEntities(el: HTMLAudioElement | HTMLVideoElement): M
     readyState: READY_STATE[el.readyState] as MediaElement['readyState'],
     seekable: timeRangesToObjectArray(el.seekable),
     seeking: el.seeking,
-    src: dataUrlHandler(el.src),
+    src: dataUrlHandler(el.src || el.currentSrc),
     textTracks: textTrackListToJson(el.textTracks),
     fileExtension: el.currentSrc.split('.').pop() as string,
     fullscreen: isElementFullScreen(el.id),
