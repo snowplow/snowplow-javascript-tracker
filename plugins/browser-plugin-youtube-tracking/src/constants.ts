@@ -41,9 +41,9 @@ export enum YTState {
 }
 
 export const YTError: Record<number, string> = {
-  2: 'INVALID_URL',
-  5: 'HTML5_ERROR',
-  100: 'VIDEO_NOT_FOUND',
-  101: 'MISSING_EMBED_PERMISSION',
-  150: 'MISSING_EMBED_PERMISSION',
+  2: 'INVALID_PARAMETER',
+  5: 'HTML5_PLAYER_ERROR',
+  100: 'NOT_FOUND',
+  101: 'EMBED_DISALLOWED',
+  150: 'EMBED_DISALLOWED',
 };
