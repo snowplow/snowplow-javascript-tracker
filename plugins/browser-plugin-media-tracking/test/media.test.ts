@@ -165,8 +165,15 @@ describe('element searcher', () => {
     expect(output).toStrictEqual({ err: 'More than one media element in the provided node' });
   });
 
+  it('returns the first video element if exactly two exist in the same parent. Covers the cover-video case.', () => {
+    document.body.innerHTML = '<div id="parentElem"><video id="test-id"></video><video></video></div>';
+    const output = findMediaElem('parentElem');
+    expect(output.el?.tagName).toBe('VIDEO');
+    expect(output.el?.id).toBe('test-id');
+  });
+
   it('returns an error if multiple child video elements exist in a parent', () => {
-    document.body.innerHTML = '<div id="parentElem"><video></video><video></video></div>';
+    document.body.innerHTML = '<div id="parentElem"><video></video><video></video><video></video></div>';
     const output = findMediaElem('parentElem');
     expect(output).toStrictEqual({ err: 'More than one media element in the provided node' });
   });
