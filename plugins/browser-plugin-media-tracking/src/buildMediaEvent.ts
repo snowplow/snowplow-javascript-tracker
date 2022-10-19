@@ -9,7 +9,7 @@ export function buildMediaEvent(
   conf: TrackingOptions,
   detail?: EventDetail
 ): MediaEventData {
-  const context = [getHTMLMediaElementEntities(el), getMediaPlayerEntities(el, detail)];
+  const context = [getHTMLMediaElementEntities(el, conf), getMediaPlayerEntities(el, detail)];
   if (el instanceof HTMLVideoElement) context.push(getHTMLVideoElementEntities(el as HTMLVideoElement));
   const data: MediaPlayerEvent = { type: e in eventNames ? eventNames[e] : e };
   if (conf.label) data.label = conf.label;
@@ -40,9 +40,11 @@ function getMediaPlayerEntities(el: HTMLAudioElement | HTMLVideoElement, detail?
   };
 }
 
-function getHTMLMediaElementEntities(el: HTMLAudioElement | HTMLVideoElement): MediaEntities {
+function getHTMLMediaElementEntities(el: HTMLAudioElement | HTMLVideoElement, conf: TrackingOptions): MediaEntities {
+  // In cases where the media does not have explicit id, we use the container id passed from the configuration.
+  const htmlId = el.id || conf.id;
   const data: MediaElement = {
-    htmlId: el.id,
+    htmlId,
     mediaType: el.tagName as MediaElement['mediaType'],
     autoPlay: el.autoplay,
     buffered: timeRangesToObjectArray(el.buffered),

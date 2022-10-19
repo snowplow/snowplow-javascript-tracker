@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-media-tracking",
+      "comment": "Support JWPlayer in browser-plugin-media-tracking (closes #1116)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-media-tracking"
+}
