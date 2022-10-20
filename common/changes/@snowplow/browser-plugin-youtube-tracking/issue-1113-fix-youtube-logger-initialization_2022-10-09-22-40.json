@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-youtube-tracking",
+      "comment": "Use shared logger for Youtube plugin loading and add helpful message for plugin initialization missing (closes #1113)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-youtube-tracking"
+}
