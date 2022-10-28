@@ -89,7 +89,7 @@ function getMediaPlayerEntities(
     muted: player.isMuted(),
     paused: playerStates[YT.PlayerState.PAUSED],
     playbackRate: player.getPlaybackRate(),
-    volume: player.getVolume(),
+    volume: Math.round(player.getVolume()),
   };
 
   if (e === SnowplowEvent.PERCENTPROGRESS) {
