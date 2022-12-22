@@ -97,9 +97,28 @@ describe('AdTrackingPlugin', () => {
     });
   });
 
-  function createTrackerWithPlugin(plugin: BrowserPlugin) {
+  it('can work with multiple trackers', async () => {
+    let plugin = FocalMeterPlugin(domain);
+    let tracker1 = createTrackerWithPlugin(plugin);
+    let tracker2 = createTrackerWithPlugin(plugin);
+
+    // Makes requests for both trackers
+    tracker1?.trackPageView();
+    await checkMock(() => expect(xhrOpenMock).toHaveBeenCalledTimes(2));
+    tracker2?.trackPageView();
+    await checkMock(() => expect(xhrOpenMock).toHaveBeenCalledTimes(2));
+
+    // Doesn't make any more requests for the trackers
+    tracker1?.trackPageView();
+    await checkMock(() => expect(xhrOpenMock).toHaveBeenCalledTimes(1));
+    tracker2?.trackPageView();
+    await checkMock(() => expect(xhrOpenMock).toHaveBeenCalledTimes(1));
+  });
+
+  function createTrackerWithPlugin(plugin: BrowserPlugin, id: string | undefined = undefined) {
     const state = new SharedState();
-    let id = 'sp-' + Math.random();
+    id ??= 'sp-' + Math.random();
+
     return addTracker(id, id, 'js-3.0.0', '', state, {
       stateStorageStrategy: 'cookie',
       encodeBase64: false,

@@ -28,7 +28,13 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { BrowserPlugin } from '@snowplow/browser-tracker-core';
+import {
+  attemptGetLocalStorage,
+  BrowserPlugin,
+  hasLocalStorage,
+  BrowserTracker,
+  attemptWriteLocalStorage,
+} from '@snowplow/browser-tracker-core';
 import { Logger, LOG_LEVEL, Payload } from '@snowplow/tracker-core';
 
 /**
@@ -38,48 +44,67 @@ import { Logger, LOG_LEVEL, Payload } from '@snowplow/tracker-core';
  * A request is made when the first event with a new user ID is tracked.
  *
  * @param kantarEndpoint URL of the Kantar endpoint to send the requests to (including protocol)
+ * @param useLocalStorage Whether to store information about the last submitted user ID in local storage to prevent sending it again on next load
  * @param logLevel Log message level
  * @returns The plugin
  */
-export function FocalMeterPlugin(kantarEndpoint: string, logLevel: LOG_LEVEL = LOG_LEVEL.debug): BrowserPlugin {
+export function FocalMeterPlugin(
+  kantarEndpoint: string,
+  useLocalStorage: boolean = false,
+  logLevel: LOG_LEVEL = LOG_LEVEL.debug
+): BrowserPlugin {
   let LOG: Logger;
-  let lastUserId: string | undefined;
+  let lastUserIdsByNamespace: Record<string, string> = {};
 
   return {
     logger: (logger) => {
       LOG = logger;
       logger.setLogLevel(logLevel);
     },
+
+    activateBrowserPlugin: (tracker: BrowserTracker) => {
+      if (useLocalStorage && hasLocalStorage()) {
+        let key = getLocalStorageKey(tracker.namespace);
+        let userId = attemptGetLocalStorage(key);
+
+        if (userId) {
+          lastUserIdsByNamespace[tracker.namespace] = userId;
+        }
+      }
+    },
+
     afterTrack: (payload: Payload) => {
       let newUserId = payload['duid'] as string;
+      let trackerNamespace = payload['tna'] as string;
 
-      if (newUserId && newUserId != lastUserId) {
-        lastUserId = newUserId;
-        sendRequest(kantarEndpoint, newUserId, LOG);
+      if (newUserId && newUserId != lastUserIdsByNamespace[trackerNamespace]) {
+        lastUserIdsByNamespace[trackerNamespace] = newUserId;
+
+        sendRequest(kantarEndpoint, newUserId, LOG, () => {
+          // only write in local storage if the request succeeded
+          if (useLocalStorage && hasLocalStorage()) {
+            let key = getLocalStorageKey(trackerNamespace);
+            attemptWriteLocalStorage(key, newUserId);
+          }
+        });
       }
     },
   };
 }
 
-function sendRequest(url: string, userId: string, LOG: Logger) {
-  let query = {
-    vendor: 'snowplow',
-    cs_fpid: userId,
-    c12: 'not_set',
-  };
-  url +=
-    '?' +
-    Object.keys(query)
-      .map((key) => key + '=' + (query as any)[key])
-      .join('&');
+function getLocalStorageKey(trackerNamespace: string) {
+  return `sp-fclmtr-${trackerNamespace}`;
+}
 
+function sendRequest(url: string, userId: string, LOG: Logger, successCallback: () => void) {
   const xhr = new XMLHttpRequest();
-  xhr.open('GET', url);
+  xhr.open('GET', getKantarURL(url, userId));
   xhr.timeout = 5000;
 
   xhr.onreadystatechange = function () {
     if (xhr.readyState === 4 && xhr.status >= 200) {
       if (xhr.status < 300) {
+        successCallback();
         LOG.debug(`ID sent to Kantar: ${userId}`);
       } else {
         LOG.error(`Kantar request failed: ${xhr.status}: ${xhr.statusText}`);
@@ -88,4 +113,19 @@ function sendRequest(url: string, userId: string, LOG: Logger) {
   };
 
   xhr.send();
+}
+
+function getKantarURL(url: string, userId: string) {
+  let query: Record<string, string> = {
+    vendor: 'snowplow',
+    cs_fpid: userId,
+    c12: 'not_set',
+  };
+  return (
+    url +
+    '?' +
+    Object.keys(query)
+      .map((key) => key + '=' + query[key])
+      .join('&')
+  );
 }
