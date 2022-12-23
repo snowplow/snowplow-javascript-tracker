@@ -115,6 +115,10 @@
       "allowedCategories": [ "trackers" ]
     },
     {
+      "name": "@snowplow/browser-plugin-snowplow-ecommerce",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "@snowplow/browser-plugin-timezone",
       "allowedCategories": [ "trackers" ]
     },

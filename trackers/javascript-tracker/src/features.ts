@@ -44,6 +44,7 @@ import * as Ecommerce from '@snowplow/browser-plugin-ecommerce';
 import * as EnhancedEcommerce from '@snowplow/browser-plugin-enhanced-ecommerce';
 import * as AdTracking from '@snowplow/browser-plugin-ad-tracking';
 import * as SiteTracking from '@snowplow/browser-plugin-site-tracking';
+import * as SnowplowEcommerce from '@snowplow/browser-plugin-snowplow-ecommerce';
 import * as MediaTracking from '@snowplow/browser-plugin-media-tracking';
 import * as YouTubeTracking from '@snowplow/browser-plugin-youtube-tracking';
 import * as plugins from '../tracker.config';
@@ -162,6 +163,11 @@ export function Plugins(configuration: JavaScriptTrackerConfiguration) {
   if (plugins.siteTracking) {
     const { SiteTrackingPlugin, ...apiMethods } = SiteTracking;
     activatedPlugins.push([SiteTrackingPlugin(), apiMethods]);
+  }
+
+  if (plugins.snowplowEcommerceTracking) {
+    const { SnowplowEcommercePlugin, ...apiMethods } = SnowplowEcommerce;
+    activatedPlugins.push([SnowplowEcommercePlugin(), apiMethods]);
   }
 
   if (plugins.browserFeatures) {
