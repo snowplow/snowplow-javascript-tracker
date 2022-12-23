@@ -47,3 +47,4 @@ export const optimizely = false;
 export const browserFeatures = false;
 export const mediaTracking = false;
 export const youtubeTracking = false;
+export const enhancedConsent = false;

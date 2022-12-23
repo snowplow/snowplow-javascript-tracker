@@ -535,6 +535,12 @@
       "projectFolder": "plugins/browser-plugin-snowplow-ecommerce",
       "reviewCategory": "plugins",
       "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-plugin-enhanced-consent",
+      "projectFolder": "plugins/browser-plugin-enhanced-consent",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
     }
   ]
 }
