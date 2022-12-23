@@ -300,14 +300,20 @@ export function serializeIdCookie(idCookie: ParsedIdCookie) {
  * @param configStateStorageStrategy Cookie storage strategy
  * @returns Client session context entity
  */
-export function clientSessionFromIdCookie(idCookie: ParsedIdCookie, configStateStorageStrategy: string) {
+export function clientSessionFromIdCookie(
+  idCookie: ParsedIdCookie,
+  configStateStorageStrategy: string,
+  configAnonymousTracking: boolean
+) {
   const firstEventTsInMs = idCookie[firstEventTsInMsIndex];
   const clientSession: ClientSession = {
-    userId: idCookie[domainUserIdIndex],
+    userId: configAnonymousTracking
+      ? '00000000-0000-0000-0000-000000000000' // TODO: use uuid.NIL when we upgrade to uuid v8.3
+      : idCookie[domainUserIdIndex],
     sessionId: idCookie[sessionIdIndex],
     eventIndex: idCookie[eventIndexIndex],
     sessionIndex: idCookie[visitCountIndex],
-    previousSessionId: idCookie[previousSessionIdIndex] || null,
+    previousSessionId: configAnonymousTracking ? null : idCookie[previousSessionIdIndex] || null,
     storageMechanism: configStateStorageStrategy == 'localStorage' ? 'LOCAL_STORAGE' : 'COOKIE_1',
     firstEventId: idCookie[firstEventIdIndex] || null,
     firstEventTimestamp: firstEventTsInMs ? new Date(firstEventTsInMs).toISOString() : null,
