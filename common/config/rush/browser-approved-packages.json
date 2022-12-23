@@ -67,6 +67,10 @@
       "allowedCategories": [ "trackers" ]
     },
     {
+      "name": "@snowplow/browser-plugin-enhanced-consent",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "@snowplow/browser-plugin-enhanced-ecommerce",
       "allowedCategories": [ "trackers" ]
     },

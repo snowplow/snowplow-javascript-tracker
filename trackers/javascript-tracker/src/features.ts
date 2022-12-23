@@ -50,6 +50,7 @@ import * as YouTubeTracking from '@snowplow/browser-plugin-youtube-tracking';
 import * as plugins from '../tracker.config';
 import { BrowserPlugin } from '@snowplow/browser-tracker-core';
 import { JavaScriptTrackerConfiguration } from './configuration';
+import * as EnhancedConsent from '@snowplow/browser-plugin-enhanced-consent';
 
 /**
  * Calculates the required plugins to intialise per tracker
@@ -188,6 +189,11 @@ export function Plugins(configuration: JavaScriptTrackerConfiguration) {
   if (plugins.youtubeTracking) {
     const { YouTubeTrackingPlugin, ...apiMethods } = YouTubeTracking;
     activatedPlugins.push([YouTubeTrackingPlugin(), apiMethods]);
+  }
+
+  if (plugins.enhancedConsent) {
+    const { EnhancedConsentPlugin, ...apiMethods } = EnhancedConsent;
+    activatedPlugins.push([EnhancedConsentPlugin(), apiMethods]);
   }
 
   return activatedPlugins;
