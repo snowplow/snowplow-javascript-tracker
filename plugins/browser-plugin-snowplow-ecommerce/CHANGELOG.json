@@ -1,0 +1,17 @@
+{
+  "name": "@snowplow/browser-plugin-snowplow-ecommerce",
+  "entries": [
+    {
+      "version": "3.8.0",
+      "tag": "@snowplow/browser-plugin-snowplow-ecommerce_v3.8.0",
+      "date": "Tue, 03 Jan 2023 15:36:33 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Introduce Snowplow Ecommerce browser plugin"
+          }
+        ]
+      }
+    }
+  ]
+}
