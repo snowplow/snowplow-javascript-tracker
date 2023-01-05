@@ -28,8 +28,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { addTracker, BrowserPlugin, SharedState } from '@snowplow/browser-tracker-core';
-import { FocalMeterPlugin } from '../src';
+import { addTracker, SharedState } from '@snowplow/browser-tracker-core';
+import { enableFocalMeterIntegration, FocalMeterPlugin } from '../src';
 
 describe('AdTrackingPlugin', () => {
   // Mock XHR network requests
@@ -60,7 +60,8 @@ describe('AdTrackingPlugin', () => {
   });
 
   it('makes a request to Kantar endpoint with user ID', async () => {
-    let tracker = createTrackerWithPlugin(FocalMeterPlugin(domain));
+    let tracker = createTrackerWithPlugin();
+    enableFocalMeterIntegration({ kantarEndpoint: domain });
 
     tracker?.trackPageView();
     let userId = tracker?.getDomainUserId();
@@ -72,7 +73,8 @@ describe('AdTrackingPlugin', () => {
   });
 
   it('makes a request to Kantar endpoint when user ID changes', async () => {
-    let tracker = createTrackerWithPlugin(FocalMeterPlugin(domain));
+    let tracker = createTrackerWithPlugin();
+    enableFocalMeterIntegration({ kantarEndpoint: domain });
 
     // Doesn't make a request if anonymous tracking
     tracker?.enableAnonymousTracking();
@@ -98,9 +100,15 @@ describe('AdTrackingPlugin', () => {
   });
 
   it('can work with multiple trackers', async () => {
-    let plugin = FocalMeterPlugin(domain);
-    let tracker1 = createTrackerWithPlugin(plugin);
-    let tracker2 = createTrackerWithPlugin(plugin);
+    let tracker1 = createTrackerWithPlugin();
+    let tracker2 = createTrackerWithPlugin();
+
+    enableFocalMeterIntegration(
+      {
+        kantarEndpoint: domain,
+      },
+      [tracker1!.namespace, tracker2!.namespace]
+    );
 
     // Makes requests for both trackers
     tracker1?.trackPageView();
@@ -115,14 +123,14 @@ describe('AdTrackingPlugin', () => {
     await checkMock(() => expect(xhrOpenMock).toHaveBeenCalledTimes(1));
   });
 
-  function createTrackerWithPlugin(plugin: BrowserPlugin, id: string | undefined = undefined) {
+  function createTrackerWithPlugin(id: string | undefined = undefined) {
     const state = new SharedState();
     id ??= 'sp-' + Math.random();
 
     return addTracker(id, id, 'js-3.0.0', '', state, {
       stateStorageStrategy: 'cookie',
       encodeBase64: false,
-      plugins: [plugin],
+      plugins: [FocalMeterPlugin()],
     });
   }
 

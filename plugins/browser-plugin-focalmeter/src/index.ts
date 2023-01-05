@@ -35,7 +35,18 @@ import {
   BrowserTracker,
   attemptWriteLocalStorage,
 } from '@snowplow/browser-tracker-core';
-import { Logger, LOG_LEVEL, Payload } from '@snowplow/tracker-core';
+import { Logger, Payload } from '@snowplow/tracker-core';
+
+/** FocalMeter plugin configuration */
+export interface FocalMeterConfiguration {
+  /** URL of the Kantar endpoint to send the requests to (including protocol) */
+  kantarEndpoint: string;
+  /** Whether to store information about the last submitted user ID in local storage to prevent sending it again on next load (defaults not to use local storage) */
+  useLocalStorage?: boolean;
+}
+
+const _trackers: Record<string, BrowserTracker> = {};
+const _configurations: Record<string, FocalMeterConfiguration> = {};
 
 /**
  * The FocalMeter Plugin
@@ -43,47 +54,44 @@ import { Logger, LOG_LEVEL, Payload } from '@snowplow/tracker-core';
  * The plugin sends requests with the domain user ID to a Kantar endpoint used with the FocalMeter system.
  * A request is made when the first event with a new user ID is tracked.
  *
- * @param kantarEndpoint URL of the Kantar endpoint to send the requests to (including protocol)
- * @param useLocalStorage Whether to store information about the last submitted user ID in local storage to prevent sending it again on next load
- * @param logLevel Log message level
- * @returns The plugin
+ * Call `enableFocalMeterIntegration()` to enable the integration with given configuration.
  */
-export function FocalMeterPlugin(
-  kantarEndpoint: string,
-  useLocalStorage: boolean = false,
-  logLevel: LOG_LEVEL = LOG_LEVEL.debug
-): BrowserPlugin {
+export function FocalMeterPlugin(): BrowserPlugin {
   let LOG: Logger;
-  let lastUserIdsByNamespace: Record<string, string> = {};
+  let lastUserId: string | undefined | null;
+  let trackerId: string;
 
   return {
-    logger: (logger) => {
-      LOG = logger;
-      logger.setLogLevel(logLevel);
+    activateBrowserPlugin: (tracker: BrowserTracker) => {
+      trackerId = tracker.id;
+      _trackers[tracker.id] = tracker;
     },
 
-    activateBrowserPlugin: (tracker: BrowserTracker) => {
-      if (useLocalStorage && hasLocalStorage()) {
-        let key = getLocalStorageKey(tracker.namespace);
-        let userId = attemptGetLocalStorage(key);
-
-        if (userId) {
-          lastUserIdsByNamespace[tracker.namespace] = userId;
-        }
-      }
+    logger: (logger: Logger) => {
+      LOG = logger;
     },
 
     afterTrack: (payload: Payload) => {
-      let newUserId = payload['duid'] as string;
-      let trackerNamespace = payload['tna'] as string;
+      if (!_configurations[trackerId]) {
+        LOG.error('FocalMeter integration not enabled');
+        return;
+      }
 
-      if (newUserId && newUserId != lastUserIdsByNamespace[trackerNamespace]) {
-        lastUserIdsByNamespace[trackerNamespace] = newUserId;
+      let newUserId = payload['duid'] as string;
+      let { kantarEndpoint, useLocalStorage } = _configurations[trackerId];
+
+      if (!lastUserId && useLocalStorage && hasLocalStorage()) {
+        let key = getLocalStorageKey(trackerId);
+        lastUserId = attemptGetLocalStorage(key);
+      }
+
+      if (newUserId && newUserId != lastUserId) {
+        lastUserId = newUserId;
 
         sendRequest(kantarEndpoint, newUserId, LOG, () => {
           // only write in local storage if the request succeeded
           if (useLocalStorage && hasLocalStorage()) {
-            let key = getLocalStorageKey(trackerNamespace);
+            let key = getLocalStorageKey(trackerId);
             attemptWriteLocalStorage(key, newUserId);
           }
         });
@@ -92,11 +100,28 @@ export function FocalMeterPlugin(
   };
 }
 
-function getLocalStorageKey(trackerNamespace: string) {
-  return `sp-fclmtr-${trackerNamespace}`;
+/**
+ * Enables the integration with Kantar FocalMeter.
+ *
+ * @param configuration - Configuration with the URL endpoint to send requests to
+ * @param trackers - The tracker identifiers which should have the context enabled
+ */
+export function enableFocalMeterIntegration(
+  configuration: FocalMeterConfiguration,
+  trackers: Array<string> = Object.keys(_trackers)
+): void {
+  for (const id of trackers) {
+    if (_trackers[id]) {
+      _configurations[id] = configuration;
+    }
+  }
 }
 
-function sendRequest(url: string, userId: string, LOG: Logger, successCallback: () => void) {
+function getLocalStorageKey(trackerId: string): string {
+  return `sp-fclmtr-${trackerId}`;
+}
+
+function sendRequest(url: string, userId: string, LOG: Logger, successCallback: () => void): void {
   const xhr = new XMLHttpRequest();
   xhr.open('GET', getKantarURL(url, userId));
   xhr.timeout = 5000;
@@ -115,7 +140,7 @@ function sendRequest(url: string, userId: string, LOG: Logger, successCallback: 
   xhr.send();
 }
 
-function getKantarURL(url: string, userId: string) {
+function getKantarURL(url: string, userId: string): string {
   let query: Record<string, string> = {
     vendor: 'snowplow',
     cs_fpid: userId,
