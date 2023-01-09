@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/node-tracker",
+      "comment": "Update Node.js to v14 (closes #1129)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/node-tracker"
+}
