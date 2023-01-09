@@ -139,6 +139,7 @@ describe('Tracker API: ', () => {
             let context = payload.co as string;
             expect(context).toContain('client_session');
             expect(context).toContain('"userId":"00000000-0000-0000-0000-000000000000"');
+            expect(context).toContain('"previousSessionId":null');
             done();
           },
         },
