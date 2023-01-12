@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/tracker-core",
+      "comment": "Upgrade UUID to 8.3.2 (close #1138)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/tracker-core"
+}
