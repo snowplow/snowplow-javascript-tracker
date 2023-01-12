@@ -22,8 +22,8 @@ importers:
         specifier: ^2.3.1
         version: 2.7.0
       uuid:
-        specifier: ^3.4.0
-        version: 3.4.0
+        specifier: ^8.3.2
+        version: 8.3.2
     devDependencies:
       '@ampproject/rollup-plugin-closure-compiler':
         specifier: ~0.27.0
@@ -47,8 +47,8 @@ importers:
         specifier: ~1.1.3
         version: 1.1.5
       '@types/uuid':
-        specifier: ~3.4.6
-        version: 3.4.13
+        specifier: ^8.3.2
+        version: 8.3.4
       '@typescript-eslint/eslint-plugin':
         specifier: ~5.15.0
         version: 5.15.0(@typescript-eslint/parser@5.15.0(eslint@8.11.0)(typescript@4.6.4))(eslint@8.11.0)(typescript@4.6.4)
@@ -98,8 +98,8 @@ importers:
         specifier: ^2.3.1
         version: 2.7.0
       uuid:
-        specifier: ^3.4.0
-        version: 3.4.0
+        specifier: ^8.3.2
+        version: 8.3.2
     devDependencies:
       '@ampproject/rollup-plugin-closure-compiler':
         specifier: ~0.27.0
@@ -117,8 +117,8 @@ importers:
         specifier: ~14.6.0
         version: 14.6.4
       '@types/uuid':
-        specifier: ~3.4.6
-        version: 3.4.13
+        specifier: ^8.3.2
+        version: 8.3.4
       '@typescript-eslint/eslint-plugin':
         specifier: ~5.15.0
         version: 5.15.0(@typescript-eslint/parser@5.15.0(eslint@8.11.0)(typescript@4.6.4))(eslint@8.11.0)(typescript@4.6.4)
@@ -1342,8 +1342,8 @@ importers:
         specifier: ^2.3.1
         version: 2.7.0
       uuid:
-        specifier: ^3.4.0
-        version: 3.4.0
+        specifier: ^8.3.2
+        version: 8.3.2
     devDependencies:
       '@ampproject/rollup-plugin-closure-compiler':
         specifier: ~0.27.0
@@ -1361,8 +1361,8 @@ importers:
         specifier: ~16.2.14
         version: 16.2.15
       '@types/uuid':
-        specifier: ~3.4.6
-        version: 3.4.13
+        specifier: ^8.3.2
+        version: 8.3.4
       '@typescript-eslint/eslint-plugin':
         specifier: ~5.15.0
         version: 5.15.0(@typescript-eslint/parser@5.15.0(eslint@8.11.0)(typescript@4.6.4))(eslint@8.11.0)(typescript@4.6.4)
@@ -3271,8 +3271,8 @@ packages:
   '@types/ua-parser-js@0.7.39':
     resolution: {integrity: sha512-P/oDfpofrdtF5xw433SPALpdSchtJmY7nsJItf8h3KXqOslkbySh8zq4dSWXH2oTjRvJ5PczVEoCZPow6GicLg==}
 
-  '@types/uuid@3.4.13':
-    resolution: {integrity: sha512-pAeZeUbLE4Z9Vi9wsWV2bYPTweEHeJJy0G4pEjOA/FSvy1Ad5U5Km8iDV6TKre1mjBiVNfAdVHKruP8bAh4Q5A==}
+  '@types/uuid@8.3.4':
+    resolution: {integrity: sha512-c/I8ZRb51j+pYGAu5CrFMRxqZ2ke4y2grEBO5AUjgSkSk+qT2Ea+OdWElz/OiMf5MNpn2b17kuVBwZLQJXzihw==}
 
   '@types/vimeo__player@2.16.3':
     resolution: {integrity: sha512-hsOe6CZFTNyfjRjQUrNHBF4LDmjvjcU2yQIPWp5AglKeGxt11JYGToQhKUPM876gBXggqR6rMQ0/sNI06ec2Rg==}
@@ -7413,6 +7413,10 @@ packages:
     resolution: {integrity: sha512-CI18flHDznR0lq54xBycOVmphdCYnQLKn8abKn7PXUiKUGdEd+/l9LWNJmugXel4hXq7S+RMNl34ecyC9TntWg==}
     hasBin: true
 
+  uuid@8.3.2:
+    resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    hasBin: true
+
   v8-compile-cache-lib@3.0.1:
     resolution: {integrity: sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==}
 
@@ -8582,7 +8586,7 @@ snapshots:
 
   '@types/ua-parser-js@0.7.39': {}
 
-  '@types/uuid@3.4.13': {}
+  '@types/uuid@8.3.4': {}
 
   '@types/vimeo__player@2.16.3': {}
 
@@ -13685,6 +13689,8 @@ snapshots:
   uuid@3.4.0: {}
 
   uuid@8.1.0: {}
+
+  uuid@8.3.2: {}
 
   v8-compile-cache-lib@3.0.1: {}
 
