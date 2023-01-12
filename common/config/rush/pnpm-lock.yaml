@@ -15,7 +15,7 @@ importers:
       '@types/jest': ~27.4.1
       '@types/jsdom': ~16.2.14
       '@types/sha1': ~1.1.3
-      '@types/uuid': ~3.4.6
+      '@types/uuid': ^8.3.2
       '@typescript-eslint/eslint-plugin': ~5.15.0
       '@typescript-eslint/parser': ~5.15.0
       eslint: ~8.11.0
@@ -32,12 +32,12 @@ importers:
       ts-jest: ~27.1.3
       tslib: ^2.3.1
       typescript: ~4.6.2
-      uuid: ^3.4.0
+      uuid: ^8.3.2
     dependencies:
       '@snowplow/tracker-core': link:../tracker-core
       sha1: 1.1.1
       tslib: 2.3.1
-      uuid: 3.4.0
+      uuid: 8.3.2
     devDependencies:
       '@ampproject/rollup-plugin-closure-compiler': 0.27.0_rollup@2.70.1
       '@rollup/plugin-commonjs': 21.0.2_rollup@2.70.1
@@ -46,7 +46,7 @@ importers:
       '@types/jest': 27.4.1
       '@types/jsdom': 16.2.14
       '@types/sha1': 1.1.3
-      '@types/uuid': 3.4.9
+      '@types/uuid': 8.3.4
       '@typescript-eslint/eslint-plugin': 5.15.0_f2c49ce7d0e93ebcfdb4b7d25b131b28
       '@typescript-eslint/parser': 5.15.0_eslint@8.11.0+typescript@4.6.2
       eslint: 8.11.0
@@ -69,7 +69,7 @@ importers:
       '@rollup/plugin-json': ~4.1.0
       '@rollup/plugin-node-resolve': ~13.1.3
       '@types/node': ~14.6.0
-      '@types/uuid': ~3.4.6
+      '@types/uuid': ^8.3.2
       '@typescript-eslint/eslint-plugin': ~5.15.0
       '@typescript-eslint/parser': ~5.15.0
       ava: ~4.1.0
@@ -83,17 +83,17 @@ importers:
       ts-node: ~10.9.1
       tslib: ^2.3.1
       typescript: ~4.6.2
-      uuid: ^3.4.0
+      uuid: ^8.3.2
     dependencies:
       tslib: 2.3.1
-      uuid: 3.4.0
+      uuid: 8.3.2
     devDependencies:
       '@ampproject/rollup-plugin-closure-compiler': 0.27.0_rollup@2.70.1
       '@rollup/plugin-commonjs': 21.0.2_rollup@2.70.1
       '@rollup/plugin-json': 4.1.0_rollup@2.70.1
       '@rollup/plugin-node-resolve': 13.1.3_rollup@2.70.1
       '@types/node': 14.6.4
-      '@types/uuid': 3.4.9
+      '@types/uuid': 8.3.4
       '@typescript-eslint/eslint-plugin': 5.15.0_f2c49ce7d0e93ebcfdb4b7d25b131b28
       '@typescript-eslint/parser': 5.15.0_eslint@8.11.0+typescript@4.6.2
       ava: 4.1.0
@@ -936,7 +936,7 @@ importers:
       '@snowplow/tracker-core': workspace:*
       '@types/jest': ~27.4.1
       '@types/jsdom': ~16.2.14
-      '@types/uuid': ~3.4.6
+      '@types/uuid': ^8.3.2
       '@typescript-eslint/eslint-plugin': ~5.15.0
       '@typescript-eslint/parser': ~5.15.0
       eslint: ~8.11.0
@@ -952,19 +952,19 @@ importers:
       ts-jest: ~27.1.3
       tslib: ^2.3.1
       typescript: ~4.6.2
-      uuid: ^3.4.0
+      uuid: ^8.3.2
     dependencies:
       '@snowplow/browser-tracker-core': link:../../libraries/browser-tracker-core
       '@snowplow/tracker-core': link:../../libraries/tracker-core
       tslib: 2.3.1
-      uuid: 3.4.0
+      uuid: 8.3.2
     devDependencies:
       '@ampproject/rollup-plugin-closure-compiler': 0.27.0_rollup@2.70.1
       '@rollup/plugin-commonjs': 21.0.2_rollup@2.70.1
       '@rollup/plugin-node-resolve': 13.1.3_rollup@2.70.1
       '@types/jest': 27.4.1
       '@types/jsdom': 16.2.14
-      '@types/uuid': 3.4.9
+      '@types/uuid': 8.3.4
       '@typescript-eslint/eslint-plugin': 5.15.0_f2c49ce7d0e93ebcfdb4b7d25b131b28
       '@typescript-eslint/parser': 5.15.0_eslint@8.11.0+typescript@4.6.2
       eslint: 8.11.0
@@ -3163,8 +3163,8 @@ packages:
     resolution: {integrity: sha512-N1rW+njavs70y2cApeIw1vLMYXRwfBy+7trgavGuuTfOd7j1Yh7QTRc/yqsPl6ncokt72ZXuxEU0PiCp9bSwNQ==}
     dev: true
 
-  /@types/uuid/3.4.9:
-    resolution: {integrity: sha512-XDwyIlt/47l2kWLTzw/mtrpLdB+GPSskR2n/PIcPn+VYhVO77rGhRncIR5GPU0KRzXuqkDO+J5qqrG0Y8P6jzQ==}
+  /@types/uuid/8.3.4:
+    resolution: {integrity: sha512-c/I8ZRb51j+pYGAu5CrFMRxqZ2ke4y2grEBO5AUjgSkSk+qT2Ea+OdWElz/OiMf5MNpn2b17kuVBwZLQJXzihw==}
     dev: true
 
   /@types/vimeo__player/2.16.3:
@@ -11196,11 +11196,17 @@ packages:
     resolution: {integrity: sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==}
     deprecated: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
     hasBin: true
+    dev: true
 
   /uuid/8.1.0:
     resolution: {integrity: sha512-CI18flHDznR0lq54xBycOVmphdCYnQLKn8abKn7PXUiKUGdEd+/l9LWNJmugXel4hXq7S+RMNl34ecyC9TntWg==}
     hasBin: true
     dev: true
+
+  /uuid/8.3.2:
+    resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    hasBin: true
+    dev: false
 
   /v8-compile-cache-lib/3.0.1:
     resolution: {integrity: sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==}
