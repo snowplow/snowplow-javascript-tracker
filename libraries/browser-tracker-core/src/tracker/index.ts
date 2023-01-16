@@ -787,8 +787,11 @@ export function Tracker(
           // Add the page URL last as it may take us over the IE limit (and we don't always need it)
           payloadBuilder.add('url', purify(configCustomUrl || locationHrefAlias));
 
-          if (configSessionContext && !configAnonymousSessionTracking && !configAnonymousTracking) {
-            addSessionContextToPayload(payloadBuilder, clientSessionFromIdCookie(idCookie, configStateStorageStrategy));
+          if (configSessionContext && (!configAnonymousTracking || configAnonymousSessionTracking)) {
+            addSessionContextToPayload(
+              payloadBuilder,
+              clientSessionFromIdCookie(idCookie, configStateStorageStrategy, configAnonymousTracking)
+            );
           }
 
           // Update cookies
