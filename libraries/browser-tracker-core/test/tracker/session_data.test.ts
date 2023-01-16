@@ -28,6 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import { TrackerConfiguration } from '../../dist/index.module';
 import { addTracker, SharedState } from '../../src';
 import { createTestIdCookie, createTestSessionIdCookie } from '../helpers';
 
@@ -54,7 +55,7 @@ describe('Tracker API: ', () => {
   });
 
   it('Sets initial domain session index on first session', () => {
-    const tracker = addTracker('sp1', 'sp1', '', '', new SharedState());
+    const tracker = createTracker();
 
     expect(tracker?.getDomainSessionIndex()).toEqual(1);
   });
@@ -62,7 +63,7 @@ describe('Tracker API: ', () => {
   it('Sets correct domain session index on new session', () => {
     const initialSessionIndex = 1;
     document.cookie = createTestIdCookie({ visitCount: initialSessionIndex });
-    const tracker = addTracker('sp2', 'sp2', '', '', new SharedState());
+    const tracker = createTracker();
 
     expect(tracker?.getDomainSessionIndex()).toEqual(initialSessionIndex + 1);
   });
@@ -70,7 +71,7 @@ describe('Tracker API: ', () => {
   it('Sets correct domain session index on existing session', () => {
     const initialSessionIndex = 2;
     document.cookie = createTestIdCookie({ visitCount: initialSessionIndex }) + ' ' + createTestSessionIdCookie();
-    const tracker = addTracker('sp3', 'sp3', '', '', new SharedState());
+    const tracker = createTracker();
 
     expect(tracker?.getDomainSessionIndex()).toEqual(initialSessionIndex);
   });
@@ -78,7 +79,7 @@ describe('Tracker API: ', () => {
   it('Sets correct domain session index (1) after clearUserData() on existing session', () => {
     const initialSessionIndex = 2;
     document.cookie = createTestIdCookie({ visitCount: initialSessionIndex }) + ' ' + createTestSessionIdCookie();
-    const tracker = addTracker('sp4', 'sp4', '', '', new SharedState());
+    const tracker = createTracker();
     expect(tracker?.getDomainSessionIndex()).toEqual(initialSessionIndex);
 
     tracker?.clearUserData();
@@ -86,13 +87,13 @@ describe('Tracker API: ', () => {
   });
 
   it('Sets correct domain session index anonymous track', () => {
-    const tracker = addTracker('sp5', 'sp5', '', '', new SharedState(), { anonymousTracking: true });
+    const tracker = createTracker({ anonymousTracking: true });
     expect(tracker?.getDomainSessionIndex()).toEqual(1);
   });
 
   it('Retains correct domain session index on opt-out cookie present', () => {
     const optOutCookieName = 'optOut';
-    const tracker = addTracker('sp6', 'sp6', '', '', new SharedState());
+    const tracker = createTracker();
     tracker?.setOptOutCookie(optOutCookieName);
     document.cookie = `${optOutCookieName}=1;`;
 
@@ -102,10 +103,73 @@ describe('Tracker API: ', () => {
 
   it('Sets correct domain session index after session expiration', () => {
     // Session timeout is in seconds
-    const tracker = addTracker('sp7', 'sp7', '', '', new SharedState(), { sessionCookieTimeout: 1 });
+    const tracker = createTracker({ sessionCookieTimeout: 1 });
     // Advance timer by more than one second
     jest.advanceTimersByTime(1001);
     tracker?.trackPageView({ title: 'my page' });
     expect(tracker?.getDomainSessionIndex()).toEqual(2);
   });
+
+  it('Adds the client session context entity when enabled', (done) => {
+    const tracker = createTracker({
+      contexts: { session: true },
+      encodeBase64: false,
+      plugins: [
+        {
+          afterTrack: (payload) => {
+            let context = payload.co as string;
+            expect(context).toContain('client_session');
+            done();
+          },
+        },
+      ],
+    });
+
+    tracker?.trackPageView();
+  });
+
+  it('Adds the client session context entity when anonymous session tracking', (done) => {
+    const tracker = createTracker({
+      contexts: { session: true },
+      encodeBase64: false,
+      anonymousTracking: { withSessionTracking: true },
+      plugins: [
+        {
+          afterTrack: (payload) => {
+            let context = payload.co as string;
+            expect(context).toContain('client_session');
+            expect(context).toContain('"userId":"00000000-0000-0000-0000-000000000000"');
+            expect(context).toContain('"previousSessionId":null');
+            done();
+          },
+        },
+      ],
+    });
+
+    tracker?.trackPageView();
+  });
+
+  it("Doesn't add the client session context entity when anonymous tracking without session tracking", (done) => {
+    const tracker = createTracker({
+      contexts: { session: true },
+      encodeBase64: false,
+      anonymousTracking: true,
+      plugins: [
+        {
+          afterTrack: (payload) => {
+            let context = payload.co as string;
+            expect(context).not.toContain('client_session');
+            done();
+          },
+        },
+      ],
+    });
+
+    tracker?.trackPageView();
+  });
 });
+
+function createTracker(configuration?: TrackerConfiguration) {
+  let id = 'sp-' + Math.random();
+  return addTracker(id, id, '', '', new SharedState(), configuration);
+}

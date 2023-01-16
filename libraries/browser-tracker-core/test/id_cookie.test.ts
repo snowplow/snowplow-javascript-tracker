@@ -262,11 +262,25 @@ describe('serializeIdCookie', () => {
 describe('clientSessionFromIdCookie', () => {
   it('Correctly fills out the properties', () => {
     let idCookie = parseIdCookie('def.1653632272.10.1653632282.1653632262.ses.previous.fid.1653638673483.9', '', '', 0);
-    let clientSession = clientSessionFromIdCookie(idCookie, 'cookieAndLocalStorage');
+    let clientSession = clientSessionFromIdCookie(idCookie, 'cookieAndLocalStorage', false);
 
     expect(clientSession.userId).toBe('def');
     expect(clientSession.sessionId).toBe('ses');
     expect(clientSession.previousSessionId).toBe('previous');
+    expect(clientSession.eventIndex).toBe(9);
+    expect(clientSession.sessionIndex).toBe(10);
+    expect(clientSession.storageMechanism).toBe('COOKIE_1');
+    expect(clientSession.firstEventId).toBe('fid');
+    expect(clientSession.firstEventTimestamp).toBe('2022-05-27T08:04:33.483Z');
+  });
+
+  it('Anonymises userId and previousSessionId when anonymous tracking', () => {
+    let idCookie = parseIdCookie('def.1653632272.10.1653632282.1653632262.ses.previous.fid.1653638673483.9', '', '', 0);
+    let clientSession = clientSessionFromIdCookie(idCookie, 'cookieAndLocalStorage', true);
+
+    expect(clientSession.userId).toBe('00000000-0000-0000-0000-000000000000');
+    expect(clientSession.sessionId).toBe('ses');
+    expect(clientSession.previousSessionId).toBeNull;
     expect(clientSession.eventIndex).toBe(9);
     expect(clientSession.sessionIndex).toBe(10);
     expect(clientSession.storageMechanism).toBe('COOKIE_1');
