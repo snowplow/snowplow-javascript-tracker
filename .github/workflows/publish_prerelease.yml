@@ -61,7 +61,7 @@ jobs:
         run: node common/scripts/install-run-rush.js test --verbose
 
       - name: Install API Extractor & Documenter
-        run: npm install -g @microsoft/api-extractor@^7.18.4 @microsoft/api-documenter@^7.13.34
+        run: npm install -g @microsoft/api-extractor@7.18.4 @microsoft/api-documenter@7.13.34
 
       - name: Create API documentation for @snowplow/browser-tracker
         working-directory: ./trackers/browser-tracker
