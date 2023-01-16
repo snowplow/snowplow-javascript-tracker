@@ -541,6 +541,12 @@
       "projectFolder": "plugins/browser-plugin-enhanced-consent",
       "reviewCategory": "plugins",
       "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-plugin-focalmeter",
+      "projectFolder": "plugins/browser-plugin-focalmeter",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
     }
   ]
 }

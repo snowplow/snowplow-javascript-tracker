@@ -131,6 +131,10 @@
       "allowedCategories": [ "trackers" ]
     },
     {
+      "name": "@snowplow/browser-plugin-focalmeter",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "@snowplow/browser-tracker",
       "allowedCategories": [ "plugins", "trackers" ]
     },
