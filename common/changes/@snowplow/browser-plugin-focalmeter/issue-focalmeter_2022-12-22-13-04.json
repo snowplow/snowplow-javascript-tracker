@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-focalmeter",
+      "comment": "Add plugin to send requests with user ID to a Kantar FocalMeter endpoint (#1133)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-focalmeter"
+}
