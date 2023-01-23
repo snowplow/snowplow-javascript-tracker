@@ -57,6 +57,16 @@ declare global {
 let uaClientHints: HttpClientHints;
 
 /**
+ * This function makes sure that the expected array is returned as an array instead of an object.
+ * It handles a problem that in some cases the `navigator.userAgentData.brands` was returned as an object instead of array.
+ */
+function forceArray<T>(array: T[]): T[] {
+  return Object.keys(array).map((e) => {
+    return (array as any)[e];
+  });
+}
+
+/**
  * Attaches Client Hint information where available
  * @param includeHighEntropy - Should high entropy values be included
  */
@@ -67,7 +77,7 @@ export function ClientHintsPlugin(includeHighEntropy?: boolean): BrowserPlugin {
     if (navigatorAlias.userAgentData) {
       uaClientHints = {
         isMobile: navigatorAlias.userAgentData.mobile,
-        brands: navigatorAlias.userAgentData.brands,
+        brands: forceArray(navigatorAlias.userAgentData.brands),
       };
       if (includeHighEntropy && navigatorAlias.userAgentData.getHighEntropyValues) {
         navigatorAlias.userAgentData
