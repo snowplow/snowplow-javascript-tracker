@@ -58,7 +58,7 @@ export function createTestIdCookie(params: Partial<CreateTestIdCookie>) {
   const { domainHash } = cookieParams;
   // @ts-expect-error
   delete cookieParams.domainHash;
-  return `_sp_id.${domainHash}=${Object.values(cookieParams).join('.')}; Expires=; Path=/; SameSite=None; Secure;`;
+  return `_sp_id.${domainHash}=${Object.values(cookieParams).join('.')}; Expires=; Path=/; SameSite=Lax; Secure;`;
 }
 
 interface CreateTestSessionIdCookie {
@@ -70,5 +70,5 @@ interface CreateTestSessionIdCookie {
  */
 export function createTestSessionIdCookie(params?: CreateTestSessionIdCookie) {
   const domainHash = DEFAULT_DOMAIN_HASH || params?.domainHash;
-  return `_sp_ses.${domainHash}=*; Expires=; Path=/; SameSite=None; Secure;`;
+  return `_sp_ses.${domainHash}=*; Expires=; Path=/; SameSite=Lax; Secure;`;
 }
