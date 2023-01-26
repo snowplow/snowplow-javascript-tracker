@@ -60,9 +60,11 @@ let uaClientHints: HttpClientHints;
  * This function makes sure that the expected array is returned as an array instead of an object.
  * It handles a problem that in some cases the `navigator.userAgentData.brands` was returned as an object instead of array.
  */
-function forceArray<T>(array: T[]): T[] {
+function forceArray<T>(array: T[] | Record<string, T>): T[] {
+  if (Array.isArray(array)) return array;
+
   return Object.keys(array).map((e) => {
-    return (array as any)[e];
+    return array[e];
   });
 }
 
