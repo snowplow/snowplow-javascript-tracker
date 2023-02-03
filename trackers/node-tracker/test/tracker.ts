@@ -29,11 +29,8 @@
  */
 
 import {
-  tracker,
-  gotEmitter,
+  newTracker,
   version,
-  HttpMethod,
-  HttpProtocol,
   buildEcommerceTransaction,
   buildEcommerceTransactionItem,
   buildPageView,
@@ -45,10 +42,11 @@ import {
 import test, { ExecutionContext } from 'ava';
 import nock from 'nock';
 import querystring from 'querystring';
+import { gotEmitter } from '../src/got_emitter';
 
 const UUID_REGEX = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
 
-const testMethods = [HttpMethod.GET, HttpMethod.POST];
+const testMethods = ['get', 'post'] as const;
 
 const endpoint = 'd3rkrsqld9gmqf.cloudfront.net';
 
@@ -107,9 +105,7 @@ test.after(() => {
 
 for (const method of testMethods) {
   test(method + ' method: track API should return eid in the payload', async (t) => {
-    const e = gotEmitter(endpoint, HttpProtocol.HTTP);
-
-    const track = tracker(e, 'cf', 'cfe35', false);
+    const track = newTracker({ namespace: 'cf', appId: 'cfe35', encodeBase64: false }, { endpoint, protocol: 'http' });
     const eventPayload = track.track(
       buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'example page', referrer: 'http://google.com' }),
       context
@@ -131,22 +127,19 @@ for (const method of testMethods) {
     };
 
     await new Promise((resolve, reject) => {
-      const e = gotEmitter(
-        endpoint,
-        HttpProtocol.HTTPS,
-        undefined,
-        method,
-        0,
-        undefined,
-        undefined,
-        function (error, response) {
-          checkPayload(extractPayload(response?.body, method), expected, t);
-          if (error) reject(error);
-          else resolve(response);
+      const track = newTracker(
+        { namespace: 'cf', appId: 'cfe35', encodeBase64: false },
+        {
+          endpoint,
+          method,
+          bufferSize: 0,
+          callback: function (error, response) {
+            checkPayload(extractPayload(response?.body, method), expected, t);
+            if (error) reject(error);
+            else resolve(response);
+          },
         }
       );
-
-      const track = tracker(e, 'cf', 'cfe35', false);
       track.track(
         buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'example page', referrer: 'http://google.com' }),
         context
@@ -167,22 +160,19 @@ for (const method of testMethods) {
       se_va: '15',
     };
     await new Promise((resolve, reject) => {
-      const e = gotEmitter(
-        endpoint,
-        HttpProtocol.HTTPS,
-        undefined,
-        method,
-        0,
-        undefined,
-        undefined,
-        function (error, response) {
-          checkPayload(extractPayload(response?.body, method), expected, t);
-          if (error) reject(error);
-          else resolve(response);
+      const track = newTracker(
+        { namespace: 'cf', appId: 'cfe35', encodeBase64: false },
+        {
+          endpoint,
+          method,
+          bufferSize: 0,
+          callback: function (error, response) {
+            checkPayload(extractPayload(response?.body, method), expected, t);
+            if (error) reject(error);
+            else resolve(response);
+          },
         }
       );
-
-      const track = tracker(e, 'cf', 'cfe35', false);
       track.track(
         buildStructEvent({ category: 'clothes', action: 'add_to_basket', property: 'jumper', label: 'red', value: 15 }),
         context
@@ -205,23 +195,20 @@ for (const method of testMethods) {
     };
 
     await new Promise((resolve, reject) => {
-      const e = gotEmitter(
-        endpoint,
-        HttpProtocol.HTTPS,
-        undefined,
-        method,
-        0,
-        undefined,
-        undefined,
-        function (error, response) {
-          const payloadDict = extractPayload(response?.body, method);
-          checkPayload(payloadDict, expectedTransaction, t);
-          if (error) reject(error);
-          else resolve(response);
+      const track = newTracker(
+        { namespace: 'cf', appId: 'cfe35', encodeBase64: false },
+        {
+          endpoint,
+          method,
+          bufferSize: 0,
+          callback: function (error, response) {
+            const payloadDict = extractPayload(response?.body, method);
+            checkPayload(payloadDict, expectedTransaction, t);
+            if (error) reject(error);
+            else resolve(response);
+          },
         }
       );
-
-      const track = tracker(e, 'cf', 'cfe35', false);
       track.track(
         buildEcommerceTransaction({
           orderId: 'order-7',
@@ -276,30 +263,27 @@ for (const method of testMethods) {
       let requestCount = items.length + 1;
 
       await new Promise((resolve, reject) => {
-        const e = gotEmitter(
-          endpoint,
-          HttpProtocol.HTTPS,
-          undefined,
-          method,
-          0,
-          undefined,
-          undefined,
-          function (error, response) {
-            const payloadDict = extractPayload(response?.body, method);
-            const expected = payloadDict['e'] === 'tr' ? expectedTransaction : expectedItem;
+        const track = newTracker(
+          { namespace: 'cf', appId: 'cfe35', encodeBase64: false },
+          {
+            endpoint,
+            method,
+            bufferSize: 0,
+            callback: function (error, response) {
+              const payloadDict = extractPayload(response?.body, method);
+              const expected = payloadDict['e'] === 'tr' ? expectedTransaction : expectedItem;
 
-            checkPayload(payloadDict, expected, t);
+              checkPayload(payloadDict, expected, t);
 
-            requestCount--;
-            if (requestCount === 0) {
-              resolve(response);
-            }
+              requestCount--;
+              if (requestCount === 0) {
+                resolve(response);
+              }
 
-            if (error) reject(error);
+              if (error) reject(error);
+            },
           }
         );
-
-        const track = tracker(e, 'cf', 'cfe35', false);
         track.track(
           buildEcommerceTransaction({
             orderId: 'order-7',
@@ -352,22 +336,19 @@ for (const method of testMethods) {
     };
 
     await new Promise((resolve, reject) => {
-      const e = gotEmitter(
-        endpoint,
-        HttpProtocol.HTTPS,
-        undefined,
-        method,
-        0,
-        undefined,
-        undefined,
-        function (error, response) {
-          checkPayload(extractPayload(response?.body, method), expected, t);
-          if (error) reject(error);
-          else resolve(response);
+      const track = newTracker(
+        { namespace: 'cf', appId: 'cfe35', encodeBase64: false },
+        {
+          endpoint,
+          method,
+          bufferSize: 0,
+          callback: function (error, response) {
+            checkPayload(extractPayload(response?.body, method), expected, t);
+            if (error) reject(error);
+            else resolve(response);
+          },
         }
       );
-
-      const track = tracker(e, 'cf', 'cfe35', false);
       track.track(buildSelfDescribingEvent({ event: inputJson }), context);
     });
   });
@@ -391,22 +372,19 @@ for (const method of testMethods) {
     };
 
     await new Promise((resolve, reject) => {
-      const e = gotEmitter(
-        endpoint,
-        HttpProtocol.HTTPS,
-        undefined,
-        method,
-        0,
-        undefined,
-        undefined,
-        function (error, response) {
-          checkPayload(extractPayload(response?.body, method), expected, t);
-          if (error) reject(error);
-          else resolve(response);
+      const track = newTracker(
+        { namespace: 'cf', appId: 'cfe35', encodeBase64: false },
+        {
+          endpoint,
+          method,
+          bufferSize: 0,
+          callback: function (error, response) {
+            checkPayload(extractPayload(response?.body, method), expected, t);
+            if (error) reject(error);
+            else resolve(response);
+          },
         }
       );
-
-      const track = tracker(e, 'cf', 'cfe35', false);
       track.track(buildScreenView({ name: 'title screen', id: '12345' }), context);
     });
   });
@@ -430,22 +408,19 @@ for (const method of testMethods) {
     };
 
     await new Promise((resolve, reject) => {
-      const e = gotEmitter(
-        endpoint,
-        HttpProtocol.HTTPS,
-        undefined,
-        method,
-        0,
-        undefined,
-        undefined,
-        function (error, response) {
-          checkPayload(extractPayload(response?.body, method), expected, t);
-          if (error) reject(error);
-          else resolve(response);
+      const track = newTracker(
+        { namespace: 'cf', appId: 'cfe35', encodeBase64: false },
+        {
+          endpoint,
+          method,
+          bufferSize: 0,
+          callback: function (error, response) {
+            checkPayload(extractPayload(response?.body, method), expected, t);
+            if (error) reject(error);
+            else resolve(response);
+          },
         }
       );
-
-      const track = tracker(e, 'cf', 'cfe35', false);
 
       track.setPlatform('web');
       track.setUserId('jacob');
@@ -473,36 +448,33 @@ for (const method of testMethods) {
       };
 
       await new Promise((resolve, reject) => {
-        const e = gotEmitter(
-          endpoint,
-          HttpProtocol.HTTPS,
-          undefined,
-          method,
-          0,
-          undefined,
-          undefined,
-          function (error, response) {
-            const pd = extractPayload(response?.body, method);
-            t.is(
-              pd['ue_px'],
-              'eyJzY2hlbWEiOiJpZ2x1OmNvbS5zbm93cGxvd2FuYWx5dGljcy5zbm93cGxvdy91bnN0cnVjdF9ldmVudC9qc29uc2NoZW1hLzEtMC0wIiwiZGF0YSI6eyJzY2hlbWEiOiJpZ2x1OmNvbS5hY21lL3ZpZXdlZF9wcm9kdWN0L2pzb25zY2hlbWEvMS0wLTAiLCJkYXRhIjp7InByaWNlIjoyMH19fQ'
-            );
-            t.is(
-              pd['cx'],
-              'eyJzY2hlbWEiOiJpZ2x1OmNvbS5zbm93cGxvd2FuYWx5dGljcy5zbm93cGxvdy9jb250ZXh0cy9qc29uc2NoZW1hLzEtMC0wIiwiZGF0YSI6W3sic2NoZW1hIjoiaWdsdTpjb20uYWNtZS91c2VyL2pzb25zY2hlbWEvMS0wLTAiLCJkYXRhIjp7InR5cGUiOiJ0ZXN0ZXIifX1dfQ'
-            );
-            if (error) reject(error);
-            else resolve(response);
+        const track = newTracker(
+          { namespace: 'cf', appId: 'cfe35', encodeBase64: true },
+          {
+            endpoint,
+            method,
+            bufferSize: 0,
+            callback: function (error, response) {
+              const pd = extractPayload(response?.body, method);
+              t.is(
+                pd['ue_px'],
+                'eyJzY2hlbWEiOiJpZ2x1OmNvbS5zbm93cGxvd2FuYWx5dGljcy5zbm93cGxvdy91bnN0cnVjdF9ldmVudC9qc29uc2NoZW1hLzEtMC0wIiwiZGF0YSI6eyJzY2hlbWEiOiJpZ2x1OmNvbS5hY21lL3ZpZXdlZF9wcm9kdWN0L2pzb25zY2hlbWEvMS0wLTAiLCJkYXRhIjp7InByaWNlIjoyMH19fQ'
+              );
+              t.is(
+                pd['cx'],
+                'eyJzY2hlbWEiOiJpZ2x1OmNvbS5zbm93cGxvd2FuYWx5dGljcy5zbm93cGxvdy9jb250ZXh0cy9qc29uc2NoZW1hLzEtMC0wIiwiZGF0YSI6W3sic2NoZW1hIjoiaWdsdTpjb20uYWNtZS91c2VyL2pzb25zY2hlbWEvMS0wLTAiLCJkYXRhIjp7InR5cGUiOiJ0ZXN0ZXIifX1dfQ'
+              );
+              if (error) reject(error);
+              else resolve(response);
+            },
           }
         );
-
-        const track = tracker(e, 'cf', 'cfe35', true);
         track.track(buildSelfDescribingEvent({ event: inputJson }), context);
       });
     }
   );
 
-  test(method + ' method: multiple emitters should send an event to multiple collectors', async (t) => {
+  test(method + ' method: multiple custom emitters should send an event to multiple collectors', async (t) => {
     const expected = {
       tv: 'node-' + version,
       tna: 'cf',
@@ -516,15 +488,11 @@ for (const method of testMethods) {
     let count = 2;
 
     await new Promise((resolve, reject) => {
-      const e = gotEmitter(
+      const e = gotEmitter({
         endpoint,
-        HttpProtocol.HTTPS,
-        undefined,
         method,
-        0,
-        undefined,
-        undefined,
-        function (error, response) {
+        bufferSize: 0,
+        callback: function (error, response) {
           checkPayload(extractPayload(response?.body, method), expected, t);
           count--;
           if (count === 0) {
@@ -534,10 +502,68 @@ for (const method of testMethods) {
           if (error) {
             reject(error);
           }
-        }
-      );
+        },
+      });
 
-      const track = tracker([e, e], 'cf', 'cfe35', false);
+      const track = newTracker(
+        { namespace: 'cf', appId: 'cfe35', encodeBase64: false },
+        { customEmitter: () => [e, e] }
+      );
+      track.track(
+        buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'example page', referrer: 'http://google.com' }),
+        context
+      );
+    });
+  });
+
+  test(method + ' method: multiple gotemitters should send an event to multiple collectors', async (t) => {
+    const expected = {
+      tv: 'node-' + version,
+      tna: 'cf',
+      aid: 'cfe35',
+      p: 'srv',
+      e: 'pv',
+      url: 'http://www.example.com',
+      page: 'example page',
+      refr: 'http://google.com',
+    };
+    let count = 2;
+
+    await new Promise((resolve, reject) => {
+      const track = newTracker({ namespace: 'cf', appId: 'cfe35', encodeBase64: false }, [
+        {
+          endpoint,
+          method,
+          bufferSize: 0,
+          callback: function (error, response) {
+            checkPayload(extractPayload(response?.body, method), expected, t);
+            count--;
+            if (count === 0) {
+              resolve(response);
+            }
+
+            if (error) {
+              reject(error);
+            }
+          },
+        },
+        {
+          endpoint,
+          method,
+          bufferSize: 0,
+          callback: function (error, response) {
+            checkPayload(extractPayload(response?.body, method), expected, t);
+            count--;
+            if (count === 0) {
+              resolve(response);
+            }
+
+            if (error) {
+              reject(error);
+            }
+          },
+        },
+      ]);
       track.track(
         buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'example page', referrer: 'http://google.com' }),
         context
@@ -551,22 +577,19 @@ for (const method of testMethods) {
     };
 
     await new Promise((resolve, reject) => {
-      const e = gotEmitter(
-        endpoint,
-        HttpProtocol.HTTPS,
-        undefined,
-        method,
-        0,
-        undefined,
-        undefined,
-        function (error, response) {
-          checkPayload(extractPayload(response?.body, method), expected, t);
-          if (error) reject(error);
-          else resolve(response);
+      const track = newTracker(
+        { namespace: 'cf', appId: 'cfe35', encodeBase64: false },
+        {
+          endpoint,
+          method,
+          bufferSize: 0,
+          callback: function (error, response) {
+            checkPayload(extractPayload(response?.body, method), expected, t);
+            if (error) reject(error);
+            else resolve(response);
+          },
         }
       );
-
-      const track = tracker(e, 'cf', 'cfe35', false);
       track.setDomainUserId('duid-test-1234');
       track.track(
         buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'example page', referrer: 'http://google.com' }),
@@ -581,22 +604,19 @@ for (const method of testMethods) {
     };
 
     await new Promise((resolve, reject) => {
-      const e = gotEmitter(
-        endpoint,
-        HttpProtocol.HTTPS,
-        undefined,
-        method,
-        0,
-        undefined,
-        undefined,
-        function (error, response) {
-          checkPayload(extractPayload(response?.body, method), expected, t);
-          if (error) reject(error);
-          else resolve(response);
+      const track = newTracker(
+        { namespace: 'cf', appId: 'cfe35', encodeBase64: false },
+        {
+          endpoint,
+          method,
+          bufferSize: 0,
+          callback: function (error, response) {
+            checkPayload(extractPayload(response?.body, method), expected, t);
+            if (error) reject(error);
+            else resolve(response);
+          },
         }
       );
-
-      const track = tracker(e, 'cf', 'cfe35', false);
       track.setNetworkUserId('nuid-test-1234');
       track.track(
         buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'example page', referrer: 'http://google.com' }),

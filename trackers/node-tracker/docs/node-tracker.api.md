@@ -235,25 +235,6 @@ export interface FormSubmissionEvent {
 }
 
 // @public
-export function gotEmitter(endpoint: string, protocol?: HttpProtocol, port?: number, method?: HttpMethod, bufferSize?: number, retry?: number | Partial<RequiredRetryOptions>, cookieJar?: PromiseCookieJar | ToughCookieJar, callback?: (error?: RequestError, response?: Response<string>) => void, agents?: Agents): Emitter;
-
-// @public (undocumented)
-export enum HttpMethod {
-    // (undocumented)
-    GET = "get",
-    // (undocumented)
-    POST = "post"
-}
-
-// @public (undocumented)
-export enum HttpProtocol {
-    // (undocumented)
-    HTTP = "http",
-    // (undocumented)
-    HTTPS = "https"
-}
-
-// @public
 export interface LinkClickEvent {
     elementClasses?: Array<string>;
     elementContent?: string;
@@ -261,6 +242,12 @@ export interface LinkClickEvent {
     elementTarget?: string;
     targetUrl: string;
 }
+
+// Warning: (ae-forgotten-export) The symbol "TrackerConfiguration" needs to be exported by the entry point index.module.d.ts
+// Warning: (ae-forgotten-export) The symbol "EmitterConfiguration" needs to be exported by the entry point index.module.d.ts
+//
+// @public (undocumented)
+export function newTracker(trackerConfiguration: TrackerConfiguration, emitterConfiguration: EmitterConfiguration | EmitterConfiguration[]): Tracker;
 
 // @public
 export interface PagePingEvent extends PageViewEvent {
@@ -361,9 +348,6 @@ export interface Tracker extends TrackerCore {
     setDomainUserId: (userId: string) => void;
     setNetworkUserId: (userId: string) => void;
 }
-
-// @public
-export function tracker(emitters: Emitter | Array<Emitter>, namespace: string, appId: string, encodeBase64: boolean): Tracker;
 
 // @public (undocumented)
 export const version: string;
