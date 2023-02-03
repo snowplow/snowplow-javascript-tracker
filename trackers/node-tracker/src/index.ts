@@ -28,9 +28,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-export { Emitter, HttpMethod, HttpProtocol } from './emitter';
-export { gotEmitter } from './got_emitter';
-export { tracker, Tracker } from './tracker';
+export { Emitter } from './emitter';
+export { newTracker, Tracker } from './tracker';
 
 export {
   version,
