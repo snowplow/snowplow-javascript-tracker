@@ -31,17 +31,11 @@ npm install @snowplow/node-tracker
 Initialize your tracker with your desired configuration:
 
 ```js
-import { tracker, gotEmitter } from '@snowplow/node-tracker';
-
-const e = gotEmitter(
-  'collector.mydomain.net', // Collector endpoint
-  snowplow.HttpProtocol.HTTPS, // Optionally specify a method - https is the default
-  8080, // Optionally specify a port
-  snowplow.HttpMethod.POST, // Method - defaults to GET
-  5 // Only send events once n are buffered. Defaults to 1 for GET requests and 10 for POST requests.
+import { newTracker } from '@snowplow/node-tracker';
+const t = newTracker(
+  { namespace: 'myTracker', appId: 'myApp', encodeBase64: false }, 
+  { endpoint:  'collector.mydomain.net', port: 8080, bufferSize: 5 }
 );
-
-const t = tracker(e, 'myTracker', 'myApp', false);
 ```
 
 Then use the `track` function from this package, along with the `buildX` functions to send events to your configured emitters:
@@ -73,7 +67,7 @@ const eventJson = {
   },
 };
 
-track.track(buildSelfDescribingEvent({ event: eventJson }), context);
+t.track(buildSelfDescribingEvent({ event: eventJson }), context);
 ```
 
 To enable success and failure callback debugging, run your application with `NODE_DEBUG=snowplow`.
