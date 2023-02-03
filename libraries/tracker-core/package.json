@@ -56,7 +56,7 @@
     "@types/uuid": "^8.3.2",
     "@typescript-eslint/eslint-plugin": "~5.15.0",
     "@typescript-eslint/parser": "~5.15.0",
-    "ava": "~4.1.0",
+    "ava": "~5.1.1",
     "eslint": "~8.11.0",
     "jest-standard-reporter": "~2.0.0",
     "rollup": "~2.70.1",

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/node-tracker",
+      "comment": "Revise Node.js initialization API & upgrade got to @12",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/node-tracker"
+}
