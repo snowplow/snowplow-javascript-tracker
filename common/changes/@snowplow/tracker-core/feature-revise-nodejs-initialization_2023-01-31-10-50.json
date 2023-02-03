@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/tracker-core",
+      "comment": "Upgrade ava to @5",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/tracker-core"
+}

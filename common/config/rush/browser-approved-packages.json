@@ -359,6 +359,10 @@
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
+      "name": "tsx",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "typescript",
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
