@@ -31,6 +31,7 @@
 import { trackerCore, PayloadBuilder, TrackerCore, version } from '@snowplow/tracker-core';
 
 import { Emitter } from './emitter';
+import { gotEmitter, GotEmitterConfiguration } from './got_emitter';
 
 export interface Tracker extends TrackerCore {
   /**
@@ -62,33 +63,42 @@ export interface Tracker extends TrackerCore {
   setSessionIndex: (sessionIndex: string | number) => void;
 }
 
-/**
- * Snowplow Node.js Tracker
- *
- * @param string - or array emitters The emitter or emitters to which events will be sent
- * @param string - namespace The namespace of the tracker
- * @param string - appId The application ID
- * @param boolean - encodeBase64 Whether unstructured events and custom contexts should be base 64 encoded
- */
-export function tracker(
-  emitters: Emitter | Array<Emitter>,
-  namespace: string,
-  appId: string,
-  encodeBase64: boolean
+interface TrackerConfiguration {
+  /* The namespace of the tracker */
+  namespace: string;
+  /* The application ID */
+  appId: string;
+  /* Whether unstructured events and custom contexts should be base64 encoded. */
+  encodeBase64: boolean;
+}
+
+type CustomEmitter = {
+  /* Function returning custom Emitter or Emitter[] to be used. If set, other options are irrelevant */
+  customEmitter: () => Emitter | Array<Emitter>;
+};
+
+type EmitterConfiguration = CustomEmitter | GotEmitterConfiguration;
+
+export function newTracker(
+  trackerConfiguration: TrackerConfiguration,
+  emitterConfiguration: EmitterConfiguration | EmitterConfiguration[]
 ): Tracker {
+  const { namespace, appId, encodeBase64 = true } = trackerConfiguration;
+
+  let allEmitters: Emitter[] = [];
+  if (Array.isArray(emitterConfiguration)) {
+    allEmitters = emitterConfiguration.map((config) => gotEmitter(config as GotEmitterConfiguration));
+  } else if (emitterConfiguration && emitterConfiguration.hasOwnProperty('customEmitter')) {
+    const customEmitters = (emitterConfiguration as CustomEmitter).customEmitter();
+    allEmitters = Array.isArray(customEmitters) ? customEmitters : [customEmitters];
+  } else {
+    allEmitters = [gotEmitter(emitterConfiguration as GotEmitterConfiguration)];
+  }
+
   let domainUserId: string;
   let networkUserId: string;
   let sessionId: string;
   let sessionIndex: string | number;
-  let allEmitters: Array<Emitter>;
-
-  if (Array.isArray(emitters)) {
-    allEmitters = emitters;
-  } else {
-    allEmitters = [emitters];
-  }
-
-  encodeBase64 = encodeBase64 !== false;
 
   const addUserInformation = (payload: PayloadBuilder): void => {
     payload.add('duid', domainUserId);
