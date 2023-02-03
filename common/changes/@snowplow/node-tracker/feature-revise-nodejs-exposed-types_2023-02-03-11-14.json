@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/node-tracker",
+      "comment": "Remove unnecessarily exposed types regarding payload and context from tracker-core",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/node-tracker"
+}

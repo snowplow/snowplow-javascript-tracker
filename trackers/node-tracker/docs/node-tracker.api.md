@@ -59,6 +59,8 @@ export interface AdImpressionEvent {
     zoneId?: string;
 }
 
+// Warning: (ae-forgotten-export) The symbol "PayloadBuilder" needs to be exported by the entry point index.module.d.ts
+//
 // @public
 export function buildAdClick(event: AdClickEvent): PayloadBuilder;
 
@@ -147,43 +149,6 @@ export interface ConsentWithdrawnEvent {
 }
 
 // @public
-export interface ContextEvent {
-    event: Payload;
-    eventSchema: string;
-    eventType: string;
-}
-
-// @public
-export type ContextFilter = (args?: ContextEvent) => boolean;
-
-// @public
-export type ContextGenerator = (args?: ContextEvent) => SelfDescribingJson | SelfDescribingJson[] | undefined;
-
-// @public
-export interface CoreConfiguration {
-    /* Should payloads be base64 encoded when built */
-    // (undocumented)
-    base64?: boolean;
-    /* A list of all the plugins to include at load */
-    // (undocumented)
-    callback?: (PayloadData: PayloadBuilder) => void;
-    /* A list of all the plugins to include at load */
-    // (undocumented)
-    corePlugins?: Array<CorePlugin>;
-}
-
-// @public
-export interface CorePlugin {
-    // Warning: (ae-forgotten-export) The symbol "TrackerCore" needs to be exported by the entry point index.module.d.ts
-    activateCorePlugin?: (core: TrackerCore) => void;
-    afterTrack?: (payload: Payload) => void;
-    beforeTrack?: (payloadBuilder: PayloadBuilder) => void;
-    contexts?: () => SelfDescribingJson[];
-    // Warning: (ae-forgotten-export) The symbol "Logger" needs to be exported by the entry point index.module.d.ts
-    logger?: (logger: Logger) => void;
-}
-
-// @public
 export interface EcommerceTransactionEvent {
     affiliation?: string;
     city?: string;
@@ -268,20 +233,6 @@ export interface PageViewEvent {
 export type Payload = Record<string, unknown>;
 
 // @public
-export interface PayloadBuilder {
-    add: (key: string, value: unknown) => void;
-    addContextEntity: (entity: SelfDescribingJson) => void;
-    addDict: (dict: Payload) => void;
-    addJson: (keyIfEncoded: string, keyIfNotEncoded: string, json: Record<string, unknown>) => void;
-    build: () => Payload;
-    // Warning: (ae-forgotten-export) The symbol "EventJson" needs to be exported by the entry point index.module.d.ts
-    getJson: () => EventJson;
-    getPayload: () => Payload;
-    // Warning: (ae-forgotten-export) The symbol "JsonProcessor" needs to be exported by the entry point index.module.d.ts
-    withJsonProcessor: (jsonProcessor: JsonProcessor) => void;
-}
-
-// @public
 export interface RemoveFromCartEvent {
     category?: string;
     currency?: string;
@@ -337,12 +288,8 @@ export interface StructuredEvent {
     value?: number;
 }
 
-// Warning: (ae-forgotten-export) The symbol "TrueTimestamp" needs to be exported by the entry point index.module.d.ts
-// Warning: (ae-forgotten-export) The symbol "DeviceTimestamp" needs to be exported by the entry point index.module.d.ts
+// Warning: (ae-forgotten-export) The symbol "TrackerCore" needs to be exported by the entry point index.module.d.ts
 //
-// @public
-export type Timestamp = TrueTimestamp | DeviceTimestamp | number;
-
 // @public (undocumented)
 export interface Tracker extends TrackerCore {
     setDomainUserId: (userId: string) => void;
