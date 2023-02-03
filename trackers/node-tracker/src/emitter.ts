@@ -35,16 +35,6 @@ export interface Emitter {
   input: (payload: Payload) => void;
 }
 
-export enum HttpProtocol {
-  HTTP = 'http',
-  HTTPS = 'https',
-}
-
-export enum HttpMethod {
-  GET = 'get',
-  POST = 'post',
-}
-
 /**
  * Convert all fields in a payload dictionary to strings
  *
