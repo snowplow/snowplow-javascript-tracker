@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-browser-features",
+      "comment": "Add deprecation warning",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-browser-features"
+}
