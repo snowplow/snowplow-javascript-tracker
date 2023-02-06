@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-enhanced-consent",
+      "comment": "Update README",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-enhanced-consent"
+}
