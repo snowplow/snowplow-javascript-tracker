@@ -118,6 +118,38 @@ describe('YouTube Tracker', () => {
     return;
   }
 
+  // This is simply to check that the plugin can accept an instance of `YT.Player` and emit events
+  // If that passes, everything else will work the same as passing in an ID
+  describe('YouTube Tracker with Existing Player', () => {
+    beforeAll(async () => {
+      await browser.call(async () => (docker = await start()));
+
+      await browser.url('/index.html');
+      await browser.setCookies({ name: 'container', value: docker.url });
+      await browser.url('/youtube/tracking-player.html');
+      await waitUntil(browser, () => $('#youtube').isExisting(), {
+        timeout: 5000,
+        timeoutMsg: 'expected youtube after 5s',
+      });
+    });
+
+    it('should track play event', async () => {
+      const player = await $('#youtube');
+      await player.click(); // emits 'playbackqualitychange' and 'play';
+
+      await waitUntil(browser, () => getFirstEventOfEventType('play'), {
+        timeout: 5000,
+        timeoutMsg: 'expected play after 20s',
+      });
+
+      log = await browser.call(async () => await fetchResults(docker.url));
+
+      // Any non-zero amount of events received means the
+      // plugin is successfully sending events from the player
+      expect(log.length).toBeGreaterThan(0);
+    });
+  });
+
   beforeAll(async () => {
     await browser.call(async () => (docker = await start()));
 

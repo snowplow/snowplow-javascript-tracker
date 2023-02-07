@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<head>
+  <title>Page for YouTube tracking testing with Snowplow Micro</title>
+  <script>
+    const collector_endpoint = document.cookie.split('container=')[1].split(';')[0].trim();
+    document.body.className += ' loaded';
+  </script>
+</head>
+<body>
+  <script>
+    (function (p, l, o, w, i, n, g) {
+      if (!p[i]) {
+        p.GlobalSnowplowNamespace = p.GlobalSnowplowNamespace || [];
+        p.GlobalSnowplowNamespace.push(i);
+        p[i] = function () {
+          (p[i].q = p[i].q || []).push(arguments);
+        };
+        p[i].q = p[i].q || [];
+        n = l.createElement(o);
+        g = l.getElementsByTagName(o)[0];
+        n.async = 1;
+        n.src = w;
+        g.parentNode.insertBefore(n, g);
+      }
+    })(window, document, 'script', '../snowplow.js', 'snowplow');
+
+    document.write(collector_endpoint);
+
+    window.snowplow('newTracker', 'sp2', collector_endpoint, {
+      appId: 'youtube-track-test',
+    });
+  </script>
+  <div id="youtube"></div>
+  <script>
+    // Load the IFrame Player API
+    var tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    // `onYouTubeIframeAPIReady` will run once the API is loaded
+    function onYouTubeIframeAPIReady() {
+      new YT.Player('youtube', {
+        videoId: 'M7lc1UVf-VE',
+        events: {
+          onReady: (e) =>
+            window.snowplow('enableYouTubeTracking', {
+              // `e.target` is the instance of `YT.Player`
+              id: e.target,
+              options: {
+                label: 'test-label',
+                captureEvents: ['DefaultEvents'],
+                boundaries: [1],
+              },
+            }),
+        },
+      });
+    }
+  </script>
+</body>

@@ -6,6 +6,7 @@ export type EventGroup = (SnowplowEvent | YTPlayerEvent | YTState | string)[];
 
 export interface TrackingOptions {
   mediaId: string;
+  player?: YT.Player;
   urlParameters?: UrlParameters;
   captureEvents: EventGroup;
   youtubeEvents: YTPlayerEvent[];
