@@ -25,6 +25,9 @@
     "Paul Boocock"
   ],
   "browser": "dist/sp.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "rollup -c --silent --failAfterWarnings",
     "docker:micro": "docker pull snowplow/snowplow-micro:1.2.1",
