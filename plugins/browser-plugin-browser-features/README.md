@@ -3,6 +3,10 @@
 [![npm version][npm-image]][npm-url]
 [![License][license-image]](LICENSE)
 
+<h3>⚠️ This package is deprecated ⚠️</h3>
+
+---
+
 Browser Plugin to be used with `@snowplow/browser-tracker`.
 
 Adds Browser Features to your Snowplow tracking. Identifies available MIME Types.
