@@ -3,6 +3,10 @@
 [![npm version][npm-image]][npm-url]
 [![License][license-image]](LICENSE)
 
+<h3>⚠️ This package is deprecated, please use <a href="https://www.npmjs.com/package/@snowplow/browser-plugin-snowplow-ecommerce">@snowplow/browser-plugin-snowplow-ecommerce</a> instead. ⚠️</h3>
+
+---
+
 Browser Plugin to be used with `@snowplow/browser-tracker`.
 
 Adds ecommerce events to your Snowplow tracking.
