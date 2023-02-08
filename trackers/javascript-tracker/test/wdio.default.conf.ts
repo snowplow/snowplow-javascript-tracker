@@ -1,5 +1,9 @@
+function getFullPath(path: String): String {
+  return process.cwd() + '/' + path;
+}
+
 export const config = {
-  specs: ['./test/functional/*.test.ts', './test/integration/*.test.ts'],
+  specs: [getFullPath('test/functional/*.test.ts'), getFullPath('test/integration/*.test.ts')],
   logLevel: 'warn',
   baseUrl: 'http://snowplow-js-tracker.local:8080',
   waitforTimeout: 30000,
