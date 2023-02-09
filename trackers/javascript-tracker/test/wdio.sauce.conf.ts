@@ -25,7 +25,7 @@ export const config = {
     },
     {
       browserName: 'firefox',
-      browserVersion: '55.0',
+      browserVersion: '78',
       platformName: 'Windows 10',
       'sauce:options': {
         build: buildName,
@@ -42,7 +42,7 @@ export const config = {
     {
       browserName: 'chrome',
       platformName: 'macOS 10.15',
-      browserVersion: '95',
+      browserVersion: '75',
       'sauce:options': {
         build: buildName,
       },
@@ -56,25 +56,9 @@ export const config = {
       },
     },
     {
-      browserName: 'MicrosoftEdge',
-      platformName: 'Windows 10',
-      browserVersion: '13.10586',
-      'sauce:options': {
-        build: buildName,
-      },
-    },
-    {
       browserName: 'internet explorer',
       platformName: 'Windows 8.1',
       browserVersion: '11',
-      'sauce:options': {
-        build: buildName,
-      },
-    },
-    {
-      browserName: 'internet explorer',
-      platformName: 'Windows 8',
-      browserVersion: '10',
       'sauce:options': {
         build: buildName,
       },
