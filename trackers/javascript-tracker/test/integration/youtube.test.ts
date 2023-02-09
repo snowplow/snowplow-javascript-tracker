@@ -95,37 +95,27 @@ const compare = (expected: any, received: any) => {
 let docker: DockerWrapper;
 let log: Array<unknown> = [];
 
+function shouldSkipBrowser(browser: any): boolean {
+  return (
+    (browser.capabilities.browserName === 'internet explorer' && browser.capabilities.version === '9') ||
+    (browser.capabilities.browserName === 'internet explorer' && browser.capabilities.browserVersion === '10') ||
+    // Unknown command: {"name":"sendKeysToActiveElement","parameters":{"value":["k"]}}
+    (browser.capabilities.browserName === 'safari' && browser.capabilities.version < 13) ||
+    // Element is obscured (WARNING: The server did not provide any stacktrace information)
+    (browser.capabilities.browserName === 'MicrosoftEdge' && browser.capabilities.browserVersion === '13.10586') ||
+    // Driver info: driver.version: unknown
+    (browser.capabilities.browserName === 'firefox' && browser.capabilities.version === '53.0')
+  );
+}
+
 describe('YouTube Tracker', () => {
   const getFirstEventOfEventType = (eventType: string): any => {
     let results = log.filter((l: any) => l.event.unstruct_event.data.data.type === eventType);
     return results[results.length - 1];
   };
 
-  if (browser.capabilities.browserName === 'internet explorer' && browser.capabilities.version === '9') {
-    fit('Skip IE 9', () => true);
-    return;
-  }
-
-  if (browser.capabilities.browserName === 'internet explorer' && browser.capabilities.browserVersion === '10') {
-    fit('Skip IE 10', () => true);
-    return;
-  }
-
-  // Unknown command: {"name":"sendKeysToActiveElement","parameters":{"value":["k"]}}
-  if (browser.capabilities.browserName === 'safari' && browser.capabilities.version <= 13) {
-    fit('Skip Safari 8 and 12', () => true);
-    return;
-  }
-
-  // Element is obscured (WARNING: The server did not provide any stacktrace information)
-  if (browser.capabilities.browserName === 'MicrosoftEdge' && browser.capabilities.browserVersion === '13.10586') {
-    fit('Skip Edge 13', () => true);
-    return;
-  }
-
-  // Driver info: driver.version: unknown
-  if (browser.capabilities.browserName === 'firefox' && browser.capabilities.version === '53.0') {
-    fit('Skip Firefox 53', () => true);
+  if (shouldSkipBrowser(browser)) {
+    fit('Skip browser', () => true);
     return;
   }
 
@@ -220,6 +210,11 @@ describe('YouTube Tracker', () => {
 });
 
 describe('YouTube Tracker (2 videos, 1 tracker)', () => {
+  if (shouldSkipBrowser(browser)) {
+    fit('Skip browser', () => true);
+    return;
+  }
+
   const getFirstEventOfEventTypeWithId = (eventType: string, id: string) => {
     const results = log.filter(
       (l: any) => l.event.unstruct_event.data.data.type === eventType && l.event.contexts.data[0].data.playerId === id
@@ -286,6 +281,11 @@ describe('YouTube Tracker (2 videos, 1 tracker)', () => {
 });
 
 describe('YouTube Tracker (1 video, 2 trackers)', () => {
+  if (shouldSkipBrowser(browser)) {
+    fit('Skip browser', () => true);
+    return;
+  }
+
   beforeAll(async () => {
     await browser.url('/index.html');
     await browser.setCookies({ name: 'container', value: docker.url });
