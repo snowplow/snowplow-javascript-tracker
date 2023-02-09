@@ -17,14 +17,6 @@ export const config = {
   capabilities: [
     {
       browserName: 'firefox',
-      platformName: 'Windows 10',
-      browserVersion: '96',
-      'sauce:options': {
-        build: buildName,
-      },
-    },
-    {
-      browserName: 'firefox',
       platformName: 'macOS 10.15',
       browserVersion: '96',
       'sauce:options': {
@@ -42,7 +34,7 @@ export const config = {
     {
       browserName: 'chrome',
       platformName: 'Windows 10',
-      browserVersion: '95',
+      browserVersion: '109',
       'sauce:options': {
         build: buildName,
       },
@@ -91,14 +83,6 @@ export const config = {
       browserName: 'safari',
       browserVersion: '14',
       platformName: 'macOS 11.00',
-      'sauce:options': {
-        build: buildName,
-      },
-    },
-    {
-      browserName: 'safari',
-      browserVersion: '13.1',
-      platformName: 'macOS 10.15',
       'sauce:options': {
         build: buildName,
       },
