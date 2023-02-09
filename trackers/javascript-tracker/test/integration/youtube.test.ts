@@ -285,56 +285,43 @@ describe('YouTube Tracker (2 videos, 1 tracker)', () => {
   });
 });
 
-// describe('YouTube Tracker (1 video, 2 trackers)', () => {
-//   beforeAll(async () => {
-//     await browser.url('/index.html');
-//     await browser.setCookies({ name: 'container', value: docker.url });
-//     await browser.url('/youtube/tracking-2-trackers.html');
-//     await waitUntil(browser, () => $('#youtube').isExisting(), {
-//       timeout: 5000,
-//       timeoutMsg: 'expected youtube after 5s',
-//     });
+describe('YouTube Tracker (1 video, 2 trackers)', () => {
+  beforeAll(async () => {
+    await browser.url('/index.html');
+    await browser.setCookies({ name: 'container', value: docker.url });
+    await browser.url('/youtube/tracking-2-trackers.html');
+    await waitUntil(browser, () => $('#youtube').isExisting(), {
+      timeout: 5000,
+      timeoutMsg: 'expected youtube after 5s',
+    });
 
-//     const player = $('#youtube');
-//     await player.click(); // emits 'playbackqualitychange' and 'play';
-//     await browser.pause(200);
-//     await browser.keys(['k']); // Pause
+    const player = $('#youtube');
+    await player.click(); // emits 'playbackqualitychange' and 'play';
+    await browser.pause(1000);
+    await browser.keys(['k']); // Pause
+    await browser.pause(5000);
 
-//     await waitUntil(
-//       browser,
-//       async () =>
-//         await browser.call(async () => {
-//           let log = await fetchResults(docker.url);
-//           return log.filter((l: any) => l.event.unstruct_event.data.data.type === 'playbackqualitychange').length === 1;
-//         }),
-//       {
-//         interval: 2000,
-//         timeout: 40000,
-//         timeoutMsg: 'All events not found before timeout',
-//       }
-//     );
+    log = await browser.call(async () => await fetchResults(docker.url));
+  });
 
-//     log = await browser.call(async () => await fetchResults(docker.url));
-//   });
+  afterAll(async () => {
+    await browser.call(async () => await stop(docker.container));
+  });
 
-//   afterAll(async () => {
-//     await browser.call(async () => await stop(docker.container));
-//   });
+  const getTwoEventsOfEventType = (eventType: string): Array<any> => {
+    const results = log.filter((l: any) => l.event.unstruct_event.data.data.type === eventType);
+    return results.slice(results.length - 2);
+  };
 
-//   const getTwoEventsOfEventType = (eventType: string): Array<any> => {
-//     const results = log.filter((l: any) => l.event.unstruct_event.data.data.type === eventType);
-//     return results.slice(results.length - 2);
-//   };
-
-//   it('Tracks 2 YouTube players with a single tracker', () => {
-//     const expected = makeExpectedEvent('playbackqualitychange', {
-//       mediaPlayer: { paused: jasmine.any(Boolean) },
-//     });
-//     const result = getTwoEventsOfEventType('playbackqualitychange');
-//     compare(expected, result[0]);
-//     compare(expected, result[1]);
-//     const tracker_names = result.map((r: any) => r.event.name_tracker);
-//     expect(tracker_names).toContain('sp1');
-//     expect(tracker_names).toContain('sp2');
-//   });
-// });
+  it('Tracks 2 YouTube players with a single tracker', () => {
+    const expected = makeExpectedEvent('playbackqualitychange', {
+      mediaPlayer: { paused: jasmine.any(Boolean) },
+    });
+    const result = getTwoEventsOfEventType('playbackqualitychange');
+    compare(expected, result[0]);
+    compare(expected, result[1]);
+    const tracker_names = result.map((r: any) => r.event.name_tracker);
+    expect(tracker_names).toContain('sp1');
+    expect(tracker_names).toContain('sp2');
+  });
+});
