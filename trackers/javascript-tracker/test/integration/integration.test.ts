@@ -67,6 +67,11 @@ const geoContext = {
 };
 
 describe('Snowplow Micro integration', () => {
+  if (browser.capabilities.browserName === 'internet explorer') {
+    fit('Skip IE', () => true);
+    return;
+  }
+
   let eventMethods = ['get', 'post', 'beacon'];
   let log: Array<unknown> = [];
   let docker: DockerWrapper;
