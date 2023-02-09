@@ -98,8 +98,8 @@ let log: Array<unknown> = [];
 function shouldSkipBrowser(browser: any): boolean {
   return (
     browser.capabilities.browserName === 'internet explorer' ||
-    // Unknown command: {"name":"sendKeysToActiveElement","parameters":{"value":["k"]}}
-    (browser.capabilities.browserName === 'safari' && browser.capabilities.browserVersion < 12) ||
+    // Unknown command: {"name":"sendKeysToActiveElement","parameters":{"value":["k"]}}, Safari 12 keeps crashing
+    (browser.capabilities.browserName === 'safari' && browser.capabilities.browserVersion < 14) ||
     // Element is obscured (WARNING: The server did not provide any stacktrace information)
     (browser.capabilities.browserName === 'MicrosoftEdge' && browser.capabilities.browserVersion === '13.10586') ||
     // Driver info: driver.version: unknown
