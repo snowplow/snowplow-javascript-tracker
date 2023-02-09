@@ -112,8 +112,8 @@ describe('YouTube Tracker', () => {
   }
 
   // Unknown command: {"name":"sendKeysToActiveElement","parameters":{"value":["k"]}}
-  if (browser.capabilities.browserName === 'safari' && browser.capabilities.version === '8.0') {
-    fit('Skip Safari 8', () => true);
+  if (browser.capabilities.browserName === 'safari' && browser.capabilities.version <= 13) {
+    fit('Skip Safari 8 and 12', () => true);
     return;
   }
 
