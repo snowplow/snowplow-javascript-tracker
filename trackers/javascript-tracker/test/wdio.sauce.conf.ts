@@ -63,22 +63,22 @@ export const config = {
         build: buildName,
       },
     },
-    // {
-    //   browserName: 'internet explorer',
-    //   platformName: 'Windows 8.1',
-    //   browserVersion: '11',
-    //   'sauce:options': {
-    //     build: buildName,
-    //   },
-    // },
-    // {
-    //   browserName: 'internet explorer',
-    //   platformName: 'Windows 8',
-    //   browserVersion: '10',
-    //   'sauce:options': {
-    //     build: buildName,
-    //   },
-    // },
+    {
+      browserName: 'internet explorer',
+      platformName: 'Windows 8.1',
+      browserVersion: '11',
+      'sauce:options': {
+        build: buildName,
+      },
+    },
+    {
+      browserName: 'internet explorer',
+      platformName: 'Windows 8',
+      browserVersion: '10',
+      'sauce:options': {
+        build: buildName,
+      },
+    },
     {
       browserName: 'safari',
       browserVersion: '14',
@@ -94,25 +94,6 @@ export const config = {
       'sauce:options': {
         build: buildName,
       },
-    },
-    // Legacy Sauce Labs
-    {
-      browserName: 'safari',
-      platform: 'OS X 10.10',
-      version: '8.0',
-      build: buildName,
-    },
-    // {
-    //   browserName: 'internet explorer',
-    //   platform: 'Windows 7',
-    //   version: '9',
-    //   build: buildName,
-    // },
-    {
-      browserName: 'chrome',
-      platform: 'Windows 10',
-      version: '60.0',
-      build: buildName,
     },
   ],
   services: [
