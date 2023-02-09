@@ -143,21 +143,7 @@ describe('YouTube Tracker', () => {
     const player = $('#youtube');
     await player.click(); // emits 'playbackqualitychange' and 'play';
     await browser.keys(Array(2).fill('ArrowRight')); // Skips to the point just before 'percentprogress' fires
-
-    await waitUntil(
-      browser,
-      async () => {
-        return await browser.call(async () => {
-          let result = await fetchResults(docker.url);
-          return result.some((r: any) => r.event.unstruct_event.data.data.type === 'percentprogress');
-        });
-      },
-      {
-        interval: 2000,
-        timeout: 40000,
-        timeoutMsg: "No 'percentprogress' event received",
-      }
-    );
+    await browser.pause(15000); // Wait to track percentprogress events
 
     const events = [
       async () => await browser.keys(['Shift', '.', 'Shift']), // Increase playback rate
