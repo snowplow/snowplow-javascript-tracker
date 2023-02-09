@@ -148,26 +148,13 @@ describe('YouTube Tracker', () => {
       await browser.pause(200);
     }
 
-    await waitUntil(
-      browser,
-      async () => {
-        // We've got ~216 seconds left to skip, so we can make use of the waitUntil to skip in chunks
-        for (let i = 0; i < 60; i++) {
-          // Ended
-          await browser.keys(['ArrowRight']);
-          await browser.pause(50);
-        }
-        return await browser.call(async () => {
-          let log = await fetchResults(docker.url);
-          return log.some((l: any) => l.event.unstruct_event.data.data.type === 'ended');
-        });
-      },
-      {
-        interval: 2000,
-        timeout: 40000,
-        timeoutMsg: 'All events not found before timeout',
-      }
-    );
+    // We've got ~216 seconds left to skip
+    for (let i = 0; i < 60; i++) {
+      // Ended
+      await browser.keys(['ArrowRight']);
+      await browser.pause(50);
+    }
+    await browser.pause(1000);
 
     log = await browser.call(async () => await fetchResults(docker.url));
 
@@ -245,20 +232,7 @@ describe('YouTube Tracker (2 videos, 1 tracker)', () => {
       await a();
       await browser.pause(500);
     }
-
-    await waitUntil(
-      browser,
-      async () =>
-        await browser.call(async () => {
-          let log = await fetchResults(docker.url);
-          return Array.from(new Set(log.map((l: any) => l.event.contexts.data[0].data.playerId))).length === 2;
-        }),
-      {
-        interval: 2000,
-        timeout: 40000,
-        timeoutMsg: 'All events not found before timeout',
-      }
-    );
+    await browser.pause(1000);
 
     log = await browser.call(async () => await fetchResults(docker.url));
   });
@@ -299,7 +273,7 @@ describe('YouTube Tracker (1 video, 2 trackers)', () => {
     await player.click(); // emits 'playbackqualitychange' and 'play';
     await browser.pause(1000);
     await browser.keys(['k']); // Pause
-    await browser.pause(5000);
+    await browser.pause(1000);
 
     log = await browser.call(async () => await fetchResults(docker.url));
   });
