@@ -97,10 +97,9 @@ let log: Array<unknown> = [];
 
 function shouldSkipBrowser(browser: any): boolean {
   return (
-    (browser.capabilities.browserName === 'internet explorer' && browser.capabilities.version === '9') ||
-    (browser.capabilities.browserName === 'internet explorer' && browser.capabilities.browserVersion === '10') ||
+    browser.capabilities.browserName === 'internet explorer' ||
     // Unknown command: {"name":"sendKeysToActiveElement","parameters":{"value":["k"]}}
-    (browser.capabilities.browserName === 'safari' && browser.capabilities.version < 13) ||
+    (browser.capabilities.browserName === 'safari' && browser.capabilities.browserVersion <= 13) ||
     // Element is obscured (WARNING: The server did not provide any stacktrace information)
     (browser.capabilities.browserName === 'MicrosoftEdge' && browser.capabilities.browserVersion === '13.10586') ||
     // Driver info: driver.version: unknown
