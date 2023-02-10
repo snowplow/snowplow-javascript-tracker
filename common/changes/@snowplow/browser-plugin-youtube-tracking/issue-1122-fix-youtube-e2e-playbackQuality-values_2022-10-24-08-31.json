@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-youtube-tracking",
+      "comment": "Remove fixed values for playbackQuality in YT integrations plus type fixes (closes #1122)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-youtube-tracking"
+}
