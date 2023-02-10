@@ -34,6 +34,7 @@ function getYouTubeEntities(player: YT.Player, urlParameters: UrlParameters, eve
   let data: YouTube = {
     autoPlay: urlParameters.autoplay === '1',
     avaliablePlaybackRates: player.getAvailablePlaybackRates(),
+    avaliableQualityLevels: player.getAvailableQualityLevels(),
     buffering: playerStates[YT.PlayerState.BUFFERING],
     controls: urlParameters.controls !== '0',
     cued: playerStates[YT.PlayerState.CUED],
@@ -55,9 +56,6 @@ function getYouTubeEntities(player: YT.Player, urlParameters: UrlParameters, eve
   if (playlist) {
     data.playlist = playlist.map((item: string) => parseInt(item));
   }
-
-  const qualityLevels = player.getAvailableQualityLevels();
-  if (qualityLevels) data.avaliableQualityLevels = qualityLevels;
 
   return {
     schema: 'iglu:com.youtube/youtube/jsonschema/1-0-0',

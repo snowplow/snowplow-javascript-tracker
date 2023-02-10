@@ -89,11 +89,19 @@ export interface MediaPlayer {
   [key: string]: unknown;
 }
 
+/**
+ * Some of the types can be found at https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/youtube/index.d.ts
+ */
 export interface YouTube {
+  /**
+   * An array of quality levels in which the current video is available
+   */
+  avaliableQualityLevels: string[];
+
   /**
    * An array of playback rates in which the current video is available
    **/
-  avaliablePlaybackRates: Array<number>;
+  avaliablePlaybackRates: number[];
 
   /**
    * If the video is cued
@@ -136,9 +144,15 @@ export interface YouTube {
   origin?: string | null;
 
   /**
+   * The quality level of the current video
+   * Documented types come from the `SuggestedVideoQuality` enum. But from our experiences this is not dependable.
+   */
+  playbackQuality?: string;
+
+  /**
    * An array of the video IDs in the playlist as they are currently ordered.
    **/
-  playlist?: Array<number> | null;
+  playlist?: number[] | null;
 
   /**
    * The index of the playlist video that is currently playing
