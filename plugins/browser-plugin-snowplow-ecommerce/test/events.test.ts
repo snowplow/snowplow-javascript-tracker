@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Snowplow Analytics Ltd, 2010 Anthon Pang
+ * Copyright (c) 2022 Snowplow Analytics Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,7 @@ import {
   trackProductView,
   trackPromotionClick,
   trackPromotionView,
+  trackRefund,
   trackRemoveFromCart,
   trackTransaction,
 } from '../src';
@@ -47,6 +48,7 @@ import {
   ECOMMERCE_ACTION_SCHEMA,
   PRODUCT_SCHEMA,
   PROMO_SCHEMA,
+  REFUND_SCHEMA,
   TRANSACTION_SCHEMA,
 } from '../src/schemata';
 
@@ -318,6 +320,38 @@ describe('SnowplowEcommercePlugin events', () => {
     expect(unstructuredEvent).toMatchObject({
       schema: ECOMMERCE_ACTION_SCHEMA,
       data: { type: 'transaction' },
+    });
+  });
+
+  it('trackRefund adds the expected "refund" event to the queue', () => {
+    const productX = { id: '1234', price: 12, currency: 'EUR' };
+    const productY = { id: '12345', price: 25, currency: 'EUR' };
+    const refund = { refund_amount: 45, currency: 'EUR', transaction_id: '12345', refund_reason: 'Return' };
+    trackRefund({
+      ...refund,
+      products: [productX, productY],
+    });
+
+    const { context, unstructuredEvent } = extractStateProperties(state);
+
+    expect(context).toMatchObject([
+      {
+        data: productX,
+        schema: PRODUCT_SCHEMA,
+      },
+      {
+        data: productY,
+        schema: PRODUCT_SCHEMA,
+      },
+      {
+        data: refund,
+        schema: REFUND_SCHEMA,
+      },
+    ]);
+
+    expect(unstructuredEvent).toMatchObject({
+      schema: ECOMMERCE_ACTION_SCHEMA,
+      data: { type: 'refund' },
     });
   });
 });

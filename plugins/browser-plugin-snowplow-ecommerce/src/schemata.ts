@@ -7,3 +7,4 @@ export const PAGE_SCHEMA = 'iglu:com.snowplowanalytics.snowplow.ecommerce/page/j
 export const USER_SCHEMA = 'iglu:com.snowplowanalytics.snowplow.ecommerce/user/jsonschema/1-0-0';
 export const TRANSACTION_SCHEMA = 'iglu:com.snowplowanalytics.snowplow.ecommerce/transaction/jsonschema/1-0-0';
 export const PROMO_SCHEMA = 'iglu:com.snowplowanalytics.snowplow.ecommerce/promotion/jsonschema/1-0-0';
+export const REFUND_SCHEMA = 'iglu:com.snowplowanalytics.snowplow.ecommerce/refund/jsonschema/1-0-0';
