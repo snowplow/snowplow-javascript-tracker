@@ -42,7 +42,7 @@ export const config = {
     {
       browserName: 'chrome',
       platformName: 'macOS 10.15',
-      browserVersion: '75',
+      browserVersion: '95',
       'sauce:options': {
         build: buildName,
       },
