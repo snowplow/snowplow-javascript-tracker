@@ -13,6 +13,8 @@ export interface Action {
     | 'product_view'
     | 'list_click'
     | 'list_view'
+    | 'promo_click'
+    | 'promo_view'
     | 'checkout_step'
     | 'transaction';
 
@@ -151,6 +153,40 @@ export type Product = {
    */
   creative_id?: string;
 };
+
+/**
+ * Type/Schema for a promotion entity in Ecommerce
+ */
+export interface Promotion {
+  /**
+   * The ID of the promotion.
+   */
+  id: string;
+  /**
+   * The name of the promotion.
+   */
+  name?: string | null;
+  /**
+   * Array of SKUs or product IDs showcased in the promotion.
+   */
+  product_ids?: string[] | null;
+  /**
+   * The position the promotion was presented in a list of promotions E.g. banner, slider.
+   */
+  position?: number | null;
+  /**
+   * Identifier/Name/Url for the creative presented on the promotion.
+   */
+  creative_id?: string | null;
+  /**
+   * Type of the promotion delivery mechanism. E.g. popup, banner, intra-content
+   */
+  type?: string | null;
+  /**
+   * The website slot in which the promotional content was added to.
+   */
+  slot?: string | null;
+}
 
 /**
  * Type/Schema for a transaction entity in Ecommerce

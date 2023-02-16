@@ -6,6 +6,7 @@ import {
   CHECKOUT_STEP_SCHEMA,
   PAGE_SCHEMA,
   PRODUCT_SCHEMA,
+  PROMO_SCHEMA,
   TRANSACTION_SCHEMA,
   USER_SCHEMA,
 } from './schemata';
@@ -17,6 +18,7 @@ import {
   ListViewEvent,
   Page as PageContext,
   Product,
+  Promotion,
   Transaction,
   User as UserContext,
 } from './types';
@@ -79,6 +81,60 @@ export function trackProductListView(
 }
 
 /**
+ * Track a product list click event
+ *
+ * @param listClick - The list name together with the information of the product which was clicked.
+ * @param trackers - The tracker identifiers which the event will be sent to
+ */
+export function trackProductListClick(
+  listClick: ListClickEvent & CommonEcommerceEventProperties,
+  trackers: Array<string> = Object.keys(_trackers)
+) {
+  const { context = [], timestamp, name, product } = listClick;
+  context.push({ schema: PRODUCT_SCHEMA, data: product });
+
+  dispatchToTrackersInCollection(trackers, _trackers, (t) => {
+    t.core.track(buildEcommerceActionEvent({ type: 'list_click', name }), context, timestamp);
+  });
+}
+
+/**
+ * Track a promotion view
+ *
+ * @param promotionView - The promotion viewed by the visitor.
+ * @param trackers - The tracker identifiers which the event will be sent to
+ */
+export function trackPromotionView(
+  promotionView: Promotion & CommonEcommerceEventProperties,
+  trackers: Array<string> = Object.keys(_trackers)
+) {
+  const { context = [], timestamp, ...promotion } = promotionView;
+  context.push({ schema: PROMO_SCHEMA, data: { ...promotion } });
+
+  dispatchToTrackersInCollection(trackers, _trackers, (t) => {
+    t.core.track(buildEcommerceActionEvent({ type: 'promo_view' }), context, timestamp);
+  });
+}
+
+/**
+ * Track a promotion click
+ *
+ * @param promotionClick - The promotion selected by the visitor.
+ * @param trackers - The tracker identifiers which the event will be sent to
+ */
+export function trackPromotionClick(
+  promotionClick: Promotion & CommonEcommerceEventProperties,
+  trackers: Array<string> = Object.keys(_trackers)
+) {
+  const { context = [], timestamp, ...promotion } = promotionClick;
+  context.push({ schema: PROMO_SCHEMA, data: { ...promotion } });
+
+  dispatchToTrackersInCollection(trackers, _trackers, (t) => {
+    t.core.track(buildEcommerceActionEvent({ type: 'promo_click' }), context, timestamp);
+  });
+}
+
+/**
  * Track a product view/detail
  *
  * @param productView - The product which was viewed in a product detail page.
@@ -131,24 +187,6 @@ export function trackRemoveFromCart(
 
   dispatchToTrackersInCollection(trackers, _trackers, (t) => {
     t.core.track(buildEcommerceActionEvent({ type: 'remove_from_cart' }), context, timestamp);
-  });
-}
-
-/**
- * Track a product list click event
- *
- * @param listClick - The list name together with the information of the product which was clicked.
- * @param trackers - The tracker identifiers which the event will be sent to
- */
-export function trackProductListClick(
-  listClick: ListClickEvent & CommonEcommerceEventProperties,
-  trackers: Array<string> = Object.keys(_trackers)
-) {
-  const { context = [], timestamp, name, product } = listClick;
-  context.push({ schema: PRODUCT_SCHEMA, data: product });
-
-  dispatchToTrackersInCollection(trackers, _trackers, (t) => {
-    t.core.track(buildEcommerceActionEvent({ type: 'list_click', name }), context, timestamp);
   });
 }
 

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-snowplow-ecommerce",
+      "comment": "Add snowplow ecommerce promotion actions",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-snowplow-ecommerce"
+}
