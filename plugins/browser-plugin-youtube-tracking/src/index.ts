@@ -215,6 +215,14 @@ function addExistingPlayer(conf: TrackingOptions) {
       enabled: false,
     },
   };
+
+  // The 'ready' event is required for modelling purposes
+  //
+  // We need to manually trigger the 'ready' event, as it won't be fired by the player when
+  // an existing player is passed in, since it's already been fired
+  const readyEvent = buildYouTubeEvent(conf.player!!, 'ready', conf);
+  trackEvent(readyEvent);
+
   attachListeners(conf.player!!, conf);
 }
 
