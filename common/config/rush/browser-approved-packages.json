@@ -27,22 +27,6 @@
       "allowedCategories": [ "trackers" ]
     },
     {
-      "name": "@snowplow/browser-core",
-      "allowedCategories": [ "plugins", "trackers" ]
-    },
-    {
-      "name": "@snowplow/browser-detectors",
-      "allowedCategories": [ "trackers" ]
-    },
-    {
-      "name": "@snowplow/browser-environment",
-      "allowedCategories": [ "libraries" ]
-    },
-    {
-      "name": "@snowplow/browser-helpers",
-      "allowedCategories": [ "plugins", "trackers" ]
-    },
-    {
       "name": "@snowplow/browser-plugin-ad-tracking",
       "allowedCategories": [ "trackers" ]
     },
@@ -57,10 +41,6 @@
     {
       "name": "@snowplow/browser-plugin-consent",
       "allowedCategories": [ "trackers" ]
-    },
-    {
-      "name": "@snowplow/browser-plugin-core",
-      "allowedCategories": [ "plugins" ]
     },
     {
       "name": "@snowplow/browser-plugin-ecommerce",
@@ -87,16 +67,16 @@
       "allowedCategories": [ "trackers" ]
     },
     {
-      "name": "@snowplow/browser-plugin-gdpr",
-      "allowedCategories": [ "trackers" ]
-    },
-    {
       "name": "@snowplow/browser-plugin-geolocation",
       "allowedCategories": [ "trackers" ]
     },
     {
       "name": "@snowplow/browser-plugin-link-click-tracking",
       "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@snowplow/browser-plugin-media",
+      "allowedCategories": [ "plugins", "trackers" ]
     },
     {
       "name": "@snowplow/browser-plugin-media-tracking",
@@ -127,7 +107,7 @@
       "allowedCategories": [ "trackers" ]
     },
     {
-      "name": "@snowplow/browser-plugin-web-vitals",
+      "name": "@snowplow/browser-plugin-vimeo-tracking",
       "allowedCategories": [ "trackers" ]
     },
     {
@@ -141,10 +121,6 @@
     {
       "name": "@snowplow/browser-tracker-core",
       "allowedCategories": [ "plugins", "trackers" ]
-    },
-    {
-      "name": "@snowplow/plugin-core",
-      "allowedCategories": [ "libraries", "plugins" ]
     },
     {
       "name": "@snowplow/tracker-core",
@@ -164,19 +140,15 @@
     },
     {
       "name": "@types/jstimezonedetect",
-      "allowedCategories": [ "libraries", "plugins", "trackers" ]
+      "allowedCategories": [ "plugins" ]
     },
     {
       "name": "@types/lodash",
-      "allowedCategories": [ "libraries", "plugins", "trackers" ]
-    },
-    {
-      "name": "@types/nock",
-      "allowedCategories": [ "trackers" ]
+      "allowedCategories": [ "plugins", "trackers" ]
     },
     {
       "name": "@types/node",
-      "allowedCategories": [ "libraries", "plugins", "trackers" ]
+      "allowedCategories": [ "libraries", "trackers" ]
     },
     {
       "name": "@types/node-fetch",
@@ -188,7 +160,7 @@
     },
     {
       "name": "@types/sha1",
-      "allowedCategories": [ "libraries", "trackers" ]
+      "allowedCategories": [ "libraries" ]
     },
     {
       "name": "@types/sinon",
@@ -196,7 +168,11 @@
     },
     {
       "name": "@types/uuid",
-      "allowedCategories": [ "libraries", "plugins", "trackers" ]
+      "allowedCategories": [ "libraries", "plugins" ]
+    },
+    {
+      "name": "@types/vimeo__player",
+      "allowedCategories": [ "plugins" ]
     },
     {
       "name": "@types/youtube",
@@ -209,6 +185,10 @@
     {
       "name": "@typescript-eslint/parser",
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
+    },
+    {
+      "name": "@vimeo/player",
+      "allowedCategories": [ "plugins" ]
     },
     {
       "name": "@wdio/cli",
@@ -248,7 +228,7 @@
     },
     {
       "name": "ava",
-      "allowedCategories": [ "libraries", "plugins", "trackers" ]
+      "allowedCategories": [ "libraries", "trackers" ]
     },
     {
       "name": "chalk",
@@ -295,20 +275,12 @@
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
-      "name": "jsdom",
-      "allowedCategories": [ "libraries" ]
-    },
-    {
-      "name": "jsdom-global",
-      "allowedCategories": [ "libraries" ]
-    },
-    {
       "name": "jstimezonedetect",
-      "allowedCategories": [ "libraries", "plugins", "trackers" ]
+      "allowedCategories": [ "plugins" ]
     },
     {
       "name": "lodash",
-      "allowedCategories": [ "libraries", "plugins", "trackers" ]
+      "allowedCategories": [ "plugins", "trackers" ]
     },
     {
       "name": "moment-timezone",
@@ -327,10 +299,6 @@
       "allowedCategories": [ "trackers" ]
     },
     {
-      "name": "prettier",
-      "allowedCategories": [ "libraries", "plugins", "trackers" ]
-    },
-    {
       "name": "randomcolor",
       "allowedCategories": [ "plugins" ]
     },
@@ -344,7 +312,7 @@
     },
     {
       "name": "rollup-plugin-filesize",
-      "allowedCategories": [ "plugins", "trackers" ]
+      "allowedCategories": [ "trackers" ]
     },
     {
       "name": "rollup-plugin-license",
@@ -368,7 +336,7 @@
     },
     {
       "name": "sha1",
-      "allowedCategories": [ "libraries", "trackers" ]
+      "allowedCategories": [ "libraries" ]
     },
     {
       "name": "sinon",
@@ -380,7 +348,7 @@
     },
     {
       "name": "ts-node",
-      "allowedCategories": [ "libraries", "plugins", "trackers" ]
+      "allowedCategories": [ "libraries", "trackers" ]
     },
     {
       "name": "tslib",
@@ -392,7 +360,7 @@
     },
     {
       "name": "uuid",
-      "allowedCategories": [ "libraries", "plugins", "trackers" ]
+      "allowedCategories": [ "libraries", "plugins" ]
     },
     {
       "name": "wdio-chromedriver-service",

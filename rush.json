@@ -559,6 +559,12 @@
       "projectFolder": "plugins/browser-plugin-web-vitals",
       "reviewCategory": "plugins",
       "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-plugin-vimeo-tracking",
+      "projectFolder": "plugins/browser-plugin-vimeo-tracking",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
     }
   ]
 }

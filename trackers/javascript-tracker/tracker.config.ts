@@ -48,3 +48,5 @@ export const browserFeatures = false;
 export const mediaTracking = false;
 export const youtubeTracking = false;
 export const enhancedConsent = false;
+export const snowplowMedia = false;
+export const vimeoTracking = false;

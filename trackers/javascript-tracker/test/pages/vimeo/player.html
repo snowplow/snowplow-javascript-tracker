@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<head>
+  <title>Page for YouTube tracking testing with Snowplow Micro</title>
+  <script>
+    var collector_endpoint = document.cookie.split('container=')[1].split(';')[0].trim();
+    var testIdentifier = document.cookie.split('testIdentifier=')[1].split(';')[0].trim();
+    document.body.className += ' loaded';
+  </script>
+  <script src="https://player.vimeo.com/api/player.js"></script>
+</head>
+<body>
+  <script>
+    (function (p, l, o, w, i, n, g) {
+      if (!p[i]) {
+        p.GlobalSnowplowNamespace = p.GlobalSnowplowNamespace || [];
+        p.GlobalSnowplowNamespace.push(i);
+        p[i] = function () {
+          (p[i].q = p[i].q || []).push(arguments);
+        };
+        p[i].q = p[i].q || [];
+        n = l.createElement(o);
+        g = l.getElementsByTagName(o)[0];
+        n.async = 1;
+        n.src = w;
+        g.parentNode.insertBefore(n, g);
+      }
+    })(window, document, 'script', '../snowplow.js', 'snowplow');
+
+    window.snowplow('newTracker', 'sp2', collector_endpoint, {
+      appId: 'vimeo-player-test-' + testIdentifier,
+      encodeBase64: false,
+    });
+  </script>
+
+  <div id="vimeo" data-vimeo-url="https://player.vimeo.com/video/808787686?h=3044aad004"></div>
+  <div id="ended">false</div>
+
+  <script>
+    const player = new Vimeo.Player('vimeo');
+
+    player.addCuePoint(1, { foo: 'bar' });
+
+    player.on('ended', () => {
+      document.getElementById('ended').innerHTML = 'true';
+    });
+
+    window.snowplow('startVimeoTracking', {
+      video: player,
+      id: 'test',
+      boundaries: [5],
+      pings: { pingInterval: 5 },
+    });
+  </script>
+</body>
