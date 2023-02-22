@@ -1,12 +1,15 @@
+import { SelfDescribingJson, resolveDynamicContext } from '@snowplow/tracker-core';
+
 import { MediaPlayerEvent, YouTube } from './contexts';
 import { SnowplowEvent } from './snowplowEvents';
 import { EventData, MediaEntities, SnowplowMediaPlayer, TrackingOptions, UrlParameters } from './types';
 
 export function buildYouTubeEvent(player: YT.Player, eventName: string, conf: TrackingOptions, eventData?: EventData) {
-  const data: MediaPlayerEvent = { type: eventName };
+  const data: MediaPlayerEvent | SelfDescribingJson<Record<string, unknown>> = { type: eventName };
   if (conf.hasOwnProperty('label')) data.label = conf.label;
 
   const context = [
+    ...resolveDynamicContext(conf.context),
     getYouTubeEntities(player, conf.urlParameters!, eventData),
     getMediaPlayerEntities(eventName, player, conf.urlParameters!, eventData),
   ];

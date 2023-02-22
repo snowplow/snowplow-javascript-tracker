@@ -1,3 +1,5 @@
+import { DynamicContext } from '@snowplow/tracker-core';
+
 import { MediaPlayerEvent, YouTube } from './contexts';
 import { SnowplowEvent } from './snowplowEvents';
 import { YTPlayerEvent, YTState } from './constants';
@@ -16,6 +18,7 @@ export interface TrackingOptions {
     boundaries: number[];
     boundaryTimeoutIds: ReturnType<typeof setTimeout>[];
   };
+  context?: DynamicContext | null;
 }
 
 export interface MediaTrackingOptions {
@@ -91,4 +94,10 @@ export interface UrlParameters {
   rel?: String;
   start?: String;
   widget_referrer?: String;
+}
+
+export interface YouTubeTrackingConfiguration {
+  id: string;
+  options?: MediaTrackingOptions;
+  context?: DynamicContext | null;
 }

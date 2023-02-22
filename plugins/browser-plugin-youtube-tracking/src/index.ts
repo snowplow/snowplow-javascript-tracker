@@ -36,9 +36,22 @@ import {
   YTState,
   YTStateEvent,
 } from './constants';
-import { EventData, EventGroup, MediaTrackingOptions, TrackedPlayer, TrackingOptions } from './types';
+import {
+  EventData,
+  EventGroup,
+  MediaTrackingOptions,
+  TrackedPlayer,
+  TrackingOptions,
+  YouTubeTrackingConfiguration,
+} from './types';
 import { BrowserPlugin, BrowserTracker, dispatchToTrackersInCollection } from '@snowplow/browser-tracker-core';
-import { buildSelfDescribingEvent, CommonEventProperties, LOG, SelfDescribingJson } from '@snowplow/tracker-core';
+import {
+  buildSelfDescribingEvent,
+  CommonEventProperties,
+  LOG,
+  SelfDescribingJson,
+  DynamicContext,
+} from '@snowplow/tracker-core';
 import { SnowplowEvent } from './snowplowEvents';
 import { MediaPlayerEvent } from './contexts';
 import { buildYouTubeEvent } from './buildYouTubeEvent';
@@ -66,7 +79,7 @@ function trackEvent(
   });
 }
 
-export function trackingOptionsParser(id: string | YT.Player, conf?: MediaTrackingOptions): TrackingOptions {
+export function trackingOptionsParser(id: string | YT.Player, conf?: MediaTrackingOptions, context?: DynamicContext | null): TrackingOptions {
   const player = typeof id === 'string' ? undefined : id;
   const elementId = typeof id === 'string' ? id : id.getIframe().id;
   const defaultBoundaries = [10, 25, 50, 75];
@@ -78,6 +91,7 @@ export function trackingOptionsParser(id: string | YT.Player, conf?: MediaTracki
     captureEvents: conf?.captureEvents || DefaultEvents,
     youtubeEvents: [],
     updateRate: conf?.updateRate || defaultUpdateRate,
+    context: context,
   };
 
   if (conf?.label) parsed.label = conf.label;
@@ -124,20 +138,22 @@ export function trackingOptionsParser(id: string | YT.Player, conf?: MediaTracki
   return parsed;
 }
 
-export function enableYouTubeTracking(args: { id: string | YT.Player; options?: MediaTrackingOptions }) {
+export function enableYouTubeTracking(args: YouTubeTrackingConfiguration) {
   if (!Object.keys(_trackers).length) {
     LOG.error('Check YoutubeTrackingPlugin is initialized in tracker config');
     return;
   }
-  const conf: TrackingOptions = trackingOptionsParser(args.id, args.options);
+
+  const conf: TrackingOptions = trackingOptionsParser(args.id, args.options, args.context);
 
   if (typeof args.id !== 'string') {
-    conf.urlParameters = parseUrlParams(args.id.getIframe().src);
+    conf.urlParameters = parseUrlParams((<any>args.id).getIframe().src);
     addExistingPlayer(conf);
     return;
   }
 
   const el: HTMLIFrameElement = document.getElementById(args.id) as HTMLIFrameElement;
+  
   if (!el) {
     LOG.error('Cannot find YouTube iframe');
     return;
