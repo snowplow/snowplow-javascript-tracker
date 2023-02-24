@@ -939,7 +939,17 @@ export function Tracker(
 
         // Add event handlers; cross-browser compatibility here varies significantly
         // @see http://quirksmode.org/dom/events
-        const documentHandlers = ['click', 'mouseup', 'mousedown', 'mousemove', 'keypress', 'keydown', 'keyup'];
+        const documentHandlers = [
+          'click',
+          'mouseup',
+          'mousedown',
+          'mousemove',
+          'keypress',
+          'keydown',
+          'keyup',
+          'touchend',
+          'touchstart',
+        ];
         const windowHandlers = ['resize', 'focus', 'blur'];
         const listener =
           (_: Document | Window, handler = activityHandler) =>
