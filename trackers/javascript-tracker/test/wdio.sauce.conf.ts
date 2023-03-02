@@ -17,14 +17,6 @@ export const config = {
   capabilities: [
     {
       browserName: 'firefox',
-      platformName: 'Windows 10',
-      browserVersion: '96',
-      'sauce:options': {
-        build: buildName,
-      },
-    },
-    {
-      browserName: 'firefox',
       platformName: 'macOS 10.15',
       browserVersion: '96',
       'sauce:options': {
@@ -33,7 +25,7 @@ export const config = {
     },
     {
       browserName: 'firefox',
-      browserVersion: '55.0',
+      browserVersion: '78',
       platformName: 'Windows 10',
       'sauce:options': {
         build: buildName,
@@ -42,7 +34,7 @@ export const config = {
     {
       browserName: 'chrome',
       platformName: 'Windows 10',
-      browserVersion: '95',
+      browserVersion: '109',
       'sauce:options': {
         build: buildName,
       },
@@ -64,25 +56,9 @@ export const config = {
       },
     },
     {
-      browserName: 'MicrosoftEdge',
-      platformName: 'Windows 10',
-      browserVersion: '13.10586',
-      'sauce:options': {
-        build: buildName,
-      },
-    },
-    {
       browserName: 'internet explorer',
       platformName: 'Windows 8.1',
       browserVersion: '11',
-      'sauce:options': {
-        build: buildName,
-      },
-    },
-    {
-      browserName: 'internet explorer',
-      platformName: 'Windows 8',
-      browserVersion: '10',
       'sauce:options': {
         build: buildName,
       },
@@ -97,38 +73,11 @@ export const config = {
     },
     {
       browserName: 'safari',
-      browserVersion: '13.1',
-      platformName: 'macOS 10.15',
-      'sauce:options': {
-        build: buildName,
-      },
-    },
-    {
-      browserName: 'safari',
       browserVersion: '12.1',
       platformName: 'macOS 10.13',
       'sauce:options': {
         build: buildName,
       },
-    },
-    // Legacy Sauce Labs
-    {
-      browserName: 'safari',
-      platform: 'OS X 10.10',
-      version: '8.0',
-      build: buildName,
-    },
-    {
-      browserName: 'internet explorer',
-      platform: 'Windows 7',
-      version: '9',
-      build: buildName,
-    },
-    {
-      browserName: 'chrome',
-      platform: 'Windows 10',
-      version: '60.0',
-      build: buildName,
     },
   ],
   services: [
