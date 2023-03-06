@@ -67,7 +67,7 @@ function trackEvent(
 }
 
 export function trackingOptionsParser(id: string | YT.Player, conf?: MediaTrackingOptions): TrackingOptions {
-  const player: YT.Player | undefined = typeof id === 'string' ? undefined : id;
+  const player = typeof id === 'string' ? undefined : id;
   const elementId = typeof id === 'string' ? id : id.getIframe().id;
 
   const defaults: TrackingOptions = {
