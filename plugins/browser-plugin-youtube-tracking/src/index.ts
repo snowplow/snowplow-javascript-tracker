@@ -66,9 +66,13 @@ function trackEvent(
   });
 }
 
-export function trackingOptionsParser(mediaId: string, conf?: MediaTrackingOptions): TrackingOptions {
+export function trackingOptionsParser(id: string | YT.Player, conf?: MediaTrackingOptions): TrackingOptions {
+  const player = typeof id === 'string' ? undefined : id;
+  const elementId = typeof id === 'string' ? id : id.getIframe().id;
+
   const defaults: TrackingOptions = {
-    mediaId: mediaId,
+    mediaId: elementId,
+    player,
     captureEvents: DefaultEvents,
     youtubeEvents: [
       YTPlayerEvent.ONSTATECHANGE,
@@ -121,12 +125,19 @@ export function trackingOptionsParser(mediaId: string, conf?: MediaTrackingOptio
   return defaults;
 }
 
-export function enableYouTubeTracking(args: { id: string; options?: MediaTrackingOptions }) {
+export function enableYouTubeTracking(args: { id: string | YT.Player; options?: MediaTrackingOptions }) {
   if (!Object.keys(_trackers).length) {
     LOG.error('Check YoutubeTrackingPlugin is initialized in tracker config');
     return;
   }
   const conf: TrackingOptions = trackingOptionsParser(args.id, args.options);
+
+  if (typeof args.id !== 'string') {
+    conf.urlParameters = parseUrlParams(args.id.getIframe().src);
+    addExistingPlayer(conf);
+    return;
+  }
+
   const el: HTMLIFrameElement = document.getElementById(args.id) as HTMLIFrameElement;
   if (!el) {
     LOG.error('Cannot find YouTube iframe');
@@ -185,6 +196,41 @@ function handleYouTubeIframeAPI(conf: TrackingOptions) {
   }
 }
 
+/**
+ * Adds a player to the list of tracked players, and attaches listeners to the player
+ * This is used when a user passes in an existing player instance
+ *
+ * @param conf - The configuration for the player
+ */
+function addExistingPlayer(conf: TrackingOptions) {
+  trackedPlayers[conf.mediaId] = {
+    player: conf.player!!,
+    conf: conf,
+    seekTracking: {
+      prevTime: conf.player?.getCurrentTime() || 0,
+      enabled: false,
+    },
+    volumeTracking: {
+      prevVolume: conf.player?.getVolume() || 0,
+      enabled: false,
+    },
+  };
+
+  // The 'ready' event is required for modelling purposes
+  //
+  // We need to manually trigger the 'ready' event, as it won't be fired by the player when
+  // an existing player is passed in, since it's already been fired
+  const readyEvent = buildYouTubeEvent(conf.player!!, 'ready', conf);
+  trackEvent(readyEvent);
+
+  attachListeners(conf.player!!, conf);
+}
+
+/**
+ * Adds a player to the list of tracked players, and sets up the `onReady` callback to attach listeners once the player is ready
+ *
+ * @param conf - The configuration for the player
+ */
 function initialisePlayer(conf: TrackingOptions) {
   trackedPlayers[conf.mediaId] = {
     player: new YT.Player(conf.mediaId, { events: { onReady: (e: YT.PlayerEvent) => playerReady(e, conf) } }),
@@ -200,9 +246,7 @@ function initialisePlayer(conf: TrackingOptions) {
   };
 }
 
-function playerReady(event: YT.PlayerEvent, conf: TrackingOptions) {
-  const player: YT.Player = event.target;
-
+function attachListeners(player: YT.Player, conf: TrackingOptions) {
   const builtInEvents: Record<string, Function> = {
     [YTPlayerEvent.ONSTATECHANGE]: (e: YT.OnStateChangeEvent) => {
       if (conf.captureEvents.indexOf(YTStateEvent[e.data.toString()]) !== -1) {
@@ -223,6 +267,21 @@ function playerReady(event: YT.PlayerEvent, conf: TrackingOptions) {
       builtInEvents[youtubeEventName](eventData)
     );
   });
+}
+
+/**
+ * Callback for when the player is ready
+ *
+ * This is used when a user passes in the string id of an IFrame player
+ *
+ * Attaches the listeners to the player and fires the captured `onReady` event
+ *
+ * @param event - The event object from the YouTube API (in this case, onReady)
+ * @param conf - The configuration object for the player
+ */
+function playerReady(event: YT.PlayerEvent, conf: TrackingOptions) {
+  const player: YT.Player = event.target;
+  attachListeners(player, conf);
 
   if (conf.captureEvents.indexOf(YTEvent.READY) !== -1) {
     youtubeEvent(player, YTEvent.READY, conf);
