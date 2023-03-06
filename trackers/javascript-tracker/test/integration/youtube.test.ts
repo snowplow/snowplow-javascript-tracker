@@ -107,6 +107,51 @@ function shouldSkipBrowser(browser: any): boolean {
   );
 }
 
+// This is simply to check that the plugin can accept an instance of `YT.Player` and emit events
+// If that passes, everything else will work the same as passing in an ID
+describe('YouTube Tracker with Existing Player', () => {
+  beforeAll(async () => {
+    await browser.call(async () => (docker = await start()));
+
+    await browser.url('/index.html');
+    await browser.setCookies({ name: 'container', value: docker.url });
+    await browser.url('/youtube/tracking-player.html');
+    await waitUntil(browser, () => $('#youtube').isExisting(), {
+      timeout: 5000,
+      timeoutMsg: 'expected youtube after 5s',
+    });
+
+    const player = await $('#youtube');
+
+    await player.click();
+    await browser.pause(5000);
+
+    await player.click();
+    await browser.pause(5000);
+
+    await browser.waitUntil(
+      async () => {
+        log = await browser.call(async () => await fetchResults(docker.url));
+        return log.length > 0;
+      },
+      {
+        timeout: 20000,
+        timeoutMsg: 'expected events after 20s',
+      }
+    );
+  });
+
+  afterAll(async () => {
+    await browser.call(async () => await clearCache(docker.url));
+  });
+
+  it('should track any event', async () => {
+    // Any non-zero amount of events received means the
+    // plugin is successfully sending events from the player
+    expect(log.length).toBeGreaterThan(0);
+  });
+});
+
 describe('YouTube Tracker', () => {
   const getFirstEventOfEventType = (eventType: string): any => {
     let results = log.filter((l: any) => l.event.unstruct_event.data.data.type === eventType);
@@ -117,38 +162,6 @@ describe('YouTube Tracker', () => {
     fit('Skip browser', () => true);
     return;
   }
-
-  // This is simply to check that the plugin can accept an instance of `YT.Player` and emit events
-  // If that passes, everything else will work the same as passing in an ID
-  describe('YouTube Tracker with Existing Player', () => {
-    beforeAll(async () => {
-      await browser.call(async () => (docker = await start()));
-
-      await browser.url('/index.html');
-      await browser.setCookies({ name: 'container', value: docker.url });
-      await browser.url('/youtube/tracking-player.html');
-      await waitUntil(browser, () => $('#youtube').isExisting(), {
-        timeout: 5000,
-        timeoutMsg: 'expected youtube after 5s',
-      });
-    });
-
-    it('should track play event', async () => {
-      const player = await $('#youtube');
-      await player.click(); // emits 'playbackqualitychange' and 'play';
-
-      await waitUntil(browser, () => getFirstEventOfEventType('play'), {
-        timeout: 5000,
-        timeoutMsg: 'expected play after 20s',
-      });
-
-      log = await browser.call(async () => await fetchResults(docker.url));
-
-      // Any non-zero amount of events received means the
-      // plugin is successfully sending events from the player
-      expect(log.length).toBeGreaterThan(0);
-    });
-  });
 
   beforeAll(async () => {
     await browser.call(async () => (docker = await start()));
