@@ -324,22 +324,20 @@ export function findRootDomain(sameSite: string, secure: boolean) {
     cookieName = cookiePrefix + new Date().getTime(),
     cookieValue = '_test_value_' + new Date().getTime();
 
-  var split = windowLocationHostnameAlias.split('.');
-  var position = split.length - 1;
-  while (position >= 0) {
-    var currentDomain = split.slice(position, split.length).join('.');
+  const locationParts = windowLocationHostnameAlias.split('.');
+  for (let idx = locationParts.length - 2; idx >= 0; idx--) {
+    const currentDomain = locationParts.slice(idx).join('.');
     cookie(cookieName, cookieValue, 0, '/', currentDomain, sameSite, secure);
     if (cookie(cookieName) === cookieValue) {
       // Clean up created cookie(s)
       deleteCookie(cookieName, currentDomain, sameSite, secure);
-      var cookieNames = getCookiesWithPrefix(cookiePrefix);
-      for (var i = 0; i < cookieNames.length; i++) {
+      const cookieNames = getCookiesWithPrefix(cookiePrefix);
+      for (let i = 0; i < cookieNames.length; i++) {
         deleteCookie(cookieNames[i], currentDomain, sameSite, secure);
       }
 
       return currentDomain;
     }
-    position -= 1;
   }
 
   // Cookies cannot be read
