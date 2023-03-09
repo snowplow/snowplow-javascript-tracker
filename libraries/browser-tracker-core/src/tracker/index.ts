@@ -606,7 +606,7 @@ export function Tracker(
         memorizedVisitCount = 1;
       }
       if (!configuration?.preserveUser) {
-        domainUserId = uuid();
+        domainUserId = configAnonymousTracking ? '' : uuid();
         businessUserId = null;
       }
     }
