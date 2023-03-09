@@ -93,7 +93,7 @@ export type TrackerConfiguration = {
   /**
    * The SameSite value for the cookie
    * {@link https://snowplowanalytics.com/blog/2020/09/07/pipeline-configuration-for-complete-and-accurate-data/}
-   * @defaultValue None
+   * @defaultValue Lax
    */
   cookieSameSite?: CookieSameSite;
   /**
@@ -172,7 +172,7 @@ export type TrackerConfiguration = {
    *
    * This sets cookies to try to determine the root domain, and some cookies may
    * fail to save. This is expected behavior.
-   * @defaultValue false
+   * @defaultValue true
    */
   discoverRootDomain?: boolean;
   /**

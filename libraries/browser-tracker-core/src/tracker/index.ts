@@ -238,11 +238,12 @@ export function Tracker(
       // First-party cookie domain
       // User agent defaults to origin hostname
       configCookieDomain = trackerConfiguration.cookieDomain ?? undefined,
+      discoverRootDomain = trackerConfiguration.discoverRootDomain || true,
       // First-party cookie path
       // Default is user agent defined.
       configCookiePath = '/',
       // First-party cookie samesite attribute
-      configCookieSameSite = trackerConfiguration.cookieSameSite ?? 'None',
+      configCookieSameSite = trackerConfiguration.cookieSameSite ?? 'Lax',
       // First-party cookie secure attribute
       configCookieSecure = trackerConfiguration.cookieSecure ?? true,
       // Do Not Track browser feature
@@ -320,7 +321,7 @@ export function Tracker(
       onSessionUpdateCallback = trackerConfiguration.onSessionUpdateCallback,
       manualSessionUpdateCalled = false;
 
-    if (trackerConfiguration.hasOwnProperty('discoverRootDomain') && trackerConfiguration.discoverRootDomain) {
+    if (discoverRootDomain && !configCookieDomain) {
       configCookieDomain = findRootDomain(configCookieSameSite, configCookieSecure);
     }
 
