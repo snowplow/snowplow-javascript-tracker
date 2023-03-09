@@ -86,6 +86,15 @@ describe('Tracker API: ', () => {
     expect(tracker?.getDomainSessionIndex()).toEqual(1);
   });
 
+  it('Sets blank domain user id after clearUserData() if anonymous tracking', () => {
+    const tracker = createTracker({
+      anonymousTracking: { withSessionTracking: true },
+    });
+
+    tracker?.clearUserData();
+    expect(tracker?.getDomainUserId()).toEqual('');
+  });
+
   it('Sets correct domain session index anonymous track', () => {
     const tracker = createTracker({ anonymousTracking: true });
     expect(tracker?.getDomainSessionIndex()).toEqual(1);
