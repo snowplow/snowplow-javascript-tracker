@@ -34,7 +34,6 @@
 
       snowplow('newTracker', 'sp1', 'snowplow-js-tracker.local:9090', {
         cookieName: '_sp_1',
-        cookieSameSite: 'Lax',
         cookieSecure: false,
       });
 
@@ -49,7 +48,6 @@
 
       snowplow('newTracker', 'sp3', 'snowplow-js-tracker.local:9090', {
         cookieName: '_sp_3',
-        cookieSameSite: 'Lax',
         cookieSecure: false,
         sessionCookieTimeout: 1,
         cookieLifetime: 1,
@@ -57,28 +55,24 @@
 
       snowplow('newTracker', 'sp4', 'snowplow-js-tracker.local:9090', {
         cookieName: '_sp_4',
-        cookieSameSite: 'Lax',
         cookieSecure: false,
         anonymousTracking: true,
       });
 
       snowplow('newTracker', 'sp5', 'snowplow-js-tracker.local:9090', {
         cookieName: '_sp_5',
-        cookieSameSite: 'Lax',
         cookieSecure: false,
         stateStorageStrategy: 'localStorage',
       });
 
       snowplow('newTracker', 'sp6', 'snowplow-js-tracker.local:9090', {
         cookieName: '_sp_6',
-        cookieSameSite: 'Lax',
         cookieSecure: false,
         stateStorageStrategy: 'cookie',
       });
 
       snowplow('newTracker', 'sp7', 'snowplow-js-tracker.local:9090', {
         cookieName: '_sp_7',
-        cookieSameSite: 'Lax',
         cookieSecure: false,
         cookieDomain: '.google.com',
       });
