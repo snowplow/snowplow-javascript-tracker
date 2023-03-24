@@ -232,8 +232,8 @@ describe('SnowplowEcommercePlugin events', () => {
   });
 
   it('trackTransaction adds the expected "transaction" event to the queue', () => {
-    const productX = { id: '1234', price: 12, currency: 'EUR' };
-    const productY = { id: '12345', price: 25, currency: 'EUR' };
+    const productX = { id: '1234', price: 12, currency: 'EUR', quantity: 4 };
+    const productY = { id: '12345', price: 25, currency: 'EUR', quantity: 1 };
     const transaction = { revenue: 45, currency: 'EUR', transaction_id: '12345', payment_method: 'card' };
     trackTransaction({
       ...transaction,
@@ -256,6 +256,11 @@ describe('SnowplowEcommercePlugin events', () => {
         schema: TRANSACTION_SCHEMA,
       },
     ]);
+
+    /* Expect implicit total_quantity calculation */
+    const emmitedTransaction = context[2].data;
+    expect(emmitedTransaction).toHaveProperty('total_quantity');
+    expect(emmitedTransaction.total_quantity).toEqual(productX.quantity + productY.quantity);
 
     expect(unstructuredEvent).toMatchObject({
       schema: ECOMMERCE_ACTION_SCHEMA,
