@@ -28,6 +28,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import { TrackerConfiguration, addTracker, SharedState } from '../../src';
+
 // Default Domain alias is snowplow-js-tracker.local & configCookiepath is /
 const DEFAULT_DOMAIN_HASH = '7f01';
 
@@ -71,4 +73,9 @@ interface CreateTestSessionIdCookie {
 export function createTestSessionIdCookie(params?: CreateTestSessionIdCookie) {
   const domainHash = DEFAULT_DOMAIN_HASH || params?.domainHash;
   return `_sp_ses.${domainHash}=*; Expires=; Path=/; SameSite=None; Secure;`;
+}
+
+export function createTracker(configuration?: TrackerConfiguration) {
+  let id = 'sp-' + Math.random();
+  return addTracker(id, id, '', '', new SharedState(), configuration);
 }
