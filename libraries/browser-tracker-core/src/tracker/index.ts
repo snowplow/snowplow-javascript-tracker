@@ -39,7 +39,6 @@ import {
 } from '@snowplow/tracker-core';
 import hash from 'sha1';
 import { v4 as uuid } from 'uuid';
-import { detectDocumentSize, detectViewport } from '../detectors';
 import {
   decorateQuerystring,
   findRootDomain,
@@ -55,6 +54,8 @@ import {
   fixupTitle,
   fromQuerystring,
   isInteger,
+  attemptGetSessionStorage,
+  attemptWriteSessionStorage,
 } from '../helpers';
 import { BrowserPlugin } from '../plugins';
 import { OutQueueManager } from './out_queue';
@@ -91,6 +92,8 @@ import {
   incrementEventIndexInIdCookie,
   emptyIdCookie,
 } from './id_cookie';
+import { CLIENT_SESSION_SCHEMA, WEB_PAGE_SCHEMA, BROWSER_CONTEXT_SCHEMA } from './schemata';
+import { getBrowserProperties } from '../helpers/browser_props';
 
 declare global {
   interface Navigator {
@@ -101,7 +104,7 @@ declare global {
   }
 }
 
-/** Repesents an instance of an activity tracking configuration */
+/** Represents an instance of an activity tracking configuration */
 type ActivityConfig = {
   /** The callback to fire based on heart beat */
   callback: ActivityCallback;
@@ -180,12 +183,18 @@ export function Tracker(
         }
         return config.anonymousTracking?.withServerAnonymisation === true ?? false;
       },
-      getAnonymousTracking = (config: TrackerConfiguration) => !!config.anonymousTracking;
+      getAnonymousTracking = (config: TrackerConfiguration) => !!config.anonymousTracking,
+      isBrowserContextAvailable = trackerConfiguration?.contexts?.browser ?? false,
+      isWebPageContextAvailable = trackerConfiguration?.contexts?.webPage ?? true;
 
     // Get all injected plugins
     browserPlugins.push(getBrowserDataPlugin());
-    if (trackerConfiguration?.contexts?.webPage ?? true) {
-      browserPlugins.push(getWebPagePlugin()); // Defaults to including the Web Page context
+    /* When including the Web Page context, we add the relevant internal plugins */
+    if (isWebPageContextAvailable) {
+      browserPlugins.push(getWebPagePlugin());
+    }
+    if (isBrowserContextAvailable) {
+      browserPlugins.push(getBrowserContextPlugin());
     }
     browserPlugins.push(...(trackerConfiguration.plugins ?? []));
 
@@ -196,7 +205,6 @@ export function Tracker(
         callback: sendRequest,
       }),
       // Aliases
-      browserLanguage = (navigator as any).userLanguage || navigator.language,
       documentCharset = document.characterSet || document.charset,
       // Current URL and Referrer URL
       locationArray = fixupUrl(window.location.hostname, window.location.href, getReferrer()),
@@ -299,7 +307,7 @@ export function Tracker(
       preservePageViewId = false,
       // Whether first trackPageView was fired and pageViewId should not be changed anymore until reload
       pageViewSent = false,
-      // Activity tracking config for callback and pacge ping variants
+      // Activity tracking config for callback and page ping variants
       activityTrackingConfig: ActivityTrackingConfig = {
         enabled: false,
         installed: false, // Guard against installing the activity tracker more than once per Tracker instance
@@ -312,16 +320,18 @@ export function Tracker(
       configCookieDomain = findRootDomain(configCookieSameSite, configCookieSecure);
     }
 
+    const { browserLanguage, resolution, colorDepth, cookiesEnabled } = getBrowserProperties();
+
     // Set up unchanging name-value pairs
     core.setTrackerVersion(version);
     core.setTrackerNamespace(namespace);
     core.setAppId(configTrackerSiteId);
     core.setPlatform(configPlatform);
-    core.addPayloadPair('cookie', navigator.cookieEnabled ? '1' : '0');
+    core.addPayloadPair('cookie', cookiesEnabled ? '1' : '0');
     core.addPayloadPair('cs', documentCharset);
     core.addPayloadPair('lang', browserLanguage);
-    core.addPayloadPair('res', screen.width + 'x' + screen.height);
-    core.addPayloadPair('cd', screen.colorDepth);
+    core.addPayloadPair('res', resolution);
+    core.addPayloadPair('cd', colorDepth);
 
     /*
      * Initialize tracker
@@ -575,7 +585,7 @@ export function Tracker(
     /*
      * no-op if anonymousTracking enabled, will still set cookies if anonymousSessionTracking is enabled
      * Sets a cookie based on the storage strategy:
-     * - if 'localStorage': attemps to write to local storage
+     * - if 'localStorage': attempts to write to local storage
      * - if 'cookie' or 'cookieAndLocalStorage': writes to cookies
      * - otherwise: no-op
      */
@@ -612,7 +622,7 @@ export function Tracker(
     }
 
     /**
-     * Toggle Anaonymous Tracking
+     * Toggle Anonymous Tracking
      */
     function toggleAnonymousTracking(
       configuration?: EnableAnonymousTrackingConfiguration | DisableAnonymousTrackingConfiguration
@@ -709,6 +719,23 @@ export function Tracker(
     }
 
     /**
+     * Safe function to get `tabId`.
+     * Generates it if it is not yet initialized. Shared between trackers.
+     */
+    function getTabId() {
+      if (configStateStorageStrategy === 'none' || configAnonymousTracking || !isWebPageContextAvailable) {
+        return null;
+      }
+      const SESSION_STORAGE_TAB_ID = '_sp_tab_id';
+      let tabId = attemptGetSessionStorage(SESSION_STORAGE_TAB_ID);
+      if (!tabId) {
+        attemptWriteSessionStorage(SESSION_STORAGE_TAB_ID, uuid());
+        tabId = attemptGetSessionStorage(SESSION_STORAGE_TAB_ID);
+      }
+      return tabId || null;
+    }
+
+    /**
      * Put together a web page context with a unique UUID for the page view
      *
      * @returns web_page context
@@ -718,9 +745,25 @@ export function Tracker(
         contexts: () => {
           return [
             {
-              schema: 'iglu:com.snowplowanalytics.snowplow/web_page/jsonschema/1-0-0',
+              schema: WEB_PAGE_SCHEMA,
               data: {
                 id: getPageViewId(),
+              },
+            },
+          ];
+        },
+      };
+    }
+
+    function getBrowserContextPlugin() {
+      return {
+        contexts: () => {
+          return [
+            {
+              schema: BROWSER_CONTEXT_SCHEMA,
+              data: {
+                ...getBrowserProperties(),
+                tabId: getTabId(),
               },
             },
           ];
@@ -773,11 +816,13 @@ export function Tracker(
           updateFirstEventInIdCookie(idCookie, payloadBuilder);
           incrementEventIndexInIdCookie(idCookie);
 
-          payloadBuilder.add('vp', detectViewport());
-          payloadBuilder.add('ds', detectDocumentSize());
+          const { viewport, documentSize } = getBrowserProperties();
+
+          payloadBuilder.add('vp', viewport);
+          payloadBuilder.add('ds', documentSize);
           payloadBuilder.add('vid', anonymizeSessionOr(memorizedVisitCount));
           payloadBuilder.add('sid', anonymizeSessionOr(memorizedSessionId));
-          payloadBuilder.add('duid', anonymizeOr(domainUserIdFromIdCookie(idCookie))); // Always load from cookie as this is better ettiquette than in-memory values
+          payloadBuilder.add('duid', anonymizeOr(domainUserIdFromIdCookie(idCookie))); // Always load from cookie as this is better etiquette than in-memory values
           payloadBuilder.add('uid', anonymizeOr(businessUserId));
 
           refreshUrl();
@@ -807,7 +852,7 @@ export function Tracker(
 
     function addSessionContextToPayload(payloadBuilder: PayloadBuilder, clientSession: ClientSession) {
       let sessionContext: SelfDescribingJson<ClientSession> = {
-        schema: 'iglu:com.snowplowanalytics.snowplow/client_session/jsonschema/1-0-2',
+        schema: CLIENT_SESSION_SCHEMA,
         data: clientSession,
       };
       payloadBuilder.addContextEntity(sessionContext);
@@ -908,7 +953,7 @@ export function Tracker(
                 set: function set() {},
               });
               // note: have to set and remove a no-op listener instead of null
-              // (which was used previously), becasue Edge v15 throws an error
+              // (which was used previously), because Edge v15 throws an error
               // when providing a null callback.
               // https://github.com/rafrex/detect-passive-events/pull/3
               const noop = function noop() {};
@@ -1066,9 +1111,9 @@ export function Tracker(
         return memorizedVisitCount;
       },
 
-      getPageViewId: function () {
-        return getPageViewId();
-      },
+      getPageViewId,
+
+      getTabId,
 
       newSession: newSession,
 

@@ -46,6 +46,8 @@ export type BuiltInContexts =
       webPage: boolean;
       /* Toggles the session context */
       session: boolean;
+      /* Toggles the browser context */
+      browser: boolean;
     }>
   | Record<string, never>;
 
@@ -207,7 +209,7 @@ export type TrackerConfiguration = {
   anonymousTracking?: AnonymousTrackingOptions;
   /**
    * Use to configure built in contexts
-   * @defaultValue `{ webPage: true, session: false }`
+   * @defaultValue `{ webPage: true, session: false, browser: false }`
    */
   contexts?: BuiltInContexts;
   /**
@@ -359,7 +361,14 @@ export interface BrowserTracker {
    *
    * @returns Page view ID
    */
-  getPageViewId: () => void;
+  getPageViewId: () => string;
+
+  /**
+   * Get the current browser tab ID
+   *
+   * @returns Browser tab ID
+   */
+  getTabId: () => string | null;
 
   /**
    * Get the cookie name as cookieNamePrefix + basename + . + domain.

@@ -28,7 +28,14 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { decorateQuerystring, getCssClasses } from '../src/helpers';
+import {
+  cookie,
+  decorateQuerystring,
+  deleteCookie,
+  findRootDomain,
+  getCookiesWithPrefix,
+  getCssClasses,
+} from '../src/helpers';
 
 describe('decorateQuerystring', () => {
   it('Decorate a URL with no querystring or fragment', () => {
@@ -96,5 +103,117 @@ describe('getCssClasses', () => {
     const expected = ['the', 'quick', 'brown_fox-jumps/over', 'the', 'lazy', 'dog'];
     const actual = getCssClasses(element);
     expect(actual).toEqual(expected);
+  });
+});
+
+describe('cookie helpers', () => {
+  let cookieJar: string;
+
+  beforeAll(() => {
+    cookieJar = '';
+    jest.spyOn(document, 'cookie', 'set').mockImplementation((cookieValue) => {
+      // disallow TLD('com') cookie domains
+      const isRootCookie = cookieValue.match(/Domain=([^.]+?);/);
+      if (isRootCookie) {
+        return;
+      }
+
+      const cookies = cookieJar.split(' ');
+      const cookieName = cookieValue.split('=').shift();
+      //@ts-ignore
+      const cookieNameLength = cookieName.length;
+      let cookieIndex = -1;
+      cookies.forEach((value, index) => {
+        if (`${value.substr(0, cookieNameLength)}=` === `${cookieName}=`) {
+          cookieIndex = index;
+        }
+      });
+      if (cookieIndex > -1) {
+        cookies[cookieIndex] = `${cookieValue};`;
+      } else {
+        cookies.push(`${cookieValue};`);
+      }
+      cookieJar = cookies.join(' ').slice(0, -1).trim();
+    });
+    jest.spyOn(document, 'cookie', 'get').mockImplementation(() => cookieJar);
+  });
+
+  afterEach(() => {
+    cookieJar = '';
+  });
+
+  afterAll(() => {
+    jest.clearAllMocks();
+  });
+
+  it('getCookiesWithPrefix', () => {
+    // Random cookie value from a snowplow initialization
+    const gaCookie = '_ga=GA1.2.XXX.YYY';
+    const spIdCookie =
+      '_sp_id.83fc=e8be487a-01f2-4355-9f54-a0b0a9eb25a4.1673957921.1.1673959786..65134acc-3374-4efb-bf6f-dc891e804248..df52bd6b-14d5-475e-977a-082f27ff54a0.1673957921210.38';
+    document.cookie = `${gaCookie}; ${spIdCookie}`;
+    const snowplowPrefixedCookies = getCookiesWithPrefix('_sp');
+    expect(snowplowPrefixedCookies).toEqual(expect.not.arrayContaining([gaCookie]));
+    expect(snowplowPrefixedCookies).toEqual(expect.arrayContaining([spIdCookie]));
+  });
+
+  it('reads cookie using cookie with single argument', () => {
+    const gaCookie = '_ga=GA1.2.XXX.YYY';
+    document.cookie = `${gaCookie}`;
+    expect(cookie('_ga')).toEqual('GA1.2.XXX.YYY');
+  });
+
+  it('sets cookie using cookie with multiple arguments', () => {
+    expect(document.cookie).toEqual('');
+    cookie('_ga', 'GA1.2.XXX.YYY');
+    expect(document.cookie).toEqual('_ga=GA1.2.XXX.YYY');
+  });
+
+  it('deleteCookie', () => {
+    const gaCookie = '_ga=GA1.2.XXX.YYY';
+    document.cookie = `${gaCookie}`;
+    deleteCookie('_ga');
+    // Value is deleted
+    expect(document.cookie).toMatch('_ga=;');
+  });
+
+  describe('findRootDomain', () => {
+    let location: Location;
+
+    beforeAll(() => {
+      location = window.location;
+    });
+
+    afterEach(() => {
+      window.location = location;
+    });
+
+    it('findRootDomain https://www.example.com', () => {
+      const url = 'https://www.example.com';
+      const mockLocation = new URL(url);
+      // @ts-expect-error
+      delete window.location;
+      // @ts-expect-error
+      window.location = mockLocation;
+
+      const domain = findRootDomain('Strict', true);
+      expect(domain).toEqual('example.com');
+
+      window.location = location;
+    });
+
+    it('findRootDomain https://sub.example.com', () => {
+      const url = 'https://sub.example.com';
+      const mockLocation = new URL(url);
+      // @ts-expect-error
+      delete window.location;
+      // @ts-expect-error
+      window.location = mockLocation;
+
+      const domain = findRootDomain('Strict', true);
+      expect(domain).toEqual('example.com');
+
+      window.location = location;
+    });
   });
 });

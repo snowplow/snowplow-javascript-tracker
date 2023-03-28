@@ -28,9 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { TrackerConfiguration } from '../../dist/index.module';
-import { addTracker, SharedState } from '../../src';
-import { createTestIdCookie, createTestSessionIdCookie } from '../helpers';
+import { createTestIdCookie, createTestSessionIdCookie, createTracker } from '../helpers';
 
 jest.useFakeTimers('modern');
 
@@ -177,8 +175,3 @@ describe('Tracker API: ', () => {
     tracker?.trackPageView();
   });
 });
-
-function createTracker(configuration?: TrackerConfiguration) {
-  let id = 'sp-' + Math.random();
-  return addTracker(id, id, '', '', new SharedState(), configuration);
-}

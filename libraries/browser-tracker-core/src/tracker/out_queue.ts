@@ -32,6 +32,7 @@ import { attemptWriteLocalStorage, isString } from '../helpers';
 import { SharedState } from '../state';
 import { localStorageAccessible } from '../detectors';
 import { LOG, Payload } from '@snowplow/tracker-core';
+import { PAYLOAD_DATA_SCHEMA } from './schemata';
 
 export interface OutQueue {
   enqueueRequest: (request: Payload, url: string) => void;
@@ -484,7 +485,7 @@ export function OutQueueManager(
    */
   function encloseInPayloadDataEnvelope(events: Array<Record<string, unknown>>) {
     return JSON.stringify({
-      schema: 'iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-4',
+      schema: PAYLOAD_DATA_SCHEMA,
       data: events,
     });
   }

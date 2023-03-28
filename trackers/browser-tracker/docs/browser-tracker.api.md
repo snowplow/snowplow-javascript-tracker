@@ -74,7 +74,8 @@ export interface BrowserTracker {
     getDomainSessionIndex: () => void;
     getDomainUserId: () => void;
     getDomainUserInfo: () => void;
-    getPageViewId: () => void;
+    getPageViewId: () => string;
+    getTabId: () => string | null;
     getUserId: () => void;
     id: string;
     namespace: string;
@@ -106,6 +107,8 @@ export type BuiltInContexts = RequireAtLeastOne<{
     webPage: boolean;
     /* Toggles the session context */
     session: boolean;
+    /* Toggles the browser context */
+    browser: boolean;
 }> | Record<string, never>;
 
 // @public

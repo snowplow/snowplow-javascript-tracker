@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Browser context: Adds the browser context entity when \`contexts: { browser: true }\` is passed 1`] = `
+Object {
+  "browserLanguage": "en-US",
+  "colorDepth": 24,
+  "cookiesEnabled": true,
+  "devicePixelRatio": 1,
+  "documentLanguage": "",
+  "documentSize": "0x0",
+  "hardwareConcurrency": 1,
+  "online": true,
+  "resolution": "0x0",
+  "viewport": "1024x768",
+}
+`;
