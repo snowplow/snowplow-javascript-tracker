@@ -162,9 +162,19 @@ export function trackTransaction(
   transaction: Transaction & CommonEcommerceEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
+  let totalQuantity = 0;
   const { context = [], timestamp, products = [], ...transactionAttributes } = transaction;
-  products.forEach((product) => context.push({ schema: PRODUCT_SCHEMA, data: product }));
-  context.push({ schema: TRANSACTION_SCHEMA, data: { ...transactionAttributes } });
+  products.forEach((product) => {
+    /* If `total_quantity` is not provided, we calculate it from individual product quantities. */
+    if (product.quantity) {
+      totalQuantity += product.quantity;
+    }
+    context.push({ schema: PRODUCT_SCHEMA, data: product });
+  });
+  context.push({
+    schema: TRANSACTION_SCHEMA,
+    data: { total_quantity: totalQuantity || undefined, ...transactionAttributes },
+  });
 
   dispatchToTrackersInCollection(trackers, _trackers, (t) => {
     t.core.track(buildEcommerceActionEvent({ type: 'transaction' }), context, timestamp);
