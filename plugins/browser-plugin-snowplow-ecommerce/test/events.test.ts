@@ -36,6 +36,8 @@ import {
   trackProductListClick,
   trackProductListView,
   trackProductView,
+  trackPromotionClick,
+  trackPromotionView,
   trackRemoveFromCart,
   trackTransaction,
 } from '../src';
@@ -44,6 +46,7 @@ import {
   CHECKOUT_STEP_SCHEMA,
   ECOMMERCE_ACTION_SCHEMA,
   PRODUCT_SCHEMA,
+  PROMO_SCHEMA,
   TRANSACTION_SCHEMA,
 } from '../src/schemata';
 
@@ -156,6 +159,56 @@ describe('SnowplowEcommercePlugin events', () => {
     expect(unstructuredEvent).toMatchObject({
       schema: ECOMMERCE_ACTION_SCHEMA,
       data: { type: 'product_view' },
+    });
+  });
+
+  it('trackPromotionView adds the expected "promotion view" event to the queue', () => {
+    const promoX = {
+      id: '1234',
+      name: 'promo_winter',
+      product_ids: ['P1234'],
+      type: 'carousel',
+      position: 1,
+    };
+    trackPromotionView(promoX);
+
+    const { context, unstructuredEvent } = extractStateProperties(state);
+
+    expect(context).toMatchObject([
+      {
+        data: promoX,
+        schema: PROMO_SCHEMA,
+      },
+    ]);
+
+    expect(unstructuredEvent).toMatchObject({
+      schema: ECOMMERCE_ACTION_SCHEMA,
+      data: { type: 'promo_view' },
+    });
+  });
+
+  it('trackPromotionClick adds the expected "promotion click" event to the queue', () => {
+    const promoX = {
+      id: '1234',
+      name: 'promo_winter',
+      product_ids: ['P1234'],
+      type: 'carousel',
+      position: 1,
+    };
+    trackPromotionClick(promoX);
+
+    const { context, unstructuredEvent } = extractStateProperties(state);
+
+    expect(context).toMatchObject([
+      {
+        data: promoX,
+        schema: PROMO_SCHEMA,
+      },
+    ]);
+
+    expect(unstructuredEvent).toMatchObject({
+      schema: ECOMMERCE_ACTION_SCHEMA,
+      data: { type: 'promo_click' },
     });
   });
 
