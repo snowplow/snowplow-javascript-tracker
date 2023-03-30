@@ -12,5 +12,7 @@ type BuiltInContexts = RequireAtLeastOne<{
     webPage: boolean;
     /* Toggles the session context */
     session: boolean;
+    /* Toggles the browser context */
+    browser: boolean;
 }> | Record<string, never>;
 ```

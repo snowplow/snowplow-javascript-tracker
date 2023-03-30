@@ -31,7 +31,8 @@ interface BrowserTracker
 |  [getDomainSessionIndex](./browser-tracker.browsertracker.getdomainsessionindex.md) | () =&gt; void | Get the domain session index also known as current memorized visit count. |
 |  [getDomainUserId](./browser-tracker.browsertracker.getdomainuserid.md) | () =&gt; void | Get visitor ID (from first party cookie) |
 |  [getDomainUserInfo](./browser-tracker.browsertracker.getdomainuserinfo.md) | () =&gt; void | Get the visitor information (from first party cookie) |
-|  [getPageViewId](./browser-tracker.browsertracker.getpageviewid.md) | () =&gt; void | Get the current page view ID |
+|  [getPageViewId](./browser-tracker.browsertracker.getpageviewid.md) | () =&gt; string | Get the current page view ID |
+|  [getTabId](./browser-tracker.browsertracker.gettabid.md) | () =&gt; string \| null | Get the current browser tab ID |
 |  [getUserId](./browser-tracker.browsertracker.getuserid.md) | () =&gt; void | Get the current user ID (as set previously with setUserId()). |
 |  [id](./browser-tracker.browsertracker.id.md) | string | The unique identifier of this tracker |
 |  [namespace](./browser-tracker.browsertracker.namespace.md) | string | The tracker namespace |

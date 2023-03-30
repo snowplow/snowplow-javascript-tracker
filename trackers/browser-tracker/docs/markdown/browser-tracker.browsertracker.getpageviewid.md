@@ -9,5 +9,5 @@ Get the current page view ID
 <b>Signature:</b>
 
 ```typescript
-getPageViewId: () => void;
+getPageViewId: () => string;
 ```
