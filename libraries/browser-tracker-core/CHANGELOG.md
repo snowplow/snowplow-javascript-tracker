@@ -1,6 +1,17 @@
 # Change Log - @snowplow/browser-tracker-core
 
-This log was last generated on Tue, 03 Jan 2023 15:36:33 GMT and should not be manually modified.
+This log was last generated on Thu, 30 Mar 2023 13:46:56 GMT and should not be manually modified.
+
+## 3.9.0
+Thu, 30 Mar 2023 13:46:56 GMT
+
+### Updates
+
+- Add touchmove and touchstart events on page ping calculation
+- Add client_session context entity if anonymous tracking with session tracking is enabled (#1124)
+- Fix root domain algorithm initial attempt
+- Fix generating domain user ID when clearing user data with anonymous tracking (#1164)
+- Add browser context and ability to generate tab identifier.
 
 ## 3.8.0
 Tue, 03 Jan 2023 15:36:33 GMT

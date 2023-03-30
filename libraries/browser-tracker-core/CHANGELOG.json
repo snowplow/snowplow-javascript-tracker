@@ -2,6 +2,30 @@
   "name": "@snowplow/browser-tracker-core",
   "entries": [
     {
+      "version": "3.9.0",
+      "tag": "@snowplow/browser-tracker-core_v3.9.0",
+      "date": "Thu, 30 Mar 2023 13:46:56 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add touchmove and touchstart events on page ping calculation"
+          },
+          {
+            "comment": "Add client_session context entity if anonymous tracking with session tracking is enabled (#1124)"
+          },
+          {
+            "comment": "Fix root domain algorithm initial attempt"
+          },
+          {
+            "comment": "Fix generating domain user ID when clearing user data with anonymous tracking (#1164)"
+          },
+          {
+            "comment": "Add browser context and ability to generate tab identifier."
+          }
+        ]
+      }
+    },
+    {
       "version": "3.8.0",
       "tag": "@snowplow/browser-tracker-core_v3.8.0",
       "date": "Tue, 03 Jan 2023 15:36:33 GMT",
