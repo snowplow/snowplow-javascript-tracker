@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-performance-navigation-timing",
+      "comment": "Introduce Performance Navigation Timing plugin",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-performance-navigation-timing"
+}
