@@ -1,0 +1,287 @@
+import { CommonEventProperties, SelfDescribingJson } from '@snowplow/tracker-core';
+
+/** Type of media player event */
+export enum MediaPlayerEventType {
+  // Controlling the playback
+
+  /** Media player event fired when the media tracking is successfully attached to the player and can track events. */
+  Ready = 'ready',
+  /** Media player event sent when the player changes state to playing from previously being paused. */
+  Play = 'play',
+  /** Media player event sent when the user pauses the playback. */
+  Pause = 'pause',
+  /** Media player event sent when playback stops when end of the media is reached or because no further data is available. */
+  End = 'end',
+  /** Media player event sent when a seek operation begins. */
+  SeekStart = 'seek_start',
+  /** Media player event sent when a seek operation completes. */
+  SeekEnd = 'seek_end',
+
+  // Changes in playback settings
+
+  /** Media player event sent when the playback rate has changed. */
+  PlaybackRateChange = 'playbackrate_change',
+  /** Media player event sent when the volume has changed. */
+  VolumeChange = 'volume_change',
+  /** Media player event fired immediately after the browser switches into or out of full-screen mode. */
+  FullscreenChange = 'fullscreen_change',
+  /** Media player event fired immediately after the browser switches into or out of picture-in-picture mode. */
+  PictureInPictureChange = 'pictureinpicture_change',
+
+  // Tracking playback progress
+
+  /** Media player event fired periodicaly during main content playback, regardless of other API events that have been sent. */
+  Ping = 'ping',
+  /** Media player event fired when a percentage boundary set in options.boundaries is reached */
+  PercentProgress = 'percent_progress',
+
+  // Ad events
+
+  /** Media player event that signals the start of an ad break. */
+  AdBreakStart = 'ad_break_start',
+  /** Media player event that signals the end of an ad break. */
+  AdBreakEnd = 'ad_break_end',
+  /** Media player event that signals the start of an ad. */
+  AdStart = 'ad_start',
+  /** Media player event fired when a quartile of ad is reached after continuous ad playback at normal speed. */
+  AdFirstQuartile = 'ad_first_quartile',
+  /** Media player event fired when a midpoint of ad is reached after continuous ad playback at normal speed. */
+  AdMidpoint = 'ad_midpoint',
+  /** Media player event fired when a quartile of ad is reached after continuous ad playback at normal speed. */
+  AdThirdQuartile = 'ad_third_quartile',
+  /** Media player event that signals the ad creative was played to the end at normal speed. */
+  AdComplete = 'ad_complete',
+  /** Media player event fired when the user activated a skip control to skip the ad creative. */
+  AdSkip = 'ad_skip',
+  /** Media player event fired when the user clicked on the ad. */
+  AdClick = 'ad_click',
+  /** Media player event fired when the user clicked the pause control and stopped the ad creative. */
+  AdPause = 'ad_pause',
+  /** Media player event fired when the user resumed playing the ad creative after it had been stopped or paused. */
+  AdResume = 'ad_resume',
+
+  // Data quality events
+
+  /** Media player event fired when the player goes into the buffering state and begins to buffer content. */
+  BufferStart = 'buffer_start',
+  /** Media player event fired when the the player finishes buffering content and resumes playback. */
+  BufferEnd = 'buffer_end',
+  /** Media player event tracked when the video playback quality changes automatically. */
+  QualityChange = 'quality_change',
+  /** Media player event tracked when the video playback quality changes as a result of user interaction (choosing a different quality setting). */
+  UserUpdateQuality = 'user_update_quality',
+  /** Media player event tracked when the resource could not be loaded due to an error.  */
+  Error = 'error',
+}
+
+export type MediaTrackArguments = {
+  /** ID of the media tracking */
+  id: string;
+  /** Attributes for the media player context entity */
+  media?: MediaPlayerAttributes;
+};
+
+export type MediaTrackAdArguments = {
+  /** Attributes for the media player ad context entity */
+  ad?: MediaPlayerAdAttributes;
+};
+
+export type MediaTrackAdBreakArguments = {
+  /** Attributes for the media player ad break context entity */
+  adBreak?: MediaPlayerAdBreakAttributes;
+};
+
+/** Type for all media player events */
+export interface MediaPlayerEvent {
+  /** The event fired by the media player */
+  type: MediaPlayerEventType;
+  /** The custom media identifier given by the user */
+  mediaLabel?: string | null;
+}
+
+/** Type/Schema for a context entity for media player events with information about the current state of the media player */
+export interface MediaPlayer {
+  /** The current playback time */
+  currentTime: number;
+  /** A double-precision floating-point value indicating the duration of the media in seconds */
+  duration?: number | null;
+  /** If playback of the media has ended */
+  ended: boolean;
+  /** If the video should restart after ending */
+  loop: boolean;
+  /** If the media element is muted */
+  muted: boolean;
+  /** If the media element is paused */
+  paused: boolean;
+  /** The percent of the way through the media */
+  percentProgress?: number | null;
+  /** Playback rate (1 is normal) */
+  playbackRate: number;
+  /** Volume level */
+  volume: number;
+}
+
+/** Partial type/schema for a context entity for media player events with information about the current state of the media player */
+export interface MediaPlayerAttributes {
+  /** The current playback time */
+  currentTime?: number;
+  /** A double-precision floating-point value indicating the duration of the media in seconds */
+  duration?: number | null;
+  /** If playback of the media has ended */
+  ended?: boolean;
+  /** If the video should restart after ending */
+  loop?: boolean;
+  /** If the media element is muted */
+  muted?: boolean;
+  /** If the media element is paused */
+  paused?: boolean;
+  /** The percent of the way through the media */
+  percentProgress?: number | null;
+  /** Playback rate (1 is normal) */
+  playbackRate?: number;
+  /** Volume level */
+  volume?: number;
+  /** An identifier for the media session */
+  mediaSessionId?: string;
+  /** Interval (seconds) in which the ping events will be sent */
+  pingInterval?: number;
+}
+
+/** Partial type/schema for a context entity for media player events that tracks a session of a single media player usage */
+export interface MediaPlayerSession {
+  /** An identifier for the media session */
+  mediaSessionId: string;
+  /** Date-time timestamp of when the session started */
+  startedAt?: Date;
+  /** Interval (seconds) in which the ping events will be sent */
+  pingInterval?: number;
+}
+
+/** Partial type/schema for a context entity for media player events that tracks a session of a single media player usage */
+export interface MediaPlayerSessionStats {
+  /** Total seconds user spent with paused content (excluding linear ads) */
+  timePaused?: number;
+  /** Total seconds user spent playing content (excluding linear ads) */
+  timePlayed?: number;
+  /** Total seconds user spent playing content on mute (excluding linear ads) */
+  timePlayedMuted?: number;
+  /** Total seconds of the content played. Each part of the content played is counted once (i.e., counts rewinding or rewatching the same content only once). Playback rate does not affect this value. */
+  contentWatched?: number;
+  /** Total seconds that ads played during the session */
+  timeSpentAds?: number;
+  /** Total seconds that playback was buffering during the session */
+  timeBuffering?: number;
+  /** Number of ads played */
+  ads?: number;
+  /** Number of ads that the user clicked on */
+  adsClicked?: number;
+  /** Number of ads that the user skipped */
+  adsSkipped?: number;
+  /** Number of ad breaks played */
+  adBreaks?: number;
+  /** Average playback rate (1 is normal speed) */
+  avgPlaybackRate?: number;
+}
+
+/** Partial type/schema for a context entity with information about the currently played ad */
+export interface MediaPlayerAdAttributes {
+  /** Friendly name of the ad */
+  name?: string;
+  /** Unique identifier for the ad */
+  adId: string;
+  /** The ID of the ad creative */
+  creativeId?: string;
+  /** The position of the ad within the ad break, starting with 1 */
+  podPosition?: number;
+  /** Length of the video ad in seconds */
+  duration?: number;
+  /** The percent of the way through the ad */
+  percentProgress?: number;
+  /** Indicating whether skip controls are made available to the end user */
+  skippable?: boolean;
+}
+
+/** Type/Schema for a context entity with information about the currently played ad */
+export interface MediaPlayerAd {
+  /** Friendly name of the ad */
+  name?: string;
+  /** Unique identifier for the ad */
+  adId: string;
+  /** The ID of the ad creative */
+  creativeId?: string;
+  /** The position of the ad within the ad break, starting with 1 */
+  podPosition?: number;
+  /** Length of the video ad in seconds */
+  duration?: number;
+  /** The percent of the way through the ad */
+  percentProgress: number;
+  /** Indicating whether skip controls are made available to the end user */
+  skippable?: boolean;
+}
+
+/** Type of ads within the break */
+export enum MediaPlayerAdBreakType {
+  /** take full control of the video for a period of time */
+  Linear = 'linear',
+  /** run concurrently to the video */
+  NonLinear = 'nonlinear',
+  /** Accompany the video but placed outside the player */
+  Companion = 'companion',
+}
+
+/** Type/Schema for a context entity, shared with all media_player_ad events belonging to the ad break */
+export interface MediaPlayerAdBreak {
+  /** Ad break name (e.g., pre-roll, mid-roll, and post-roll) */
+  name?: string;
+  /** An identifier for the ad break */
+  breakId: string;
+  /** Playback time in seconds at the start of the ad break. */
+  startTime: number;
+  /**
+   * Type of ads within the break:
+   * - linear (take full control of the video for a period of time),
+   * - nonlinear (run concurrently to the video),
+   * - companion (accompany the video but placed outside the player)
+   */
+  breakType?: MediaPlayerAdBreakType;
+}
+
+/** Partial type/schema for a context entity, shared with all media_player_ad events belonging to the ad break */
+export interface MediaPlayerAdBreakAttributes {
+  /** Ad break name (e.g., pre-roll, mid-roll, and post-roll) */
+  name?: string;
+  /** An identifier for the ad break */
+  breakId: string;
+  /** Playback time in seconds at the start of the ad break. */
+  startTime?: number;
+  /**
+   * Type of ads within the break:
+   * - linear (take full control of the video for a period of time),
+   * - nonlinear (run concurrently to the video),
+   * - companion (accompany the video but placed outside the player)
+   */
+  breakType?: MediaPlayerAdBreakType;
+}
+
+/** Type/Schema for a context entity that is tracked with media player events on data quality change */
+export interface MediaPlayerQuality {
+  /** The current bitrate in bits per second */
+  bitrate?: number;
+  /** The current bitrate in bits per second */
+  droppedFrames?: number;
+  /** The current number of frames per second */
+  framesPerSecond?: number;
+  /** The amount of time (in milliseconds) passed between when the user hits play and the content loads and starts playing */
+  timeToStart?: number;
+}
+
+/** Type/Schema for a context entity that is tracked with media player events in case of playback errors */
+export interface MediaPlayerError {
+  /** Error message on player while loading the content */
+  playbackError?: string;
+}
+
+export interface CommonMediaEventProperties extends CommonEventProperties {
+  /** Add context entities to an event by setting an Array of Self Describing JSON */
+  context?: Array<SelfDescribingJson>;
+}
