@@ -101,22 +101,29 @@ export class MediaPlayerSessionStatsUpdater {
     // if ad was playing until now and it was a linear ad, don't add the duration stats
     let wasPlayingAd = this.lastAdUpdateAt !== undefined;
     const shouldCountStats = (!wasPlayingAd || !log.linearAd) ?? true;
-    if (shouldCountStats && this.lastLog !== undefined) {
-      // add the time diff since last event to duration stats
-      let duration = log.time - this.lastLog.time;
-      if (this.lastLog.paused) {
-        this.pausedDuration += duration;
-      } else {
-        this.playbackDuration += duration;
-        this.playbackDurationWithPlaybackRate += duration * log.playbackRate;
+    if (shouldCountStats) {
+      if (this.lastLog !== undefined) {
+        // add the time diff since last event to duration stats
+        let duration = log.time - this.lastLog.time;
+        if (this.lastLog.paused) {
+          this.pausedDuration += duration;
+        } else {
+          this.playbackDuration += duration;
+          this.playbackDurationWithPlaybackRate += duration * log.playbackRate;
 
-        if (this.lastLog.muted) {
-          this.playbackDurationMuted += duration;
-        }
+          if (this.lastLog.muted) {
+            this.playbackDurationMuted += duration;
+          }
 
-        for (let i = Math.floor(this.lastLog.contentTime); i < log.contentTime; i++) {
-          this.playedSeconds.add(i);
+          if (!log.paused) {
+            for (let i = Math.floor(this.lastLog.contentTime); i < log.contentTime; i++) {
+              this.playedSeconds.add(i);
+            }
+          }
         }
+      }
+      if (!log.paused) {
+        this.playedSeconds.add(Math.floor(log.contentTime));
       }
     }
   }

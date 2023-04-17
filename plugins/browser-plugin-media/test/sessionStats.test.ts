@@ -29,7 +29,7 @@ describe('MediaPlayerSessionStatsUpdater', () => {
     session.update(MediaPlayerEventType.End, { ...mediaPlayerDefaults, currentTime: 60 });
 
     let entity = session.toSessionContextEntity();
-    expect(entity.contentWatched).toBe(60);
+    expect(entity.contentWatched).toBe(61);
     expect(entity.timePlayed).toBe(60);
     expect(entity.timePlayedMuted).toBeUndefined();
     expect(entity.timePaused).toBeUndefined();
@@ -42,6 +42,7 @@ describe('MediaPlayerSessionStatsUpdater', () => {
     session.update(MediaPlayerEventType.Play, { ...mediaPlayerDefaults, currentTime: 0 });
 
     jest.advanceTimersByTime(10 * 1000);
+    session.update(undefined, { ...mediaPlayerDefaults, currentTime: 10 });
     session.update(MediaPlayerEventType.Pause, { ...mediaPlayerDefaults, currentTime: 10, paused: true });
 
     jest.advanceTimersByTime(10 * 1000);
@@ -51,7 +52,7 @@ describe('MediaPlayerSessionStatsUpdater', () => {
     session.update(MediaPlayerEventType.End, { ...mediaPlayerDefaults, currentTime: 60 });
 
     let entity = session.toSessionContextEntity();
-    expect(entity.contentWatched).toBe(60);
+    expect(entity.contentWatched).toBe(61);
     expect(entity.timePlayed).toBe(60);
     expect(entity.timePlayedMuted).toBeUndefined();
     expect(entity.timePaused).toBe(10);
@@ -70,7 +71,7 @@ describe('MediaPlayerSessionStatsUpdater', () => {
     session.update(MediaPlayerEventType.End, { ...mediaPlayerDefaults, currentTime: 60 });
 
     let entity = session.toSessionContextEntity();
-    expect(entity.contentWatched).toBe(60);
+    expect(entity.contentWatched).toBe(61);
     expect(entity.timePlayed).toBe(60);
     expect(entity.timePlayedMuted).toBe(30);
     expect(entity.timePaused).toBeUndefined();
@@ -93,7 +94,7 @@ describe('MediaPlayerSessionStatsUpdater', () => {
     session.update(MediaPlayerEventType.End, { ...mediaPlayerDefaults, currentTime: 90 });
 
     let entity = session.toSessionContextEntity();
-    expect(entity.contentWatched).toBe(90);
+    expect(entity.contentWatched).toBe(91);
     expect(entity.timePlayed).toBe(60);
     expect(entity.timePlayedMuted).toBeUndefined();
     expect(entity.timePaused).toBeUndefined();
@@ -127,7 +128,7 @@ describe('MediaPlayerSessionStatsUpdater', () => {
     expect(entity.ads).toBe(2);
     expect(entity.adsClicked).toBe(1);
     expect(entity.adBreaks).toBeUndefined();
-    expect(entity.contentWatched).toBe(60);
+    expect(entity.contentWatched).toBe(61);
     expect(entity.timePlayed).toBe(60);
   });
 
@@ -152,7 +153,7 @@ describe('MediaPlayerSessionStatsUpdater', () => {
     expect(entity.timeSpentAds).toBe(15);
     expect(entity.ads).toBe(1);
     expect(entity.adBreaks).toBe(1);
-    expect(entity.contentWatched).toBe(75);
+    expect(entity.contentWatched).toBe(76);
     expect(entity.timePlayed).toBe(75);
   });
 
@@ -169,7 +170,7 @@ describe('MediaPlayerSessionStatsUpdater', () => {
     session.update(MediaPlayerEventType.End, { ...mediaPlayerDefaults, currentTime: 60 });
 
     let entity = session.toSessionContextEntity();
-    expect(entity.contentWatched).toBe(60);
+    expect(entity.contentWatched).toBe(61);
     expect(entity.timePlayed).toBe(75);
   });
 
@@ -186,7 +187,7 @@ describe('MediaPlayerSessionStatsUpdater', () => {
     session.update(MediaPlayerEventType.End, { ...mediaPlayerDefaults, currentTime: 60 });
 
     let entity = session.toSessionContextEntity();
-    expect(entity.contentWatched).toBe(60);
+    expect(entity.contentWatched).toBe(61);
     expect(entity.timePlayed).toBe(60);
     expect(entity.timePlayedMuted).toBe(30);
   });

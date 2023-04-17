@@ -222,6 +222,7 @@ describe('Media Tracking API', () => {
       startMediaTracking({ id, media: { duration: 10 } });
       trackMediaPlay({ id });
       jest.advanceTimersByTime(10 * 1000);
+      updateMediaPlayer({ id, media: { currentTime: 10 } });
       trackMediaEnd({ id, media: { currentTime: 10 } });
 
       expect(eventQueue).toMatchObject([
@@ -234,7 +235,7 @@ describe('Media Tracking API', () => {
               schema: MEDIA_PLAYER_SESSION_SCHEMA,
               data: {
                 timePlayed: 10,
-                contentWatched: 10,
+                contentWatched: 11,
               },
             },
           ],
