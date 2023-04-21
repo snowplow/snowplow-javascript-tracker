@@ -1,5 +1,5 @@
 export interface UAEnhancedEcommerceObject {
-  currencyCode: string;
+  currencyCode?: string;
 }
 
 export interface ProductListViewEvent {
@@ -45,20 +45,22 @@ export interface PromoClickEvent {
 }
 
 export interface CheckoutStepEvent {
-  actionField: {
-    step: number;
-    option?: string;
+  checkout: {
+    actionField: {
+      step: number;
+      option?: string;
+    };
+    products: EEProduct[];
   };
-  products: EEProduct[];
 }
 
 export interface PurchaseEvent {
   purchase: {
     actionField: {
       id: string;
-      revenue: number;
-      tax?: number;
-      shipping?: number;
+      revenue: number | string;
+      tax?: number | string;
+      shipping?: number | string;
       coupon?: string;
       affiliation?: string;
     };
@@ -67,7 +69,7 @@ export interface PurchaseEvent {
 }
 
 export interface EEProduct {
-  price?: number;
+  price?: number | string;
   id?: string;
   name?: string;
   brand?: string;

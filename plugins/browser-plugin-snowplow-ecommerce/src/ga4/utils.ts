@@ -7,11 +7,10 @@ interface GA4ItemTransformation {
   categorySeparator?: string;
 }
 
-export function transformG4ItemsToSPProducts({
-  items,
-  currency = 'USD',
-  categorySeparator = '/',
-}: GA4ItemTransformation): Product[] {
+export function transformG4ItemsToSPProducts(
+  { items, categorySeparator = '/' }: GA4ItemTransformation,
+  currency: string
+): Product[] {
   return items.map((ga4Item) => {
     const { item_category, item_category2, item_category3, item_category4, item_category5 } = ga4Item;
     const category = [item_category, item_category2, item_category3, item_category4, item_category5]
@@ -23,7 +22,7 @@ export function transformG4ItemsToSPProducts({
       id: ga4Item.item_id,
       name: ga4Item.item_name,
       list_price: ga4Item.price,
-      price: ga4Item.price - (ga4Item.discount || 0),
+      price: roundToTwo(ga4Item.price - (ga4Item.discount || 0)),
       position: ga4Item.index,
       brand: ga4Item.item_brand,
       category,
@@ -43,4 +42,9 @@ export function transformGA4PromotionToSPPromotion(promotion: GA4EcommerceObject
     slot: promotion.creative_slot,
     product_ids: productIds,
   };
+}
+
+function roundToTwo(num: number) {
+  // @ts-ignore
+  return +(Math.round(num + 'e+2') + 'e-2');
 }

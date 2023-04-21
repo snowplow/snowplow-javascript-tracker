@@ -12,6 +12,10 @@ import {
 import { Currency, GA4EcommerceObject, ItemList, Transaction, Promotion } from './types';
 import { transformG4ItemsToSPProducts, transformGA4PromotionToSPPromotion } from './utils';
 
+type Options = {
+  currency?: string;
+};
+
 const DEFAULT_PAYMENT_METHOD = 'unknown';
 
 export function trackGA4ViewCart() {
@@ -28,55 +32,67 @@ export function trackGA4SelectPromotion(ecommerce: GA4EcommerceObject & Promotio
   trackPromotionClick(promotion);
 }
 
-export function trackGA4AddToCart(ecommerce: GA4EcommerceObject & Currency, finalCartValue: number) {
-  const products = transformG4ItemsToSPProducts(ecommerce);
-  trackAddToCart({ products, total_value: finalCartValue, currency: ecommerce.currency });
+export function trackGA4AddToCart(
+  ecommerce: GA4EcommerceObject & Currency,
+  opts: Options & { finalCartValue: number }
+) {
+  const currency = (ecommerce.currency || opts.currency)!;
+  const products = transformG4ItemsToSPProducts(ecommerce, currency);
+  trackAddToCart({ products, total_value: opts.finalCartValue, currency });
 }
 
-export function trackGA4RemoveFromCart(ecommerce: GA4EcommerceObject & Currency, finalCartValue: number) {
-  const products = transformG4ItemsToSPProducts(ecommerce);
-  trackRemoveFromCart({ products, total_value: finalCartValue, currency: ecommerce.currency });
+export function trackGA4RemoveFromCart(
+  ecommerce: GA4EcommerceObject & Currency,
+  opts: Options & { finalCartValue: number }
+) {
+  const currency = (ecommerce.currency || opts.currency)!;
+  const products = transformG4ItemsToSPProducts(ecommerce, currency);
+  trackRemoveFromCart({ products, total_value: opts.finalCartValue, currency });
 }
 
-export function trackGA4ViewItem(ecommerce: GA4EcommerceObject) {
-  const products = transformG4ItemsToSPProducts(ecommerce);
+export function trackGA4ViewItem(ecommerce: GA4EcommerceObject, opts: Options = {}) {
+  const currency = (ecommerce.currency || opts.currency)!;
+  const products = transformG4ItemsToSPProducts(ecommerce, currency);
   trackProductView({ ...products[0] });
 }
 
-export function trackGA4ViewItemList(ecommerce: GA4EcommerceObject & ItemList) {
-  const products = transformG4ItemsToSPProducts(ecommerce);
+export function trackGA4ViewItemList(ecommerce: GA4EcommerceObject & ItemList, opts: Options = {}) {
+  const currency = (ecommerce.currency || opts.currency)!;
+  const products = transformG4ItemsToSPProducts(ecommerce, currency);
   trackProductListView({ name: ecommerce.item_list_id || ecommerce.item_list_name, products });
 }
 
-export function trackGA4SelectItem(ecommerce: GA4EcommerceObject & ItemList) {
-  const [product] = transformG4ItemsToSPProducts(ecommerce);
+export function trackGA4SelectItem(ecommerce: GA4EcommerceObject & ItemList, opts: Options = {}) {
+  const currency = (ecommerce.currency || opts.currency)!;
+  const [product] = transformG4ItemsToSPProducts(ecommerce, currency);
   trackProductListClick({ name: ecommerce.item_list_id || ecommerce.item_list_name, product });
 }
 
-export function trackGA4BeginCheckout(step: number = 1) {
-  trackCheckoutStep({ step });
+export function trackGA4BeginCheckout(opts: { step?: number } = {}) {
+  trackCheckoutStep({ step: opts.step || 1 });
 }
 
-export function trackGA4AddShippingInfo(ecommerce: GA4EcommerceObject, step: number) {
-  trackCheckoutStep({ step, delivery_method: ecommerce.shipping_tier });
+export function trackGA4AddShippingInfo(ecommerce: GA4EcommerceObject, opts: { step: number }) {
+  trackCheckoutStep({ step: opts.step, delivery_method: ecommerce.shipping_tier });
 }
 
-export function trackGA4AddPaymentOptions(ecommerce: GA4EcommerceObject, step: number) {
-  trackCheckoutStep({ step, payment_method: ecommerce.payment_type });
+export function trackGA4AddPaymentOptions(ecommerce: GA4EcommerceObject, opts: { step: number }) {
+  trackCheckoutStep({ step: opts.step, payment_method: ecommerce.payment_type });
 }
 
 export function trackGA4Transaction(
   ecommerce: GA4EcommerceObject & Transaction,
-  paymentMethod = DEFAULT_PAYMENT_METHOD
+  opts: Options & { paymentMethod: string }
 ) {
-  const products = transformG4ItemsToSPProducts(ecommerce);
+  const currency = (ecommerce.currency || opts.currency)!;
+  const products = transformG4ItemsToSPProducts(ecommerce, currency);
 
   trackTransaction({
     products,
     transaction_id: ecommerce.transaction_id,
-    currency: ecommerce.currency,
+    currency,
     revenue: ecommerce.value,
-    payment_method: paymentMethod,
+    payment_method: opts.paymentMethod || DEFAULT_PAYMENT_METHOD,
     tax: ecommerce.tax,
     shipping: ecommerce.shipping,
   });

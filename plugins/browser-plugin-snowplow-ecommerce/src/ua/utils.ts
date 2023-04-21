@@ -1,21 +1,13 @@
 import { Product, Promotion } from '../types';
 import { EEProduct, EEPromo } from './types';
 
-interface UAProductsTransformation {
-  products: EEProduct[];
-  currencyCode?: string;
-}
-
-export function transformUAProductsToSPProducts({
-  products,
-  currencyCode = 'USD',
-}: UAProductsTransformation): Product[] {
+export function transformUAProductsToSPProducts(products: EEProduct[], currency: string): Product[] {
   return products.map((product) => {
     return {
-      currency: currencyCode,
+      currency,
       /* Id or name is required, but we in SP-plugin we require id to be present */
       id: product.id! || product.name!,
-      price: product.price!,
+      price: Number(product.price),
       name: product.name,
       position: product.position,
       brand: product.brand,
