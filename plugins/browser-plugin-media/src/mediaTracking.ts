@@ -54,6 +54,7 @@ export class MediaTracking {
     session?: MediaPlayerSessionTracking,
     boundaries?: number[]
     pingInterval?: MediaPingInterval,
+    captureEvents?: MediaPlayerEventType[],
   ) {
     this.id = id;
     this.label = label;
@@ -177,6 +178,10 @@ export class MediaTracking {
       this.isSeeking = true;
     } else if (eventType == MediaPlayerEventType.SeekEnd) {
       this.isSeeking = false;
+    }
+
+    if (this.captureEvents !== undefined && !this.captureEvents.includes(eventType)) {
+      return false;
     }
 
     return true;

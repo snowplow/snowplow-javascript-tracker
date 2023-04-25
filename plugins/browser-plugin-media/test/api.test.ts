@@ -164,6 +164,15 @@ describe('Media Tracking API', () => {
         { event: { schema: getMediaPlayerSchema(MediaPlayerEventType.SeekStart) } },
       ]);
     });
+
+    it('doesnt track events not in captureEvents', () => {
+      startMediaTracking({ id, captureEvents: [MediaPlayerEventType.Pause], session: false });
+
+      trackMediaPlay({ id });
+      trackMediaPause({ id });
+
+      expect(eventQueue).toMatchObject([{ event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Pause) } }]);
+    });
   });
 
   describe('session', () => {
@@ -270,7 +279,7 @@ describe('Media Tracking API', () => {
     });
 
     it('should send ping events regardless of other events', () => {
-      startMediaTracking({ id, pings: { pingInterval: 1 } });
+      startMediaTracking({ id, pings: { pingInterval: 1, maxPausedPings: 10 } });
       trackMediaPlay({ id });
       jest.advanceTimersByTime(1000);
       trackMediaPause({ id });
@@ -282,6 +291,17 @@ describe('Media Tracking API', () => {
         { event: { schema: getMediaPlayerSchema(MediaPlayerEventType.Pause) } },
         { event: { schema: getMediaPlayerSchema(MediaPlayerEventType.Ping) } },
         { event: { schema: getMediaPlayerSchema(MediaPlayerEventType.Ping) } },
+
+    it('should not send more ping events than max when paused', () => {
+      startMediaTracking({ id, pings: { pingInterval: 1, maxPausedPings: 1 } });
+      trackMediaPause({ id });
+      jest.advanceTimersByTime(1000);
+      jest.advanceTimersByTime(2000);
+      jest.advanceTimersByTime(3000);
+
+      expect(eventQueue).toMatchObject([
+        { event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Pause) } },
+        { event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Ping) } },
       ]);
     });
   });

@@ -64,6 +64,8 @@ export function startMediaTracking(
     config.session === false
       ? undefined
       : new MediaPlayerSessionTracking(config.id, config.session?.startedAt, pingInterval);
+  const maxPausedPings =
+    config.pings === false ? undefined : config.pings === true ? undefined : config.pings?.maxPausedPings;
 
   const pings =
     config.pings === false || config.pings == undefined
@@ -85,7 +87,8 @@ export function startMediaTracking(
     config.media,
     sessionTracking,
     pings,
-    config.boundaries
+    config.boundaries,
+    config.captureEvents,
   );
   activeMedias[mediaTracking.id] = mediaTracking;
 }
