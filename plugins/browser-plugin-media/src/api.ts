@@ -1,16 +1,16 @@
 import { BrowserPlugin, BrowserTracker, dispatchToTrackersInCollection } from '@snowplow/browser-tracker-core';
 import { buildSelfDescribingEvent, LOG, SelfDescribingJson } from '@snowplow/tracker-core';
 import { MediaTracking } from './mediaTracking';
-import { PingInterval } from './pingInterval';
-import { MediaPlayerSessionTracking } from './sessionTracking';
+import { MediaPingInterval } from './pingInterval';
+import { MediaSessionTracking } from './sessionTracking';
 import {
   CommonMediaEventProperties,
-  MediaPlayerAttributes,
   MediaPlayerEventType,
   MediaPlayerAdBreakType,
   MediaTrackArguments,
   MediaTrackAdBreakArguments,
   MediaTrackAdArguments,
+  MediaTrackingConfiguration,
 } from './types';
 
 export { MediaPlayerAdBreakType };
@@ -35,19 +35,11 @@ export function SnowplowMediaPlugin(): BrowserPlugin {
   };
 }
 
-type MediaTrackingConfiguration = {
-  id: string;
-  label?: string;
-  media?: MediaPlayerAttributes;
-  session?: { startedAt?: Date } | false;
-  pings?: { pingInterval?: number } | boolean;
-  boundaries?: number[];
-};
-
 let activeMedias: { [key: string]: MediaTracking } = {};
 
 /**
- * Starts media tracking with a given ID.
+ * Starts media tracking for a single media content tracked in a media player.
+ * The tracking instance is uniquely identified by a given ID.
  * All subsequent media track calls will be processed within this media tracking if given the same ID.
  *
  * @param config Configuration for setting up media tracking
@@ -60,10 +52,6 @@ export function startMediaTracking(
   const pingInterval =
     config.pings === false ? undefined : config.pings === true ? undefined : config.pings?.pingInterval;
 
-  const sessionTracking: MediaPlayerSessionTracking | undefined =
-    config.session === false
-      ? undefined
-      : new MediaPlayerSessionTracking(config.id, config.session?.startedAt, pingInterval);
   const maxPausedPings =
     config.pings === false ? undefined : config.pings === true ? undefined : config.pings?.maxPausedPings;
 

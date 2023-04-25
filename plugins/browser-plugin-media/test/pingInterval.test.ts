@@ -1,4 +1,4 @@
-import { PingInterval } from '../src/pingInterval';
+import { MediaPingInterval } from '../src/pingInterval';
 
 describe('PingInterval', () => {
   beforeAll(() => {
@@ -11,7 +11,7 @@ describe('PingInterval', () => {
 
   it('should fire every 30 seconds', () => {
     let pings = 0;
-    new PingInterval(undefined, () => pings++);
+    new MediaPingInterval(undefined, undefined, () => pings++);
 
     for (let i = 0; i < 60; i++) {
       jest.advanceTimersByTime(1000);
@@ -22,7 +22,7 @@ describe('PingInterval', () => {
 
   it('should fire in a custom interval', () => {
     let pings = 0;
-    new PingInterval(5, () => pings++);
+    new MediaPingInterval(5, undefined, () => pings++);
 
     for (let i = 0; i < 20; i++) {
       jest.advanceTimersByTime(1000);
@@ -33,7 +33,7 @@ describe('PingInterval', () => {
 
   it('should stop firing after clear', () => {
     let pings = 0;
-    const interval = new PingInterval(undefined, () => pings++);
+    const interval = new MediaPingInterval(undefined, undefined, () => pings++);
 
     for (let i = 0; i < 30; i++) {
       jest.advanceTimersByTime(1000);

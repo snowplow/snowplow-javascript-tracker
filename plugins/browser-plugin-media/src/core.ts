@@ -1,6 +1,6 @@
 import { SelfDescribingJson } from '@snowplow/tracker-core';
 import {
-  getMediaPlayerSchema,
+  getMediaPlayerEventSchema,
   MEDIA_PLAYER_AD_BREAK_SCHEMA,
   MEDIA_PLAYER_AD_SCHEMA,
   MEDIA_PLAYER_SCHEMA,
@@ -10,7 +10,7 @@ import { MediaPlayer, MediaPlayerAd, MediaPlayerAdBreak, MediaPlayerEventType, M
 
 export function buildMediaPlayerEvent(eventType: MediaPlayerEventType, label?: string): SelfDescribingJson {
   return {
-    schema: getMediaPlayerSchema(eventType),
+    schema: getMediaPlayerEventSchema(eventType),
     data: removeEmptyProperties({ label: label }),
   };
 }

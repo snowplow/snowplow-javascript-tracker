@@ -74,21 +74,49 @@ export enum MediaPlayerEventType {
   Error = 'error',
 }
 
+export type MediaTrackingConfiguration = {
+  /** Unique ID of the media tracking. The same ID will be used for media player session if enabled. */
+  id: string;
+  /** A custom optional identifier for the media tracking. */
+  label?: string;
+  /** Attributes for the media player context entity */
+  media?: MediaPlayerUpdate;
+  /** Attributes for the media player session context entity or false to disable it. Enabled by default. */
+  session?: { startedAt?: Date } | false;
+  /** Configuration for sending ping events. Enabled by default.  */
+  pings?:
+    | {
+        /** Interval in seconds for sending ping events. Defaults to 30s. */
+        pingInterval?: number;
+        /** Maximum number of consecutive ping events to send when playback is paused. Defaults to 1. */
+        maxPausedPings?: number;
+      }
+    | boolean;
+  /** Percentage boundaries when to send percent progress events. Disabled by default. */
+  boundaries?: number[];
+  /**
+   * List of event types to allow tracking.
+   * If not specified, all tracked events will be allowed and tracked.
+   * Otherwise, tracked event types not present in the list will be discarded.
+   */
+  captureEvents?: MediaPlayerEventType[];
+};
+
 export type MediaTrackArguments = {
   /** ID of the media tracking */
   id: string;
   /** Attributes for the media player context entity */
-  media?: MediaPlayerAttributes;
+  media?: MediaPlayerUpdate;
 };
 
 export type MediaTrackAdArguments = {
   /** Attributes for the media player ad context entity */
-  ad?: MediaPlayerAdAttributes;
+  ad?: MediaPlayerAdUpdate;
 };
 
 export type MediaTrackAdBreakArguments = {
   /** Attributes for the media player ad break context entity */
-  adBreak?: MediaPlayerAdBreakAttributes;
+  adBreak?: MediaPlayerAdBreakUpdate;
 };
 
 /** Type for all media player events */
@@ -107,6 +135,8 @@ export interface MediaPlayer {
   duration?: number | null;
   /** If playback of the media has ended */
   ended: boolean;
+  /** If the media is live */
+  isLive: boolean;
   /** If the video should restart after ending */
   loop: boolean;
   /** If the media element is muted */
@@ -122,13 +152,15 @@ export interface MediaPlayer {
 }
 
 /** Partial type/schema for a context entity for media player events with information about the current state of the media player */
-export interface MediaPlayerAttributes {
+export interface MediaPlayerUpdate {
   /** The current playback time */
   currentTime?: number;
   /** A double-precision floating-point value indicating the duration of the media in seconds */
   duration?: number | null;
   /** If playback of the media has ended */
   ended?: boolean;
+  /** If the media is live */
+  isLive?: boolean;
   /** If the video should restart after ending */
   loop?: boolean;
   /** If the media element is muted */
@@ -184,7 +216,7 @@ export interface MediaPlayerSessionStats {
 }
 
 /** Partial type/schema for a context entity with information about the currently played ad */
-export interface MediaPlayerAdAttributes {
+export interface MediaPlayerAdUpdate {
   /** Friendly name of the ad */
   name?: string;
   /** Unique identifier for the ad */
@@ -247,7 +279,7 @@ export interface MediaPlayerAdBreak {
 }
 
 /** Partial type/schema for a context entity, shared with all media_player_ad events belonging to the ad break */
-export interface MediaPlayerAdBreakAttributes {
+export interface MediaPlayerAdBreakUpdate {
   /** Ad break name (e.g., pre-roll, mid-roll, and post-roll) */
   name?: string;
   /** An identifier for the ad break */
@@ -261,24 +293,6 @@ export interface MediaPlayerAdBreakAttributes {
    * - companion (accompany the video but placed outside the player)
    */
   breakType?: MediaPlayerAdBreakType;
-}
-
-/** Type/Schema for a context entity that is tracked with media player events on data quality change */
-export interface MediaPlayerQuality {
-  /** The current bitrate in bits per second */
-  bitrate?: number;
-  /** The current bitrate in bits per second */
-  droppedFrames?: number;
-  /** The current number of frames per second */
-  framesPerSecond?: number;
-  /** The amount of time (in milliseconds) passed between when the user hits play and the content loads and starts playing */
-  timeToStart?: number;
-}
-
-/** Type/Schema for a context entity that is tracked with media player events in case of playback errors */
-export interface MediaPlayerError {
-  /** Error message on player while loading the content */
-  playbackError?: string;
 }
 
 export interface CommonMediaEventProperties extends CommonEventProperties {

@@ -32,7 +32,7 @@ import {
   trackMediaVolumeChange,
   updateMediaPlayer,
 } from '../src';
-import { getMediaPlayerSchema, MEDIA_PLAYER_SCHEMA, MEDIA_PLAYER_SESSION_SCHEMA } from '../src/schemata';
+import { getMediaPlayerEventSchema, MEDIA_PLAYER_SCHEMA, MEDIA_PLAYER_SESSION_SCHEMA } from '../src/schemata';
 import { MediaPlayerEventType } from '../src/types';
 
 describe('Media Tracking API', () => {
@@ -102,7 +102,7 @@ describe('Media Tracking API', () => {
         const { event } = eventQueue[0];
 
         expect(event).toMatchObject({
-          schema: getMediaPlayerSchema(test.eventType),
+          schema: getMediaPlayerEventSchema(test.eventType),
         });
       });
     });
@@ -159,9 +159,11 @@ describe('Media Tracking API', () => {
       trackMediaSeekStart({ id, media: { currentTime: 3 } });
 
       expect(eventQueue).toMatchObject([
-        { event: { schema: getMediaPlayerSchema(MediaPlayerEventType.SeekStart) } },
-        { event: { schema: getMediaPlayerSchema(MediaPlayerEventType.SeekEnd) } },
-        { event: { schema: getMediaPlayerSchema(MediaPlayerEventType.SeekStart) } },
+        { event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.SeekStart) } },
+        { event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.SeekEnd) } },
+        { event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.SeekStart) } },
+      ]);
+    });
 
     it('adds custom context entities to all events', () => {
       const context: Array<SelfDescribingJson> = [{ schema: 'test', data: {} }];
@@ -212,7 +214,7 @@ describe('Media Tracking API', () => {
       ]);
 
       expect(event).toMatchObject({
-        schema: getMediaPlayerSchema(MediaPlayerEventType.Ready),
+        schema: getMediaPlayerEventSchema(MediaPlayerEventType.Ready),
       });
     });
 
@@ -234,7 +236,7 @@ describe('Media Tracking API', () => {
       ]);
 
       expect(event).toMatchObject({
-        schema: getMediaPlayerSchema(MediaPlayerEventType.Ready),
+        schema: getMediaPlayerEventSchema(MediaPlayerEventType.Ready),
       });
     });
 
@@ -246,9 +248,9 @@ describe('Media Tracking API', () => {
       trackMediaEnd({ id, media: { currentTime: 10 } });
 
       expect(eventQueue).toMatchObject([
-        { event: { schema: getMediaPlayerSchema(MediaPlayerEventType.Play) } },
+        { event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Play) } },
         {
-          event: { schema: getMediaPlayerSchema(MediaPlayerEventType.End) },
+          event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.End) },
           context: [
             { schema: MEDIA_PLAYER_SCHEMA },
             {
@@ -278,7 +280,7 @@ describe('Media Tracking API', () => {
 
       jest.advanceTimersByTime(30 * 1000);
 
-      expect(eventQueue).toMatchObject([{ event: { schema: getMediaPlayerSchema(MediaPlayerEventType.Ping) } }]);
+      expect(eventQueue).toMatchObject([{ event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Ping) } }]);
     });
 
     it('should make a ping event in a custom interval', () => {
@@ -286,7 +288,7 @@ describe('Media Tracking API', () => {
 
       jest.advanceTimersByTime(1000);
 
-      expect(eventQueue).toMatchObject([{ event: { schema: getMediaPlayerSchema(MediaPlayerEventType.Ping) } }]);
+      expect(eventQueue).toMatchObject([{ event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Ping) } }]);
     });
 
     it('should send ping events regardless of other events', () => {
@@ -297,11 +299,13 @@ describe('Media Tracking API', () => {
       jest.advanceTimersByTime(2000);
 
       expect(eventQueue).toMatchObject([
-        { event: { schema: getMediaPlayerSchema(MediaPlayerEventType.Play) } },
-        { event: { schema: getMediaPlayerSchema(MediaPlayerEventType.Ping) } },
-        { event: { schema: getMediaPlayerSchema(MediaPlayerEventType.Pause) } },
-        { event: { schema: getMediaPlayerSchema(MediaPlayerEventType.Ping) } },
-        { event: { schema: getMediaPlayerSchema(MediaPlayerEventType.Ping) } },
+        { event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Play) } },
+        { event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Ping) } },
+        { event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Pause) } },
+        { event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Ping) } },
+        { event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Ping) } },
+      ]);
+    });
 
     it('should not send more ping events than max when paused', () => {
       startMediaTracking({ id, pings: { pingInterval: 1, maxPausedPings: 1 } });
@@ -332,17 +336,17 @@ describe('Media Tracking API', () => {
       }
 
       expect(eventQueue).toMatchObject([
-        { event: { schema: getMediaPlayerSchema(MediaPlayerEventType.Play) } },
+        { event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Play) } },
         {
-          event: { schema: getMediaPlayerSchema(MediaPlayerEventType.PercentProgress) },
+          event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.PercentProgress) },
           context: [{ data: { percentProgress: 10 } }],
         },
         {
-          event: { schema: getMediaPlayerSchema(MediaPlayerEventType.PercentProgress) },
+          event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.PercentProgress) },
           context: [{ data: { percentProgress: 50 } }],
         },
         {
-          event: { schema: getMediaPlayerSchema(MediaPlayerEventType.PercentProgress) },
+          event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.PercentProgress) },
           context: [{ data: { percentProgress: 90 } }],
         },
       ]);
@@ -361,7 +365,7 @@ describe('Media Tracking API', () => {
         updateMediaPlayer({ id, media: { currentTime: i } });
       }
 
-      expect(eventQueue).toMatchObject([{ event: { schema: getMediaPlayerSchema(MediaPlayerEventType.Pause) } }]);
+      expect(eventQueue).toMatchObject([{ event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Pause) } }]);
     });
 
     it('doesnt send progress event multiple times', () => {
@@ -382,13 +386,13 @@ describe('Media Tracking API', () => {
       }
 
       expect(eventQueue).toMatchObject([
-        { event: { schema: getMediaPlayerSchema(MediaPlayerEventType.Play) } },
+        { event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Play) } },
         {
-          event: { schema: getMediaPlayerSchema(MediaPlayerEventType.PercentProgress) },
+          event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.PercentProgress) },
           context: [{ data: { percentProgress: 50 } }],
         },
         {
-          event: { schema: getMediaPlayerSchema(MediaPlayerEventType.SeekEnd) },
+          event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.SeekEnd) },
           context: [{ data: { percentProgress: 0 } }],
         },
       ]);

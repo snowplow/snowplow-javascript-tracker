@@ -3,9 +3,9 @@ import { buildMediaPlayerAdBreakEntity, buildMediaPlayerAdEntity } from './core'
 import {
   MediaPlayer,
   MediaPlayerAd,
-  MediaPlayerAdAttributes,
+  MediaPlayerAdUpdate,
   MediaPlayerAdBreak,
-  MediaPlayerAdBreakAttributes,
+  MediaPlayerAdBreakUpdate,
   MediaPlayerEventType,
 } from './types';
 
@@ -14,7 +14,7 @@ const adDefaults = {
 };
 
 /** Keeps track of the ad and ad break entities and updates them according to tracked events. */
-export class MediaPlayerAdTracking {
+export class MediaAdTracking {
   ad?: MediaPlayerAd;
   adBreak?: MediaPlayerAdBreak;
   podPosition = 0;
@@ -22,8 +22,8 @@ export class MediaPlayerAdTracking {
   updateForThisEvent(
     eventType: MediaPlayerEventType,
     mediaPlayer: MediaPlayer,
-    ad?: MediaPlayerAdAttributes,
-    adBreak?: MediaPlayerAdBreakAttributes
+    ad?: MediaPlayerAdUpdate,
+    adBreak?: MediaPlayerAdBreakUpdate
   ) {
     if (eventType == MediaPlayerEventType.AdStart) {
       this.ad = undefined;

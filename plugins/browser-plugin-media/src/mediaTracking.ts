@@ -1,13 +1,13 @@
 import { SelfDescribingJson } from '@snowplow/tracker-core';
-import { MediaPlayerAdTracking } from './adTracking';
+import { MediaAdTracking } from './adTracking';
 import { buildMediaPlayerEntity, buildMediaPlayerEvent } from './core';
-import { MediaPlayerSessionTracking } from './sessionTracking';
 import { MediaPingInterval } from './pingInterval';
+import { MediaSessionTracking } from './sessionTracking';
 import {
   MediaPlayer,
-  MediaPlayerAdAttributes,
-  MediaPlayerAdBreakAttributes,
-  MediaPlayerAttributes,
+  MediaPlayerAdUpdate,
+  MediaPlayerAdBreakUpdate,
+  MediaPlayerUpdate,
   MediaPlayerEventType,
 } from './types';
 
@@ -31,6 +31,7 @@ export class MediaTracking {
   private mediaPlayer: MediaPlayer = {
     currentTime: 0,
     paused: true,
+    isLive: false,
     muted: true,
     ended: false,
     loop: false,
@@ -39,22 +40,27 @@ export class MediaTracking {
   };
 
   /// Used to add media player session entity.
-  private session?: MediaPlayerSessionTracking;
+  private session?: MediaSessionTracking;
   /// Tracks ping events independently but stored here to stop when media tracking stops.
   private pingInterval?: MediaPingInterval;
   /// Manages ad entities.
-  private adTracking = new MediaPlayerAdTracking();
+  private adTracking = new MediaAdTracking();
   /// Used to prevent tracking seek start events multiple times.
   private isSeeking = false;
+  /// Context entities to attach to all events
+  private customContext?: Array<SelfDescribingJson>;
+  /// Optional list of event types to allow tracking and discard others.
+  private captureEvents?: MediaPlayerEventType[]
 
   constructor(
     id: string,
     label?: string,
-    mediaPlayer?: MediaPlayerAttributes,
-    session?: MediaPlayerSessionTracking,
-    boundaries?: number[]
+    mediaPlayer?: MediaPlayerUpdate,
+    session?: MediaSessionTracking,
     pingInterval?: MediaPingInterval,
+    boundaries?: number[],
     captureEvents?: MediaPlayerEventType[],
+    context?: Array<SelfDescribingJson>
   ) {
     this.id = id;
     this.label = label;
@@ -62,6 +68,8 @@ export class MediaTracking {
     this.session = session;
     this.pingInterval = pingInterval;
     this.boundaries = boundaries;
+    this.captureEvents = captureEvents;
+    this.customContext = context;
   }
 
   /**
@@ -81,9 +89,9 @@ export class MediaTracking {
    */
   update(
     eventType?: MediaPlayerEventType,
-    mediaPlayer?: MediaPlayerAttributes,
-    ad?: MediaPlayerAdAttributes,
-    adBreak?: MediaPlayerAdBreakAttributes
+    mediaPlayer?: MediaPlayerUpdate,
+    ad?: MediaPlayerAdUpdate,
+    adBreak?: MediaPlayerAdBreakUpdate
   ): { event: SelfDescribingJson; context: SelfDescribingJson[] }[] {
     // update state
     this.updateMediaPlayer(eventType, mediaPlayer);
@@ -97,6 +105,9 @@ export class MediaTracking {
     let context = [buildMediaPlayerEntity(this.mediaPlayer)];
     if (this.session !== undefined) {
       context.push(this.session.getContext());
+    }
+    if (this.customContext !== undefined) {
+      context = context.concat(this.customContext);
     }
     context = context.concat(this.adTracking.getContext());
 
@@ -124,7 +135,7 @@ export class MediaTracking {
 
   private updateMediaPlayer(
     eventType: MediaPlayerEventType | undefined,
-    mediaPlayer: MediaPlayerAttributes | undefined
+    mediaPlayer: MediaPlayerUpdate | undefined
   ) {
     if (mediaPlayer !== undefined) {
       this.mediaPlayer = {

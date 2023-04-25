@@ -1,9 +1,10 @@
 import { v4 as uuid } from 'uuid';
-import { MediaPlayerSessionStatsUpdater } from '../src/sessionStats';
+import { MediaSessionTrackingStats } from '../src/sessionStats';
 import { MediaPlayerAdBreakType, MediaPlayerAdBreak, MediaPlayerEventType } from '../src/types';
 
 const mediaPlayerDefaults = {
   ended: false,
+  isLive: false,
   loop: false,
   muted: false,
   paused: false,
@@ -11,7 +12,7 @@ const mediaPlayerDefaults = {
   volume: 100,
 };
 
-describe('MediaPlayerSessionStatsUpdater', () => {
+describe('MediaSessionTrackingStats', () => {
   beforeAll(() => {
     jest.useFakeTimers();
   });
@@ -21,7 +22,7 @@ describe('MediaPlayerSessionStatsUpdater', () => {
   });
 
   it('calculates played duration', () => {
-    let session = new MediaPlayerSessionStatsUpdater();
+    let session = new MediaSessionTrackingStats();
 
     session.update(MediaPlayerEventType.Play, { ...mediaPlayerDefaults, currentTime: 0 });
 
@@ -37,7 +38,7 @@ describe('MediaPlayerSessionStatsUpdater', () => {
   });
 
   it('considers pauses', () => {
-    let session = new MediaPlayerSessionStatsUpdater();
+    let session = new MediaSessionTrackingStats();
 
     session.update(MediaPlayerEventType.Play, { ...mediaPlayerDefaults, currentTime: 0 });
 
@@ -60,7 +61,7 @@ describe('MediaPlayerSessionStatsUpdater', () => {
   });
 
   it('calculates play on mute', () => {
-    let session = new MediaPlayerSessionStatsUpdater();
+    let session = new MediaSessionTrackingStats();
 
     session.update(MediaPlayerEventType.Play, { ...mediaPlayerDefaults, currentTime: 0 });
 
@@ -79,7 +80,7 @@ describe('MediaPlayerSessionStatsUpdater', () => {
   });
 
   it('calculates average playback rate', () => {
-    let session = new MediaPlayerSessionStatsUpdater();
+    let session = new MediaSessionTrackingStats();
 
     session.update(MediaPlayerEventType.Play, { ...mediaPlayerDefaults, currentTime: 0 });
 
@@ -102,7 +103,7 @@ describe('MediaPlayerSessionStatsUpdater', () => {
   });
 
   it('calculates stats for linear ads', () => {
-    let session = new MediaPlayerSessionStatsUpdater();
+    let session = new MediaSessionTrackingStats();
 
     session.update(MediaPlayerEventType.Play, { ...mediaPlayerDefaults, currentTime: 0 });
 
@@ -133,7 +134,7 @@ describe('MediaPlayerSessionStatsUpdater', () => {
   });
 
   it('calculate stats for non-linear ads', () => {
-    let session = new MediaPlayerSessionStatsUpdater();
+    let session = new MediaSessionTrackingStats();
     let adBreak: MediaPlayerAdBreak = { breakId: uuid(), startTime: 0, breakType: MediaPlayerAdBreakType.NonLinear };
 
     session.update(MediaPlayerEventType.Play, { ...mediaPlayerDefaults, currentTime: 0 });
@@ -143,8 +144,8 @@ describe('MediaPlayerSessionStatsUpdater', () => {
     session.update(MediaPlayerEventType.AdStart, { ...mediaPlayerDefaults, currentTime: 30 }, adBreak);
 
     jest.advanceTimersByTime(15 * 1000);
-    session.update(MediaPlayerEventType.AdComplete, { ...mediaPlayerDefaults, currentTime: 30 }, adBreak);
-    session.update(MediaPlayerEventType.AdBreakEnd, { ...mediaPlayerDefaults, currentTime: 30 }, adBreak);
+    session.update(MediaPlayerEventType.AdComplete, { ...mediaPlayerDefaults, currentTime: 45 }, adBreak);
+    session.update(MediaPlayerEventType.AdBreakEnd, { ...mediaPlayerDefaults, currentTime: 45 }, adBreak);
 
     jest.advanceTimersByTime(30 * 1000);
     session.update(MediaPlayerEventType.End, { ...mediaPlayerDefaults, currentTime: 75 });
@@ -158,7 +159,7 @@ describe('MediaPlayerSessionStatsUpdater', () => {
   });
 
   it('counts rewatched content once in contentWatched', () => {
-    let session = new MediaPlayerSessionStatsUpdater();
+    let session = new MediaSessionTrackingStats();
 
     session.update(MediaPlayerEventType.Play, { ...mediaPlayerDefaults, currentTime: 0 });
 
@@ -175,7 +176,7 @@ describe('MediaPlayerSessionStatsUpdater', () => {
   });
 
   it('considers changes in ping events', () => {
-    let session = new MediaPlayerSessionStatsUpdater();
+    let session = new MediaSessionTrackingStats();
 
     session.update(MediaPlayerEventType.Play, { ...mediaPlayerDefaults, currentTime: 0 });
 
@@ -193,7 +194,7 @@ describe('MediaPlayerSessionStatsUpdater', () => {
   });
 
   it('calculates buffering time', () => {
-    let session = new MediaPlayerSessionStatsUpdater();
+    let session = new MediaSessionTrackingStats();
 
     session.update(MediaPlayerEventType.BufferStart, { ...mediaPlayerDefaults, currentTime: 0 });
 
@@ -205,7 +206,7 @@ describe('MediaPlayerSessionStatsUpdater', () => {
   });
 
   it('ends buffering when playback time moves', () => {
-    let session = new MediaPlayerSessionStatsUpdater();
+    let session = new MediaSessionTrackingStats();
 
     session.update(MediaPlayerEventType.BufferStart, { ...mediaPlayerDefaults, currentTime: 0 });
 

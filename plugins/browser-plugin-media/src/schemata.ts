@@ -73,7 +73,7 @@ function eventNameForEventType(eventType: MediaPlayerEventType): string {
   }
 }
 
-export function getMediaPlayerSchema(eventType: MediaPlayerEventType) {
+export function getMediaPlayerEventSchema(eventType: MediaPlayerEventType) {
   const eventName = eventNameForEventType(eventType);
   return `iglu:com.snowplowanalytics.snowplow/${eventName}/jsonschema/1-0-0`;
 }
