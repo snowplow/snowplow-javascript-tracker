@@ -49,14 +49,10 @@ export function startMediaTracking(
   config: MediaTrackingConfiguration & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  const pingInterval =
-    config.pings === false ? undefined : config.pings === true ? undefined : config.pings?.pingInterval;
-
-  const maxPausedPings =
-    config.pings === false ? undefined : config.pings === true ? undefined : config.pings?.maxPausedPings;
-
+  const pingInterval = typeof config.pings === 'boolean' ? undefined : config.pings?.pingInterval;
+  const maxPausedPings = typeof config.pings === 'boolean' ? undefined : config.pings?.maxPausedPings;
   const pings =
-    config.pings === false || config.pings == undefined
+    config.pings === false || config.pings === undefined
       ? undefined
       : new MediaPingInterval(pingInterval, maxPausedPings, () => {
           trackMediaEvent(MediaPlayerEventType.Ping, { id: config.id }, trackers);
