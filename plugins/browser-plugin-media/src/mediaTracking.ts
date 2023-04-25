@@ -1,8 +1,8 @@
 import { SelfDescribingJson } from '@snowplow/tracker-core';
 import { MediaPlayerAdTracking } from './adTracking';
 import { buildMediaPlayerEntity, buildMediaPlayerEvent } from './core';
-import { PingInterval } from './pingInterval';
 import { MediaPlayerSessionTracking } from './sessionTracking';
+import { MediaPingInterval } from './pingInterval';
 import {
   MediaPlayer,
   MediaPlayerAdAttributes,
@@ -41,7 +41,7 @@ export class MediaTracking {
   /// Used to add media player session entity.
   private session?: MediaPlayerSessionTracking;
   /// Tracks ping events independently but stored here to stop when media tracking stops.
-  private pingInterval?: PingInterval;
+  private pingInterval?: MediaPingInterval;
   /// Manages ad entities.
   private adTracking = new MediaPlayerAdTracking();
   /// Used to prevent tracking seek start events multiple times.
@@ -52,8 +52,8 @@ export class MediaTracking {
     label?: string,
     mediaPlayer?: MediaPlayerAttributes,
     session?: MediaPlayerSessionTracking,
-    pingInterval?: PingInterval,
     boundaries?: number[]
+    pingInterval?: MediaPingInterval,
   ) {
     this.id = id;
     this.label = label;
@@ -90,6 +90,7 @@ export class MediaTracking {
       this.adTracking.updateForThisEvent(eventType, this.mediaPlayer, ad, adBreak);
     }
     this.session?.update(eventType, this.mediaPlayer, this.adTracking.adBreak);
+    this.pingInterval?.update(this.mediaPlayer);
 
     // build context entities
     let context = [buildMediaPlayerEntity(this.mediaPlayer)];
