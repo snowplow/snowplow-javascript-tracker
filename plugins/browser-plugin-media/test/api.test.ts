@@ -162,6 +162,17 @@ describe('Media Tracking API', () => {
         { event: { schema: getMediaPlayerSchema(MediaPlayerEventType.SeekStart) } },
         { event: { schema: getMediaPlayerSchema(MediaPlayerEventType.SeekEnd) } },
         { event: { schema: getMediaPlayerSchema(MediaPlayerEventType.SeekStart) } },
+
+    it('adds custom context entities to all events', () => {
+      const context: Array<SelfDescribingJson> = [{ schema: 'test', data: {} }];
+      startMediaTracking({ id, context, session: false });
+
+      trackMediaPlay({ id });
+      trackMediaPause({ id });
+
+      expect(eventQueue).toMatchObject([
+        { context: [{ data: { paused: false } }, { schema: 'test' }] },
+        { context: [{ data: { paused: true } }, { schema: 'test' }] },
       ]);
     });
 

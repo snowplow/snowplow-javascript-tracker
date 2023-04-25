@@ -70,16 +70,12 @@ export function startMediaTracking(
   const pings =
     config.pings === false || config.pings == undefined
       ? undefined
-      : new PingInterval(pingInterval, () => {
-          trackMediaEvent(
-            MediaPlayerEventType.Ping,
-            {
-              id: config.id,
-              context: config.context,
-            },
-            trackers
-          );
+      : new MediaPingInterval(pingInterval, maxPausedPings, () => {
+          trackMediaEvent(MediaPlayerEventType.Ping, { id: config.id }, trackers);
         });
+
+  const sessionTracking: MediaSessionTracking | undefined =
+    config.session === false ? undefined : new MediaSessionTracking(config.id, config.session?.startedAt, pingInterval);
 
   const mediaTracking = new MediaTracking(
     config.id,
@@ -89,6 +85,7 @@ export function startMediaTracking(
     pings,
     config.boundaries,
     config.captureEvents,
+    config.context
   );
   activeMedias[mediaTracking.id] = mediaTracking;
 }
@@ -492,6 +489,9 @@ function trackMediaEvent(
 
   const mediaTracking = activeMedias[args.id];
   const events = mediaTracking.update(eventType, media, ad, adBreak);
+  if (events.length == 0) {
+    return;
+  }
 
   dispatchToTrackersInCollection(trackers, _trackers, (t) => {
     events.forEach((event) => {

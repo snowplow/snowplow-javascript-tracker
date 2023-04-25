@@ -47,4 +47,25 @@ describe('PingInterval', () => {
 
     expect(pings).toBe(1);
   });
+
+  it('should stop firing ping events when paused', () => {
+    let pings = 0;
+    const interval = new MediaPingInterval(1, 3, () => pings++);
+    interval.update({
+      currentTime: 0,
+      ended: false,
+      loop: false,
+      isLive: false,
+      muted: false,
+      paused: true,
+      playbackRate: 1,
+      volume: 100,
+    });
+
+    for (let i = 0; i < 30; i++) {
+      jest.advanceTimersByTime(1000);
+    }
+
+    expect(pings).toBe(3);
+  });
 });
