@@ -24,13 +24,13 @@ function eventNameForEventType(eventType: MediaPlayerEventType): string {
       return 'media_player_event_seek_end';
 
     case MediaPlayerEventType.PlaybackRateChange:
-      return 'media_player_event_playbackrate_change';
+      return 'media_player_event_playback_rate_change';
     case MediaPlayerEventType.VolumeChange:
       return 'media_player_event_volume_change';
     case MediaPlayerEventType.FullscreenChange:
       return 'media_player_event_fullscreen_change';
     case MediaPlayerEventType.PictureInPictureChange:
-      return 'media_player_event_pictureinpicture_change';
+      return 'media_player_event_picture_in_picture_change';
 
     case MediaPlayerEventType.Ping:
       return 'media_player_event_ping';

@@ -20,13 +20,13 @@ export enum MediaPlayerEventType {
   // Changes in playback settings
 
   /** Media player event sent when the playback rate has changed. */
-  PlaybackRateChange = 'playbackrate_change',
+  PlaybackRateChange = 'playback_rate_change',
   /** Media player event sent when the volume has changed. */
   VolumeChange = 'volume_change',
   /** Media player event fired immediately after the browser switches into or out of full-screen mode. */
   FullscreenChange = 'fullscreen_change',
   /** Media player event fired immediately after the browser switches into or out of picture-in-picture mode. */
-  PictureInPictureChange = 'pictureinpicture_change',
+  PictureInPictureChange = 'picture_in_picture_change',
 
   // Tracking playback progress
 
