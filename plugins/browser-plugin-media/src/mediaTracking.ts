@@ -172,7 +172,7 @@ export class MediaTracking {
     if (boundaries.length == 0) {
       return false;
     }
-    let boundary = Math.max.apply(null, boundaries);
+    let boundary = Math.max(...boundaries);
     if (!this.sentBoundaries.includes(boundary)) {
       this.sentBoundaries.push(boundary);
       return true;
