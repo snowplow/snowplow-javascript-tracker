@@ -173,10 +173,6 @@ export interface MediaPlayerUpdate {
   playbackRate?: number;
   /** Volume level */
   volume?: number;
-  /** An identifier for the media session */
-  mediaSessionId?: string;
-  /** Interval (seconds) in which the ping events will be sent */
-  pingInterval?: number;
 }
 
 /** Partial type/schema for a context entity for media player events that tracks a session of a single media player usage */
