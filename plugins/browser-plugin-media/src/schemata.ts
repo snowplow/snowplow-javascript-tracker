@@ -8,6 +8,7 @@ export const MEDIA_PLAYER_AD_SCHEMA = MEDIA_PLAYER_SCHEMA_PREFIX + '_ad' + MEDIA
 export const MEDIA_PLAYER_AD_BREAK_SCHEMA = MEDIA_PLAYER_SCHEMA_PREFIX + '_ad_break' + MEDIA_PLAYER_SCHEMA_SUFFIX;
 
 function eventNameForEventType(eventType: MediaPlayerEventType): string {
+  /// ad first quartile, midpoint, and third quartile events share the same schema
   switch (eventType) {
     case MediaPlayerEventType.AdFirstQuartile:
       return 'ad_quartile';
