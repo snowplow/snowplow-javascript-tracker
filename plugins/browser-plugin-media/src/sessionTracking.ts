@@ -20,7 +20,7 @@ export class MediaSessionTracking {
     this.startedAt = startedAt ?? new Date();
   }
 
-  update(eventType?: MediaPlayerEventType, mediaPlayer: MediaPlayer, adBreak?: MediaPlayerAdBreak) {
+  update(eventType: MediaPlayerEventType | undefined, mediaPlayer: MediaPlayer, adBreak?: MediaPlayerAdBreak) {
     this.stats.update(eventType, mediaPlayer, adBreak);
   }
 
