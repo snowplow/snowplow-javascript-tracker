@@ -30,7 +30,7 @@ export enum MediaPlayerEventType {
 
   // Tracking playback progress
 
-  /** Media player event fired periodicaly during main content playback, regardless of other API events that have been sent. */
+  /** Media player event fired periodically during main content playback, regardless of other API events that have been sent. */
   Ping = 'ping',
   /** Media player event fired when a percentage boundary set in options.boundaries is reached */
   PercentProgress = 'percent_progress',
