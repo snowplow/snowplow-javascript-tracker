@@ -50,7 +50,7 @@ export class MediaTracking {
   /// Context entities to attach to all events
   private customContext?: Array<SelfDescribingJson>;
   /// Optional list of event types to allow tracking and discard others.
-  private captureEvents?: MediaPlayerEventType[]
+  private captureEvents?: MediaPlayerEventType[];
 
   constructor(
     id: string,
@@ -133,10 +133,7 @@ export class MediaTracking {
     });
   }
 
-  private updateMediaPlayer(
-    eventType: MediaPlayerEventType | undefined,
-    mediaPlayer: MediaPlayerUpdate | undefined
-  ) {
+  private updateMediaPlayer(eventType: MediaPlayerEventType | undefined, mediaPlayer: MediaPlayerUpdate | undefined) {
     if (mediaPlayer !== undefined) {
       this.mediaPlayer = {
         ...this.mediaPlayer,
@@ -180,7 +177,12 @@ export class MediaTracking {
     return false;
   }
 
-  private shouldTrackEvent(eventType: MediaPlayerEventType) {
+  private shouldTrackEvent(eventType: MediaPlayerEventType): boolean {
+    return this.updateSeekingAndCheckIfShouldTrack(eventType) && this.allowedToCaptureEventType(eventType);
+  }
+
+  /** Prevents multiple seek start events to be tracked after each other without a seek end (happens when scrubbing). */
+  private updateSeekingAndCheckIfShouldTrack(eventType: MediaPlayerEventType): boolean {
     if (eventType == MediaPlayerEventType.SeekStart) {
       if (this.isSeeking) {
         return false;
@@ -191,10 +193,10 @@ export class MediaTracking {
       this.isSeeking = false;
     }
 
-    if (this.captureEvents !== undefined && !this.captureEvents.includes(eventType)) {
-      return false;
-    }
-
     return true;
+  }
+
+  private allowedToCaptureEventType(eventType: MediaPlayerEventType): boolean {
+    return this.captureEvents === undefined || this.captureEvents.includes(eventType);
   }
 }
