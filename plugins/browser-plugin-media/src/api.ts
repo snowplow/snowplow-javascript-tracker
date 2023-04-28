@@ -460,7 +460,7 @@ export function updateMediaPlayer(
 }
 
 function trackMediaEvent(
-  eventType: MediaPlayerEventType | undefined,
+  eventType?: MediaPlayerEventType,
   args: MediaTrackArguments & MediaTrackAdArguments & MediaTrackAdBreakArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
