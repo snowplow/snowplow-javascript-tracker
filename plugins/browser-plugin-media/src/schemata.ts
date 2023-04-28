@@ -20,7 +20,7 @@ function eventNameForEventType(eventType: MediaPlayerEventType): string {
   return eventType;
 }
 
-export function getMediaPlayerEventSchema(eventType: MediaPlayerEventType) {
+export function getMediaPlayerEventSchema(eventType: MediaPlayerEventType): string {
   const eventName = eventNameForEventType(eventType);
   return MEDIA_PLAYER_SCHEMA_PREFIX + '_event_' + eventName + MEDIA_PLAYER_SCHEMA_SUFFIX;
 }
