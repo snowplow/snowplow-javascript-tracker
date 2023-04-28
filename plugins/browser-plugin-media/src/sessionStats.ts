@@ -181,7 +181,7 @@ export class MediaSessionTrackingStats {
     }
   }
 
-  private round(n: number) {
+  private round(n: number): number {
     return Math.round(n * 1000) / 1000;
   }
 }
