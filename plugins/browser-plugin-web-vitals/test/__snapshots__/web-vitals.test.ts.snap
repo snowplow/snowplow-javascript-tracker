@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Web Vitals plugin Returns values for Web Vitals properties 1`] = `
+Object {
+  "data": Object {
+    "cls": 0.01,
+    "fcp": 0.01,
+    "fid": 0.01,
+    "inp": 0.01,
+    "lcp": 0.01,
+    "navigationType": "navigation",
+    "ttfb": 0.01,
+  },
+  "schema": "iglu:com.snowplowanalytics.snowplow/web_vitals/jsonschema/1-0-0",
+}
+`;

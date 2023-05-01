@@ -553,6 +553,12 @@
       "projectFolder": "plugins/browser-plugin-media",
       "reviewCategory": "plugins",
       "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-plugin-web-vitals",
+      "projectFolder": "plugins/browser-plugin-web-vitals",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
     }
   ]
 }
