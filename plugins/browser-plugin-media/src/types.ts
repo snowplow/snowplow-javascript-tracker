@@ -181,7 +181,7 @@ export enum MediaType {
 }
 
 /** Type/Schema for a context entity for media player events with information about the current state of the media player */
-export interface MediaPlayer {
+export interface MediaPlayer extends Record<string, unknown> {
   /** The current playback time */
   currentTime: number;
   /** A double-precision floating-point value indicating the duration of the media in seconds */
@@ -249,7 +249,7 @@ export interface MediaPlayerUpdate {
 }
 
 /** Partial type/schema for a context entity for media player events that tracks a session of a single media player usage */
-export interface MediaSession {
+export interface MediaSession extends Record<string, unknown> {
   /** An identifier for the media session */
   mediaSessionId: string;
   /** Date-time timestamp of when the session started */
@@ -301,7 +301,7 @@ export interface MediaAdUpdate {
 }
 
 /** Type/Schema for a context entity with information about the currently played ad */
-export interface MediaAd {
+export interface MediaAd extends Record<string, unknown> {
   /** Friendly name of the ad */
   name?: string;
   /** Unique identifier for the ad */
@@ -327,7 +327,7 @@ export enum MediaAdBreakType {
 }
 
 /** Type/Schema for a context entity, shared with all media_player_ad events belonging to the ad break */
-export interface MediaAdBreak {
+export interface MediaAdBreak extends Record<string, unknown> {
   /** Ad break name (e.g., pre-roll, mid-roll, and post-roll) */
   name?: string;
   /** An identifier for the ad break */
