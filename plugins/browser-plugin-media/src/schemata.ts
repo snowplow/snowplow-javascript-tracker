@@ -1,7 +1,7 @@
 import { MediaEventType } from './types';
 
-export const MEDIA_PLAYER_SCHEMA_PREFIX = 'iglu:com.snowplowanalytics.snowplow.media/';
-export const MEDIA_PLAYER_SCHEMA_SUFFIX = '/jsonschema/1-0-0';
+const MEDIA_PLAYER_SCHEMA_PREFIX = 'iglu:com.snowplowanalytics.snowplow.media/';
+const MEDIA_PLAYER_SCHEMA_SUFFIX = '/jsonschema/1-0-0';
 export const MEDIA_PLAYER_SCHEMA = MEDIA_PLAYER_SCHEMA_PREFIX + 'player' + MEDIA_PLAYER_SCHEMA_SUFFIX;
 export const MEDIA_PLAYER_SESSION_SCHEMA = MEDIA_PLAYER_SCHEMA_PREFIX + 'session' + MEDIA_PLAYER_SCHEMA_SUFFIX;
 export const MEDIA_PLAYER_AD_SCHEMA = MEDIA_PLAYER_SCHEMA_PREFIX + 'ad' + MEDIA_PLAYER_SCHEMA_SUFFIX;
