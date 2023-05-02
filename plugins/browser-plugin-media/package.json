@@ -9,7 +9,7 @@
     "url": "https://github.com/snowplow/snowplow-javascript-tracker.git"
   },
   "license": "BSD-3-Clause",
-  "author": "Matus Tomlein",
+  "author": "Snowplow Analytics Ltd (https://snowplow.io/)",
   "sideEffects": false,
   "main": "./dist/index.umd.js",
   "module": "./dist/index.module.js",
