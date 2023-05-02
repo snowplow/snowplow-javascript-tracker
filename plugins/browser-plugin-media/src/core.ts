@@ -6,12 +6,12 @@ import {
   MEDIA_PLAYER_SCHEMA,
   MEDIA_PLAYER_SESSION_SCHEMA,
 } from './schemata';
-import { MediaPlayer, MediaPlayerAd, MediaPlayerAdBreak, MediaPlayerEventType, MediaPlayerSession } from './types';
+import { MediaPlayer, MediaAd, MediaAdBreak, MediaSession, MediaEvent } from './types';
 
-export function buildMediaPlayerEvent(eventType: MediaPlayerEventType, label?: string): SelfDescribingJson {
+export function buildMediaPlayerEvent(event: MediaEvent): SelfDescribingJson {
   return {
-    schema: getMediaPlayerEventSchema(eventType),
-    data: removeEmptyProperties({ label: label }),
+    schema: getMediaPlayerEventSchema(event.type),
+    data: removeEmptyProperties(event.eventBody ?? {}),
   };
 }
 
@@ -22,21 +22,21 @@ export function buildMediaPlayerEntity(mediaPlayer: MediaPlayer): SelfDescribing
   };
 }
 
-export function buildMediaPlayerSessionEntity(session: MediaPlayerSession): SelfDescribingJson {
+export function buildMediaPlayerSessionEntity(session: MediaSession): SelfDescribingJson {
   return {
     schema: MEDIA_PLAYER_SESSION_SCHEMA,
     data: removeEmptyProperties({ ...session }),
   };
 }
 
-export function buildMediaPlayerAdEntity(ad: MediaPlayerAd): SelfDescribingJson {
+export function buildMediaPlayerAdEntity(ad: MediaAd): SelfDescribingJson {
   return {
     schema: MEDIA_PLAYER_AD_SCHEMA,
     data: removeEmptyProperties({ ...ad }),
   };
 }
 
-export function buildMediaPlayerAdBreakEntity(adBreak: MediaPlayerAdBreak): SelfDescribingJson {
+export function buildMediaPlayerAdBreakEntity(adBreak: MediaAdBreak): SelfDescribingJson {
   return {
     schema: MEDIA_PLAYER_AD_BREAK_SCHEMA,
     data: removeEmptyProperties({ ...adBreak }),

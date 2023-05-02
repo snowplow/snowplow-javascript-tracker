@@ -5,15 +5,23 @@ import { MediaPingInterval } from './pingInterval';
 import { MediaSessionTracking } from './sessionTracking';
 import {
   CommonMediaEventProperties,
-  MediaPlayerEventType,
-  MediaPlayerAdBreakType,
+  MediaEventType,
+  MediaAdBreakType,
   MediaTrackArguments,
   MediaTrackAdBreakArguments,
   MediaTrackAdArguments,
   MediaTrackingConfiguration,
+  MediaTrackPlaybackRateChangeArguments,
+  MediaEvent,
+  MediaTrackVolumeChangeArguments,
+  MediaTrackFullscreenChangeArguments,
+  MediaTrackPictureInPictureChangeArguments,
+  MediaTrackAdPercentProgressArguments,
+  MediaTrackQualityChangeArguments,
+  MediaTrackErrorArguments,
 } from './types';
 
-export { MediaPlayerAdBreakType };
+export { MediaAdBreakType as MediaPlayerAdBreakType };
 
 const _trackers: Record<string, BrowserTracker> = {};
 const _context: Record<string, SelfDescribingJson[]> = {};
@@ -55,7 +63,7 @@ export function startMediaTracking(
     config.pings === false || config.pings === undefined
       ? undefined
       : new MediaPingInterval(pingInterval, maxPausedPings, () => {
-          trackMediaEvent(MediaPlayerEventType.Ping, { id: config.id }, trackers);
+          trackMediaEvent({ type: MediaEventType.Ping }, { id: config.id }, trackers);
         });
 
   const sessionTracking: MediaSessionTracking | undefined =
@@ -63,7 +71,6 @@ export function startMediaTracking(
 
   const mediaTracking = new MediaTracking(
     config.id,
-    config.label,
     config.media,
     sessionTracking,
     pings,
@@ -98,7 +105,7 @@ export function trackMediaReady(
   args: MediaTrackArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackMediaEvent(MediaPlayerEventType.Ready, args, trackers);
+  trackMediaEvent({ type: MediaEventType.Ready }, args, trackers);
 }
 
 /**
@@ -112,7 +119,7 @@ export function trackMediaPlay(
   args: MediaTrackArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackMediaEvent(MediaPlayerEventType.Play, args, trackers);
+  trackMediaEvent({ type: MediaEventType.Play }, args, trackers);
 }
 
 /**
@@ -125,7 +132,7 @@ export function trackMediaPause(
   args: MediaTrackArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackMediaEvent(MediaPlayerEventType.Pause, args, trackers);
+  trackMediaEvent({ type: MediaEventType.Pause }, args, trackers);
 }
 
 /**
@@ -139,7 +146,7 @@ export function trackMediaEnd(
   args: MediaTrackArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackMediaEvent(MediaPlayerEventType.End, args, trackers);
+  trackMediaEvent({ type: MediaEventType.End }, args, trackers);
 }
 
 /**
@@ -152,7 +159,7 @@ export function trackMediaSeekStart(
   args: MediaTrackArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackMediaEvent(MediaPlayerEventType.SeekStart, args, trackers);
+  trackMediaEvent({ type: MediaEventType.SeekStart }, args, trackers);
 }
 
 /**
@@ -165,33 +172,65 @@ export function trackMediaSeekEnd(
   args: MediaTrackArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackMediaEvent(MediaPlayerEventType.SeekEnd, args, trackers);
+  trackMediaEvent({ type: MediaEventType.SeekEnd }, args, trackers);
 }
 
 /**
  * Tracks a media player playback rate change event sent when the playback rate has changed.
+ * 
+ * If not passed here, the previous rate is taken from the last setting in media player.
  *
  * @param args The attributes for the media player event and entities
  * @param trackers The tracker identifiers which the event will be sent to
  */
 export function trackMediaPlaybackRateChange(
-  args: MediaTrackArguments & CommonMediaEventProperties,
+  args: MediaTrackArguments & MediaTrackPlaybackRateChangeArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackMediaEvent(MediaPlayerEventType.PlaybackRateChange, args, trackers);
+  const { previousRate, newRate } = args;
+  trackMediaEvent(
+    {
+      type: MediaEventType.PlaybackRateChange,
+      eventBody: {
+        previousRate: previousRate ?? getMedia(args.id)?.mediaPlayer.playbackRate,
+        newRate,
+      },
+    },
+    {
+      ...args,
+      media: { ...args.media, playbackRate: newRate },
+    },
+    trackers
+  );
 }
 
 /**
  * Tracks a media player volume change event sent when the volume has changed.
+ * 
+ * If not passed here, the previous volume is taken from the last setting in media player.
  *
  * @param args The attributes for the media player event and entities
  * @param trackers The tracker identifiers which the event will be sent to
  */
 export function trackMediaVolumeChange(
-  args: MediaTrackArguments & CommonMediaEventProperties,
+  args: MediaTrackArguments & MediaTrackVolumeChangeArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackMediaEvent(MediaPlayerEventType.VolumeChange, args, trackers);
+  const { previousVolume, newVolume } = args;
+  trackMediaEvent(
+    {
+      type: MediaEventType.VolumeChange,
+      eventBody: {
+        previousVolume: previousVolume ?? getMedia(args.id)?.mediaPlayer.volume,
+        newVolume
+      },
+    },
+    {
+      ...args,
+      media: { ...args.media, volume: newVolume },
+    },
+    trackers
+  );
 }
 
 /**
@@ -202,10 +241,21 @@ export function trackMediaVolumeChange(
  * @param trackers The tracker identifiers which the event will be sent to
  */
 export function trackMediaFullscreenChange(
-  args: MediaTrackArguments & CommonMediaEventProperties,
+  args: MediaTrackArguments & MediaTrackFullscreenChangeArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackMediaEvent(MediaPlayerEventType.FullscreenChange, args, trackers);
+  const { fullscreen } = args;
+  trackMediaEvent(
+    {
+      type: MediaEventType.FullscreenChange,
+      eventBody: { fullscreen },
+    },
+    {
+      ...args,
+      media: { ...args.media, fullscreen },
+    },
+    trackers
+  );
 }
 
 /**
@@ -216,10 +266,21 @@ export function trackMediaFullscreenChange(
  * @param trackers The tracker identifiers which the event will be sent to
  */
 export function trackMediaPictureInPictureChange(
-  args: MediaTrackArguments & CommonMediaEventProperties,
+  args: MediaTrackArguments & MediaTrackPictureInPictureChangeArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackMediaEvent(MediaPlayerEventType.PictureInPictureChange, args, trackers);
+  const { pictureInPicture } = args;
+  trackMediaEvent(
+    {
+      type: MediaEventType.PictureInPictureChange,
+      eventBody: { pictureInPicture },
+    },
+    {
+      ...args,
+      media: { ...args.media, pictureInPicture },
+    },
+    trackers
+  );
 }
 
 /**
@@ -232,7 +293,7 @@ export function trackMediaAdBreakStart(
   args: MediaTrackArguments & MediaTrackAdBreakArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackMediaEvent(MediaPlayerEventType.AdBreakStart, args, trackers);
+  trackMediaEvent({ type: MediaEventType.AdBreakStart }, args, trackers);
 }
 
 /**
@@ -245,7 +306,7 @@ export function trackMediaAdBreakEnd(
   args: MediaTrackArguments & MediaTrackAdBreakArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackMediaEvent(MediaPlayerEventType.AdBreakEnd, args, trackers);
+  trackMediaEvent({ type: MediaEventType.AdBreakEnd }, args, trackers);
 }
 
 /**
@@ -258,7 +319,7 @@ export function trackMediaAdStart(
   args: MediaTrackArguments & MediaTrackAdBreakArguments & MediaTrackAdArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackMediaEvent(MediaPlayerEventType.AdStart, args, trackers);
+  trackMediaEvent({ type: MediaEventType.AdStart }, args, trackers);
 }
 
 /**
@@ -269,10 +330,22 @@ export function trackMediaAdStart(
  * @param trackers The tracker identifiers which the event will be sent to
  */
 export function trackMediaAdSkip(
-  args: MediaTrackArguments & MediaTrackAdBreakArguments & MediaTrackAdArguments & CommonMediaEventProperties,
+  args: MediaTrackArguments &
+    MediaTrackAdPercentProgressArguments &
+    MediaTrackAdBreakArguments &
+    MediaTrackAdArguments &
+    CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackMediaEvent(MediaPlayerEventType.AdSkip, args, trackers);
+  const { percentProgress } = args;
+  trackMediaEvent(
+    {
+      type: MediaEventType.AdSkip,
+      eventBody: { percentProgress },
+    },
+    args,
+    trackers
+  );
 }
 
 /**
@@ -286,7 +359,14 @@ export function trackMediaAdFirstQuartile(
   args: MediaTrackArguments & MediaTrackAdBreakArguments & MediaTrackAdArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackMediaEvent(MediaPlayerEventType.AdFirstQuartile, args, trackers);
+  trackMediaEvent(
+    {
+      type: MediaEventType.AdFirstQuartile,
+      eventBody: { percentProgress: 25 },
+    },
+    args,
+    trackers
+  );
 }
 
 /**
@@ -300,7 +380,14 @@ export function trackMediaAdMidpoint(
   args: MediaTrackArguments & MediaTrackAdBreakArguments & MediaTrackAdArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackMediaEvent(MediaPlayerEventType.AdMidpoint, args, trackers);
+  trackMediaEvent(
+    {
+      type: MediaEventType.AdMidpoint,
+      eventBody: { percentProgress: 50 },
+    },
+    args,
+    trackers
+  );
 }
 
 /**
@@ -314,7 +401,14 @@ export function trackMediaAdThirdQuartile(
   args: MediaTrackArguments & MediaTrackAdBreakArguments & MediaTrackAdArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackMediaEvent(MediaPlayerEventType.AdThirdQuartile, args, trackers);
+  trackMediaEvent(
+    {
+      type: MediaEventType.AdThirdQuartile,
+      eventBody: { percentProgress: 75 },
+    },
+    args,
+    trackers
+  );
 }
 
 /**
@@ -328,7 +422,7 @@ export function trackMediaAdComplete(
   args: MediaTrackArguments & MediaTrackAdBreakArguments & MediaTrackAdArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackMediaEvent(MediaPlayerEventType.AdComplete, args, trackers);
+  trackMediaEvent({ type: MediaEventType.AdComplete }, args, trackers);
 }
 
 /**
@@ -338,10 +432,21 @@ export function trackMediaAdComplete(
  * @param trackers The tracker identifiers which the event will be sent to
  */
 export function trackMediaAdClick(
-  args: MediaTrackArguments & MediaTrackAdBreakArguments & CommonMediaEventProperties,
+  args: MediaTrackArguments &
+    MediaTrackAdPercentProgressArguments &
+    MediaTrackAdBreakArguments &
+    CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackMediaEvent(MediaPlayerEventType.AdClick, args, trackers);
+  const { percentProgress } = args;
+  trackMediaEvent(
+    {
+      type: MediaEventType.AdClick,
+      eventBody: { percentProgress },
+    },
+    args,
+    trackers
+  );
 }
 
 /**
@@ -352,10 +457,21 @@ export function trackMediaAdClick(
  * @param trackers The tracker identifiers which the event will be sent to
  */
 export function trackMediaAdPause(
-  args: MediaTrackArguments & MediaTrackAdBreakArguments & CommonMediaEventProperties,
+  args: MediaTrackArguments &
+    MediaTrackAdPercentProgressArguments &
+    MediaTrackAdBreakArguments &
+    CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackMediaEvent(MediaPlayerEventType.AdPause, args, trackers);
+  const { percentProgress } = args;
+  trackMediaEvent(
+    {
+      type: MediaEventType.AdPause,
+      eventBody: { percentProgress },
+    },
+    args,
+    trackers
+  );
 }
 
 /**
@@ -366,10 +482,22 @@ export function trackMediaAdPause(
  * @param trackers The tracker identifiers which the event will be sent to
  */
 export function trackMediaAdResume(
-  args: MediaTrackArguments & MediaTrackAdBreakArguments & MediaTrackAdArguments & CommonMediaEventProperties,
+  args: MediaTrackArguments &
+    MediaTrackAdPercentProgressArguments &
+    MediaTrackAdBreakArguments &
+    MediaTrackAdArguments &
+    CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackMediaEvent(MediaPlayerEventType.AdResume, args, trackers);
+  const { percentProgress } = args;
+  trackMediaEvent(
+    {
+      type: MediaEventType.AdResume,
+      eventBody: { percentProgress: percentProgress },
+    },
+    args,
+    trackers
+  );
 }
 
 /**
@@ -386,7 +514,7 @@ export function trackMediaBufferStart(
   args: MediaTrackArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackMediaEvent(MediaPlayerEventType.BufferStart, args, trackers);
+  trackMediaEvent({ type: MediaEventType.BufferStart }, args, trackers);
 }
 
 /**
@@ -400,7 +528,7 @@ export function trackMediaBufferEnd(
   args: MediaTrackArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackMediaEvent(MediaPlayerEventType.BufferEnd, args, trackers);
+  trackMediaEvent({ type: MediaEventType.BufferEnd }, args, trackers);
 }
 
 /**
@@ -411,24 +539,18 @@ export function trackMediaBufferEnd(
  * @param trackers The tracker identifiers which the event will be sent to
  */
 export function trackMediaQualityChange(
-  args: MediaTrackArguments & CommonMediaEventProperties,
+  args: MediaTrackArguments & MediaTrackQualityChangeArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackMediaEvent(MediaPlayerEventType.QualityChange, args, trackers);
-}
-
-/**
- * Tracks a media player user update quality event tracked when the video
- * playback quality changes as a result of user interaction (choosing a different quality setting).
- *
- * @param args The attributes for the media player event and entities
- * @param trackers The tracker identifiers which the event will be sent to
- */
-export function trackMediaUserUpdateQuality(
-  args: MediaTrackArguments & CommonMediaEventProperties,
-  trackers: Array<string> = Object.keys(_trackers)
-) {
-  trackMediaEvent(MediaPlayerEventType.UserUpdateQuality, args, trackers);
+  const { previousQuality, newQuality, bitrate, framesPerSecond, automatic } = args;
+  trackMediaEvent(
+    {
+      type: MediaEventType.QualityChange,
+      eventBody: { previousQuality, newQuality, bitrate, framesPerSecond, automatic },
+    },
+    args,
+    trackers
+  );
 }
 
 /**
@@ -438,10 +560,14 @@ export function trackMediaUserUpdateQuality(
  * @param trackers The tracker identifiers which the event will be sent to
  */
 export function trackMediaError(
-  args: MediaTrackArguments & CommonMediaEventProperties,
+  args: MediaTrackArguments & MediaTrackErrorArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  trackMediaEvent(MediaPlayerEventType.Error, args, trackers);
+  const { errorCode, errorDescription } = args;
+  trackMediaEvent({
+    type: MediaEventType.Error,
+    eventBody: { errorCode, errorDescription },
+  }, args, trackers);
 }
 
 /**
@@ -459,20 +585,26 @@ export function updateMediaPlayer(
   trackMediaEvent(undefined, args, trackers);
 }
 
+function getMedia(id: string): MediaTracking | undefined {
+  if (activeMedias[id] === undefined) {
+    LOG.error(`Media tracking ${id} not started.`);
+    return undefined;
+  }
+
+  return activeMedias[id];
+}
+
 function trackMediaEvent(
-  eventType: MediaPlayerEventType | undefined,
+  event: MediaEvent | undefined,
   args: MediaTrackArguments & MediaTrackAdArguments & MediaTrackAdBreakArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   const { context = [], timestamp, media, ad, adBreak } = args;
 
-  if (activeMedias[args.id] === undefined) {
-    LOG.error(`Media tracking ${args.id} not started.`);
-    return;
-  }
+  const mediaTracking = getMedia(args.id);
+  if (mediaTracking === undefined) { return; }
 
-  const mediaTracking = activeMedias[args.id];
-  const events = mediaTracking.update(eventType, media, ad, adBreak);
+  const events = mediaTracking.update(event, media, ad, adBreak);
   if (events.length == 0) {
     return;
   }

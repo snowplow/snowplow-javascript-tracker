@@ -1,7 +1,7 @@
 import { SelfDescribingJson } from '@snowplow/tracker-core';
 import { buildMediaPlayerSessionEntity } from './core';
 import { MediaSessionTrackingStats } from './sessionStats';
-import { MediaPlayerAdBreak, MediaPlayer, MediaPlayerEventType } from './types';
+import { MediaAdBreak, MediaPlayer, MediaEventType } from './types';
 
 /**
  * Manages the media player session that is optionally added as a context entity
@@ -20,7 +20,7 @@ export class MediaSessionTracking {
     this.startedAt = startedAt ?? new Date();
   }
 
-  update(eventType: MediaPlayerEventType | undefined, mediaPlayer: MediaPlayer, adBreak?: MediaPlayerAdBreak) {
+  update(eventType: MediaEventType | undefined, mediaPlayer: MediaPlayer, adBreak?: MediaAdBreak) {
     this.stats.update(eventType, mediaPlayer, adBreak);
   }
 

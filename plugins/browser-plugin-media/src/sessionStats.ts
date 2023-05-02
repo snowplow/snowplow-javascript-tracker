@@ -1,31 +1,46 @@
 import {
-  MediaPlayerAdBreakType,
+  MediaAdBreakType,
   MediaPlayer,
-  MediaPlayerAdBreak,
-  MediaPlayerEventType,
-  MediaPlayerSessionStats,
+  MediaAdBreak,
+  MediaEventType,
+  MediaSessionStats,
 } from './types';
 
 /** Internal type for representing the session updates */
 type Log = {
-  eventType: MediaPlayerEventType | undefined;
+  eventType: MediaEventType | undefined;
   time: number;
   contentTime: number;
-  playbackRate: number;
+  playbackRate?: number;
   paused: boolean;
-  muted: boolean;
+  muted?: boolean;
   linearAd: boolean;
 };
 
-const adStartTypes = [MediaPlayerEventType.AdStart, MediaPlayerEventType.AdResume];
+const adStartTypes = [MediaEventType.AdStart, MediaEventType.AdResume];
 const adProgressTypes = [
-  MediaPlayerEventType.AdClick,
-  MediaPlayerEventType.AdFirstQuartile,
-  MediaPlayerEventType.AdMidpoint,
-  MediaPlayerEventType.AdThirdQuartile,
+  MediaEventType.AdClick,
+  MediaEventType.AdFirstQuartile,
+  MediaEventType.AdMidpoint,
+  MediaEventType.AdThirdQuartile,
 ];
-const adEndTypes = [MediaPlayerEventType.AdComplete, MediaPlayerEventType.AdSkip, MediaPlayerEventType.AdPause];
-const bufferingEndTypes = [MediaPlayerEventType.BufferEnd, MediaPlayerEventType.Play];
+const adEndTypes = [MediaEventType.AdComplete, MediaEventType.AdSkip, MediaEventType.AdPause];
+const bufferingEndTypes = [MediaEventType.BufferEnd, MediaEventType.Play];
+
+/** Calculates the average playback rate based on measurements of the rate over partial durations */
+class AveragePlaybackRateCalculator {
+  private durationWithPlaybackRate = 0;
+  private duration = 0;
+
+  add(rate: number, duration: number) {
+    this.durationWithPlaybackRate += rate * duration;
+    this.duration += duration;
+  }
+
+  get(): number | undefined {
+    return this.duration > 0 ? this.durationWithPlaybackRate / this.duration : undefined;
+  }
+}
 
 /**
  * Calculates statistics in the media player session as events are tracked.
@@ -37,8 +52,8 @@ export class MediaSessionTrackingStats {
   private playbackDuration = 0;
   /// time for which the content was playing on mute
   private playbackDurationMuted = 0;
-  /// playback duration multiplied by the playback rate to enable calculating the avg playback rate
-  private playbackDurationWithPlaybackRate = 0;
+  /// average playback rate calculator
+  private avgPlaybackRate = new AveragePlaybackRateCalculator();
   /// time for which the playback was paused
   private pausedDuration = 0;
   /// number of ads
@@ -60,15 +75,15 @@ export class MediaSessionTrackingStats {
   private lastLog: Log | undefined;
 
   /// Update stats given a new event.
-  update(eventType: MediaPlayerEventType | undefined, mediaPlayer: MediaPlayer, adBreak?: MediaPlayerAdBreak) {
-    let log = {
+  update(eventType: MediaEventType | undefined, mediaPlayer: MediaPlayer, adBreak?: MediaAdBreak) {
+    let log: Log = {
       time: new Date().getTime() / 1000,
       contentTime: mediaPlayer.currentTime,
       eventType: eventType,
       playbackRate: mediaPlayer.playbackRate,
       paused: mediaPlayer.paused,
       muted: mediaPlayer.muted,
-      linearAd: (adBreak?.breakType ?? MediaPlayerAdBreakType.Linear) == MediaPlayerAdBreakType.Linear,
+      linearAd: (adBreak?.breakType ?? MediaAdBreakType.Linear) == MediaAdBreakType.Linear,
     };
 
     this.updateDurationStats(log);
@@ -79,9 +94,7 @@ export class MediaSessionTrackingStats {
   }
 
   /// Produce part of the media session entity with the stats.
-  toSessionContextEntity(): MediaPlayerSessionStats {
-    const avgPlaybackRate =
-      this.playbackDuration > 0 ? this.playbackDurationWithPlaybackRate / this.playbackDuration : 1;
+  toSessionContextEntity(): MediaSessionStats {
     return {
       timePaused: this.pausedDuration > 0 ? this.round(this.pausedDuration) : undefined,
       timePlayed: this.playbackDuration > 0 ? this.round(this.playbackDuration) : undefined,
@@ -92,7 +105,7 @@ export class MediaSessionTrackingStats {
       adBreaks: this.adBreaks > 0 ? this.adBreaks : undefined,
       adsSkipped: this.adsSkipped > 0 ? this.adsSkipped : undefined,
       adsClicked: this.adsClicked > 0 ? this.adsClicked : undefined,
-      avgPlaybackRate: avgPlaybackRate != 1 ? this.round(avgPlaybackRate) : undefined,
+      avgPlaybackRate: this.round(this.avgPlaybackRate.get()),
       contentWatched: this.playedSeconds.size > 0 ? this.playedSeconds.size : undefined,
     };
   }
@@ -112,7 +125,9 @@ export class MediaSessionTrackingStats {
         this.pausedDuration += duration;
       } else {
         this.playbackDuration += duration;
-        this.playbackDurationWithPlaybackRate += duration * this.lastLog.playbackRate;
+        if (this.lastLog.playbackRate !== undefined) {
+          this.avgPlaybackRate.add(this.lastLog.playbackRate, duration);
+        }
 
         if (this.lastLog.muted) {
           this.playbackDurationMuted += duration;
@@ -137,13 +152,13 @@ export class MediaSessionTrackingStats {
     }
 
     // count ad actions
-    if (log.eventType == MediaPlayerEventType.AdBreakStart) {
+    if (log.eventType == MediaEventType.AdBreakStart) {
       this.adBreaks++;
-    } else if (log.eventType == MediaPlayerEventType.AdStart) {
+    } else if (log.eventType == MediaEventType.AdStart) {
       this.ads++;
-    } else if (log.eventType == MediaPlayerEventType.AdSkip) {
+    } else if (log.eventType == MediaEventType.AdSkip) {
       this.adsSkipped++;
-    } else if (log.eventType == MediaPlayerEventType.AdClick) {
+    } else if (log.eventType == MediaEventType.AdClick) {
       this.adsClicked++;
     }
 
@@ -162,7 +177,7 @@ export class MediaSessionTrackingStats {
   }
 
   private updateBufferingStats(log: Log) {
-    if (log.eventType == MediaPlayerEventType.BufferStart) {
+    if (log.eventType == MediaEventType.BufferStart) {
       this.bufferingStartedAt = log.time;
       this.bufferingStartTime = log.contentTime;
     } else if (this.bufferingStartedAt !== undefined) {
@@ -181,7 +196,8 @@ export class MediaSessionTrackingStats {
     }
   }
 
-  private round(n: number): number {
+  private round(n: number | undefined): number | undefined {
+    if (n === undefined) { return undefined; }
     return Math.round(n * 1000) / 1000;
   }
 }

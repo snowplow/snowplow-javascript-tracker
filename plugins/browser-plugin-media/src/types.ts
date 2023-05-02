@@ -1,7 +1,7 @@
 import { CommonEventProperties, SelfDescribingJson } from '@snowplow/tracker-core';
 
 /** Type of media player event */
-export enum MediaPlayerEventType {
+export enum MediaEventType {
   // Controlling the playback
 
   /** Media player event fired when the media tracking is successfully attached to the player and can track events. */
@@ -68,8 +68,6 @@ export enum MediaPlayerEventType {
   BufferEnd = 'buffer_end',
   /** Media player event tracked when the video playback quality changes automatically. */
   QualityChange = 'quality_change',
-  /** Media player event tracked when the video playback quality changes as a result of user interaction (choosing a different quality setting). */
-  UserUpdateQuality = 'user_update_quality',
   /** Media player event tracked when the resource could not be loaded due to an error.  */
   Error = 'error',
 }
@@ -77,8 +75,6 @@ export enum MediaPlayerEventType {
 export type MediaTrackingConfiguration = {
   /** Unique ID of the media tracking. The same ID will be used for media player session if enabled. */
   id: string;
-  /** A custom optional identifier for the media tracking. */
-  label?: string;
   /** Attributes for the media player context entity */
   media?: MediaPlayerUpdate;
   /** Attributes for the media player session context entity or false to disable it. Enabled by default. */
@@ -99,7 +95,56 @@ export type MediaTrackingConfiguration = {
    * If not specified, all tracked events will be allowed and tracked.
    * Otherwise, tracked event types not present in the list will be discarded.
    */
-  captureEvents?: MediaPlayerEventType[];
+  captureEvents?: MediaEventType[];
+};
+
+export type MediaTrackPlaybackRateChangeArguments = {
+  /** Playback rate before the change (1 is normal) */
+  previousRate?: number;
+  /** Playback rate after the change (1 is normal) */
+  newRate: number;
+};
+
+export type MediaTrackVolumeChangeArguments = {
+  /** Volume percentage before the change. */
+  previousVolume?: number;
+  /** Volume percentage after the change. */
+  newVolume: number;
+};
+
+export type MediaTrackFullscreenChangeArguments = {
+  /** Whether the video element is fullscreen. */
+  fullscreen: boolean;
+};
+
+export type MediaTrackPictureInPictureChangeArguments = {
+  /** Whether the video element is showing picture-in-picture. */
+  pictureInPicture: boolean;
+};
+
+export type MediaTrackAdPercentProgressArguments = {
+  /** The percent of the way through the ad. */
+  percentProgress?: number;
+};
+
+export type MediaTrackQualityChangeArguments = {
+  /** Quality level before the change (e.g., 1080p). */
+  previousQuality?: string;
+  /** Quality level after the change (e.g., 1080p). */
+  newQuality?: string;
+  /** The current bitrate in bits per second. */
+  bitrate?: number;
+  /** The current number of frames per second. */
+  framesPerSecond?: number;
+  /** Whether the change was automatic or triggered by the user. */
+  automatic?: boolean;
+};
+
+export type MediaTrackErrorArguments = {
+  /** Error-identifying code for the playback issue. E.g. E522 */
+  errorCode?: string;
+  /** Longer description for the error occurred in the playback. */
+  errorDescription?: string;
 };
 
 export type MediaTrackArguments = {
@@ -111,7 +156,7 @@ export type MediaTrackArguments = {
 
 export type MediaTrackAdArguments = {
   /** Attributes for the media player ad context entity */
-  ad?: MediaPlayerAdUpdate;
+  ad?: MediaAdUpdate;
 };
 
 export type MediaTrackAdBreakArguments = {
@@ -120,11 +165,19 @@ export type MediaTrackAdBreakArguments = {
 };
 
 /** Type for all media player events */
-export interface MediaPlayerEvent {
+export interface MediaEvent {
   /** The event fired by the media player */
-  type: MediaPlayerEventType;
+  type: MediaEventType;
   /** The custom media identifier given by the user */
-  mediaLabel?: string | null;
+  eventBody?: Record<string, unknown>;
+}
+
+/** Type of media content. */
+export enum MediaType {
+  /** Audio content. */
+  Audio = 'audio',
+  /** Video content. */
+  Video = 'video',
 }
 
 /** Type/Schema for a context entity for media player events with information about the current state of the media player */
@@ -135,20 +188,30 @@ export interface MediaPlayer {
   duration?: number | null;
   /** If playback of the media has ended */
   ended: boolean;
+  /** Whether the video element is fullscreen */
+  fullscreen?: boolean;
   /** If the media is live */
-  isLive: boolean;
+  isLive?: boolean;
+  /** Human readable name given to tracked media content. */
+  label?: string;
   /** If the video should restart after ending */
-  loop: boolean;
+  loop?: boolean;
+  /** Type of media content. */
+  mediaType?: MediaType;
   /** If the media element is muted */
-  muted: boolean;
+  muted?: boolean;
   /** If the media element is paused */
   paused: boolean;
   /** The percent of the way through the media */
   percentProgress?: number | null;
+  /** Whether the video element is showing picture-in-picture */
+  pictureInPicture?: boolean;
+  /** Type of the media player (e.g., com.youtube-youtube, com.vimeo-vimeo, org.whatwg-media_element) */
+  playerType?: string;
   /** Playback rate (1 is normal) */
-  playbackRate: number;
+  playbackRate?: number;
   /** Volume level */
-  volume: number;
+  volume?: number;
 }
 
 /** Partial type/schema for a context entity for media player events with information about the current state of the media player */
@@ -159,16 +222,26 @@ export interface MediaPlayerUpdate {
   duration?: number | null;
   /** If playback of the media has ended */
   ended?: boolean;
+  /** Whether the video element is fullscreen */
+  fullscreen?: boolean;
   /** If the media is live */
   isLive?: boolean;
+  /** Human readable name given to tracked media content. */
+  label?: string;
   /** If the video should restart after ending */
   loop?: boolean;
+  /** Type of media content. */
+  mediaType?: MediaType;
   /** If the media element is muted */
   muted?: boolean;
   /** If the media element is paused */
   paused?: boolean;
   /** The percent of the way through the media */
   percentProgress?: number | null;
+  /** Whether the video element is showing picture-in-picture */
+  pictureInPicture?: boolean;
+  /** Type of the media player (e.g., com.youtube-youtube, com.vimeo-vimeo, org.whatwg-media_element) */
+  playerType?: string;
   /** Playback rate (1 is normal) */
   playbackRate?: number;
   /** Volume level */
@@ -176,7 +249,7 @@ export interface MediaPlayerUpdate {
 }
 
 /** Partial type/schema for a context entity for media player events that tracks a session of a single media player usage */
-export interface MediaPlayerSession {
+export interface MediaSession {
   /** An identifier for the media session */
   mediaSessionId: string;
   /** Date-time timestamp of when the session started */
@@ -186,7 +259,7 @@ export interface MediaPlayerSession {
 }
 
 /** Partial type/schema for a context entity for media player events that tracks a session of a single media player usage */
-export interface MediaPlayerSessionStats {
+export interface MediaSessionStats {
   /** Total seconds user spent with paused content (excluding linear ads) */
   timePaused?: number;
   /** Total seconds user spent playing content (excluding linear ads) */
@@ -212,7 +285,7 @@ export interface MediaPlayerSessionStats {
 }
 
 /** Partial type/schema for a context entity with information about the currently played ad */
-export interface MediaPlayerAdUpdate {
+export interface MediaAdUpdate {
   /** Friendly name of the ad */
   name?: string;
   /** Unique identifier for the ad */
@@ -223,14 +296,12 @@ export interface MediaPlayerAdUpdate {
   podPosition?: number;
   /** Length of the video ad in seconds */
   duration?: number;
-  /** The percent of the way through the ad */
-  percentProgress?: number;
   /** Indicating whether skip controls are made available to the end user */
   skippable?: boolean;
 }
 
 /** Type/Schema for a context entity with information about the currently played ad */
-export interface MediaPlayerAd {
+export interface MediaAd {
   /** Friendly name of the ad */
   name?: string;
   /** Unique identifier for the ad */
@@ -241,24 +312,22 @@ export interface MediaPlayerAd {
   podPosition?: number;
   /** Length of the video ad in seconds */
   duration?: number;
-  /** The percent of the way through the ad */
-  percentProgress: number;
   /** Indicating whether skip controls are made available to the end user */
   skippable?: boolean;
 }
 
 /** Type of ads within the break */
-export enum MediaPlayerAdBreakType {
-  /** take full control of the video for a period of time */
+export enum MediaAdBreakType {
+  /** Take full control of the video for a period of time. */
   Linear = 'linear',
-  /** run concurrently to the video */
+  /** Run concurrently to the video. */
   NonLinear = 'nonlinear',
-  /** Accompany the video but placed outside the player */
+  /** Accompany the video but placed outside the player. */
   Companion = 'companion',
 }
 
 /** Type/Schema for a context entity, shared with all media_player_ad events belonging to the ad break */
-export interface MediaPlayerAdBreak {
+export interface MediaAdBreak {
   /** Ad break name (e.g., pre-roll, mid-roll, and post-roll) */
   name?: string;
   /** An identifier for the ad break */
@@ -271,7 +340,7 @@ export interface MediaPlayerAdBreak {
    * - nonlinear (run concurrently to the video),
    * - companion (accompany the video but placed outside the player)
    */
-  breakType?: MediaPlayerAdBreakType;
+  breakType?: MediaAdBreakType;
 }
 
 /** Partial type/schema for a context entity, shared with all media_player_ad events belonging to the ad break */
@@ -288,7 +357,7 @@ export interface MediaPlayerAdBreakUpdate {
    * - nonlinear (run concurrently to the video),
    * - companion (accompany the video but placed outside the player)
    */
-  breakType?: MediaPlayerAdBreakType;
+  breakType?: MediaAdBreakType;
 }
 
 export interface CommonMediaEventProperties extends CommonEventProperties {

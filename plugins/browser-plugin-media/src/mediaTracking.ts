@@ -5,10 +5,11 @@ import { MediaPingInterval } from './pingInterval';
 import { MediaSessionTracking } from './sessionTracking';
 import {
   MediaPlayer,
-  MediaPlayerAdUpdate,
+  MediaAdUpdate,
   MediaPlayerAdBreakUpdate,
   MediaPlayerUpdate,
-  MediaPlayerEventType,
+  MediaEventType,
+  MediaEvent,
 } from './types';
 
 /**
@@ -21,22 +22,15 @@ import {
 export class MediaTracking {
   /// ID of the media tracking that is used to refer to it by the user.
   id: string;
-  /// Label sent in the media player event body.
-  private label?: string;
   /// Percentage boundaries when to track percent progress events.
   private boundaries?: number[];
   /// List of boundaries for which percent progress events were already sent to avoid sending again.
   private sentBoundaries: number[] = [];
   /// State for the media player context entity that is updated as new events are tracked.
-  private mediaPlayer: MediaPlayer = {
+  mediaPlayer: MediaPlayer = {
     currentTime: 0,
     paused: true,
-    isLive: false,
-    muted: true,
     ended: false,
-    loop: false,
-    playbackRate: 1,
-    volume: 100,
   };
 
   /// Used to add media player session entity.
@@ -50,20 +44,18 @@ export class MediaTracking {
   /// Context entities to attach to all events
   private customContext?: Array<SelfDescribingJson>;
   /// Optional list of event types to allow tracking and discard others.
-  private captureEvents?: MediaPlayerEventType[];
+  private captureEvents?: MediaEventType[];
 
   constructor(
     id: string,
-    label?: string,
     mediaPlayer?: MediaPlayerUpdate,
     session?: MediaSessionTracking,
     pingInterval?: MediaPingInterval,
     boundaries?: number[],
-    captureEvents?: MediaPlayerEventType[],
+    captureEvents?: MediaEventType[],
     context?: Array<SelfDescribingJson>
   ) {
     this.id = id;
-    this.label = label;
     this.updateMediaPlayer(undefined, mediaPlayer);
     this.session = session;
     this.pingInterval = pingInterval;
@@ -88,17 +80,17 @@ export class MediaTracking {
    * @returns List of events with entities to track.
    */
   update(
-    eventType?: MediaPlayerEventType,
+    event?: MediaEvent,
     mediaPlayer?: MediaPlayerUpdate,
-    ad?: MediaPlayerAdUpdate,
+    ad?: MediaAdUpdate,
     adBreak?: MediaPlayerAdBreakUpdate
   ): { event: SelfDescribingJson; context: SelfDescribingJson[] }[] {
     // update state
-    this.updateMediaPlayer(eventType, mediaPlayer);
-    if (eventType !== undefined) {
-      this.adTracking.updateForThisEvent(eventType, this.mediaPlayer, ad, adBreak);
+    this.updateMediaPlayer(event?.type, mediaPlayer);
+    if (event !== undefined) {
+      this.adTracking.updateForThisEvent(event.type, this.mediaPlayer, ad, adBreak);
     }
-    this.session?.update(eventType, this.mediaPlayer, this.adTracking.adBreak);
+    this.session?.update(event?.type, this.mediaPlayer, this.adTracking.adBreak);
     this.pingInterval?.update(this.mediaPlayer);
 
     // build context entities
@@ -112,60 +104,58 @@ export class MediaTracking {
     context = context.concat(this.adTracking.getContext());
 
     // build event types to track
-    let eventTypesToTrack: MediaPlayerEventType[] = [];
-    if (eventType !== undefined && this.shouldTrackEvent(eventType)) {
-      eventTypesToTrack.push(eventType);
+    let eventsToTrack: MediaEvent[] = [];
+    if (event !== undefined && this.shouldTrackEvent(event.type)) {
+      eventsToTrack.push(event);
     }
     if (this.shouldSendPercentProgress()) {
-      eventTypesToTrack.push(MediaPlayerEventType.PercentProgress);
+      eventsToTrack.push({
+        type: MediaEventType.PercentProgress,
+        eventBody: {
+          percentProgress: this.getPercentProgress(),
+        },
+      });
     }
 
     // update state for events after this one
-    if (eventType !== undefined) {
-      this.adTracking.updateForNextEvent(eventType);
+    if (event !== undefined) {
+      this.adTracking.updateForNextEvent(event.type);
     }
 
-    return eventTypesToTrack.map((eventType) => {
+    return eventsToTrack.map((event) => {
       return {
-        event: buildMediaPlayerEvent(eventType, this.label),
+        event: buildMediaPlayerEvent(event),
         context: context,
       };
     });
   }
 
-  private updateMediaPlayer(eventType: MediaPlayerEventType | undefined, mediaPlayer: MediaPlayerUpdate | undefined) {
+  private updateMediaPlayer(eventType: MediaEventType | undefined, mediaPlayer: MediaPlayerUpdate | undefined) {
     if (mediaPlayer !== undefined) {
       this.mediaPlayer = {
         ...this.mediaPlayer,
         ...mediaPlayer,
       };
     }
-    if (eventType == MediaPlayerEventType.Play) {
+    if (eventType == MediaEventType.Play) {
       this.mediaPlayer.paused = false;
     }
-    if (eventType == MediaPlayerEventType.Pause) {
+    if (eventType == MediaEventType.Pause) {
       this.mediaPlayer.paused = true;
     }
-    if (eventType == MediaPlayerEventType.End) {
+    if (eventType == MediaEventType.End) {
       this.mediaPlayer.paused = true;
       this.mediaPlayer.ended = true;
-    }
-    if (this.mediaPlayer.duration && this.mediaPlayer.duration > 0) {
-      this.mediaPlayer.percentProgress = Math.floor((this.mediaPlayer.currentTime / this.mediaPlayer.duration) * 100);
     }
   }
 
   private shouldSendPercentProgress(): boolean {
-    if (
-      this.boundaries === undefined ||
-      this.mediaPlayer.percentProgress === undefined ||
-      this.mediaPlayer.percentProgress === null ||
-      this.mediaPlayer.paused
-    ) {
+    const percentProgress = this.getPercentProgress();
+    if (this.boundaries === undefined || percentProgress === undefined || this.mediaPlayer.paused) {
       return false;
     }
 
-    let boundaries = this.boundaries.filter((b) => b <= (this.mediaPlayer.percentProgress ?? 0));
+    let boundaries = this.boundaries.filter((b) => b <= (percentProgress ?? 0));
     if (boundaries.length == 0) {
       return false;
     }
@@ -177,26 +167,37 @@ export class MediaTracking {
     return false;
   }
 
-  private shouldTrackEvent(eventType: MediaPlayerEventType): boolean {
+  private shouldTrackEvent(eventType: MediaEventType): boolean {
     return this.updateSeekingAndCheckIfShouldTrack(eventType) && this.allowedToCaptureEventType(eventType);
   }
 
   /** Prevents multiple seek start events to be tracked after each other without a seek end (happens when scrubbing). */
-  private updateSeekingAndCheckIfShouldTrack(eventType: MediaPlayerEventType): boolean {
-    if (eventType == MediaPlayerEventType.SeekStart) {
+  private updateSeekingAndCheckIfShouldTrack(eventType: MediaEventType): boolean {
+    if (eventType == MediaEventType.SeekStart) {
       if (this.isSeeking) {
         return false;
       }
 
       this.isSeeking = true;
-    } else if (eventType == MediaPlayerEventType.SeekEnd) {
+    } else if (eventType == MediaEventType.SeekEnd) {
       this.isSeeking = false;
     }
 
     return true;
   }
 
-  private allowedToCaptureEventType(eventType: MediaPlayerEventType): boolean {
+  private allowedToCaptureEventType(eventType: MediaEventType): boolean {
     return this.captureEvents === undefined || this.captureEvents.includes(eventType);
+  }
+
+  private getPercentProgress(): number | undefined {
+    if (
+      this.mediaPlayer.duration === null ||
+      this.mediaPlayer.duration === undefined ||
+      this.mediaPlayer.duration == 0
+    ) {
+      return undefined;
+    }
+    return Math.floor(((this.mediaPlayer.currentTime ?? 0) / this.mediaPlayer.duration) * 100);
   }
 }

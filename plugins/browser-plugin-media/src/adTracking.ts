@@ -1,34 +1,23 @@
 import { SelfDescribingJson } from '@snowplow/tracker-core';
 import { buildMediaPlayerAdBreakEntity, buildMediaPlayerAdEntity } from './core';
-import {
-  MediaPlayer,
-  MediaPlayerAd,
-  MediaPlayerAdUpdate,
-  MediaPlayerAdBreak,
-  MediaPlayerAdBreakUpdate,
-  MediaPlayerEventType,
-} from './types';
-
-const adDefaults = {
-  percentProgress: 0,
-};
+import { MediaPlayer, MediaAd, MediaAdUpdate, MediaAdBreak, MediaPlayerAdBreakUpdate, MediaEventType } from './types';
 
 /** Keeps track of the ad and ad break entities and updates them according to tracked events. */
 export class MediaAdTracking {
-  ad?: MediaPlayerAd;
-  adBreak?: MediaPlayerAdBreak;
+  ad?: MediaAd;
+  adBreak?: MediaAdBreak;
   podPosition = 0;
 
   updateForThisEvent(
-    eventType: MediaPlayerEventType,
+    eventType: MediaEventType,
     mediaPlayer: MediaPlayer,
-    ad?: MediaPlayerAdUpdate,
+    ad?: MediaAdUpdate,
     adBreak?: MediaPlayerAdBreakUpdate
   ) {
-    if (eventType == MediaPlayerEventType.AdStart) {
+    if (eventType == MediaEventType.AdStart) {
       this.ad = undefined;
       this.podPosition++;
-    } else if (eventType == MediaPlayerEventType.AdBreakStart) {
+    } else if (eventType == MediaEventType.AdBreakStart) {
       this.adBreak = undefined;
       this.podPosition = 0;
     }
@@ -38,7 +27,7 @@ export class MediaAdTracking {
       if (this.ad !== undefined) {
         this.ad = { ...this.ad, ...position, ...ad };
       } else {
-        this.ad = { ...adDefaults, ...position, ...ad };
+        this.ad = { ...position, ...ad };
       }
     }
 
@@ -50,27 +39,15 @@ export class MediaAdTracking {
         this.adBreak = { ...startTime, ...adBreak };
       }
     }
-
-    if (this.ad !== undefined) {
-      if (eventType == MediaPlayerEventType.AdFirstQuartile) {
-        this.ad.percentProgress = 25;
-      } else if (eventType == MediaPlayerEventType.AdMidpoint) {
-        this.ad.percentProgress = 50;
-      } else if (eventType == MediaPlayerEventType.AdThirdQuartile) {
-        this.ad.percentProgress = 75;
-      } else if (eventType == MediaPlayerEventType.AdComplete) {
-        this.ad.percentProgress = 100;
-      }
-    }
   }
 
-  updateForNextEvent(eventType: MediaPlayerEventType) {
-    if (eventType == MediaPlayerEventType.AdBreakEnd) {
+  updateForNextEvent(eventType: MediaEventType) {
+    if (eventType == MediaEventType.AdBreakEnd) {
       this.adBreak = undefined;
       this.podPosition = 0;
     }
 
-    if (eventType == MediaPlayerEventType.AdComplete || eventType == MediaPlayerEventType.AdSkip) {
+    if (eventType == MediaEventType.AdComplete || eventType == MediaEventType.AdSkip) {
       this.ad = undefined;
     }
   }

@@ -28,12 +28,11 @@ import {
   trackMediaReady,
   trackMediaSeekEnd,
   trackMediaSeekStart,
-  trackMediaUserUpdateQuality,
   trackMediaVolumeChange,
   updateMediaPlayer,
 } from '../src';
 import { getMediaPlayerEventSchema, MEDIA_PLAYER_SCHEMA, MEDIA_PLAYER_SESSION_SCHEMA } from '../src/schemata';
-import { MediaPlayerEventType } from '../src/types';
+import { MediaEventType } from '../src/types';
 
 describe('Media Tracking API', () => {
   let idx = 1;
@@ -67,32 +66,18 @@ describe('Media Tracking API', () => {
 
   describe('media player events', () => {
     [
-      { api: trackMediaReady, eventType: MediaPlayerEventType.Ready },
-      { api: trackMediaPlay, eventType: MediaPlayerEventType.Play },
-      { api: trackMediaPause, eventType: MediaPlayerEventType.Pause },
-      { api: trackMediaEnd, eventType: MediaPlayerEventType.End },
-      { api: trackMediaSeekStart, eventType: MediaPlayerEventType.SeekStart },
-      { api: trackMediaSeekEnd, eventType: MediaPlayerEventType.SeekEnd },
-      { api: trackMediaPlaybackRateChange, eventType: MediaPlayerEventType.PlaybackRateChange },
-      { api: trackMediaVolumeChange, eventType: MediaPlayerEventType.VolumeChange },
-      { api: trackMediaFullscreenChange, eventType: MediaPlayerEventType.FullscreenChange },
-      { api: trackMediaPictureInPictureChange, eventType: MediaPlayerEventType.PictureInPictureChange },
-      { api: trackMediaAdBreakStart, eventType: MediaPlayerEventType.AdBreakStart },
-      { api: trackMediaAdBreakEnd, eventType: MediaPlayerEventType.AdBreakEnd },
-      { api: trackMediaAdStart, eventType: MediaPlayerEventType.AdStart },
-      { api: trackMediaAdFirstQuartile, eventType: MediaPlayerEventType.AdFirstQuartile },
-      { api: trackMediaAdMidpoint, eventType: MediaPlayerEventType.AdMidpoint },
-      { api: trackMediaAdThirdQuartile, eventType: MediaPlayerEventType.AdThirdQuartile },
-      { api: trackMediaAdComplete, eventType: MediaPlayerEventType.AdComplete },
-      { api: trackMediaAdSkip, eventType: MediaPlayerEventType.AdSkip },
-      { api: trackMediaAdClick, eventType: MediaPlayerEventType.AdClick },
-      { api: trackMediaAdPause, eventType: MediaPlayerEventType.AdPause },
-      { api: trackMediaAdResume, eventType: MediaPlayerEventType.AdResume },
-      { api: trackMediaBufferStart, eventType: MediaPlayerEventType.BufferStart },
-      { api: trackMediaBufferEnd, eventType: MediaPlayerEventType.BufferEnd },
-      { api: trackMediaQualityChange, eventType: MediaPlayerEventType.QualityChange },
-      { api: trackMediaUserUpdateQuality, eventType: MediaPlayerEventType.UserUpdateQuality },
-      { api: trackMediaError, eventType: MediaPlayerEventType.Error },
+      { api: trackMediaReady, eventType: MediaEventType.Ready },
+      { api: trackMediaPlay, eventType: MediaEventType.Play },
+      { api: trackMediaPause, eventType: MediaEventType.Pause },
+      { api: trackMediaEnd, eventType: MediaEventType.End },
+      { api: trackMediaSeekStart, eventType: MediaEventType.SeekStart },
+      { api: trackMediaSeekEnd, eventType: MediaEventType.SeekEnd },
+      { api: trackMediaAdBreakStart, eventType: MediaEventType.AdBreakStart },
+      { api: trackMediaAdBreakEnd, eventType: MediaEventType.AdBreakEnd },
+      { api: trackMediaAdStart, eventType: MediaEventType.AdStart },
+      { api: trackMediaAdComplete, eventType: MediaEventType.AdComplete },
+      { api: trackMediaBufferStart, eventType: MediaEventType.BufferStart },
+      { api: trackMediaBufferEnd, eventType: MediaEventType.BufferEnd },
     ].forEach((test) => {
       it(`tracks a ${test.eventType} event`, () => {
         startMediaTracking({ id });
@@ -105,6 +90,247 @@ describe('Media Tracking API', () => {
           schema: getMediaPlayerEventSchema(test.eventType),
         });
       });
+    });
+
+    it('tracks a playback rate change event and remembers the new rate', () => {
+      startMediaTracking({ id, session: false, media: { playbackRate: 0.5 } });
+
+      trackMediaPlaybackRateChange({ id, newRate: 1.5 });
+      trackMediaPause({ id });
+
+      expect(eventQueue).toMatchObject([
+        {
+          event: {
+            schema: getMediaPlayerEventSchema(MediaEventType.PlaybackRateChange),
+            data: {
+              previousRate: 0.5,
+              newRate: 1.5,
+            },
+          },
+          context: [{ data: { playbackRate: 1.5 } }],
+        },
+        {
+          context: [{ data: { playbackRate: 1.5 } }],
+        },
+      ]);
+    });
+
+    it('tracks a volume change event and remembers the new volume', () => {
+      startMediaTracking({ id, session: false, media: { volume: 50 } });
+
+      trackMediaVolumeChange({ id, newVolume: 70 });
+      trackMediaPause({ id });
+
+      expect(eventQueue).toMatchObject([
+        {
+          event: {
+            schema: getMediaPlayerEventSchema(MediaEventType.VolumeChange),
+            data: {
+              previousVolume: 50,
+              newVolume: 70,
+            },
+          },
+          context: [{ data: { volume: 70 } }],
+        },
+        {
+          context: [{ data: { volume: 70 } }],
+        },
+      ]);
+    });
+
+    it('tracks a fullscreen change event and remembers the setting', () => {
+      startMediaTracking({ id, session: false });
+
+      trackMediaFullscreenChange({ id, fullscreen: true });
+      trackMediaPause({ id });
+
+      expect(eventQueue).toMatchObject([
+        {
+          event: {
+            schema: getMediaPlayerEventSchema(MediaEventType.FullscreenChange),
+            data: { fullscreen: true },
+          },
+          context: [{ data: { fullscreen: true } }],
+        },
+        {
+          context: [{ data: { fullscreen: true } }],
+        },
+      ]);
+    });
+
+    it('tracks a picture in picture change event and remembers the setting', () => {
+      startMediaTracking({ id, session: false });
+
+      trackMediaPictureInPictureChange({ id, pictureInPicture: true });
+      trackMediaPause({ id });
+
+      expect(eventQueue).toMatchObject([
+        {
+          event: {
+            schema: getMediaPlayerEventSchema(MediaEventType.PictureInPictureChange),
+            data: { pictureInPicture: true },
+          },
+          context: [{ data: { pictureInPicture: true } }],
+        },
+        {
+          context: [{ data: { pictureInPicture: true } }],
+        },
+      ]);
+    });
+
+    it('tracks an ad first quartile event', () => {
+      startMediaTracking({ id, session: false });
+
+      trackMediaAdFirstQuartile({ id })
+
+      expect(eventQueue).toMatchObject([
+        {
+          event: {
+            schema: getMediaPlayerEventSchema(MediaEventType.AdFirstQuartile),
+            data: { percentProgress: 25 },
+          },
+        },
+      ]);
+    });
+
+    it('tracks an ad midpoint event', () => {
+      startMediaTracking({ id, session: false });
+
+      trackMediaAdMidpoint({ id })
+
+      expect(eventQueue).toMatchObject([
+        {
+          event: {
+            schema: getMediaPlayerEventSchema(MediaEventType.AdMidpoint),
+            data: { percentProgress: 50 },
+          },
+        },
+      ]);
+    });
+
+    it('tracks an ad third quartile event', () => {
+      startMediaTracking({ id, session: false });
+
+      trackMediaAdThirdQuartile({ id })
+
+      expect(eventQueue).toMatchObject([
+        {
+          event: {
+            schema: getMediaPlayerEventSchema(MediaEventType.AdThirdQuartile),
+            data: { percentProgress: 75 },
+          },
+        },
+      ]);
+    });
+
+    it('tracks an ad skip event', () => {
+      startMediaTracking({ id, session: false });
+
+      trackMediaAdSkip({ id, percentProgress: 33 })
+
+      expect(eventQueue).toMatchObject([
+        {
+          event: {
+            schema: getMediaPlayerEventSchema(MediaEventType.AdSkip),
+            data: { percentProgress: 33 },
+          },
+        },
+      ]);
+    });
+
+    it('tracks an ad click event', () => {
+      startMediaTracking({ id, session: false });
+
+      trackMediaAdClick({ id, percentProgress: 33 })
+
+      expect(eventQueue).toMatchObject([
+        {
+          event: {
+            schema: getMediaPlayerEventSchema(MediaEventType.AdClick),
+            data: { percentProgress: 33 },
+          },
+        },
+      ]);
+    });
+
+    it('tracks an ad pause event', () => {
+      startMediaTracking({ id, session: false });
+
+      trackMediaAdPause({ id, percentProgress: 33 })
+
+      expect(eventQueue).toMatchObject([
+        {
+          event: {
+            schema: getMediaPlayerEventSchema(MediaEventType.AdPause),
+            data: { percentProgress: 33 },
+          },
+        },
+      ]);
+    });
+
+    it('tracks an ad resume event', () => {
+      startMediaTracking({ id, session: false });
+
+      trackMediaAdResume({ id, percentProgress: 33 })
+
+      expect(eventQueue).toMatchObject([
+        {
+          event: {
+            schema: getMediaPlayerEventSchema(MediaEventType.AdResume),
+            data: { percentProgress: 33 },
+          },
+        },
+      ]);
+    });
+
+    it('tracks quality change event', () => {
+      startMediaTracking({ id, session: false });
+
+      trackMediaQualityChange({
+        id,
+        previousQuality: '720p',
+        newQuality: '1080p',
+        bitrate: 1000,
+        framesPerSecond: 30,
+        automatic: false,
+      });
+
+      expect(eventQueue).toMatchObject([
+        {
+          event: {
+            schema: getMediaPlayerEventSchema(MediaEventType.QualityChange),
+            data: {
+              previousQuality: '720p',
+              newQuality: '1080p',
+              bitrate: 1000,
+              framesPerSecond: 30,
+              automatic: false,
+            },
+          },
+        },
+      ]);
+    });
+
+    it('tracks error event', () => {
+      startMediaTracking({ id, session: false });
+
+      trackMediaError({
+        id,
+        errorCode: '500',
+        errorDescription: 'Failed to load media',
+      });
+
+      expect(eventQueue).toMatchObject([
+        {
+          event: {
+            schema: getMediaPlayerEventSchema(MediaEventType.Error),
+            data: {
+              errorCode: '500',
+              errorDescription: 'Failed to load media',
+            },
+          },
+        },
+      ]);
     });
 
     it('sets paused to false in media context when play is tracked', () => {
@@ -140,17 +366,6 @@ describe('Media Tracking API', () => {
       ]);
     });
 
-    it('updates percentProgress automatically', () => {
-      startMediaTracking({ id, media: { duration: 100 }, session: false });
-      trackMediaPlay({ id, media: { currentTime: 50 } });
-
-      expect(eventQueue).toMatchObject([
-        {
-          context: [{ data: { percentProgress: 50 } }],
-        },
-      ]);
-    });
-
     it('doesnt track seek start multiple times', () => {
       startMediaTracking({ id, media: { duration: 100 }, session: false });
       trackMediaSeekStart({ id, media: { currentTime: 1 } });
@@ -159,9 +374,9 @@ describe('Media Tracking API', () => {
       trackMediaSeekStart({ id, media: { currentTime: 3 } });
 
       expect(eventQueue).toMatchObject([
-        { event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.SeekStart) } },
-        { event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.SeekEnd) } },
-        { event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.SeekStart) } },
+        { event: { schema: getMediaPlayerEventSchema(MediaEventType.SeekStart) } },
+        { event: { schema: getMediaPlayerEventSchema(MediaEventType.SeekEnd) } },
+        { event: { schema: getMediaPlayerEventSchema(MediaEventType.SeekStart) } },
       ]);
     });
 
@@ -179,12 +394,12 @@ describe('Media Tracking API', () => {
     });
 
     it('doesnt track events not in captureEvents', () => {
-      startMediaTracking({ id, captureEvents: [MediaPlayerEventType.Pause], session: false });
+      startMediaTracking({ id, captureEvents: [MediaEventType.Pause], session: false });
 
       trackMediaPlay({ id });
       trackMediaPause({ id });
 
-      expect(eventQueue).toMatchObject([{ event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Pause) } }]);
+      expect(eventQueue).toMatchObject([{ event: { schema: getMediaPlayerEventSchema(MediaEventType.Pause) } }]);
     });
   });
 
@@ -214,7 +429,7 @@ describe('Media Tracking API', () => {
       ]);
 
       expect(event).toMatchObject({
-        schema: getMediaPlayerEventSchema(MediaPlayerEventType.Ready),
+        schema: getMediaPlayerEventSchema(MediaEventType.Ready),
       });
     });
 
@@ -236,7 +451,7 @@ describe('Media Tracking API', () => {
       ]);
 
       expect(event).toMatchObject({
-        schema: getMediaPlayerEventSchema(MediaPlayerEventType.Ready),
+        schema: getMediaPlayerEventSchema(MediaEventType.Ready),
       });
     });
 
@@ -248,9 +463,9 @@ describe('Media Tracking API', () => {
       trackMediaEnd({ id, media: { currentTime: 10 } });
 
       expect(eventQueue).toMatchObject([
-        { event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Play) } },
+        { event: { schema: getMediaPlayerEventSchema(MediaEventType.Play) } },
         {
-          event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.End) },
+          event: { schema: getMediaPlayerEventSchema(MediaEventType.End) },
           context: [
             { schema: MEDIA_PLAYER_SCHEMA },
             {
@@ -280,7 +495,7 @@ describe('Media Tracking API', () => {
 
       jest.advanceTimersByTime(30 * 1000);
 
-      expect(eventQueue).toMatchObject([{ event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Ping) } }]);
+      expect(eventQueue).toMatchObject([{ event: { schema: getMediaPlayerEventSchema(MediaEventType.Ping) } }]);
     });
 
     it('should make a ping event in a custom interval', () => {
@@ -288,7 +503,7 @@ describe('Media Tracking API', () => {
 
       jest.advanceTimersByTime(1000);
 
-      expect(eventQueue).toMatchObject([{ event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Ping) } }]);
+      expect(eventQueue).toMatchObject([{ event: { schema: getMediaPlayerEventSchema(MediaEventType.Ping) } }]);
     });
 
     it('should send ping events regardless of other events', () => {
@@ -299,11 +514,11 @@ describe('Media Tracking API', () => {
       jest.advanceTimersByTime(2000);
 
       expect(eventQueue).toMatchObject([
-        { event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Play) } },
-        { event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Ping) } },
-        { event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Pause) } },
-        { event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Ping) } },
-        { event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Ping) } },
+        { event: { schema: getMediaPlayerEventSchema(MediaEventType.Play) } },
+        { event: { schema: getMediaPlayerEventSchema(MediaEventType.Ping) } },
+        { event: { schema: getMediaPlayerEventSchema(MediaEventType.Pause) } },
+        { event: { schema: getMediaPlayerEventSchema(MediaEventType.Ping) } },
+        { event: { schema: getMediaPlayerEventSchema(MediaEventType.Ping) } },
       ]);
     });
 
@@ -315,8 +530,8 @@ describe('Media Tracking API', () => {
       jest.advanceTimersByTime(3000);
 
       expect(eventQueue).toMatchObject([
-        { event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Pause) } },
-        { event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Ping) } },
+        { event: { schema: getMediaPlayerEventSchema(MediaEventType.Pause) } },
+        { event: { schema: getMediaPlayerEventSchema(MediaEventType.Ping) } },
       ]);
     });
   });
@@ -336,18 +551,24 @@ describe('Media Tracking API', () => {
       }
 
       expect(eventQueue).toMatchObject([
-        { event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Play) } },
+        { event: { schema: getMediaPlayerEventSchema(MediaEventType.Play) } },
         {
-          event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.PercentProgress) },
-          context: [{ data: { percentProgress: 10 } }],
+          event: {
+            schema: getMediaPlayerEventSchema(MediaEventType.PercentProgress),
+            data: { percentProgress: 10 },
+          },
         },
         {
-          event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.PercentProgress) },
-          context: [{ data: { percentProgress: 50 } }],
+          event: {
+            schema: getMediaPlayerEventSchema(MediaEventType.PercentProgress),
+            data: { percentProgress: 50 },
+          },
         },
         {
-          event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.PercentProgress) },
-          context: [{ data: { percentProgress: 90 } }],
+          event: {
+            schema: getMediaPlayerEventSchema(MediaEventType.PercentProgress),
+            data: { percentProgress: 90 },
+          },
         },
       ]);
     });
@@ -365,7 +586,7 @@ describe('Media Tracking API', () => {
         updateMediaPlayer({ id, media: { currentTime: i } });
       }
 
-      expect(eventQueue).toMatchObject([{ event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Pause) } }]);
+      expect(eventQueue).toMatchObject([{ event: { schema: getMediaPlayerEventSchema(MediaEventType.Pause) } }]);
     });
 
     it('doesnt send progress event multiple times', () => {
@@ -386,14 +607,18 @@ describe('Media Tracking API', () => {
       }
 
       expect(eventQueue).toMatchObject([
-        { event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.Play) } },
+        { event: { schema: getMediaPlayerEventSchema(MediaEventType.Play) } },
         {
-          event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.PercentProgress) },
-          context: [{ data: { percentProgress: 50 } }],
+          event: {
+            schema: getMediaPlayerEventSchema(MediaEventType.PercentProgress),
+            data: { percentProgress: 50 },
+          },
         },
         {
-          event: { schema: getMediaPlayerEventSchema(MediaPlayerEventType.SeekEnd) },
-          context: [{ data: { percentProgress: 0 } }],
+          event: {
+            schema: getMediaPlayerEventSchema(MediaEventType.SeekEnd),
+          },
+          context: [{ data: { currentTime: 0 } }],
         },
       ]);
     });
