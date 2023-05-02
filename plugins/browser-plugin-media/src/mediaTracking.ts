@@ -98,7 +98,7 @@ export class MediaTracking {
     if (this.session !== undefined) {
       context.push(this.session.getContext());
     }
-    if (this.customContext !== undefined) {
+    if (this.customContext) {
       context = context.concat(this.customContext);
     }
     context = context.concat(this.adTracking.getContext());
