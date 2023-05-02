@@ -40,7 +40,7 @@ describe('Media Tracking API', () => {
   let eventQueue: { event: SelfDescribingJson; context: SelfDescribingJson[] }[] = [];
 
   beforeEach(() => {
-    addTracker(`sp${idx++}`, `sp${idx++}`, 'js-3.0.0', '', new SharedState(), {
+    addTracker(`sp${idx++}`, `sp${idx++}`, 'js-3.9.0', '', new SharedState(), {
       stateStorageStrategy: 'cookie',
       encodeBase64: false,
       plugins: [
