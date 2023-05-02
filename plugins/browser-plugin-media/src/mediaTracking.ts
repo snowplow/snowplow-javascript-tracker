@@ -104,7 +104,7 @@ export class MediaTracking {
     context = context.concat(this.adTracking.getContext());
 
     // build event types to track
-    let eventsToTrack: MediaEvent[] = [];
+    const eventsToTrack: MediaEvent[] = [];
     if (event !== undefined && this.shouldTrackEvent(event.type)) {
       eventsToTrack.push(event);
     }

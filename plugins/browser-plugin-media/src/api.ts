@@ -43,7 +43,7 @@ export function SnowplowMediaPlugin(): BrowserPlugin {
   };
 }
 
-let activeMedias: { [key: string]: MediaTracking } = {};
+const activeMedias: { [key: string]: MediaTracking } = {};
 
 /**
  * Starts media tracking for a single media content tracked in a media player.
