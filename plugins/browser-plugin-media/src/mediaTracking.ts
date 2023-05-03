@@ -80,17 +80,18 @@ export class MediaTracking {
    * @returns List of events with entities to track.
    */
   update(
-    event?: MediaEvent,
+    mediaEvent?: MediaEvent,
+    customEvent?: SelfDescribingJson,
     mediaPlayer?: MediaPlayerUpdate,
     ad?: MediaAdUpdate,
     adBreak?: MediaPlayerAdBreakUpdate
   ): { event: SelfDescribingJson; context: SelfDescribingJson[] }[] {
     // update state
-    this.updateMediaPlayer(event?.type, mediaPlayer);
-    if (event !== undefined) {
-      this.adTracking.updateForThisEvent(event.type, this.mediaPlayer, ad, adBreak);
+    this.updateMediaPlayer(mediaEvent?.type, mediaPlayer);
+    if (mediaEvent !== undefined) {
+      this.adTracking.updateForThisEvent(mediaEvent.type, this.mediaPlayer, ad, adBreak);
     }
-    this.session?.update(event?.type, this.mediaPlayer, this.adTracking.adBreak);
+    this.session?.update(mediaEvent?.type, this.mediaPlayer, this.adTracking.adBreak);
     this.pingInterval?.update(this.mediaPlayer);
 
     // build context entities
@@ -104,30 +105,29 @@ export class MediaTracking {
     context = context.concat(this.adTracking.getContext());
 
     // build event types to track
-    const eventsToTrack: MediaEvent[] = [];
-    if (event !== undefined && this.shouldTrackEvent(event.type)) {
-      eventsToTrack.push(event);
+    const mediaEventsToTrack: MediaEvent[] = [];
+    if (mediaEvent !== undefined && this.shouldTrackEvent(mediaEvent.type)) {
+      mediaEventsToTrack.push(mediaEvent);
     }
     if (this.shouldSendPercentProgress()) {
-      eventsToTrack.push({
+      mediaEventsToTrack.push({
         type: MediaEventType.PercentProgress,
-        eventBody: {
-          percentProgress: this.getPercentProgress(),
-        },
+        eventBody: { percentProgress: this.getPercentProgress() },
       });
     }
 
     // update state for events after this one
-    if (event !== undefined) {
-      this.adTracking.updateForNextEvent(event.type);
+    if (mediaEvent !== undefined) {
+      this.adTracking.updateForNextEvent(mediaEvent.type);
     }
 
-    return eventsToTrack.map((event) => {
-      return {
-        event: buildMediaPlayerEvent(event),
-        context: context,
-      };
+    const eventsToTrack = mediaEventsToTrack.map((event) => {
+      return { event: buildMediaPlayerEvent(event), context: context };
     });
+    if (customEvent !== undefined) {
+      eventsToTrack.push({ event: customEvent, context: context });
+    }
+    return eventsToTrack;
   }
 
   private updateMediaPlayer(eventType: MediaEventType | undefined, mediaPlayer: MediaPlayerUpdate | undefined) {

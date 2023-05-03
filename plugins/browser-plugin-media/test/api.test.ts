@@ -28,6 +28,7 @@ import {
   trackMediaReady,
   trackMediaSeekEnd,
   trackMediaSeekStart,
+  trackMediaSelfDescribingEvent,
   trackMediaVolumeChange,
   updateMediaPlayer,
 } from '../src';
@@ -400,6 +401,28 @@ describe('Media Tracking API', () => {
       trackMediaPause({ id });
 
       expect(eventQueue).toMatchObject([{ event: { schema: getMediaPlayerEventSchema(MediaEventType.Pause) } }]);
+    });
+
+    it('tracks a custom self-describing event', () => {
+      startMediaTracking({ id });
+
+      trackMediaSelfDescribingEvent({
+        id,
+        event: {
+          schema: 'iglu:com.acme/event/jsonschema/1-0-0',
+          data: { foo: 'bar' },
+        },
+      });
+
+      expect(eventQueue).toMatchObject([
+        {
+          event: {
+            schema: 'iglu:com.acme/event/jsonschema/1-0-0',
+            data: { foo: 'bar' },
+          },
+          context: [{ schema: MEDIA_PLAYER_SCHEMA }, { schema: MEDIA_PLAYER_SESSION_SCHEMA }],
+        },
+      ]);
     });
   });
 

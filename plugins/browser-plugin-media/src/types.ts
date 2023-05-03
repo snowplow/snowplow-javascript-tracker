@@ -164,6 +164,11 @@ export type MediaTrackAdBreakArguments = {
   adBreak?: MediaPlayerAdBreakUpdate;
 };
 
+export type MediaTrackSelfDescribingEventArguments = {
+  /** Self-describing event */
+  event: SelfDescribingJson;
+};
+
 /** Type for all media player events */
 export interface MediaEvent {
   /** The event fired by the media player */
