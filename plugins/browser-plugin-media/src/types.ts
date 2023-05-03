@@ -215,6 +215,8 @@ export interface MediaPlayer extends Record<string, unknown> {
   playerType?: string;
   /** Playback rate (1 is normal) */
   playbackRate?: number;
+  /** Quality level of the playback (e.g., 1080p). */
+  quality?: string;
   /** Volume level */
   volume?: number;
 }
@@ -249,6 +251,8 @@ export interface MediaPlayerUpdate {
   playerType?: string;
   /** Playback rate (1 is normal) */
   playbackRate?: number;
+  /** Quality level of the playback (e.g., 1080p). */
+  quality?: string;
   /** Volume level */
   volume?: number;
 }

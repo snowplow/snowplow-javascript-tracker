@@ -565,15 +565,24 @@ export function trackMediaQualityChange(
   args: MediaTrackArguments & MediaTrackQualityChangeArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  const { previousQuality, newQuality, bitrate, framesPerSecond, automatic } = args;
+  const { previousQuality, newQuality, bitrate, framesPerSecond, automatic, id } = args;
   track(
     {
       mediaEvent: {
         type: MediaEventType.QualityChange,
-        eventBody: { previousQuality, newQuality, bitrate, framesPerSecond, automatic },
+        eventBody: {
+          previousQuality: previousQuality ?? getMedia(id)?.mediaPlayer.quality,
+          newQuality,
+          bitrate,
+          framesPerSecond,
+          automatic,
+        },
       },
     },
-    args,
+    {
+      ...args,
+      media: { ...args.media, quality: newQuality },
+    },
     trackers
   );
 }

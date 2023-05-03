@@ -284,17 +284,17 @@ describe('Media Tracking API', () => {
       ]);
     });
 
-    it('tracks quality change event', () => {
-      startMediaTracking({ id, session: false });
+    it('tracks quality change event and remembers the setting', () => {
+      startMediaTracking({ id, session: false, media: { quality: '720p' } });
 
       trackMediaQualityChange({
         id,
-        previousQuality: '720p',
         newQuality: '1080p',
         bitrate: 1000,
         framesPerSecond: 30,
         automatic: false,
       });
+      trackMediaPause({ id });
 
       expect(eventQueue).toMatchObject([
         {
@@ -308,7 +308,9 @@ describe('Media Tracking API', () => {
               automatic: false,
             },
           },
+          context: [{ data: { quality: '1080p' } }],
         },
+        { context: [{ data: { quality: '1080p' } }] },
       ]);
     });
 
