@@ -1,5 +1,12 @@
 import { MediaPlayer } from './types';
 
+/**
+ * Default ping interval in seconds.
+ * Changing the setting is a breaking change for downstream models that work with this setting.
+ * If a custom interval is used, it is present in the session context entity.
+ **/
+const DEFAULT_PING_INTERVAL = 30;
+
 /** Manages the timer for firing the media ping events. */
 export class MediaPingInterval {
   private interval?: ReturnType<typeof setInterval>;
@@ -19,7 +26,7 @@ export class MediaPingInterval {
         }
         trackPing();
       }
-    }, (pingIntervalSeconds ?? 30) * 1000);
+    }, (pingIntervalSeconds ?? DEFAULT_PING_INTERVAL) * 1000);
   }
 
   update(player: MediaPlayer) {
