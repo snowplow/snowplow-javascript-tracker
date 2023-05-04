@@ -22,8 +22,8 @@ export class MediaPingInterval {
     }, (pingIntervalSeconds ?? 30) * 1000);
   }
 
-  update(media: MediaPlayer) {
-    this.paused = media.paused;
+  update(player: MediaPlayer) {
+    this.paused = player.paused;
     if (!this.paused) {
       this.numPausedPings = 0;
     }

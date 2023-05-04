@@ -27,7 +27,7 @@ export class MediaTracking {
   /// List of boundaries for which percent progress events were already sent to avoid sending again.
   private sentBoundaries: number[] = [];
   /// State for the media player context entity that is updated as new events are tracked.
-  mediaPlayer: MediaPlayer = {
+  player: MediaPlayer = {
     currentTime: 0,
     paused: true,
     ended: false,
@@ -48,7 +48,7 @@ export class MediaTracking {
 
   constructor(
     id: string,
-    mediaPlayer?: MediaPlayerUpdate,
+    player?: MediaPlayerUpdate,
     session?: MediaSessionTracking,
     pingInterval?: MediaPingInterval,
     boundaries?: number[],
@@ -56,7 +56,7 @@ export class MediaTracking {
     context?: Array<SelfDescribingJson>
   ) {
     this.id = id;
-    this.updateMediaPlayer(undefined, mediaPlayer);
+    this.updatePlayer(player);
     this.session = session;
     this.pingInterval = pingInterval;
     this.boundaries = boundaries;
@@ -74,7 +74,7 @@ export class MediaTracking {
   /**
    * Updates the internal state given the new event or new media player info and returns events to track.
    * @param eventType Type of the event tracked or undefined when only updating player properties.
-   * @param mediaPlayer Updates to the media player stored entity.
+   * @param player Updates to the media player stored entity.
    * @param ad Updates to the ad entity.
    * @param adBreak Updates to the ad break entity.
    * @returns List of events with entities to track.
@@ -82,20 +82,20 @@ export class MediaTracking {
   update(
     mediaEvent?: MediaEvent,
     customEvent?: SelfDescribingJson,
-    mediaPlayer?: MediaPlayerUpdate,
+    player?: MediaPlayerUpdate,
     ad?: MediaAdUpdate,
     adBreak?: MediaPlayerAdBreakUpdate
   ): { event: SelfDescribingJson; context: SelfDescribingJson[] }[] {
     // update state
-    this.updateMediaPlayer(mediaEvent?.type, mediaPlayer);
+    this.updatePlayer(player);
     if (mediaEvent !== undefined) {
-      this.adTracking.updateForThisEvent(mediaEvent.type, this.mediaPlayer, ad, adBreak);
+      this.adTracking.updateForThisEvent(mediaEvent.type, this.player, ad, adBreak);
     }
-    this.session?.update(mediaEvent?.type, this.mediaPlayer, this.adTracking.adBreak);
-    this.pingInterval?.update(this.mediaPlayer);
+    this.session?.update(mediaEvent?.type, this.player, this.adTracking.adBreak);
+    this.pingInterval?.update(this.player);
 
     // build context entities
-    let context = [buildMediaPlayerEntity(this.mediaPlayer)];
+    let context = [buildMediaPlayerEntity(this.player)];
     if (this.session !== undefined) {
       context.push(this.session.getContext());
     }
@@ -130,28 +130,18 @@ export class MediaTracking {
     return eventsToTrack;
   }
 
-  private updateMediaPlayer(eventType: MediaEventType | undefined, mediaPlayer: MediaPlayerUpdate | undefined) {
-    if (mediaPlayer !== undefined) {
-      this.mediaPlayer = {
-        ...this.mediaPlayer,
-        ...mediaPlayer,
+  private updatePlayer(player?: MediaPlayerUpdate) {
+    if (player !== undefined) {
+      this.player = {
+        ...this.player,
+        ...player,
       };
-    }
-    if (eventType == MediaEventType.Play) {
-      this.mediaPlayer.paused = false;
-    }
-    if (eventType == MediaEventType.Pause) {
-      this.mediaPlayer.paused = true;
-    }
-    if (eventType == MediaEventType.End) {
-      this.mediaPlayer.paused = true;
-      this.mediaPlayer.ended = true;
     }
   }
 
   private shouldSendPercentProgress(): boolean {
     const percentProgress = this.getPercentProgress();
-    if (this.boundaries === undefined || percentProgress === undefined || this.mediaPlayer.paused) {
+    if (this.boundaries === undefined || percentProgress === undefined || this.player.paused) {
       return false;
     }
 
@@ -192,12 +182,12 @@ export class MediaTracking {
 
   private getPercentProgress(): number | undefined {
     if (
-      this.mediaPlayer.duration === null ||
-      this.mediaPlayer.duration === undefined ||
-      this.mediaPlayer.duration == 0
+      this.player.duration === null ||
+      this.player.duration === undefined ||
+      this.player.duration == 0
     ) {
       return undefined;
     }
-    return Math.floor(((this.mediaPlayer.currentTime ?? 0) / this.mediaPlayer.duration) * 100);
+    return Math.floor(((this.player.currentTime ?? 0) / this.player.duration) * 100);
   }
 }

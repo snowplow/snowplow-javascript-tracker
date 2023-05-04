@@ -1,5 +1,5 @@
 import { SelfDescribingJson } from '@snowplow/tracker-core';
-import { buildMediaPlayerAdBreakEntity, buildMediaPlayerAdEntity } from './core';
+import { buildMediaAdBreakEntity, buildMediaAdEntity } from './core';
 import { MediaPlayer, MediaAd, MediaAdUpdate, MediaAdBreak, MediaPlayerAdBreakUpdate, MediaEventType } from './types';
 
 /** Keeps track of the ad and ad break entities and updates them according to tracked events. */
@@ -10,7 +10,7 @@ export class MediaAdTracking {
 
   updateForThisEvent(
     eventType: MediaEventType,
-    mediaPlayer: MediaPlayer,
+    player: MediaPlayer,
     ad?: MediaAdUpdate,
     adBreak?: MediaPlayerAdBreakUpdate
   ) {
@@ -32,7 +32,7 @@ export class MediaAdTracking {
     }
 
     if (adBreak !== undefined) {
-      let startTime = { startTime: mediaPlayer.currentTime };
+      let startTime = { startTime: player.currentTime };
       if (this.adBreak !== undefined) {
         this.adBreak = { ...startTime, ...this.adBreak, ...adBreak };
       } else {
@@ -55,10 +55,10 @@ export class MediaAdTracking {
   getContext(): SelfDescribingJson[] {
     let context = [];
     if (this.ad !== undefined) {
-      context.push(buildMediaPlayerAdEntity(this.ad));
+      context.push(buildMediaAdEntity(this.ad));
     }
     if (this.adBreak !== undefined) {
-      context.push(buildMediaPlayerAdBreakEntity(this.adBreak));
+      context.push(buildMediaAdBreakEntity(this.adBreak));
     }
     return context;
   }

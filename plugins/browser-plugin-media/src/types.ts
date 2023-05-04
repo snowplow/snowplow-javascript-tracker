@@ -76,7 +76,7 @@ export type MediaTrackingConfiguration = {
   /** Unique ID of the media tracking. The same ID will be used for media player session if enabled. */
   id: string;
   /** Attributes for the media player context entity */
-  media?: MediaPlayerUpdate;
+  player?: MediaPlayerUpdate;
   /** Attributes for the media player session context entity or false to disable it. Enabled by default. */
   session?: { startedAt?: Date } | false;
   /** Configuration for sending ping events. Enabled by default.  */
@@ -151,7 +151,7 @@ export type MediaTrackArguments = {
   /** ID of the media tracking */
   id: string;
   /** Attributes for the media player context entity */
-  media?: MediaPlayerUpdate;
+  player?: MediaPlayerUpdate;
 };
 
 export type MediaTrackAdArguments = {
@@ -207,8 +207,6 @@ export interface MediaPlayer extends Record<string, unknown> {
   muted?: boolean;
   /** If the media element is paused */
   paused: boolean;
-  /** The percent of the way through the media */
-  percentProgress?: number | null;
   /** Whether the video element is showing picture-in-picture */
   pictureInPicture?: boolean;
   /** Type of the media player (e.g., com.youtube-youtube, com.vimeo-vimeo, org.whatwg-media_element) */
@@ -243,8 +241,6 @@ export interface MediaPlayerUpdate {
   muted?: boolean;
   /** If the media element is paused */
   paused?: boolean;
-  /** The percent of the way through the media */
-  percentProgress?: number | null;
   /** Whether the video element is showing picture-in-picture */
   pictureInPicture?: boolean;
   /** Type of the media player (e.g., com.youtube-youtube, com.vimeo-vimeo, org.whatwg-media_element) */

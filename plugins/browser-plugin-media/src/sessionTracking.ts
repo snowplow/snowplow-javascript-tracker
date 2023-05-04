@@ -1,5 +1,5 @@
 import { SelfDescribingJson } from '@snowplow/tracker-core';
-import { buildMediaPlayerSessionEntity } from './core';
+import { buildMediaSessionEntity } from './core';
 import { MediaSessionTrackingStats } from './sessionStats';
 import { MediaAdBreak, MediaPlayer, MediaEventType } from './types';
 
@@ -20,12 +20,12 @@ export class MediaSessionTracking {
     this.startedAt = startedAt ?? new Date();
   }
 
-  update(eventType: MediaEventType | undefined, mediaPlayer: MediaPlayer, adBreak?: MediaAdBreak) {
-    this.stats.update(eventType, mediaPlayer, adBreak);
+  update(eventType: MediaEventType | undefined, player: MediaPlayer, adBreak?: MediaAdBreak) {
+    this.stats.update(eventType, player, adBreak);
   }
 
   getContext(): SelfDescribingJson {
-    return buildMediaPlayerSessionEntity({
+    return buildMediaSessionEntity({
       mediaSessionId: this.id,
       startedAt: this.startedAt,
       pingInterval: this.pingInterval,

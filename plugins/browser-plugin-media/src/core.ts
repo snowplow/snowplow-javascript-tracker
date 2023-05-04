@@ -1,16 +1,16 @@
 import { SelfDescribingJson } from '@snowplow/tracker-core';
 import {
-  getMediaPlayerEventSchema,
-  MEDIA_PLAYER_AD_BREAK_SCHEMA,
-  MEDIA_PLAYER_AD_SCHEMA,
+  getMediaEventSchema,
+  MEDIA_AD_BREAK_SCHEMA,
+  MEDIA_AD_SCHEMA,
   MEDIA_PLAYER_SCHEMA,
-  MEDIA_PLAYER_SESSION_SCHEMA,
+  MEDIA_SESSION_SCHEMA,
 } from './schemata';
 import { MediaPlayer, MediaAd, MediaAdBreak, MediaSession, MediaEvent } from './types';
 
 export function buildMediaPlayerEvent(event: MediaEvent): SelfDescribingJson {
   return {
-    schema: getMediaPlayerEventSchema(event.type),
+    schema: getMediaEventSchema(event.type),
     data: removeEmptyProperties(event.eventBody ?? {}),
   };
 }
@@ -22,23 +22,23 @@ export function buildMediaPlayerEntity(mediaPlayer: MediaPlayer): SelfDescribing
   };
 }
 
-export function buildMediaPlayerSessionEntity(session: MediaSession): SelfDescribingJson {
+export function buildMediaSessionEntity(session: MediaSession): SelfDescribingJson {
   return {
-    schema: MEDIA_PLAYER_SESSION_SCHEMA,
+    schema: MEDIA_SESSION_SCHEMA,
     data: removeEmptyProperties(session),
   };
 }
 
-export function buildMediaPlayerAdEntity(ad: MediaAd): SelfDescribingJson {
+export function buildMediaAdEntity(ad: MediaAd): SelfDescribingJson {
   return {
-    schema: MEDIA_PLAYER_AD_SCHEMA,
+    schema: MEDIA_AD_SCHEMA,
     data: removeEmptyProperties(ad),
   };
 }
 
-export function buildMediaPlayerAdBreakEntity(adBreak: MediaAdBreak): SelfDescribingJson {
+export function buildMediaAdBreakEntity(adBreak: MediaAdBreak): SelfDescribingJson {
   return {
-    schema: MEDIA_PLAYER_AD_BREAK_SCHEMA,
+    schema: MEDIA_AD_BREAK_SCHEMA,
     data: removeEmptyProperties(adBreak),
   };
 }

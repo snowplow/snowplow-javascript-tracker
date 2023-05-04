@@ -75,14 +75,14 @@ export class MediaSessionTrackingStats {
   private lastLog: Log | undefined;
 
   /// Update stats given a new event.
-  update(eventType: MediaEventType | undefined, mediaPlayer: MediaPlayer, adBreak?: MediaAdBreak) {
+  update(eventType: MediaEventType | undefined, player: MediaPlayer, adBreak?: MediaAdBreak) {
     let log: Log = {
       time: new Date().getTime() / 1000,
-      contentTime: mediaPlayer.currentTime,
+      contentTime: player.currentTime,
       eventType: eventType,
-      playbackRate: mediaPlayer.playbackRate,
-      paused: mediaPlayer.paused,
-      muted: mediaPlayer.muted,
+      playbackRate: player.playbackRate,
+      paused: player.paused,
+      muted: player.muted,
       linearAd: (adBreak?.breakType ?? MediaAdBreakType.Linear) == MediaAdBreakType.Linear,
     };
 

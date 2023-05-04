@@ -72,7 +72,7 @@ export function startMediaTracking(
 
   const mediaTracking = new MediaTracking(
     config.id,
-    config.media,
+    config.player,
     sessionTracking,
     pings,
     config.boundaries,
@@ -93,6 +93,21 @@ export function endMediaTracking(configuration: { id: string }) {
     activeMedias[configuration.id].stop();
     delete activeMedias[configuration.id];
   }
+}
+
+/**
+ * Updates stored attributes of the media tracking such as the current playback.
+ * Use this function to continually update the player attributes so that they
+ * can be sent in the background ping events.
+ *
+ * @param args The attributes for the media entities
+ * @param trackers The tracker identifiers which any resulting event will be sent to
+ */
+export function updateMediaTracking(
+  args: MediaTrackArguments & CommonMediaEventProperties,
+  trackers: Array<string> = Object.keys(_trackers)
+) {
+  track({}, args, trackers);
 }
 
 /**
@@ -120,7 +135,17 @@ export function trackMediaPlay(
   args: MediaTrackArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  track({ mediaEvent: { type: MediaEventType.Play } }, args, trackers);
+  track(
+    { mediaEvent: { type: MediaEventType.Play } },
+    {
+      ...args,
+      player: {
+        ...args.player,
+        paused: false,
+      },
+    },
+    trackers
+  );
 }
 
 /**
@@ -133,7 +158,17 @@ export function trackMediaPause(
   args: MediaTrackArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  track({ mediaEvent: { type: MediaEventType.Pause } }, args, trackers);
+  track(
+    { mediaEvent: { type: MediaEventType.Pause } },
+    {
+      ...args,
+      player: {
+        ...args.player,
+        paused: true,
+      },
+    },
+    trackers
+  );
 }
 
 /**
@@ -147,7 +182,18 @@ export function trackMediaEnd(
   args: MediaTrackArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  track({ mediaEvent: { type: MediaEventType.End } }, args, trackers);
+  track(
+    { mediaEvent: { type: MediaEventType.End } },
+    {
+      ...args,
+      player: {
+        ...args.player,
+        ended: true,
+        paused: true,
+      },
+    },
+    trackers
+  );
 }
 
 /**
@@ -194,14 +240,14 @@ export function trackMediaPlaybackRateChange(
       mediaEvent: {
         type: MediaEventType.PlaybackRateChange,
         eventBody: {
-          previousRate: previousRate ?? getMedia(args.id)?.mediaPlayer.playbackRate,
+          previousRate: previousRate ?? getMedia(args.id)?.player.playbackRate,
           newRate,
         },
       },
     },
     {
       ...args,
-      media: { ...args.media, playbackRate: newRate },
+      player: { ...args.player, playbackRate: newRate },
     },
     trackers
   );
@@ -225,14 +271,14 @@ export function trackMediaVolumeChange(
       mediaEvent: {
         type: MediaEventType.VolumeChange,
         eventBody: {
-          previousVolume: previousVolume ?? getMedia(args.id)?.mediaPlayer.volume,
+          previousVolume: previousVolume ?? getMedia(args.id)?.player.volume,
           newVolume,
         },
       },
     },
     {
       ...args,
-      media: { ...args.media, volume: newVolume },
+      player: { ...args.player, volume: newVolume },
     },
     trackers
   );
@@ -259,7 +305,7 @@ export function trackMediaFullscreenChange(
     },
     {
       ...args,
-      media: { ...args.media, fullscreen },
+      player: { ...args.player, fullscreen },
     },
     trackers
   );
@@ -286,7 +332,7 @@ export function trackMediaPictureInPictureChange(
     },
     {
       ...args,
-      media: { ...args.media, pictureInPicture },
+      player: { ...args.player, pictureInPicture },
     },
     trackers
   );
@@ -558,6 +604,8 @@ export function trackMediaBufferEnd(
  * Tracks a media player quality change event tracked when the video
  * playback quality changes automatically.
  *
+ * If not passed here, the previous quality is taken from the last setting in media player.
+ *
  * @param args The attributes for the media player event and entities
  * @param trackers The tracker identifiers which the event will be sent to
  */
@@ -571,7 +619,7 @@ export function trackMediaQualityChange(
       mediaEvent: {
         type: MediaEventType.QualityChange,
         eventBody: {
-          previousQuality: previousQuality ?? getMedia(id)?.mediaPlayer.quality,
+          previousQuality: previousQuality ?? getMedia(id)?.player.quality,
           newQuality,
           bitrate,
           framesPerSecond,
@@ -581,7 +629,7 @@ export function trackMediaQualityChange(
     },
     {
       ...args,
-      media: { ...args.media, quality: newQuality },
+      player: { ...args.player, quality: newQuality },
     },
     trackers
   );
@@ -629,21 +677,6 @@ export function trackMediaSelfDescribingEvent(
   track({ customEvent: event }, args, trackers);
 }
 
-/**
- * Updates stored attributes of the media player such as the current playback.
- * Use this function to continually update the player attributes so that they
- * can be sent in the background ping events.
- *
- * @param args The attributes for the media player event and entities
- * @param trackers The tracker identifiers which any resulting event will be sent to
- */
-export function updateMediaPlayer(
-  args: MediaTrackArguments & CommonMediaEventProperties,
-  trackers: Array<string> = Object.keys(_trackers)
-) {
-  track({}, args, trackers);
-}
-
 function getMedia(id: string): MediaTracking | undefined {
   if (activeMedias[id] === undefined) {
     LOG.error(`Media tracking ${id} not started.`);
@@ -658,7 +691,7 @@ function track(
   args: MediaTrackArguments & MediaTrackAdArguments & MediaTrackAdBreakArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  const { context = [], timestamp, media, ad, adBreak, id } = args;
+  const { context = [], timestamp, player, ad, adBreak, id } = args;
   const { mediaEvent, customEvent } = event;
 
   const mediaTracking = getMedia(id);
@@ -666,7 +699,7 @@ function track(
     return;
   }
 
-  const events = mediaTracking.update(mediaEvent, customEvent, media, ad, adBreak);
+  const events = mediaTracking.update(mediaEvent, customEvent, player, ad, adBreak);
   if (events.length == 0) {
     return;
   }
