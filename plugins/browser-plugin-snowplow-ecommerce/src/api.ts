@@ -7,6 +7,7 @@ import {
   PAGE_SCHEMA,
   PRODUCT_SCHEMA,
   PROMO_SCHEMA,
+  REFUND_SCHEMA,
   TRANSACTION_SCHEMA,
   USER_SCHEMA,
 } from './schemata';
@@ -19,6 +20,7 @@ import {
   Page as PageContext,
   Product,
   Promotion,
+  Refund,
   Transaction,
   User as UserContext,
 } from './types';
@@ -216,6 +218,25 @@ export function trackTransaction(
 
   dispatchToTrackersInCollection(trackers, _trackers, (t) => {
     t.core.track(buildEcommerceActionEvent({ type: 'transaction' }), context, timestamp);
+  });
+}
+
+/**
+ * Track a refund event
+ *
+ * @param refund - The refund information
+ * @param trackers - The tracker identifiers which the event will be sent to
+ */
+export function trackRefund(
+  refund: Refund & CommonEcommerceEventProperties,
+  trackers: Array<string> = Object.keys(_trackers)
+) {
+  const { context = [], timestamp, products = [], ...refundAttributes } = refund;
+  products.forEach((product) => context.push({ schema: PRODUCT_SCHEMA, data: product }));
+  context.push({ schema: REFUND_SCHEMA, data: { ...refundAttributes } });
+
+  dispatchToTrackersInCollection(trackers, _trackers, (t) => {
+    t.core.track(buildEcommerceActionEvent({ type: 'refund' }), context, timestamp);
   });
 }
 
