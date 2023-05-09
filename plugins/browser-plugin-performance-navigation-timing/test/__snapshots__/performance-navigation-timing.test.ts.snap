@@ -1,0 +1,90 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Performance Navigation Timing plugin Returns values for Performance Navigation Timing properties 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "data": Object {
+        "activationStart": 203.8,
+        "connectEnd": 236.09999990463257,
+        "connectStart": 79,
+        "decodedBodySize": 59833,
+        "deliveryType": "cache",
+        "domComplete": 1802.2000002861023,
+        "domContentLoadedEventEnd": 1078.2000002861023,
+        "domContentLoadedEventStart": 1077.5999999046326,
+        "domInteractive": 1077.5,
+        "domainLookupEnd": 79,
+        "domainLookupStart": 25.90000009536743,
+        "duration": 1803.8000001907349,
+        "encodedBodySize": 11473,
+        "entryType": "navigation",
+        "fetchStart": 18.200000286102295,
+        "loadEventEnd": 1803.8000001907349,
+        "loadEventStart": 1803.7000002861023,
+        "nextHopProtocol": "h2",
+        "redirectCount": 1,
+        "redirectEnd": 1,
+        "redirectStart": 1,
+        "requestStart": 236.09999990463257,
+        "responseEnd": 401.7000002861023,
+        "responseStart": 376.7000002861023,
+        "secureConnectionStart": 101.90000009536743,
+        "serverTiming": Array [
+          Object {
+            "description": "test",
+            "duration": 1900,
+            "name": "ttfb_estimate",
+          },
+        ],
+        "transferSize": 11773,
+        "type": "reload",
+        "unloadEventEnd": 1,
+        "unloadEventStart": 1,
+        "workerStart": 1,
+      },
+      "schema": "iglu:org.w3/PerformanceNavigationTiming/jsonschema/1-0-0",
+    },
+  ],
+  "schema": "iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0",
+}
+`;
+
+exports[`Performance Navigation Timing plugin Returns values for Performance Navigation Timing properties removing empty or zero values 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "data": Object {
+        "connectEnd": 236.09999990463257,
+        "connectStart": 79,
+        "decodedBodySize": 59833,
+        "deliveryType": "cache",
+        "domComplete": 1802.2000002861023,
+        "domContentLoadedEventEnd": 1078.2000002861023,
+        "domContentLoadedEventStart": 1077.5999999046326,
+        "domInteractive": 1077.5,
+        "domainLookupEnd": 79,
+        "domainLookupStart": 25.90000009536743,
+        "duration": 1803.8000001907349,
+        "encodedBodySize": 11473,
+        "entryType": "navigation",
+        "fetchStart": 18.200000286102295,
+        "loadEventEnd": 1803.8000001907349,
+        "loadEventStart": 1803.7000002861023,
+        "nextHopProtocol": "h2",
+        "requestStart": 236.09999990463257,
+        "responseEnd": 401.7000002861023,
+        "responseStart": 376.7000002861023,
+        "secureConnectionStart": 101.90000009536743,
+        "serverTiming": undefined,
+        "transferSize": 11773,
+        "type": "reload",
+        "unloadEventEnd": 1,
+        "unloadEventStart": 1,
+      },
+      "schema": "iglu:org.w3/PerformanceNavigationTiming/jsonschema/1-0-0",
+    },
+  ],
+  "schema": "iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0",
+}
+`;
