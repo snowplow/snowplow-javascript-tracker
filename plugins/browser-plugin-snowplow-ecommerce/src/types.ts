@@ -16,7 +16,8 @@ export interface Action {
     | 'promo_click'
     | 'promo_view'
     | 'checkout_step'
-    | 'transaction';
+    | 'transaction'
+    | 'refund';
 
   /**
    * You can add a name for the list presented to the user.
@@ -234,6 +235,33 @@ export interface Transaction {
   credit_order?: boolean;
   /**
    * Array of products on the transaction from cart
+   */
+  products?: Product[];
+}
+
+/**
+ * Type/Schema for a refund entity in Ecommerce
+ */
+export interface Refund {
+  /**
+   * The ID of the transaction.
+   */
+  transaction_id: string;
+  /**
+   * The currency in which the product is being priced (ISO 4217).
+   */
+  currency: string;
+  /**
+   * The monetary amount refunded.
+   */
+  refund_amount: number;
+  /**
+   * Reason for refunding the whole or part of the transaction.
+   */
+  refund_reason?: string | null;
+  /**
+   * Array of products on the refund. This is used when specific products are refunded.
+   * If not present, the whole transaction and products will be marked as refunded.
    */
   products?: Product[];
 }
