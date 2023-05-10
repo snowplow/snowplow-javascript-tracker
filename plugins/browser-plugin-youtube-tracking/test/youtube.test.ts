@@ -38,11 +38,11 @@ describe('config parser', () => {
   const id = 'youtube';
   const default_output: TrackingOptions = {
     mediaId: 'youtube',
+    player: undefined,
     captureEvents: DefaultEvents,
     youtubeEvents: [
       YTPlayerEvent.ONSTATECHANGE,
       YTPlayerEvent.ONPLAYBACKQUALITYCHANGE,
-      YTPlayerEvent.ONERROR,
       YTPlayerEvent.ONPLAYBACKRATECHANGE,
     ],
     updateRate: 500,
@@ -88,7 +88,7 @@ describe('config parser', () => {
       captureEvents: ['play', 'error', 'playbackratechange', 'playbackqualitychange', 'apichange'],
     };
 
-    let expectedOutput = ['onStateChange', 'onPlaybackQualityChange', 'onError', 'onPlaybackRateChange', 'onApiChange'];
+    let expectedOutput = ['onStateChange', 'onError', 'onPlaybackRateChange', 'onPlaybackQualityChange', 'onApiChange'];
     expect(trackingOptionsParser(id, trackingOptions).youtubeEvents).toEqual(expectedOutput);
   });
 
@@ -107,6 +107,91 @@ describe('config parser', () => {
 
     let expectedOutput = DefaultEvents.concat(['ready']);
     expect(trackingOptionsParser(id, trackingOptions).captureEvents).toEqual(expectedOutput);
+  });
+
+  it("doesn't return youtube events not in capture events", () => {
+    let trackingOptions: MediaTrackingOptions = {
+      captureEvents: ['play', 'pause'],
+    };
+
+    let expectedOutput = ['onStateChange'];
+    expect(trackingOptionsParser(id, trackingOptions).youtubeEvents).toEqual(expectedOutput);
+  });
+
+  it("Only includes YTPlayerEvent.ONERROR with 'error' event ", () => {
+    let expectedOutput = ['onError'];
+    for (let event of AllEvents) {
+      let trackingOptions: MediaTrackingOptions = {
+        captureEvents: [event],
+      };
+
+      if (event === 'error') {
+        expect(trackingOptionsParser(id, trackingOptions).youtubeEvents).toEqual(expectedOutput);
+      } else {
+        expect(trackingOptionsParser(id, trackingOptions).youtubeEvents).not.toEqual(expectedOutput);
+      }
+    }
+  });
+
+  it('Only includes YTPlayerEvent.ONSTATECHANGE with required events', () => {
+    let expectedOutput = ['onStateChange'];
+    const eventsUsingStateChange = ['unstarted', 'play', 'pause', 'buffering', 'cued', 'ended'];
+    for (let event of AllEvents) {
+      let trackingOptions: MediaTrackingOptions = {
+        captureEvents: [event],
+      };
+
+      if (eventsUsingStateChange.indexOf(event) !== -1) {
+        expect(trackingOptionsParser(id, trackingOptions).youtubeEvents).toEqual(expectedOutput);
+      } else {
+        expect(trackingOptionsParser(id, trackingOptions).youtubeEvents).not.toEqual(expectedOutput);
+      }
+    }
+  });
+
+  it("Only includes YTPlayerEvent.ONPLAYBACKRATECHANGE with 'playbackratechange' event", () => {
+    let expectedOutput = ['onPlaybackRateChange'];
+    for (let event of AllEvents) {
+      let trackingOptions: MediaTrackingOptions = {
+        captureEvents: [event],
+      };
+
+      if (event === 'playbackratechange') {
+        expect(trackingOptionsParser(id, trackingOptions).youtubeEvents).toEqual(expectedOutput);
+      } else {
+        expect(trackingOptionsParser(id, trackingOptions).youtubeEvents).not.toEqual(expectedOutput);
+      }
+    }
+  });
+
+  it("Only includes YTPlayerEvent.ONPLAYBACKQUALITYCHANGE only with 'playbackqualitychange' event", () => {
+    let expectedOutput = ['onPlaybackQualityChange'];
+    for (let event of AllEvents) {
+      let trackingOptions: MediaTrackingOptions = {
+        captureEvents: [event],
+      };
+
+      if (event === 'playbackqualitychange') {
+        expect(trackingOptionsParser(id, trackingOptions).youtubeEvents).toEqual(expectedOutput);
+      } else {
+        expect(trackingOptionsParser(id, trackingOptions).youtubeEvents).not.toEqual(expectedOutput);
+      }
+    }
+  });
+
+  it('Only includes YTPlayerEvent.ONAPICHANGE only with "apichange" event', () => {
+    let expectedOutput = ['onApiChange'];
+    for (let event of AllEvents) {
+      let trackingOptions: MediaTrackingOptions = {
+        captureEvents: [event],
+      };
+
+      if (event === 'apichange') {
+        expect(trackingOptionsParser(id, trackingOptions).youtubeEvents).toEqual(expectedOutput);
+      } else {
+        expect(trackingOptionsParser(id, trackingOptions).youtubeEvents).not.toEqual(expectedOutput);
+      }
+    }
   });
 });
 
