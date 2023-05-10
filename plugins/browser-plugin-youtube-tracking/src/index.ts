@@ -69,60 +69,54 @@ function trackEvent(
 export function trackingOptionsParser(id: string | YT.Player, conf?: MediaTrackingOptions): TrackingOptions {
   const player = typeof id === 'string' ? undefined : id;
   const elementId = typeof id === 'string' ? id : id.getIframe().id;
+  const defaultBoundaries = [10, 25, 50, 75];
+  const defaultUpdateRate = 500;
 
-  const defaults: TrackingOptions = {
+  const parsed: TrackingOptions = {
     mediaId: elementId,
     player,
-    captureEvents: DefaultEvents,
-    youtubeEvents: [
-      YTPlayerEvent.ONSTATECHANGE,
-      YTPlayerEvent.ONPLAYBACKQUALITYCHANGE,
-      YTPlayerEvent.ONERROR,
-      YTPlayerEvent.ONPLAYBACKRATECHANGE,
-    ],
-    updateRate: 500,
-    progress: {
-      boundaries: [10, 25, 50, 75],
-      boundaryTimeoutIds: [],
-    },
+    captureEvents: conf?.captureEvents || DefaultEvents,
+    youtubeEvents: [],
+    updateRate: conf?.updateRate || defaultUpdateRate,
   };
 
-  if (!conf) return defaults;
-  if (conf.label) defaults.label = conf.label;
-  defaults.updateRate = conf.updateRate || defaults.updateRate;
-  defaults.captureEvents = conf.captureEvents || defaults.captureEvents;
+  if (conf?.label) parsed.label = conf.label;
 
   let parsedEvents: EventGroup = [];
-  for (let ev of defaults.captureEvents) {
+  for (let ev of parsed.captureEvents) {
     // If an event is an EventGroup, get the events from that group
     if (EventGroups.hasOwnProperty(ev)) {
       parsedEvents = parsedEvents.concat(EventGroups[ev]);
-    } else if (!Object.keys(AllEvents).filter((k) => k === ev)) {
+    } else if (AllEvents.indexOf(ev) === -1) {
       LOG.warn(`'${ev}' is not a valid event`);
     } else {
       parsedEvents.push(ev);
     }
   }
 
-  defaults.captureEvents = parsedEvents;
+  parsed.captureEvents = parsedEvents;
 
-  for (let ev of defaults.captureEvents) {
+  // Check if any events in `parsed.captureEvents` require a listener on a `YTPlayerEvent`
+  // for them to fire
+  for (let ev of parsed.captureEvents) {
     if (
       CaptureEventToYouTubeEvent.hasOwnProperty(ev) &&
-      defaults.youtubeEvents.indexOf(CaptureEventToYouTubeEvent[ev]) === -1
+      parsed.youtubeEvents.indexOf(CaptureEventToYouTubeEvent[ev]) === -1
     ) {
-      defaults.youtubeEvents.push(CaptureEventToYouTubeEvent[ev]);
+      parsed.youtubeEvents.push(CaptureEventToYouTubeEvent[ev]);
     }
   }
 
-  if (defaults.captureEvents.indexOf(SnowplowEvent.PERCENTPROGRESS) !== -1) {
-    defaults.progress = {
-      boundaries: conf.boundaries || defaults.progress!.boundaries,
+  // If "percentprogress" is in `captureEvents`, add the `progress` object
+  // to the tracking options with the user-defined boundaries, or the default
+  if (parsed.captureEvents.indexOf(SnowplowEvent.PERCENTPROGRESS) !== -1) {
+    parsed.progress = {
+      boundaries: conf?.boundaries || defaultBoundaries,
       boundaryTimeoutIds: [],
     };
   }
 
-  return defaults;
+  return parsed;
 }
 
 export function enableYouTubeTracking(args: { id: string | YT.Player; options?: MediaTrackingOptions }) {
@@ -216,12 +210,14 @@ function addExistingPlayer(conf: TrackingOptions) {
     },
   };
 
-  // The 'ready' event is required for modelling purposes
-  //
-  // We need to manually trigger the 'ready' event, as it won't be fired by the player when
-  // an existing player is passed in, since it's already been fired
-  const readyEvent = buildYouTubeEvent(conf.player!!, 'ready', conf);
-  trackEvent(readyEvent);
+  // The 'ready' event is required for modelling purposes, the Out-The-Box YouTube modelling won't work without it
+  // Ensure you have 'ready' in your 'captureEvents' array if you are using the Out-The-Box YouTube modelling
+  if (conf.captureEvents.indexOf(YTEvent.READY) !== -1) {
+    // We need to manually trigger the 'ready' event, as it won't be fired by the player when
+    // an existing player is passed in, since it's already been fired
+    const readyEvent = buildYouTubeEvent(conf.player!!, 'ready', conf);
+    trackEvent(readyEvent);
+  }
 
   attachListeners(conf.player!!, conf);
 }
