@@ -1,6 +1,6 @@
 import { SnowplowEvent } from './snowplowEvents';
 import { EventGroup } from './types';
-import { YTPlayerEvent, YTState } from './constants';
+import { YTState } from './constants';
 import { YTEvent } from './youtubeEvents';
 
 export const AllEvents: EventGroup = [
@@ -16,8 +16,8 @@ export const DefaultEvents: EventGroup = [
   YTState.ENDED,
   SnowplowEvent.SEEK,
   SnowplowEvent.VOLUMECHANGE,
-  YTPlayerEvent.ONPLAYBACKQUALITYCHANGE,
-  YTPlayerEvent.ONPLAYBACKRATECHANGE,
+  YTEvent.PLAYBACKQUALITYCHANGE,
+  YTEvent.PLAYBACKRATECHANGE,
   SnowplowEvent.PERCENTPROGRESS,
 ];
 

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-youtube-tracking",
+      "comment": "Fix 'captureEvents' not being respected",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-youtube-tracking"
+}
