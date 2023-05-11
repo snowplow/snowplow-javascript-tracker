@@ -2,6 +2,21 @@
   "name": "@snowplow/browser-plugin-snowplow-ecommerce",
   "entries": [
     {
+      "version": "3.10.0",
+      "tag": "@snowplow/browser-plugin-snowplow-ecommerce_v3.10.0",
+      "date": "Thu, 11 May 2023 08:29:15 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add refund tracking capability to the snowplow-ecommerce plugin"
+          },
+          {
+            "comment": "Add GA4 and UA ecommerce translation layer API"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.9.0",
       "tag": "@snowplow/browser-plugin-snowplow-ecommerce_v3.9.0",
       "date": "Thu, 30 Mar 2023 13:46:56 GMT",

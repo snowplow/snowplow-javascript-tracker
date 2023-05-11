@@ -1,6 +1,14 @@
 # Change Log - @snowplow/browser-plugin-snowplow-ecommerce
 
-This log was last generated on Thu, 30 Mar 2023 13:46:56 GMT and should not be manually modified.
+This log was last generated on Thu, 11 May 2023 08:29:15 GMT and should not be manually modified.
+
+## 3.10.0
+Thu, 11 May 2023 08:29:15 GMT
+
+### Updates
+
+- Add refund tracking capability to the snowplow-ecommerce plugin
+- Add GA4 and UA ecommerce translation layer API
 
 ## 3.9.0
 Thu, 30 Mar 2023 13:46:56 GMT
