@@ -242,6 +242,13 @@ export type TrackerConfiguration = {
    * @param updatedSession - On session update, the new session information plus the previous session id.
    */
   onSessionUpdateCallback?: (updatedSession: ClientSession) => void;
+  /**
+   * Id service full URL. This URL will be added to the queue and will be called using a GET method.
+   * This option is there to allow the service URL to be called in order to set any required identifiers e.g. extra cookies.
+   *
+   * The request respects the `anonymousTracking` option, including the SP-Anonymous header if needed, and any additional custom headers from the customHeaders option.
+   */
+  idService?: string;
 };
 
 /**

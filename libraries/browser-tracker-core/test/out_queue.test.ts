@@ -216,4 +216,125 @@ describe('OutQueueManager', () => {
       expect(xhrOpenMock).toHaveBeenCalledWith('POST', 'http://acme.com/com.snowplowanalytics.snowplow/tp2', true); // should make the POST request
     });
   });
+
+  describe('idService requests', () => {
+    const idServiceEndpoint = 'http://example.com/id';
+    const readPostQueue = () => {
+      return JSON.parse(
+        window.localStorage.getItem('snowplowOutQueue_sp_post2') ?? fail('Unable to find local storage queue')
+      );
+    };
+
+    const readGetQueue = () =>
+      JSON.parse(window.localStorage.getItem('snowplowOutQueue_sp_get') ?? fail('Unable to find local storage queue'));
+
+    const getQuerystring = (p: object) =>
+      '?' +
+      Object.entries(p)
+        .map(([k, v]) => k + '=' + encodeURIComponent(v))
+        .join('&');
+
+    describe('GET requests', () => {
+      const createGetQueue = () =>
+        OutQueueManager(
+          'sp',
+          new SharedState(),
+          true,
+          'get',
+          '/com.snowplowanalytics.snowplow/tp2',
+          1,
+          40000,
+          0,
+          false,
+          maxQueueSize,
+          5000,
+          false,
+          {},
+          true,
+          [],
+          [],
+          idServiceEndpoint
+        );
+
+      it('should first execute the idService request and in the same `enqueueRequest` the tracking request', () => {
+        const request = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
+        const getQueue = createGetQueue();
+
+        getQueue.enqueueRequest(request, 'http://example.com');
+
+        let retrievedQueue = readGetQueue();
+        expect(retrievedQueue).toHaveLength(1);
+        /* The first XHR is for the idService */
+        respondMockRequest(200);
+        retrievedQueue = readGetQueue();
+        expect(retrievedQueue).toHaveLength(1);
+        expect(retrievedQueue[0]).toEqual(getQuerystring(request));
+        /* The second XHR is the event request */
+        respondMockRequest(200);
+        retrievedQueue = readGetQueue();
+        expect(retrievedQueue).toHaveLength(0);
+      });
+
+      it('should first execute the idService request and in the same `enqueueRequest` the tracking request irregardless of failure of the idService endpoint', () => {
+        const request = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
+        const getQueue = createGetQueue();
+
+        getQueue.enqueueRequest(request, 'http://example.com');
+
+        let retrievedQueue = readGetQueue();
+        expect(retrievedQueue).toHaveLength(1);
+        /* The first XHR is for the idService */
+        respondMockRequest(500);
+        retrievedQueue = readGetQueue();
+        expect(retrievedQueue).toHaveLength(1);
+        expect(retrievedQueue[0]).toEqual(getQuerystring(request));
+        /* The second XHR is the event request */
+        respondMockRequest(200);
+        retrievedQueue = readGetQueue();
+        expect(retrievedQueue).toHaveLength(0);
+      });
+    });
+
+    describe('POST requests', () => {
+      const createPostQueue = () =>
+        OutQueueManager(
+          'sp',
+          new SharedState(),
+          true,
+          'post',
+          '/com.snowplowanalytics.snowplow/tp2',
+          1,
+          40000,
+          0,
+          false,
+          maxQueueSize,
+          5000,
+          false,
+          {},
+          true,
+          [],
+          [],
+          idServiceEndpoint
+        );
+
+      it('should first execute the idService request and in the same `enqueueRequest` the tracking request irregardless of failure of the idService endpoint', () => {
+        const request = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
+        const postQueue = createPostQueue();
+
+        postQueue.enqueueRequest(request, 'http://example.com');
+
+        let retrievedQueue = readPostQueue();
+        expect(retrievedQueue).toHaveLength(1);
+        /* The first XHR is for the idService */
+        respondMockRequest(500);
+        retrievedQueue = readPostQueue();
+        expect(retrievedQueue).toHaveLength(1);
+        expect(retrievedQueue[0].evt).toEqual(request);
+        /* The second XHR is the event request */
+        respondMockRequest(200);
+        retrievedQueue = readPostQueue();
+        expect(retrievedQueue).toHaveLength(0);
+      });
+    });
+  });
 });

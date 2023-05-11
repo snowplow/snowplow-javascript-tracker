@@ -360,6 +360,7 @@ export type TrackerConfiguration = {
     retryStatusCodes?: number[];
     dontRetryStatusCodes?: number[];
     onSessionUpdateCallback?: (updatedSession: ClientSession) => void;
+    idService?: string;
 };
 
 // @public
