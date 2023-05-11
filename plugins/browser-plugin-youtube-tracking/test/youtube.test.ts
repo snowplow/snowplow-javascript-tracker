@@ -135,7 +135,7 @@ describe('config parser', () => {
 
   it('Only includes YTPlayerEvent.ONSTATECHANGE with required events', () => {
     let expectedOutput = ['onStateChange'];
-    const eventsUsingStateChange = ['unstarted', 'play', 'pause', 'buffering', 'cued', 'ended'];
+    const eventsUsingStateChange = ['unstarted', 'play', 'pause', 'buffering', 'cued', 'ended', 'percentprogress'];
     for (let event of AllEvents) {
       let trackingOptions: MediaTrackingOptions = {
         captureEvents: [event],
