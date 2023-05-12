@@ -114,6 +114,11 @@ export function trackingOptionsParser(id: string | YT.Player, conf?: MediaTracki
       boundaries: conf?.boundaries || defaultBoundaries,
       boundaryTimeoutIds: [],
     };
+    // We need to monitor state changes for 'percentprogress' events
+    // as `progressHandler` uses these to set/reset timeouts
+    if (parsed.youtubeEvents.indexOf(YTPlayerEvent.ONSTATECHANGE) === -1) {
+      parsed.youtubeEvents.push(YTPlayerEvent.ONSTATECHANGE);
+    }
   }
 
   return parsed;
@@ -245,7 +250,18 @@ function initialisePlayer(conf: TrackingOptions) {
 function attachListeners(player: YT.Player, conf: TrackingOptions) {
   const builtInEvents: Record<string, Function> = {
     [YTPlayerEvent.ONSTATECHANGE]: (e: YT.OnStateChangeEvent) => {
-      if (conf.captureEvents.indexOf(YTStateEvent[e.data.toString()]) !== -1) {
+      const stateEventInCaptureEvents = conf.captureEvents.indexOf(YTStateEvent[e.data.toString()]) !== -1;
+      // If the user is tracking 'percentprogress' events, we need to pass these state changes to `progressHandler`,
+      // even if the user is not tracking the state changes themselves
+      if (conf.captureEvents.indexOf(SnowplowEvent.PERCENTPROGRESS) !== -1) {
+        // Only pass the event to `progressHandler` if the event isn't in the `captureEvents` array
+        // As otherwise it will be handled by `youtubeEvent` below
+        if (!stateEventInCaptureEvents) {
+          progressHandler(player, YTStateEvent[e.data], conf);
+        }
+      }
+
+      if (stateEventInCaptureEvents) {
         youtubeEvent(trackedPlayers[conf.mediaId].player, YTStateEvent[e.data], conf);
       }
     },
