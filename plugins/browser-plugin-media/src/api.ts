@@ -77,6 +77,7 @@ export function startMediaTracking(
     pings,
     config.boundaries,
     config.captureEvents,
+    config.updatePageActivityWhilePlaying,
     config.context
   );
   activeMedias[mediaTracking.id] = mediaTracking;
@@ -700,10 +701,19 @@ function track(
   }
 
   const events = mediaTracking.update(mediaEvent, customEvent, player, ad, adBreak);
+
+  // Update page activity in order to keep sending page pings if needed
+  if (mediaTracking.shouldUpdatePageActivity()) {
+    dispatchToTrackersInCollection(trackers, _trackers, (t) => {
+      t.updatePageActivity();
+    });
+  }
+
   if (events.length == 0) {
     return;
   }
 
+  // Send all created events to the trackers
   dispatchToTrackersInCollection(trackers, _trackers, (t) => {
     events.forEach((event) => {
       t.core.track(buildSelfDescribingEvent(event), event.context.concat(context), timestamp);

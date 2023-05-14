@@ -88,6 +88,8 @@ export type MediaTrackingConfiguration = {
         maxPausedPings?: number;
       }
     | boolean;
+  /** Update page activity in order to keep sending page ping events while playing. Enabled by default. */
+  updatePageActivityWhilePlaying?: boolean;
   /** Percentage boundaries when to send percent progress events. Disabled by default. */
   boundaries?: number[];
   /**

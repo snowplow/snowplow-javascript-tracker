@@ -45,6 +45,8 @@ export class MediaTracking {
   private customContext?: Array<SelfDescribingJson>;
   /// Optional list of event types to allow tracking and discard others.
   private captureEvents?: MediaEventType[];
+  // Whether to update page activity when playing media. Enabled by default.
+  private updatePageActivityWhilePlaying?: boolean;
 
   constructor(
     id: string,
@@ -53,6 +55,7 @@ export class MediaTracking {
     pingInterval?: MediaPingInterval,
     boundaries?: number[],
     captureEvents?: MediaEventType[],
+    updatePageActivityWhilePlaying?: boolean,
     context?: Array<SelfDescribingJson>
   ) {
     this.id = id;
@@ -61,6 +64,7 @@ export class MediaTracking {
     this.pingInterval = pingInterval;
     this.boundaries = boundaries;
     this.captureEvents = captureEvents;
+    this.updatePageActivityWhilePlaying = updatePageActivityWhilePlaying;
     this.customContext = context;
   }
 
@@ -128,6 +132,10 @@ export class MediaTracking {
       eventsToTrack.push({ event: customEvent, context: context });
     }
     return eventsToTrack;
+  }
+
+  shouldUpdatePageActivity(): boolean {
+    return (this.updatePageActivityWhilePlaying ?? true) && !this.player.paused;
   }
 
   private updatePlayer(player?: MediaPlayerUpdate) {
