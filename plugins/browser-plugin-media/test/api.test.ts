@@ -227,7 +227,7 @@ describe('Media Tracking API', () => {
     it('tracks an ad skip event', () => {
       startMediaTracking({ id, session: false });
 
-      trackMediaAdSkip({ id, percentProgress: 33 })
+      trackMediaAdSkip({ id, percentProgress: 33.33 })
 
       expect(eventQueue).toMatchObject([
         {
@@ -242,7 +242,7 @@ describe('Media Tracking API', () => {
     it('tracks an ad click event', () => {
       startMediaTracking({ id, session: false });
 
-      trackMediaAdClick({ id, percentProgress: 33 })
+      trackMediaAdClick({ id, percentProgress: 33.33 })
 
       expect(eventQueue).toMatchObject([
         {
@@ -257,7 +257,7 @@ describe('Media Tracking API', () => {
     it('tracks an ad pause event', () => {
       startMediaTracking({ id, session: false });
 
-      trackMediaAdPause({ id, percentProgress: 33 })
+      trackMediaAdPause({ id, percentProgress: 33.33 })
 
       expect(eventQueue).toMatchObject([
         {
@@ -272,7 +272,7 @@ describe('Media Tracking API', () => {
     it('tracks an ad resume event', () => {
       startMediaTracking({ id, session: false });
 
-      trackMediaAdResume({ id, percentProgress: 33 })
+      trackMediaAdResume({ id, percentProgress: 33.33 })
 
       expect(eventQueue).toMatchObject([
         {

@@ -78,7 +78,10 @@ export type MediaTrackingConfiguration = {
   /** Attributes for the media player context entity */
   player?: MediaPlayerUpdate;
   /** Attributes for the media player session context entity or false to disable it. Enabled by default. */
-  session?: { startedAt?: Date } | false;
+  session?: {
+    /** Local date-time timestamp of when the session started. Automatically set to current time if not given. */
+    startedAt?: Date
+  } | false;
   /** Configuration for sending ping events. Enabled by default.  */
   pings?:
     | {
@@ -115,12 +118,12 @@ export type MediaTrackVolumeChangeArguments = {
 };
 
 export type MediaTrackFullscreenChangeArguments = {
-  /** Whether the video element is fullscreen. */
+  /** Whether the video element is fullscreen after the change. */
   fullscreen: boolean;
 };
 
 export type MediaTrackPictureInPictureChangeArguments = {
-  /** Whether the video element is showing picture-in-picture. */
+  /** Whether the video element is showing picture-in-picture after the change. */
   pictureInPicture: boolean;
 };
 
@@ -257,7 +260,7 @@ export interface MediaPlayerUpdate {
 
 /** Partial type/schema for a context entity for media player events that tracks a session of a single media player usage */
 export interface MediaSession extends Record<string, unknown> {
-  /** An identifier for the media session */
+  /** An identifier for the media session that is kept while the media content is played in the media player. Does not reset automatically. */
   mediaSessionId: string;
   /** Date-time timestamp of when the session started */
   startedAt?: Date;

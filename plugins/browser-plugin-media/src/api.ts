@@ -393,7 +393,8 @@ export function trackMediaAdSkip(
     CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  const { percentProgress } = args;
+  let { percentProgress } = args;
+  if (percentProgress !== undefined) { percentProgress = Math.floor(percentProgress); }
   track(
     {
       mediaEvent: {
@@ -502,7 +503,8 @@ export function trackMediaAdClick(
     CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  const { percentProgress } = args;
+  let { percentProgress } = args;
+  if (percentProgress !== undefined) { percentProgress = Math.floor(percentProgress); }
   track(
     {
       mediaEvent: {
@@ -529,7 +531,8 @@ export function trackMediaAdPause(
     CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  const { percentProgress } = args;
+  let { percentProgress } = args;
+  if (percentProgress !== undefined) { percentProgress = Math.floor(percentProgress); }
   track(
     {
       mediaEvent: {
@@ -557,7 +560,8 @@ export function trackMediaAdResume(
     CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  const { percentProgress } = args;
+  let { percentProgress } = args;
+  if (percentProgress !== undefined) { percentProgress = Math.floor(percentProgress); }
   track(
     {
       mediaEvent: {
