@@ -37,6 +37,7 @@ import {
   Platform,
   EventMethod,
   StateStorageStrategy,
+  ClientSession,
 } from '@snowplow/browser-tracker-core';
 import { version } from '@snowplow/tracker-core';
 
@@ -72,6 +73,14 @@ export function newTracker(trackerId: string, endpoint: string, configuration: T
   }
 }
 
-export { BrowserTracker, TrackerConfiguration, CookieSameSite, Platform, EventMethod, StateStorageStrategy };
+export {
+  BrowserTracker,
+  TrackerConfiguration,
+  CookieSameSite,
+  Platform,
+  EventMethod,
+  StateStorageStrategy,
+  ClientSession,
+};
 export { version };
 export * from './api';

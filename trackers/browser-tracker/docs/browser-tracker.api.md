@@ -128,6 +128,18 @@ export interface ClearUserDataConfiguration {
 }
 
 // @public
+export interface ClientSession extends Record<string, unknown> {
+    eventIndex: number;
+    firstEventId: string | null;
+    firstEventTimestamp: string | null;
+    previousSessionId: string | null;
+    sessionId: string;
+    sessionIndex: number;
+    storageMechanism: string;
+    userId: string;
+}
+
+// @public
 export interface CommonEventProperties {
     context?: Array<SelfDescribingJson> | null;
     // Warning: (ae-forgotten-export) The symbol "Timestamp" needs to be exported by the entry point index.module.d.ts
@@ -347,6 +359,7 @@ export type TrackerConfiguration = {
     customHeaders?: Record<string, string>;
     retryStatusCodes?: number[];
     dontRetryStatusCodes?: number[];
+    onSessionUpdateCallback?: (updatedSession: ClientSession) => void;
 };
 
 // @public
