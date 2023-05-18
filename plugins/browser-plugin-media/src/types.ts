@@ -192,7 +192,7 @@ export enum MediaType {
 
 /** Type/Schema for a context entity for media player events with information about the current state of the media player */
 export interface MediaPlayer extends Record<string, unknown> {
-  /** The current playback time */
+  /** The current playback time position within the media in seconds */
   currentTime: number;
   /** A double-precision floating-point value indicating the duration of the media in seconds */
   duration?: number | null;
@@ -226,7 +226,7 @@ export interface MediaPlayer extends Record<string, unknown> {
 
 /** Partial type/schema for a context entity for media player events with information about the current state of the media player */
 export interface MediaPlayerUpdate {
-  /** The current playback time */
+  /** The current playback time position within the media in seconds */
   currentTime?: number;
   /** A double-precision floating-point value indicating the duration of the media in seconds */
   duration?: number | null;
@@ -351,6 +351,8 @@ export interface MediaAdBreak extends Record<string, unknown> {
    * - companion (accompany the video but placed outside the player)
    */
   breakType?: MediaAdBreakType;
+  /** The number of ads to be played within the ad break */
+  podSize?: number;
 }
 
 /** Partial type/schema for a context entity, shared with all media_player_ad events belonging to the ad break */
@@ -368,6 +370,8 @@ export interface MediaPlayerAdBreakUpdate {
    * - companion (accompany the video but placed outside the player)
    */
   breakType?: MediaAdBreakType;
+  /** The number of ads to be played within the ad break */
+  podSize?: number;
 }
 
 export interface CommonMediaEventProperties extends CommonEventProperties {
