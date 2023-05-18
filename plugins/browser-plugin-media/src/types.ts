@@ -200,8 +200,8 @@ export interface MediaPlayer extends Record<string, unknown> {
   ended: boolean;
   /** Whether the video element is fullscreen */
   fullscreen?: boolean;
-  /** If the media is live */
-  isLive?: boolean;
+  /** Whether the media is a live stream */
+  livestream?: boolean;
   /** Human readable name given to tracked media content. */
   label?: string;
   /** If the video should restart after ending */
@@ -234,8 +234,8 @@ export interface MediaPlayerUpdate {
   ended?: boolean;
   /** Whether the video element is fullscreen */
   fullscreen?: boolean;
-  /** If the media is live */
-  isLive?: boolean;
+  /** Whether the media is a live stream */
+  livestream?: boolean;
   /** Human readable name given to tracked media content. */
   label?: string;
   /** If the video should restart after ending */

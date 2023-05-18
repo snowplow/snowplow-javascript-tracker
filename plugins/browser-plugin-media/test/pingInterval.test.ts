@@ -55,7 +55,7 @@ describe('PingInterval', () => {
       currentTime: 0,
       ended: false,
       loop: false,
-      isLive: false,
+      livestream: false,
       muted: false,
       paused: true,
       playbackRate: 1,
