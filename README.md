@@ -59,6 +59,16 @@ Assuming [git](https://git-scm.com/downloads), [Node.js 14 or 16](https://nodejs
 git clone https://github.com/snowplow/snowplow-javascript-tracker.git
 ```
 
+#### Install gitleaks
+
+To commit with safety in the repository, preventing sensitive key leakage, we use [gitleaks](https://github.com/gitleaks/gitleaks). Gitleaks runs as a pre-commit hook making sure it can prevent accidental committing of sensitive data.
+
+To install gitleaks, you can follow the [getting started](https://github.com/gitleaks/gitleaks) section on the repository.
+
+_For open source users before the update, you might need to re-run `rush install` to update your git hooks from source._
+
+:warning: To disable gitleaks check, you can run your commit command with the `SKIP=gitleaks` variable. e.g. `SKIP=gitleaks git commit -m "Unsafe commit"`.
+
 #### Building
 
 ```bash
