@@ -7,3 +7,18 @@
 # are committed. The command is defined in common/config/rush/command-line.json
 # and uses the "rush-prettier" autoinstaller.
 node common/scripts/install-run-rush.js prettier || exit $?
+
+ERROR_COLOR='\033[0;31m'
+WARNING_COLOR='\033[0;33m'
+STOP_COLOR='\033[0m'
+
+if ! command -v gitleaks &> /dev/null
+then
+   echo "${ERROR_COLOR}\nGitleaks not found. To commit you safely, you need to install it per the instructions at https://github.com/gitleaks/gitleaks.${STOP_COLOR}"
+   exit 1
+elif [ "$SKIP" == "gitleaks" ]
+then
+   echo "${WARNING_COLOR}\nGitleaks skipped for this commit.${STOP_COLOR}"
+else
+   gitleaks protect -v --staged --report-path ./findings.json
+fi

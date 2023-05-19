@@ -78,3 +78,6 @@ trackers/javascript-tracker/test/local/serve/
 # IDE files
 .idea/
 .DS_Store
+
+# gitleaks file
+findings.json
