@@ -74,6 +74,7 @@ import {
   FlushBufferConfiguration,
   BrowserPluginConfiguration,
   ClearUserDataConfiguration,
+  ClientSession,
 } from './types';
 import {
   parseIdCookie,
@@ -87,7 +88,6 @@ import {
   visitCountFromIdCookie,
   cookiesEnabledInIdCookie,
   ParsedIdCookie,
-  ClientSession,
   clientSessionFromIdCookie,
   incrementEventIndexInIdCookie,
   emptyIdCookie,
@@ -314,7 +314,8 @@ export function Tracker(
         configurations: {},
       },
       configSessionContext = trackerConfiguration.contexts?.session ?? false,
-      toOptoutByCookie: string | boolean;
+      toOptoutByCookie: string | boolean,
+      onSessionUpdateCallback = trackerConfiguration.onSessionUpdateCallback;
 
     if (trackerConfiguration.hasOwnProperty('discoverRootDomain') && trackerConfiguration.discoverRootDomain) {
       configCookieDomain = findRootDomain(configCookieSameSite, configCookieSecure);
@@ -657,7 +658,11 @@ export function Tracker(
       domainUserId = initializeDomainUserId(idCookie, configAnonymousTracking);
 
       if (!sesCookieSet) {
-        memorizedSessionId = startNewIdCookieSession(idCookie);
+        memorizedSessionId = startNewIdCookieSession(idCookie, {
+          configStateStorageStrategy,
+          configAnonymousTracking,
+          onSessionUpdateCallback,
+        });
       } else {
         memorizedSessionId = sessionIdFromIdCookie(idCookie);
       }
@@ -800,7 +805,11 @@ export function Tracker(
           if (cookiesEnabledInIdCookie(idCookie)) {
             // New session?
             if (!ses && configStateStorageStrategy != 'none') {
-              memorizedSessionId = startNewIdCookieSession(idCookie);
+              memorizedSessionId = startNewIdCookieSession(idCookie, {
+                configStateStorageStrategy,
+                configAnonymousTracking,
+                onSessionUpdateCallback,
+              });
             } else {
               memorizedSessionId = sessionIdFromIdCookie(idCookie);
             }
@@ -808,7 +817,12 @@ export function Tracker(
             memorizedVisitCount = visitCountFromIdCookie(idCookie);
           } else if (new Date().getTime() - lastEventTime > configSessionCookieTimeout * 1000) {
             memorizedVisitCount++;
-            memorizedSessionId = startNewIdCookieSession(idCookie, memorizedVisitCount);
+            memorizedSessionId = startNewIdCookieSession(idCookie, {
+              configStateStorageStrategy,
+              configAnonymousTracking,
+              memorizedVisitCount,
+              onSessionUpdateCallback,
+            });
           }
 
           // Update cookie
@@ -869,7 +883,11 @@ export function Tracker(
       if (cookiesEnabledInIdCookie(idCookie)) {
         // When cookie/local storage is enabled - make a new session
         if (configStateStorageStrategy != 'none') {
-          memorizedSessionId = startNewIdCookieSession(idCookie);
+          memorizedSessionId = startNewIdCookieSession(idCookie, {
+            configStateStorageStrategy,
+            configAnonymousTracking,
+            onSessionUpdateCallback,
+          });
         } else {
           memorizedSessionId = sessionIdFromIdCookie(idCookie);
         }
@@ -880,7 +898,12 @@ export function Tracker(
         setSessionCookie();
       } else {
         memorizedVisitCount++;
-        memorizedSessionId = startNewIdCookieSession(idCookie, memorizedVisitCount);
+        memorizedSessionId = startNewIdCookieSession(idCookie, {
+          configStateStorageStrategy,
+          configAnonymousTracking,
+          memorizedVisitCount,
+          onSessionUpdateCallback,
+        });
       }
 
       updateNowTsInIdCookie(idCookie);

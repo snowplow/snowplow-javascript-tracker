@@ -237,6 +237,11 @@ export type TrackerConfiguration = {
    * By default, the tracker retries on all non-success status codes except for 400, 401, 403, 410, and 422.
    */
   dontRetryStatusCodes?: number[];
+  /**
+   * Callback fired whenever the session identifier is updated.
+   * @param updatedSession - On session update, the new session information plus the previous session id.
+   */
+  onSessionUpdateCallback?: (updatedSession: ClientSession) => void;
 };
 
 /**
@@ -580,4 +585,49 @@ export interface BrowserTracker {
    * @param configuration - The plugin to add
    */
   addPlugin: (configuration: BrowserPluginConfiguration) => void;
+}
+
+/**
+ * Schema for client client session context entity
+ */
+export interface ClientSession extends Record<string, unknown> {
+  /**
+   * An identifier for the user of the session (same as domain_userid)
+   */
+  userId: string;
+
+  /**
+   * An identifier for the session (same as domain_sessionid)
+   */
+  sessionId: string;
+
+  /**
+   * The index of the current session for this user (same as domain_sessionidx)
+   */
+  sessionIndex: number;
+
+  /**
+   * Index of the current event in the session
+   */
+  eventIndex: number;
+
+  /**
+   * The previous session identifier for this user
+   */
+  previousSessionId: string | null;
+
+  /**
+   * The mechanism that the session information has been stored on the device
+   */
+  storageMechanism: string;
+
+  /**
+   * Identifier of the first event for this session
+   */
+  firstEventId: string | null;
+
+  /**
+   * Date-time timestamp of when the first event in the session was tracked
+   */
+  firstEventTimestamp: string | null;
 }
