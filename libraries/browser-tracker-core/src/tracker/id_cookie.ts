@@ -30,6 +30,7 @@
 
 import { PayloadBuilder } from '@snowplow/tracker-core';
 import { v4 as uuid } from 'uuid';
+import { ClientSession } from './types';
 
 /**
  * Indices of cookie values
@@ -59,51 +60,6 @@ export type ParsedIdCookie = [
   number | undefined, // firstEventTs
   number // eventIndex
 ];
-
-/**
- * Schema for client client session context entity
- */
-export interface ClientSession extends Record<string, unknown> {
-  /**
-   * An identifier for the user of the session (same as domain_userid)
-   */
-  userId: string;
-
-  /**
-   * An identifier for the session (same as domain_sessionid)
-   */
-  sessionId: string;
-
-  /**
-   * The index of the current session for this user (same as domain_sessionidx)
-   */
-  sessionIndex: number;
-
-  /**
-   * Index of the current event in the session
-   */
-  eventIndex: number;
-
-  /**
-   * The previous session identifier for this user
-   */
-  previousSessionId: string | null;
-
-  /**
-   * The mechanism that the session information has been stored on the device
-   */
-  storageMechanism: string;
-
-  /**
-   * Identifier of the first event for this session
-   */
-  firstEventId: string | null;
-
-  /**
-   * Date-time timestamp of when the first event in the session was tracked
-   */
-  firstEventTimestamp: string | null;
-}
 
 export function emptyIdCookie() {
   const idCookie: ParsedIdCookie = ['1', '', 0, 0, 0, undefined, '', '', '', undefined, 0];
@@ -214,16 +170,31 @@ export function initializeDomainUserId(idCookie: ParsedIdCookie, configAnonymous
   return domainUserId;
 }
 
+type NewSessionOptions = {
+  memorizedVisitCount?: number;
+  onSessionUpdateCallback?: (sessionState: ClientSession) => void;
+  configStateStorageStrategy: string;
+  configAnonymousTracking: boolean;
+};
+
 /**
  * Starts a new session with a new ID.
  * Sets the previous session, last visit timestamp, and increments visit count if cookies enabled.
  * First event references are reset and will be updated in `updateFirstEventInIdCookie`.
  *
  * @param idCookie Parsed cookie
- * @param memorizedVisitCount Visit count to be used if cookies not enabled
+ * @param options.configStateStorageStrategy Cookie storage strategy
+ * @param options.configAnonymousTracking If anonymous tracking is enabled
+ * @param options.memorizedVisitCount Visit count to be used if cookies not enabled
+ * @param options.onSessionUpdateCallback Session callback triggered on every session update
  * @returns New session ID
  */
-export function startNewIdCookieSession(idCookie: ParsedIdCookie, memorizedVisitCount: number = 1) {
+export function startNewIdCookieSession(idCookie: ParsedIdCookie, options: NewSessionOptions) {
+  const { memorizedVisitCount, configStateStorageStrategy, configAnonymousTracking, onSessionUpdateCallback } = {
+    memorizedVisitCount: 1,
+    ...options,
+  };
+
   // If cookies are enabled, base visit count and session ID on the cookies
   if (cookiesEnabledInIdCookie(idCookie)) {
     // Store the previous session ID
@@ -244,6 +215,10 @@ export function startNewIdCookieSession(idCookie: ParsedIdCookie, memorizedVisit
   idCookie[eventIndexIndex] = 0;
   idCookie[firstEventIdIndex] = '';
   idCookie[firstEventTsInMsIndex] = undefined;
+
+  if (onSessionUpdateCallback) {
+    onSessionUpdateCallback(clientSessionFromIdCookie(idCookie, configStateStorageStrategy, configAnonymousTracking));
+  }
 
   return sessionId;
 }
@@ -298,6 +273,7 @@ export function serializeIdCookie(idCookie: ParsedIdCookie) {
  *
  * @param idCookie Parsed cookie
  * @param configStateStorageStrategy Cookie storage strategy
+ * @param configAnonymousTracking If anonymous tracking is enabled
  * @returns Client session context entity
  */
 export function clientSessionFromIdCookie(
