@@ -650,12 +650,12 @@ export function trackMediaError(
   args: MediaTrackArguments & MediaTrackErrorArguments & CommonMediaEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
-  const { errorCode, errorDescription } = args;
+  const { errorCode, errorName, errorDescription } = args;
   track(
     {
       mediaEvent: {
         type: MediaEventType.Error,
-        eventBody: { errorCode, errorDescription },
+        eventBody: { errorCode, errorName, errorDescription },
       },
     },
     args,

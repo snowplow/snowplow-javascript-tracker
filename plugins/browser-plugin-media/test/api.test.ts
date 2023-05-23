@@ -320,6 +320,7 @@ describe('Media Tracking API', () => {
       trackMediaError({
         id,
         errorCode: '500',
+        errorName: 'forbidden',
         errorDescription: 'Failed to load media',
       });
 
@@ -329,6 +330,7 @@ describe('Media Tracking API', () => {
             schema: getMediaEventSchema(MediaEventType.Error),
             data: {
               errorCode: '500',
+              errorName: 'forbidden',
               errorDescription: 'Failed to load media',
             },
           },

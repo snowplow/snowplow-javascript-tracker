@@ -148,6 +148,8 @@ export type MediaTrackQualityChangeArguments = {
 export type MediaTrackErrorArguments = {
   /** Error-identifying code for the playback issue. E.g. E522 */
   errorCode?: string;
+  /** Name for the type of error that occurred in the playback. E.g. forbidden */
+  errorName?: string;
   /** Longer description for the error occurred in the playback. */
   errorDescription?: string;
 };
