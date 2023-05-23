@@ -422,6 +422,8 @@ for (const method of testMethods) {
       refr: 'http://google.com',
       p: 'web',
       uid: 'jacob',
+      sid: 'sessionId',
+      vid: '10',
       res: '400x200',
       vp: '500x800',
       cd: '24',
@@ -449,6 +451,8 @@ for (const method of testMethods) {
 
       track.setPlatform('web');
       track.setUserId('jacob');
+      track.setSessionId('sessionId');
+      track.setSessionIndex(10);
       track.setScreenResolution('400', '200');
       track.setViewport('500', '800');
       track.setColorDepth('24');
@@ -598,6 +602,66 @@ for (const method of testMethods) {
 
       const track = tracker(e, 'cf', 'cfe35', false);
       track.setNetworkUserId('nuid-test-1234');
+      track.track(
+        buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'example page', referrer: 'http://google.com' }),
+        context
+      );
+    });
+  });
+
+  test(method + ' method: setSessionId should attach a sid property to event', async (t) => {
+    const expected = {
+      sid: 'sid-test-1234',
+    };
+
+    await new Promise((resolve, reject) => {
+      const e = gotEmitter(
+        endpoint,
+        HttpProtocol.HTTPS,
+        undefined,
+        method,
+        0,
+        undefined,
+        undefined,
+        function (error, response) {
+          checkPayload(extractPayload(response?.body, method), expected, t);
+          if (error) reject(error);
+          else resolve(response);
+        }
+      );
+
+      const track = tracker(e, 'cf', 'cfe35', false);
+      track.setSessionId(expected.sid);
+      track.track(
+        buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'example page', referrer: 'http://google.com' }),
+        context
+      );
+    });
+  });
+
+  test(method + ' method: setSessionIndex should attach a vid property to event', async (t) => {
+    const expected = {
+      vid: '1234',
+    };
+
+    await new Promise((resolve, reject) => {
+      const e = gotEmitter(
+        endpoint,
+        HttpProtocol.HTTPS,
+        undefined,
+        method,
+        0,
+        undefined,
+        undefined,
+        function (error, response) {
+          checkPayload(extractPayload(response?.body, method), expected, t);
+          if (error) reject(error);
+          else resolve(response);
+        }
+      );
+
+      const track = tracker(e, 'cf', 'cfe35', false);
+      track.setSessionIndex(expected.vid);
       track.track(
         buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'example page', referrer: 'http://google.com' }),
         context
