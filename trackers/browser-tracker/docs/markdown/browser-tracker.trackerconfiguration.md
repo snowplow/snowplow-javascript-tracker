@@ -39,6 +39,7 @@ type TrackerConfiguration = {
     customHeaders?: Record<string, string>;
     retryStatusCodes?: number[];
     dontRetryStatusCodes?: number[];
+    onSessionUpdateCallback?: (updatedSession: ClientSession) => void;
 };
 ```
 

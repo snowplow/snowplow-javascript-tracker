@@ -17,4 +17,6 @@ interface Tracker extends TrackerCore
 |  --- | --- | --- |
 |  [setDomainUserId](./node-tracker.tracker.setdomainuserid.md) | (userId: string) =&gt; void | Set the domain user ID |
 |  [setNetworkUserId](./node-tracker.tracker.setnetworkuserid.md) | (userId: string) =&gt; void | Set the network user ID |
+|  [setSessionId](./node-tracker.tracker.setsessionid.md) | (sessionId: string) =&gt; void | Set the session ID (<code>domain_sessionid</code> in the atomic events) |
+|  [setSessionIndex](./node-tracker.tracker.setsessionindex.md) | (sessionIndex: string \| number) =&gt; void | Set the session index (<code>domain_sessionidx</code> in the atomic events) |
 

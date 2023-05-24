@@ -52,6 +52,7 @@
 |  [BrowserPluginConfiguration](./browser-tracker.browserpluginconfiguration.md) | The configuration of the plugin to add |
 |  [BrowserTracker](./browser-tracker.browsertracker.md) | The Browser Tracker |
 |  [ClearUserDataConfiguration](./browser-tracker.clearuserdataconfiguration.md) | The configuration that can be changed when enabling anonymous tracking |
+|  [ClientSession](./browser-tracker.clientsession.md) | Schema for client client session context entity |
 |  [CommonEventProperties](./browser-tracker.commoneventproperties.md) | Additional data points to set when tracking an event |
 |  [ContextEvent](./browser-tracker.contextevent.md) | Argument for [ContextGenerator](./browser-tracker.contextgenerator.md) and [ContextFilter](./browser-tracker.contextfilter.md) callback |
 |  [DisableAnonymousTrackingConfiguration](./browser-tracker.disableanonymoustrackingconfiguration.md) | The configuration that can be changed when disabling anonymous tracking |
