@@ -2,6 +2,12 @@
   "name": "@snowplow/browser-plugin-snowplow-ecommerce",
   "entries": [
     {
+      "version": "3.11.0",
+      "tag": "@snowplow/browser-plugin-snowplow-ecommerce_v3.11.0",
+      "date": "Wed, 24 May 2023 15:56:17 GMT",
+      "comments": {}
+    },
+    {
       "version": "3.10.1",
       "tag": "@snowplow/browser-plugin-snowplow-ecommerce_v3.10.1",
       "date": "Fri, 12 May 2023 06:59:31 GMT",

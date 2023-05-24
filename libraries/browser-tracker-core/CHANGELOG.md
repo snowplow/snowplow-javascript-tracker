@@ -1,6 +1,14 @@
 # Change Log - @snowplow/browser-tracker-core
 
-This log was last generated on Fri, 12 May 2023 06:59:31 GMT and should not be manually modified.
+This log was last generated on Wed, 24 May 2023 15:56:17 GMT and should not be manually modified.
+
+## 3.11.0
+Wed, 24 May 2023 15:56:17 GMT
+
+### Updates
+
+- Add onSessionUpdate callback configuration option
+- Round dimension type values on payload
 
 ## 3.10.1
 Fri, 12 May 2023 06:59:31 GMT
