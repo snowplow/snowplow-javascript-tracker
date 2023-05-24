@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/tracker-core",
+      "comment": "Make addPayloadPair more lenient with 'uknown' type",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/tracker-core"
+}
