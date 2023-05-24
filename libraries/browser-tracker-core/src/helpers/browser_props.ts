@@ -1,8 +1,11 @@
+/* Separator used for dimension values e.g. widthxheight */
+const DIMENSION_SEPARATOR = 'x';
+
 export function getBrowserProperties() {
   return {
-    viewport: detectViewport(),
-    documentSize: detectDocumentSize(),
-    resolution: screen.width + 'x' + screen.height,
+    viewport: floorDimensionFields(detectViewport()),
+    documentSize: floorDimensionFields(detectDocumentSize()),
+    resolution: floorDimensionFields(detectScreenResolution()),
     colorDepth: screen.colorDepth,
     devicePixelRatio: window.devicePixelRatio,
     cookiesEnabled: window.navigator.cookieEnabled,
@@ -35,7 +38,7 @@ function detectViewport() {
   }
 
   if (width >= 0 && height >= 0) {
-    return width + 'x' + height;
+    return width + DIMENSION_SEPARATOR + height;
   } else {
     return null;
   }
@@ -55,5 +58,19 @@ function detectDocumentSize() {
     bodyHeight = be ? Math.max(be.offsetHeight, be.scrollHeight) : 0;
   var w = Math.max(de.clientWidth, de.offsetWidth, de.scrollWidth);
   var h = Math.max(de.clientHeight, de.offsetHeight, de.scrollHeight, bodyHeight);
-  return isNaN(w) || isNaN(h) ? '' : w + 'x' + h;
+  return isNaN(w) || isNaN(h) ? '' : w + DIMENSION_SEPARATOR + h;
+}
+
+function detectScreenResolution() {
+  return screen.width + DIMENSION_SEPARATOR + screen.height;
+}
+
+export function floorDimensionFields(field?: string | null) {
+  return (
+    field &&
+    field
+      .split(DIMENSION_SEPARATOR)
+      .map((dimension) => Math.floor(Number(dimension)))
+      .join(DIMENSION_SEPARATOR)
+  );
 }

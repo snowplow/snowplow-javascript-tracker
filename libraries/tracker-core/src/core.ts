@@ -155,7 +155,7 @@ export interface TrackerCore {
    * @param key - Field name
    * @param value - Field value
    */
-  addPayloadPair: (key: string, value: string | number) => void;
+  addPayloadPair: (key: string, value: unknown) => void;
 
   /**
    * Get current base64 encoding state
@@ -429,7 +429,7 @@ export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore 
      * @param key - Field name
      * @param value - Field value
      */
-    function addPayloadPair(key: string, value: string | number): void {
+    function addPayloadPair(key: string, value: unknown): void {
       payloadPairs[key] = value;
     }
 
