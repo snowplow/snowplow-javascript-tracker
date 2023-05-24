@@ -46,6 +46,20 @@ export interface Tracker extends TrackerCore {
    * @param userId - The network user id
    */
   setNetworkUserId: (userId: string) => void;
+
+  /**
+   * Set the session ID (`domain_sessionid` in the atomic events)
+   *
+   * @param sessionId - The session id
+   */
+  setSessionId: (sessionId: string) => void;
+
+  /**
+   * Set the session index (`domain_sessionidx` in the atomic events)
+   *
+   * @param sessionIndex - The session index
+   */
+  setSessionIndex: (sessionIndex: string | number) => void;
 }
 
 /**
@@ -64,6 +78,8 @@ export function tracker(
 ): Tracker {
   let domainUserId: string;
   let networkUserId: string;
+  let sessionId: string;
+  let sessionIndex: string | number;
   let allEmitters: Array<Emitter>;
 
   if (Array.isArray(emitters)) {
@@ -77,6 +93,8 @@ export function tracker(
   const addUserInformation = (payload: PayloadBuilder): void => {
     payload.add('duid', domainUserId);
     payload.add('nuid', networkUserId);
+    payload.add('sid', sessionId);
+    payload.add('vid', Number(sessionIndex));
   };
 
   /**
@@ -107,9 +125,19 @@ export function tracker(
     networkUserId = userId;
   };
 
+  const setSessionId = function (currentSessionId: string) {
+    sessionId = currentSessionId;
+  };
+
+  const setSessionIndex = function (currentSessionIndex: string | number) {
+    sessionIndex = currentSessionIndex;
+  };
+
   return {
     setDomainUserId,
     setNetworkUserId,
+    setSessionId,
+    setSessionIndex,
     ...core,
   };
 }

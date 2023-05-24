@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/node-tracker",
+      "comment": "Add setSessionId and setSessionIndex capability",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/node-tracker"
+}
