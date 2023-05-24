@@ -360,6 +360,8 @@ export type Timestamp = TrueTimestamp | DeviceTimestamp | number;
 export interface Tracker extends TrackerCore {
     setDomainUserId: (userId: string) => void;
     setNetworkUserId: (userId: string) => void;
+    setSessionId: (sessionId: string) => void;
+    setSessionIndex: (sessionIndex: string | number) => void;
 }
 
 // @public
