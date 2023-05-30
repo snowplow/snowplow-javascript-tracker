@@ -1,4 +1,4 @@
-import { SelfDescribingJson } from '@snowplow/tracker-core';
+import { LOG, SelfDescribingJson } from '@snowplow/tracker-core';
 import { MediaAdTracking } from './adTracking';
 import { buildMediaPlayerEntity, buildMediaPlayerEvent } from './core';
 import { MediaPingInterval } from './pingInterval';
@@ -66,6 +66,13 @@ export class MediaTracking {
     this.captureEvents = captureEvents;
     this.updatePageActivityWhilePlaying = updatePageActivityWhilePlaying;
     this.customContext = context;
+
+    // validate event names in the captureEvents list
+    captureEvents?.forEach((eventType) => {
+      if (!Object.values(MediaEventType).includes(eventType)) {
+        LOG.warn('Unknown media event ' + eventType);
+      }
+    });
   }
 
   /**
