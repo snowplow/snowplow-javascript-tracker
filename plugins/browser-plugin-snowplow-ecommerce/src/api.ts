@@ -8,6 +8,7 @@ import {
   PRODUCT_SCHEMA,
   PROMO_SCHEMA,
   REFUND_SCHEMA,
+  TRANSACTION_ERROR_SCHEMA,
   TRANSACTION_SCHEMA,
   USER_SCHEMA,
 } from './schemata';
@@ -22,6 +23,7 @@ import {
   Promotion,
   Refund,
   Transaction,
+  TransactionError,
   User as UserContext,
 } from './types';
 
@@ -237,6 +239,28 @@ export function trackRefund(
 
   dispatchToTrackersInCollection(trackers, _trackers, (t) => {
     t.core.track(buildEcommerceActionEvent({ type: 'refund' }), context, timestamp);
+  });
+}
+
+/**
+ * Track a transaction error event
+ *
+ * @param transactionError - The transaction error information
+ * @param trackers - The tracker identifiers which the event will be sent to
+ */
+export function trackTransactionError(
+  transactionError: TransactionError & CommonEcommerceEventProperties,
+  trackers: Array<string> = Object.keys(_trackers)
+) {
+  const { context = [], timestamp, transaction, ...transactionErrorAttributes } = transactionError;
+  context.push({
+    schema: TRANSACTION_SCHEMA,
+    data: { ...transaction },
+  });
+  context.push({ schema: TRANSACTION_ERROR_SCHEMA, data: { ...transactionErrorAttributes } });
+
+  dispatchToTrackersInCollection(trackers, _trackers, (t) => {
+    t.core.track(buildEcommerceActionEvent({ type: 'trns_error' }), context, timestamp);
   });
 }
 
