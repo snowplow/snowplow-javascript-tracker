@@ -188,7 +188,7 @@
     },
     {
       "name": "@types/uuid",
-      "allowedCategories": [ "libraries", "trackers" ]
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "@types/youtube",
@@ -368,7 +368,7 @@
     },
     {
       "name": "uuid",
-      "allowedCategories": [ "libraries", "trackers" ]
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "wdio-chromedriver-service",
