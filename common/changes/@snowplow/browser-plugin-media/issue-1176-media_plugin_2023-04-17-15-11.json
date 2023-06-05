@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-media",
+      "comment": "Add Snowplow Media plugin with APIs to track media events (#1176)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-media"
+}
