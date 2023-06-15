@@ -95,6 +95,7 @@ function checkPayload(payloadDict: Payload, expected: Payload, t: ExecutionConte
   t.deepEqual(payloadDict['co'], completedContext, 'a custom context should be attached');
   t.truthy(payloadDict['dtm'], 'a timestamp should be attached');
   t.truthy(payloadDict['eid'], 'a UUID should be attached');
+  t.falsy(typeof payloadDict['vid'] === 'string' && payloadDict['vid'] === 'NaN', 'Session index should not be NaN');
 }
 
 test.before(() => {
