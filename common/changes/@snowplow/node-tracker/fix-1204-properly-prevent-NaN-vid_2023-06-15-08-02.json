@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/node-tracker",
+      "comment": "Properly prevent NaN session index parameter 'vid' (fix #1204)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/node-tracker"
+}

@@ -94,7 +94,7 @@ export function tracker(
     payload.add('duid', domainUserId);
     payload.add('nuid', networkUserId);
     payload.add('sid', sessionId);
-    payload.add('vid', Number(sessionIndex));
+    payload.add('vid', sessionIndex && Number(sessionIndex));
   };
 
   /**
