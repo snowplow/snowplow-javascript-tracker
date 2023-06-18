@@ -695,6 +695,71 @@ test('should track a page view with a timestamp', (t) => {
     '1000000000000'
   );
 });
+test('should track a page view with a tracking scenario', (t) => {
+  const pageUrl = 'http://www.example.com';
+  const pageTitle = 'title page';
+  const referrer = 'https://www.google.com';
+  const trackingScenarioContext = [
+    {
+      schema: 'iglu:com.snowplowanalytics.snowplow/tracking_scenario/jsonschema/1-0-0',
+      data: { id: 'testScenarioId' },
+    },
+  ];
+  const expected = {
+    e: 'pv',
+    url: pageUrl,
+    page: pageTitle,
+    refr: referrer,
+    co: JSON.stringify({
+      schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0',
+      data: [...trackingScenarioContext],
+    }),
+  };
+  compare(
+    tracker.track(buildPageView({ pageUrl, pageTitle, referrer }), null, null, {
+      id: 'testScenarioId',
+    }),
+    expected,
+    t
+  );
+});
+test('should track a page view with a custom context and a tracking scenario', (t) => {
+  const pageUrl = 'http://www.example.com';
+  const pageTitle = 'title page';
+  const referrer = 'https://www.google.com';
+  const inputContext = [
+    {
+      schema: 'iglu:com.acme/user/jsonschema/1-0-0',
+      data: {
+        userType: 'tester',
+        userName: 'Jon',
+      },
+    },
+  ];
+  const trackingScenarioContext = [
+    {
+      schema: 'iglu:com.snowplowanalytics.snowplow/tracking_scenario/jsonschema/1-0-0',
+      data: { id: 'testScenarioId' },
+    },
+  ];
+  const expected = {
+    e: 'pv',
+    url: pageUrl,
+    page: pageTitle,
+    refr: referrer,
+    co: JSON.stringify({
+      schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0',
+      data: [...inputContext, ...trackingScenarioContext],
+    }),
+  };
+  compare(
+    tracker.track(buildPageView({ pageUrl, pageTitle, referrer }), inputContext, null, {
+      id: 'testScenarioId',
+    }),
+    expected,
+    t
+  );
+});
 test('should add individual name-value pairs to the payload', (t) => {
   const tracker = trackerCore({ base64: false });
   const pageUrl = 'http://www.example.com';

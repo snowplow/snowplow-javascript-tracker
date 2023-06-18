@@ -32,6 +32,7 @@ import test from 'ava';
 import * as contexts from '../src/contexts';
 import { payloadBuilder } from '../src/payload';
 import { SelfDescribingJson } from '../src/core';
+import { TRACKING_SCENARIO_SCHEMA } from '../src/schemata';
 
 test('Identify context primitives', (t) => {
   const geolocationContext = {
@@ -528,4 +529,14 @@ test('Do not mutate context when adding plugin context', (t) => {
       },
     },
   ]);
+});
+
+test('createTrackingScenarioContext properly formats scenario input', (t) => {
+  const testScenario = { id: 'SID1' };
+
+  t.deepEqual(contexts.createTrackingScenarioContext(testScenario), [
+    { data: testScenario, schema: TRACKING_SCENARIO_SCHEMA },
+  ]);
+  t.deepEqual(contexts.createTrackingScenarioContext(null), []);
+  t.deepEqual(contexts.createTrackingScenarioContext(undefined), []);
 });

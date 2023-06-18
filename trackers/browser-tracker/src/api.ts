@@ -59,6 +59,7 @@ import {
   ContextEvent,
   ContextFilter,
   RuleSet,
+  Scenario,
 } from '@snowplow/tracker-core';
 
 export {
@@ -87,6 +88,7 @@ export {
   ContextEvent,
   ContextFilter,
   RuleSet,
+  Scenario,
 };
 
 /**
@@ -360,7 +362,7 @@ export function trackPageView(event?: PageViewEvent & CommonEventProperties, tra
  */
 export function trackStructEvent(event: StructuredEvent & CommonEventProperties, trackers?: Array<string>) {
   dispatchToTrackers(trackers, (t) => {
-    t.core.track(buildStructEvent(event), event.context, event.timestamp);
+    t.core.track(buildStructEvent(event), event.context, event.timestamp, event.scenario);
   });
 }
 
@@ -374,7 +376,7 @@ export function trackStructEvent(event: StructuredEvent & CommonEventProperties,
  */
 export function trackSelfDescribingEvent(event: SelfDescribingEvent & CommonEventProperties, trackers?: Array<string>) {
   dispatchToTrackers(trackers, (t) => {
-    t.core.track(buildSelfDescribingEvent({ event: event.event }), event.context, event.timestamp);
+    t.core.track(buildSelfDescribingEvent({ event: event.event }), event.context, event.timestamp, event.scenario);
   });
 }
 

@@ -37,6 +37,7 @@ import {
   GlobalContexts,
   PluginContexts,
   pluginContexts,
+  createTrackingScenarioContext,
 } from './contexts';
 import { CorePlugin } from './plugins';
 import { LOG } from './logger';
@@ -77,6 +78,11 @@ export type SelfDescribingJsonArray<T extends Record<keyof T, unknown> = Record<
  * Algebraic datatype representing possible timestamp type choice
  */
 export type Timestamp = TrueTimestamp | DeviceTimestamp | number;
+
+/**
+ * Tracking scenario the events belongs to.
+ */
+export type Scenario = { id: string };
 
 /**
  * A representation of a True Timestamp (ttm)
@@ -124,6 +130,8 @@ export interface CommonEventProperties {
   context?: Array<SelfDescribingJson> | null;
   /** Set the true timestamp or overwrite the device sent timestamp on an event */
   timestamp?: Timestamp | null;
+  /** Set the tracking scenario for this event */
+  scenario?: Scenario | null;
 }
 
 /**
@@ -146,7 +154,9 @@ export interface TrackerCore {
     /** The additional contextual information related to the event */
     context?: Array<SelfDescribingJson> | null,
     /** Timestamp override */
-    timestamp?: Timestamp | null
+    timestamp?: Timestamp | null,
+    /** Tracking scenario */
+    scenario?: Scenario | null
   ) => Payload;
 
   /**
@@ -381,14 +391,22 @@ export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore 
     function track(
       pb: PayloadBuilder,
       context?: Array<SelfDescribingJson> | null,
-      timestamp?: Timestamp | null
+      timestamp?: Timestamp | null,
+      scenario?: Scenario | null
     ): Payload {
       pb.withJsonProcessor(payloadJsonProcessor(encodeBase64));
       pb.add('eid', uuid());
       pb.addDict(payloadPairs);
       const tstamp = getTimestamp(timestamp);
       pb.add(tstamp.type, tstamp.value.toString());
-      const allContexts = attachGlobalContexts(pb, pluginContextsHelper.addPluginContexts(context));
+
+      const scenarioContexts = createTrackingScenarioContext(scenario);
+      const combinedContexts = context ? [...context] : [];
+
+      const allContexts = attachGlobalContexts(
+        pb,
+        pluginContextsHelper.addPluginContexts([...combinedContexts, ...scenarioContexts])
+      );
       const wrappedContexts = completeContexts(allContexts);
       if (wrappedContexts !== undefined) {
         pb.addJson('cx', 'co', wrappedContexts);

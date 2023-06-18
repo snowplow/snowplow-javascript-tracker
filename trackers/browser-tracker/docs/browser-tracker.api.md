@@ -144,6 +144,7 @@ export interface CommonEventProperties {
     context?: Array<SelfDescribingJson> | null;
     // Warning: (ae-forgotten-export) The symbol "Timestamp" needs to be exported by the entry point index.module.d.ts
     timestamp?: Timestamp | null;
+    scenario?: Scenario | null;
 }
 
 // @public
@@ -263,6 +264,11 @@ export type RuleSetProvider = [
 RuleSet,
 Array<ContextPrimitive> | ContextPrimitive
 ];
+
+// @public
+export type Scenario = {
+    id: string;
+};
 
 // @public
 export interface SelfDescribingEvent {

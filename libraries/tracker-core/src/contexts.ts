@@ -29,9 +29,10 @@
  */
 
 import { PayloadBuilder, Payload, isNonEmptyJson } from './payload';
-import { SelfDescribingJson } from './core';
+import { Scenario, SelfDescribingJson } from './core';
 import { CorePlugin } from './plugins';
 import { LOG } from './logger';
+import { TRACKING_SCENARIO_SCHEMA } from './schemata';
 
 /**
  * Argument for {@link ContextGenerator} and {@link ContextFilter} callback
@@ -211,7 +212,7 @@ export interface PluginContexts {
   /**
    * Returns list of contexts from all active plugins
    */
-  addPluginContexts: (additionalContexts?: SelfDescribingJson[] | null) => SelfDescribingJson[];
+  addPluginContexts: (additionalContexts: SelfDescribingJson[]) => SelfDescribingJson[];
 }
 
 export function pluginContexts(plugins: Array<CorePlugin>): PluginContexts {
@@ -222,20 +223,19 @@ export function pluginContexts(plugins: Array<CorePlugin>): PluginContexts {
    * @returns userContexts combined with commonContexts
    */
   return {
-    addPluginContexts: (additionalContexts?: SelfDescribingJson[] | null): SelfDescribingJson[] => {
-      const combinedContexts: SelfDescribingJson[] = additionalContexts ? [...additionalContexts] : [];
-
+    addPluginContexts: (additionalContexts: SelfDescribingJson[]): SelfDescribingJson[] => {
+      const eventContexts = [...additionalContexts];
       plugins.forEach((plugin) => {
         try {
           if (plugin.contexts) {
-            combinedContexts.push(...plugin.contexts());
+            eventContexts.push(...plugin.contexts());
           }
         } catch (ex) {
           LOG.error('Error adding plugin contexts', ex);
         }
       });
 
-      return combinedContexts;
+      return eventContexts;
     },
   };
 }
@@ -694,4 +694,12 @@ function generateConditionals(
   return ([] as Array<SelfDescribingJson>).concat(
     ...(generatedContexts.filter((c) => c != null && c.filter(Boolean)) as Array<Array<SelfDescribingJson>>)
   );
+}
+
+export function createTrackingScenarioContext(scenario: Scenario | null | undefined): SelfDescribingJson[] {
+  if (!scenario) {
+    return [];
+  }
+
+  return [{ schema: TRACKING_SCENARIO_SCHEMA, data: scenario }];
 }

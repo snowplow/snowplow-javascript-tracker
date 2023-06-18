@@ -930,7 +930,13 @@ export function Tracker(
       return (staticContexts || []).concat(contextCallback ? contextCallback() : []);
     }
 
-    function logPageView({ title, context, timestamp, contextCallback }: PageViewEvent & CommonEventProperties) {
+    function logPageView({
+      title,
+      context,
+      timestamp,
+      scenario,
+      contextCallback,
+    }: PageViewEvent & CommonEventProperties) {
       refreshUrl();
       if (pageViewSent) {
         // Do not reset pageViewId if previous events were not page_view
@@ -953,7 +959,8 @@ export function Tracker(
           referrer: purify(customReferrer || configReferrerUrl),
         }),
         finalizeContexts(context, contextCallback),
-        timestamp
+        timestamp,
+        scenario
       );
 
       // Send ping (to log that user has stayed on page)
