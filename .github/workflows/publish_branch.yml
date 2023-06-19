@@ -1,0 +1,64 @@
+name: Deploy Branch
+
+on: workflow_dispatch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-20.04
+
+    env:
+      NPM_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+      BROWSERSLIST_IGNORE_OLD_DATA: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Use Node.js 16
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Get dist-tag from branch name
+        env:
+          BRANCH: ${{ github.ref_name }}
+        id: split
+        run: echo "branchDescription=${BRANCH##*/}" >> "$GITHUB_OUTPUT"
+
+      - name: Fail if no proper branch name
+        run: |
+          if test -z "${{ steps.split.outputs.branchDescription }}" then
+            echo "Failed as no proper branch name was provided. Please use the format of prefix/branch-description."
+            exit 1
+          fi
+
+      - name: pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ./common/temp/pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('common/config/rush/pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-
+
+      - name: Rush Install
+        run: node common/scripts/install-run-rush.js install
+
+      - name: Setup git
+        uses: oleksiyrudenko/gha-git-credentials@v2.1.1
+        with:
+          token: '${{ secrets.GITHUB_TOKEN }}'
+          name: github-actions[bot]
+          email: 41898282+github-actions[bot]@users.noreply.github.com
+
+      - name: Rush Version
+        run: node common/scripts/install-run-rush.js version --bump --ignore-git-hooks --override-prerelease-id dev --override-bump prerelease
+
+      - name: Rush Build
+        run: node common/scripts/install-run-rush.js rebuild --verbose
+
+      - name: Rush Test
+        run: node common/scripts/install-run-rush.js test --verbose
+
+      - name: Rush Publish
+        env:
+          BRANCH_DESCRIPTION: ${{ steps.split.outputs.branchDescription }}
+        run: node common/scripts/install-run-rush.js publish --apply --include-all --publish --tag $BRANCH_DESCRIPTION --set-access-level public --ignore-git-hooks
