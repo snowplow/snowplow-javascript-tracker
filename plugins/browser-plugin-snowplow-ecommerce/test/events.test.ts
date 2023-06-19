@@ -41,6 +41,7 @@ import {
   trackRefund,
   trackRemoveFromCart,
   trackTransaction,
+  trackTransactionError,
 } from '../src';
 import {
   CART_SCHEMA,
@@ -50,7 +51,9 @@ import {
   PROMO_SCHEMA,
   REFUND_SCHEMA,
   TRANSACTION_SCHEMA,
+  TRANSACTION_ERROR_SCHEMA,
 } from '../src/schemata';
+import { CheckoutStep, Product, Promotion, Refund, Transaction, TransactionError } from '../src/types';
 
 const extractStateProperties = ({
   outQueues: [
@@ -76,8 +79,8 @@ describe('SnowplowEcommercePlugin events', () => {
   });
 
   it('trackAddToCart adds the expected "add to cart" event to the queue', () => {
-    const productX = { id: '1234', price: 12, currency: 'EUR' };
-    const productY = { id: '12345', price: 25, currency: 'EUR' };
+    const productX: Product = { id: '1234', price: 12, currency: 'EUR' };
+    const productY: Product = { id: '12345', price: 25, currency: 'EUR' };
     trackAddToCart({
       total_value: 40,
       currency: 'EUR',
@@ -111,7 +114,7 @@ describe('SnowplowEcommercePlugin events', () => {
   });
 
   it('trackRemoveFromCart adds the expected "remove from cart" event to the queue', () => {
-    const productX = { id: '1234', price: 12, currency: 'EUR' };
+    const productX: Product = { id: '1234', price: 12, currency: 'EUR' };
     trackRemoveFromCart({
       total_value: 40,
       currency: 'EUR',
@@ -141,7 +144,7 @@ describe('SnowplowEcommercePlugin events', () => {
   });
 
   it('trackProductView adds the expected "product view" event to the queue', () => {
-    const productX = {
+    const productX: Product = {
       id: '1234',
       price: 25,
       currency: 'EUR',
@@ -165,7 +168,7 @@ describe('SnowplowEcommercePlugin events', () => {
   });
 
   it('trackPromotionView adds the expected "promotion view" event to the queue', () => {
-    const promoX = {
+    const promoX: Promotion = {
       id: '1234',
       name: 'promo_winter',
       product_ids: ['P1234'],
@@ -190,7 +193,7 @@ describe('SnowplowEcommercePlugin events', () => {
   });
 
   it('trackPromotionClick adds the expected "promotion click" event to the queue', () => {
-    const promoX = {
+    const promoX: Promotion = {
       id: '1234',
       name: 'promo_winter',
       product_ids: ['P1234'],
@@ -215,8 +218,8 @@ describe('SnowplowEcommercePlugin events', () => {
   });
 
   it('trackProductListView adds the expected "product list view" event to the queue', () => {
-    const productX = { id: '1234', price: 12, currency: 'EUR' };
-    const productY = { id: '12345', price: 25, currency: 'EUR' };
+    const productX: Product = { id: '1234', price: 12, currency: 'EUR' };
+    const productY: Product = { id: '12345', price: 25, currency: 'EUR' };
     trackProductListView({
       name: 'recommended products',
       products: [productX, productY],
@@ -242,7 +245,7 @@ describe('SnowplowEcommercePlugin events', () => {
   });
 
   it('trackProductListClick adds the expected "product list click" event to the queue', () => {
-    const productX = { id: '1234', price: 12, currency: 'EUR', position: 3 };
+    const productX: Product = { id: '1234', price: 12, currency: 'EUR', position: 3 };
     trackProductListClick({
       name: 'recommended products',
       product: productX,
@@ -264,7 +267,7 @@ describe('SnowplowEcommercePlugin events', () => {
   });
 
   it('trackCheckoutStep adds the expected "checkout step" event to the queue', () => {
-    const checkoutStep = {
+    const checkoutStep: CheckoutStep = {
       step: 1,
       shipping_postcode: '1234',
       proof_of_payment: 'invoice',
@@ -287,9 +290,9 @@ describe('SnowplowEcommercePlugin events', () => {
   });
 
   it('trackTransaction adds the expected "transaction" event to the queue', () => {
-    const productX = { id: '1234', price: 12, currency: 'EUR', quantity: 4 };
-    const productY = { id: '12345', price: 25, currency: 'EUR', quantity: 1 };
-    const transaction = { revenue: 45, currency: 'EUR', transaction_id: '12345', payment_method: 'card' };
+    const productX: Product = { id: '1234', price: 12, currency: 'EUR', quantity: 4 };
+    const productY: Product = { id: '12345', price: 25, currency: 'EUR', quantity: 1 };
+    const transaction: Transaction = { revenue: 45, currency: 'EUR', transaction_id: '12345', payment_method: 'card' };
     trackTransaction({
       ...transaction,
       products: [productX, productY],
@@ -315,7 +318,7 @@ describe('SnowplowEcommercePlugin events', () => {
     /* Expect implicit total_quantity calculation */
     const emmitedTransaction = context[2].data;
     expect(emmitedTransaction).toHaveProperty('total_quantity');
-    expect(emmitedTransaction.total_quantity).toEqual(productX.quantity + productY.quantity);
+    expect(emmitedTransaction.total_quantity).toEqual(productX.quantity! + productY.quantity!);
 
     expect(unstructuredEvent).toMatchObject({
       schema: ECOMMERCE_ACTION_SCHEMA,
@@ -324,9 +327,9 @@ describe('SnowplowEcommercePlugin events', () => {
   });
 
   it('trackRefund adds the expected "refund" event to the queue', () => {
-    const productX = { id: '1234', price: 12, currency: 'EUR' };
-    const productY = { id: '12345', price: 25, currency: 'EUR' };
-    const refund = { refund_amount: 45, currency: 'EUR', transaction_id: '12345', refund_reason: 'Return' };
+    const productX: Product = { id: '1234', price: 12, currency: 'EUR' };
+    const productY: Product = { id: '12345', price: 25, currency: 'EUR' };
+    const refund: Refund = { refund_amount: 45, currency: 'EUR', transaction_id: '12345', refund_reason: 'Return' };
     trackRefund({
       ...refund,
       products: [productX, productY],
@@ -352,6 +355,38 @@ describe('SnowplowEcommercePlugin events', () => {
     expect(unstructuredEvent).toMatchObject({
       schema: ECOMMERCE_ACTION_SCHEMA,
       data: { type: 'refund' },
+    });
+  });
+
+  it('trackTransactionError adds the expected "trns_error" event to the queue', () => {
+    const transactionError: Omit<TransactionError, 'transaction'> = {
+      resolution: 'rejection',
+      error_code: 'E123',
+      error_shortcode: 'CARD_DECLINE',
+      error_type: 'hard',
+    };
+    const transaction: Transaction = { revenue: 45, currency: 'EUR', transaction_id: '12345', payment_method: 'card' };
+    trackTransactionError({
+      ...transactionError,
+      transaction,
+    });
+
+    const { context, unstructuredEvent } = extractStateProperties(state);
+
+    expect(context).toMatchObject([
+      {
+        data: transaction,
+        schema: TRANSACTION_SCHEMA,
+      },
+      {
+        data: transactionError,
+        schema: TRANSACTION_ERROR_SCHEMA,
+      },
+    ]);
+
+    expect(unstructuredEvent).toMatchObject({
+      schema: ECOMMERCE_ACTION_SCHEMA,
+      data: { type: 'trns_error' },
     });
   });
 });
