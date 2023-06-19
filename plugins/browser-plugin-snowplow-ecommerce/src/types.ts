@@ -17,7 +17,8 @@ export interface Action {
     | 'promo_view'
     | 'checkout_step'
     | 'transaction'
-    | 'refund';
+    | 'refund'
+    | 'trns_error';
 
   /**
    * You can add a name for the list presented to the user.
@@ -264,6 +265,38 @@ export interface Refund {
    * If not present, the whole transaction and products will be marked as refunded.
    */
   products?: Product[];
+}
+
+/**
+ * Type/Schema for a transaction error entity in Ecommerce
+ */
+export interface TransactionError {
+  /**
+   * Error-identifying code for the transaction issue. E.g. E522
+   */
+  error_code?: string;
+  /**
+   * Shortcode for the error occurred in the transaction. E.g. declined_by_stock_api, declined_by_payment_method, card_declined, pm_card_radarBlock
+   */
+  error_shortcode?: string;
+  /**
+   * Longer description for the error occurred in the transaction.
+   */
+  error_description?: string;
+  /**
+   * Type of error.
+   * Hard error types mean the customer must provide another form of payment e.g. an expired card.
+   * Soft errors can be the result of temporary issues where retrying might be successful e.g. processor declined the transaction.
+   */
+  error_type?: 'hard' | 'soft' | null;
+  /**
+   * The resolution selected for the error scenario. E.g. retry_allowed, user_blacklisted, block_gateway, contact_user, default
+   */
+  resolution?: string;
+  /**
+   * The transaction object representing the transaction that ended up in an error.
+   */
+  transaction: Transaction;
 }
 
 /**

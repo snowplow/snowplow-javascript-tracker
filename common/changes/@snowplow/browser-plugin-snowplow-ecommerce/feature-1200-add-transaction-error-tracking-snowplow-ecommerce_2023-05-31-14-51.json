@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-snowplow-ecommerce",
+      "comment": "Add transaction error tracking capability to snowplow-ecommerce",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-snowplow-ecommerce"
+}
