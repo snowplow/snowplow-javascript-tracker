@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-web-vitals",
+      "comment": "Create browser-plugin-web-vitals",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-web-vitals"
+}

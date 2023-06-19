@@ -127,6 +127,10 @@
       "allowedCategories": [ "trackers" ]
     },
     {
+      "name": "@snowplow/browser-plugin-web-vitals",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "@snowplow/browser-plugin-youtube-tracking",
       "allowedCategories": [ "trackers" ]
     },
@@ -320,7 +324,7 @@
     },
     {
       "name": "rollup-plugin-filesize",
-      "allowedCategories": [ "trackers" ]
+      "allowedCategories": [ "plugins", "trackers" ]
     },
     {
       "name": "rollup-plugin-license",
@@ -373,6 +377,10 @@
     {
       "name": "wdio-chromedriver-service",
       "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "web-vitals",
+      "allowedCategories": [ "plugins" ]
     },
     {
       "name": "webdriverio",
