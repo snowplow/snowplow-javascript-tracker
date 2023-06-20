@@ -2,6 +2,12 @@
   "name": "@snowplow/browser-plugin-debugger",
   "entries": [
     {
+      "version": "3.13.0",
+      "tag": "@snowplow/browser-plugin-debugger_v3.13.0",
+      "date": "Tue, 20 Jun 2023 07:44:23 GMT",
+      "comments": {}
+    },
+    {
       "version": "3.12.1",
       "tag": "@snowplow/browser-plugin-debugger_v3.12.1",
       "date": "Thu, 15 Jun 2023 10:05:37 GMT",
