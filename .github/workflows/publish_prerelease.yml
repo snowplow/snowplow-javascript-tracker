@@ -35,7 +35,7 @@ jobs:
         run: node common/scripts/install-run-rush.js install
 
       - name: Setup git
-        uses: oleksiyrudenko/gha-git-credentials@v2.1
+        uses: oleksiyrudenko/gha-git-credentials@v2.1.1
         with:
           token: '${{ secrets.GITHUB_TOKEN }}'
           name: github-actions[bot]
@@ -46,7 +46,7 @@ jobs:
 
       - name: Get version
         id: version
-        run: echo "##[set-output name=TRACKER_VERSION;]$(node -p "require('./trackers/javascript-tracker/package.json').version")"
+        run: echo "TRACKER_VERSION=$(node -p "require('./trackers/javascript-tracker/package.json').version")" >> $GITHUB_OUTPUT
 
       - name: Fail if version mismatch
         if: ${{ github.event.inputs.version != steps.version.outputs.TRACKER_VERSION }}
@@ -80,7 +80,7 @@ jobs:
 
       - name: Generate Release Information
         id: tag_version
-        uses: mathieudutour/github-tag-action@v5.4
+        uses: mathieudutour/github-tag-action@v6.1
         with:
           dry_run: true
           github_token: ${{ secrets.GITHUB_TOKEN }}
