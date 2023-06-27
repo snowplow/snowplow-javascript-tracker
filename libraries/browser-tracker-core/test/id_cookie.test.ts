@@ -32,7 +32,6 @@ import * as uuid from 'uuid';
 jest.mock('uuid');
 const MOCK_UUID = '123456789';
 jest.spyOn(uuid, 'v4').mockReturnValue(MOCK_UUID);
-const ANONYMOUS_USER_ID = '00000000-0000-0000-0000-000000000000';
 
 import { payloadBuilder } from '@snowplow/tracker-core';
 import {
@@ -138,13 +137,9 @@ describe('initializeDomainUserId', () => {
 });
 
 describe('startNewIdCookieSession', () => {
-  const defaultNewSessionOptions = {
-    configStateStorageStrategy: '',
-    configAnonymousTracking: false,
-  };
   it('Resets the first event references and event index', () => {
     let idCookie = parseIdCookie('def.1653632272.10.1653632282.1653632262.ses.previous.fid.1653632252.9', '', '', 0);
-    startNewIdCookieSession(idCookie, defaultNewSessionOptions);
+    startNewIdCookieSession(idCookie);
 
     expect(firstEventIdFromIdCookie(idCookie)).toBeFalsy();
     expect(firstEventTsInMsFromIdCookie(idCookie)).toBeUndefined();
@@ -155,20 +150,20 @@ describe('startNewIdCookieSession', () => {
     let idCookie = parseIdCookie('def.1653632272.10.1653632282.1653632262', '', '', 0);
 
     expect(visitCountFromIdCookie(idCookie)).toBe(10);
-    startNewIdCookieSession(idCookie, defaultNewSessionOptions);
+    startNewIdCookieSession(idCookie);
     expect(visitCountFromIdCookie(idCookie)).toBe(11);
   });
 
   it('Uses the passed visit count in case of disabled cookies', () => {
     let idCookie = parseIdCookie('', '', '', 0);
-    startNewIdCookieSession(idCookie, { ...defaultNewSessionOptions, memorizedVisitCount: 100 });
+    startNewIdCookieSession(idCookie, { memorizedVisitCount: 100 });
     expect(visitCountFromIdCookie(idCookie)).toBe(100);
   });
 
   it("Doesn't set the last visit timestamp if disabled cookies and keeps now timestamp", () => {
     let idCookie = parseIdCookie('', '', '', 0);
     let nowTs = nowTsFromIdCookie(idCookie);
-    startNewIdCookieSession(idCookie, defaultNewSessionOptions);
+    startNewIdCookieSession(idCookie);
     expect(lastVisitTsFromIdCookie(idCookie)).toBeUndefined();
     expect(nowTsFromIdCookie(idCookie)).toBe(nowTs);
   });
@@ -179,7 +174,7 @@ describe('startNewIdCookieSession', () => {
     let before = sessionIdFromIdCookie(idCookie);
 
     jest.spyOn(uuid, 'v4').mockReturnValueOnce('another_random_uuid');
-    startNewIdCookieSession(idCookie, defaultNewSessionOptions);
+    startNewIdCookieSession(idCookie);
     let after = sessionIdFromIdCookie(idCookie);
 
     expect(before).not.toBe(after);
@@ -188,76 +183,15 @@ describe('startNewIdCookieSession', () => {
   it('Moves current visit to last visit timestamp', () => {
     let idCookie = parseIdCookie(`def.1653632100.10.1653632200.1653632300`, '', '', 0);
 
-    startNewIdCookieSession(idCookie, defaultNewSessionOptions);
+    startNewIdCookieSession(idCookie);
     expect(lastVisitTsFromIdCookie(idCookie)).toBe(1653632200);
   });
 
   it('Sets the previous session ID', () => {
     let idCookie = parseIdCookie('def.1653632100.10.1653632200.1653632300.ses', '', '', 0);
 
-    startNewIdCookieSession(idCookie, defaultNewSessionOptions);
+    startNewIdCookieSession(idCookie);
     expect(previousSessionIdFromIdCookie(idCookie)).toBe('ses');
-  });
-
-  describe('Session Callbacks: onUpdateSession', () => {
-    it('Correctly fires the callback', () => {
-      const idCookie = parseIdCookie('def.1653632100.10.1653632200.1653632300.ses', '', '', 0);
-      const onSessionUpdateCallback = jest.fn();
-      startNewIdCookieSession(idCookie, { ...defaultNewSessionOptions, onSessionUpdateCallback });
-      expect(onSessionUpdateCallback).toHaveBeenCalledTimes(1);
-      expect(onSessionUpdateCallback).toHaveBeenCalledWith({
-        eventIndex: 0,
-        firstEventId: null,
-        firstEventTimestamp: null,
-        previousSessionId: 'ses',
-        sessionId: '123456789',
-        sessionIndex: 11,
-        storageMechanism: 'COOKIE_1',
-        userId: 'def',
-      });
-    });
-
-    it('Correctly fires the callback with anonymousTracking enabled', () => {
-      const idCookie = parseIdCookie('def.1653632100.10.1653632200.1653632300.ses', '', '', 0);
-      const onSessionUpdateCallback = jest.fn();
-      startNewIdCookieSession(idCookie, {
-        ...defaultNewSessionOptions,
-        onSessionUpdateCallback,
-        configAnonymousTracking: true,
-      });
-      expect(onSessionUpdateCallback).toHaveBeenCalledTimes(1);
-      expect(onSessionUpdateCallback).toHaveBeenCalledWith({
-        eventIndex: 0,
-        firstEventId: null,
-        firstEventTimestamp: null,
-        previousSessionId: null,
-        sessionId: '123456789',
-        sessionIndex: 11,
-        storageMechanism: 'COOKIE_1',
-        userId: ANONYMOUS_USER_ID,
-      });
-    });
-
-    it('Correctly fires the callback with different stateStorageStrategy', () => {
-      const idCookie = parseIdCookie('def.1653632100.10.1653632200.1653632300.ses', '', '', 0);
-      const onSessionUpdateCallback = jest.fn();
-      startNewIdCookieSession(idCookie, {
-        ...defaultNewSessionOptions,
-        onSessionUpdateCallback,
-        configStateStorageStrategy: 'localStorage',
-      });
-      expect(onSessionUpdateCallback).toHaveBeenCalledTimes(1);
-      expect(onSessionUpdateCallback).toHaveBeenCalledWith({
-        eventIndex: 0,
-        firstEventId: null,
-        firstEventTimestamp: null,
-        previousSessionId: 'ses',
-        sessionId: '123456789',
-        sessionIndex: 11,
-        storageMechanism: 'LOCAL_STORAGE',
-        userId: 'def',
-      });
-    });
   });
 });
 

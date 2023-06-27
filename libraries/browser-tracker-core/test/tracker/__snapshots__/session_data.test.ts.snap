@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Tracker API:  onSessionUpdateCallback functionality properly calls onSessionUpdateCallback 1`] = `
+Object {
+  "eventIndex": 1,
+  "firstEventId": "123456789",
+  "firstEventTimestamp": "2023-01-01T00:00:00.000Z",
+  "previousSessionId": null,
+  "sessionId": "123456789",
+  "sessionIndex": 1,
+  "storageMechanism": "COOKIE_1",
+  "userId": "123456789",
+}
+`;
+
+exports[`Tracker API:  onSessionUpdateCallback functionality properly calls onSessionUpdateCallback with anonymousTracking and withSessionTracking 1`] = `
+Object {
+  "eventIndex": 1,
+  "firstEventId": "123456789",
+  "firstEventTimestamp": "2023-01-01T00:00:00.000Z",
+  "previousSessionId": null,
+  "sessionId": "123456789",
+  "sessionIndex": 1,
+  "storageMechanism": "COOKIE_1",
+  "userId": "00000000-0000-0000-0000-000000000000",
+}
+`;
+
+exports[`Tracker API:  onSessionUpdateCallback functionality properly calls onSessionUpdateCallback with correct storage strategy 1`] = `
+Object {
+  "eventIndex": 1,
+  "firstEventId": "123456789",
+  "firstEventTimestamp": "2023-01-01T00:00:00.000Z",
+  "previousSessionId": null,
+  "sessionId": "123456789",
+  "sessionIndex": 1,
+  "storageMechanism": "LOCAL_STORAGE",
+  "userId": "123456789",
+}
+`;
