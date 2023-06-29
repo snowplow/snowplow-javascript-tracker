@@ -28,6 +28,11 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import * as uuid from 'uuid';
+jest.mock('uuid');
+const MOCK_UUID = '123456789';
+jest.spyOn(uuid, 'v4').mockReturnValue(MOCK_UUID);
+
 import { createTestIdCookie, createTestSessionIdCookie, createTracker } from '../helpers';
 
 jest.useFakeTimers('modern');
@@ -173,5 +178,82 @@ describe('Tracker API: ', () => {
     });
 
     tracker?.trackPageView();
+  });
+
+  describe('onSessionUpdateCallback functionality', () => {
+    beforeEach(() => {
+      const standardDate = new Date('2023-01-01T00:00:00Z');
+      jest.setSystemTime(standardDate);
+    });
+
+    it('properly calls onSessionUpdateCallback', (done) => {
+      const tracker = createTracker({
+        contexts: { session: true },
+        encodeBase64: false,
+        onSessionUpdateCallback(updatedSession) {
+          expect(updatedSession).toMatchSnapshot();
+          done();
+        },
+      });
+
+      tracker?.trackPageView();
+    });
+
+    it('properly calls onSessionUpdateCallback with correct storage strategy', (done) => {
+      const tracker = createTracker({
+        contexts: { session: true },
+        encodeBase64: false,
+        stateStorageStrategy: 'localStorage',
+        onSessionUpdateCallback(updatedSession) {
+          expect(updatedSession).toMatchSnapshot();
+          done();
+        },
+      });
+
+      tracker?.trackPageView();
+    });
+
+    it('properly calls onSessionUpdateCallback with anonymousTracking and withSessionTracking', (done) => {
+      const tracker = createTracker({
+        contexts: { session: true },
+        encodeBase64: false,
+        anonymousTracking: { withSessionTracking: true },
+        onSessionUpdateCallback(updatedSession) {
+          expect(updatedSession).toMatchSnapshot();
+          done();
+        },
+      });
+
+      tracker?.trackPageView();
+    });
+
+    it('does not call onSessionUpdateCallback with anonymousTracking', () => {
+      const mockOnSessionUpdateCallback = jest.fn();
+      const tracker = createTracker({
+        contexts: { session: true },
+        encodeBase64: false,
+        anonymousTracking: true,
+        onSessionUpdateCallback: mockOnSessionUpdateCallback,
+      });
+
+      tracker?.trackPageView();
+      expect(mockOnSessionUpdateCallback).not.toHaveBeenCalled();
+    });
+
+    it('properly calls onSessionUpdateCallback when newSession API is called', () => {
+      const mockOnSessionUpdateCallback = jest.fn();
+
+      const tracker = createTracker({
+        contexts: { session: true },
+        encodeBase64: false,
+        anonymousTracking: { withSessionTracking: true },
+        onSessionUpdateCallback: mockOnSessionUpdateCallback,
+      });
+
+      tracker?.trackPageView();
+      expect(mockOnSessionUpdateCallback).toHaveBeenCalledTimes(1);
+      tracker?.newSession();
+      expect(mockOnSessionUpdateCallback).toHaveBeenCalledTimes(2);
+    });
   });
 });

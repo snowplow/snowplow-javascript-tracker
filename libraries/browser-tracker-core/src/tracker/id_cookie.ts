@@ -171,10 +171,7 @@ export function initializeDomainUserId(idCookie: ParsedIdCookie, configAnonymous
 }
 
 type NewSessionOptions = {
-  memorizedVisitCount?: number;
-  onSessionUpdateCallback?: (sessionState: ClientSession) => void;
-  configStateStorageStrategy: string;
-  configAnonymousTracking: boolean;
+  memorizedVisitCount: number;
 };
 
 /**
@@ -189,11 +186,11 @@ type NewSessionOptions = {
  * @param options.onSessionUpdateCallback Session callback triggered on every session update
  * @returns New session ID
  */
-export function startNewIdCookieSession(idCookie: ParsedIdCookie, options: NewSessionOptions) {
-  const { memorizedVisitCount, configStateStorageStrategy, configAnonymousTracking, onSessionUpdateCallback } = {
-    memorizedVisitCount: 1,
-    ...options,
-  };
+export function startNewIdCookieSession(
+  idCookie: ParsedIdCookie,
+  options: NewSessionOptions = { memorizedVisitCount: 1 }
+) {
+  const { memorizedVisitCount } = options;
 
   // If cookies are enabled, base visit count and session ID on the cookies
   if (cookiesEnabledInIdCookie(idCookie)) {
@@ -215,10 +212,6 @@ export function startNewIdCookieSession(idCookie: ParsedIdCookie, options: NewSe
   idCookie[eventIndexIndex] = 0;
   idCookie[firstEventIdIndex] = '';
   idCookie[firstEventTsInMsIndex] = undefined;
-
-  if (onSessionUpdateCallback) {
-    onSessionUpdateCallback(clientSessionFromIdCookie(idCookie, configStateStorageStrategy, configAnonymousTracking));
-  }
 
   return sessionId;
 }

@@ -91,6 +91,7 @@ import {
   clientSessionFromIdCookie,
   incrementEventIndexInIdCookie,
   emptyIdCookie,
+  eventIndexFromIdCookie,
 } from './id_cookie';
 import { CLIENT_SESSION_SCHEMA, WEB_PAGE_SCHEMA, BROWSER_CONTEXT_SCHEMA } from './schemata';
 import { getBrowserProperties } from '../helpers/browser_props';
@@ -315,7 +316,8 @@ export function Tracker(
       },
       configSessionContext = trackerConfiguration.contexts?.session ?? false,
       toOptoutByCookie: string | boolean,
-      onSessionUpdateCallback = trackerConfiguration.onSessionUpdateCallback;
+      onSessionUpdateCallback = trackerConfiguration.onSessionUpdateCallback,
+      manualSessionUpdateCalled = false;
 
     if (trackerConfiguration.hasOwnProperty('discoverRootDomain') && trackerConfiguration.discoverRootDomain) {
       configCookieDomain = findRootDomain(configCookieSameSite, configCookieSecure);
@@ -564,42 +566,51 @@ export function Tracker(
       return Math.round(offset);
     }
 
-    /*
-     * Sets or renews the session cookie
+    /**
+     * Sets or renews the session cookie.
+     * Responsible for calling the `onSessionUpdateCallback` callback.
+     * @returns {boolean} If the value persisted in cookies or LocalStorage
      */
     function setSessionCookie() {
       const cookieName = getSnowplowCookieName('ses');
       const cookieValue = '*';
-      setCookie(cookieName, cookieValue, configSessionCookieTimeout);
+      return persistValue(cookieName, cookieValue, configSessionCookieTimeout);
     }
 
-    /*
-     * Sets the Visitor ID cookie: either the first time loadDomainUserIdCookie is called
-     * or when there is a new visit or a new page view
+    /**
+     * @mutates idCookie
+     * @param {ParsedIdCookie} idCookie
+     * @returns {boolean} If the value persisted in cookies or LocalStorage
      */
     function setDomainUserIdCookie(idCookie: ParsedIdCookie) {
       const cookieName = getSnowplowCookieName('id');
       const cookieValue = serializeIdCookie(idCookie);
-      setCookie(cookieName, cookieValue, configVisitorCookieTimeout);
+      return persistValue(cookieName, cookieValue, configVisitorCookieTimeout);
     }
 
-    /*
+    /**
      * no-op if anonymousTracking enabled, will still set cookies if anonymousSessionTracking is enabled
      * Sets a cookie based on the storage strategy:
      * - if 'localStorage': attempts to write to local storage
      * - if 'cookie' or 'cookieAndLocalStorage': writes to cookies
      * - otherwise: no-op
+     * @param {string} name Name/key of the value to persist
+     * @param {string} value
+     * @param {number} timeout Used as the expiration date for cookies or as a TTL to be checked on LocalStorage
+     * @returns {boolean} If the operation was successful or not
      */
-    function setCookie(name: string, value: string, timeout: number) {
+    function persistValue(name: string, value: string, timeout: number): boolean {
       if (configAnonymousTracking && !configAnonymousSessionTracking) {
-        return;
+        return false;
       }
 
       if (configStateStorageStrategy == 'localStorage') {
-        attemptWriteLocalStorage(name, value, timeout);
+        return attemptWriteLocalStorage(name, value, timeout);
       } else if (configStateStorageStrategy == 'cookie' || configStateStorageStrategy == 'cookieAndLocalStorage') {
         cookie(name, value, timeout, configCookiePath, configCookieDomain, configCookieSameSite, configCookieSecure);
+        return document.cookie.indexOf(`${name}=`) !== -1 ? true : false;
       }
+      return false;
     }
 
     /**
@@ -658,11 +669,7 @@ export function Tracker(
       domainUserId = initializeDomainUserId(idCookie, configAnonymousTracking);
 
       if (!sesCookieSet) {
-        memorizedSessionId = startNewIdCookieSession(idCookie, {
-          configStateStorageStrategy,
-          configAnonymousTracking,
-          onSessionUpdateCallback,
-        });
+        memorizedSessionId = startNewIdCookieSession(idCookie);
       } else {
         memorizedSessionId = sessionIdFromIdCookie(idCookie);
       }
@@ -787,8 +794,10 @@ export function Tracker(
 
       return {
         beforeTrack: (payloadBuilder: PayloadBuilder) => {
-          let ses = getSnowplowCookieValue('ses'),
+          const existingSession = getSnowplowCookieValue('ses'),
             idCookie = loadDomainUserIdCookie();
+
+          const isFirstEventInSession = eventIndexFromIdCookie(idCookie) === 0;
 
           if (configOptOutCookie) {
             toOptoutByCookie = !!cookie(configOptOutCookie);
@@ -804,12 +813,8 @@ export function Tracker(
           // If cookies are enabled, base visit count and session ID on the cookies
           if (cookiesEnabledInIdCookie(idCookie)) {
             // New session?
-            if (!ses && configStateStorageStrategy != 'none') {
-              memorizedSessionId = startNewIdCookieSession(idCookie, {
-                configStateStorageStrategy,
-                configAnonymousTracking,
-                onSessionUpdateCallback,
-              });
+            if (!existingSession && configStateStorageStrategy != 'none') {
+              memorizedSessionId = startNewIdCookieSession(idCookie);
             } else {
               memorizedSessionId = sessionIdFromIdCookie(idCookie);
             }
@@ -818,10 +823,7 @@ export function Tracker(
           } else if (new Date().getTime() - lastEventTime > configSessionCookieTimeout * 1000) {
             memorizedVisitCount++;
             memorizedSessionId = startNewIdCookieSession(idCookie, {
-              configStateStorageStrategy,
-              configAnonymousTracking,
               memorizedVisitCount,
-              onSessionUpdateCallback,
             });
           }
 
@@ -846,17 +848,28 @@ export function Tracker(
           // Add the page URL last as it may take us over the IE limit (and we don't always need it)
           payloadBuilder.add('url', purify(configCustomUrl || locationHrefAlias));
 
+          const clientSession = clientSessionFromIdCookie(
+            idCookie,
+            configStateStorageStrategy,
+            configAnonymousTracking
+          );
           if (configSessionContext && (!configAnonymousTracking || configAnonymousSessionTracking)) {
-            addSessionContextToPayload(
-              payloadBuilder,
-              clientSessionFromIdCookie(idCookie, configStateStorageStrategy, configAnonymousTracking)
-            );
+            addSessionContextToPayload(payloadBuilder, clientSession);
           }
 
           // Update cookies
           if (configStateStorageStrategy != 'none') {
             setDomainUserIdCookie(idCookie);
-            setSessionCookie();
+            const sessionIdentifierPersisted = setSessionCookie();
+            if (
+              (!existingSession || isFirstEventInSession) &&
+              sessionIdentifierPersisted &&
+              onSessionUpdateCallback &&
+              !manualSessionUpdateCalled
+            ) {
+              onSessionUpdateCallback(clientSession);
+              manualSessionUpdateCalled = false;
+            }
           }
 
           lastEventTime = new Date().getTime();
@@ -883,26 +896,16 @@ export function Tracker(
       if (cookiesEnabledInIdCookie(idCookie)) {
         // When cookie/local storage is enabled - make a new session
         if (configStateStorageStrategy != 'none') {
-          memorizedSessionId = startNewIdCookieSession(idCookie, {
-            configStateStorageStrategy,
-            configAnonymousTracking,
-            onSessionUpdateCallback,
-          });
+          memorizedSessionId = startNewIdCookieSession(idCookie);
         } else {
           memorizedSessionId = sessionIdFromIdCookie(idCookie);
         }
 
         memorizedVisitCount = visitCountFromIdCookie(idCookie);
-
-        // Create a new session cookie
-        setSessionCookie();
       } else {
         memorizedVisitCount++;
         memorizedSessionId = startNewIdCookieSession(idCookie, {
-          configStateStorageStrategy,
-          configAnonymousTracking,
           memorizedVisitCount,
-          onSessionUpdateCallback,
         });
       }
 
@@ -910,8 +913,13 @@ export function Tracker(
 
       // Update cookies
       if (configStateStorageStrategy != 'none') {
+        const clientSession = clientSessionFromIdCookie(idCookie, configStateStorageStrategy, configAnonymousTracking);
         setDomainUserIdCookie(idCookie);
-        setSessionCookie();
+        const sessionIdentifierPersisted = setSessionCookie();
+        if (sessionIdentifierPersisted && onSessionUpdateCallback) {
+          manualSessionUpdateCalled = true;
+          onSessionUpdateCallback(clientSession);
+        }
       }
 
       lastEventTime = new Date().getTime();
@@ -1138,7 +1146,7 @@ export function Tracker(
 
       getTabId,
 
-      newSession: newSession,
+      newSession,
 
       getCookieName: function (basename: string) {
         return getSnowplowCookieName(basename);
