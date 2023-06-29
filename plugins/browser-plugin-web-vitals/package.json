@@ -1,6 +1,6 @@
 {
   "name": "@snowplow/browser-plugin-web-vitals",
-  "version": "3.13.0",
+  "version": "3.13.1",
   "description": "Adds the capability to track web performance metrics categorized as Web Vitals.",
   "homepage": "https://github.com/snowplow/snowplow-javascript-tracker",
   "bugs": "https://github.com/snowplow/snowplow-javascript-tracker/issues",
@@ -49,6 +49,6 @@
     "typescript": "~4.6.2"
   },
   "peerDependencies": {
-    "@snowplow/browser-tracker": "~3.13.0"
+    "@snowplow/browser-tracker": "~3.13.1"
   }
 }
