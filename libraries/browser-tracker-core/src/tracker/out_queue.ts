@@ -33,6 +33,7 @@ import { SharedState } from '../state';
 import { localStorageAccessible } from '../detectors';
 import { LOG, Payload } from '@snowplow/tracker-core';
 import { PAYLOAD_DATA_SCHEMA } from './schemata';
+import { EventMethod } from './types';
 
 export interface OutQueue {
   enqueueRequest: (request: Payload, url: string) => void;
@@ -40,7 +41,11 @@ export interface OutQueue {
   setUseLocalStorage: (localStorage: boolean) => void;
   setAnonymousTracking: (anonymous: boolean) => void;
   setCollectorUrl: (url: string) => void;
-  setBufferSize: (bufferSize: number) => void;
+  setBufferSize: (newBufferSize: number) => void;
+  /**
+   * Returns the currently used queue name or if the `eventMethod` argument is provided, the queue name for the eventMethod.
+   */
+  getName: (eventMethod?: Exclude<EventMethod, 'beacon'>) => string;
 }
 
 /**
@@ -48,7 +53,7 @@ export interface OutQueue {
  * Instantiated once per tracker instance.
  *
  * @param id - The Snowplow function name (used to generate the localStorage key)
- * @param sharedSate - Stores reference to the outbound queue so it can unload the page when all queues are empty
+ * @param sharedState - Stores reference to the outbound queue so it can unload the page when all queues are empty
  * @param useLocalStorage - Whether to use localStorage at all
  * @param eventMethod - if null will use 'beacon' otherwise can be set to 'post', 'get', or 'beacon' to force.
  * @param postPath - The path where events are to be posted
@@ -67,7 +72,7 @@ export interface OutQueue {
  */
 export function OutQueueManager(
   id: string,
-  sharedSate: SharedState,
+  sharedState: SharedState,
   useLocalStorage: boolean,
   eventMethod: string | boolean,
   postPath: string,
@@ -114,7 +119,7 @@ export function OutQueueManager(
     // Resolve all options and capabilities and decide path
     path = usePost ? postPath : '/i',
     // Different queue names for GET and POST since they are stored differently
-    queueName = `snowplowOutQueue_${id}_${usePost ? 'post2' : 'get'}`;
+    queueName = getQueueName(id, usePost ? 'post' : 'get');
 
   // Ensure we don't set headers when beacon is the requested eventMethod as we might fallback to POST
   // and end up sending them in older browsers which don't support beacon leading to inconsistencies
@@ -128,7 +133,9 @@ export function OutQueueManager(
     try {
       const localStorageQueue = window.localStorage.getItem(queueName);
       outQueue = localStorageQueue ? JSON.parse(localStorageQueue) : [];
-    } catch (e) {}
+    } catch (e) {
+      LOG.error('Failed to access window.localStorage queue.');
+    }
   }
 
   // Initialize to and empty array if we didn't get anything out of localStorage
@@ -137,14 +144,18 @@ export function OutQueueManager(
   }
 
   // Used by pageUnloadGuard
-  sharedSate.outQueues.push(outQueue);
+  sharedState.outQueues.push(outQueue);
 
   if (useXhr && bufferSize > 1) {
-    sharedSate.bufferFlushers.push(function (sync) {
+    sharedState.bufferFlushers.push(function (sync) {
       if (!executingQueue) {
         executeQueue(sync);
       }
     });
+  }
+
+  function getQueueName(id: string, method: Exclude<EventMethod, 'beacon'>) {
+    return `snowplowOutQueue_${id}_${method === 'get' ? 'get' : 'post2'}`;
   }
 
   /*
@@ -535,6 +546,7 @@ export function OutQueueManager(
     setBufferSize: (newBufferSize: number) => {
       bufferSize = newBufferSize;
     },
+    getName: (method?: Exclude<EventMethod, 'beacon'>) => (method ? getQueueName(id, method) : queueName),
   };
 
   function hasWebKitBeaconBug(useragent: string) {

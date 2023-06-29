@@ -57,6 +57,54 @@ describe('OutQueueManager', () => {
     (xhrMock as any).onreadystatechange();
   };
 
+  describe('API', () => {
+    it('returns the correct queue name', () => {
+      const postOutQueue = OutQueueManager(
+        'sp',
+        new SharedState(),
+        true,
+        'post',
+        '/com.snowplowanalytics.snowplow/tp2',
+        1,
+        40000,
+        0, // maxGetBytes – 0 for no limit
+        false,
+        maxQueueSize,
+        5000,
+        false,
+        {},
+        true,
+        [401], // retry status codes - override don't retry ones
+        [401, 505] // don't retry status codes
+      );
+
+      expect(postOutQueue.getName()).toBe('snowplowOutQueue_sp_post2');
+      expect(postOutQueue.getName('get')).toBe('snowplowOutQueue_sp_get');
+
+      const getOutQueue = OutQueueManager(
+        'sp',
+        new SharedState(),
+        true,
+        'get',
+        '/com.snowplowanalytics.snowplow/tp2',
+        1,
+        40000,
+        0,
+        false,
+        maxQueueSize,
+        5000,
+        false,
+        {},
+        true,
+        [],
+        []
+      );
+
+      expect(getOutQueue.getName()).toBe('snowplowOutQueue_sp_get');
+      expect(getOutQueue.getName('post')).toBe('snowplowOutQueue_sp_post2');
+    });
+  });
+
   describe('POST requests', () => {
     var outQueue: OutQueue;
 

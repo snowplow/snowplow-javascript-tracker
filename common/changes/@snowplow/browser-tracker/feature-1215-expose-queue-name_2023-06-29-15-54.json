@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-tracker",
+      "comment": "Add getQueueName tracker method",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker"
+}

@@ -581,6 +581,11 @@ export interface BrowserTracker {
   clearUserData: (configuration?: ClearUserDataConfiguration) => void;
 
   /**
+   * Returns the currently used queue name or if the `eventMethod` argument is provided, the queue name for the eventMethod.
+   */
+  getQueueName: (eventMethod?: Exclude<EventMethod, 'beacon'>) => string;
+
+  /**
    * Add a plugin into the plugin collection after Tracker has already been initialised
    * @param configuration - The plugin to add
    */

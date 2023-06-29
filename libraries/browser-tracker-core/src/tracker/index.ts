@@ -1283,6 +1283,8 @@ export function Tracker(
       },
 
       clearUserData: clearUserDataAndCookies,
+
+      getQueueName: outQueue.getName,
     };
 
     return {
