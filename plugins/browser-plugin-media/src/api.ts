@@ -78,6 +78,7 @@ export function startMediaTracking(
     config.boundaries,
     config.captureEvents,
     config.updatePageActivityWhilePlaying,
+    config.filterOutRepeatedEvents,
     config.context
   );
   activeMedias[mediaTracking.id] = mediaTracking;
@@ -85,14 +86,22 @@ export function startMediaTracking(
 
 /**
  * Ends media tracking with the given ID if previously started.
- * Clears local state for the media tracking.
+ * Clears local state for the media tracking and sends any events waiting to be sent.
  *
  * @param configuration Configuration with the media tracking ID
  */
 export function endMediaTracking(configuration: { id: string }) {
   if (activeMedias[configuration.id]) {
-    activeMedias[configuration.id].stop();
+    let events = activeMedias[configuration.id].flushAndStop();
     delete activeMedias[configuration.id];
+
+    if (events.length > 0) {
+      dispatchToTrackersInCollection(Object.keys(_trackers), _trackers, (t) => {
+        events.forEach((event) => {
+          t.core.track(buildSelfDescribingEvent(event), event.context);
+        });
+      });
+    }
   }
 }
 

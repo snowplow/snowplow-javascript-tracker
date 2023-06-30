@@ -10,7 +10,10 @@ import {
   MediaPlayerUpdate,
   MediaEventType,
   MediaEvent,
+  EventWithContext,
+  FilterOutRepeatedEvents
 } from './types';
+import { RepeatedEventFilter } from './repeatedEventFilter';
 
 /**
  * Manages the state and built-in entities for a media tracking that starts when a user
@@ -39,14 +42,14 @@ export class MediaTracking {
   private pingInterval?: MediaPingInterval;
   /// Manages ad entities.
   private adTracking = new MediaAdTracking();
-  /// Used to prevent tracking seek start events multiple times.
-  private isSeeking = false;
   /// Context entities to attach to all events
   private customContext?: Array<SelfDescribingJson>;
   /// Optional list of event types to allow tracking and discard others.
   private captureEvents?: MediaEventType[];
   // Whether to update page activity when playing media. Enabled by default.
   private updatePageActivityWhilePlaying?: boolean;
+  /// Filters out repeated events based on the configuration.
+  private repeatedEventFilter: RepeatedEventFilter;
 
   constructor(
     id: string,
@@ -56,6 +59,7 @@ export class MediaTracking {
     boundaries?: number[],
     captureEvents?: MediaEventType[],
     updatePageActivityWhilePlaying?: boolean,
+    filterRepeatedEvents?: FilterOutRepeatedEvents,
     context?: Array<SelfDescribingJson>
   ) {
     this.id = id;
@@ -66,6 +70,7 @@ export class MediaTracking {
     this.captureEvents = captureEvents;
     this.updatePageActivityWhilePlaying = updatePageActivityWhilePlaying;
     this.customContext = context;
+    this.repeatedEventFilter = new RepeatedEventFilter(filterRepeatedEvents);
 
     // validate event names in the captureEvents list
     captureEvents?.forEach((eventType) => {
@@ -78,8 +83,9 @@ export class MediaTracking {
   /**
    * Called when user calls `endMediaTracking()`.
    */
-  stop() {
+  flushAndStop(): EventWithContext[] {
     this.pingInterval?.clear();
+    return this.repeatedEventFilter.flush();
   }
 
   /**
@@ -96,7 +102,7 @@ export class MediaTracking {
     player?: MediaPlayerUpdate,
     ad?: MediaAdUpdate,
     adBreak?: MediaPlayerAdBreakUpdate
-  ): { event: SelfDescribingJson; context: SelfDescribingJson[] }[] {
+  ): EventWithContext[] {
     // update state
     this.updatePlayer(player);
     if (mediaEvent !== undefined) {
@@ -138,7 +144,7 @@ export class MediaTracking {
     if (customEvent !== undefined) {
       eventsToTrack.push({ event: customEvent, context: context });
     }
-    return eventsToTrack;
+    return this.repeatedEventFilter.filterEventsToTrack(eventsToTrack);
   }
 
   shouldUpdatePageActivity(): boolean {
@@ -173,34 +179,11 @@ export class MediaTracking {
   }
 
   private shouldTrackEvent(eventType: MediaEventType): boolean {
-    return this.updateSeekingAndCheckIfShouldTrack(eventType) && this.allowedToCaptureEventType(eventType);
-  }
-
-  /** Prevents multiple seek start events to be tracked after each other without a seek end (happens when scrubbing). */
-  private updateSeekingAndCheckIfShouldTrack(eventType: MediaEventType): boolean {
-    if (eventType == MediaEventType.SeekStart) {
-      if (this.isSeeking) {
-        return false;
-      }
-
-      this.isSeeking = true;
-    } else if (eventType == MediaEventType.SeekEnd) {
-      this.isSeeking = false;
-    }
-
-    return true;
-  }
-
-  private allowedToCaptureEventType(eventType: MediaEventType): boolean {
     return this.captureEvents === undefined || this.captureEvents.includes(eventType);
   }
 
   private getPercentProgress(): number | undefined {
-    if (
-      this.player.duration === null ||
-      this.player.duration === undefined ||
-      this.player.duration == 0
-    ) {
+    if (this.player.duration === null || this.player.duration === undefined || this.player.duration == 0) {
       return undefined;
     }
     return Math.floor(((this.player.currentTime ?? 0) / this.player.duration) * 100);
