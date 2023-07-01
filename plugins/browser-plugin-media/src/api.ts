@@ -20,6 +20,7 @@ import {
   MediaTrackQualityChangeArguments,
   MediaTrackErrorArguments,
   MediaTrackSelfDescribingEventArguments,
+  EventWithContext,
 } from './types';
 
 export { MediaAdBreakType as MediaPlayerAdBreakType };
@@ -98,7 +99,7 @@ export function endMediaTracking(configuration: { id: string }) {
     if (events.length > 0) {
       dispatchToTrackersInCollection(Object.keys(_trackers), _trackers, (t) => {
         events.forEach((event) => {
-          t.core.track(buildSelfDescribingEvent(event), event.context);
+          t.core.track(buildSelfDescribingEvent(event), event.context, event.timestamp);
         });
       });
     }
@@ -722,14 +723,25 @@ function track(
     });
   }
 
-  if (events.length == 0) {
+  // Processes events with context and timestamp and filters out repeated events
+  const eventsToTrack: EventWithContext[] = mediaTracking.filterRepeatedEvents(
+    events.map((event) => {
+      return {
+        ...event,
+        context: (event.context ?? []).concat(context),
+        timestamp,
+      };
+    })
+  );
+
+  if (eventsToTrack.length == 0) {
     return;
   }
 
   // Send all created events to the trackers
   dispatchToTrackersInCollection(trackers, _trackers, (t) => {
-    events.forEach((event) => {
-      t.core.track(buildSelfDescribingEvent(event), event.context.concat(context), timestamp);
+    eventsToTrack.forEach((event) => {
+      t.core.track(buildSelfDescribingEvent(event), event.context, event.timestamp);
     });
   });
 }

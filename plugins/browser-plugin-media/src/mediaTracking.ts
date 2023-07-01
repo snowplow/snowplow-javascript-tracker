@@ -11,7 +11,7 @@ import {
   MediaEventType,
   MediaEvent,
   EventWithContext,
-  FilterOutRepeatedEvents
+  FilterOutRepeatedEvents,
 } from './types';
 import { RepeatedEventFilter } from './repeatedEventFilter';
 
@@ -144,7 +144,11 @@ export class MediaTracking {
     if (customEvent !== undefined) {
       eventsToTrack.push({ event: customEvent, context: context });
     }
-    return this.repeatedEventFilter.filterEventsToTrack(eventsToTrack);
+    return eventsToTrack;
+  }
+
+  filterRepeatedEvents(events: EventWithContext[]): EventWithContext[] {
+    return this.repeatedEventFilter.filterEventsToTrack(events);
   }
 
   shouldUpdatePageActivity(): boolean {

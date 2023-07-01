@@ -457,6 +457,16 @@ describe('Media Tracking API', () => {
           },
         ]);
       });
+
+      it('remembers context entities on flush', () => {
+        startMediaTracking({ id, session: false });
+        trackMediaVolumeChange({ id, newVolume: 50 });
+        trackMediaVolumeChange({ id, newVolume: 60 });
+        trackMediaVolumeChange({ id, newVolume: 70, context: [{ schema: 'entity', data: {} }] });
+        endMediaTracking({ id });
+
+        expect(eventQueue).toMatchObject([{ context: [{ schema: MEDIA_PLAYER_SCHEMA }, { schema: 'entity' }] }]);
+      });
     });
 
     it('adds custom context entities to all events', () => {

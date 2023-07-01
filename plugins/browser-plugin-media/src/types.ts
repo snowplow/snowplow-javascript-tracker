@@ -408,7 +408,6 @@ export interface CommonMediaEventProperties extends CommonEventProperties {
   context?: Array<SelfDescribingJson>;
 }
 
-export type EventWithContext = {
+export interface EventWithContext extends CommonEventProperties {
   event: SelfDescribingJson;
-  context: SelfDescribingJson[];
 };
