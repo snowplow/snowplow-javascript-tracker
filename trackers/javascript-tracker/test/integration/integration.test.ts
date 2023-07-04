@@ -1,39 +1,7 @@
-/*
- * Copyright (c) 2022 Snowplow Analytics Ltd, 2010 Anthon Pang
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- * 3. Neither the name of the copyright holder nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
-import util from 'util';
 import F from 'lodash/fp';
-import { DockerWrapper, fetchResults, start, stop } from '../micro';
+import { fetchResults } from '../micro';
 import { version } from '../../package.json';
-
-const dumpLog = (log: Array<unknown>) => console.log(util.inspect(log, true, null, true));
+import { pageSetup } from './helpers';
 
 const retrieveSchemaData = (schema: unknown) => F.compose(F.get('data'), F.find({ schema }), F.get('data'));
 
@@ -74,31 +42,23 @@ describe('Snowplow Micro integration', () => {
 
   let eventMethods = ['get', 'post', 'beacon'];
   let log: Array<unknown> = [];
-  let docker: DockerWrapper;
+  let testIdentifier = '';
 
   const logContains = (ev: unknown) => F.some(F.isMatch(ev as object), log);
   const logContainsFn = (ev: unknown) => F.some(isMatchWithCallback(ev as object), log);
 
   beforeAll(async () => {
-    await browser.call(async () => (docker = await start()));
-    await browser.url('/index.html');
-    await browser.setCookies({ name: 'container', value: docker.url });
-
+    testIdentifier = await pageSetup();
     await loadUrlAndWait('/integration.html?eventMethod=get');
-    await $('#bottomRight').scrollIntoView();
-    await browser.pause(10000); // Time for requests to get written
+    await $('#bottomRight').click();
+    await browser.pause(5000); // Time for requests to get written
     await loadUrlAndWait('/integration.html?eventMethod=post');
-    await $('#bottomRight').scrollIntoView();
+    await $('#bottomRight').click();
     await browser.pause(6000); // Time for requests to get written
     await loadUrlAndWait('/integration.html?eventMethod=beacon');
-    await $('#bottomRight').scrollIntoView();
+    await $('#bottomRight').click();
     await browser.pause(6000); // Time for requests to get written
-
-    log = await browser.call(async () => await fetchResults(docker.url));
-  });
-
-  afterAll(async () => {
-    await browser.call(async () => await stop(docker.container));
+    log = await browser.call(async () => await fetchResults());
   });
 
   eventMethods.forEach((method) => {
@@ -111,7 +71,7 @@ describe('Snowplow Micro integration', () => {
             },
           },
           event: {
-            app_id: `sp-${method}`,
+            app_id: `sp-${method}-${testIdentifier}`,
             v_tracker: `js-${version}`,
           },
         })
@@ -124,7 +84,7 @@ describe('Snowplow Micro integration', () => {
           event: {
             event: 'page_view',
             platform: 'mob',
-            app_id: `sp-${method}`,
+            app_id: `sp-${method}-${testIdentifier}`,
             user_id: 'Malcolm',
             page_title: 'Integration test page',
           },
@@ -137,7 +97,7 @@ describe('Snowplow Micro integration', () => {
         event: {
           event: 'page_view',
           platform: 'mob',
-          app_id: `sp-${method}`,
+          app_id: `sp-${method}-${testIdentifier}`,
           user_id: 'Malcolm',
           page_title: 'My Title',
           contexts: {
@@ -154,11 +114,11 @@ describe('Snowplow Micro integration', () => {
       expect(logContains(expected)).toBe(true);
     });
 
-    it(`${method}: contains nonnonexistent event types in log`, () => {
+    it(`${method}: contains nonexistent event types in log`, () => {
       expect(
         logContains({
           event: 'ad',
-          app_id: `sp-${method}`,
+          app_id: `sp-${method}-${testIdentifier}`,
         })
       ).toBe(false);
     });
@@ -170,7 +130,7 @@ describe('Snowplow Micro integration', () => {
         logContainsFn({
           event: {
             event_name: 'page_ping',
-            app_id: `sp-${method}`,
+            app_id: `sp-${method}-${testIdentifier}`,
             pp_xoffset_max: gtZero,
             pp_yoffset_max: gtZero,
           },
@@ -182,7 +142,7 @@ describe('Snowplow Micro integration', () => {
       expect(
         logContains({
           event: {
-            app_id: `sp-${method}`,
+            app_id: `sp-${method}-${testIdentifier}`,
             event: 'struct',
             se_category: 'Mixes',
             se_action: 'Play',
@@ -197,7 +157,7 @@ describe('Snowplow Micro integration', () => {
       expect(
         logContains({
           event: {
-            app_id: `sp-${method}`,
+            app_id: `sp-${method}-${testIdentifier}`,
             event: 'unstruct',
             unstruct_event: {
               data: {
@@ -214,7 +174,7 @@ describe('Snowplow Micro integration', () => {
       expect(
         logContains({
           event: {
-            app_id: `sp-${method}`,
+            app_id: `sp-${method}-${testIdentifier}`,
             event: 'transaction',
             tr_orderid: 'order-123',
             tr_affiliation: 'acme',
@@ -234,7 +194,7 @@ describe('Snowplow Micro integration', () => {
       expect(
         logContains({
           event: {
-            app_id: `sp-${method}`,
+            app_id: `sp-${method}-${testIdentifier}`,
             event: 'transaction_item',
             ti_orderid: 'order-123',
             ti_sku: '1001',
@@ -252,7 +212,7 @@ describe('Snowplow Micro integration', () => {
       expect(
         logContains({
           event: {
-            app_id: `sp-${method}`,
+            app_id: `sp-${method}-${testIdentifier}`,
             unstruct_event: {
               data: {
                 schema: 'iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1',
@@ -273,7 +233,10 @@ describe('Snowplow Micro integration', () => {
 
     it(`${method}: shows that pageViewId is regenerated for each trackPageView`, () => {
       const pageViews = F.filter(
-        (ev) => F.get('event.event', ev) === 'page_view' && F.get('event.name_tracker', ev) === 'sp',
+        (ev) =>
+          F.get('event.event', ev) === 'page_view' &&
+          F.get('event.name_tracker', ev) === 'sp' &&
+          F.get('event.app_id', ev) === `sp-${method}-${testIdentifier}`,
         log
       );
 
@@ -290,7 +253,7 @@ describe('Snowplow Micro integration', () => {
       expect(
         logContains({
           event: {
-            app_id: `sp-${method}`,
+            app_id: `sp-${method}-${testIdentifier}`,
             contexts: {
               data: [
                 {
@@ -317,7 +280,15 @@ describe('Snowplow Micro integration', () => {
 
       const fromCfTracker = F.compose(F.eq('cf'), F.get('event.name_tracker'));
 
-      const numberWithoutGdpr = F.size(F.filter((ev) => withoutGdprContext(ev) && fromCfTracker(ev), log));
+      const numberWithoutGdpr = F.size(
+        F.filter(
+          (ev) =>
+            withoutGdprContext(ev) &&
+            fromCfTracker(ev) &&
+            F.get('event.app_id', ev) === `sp-${method}-${testIdentifier}`,
+          log
+        )
+      );
 
       expect(numberWithoutGdpr).toBe(0);
     });
@@ -326,7 +297,7 @@ describe('Snowplow Micro integration', () => {
       expect(
         logContains({
           event: {
-            app_id: `sp-${method}`,
+            app_id: `sp-${method}-${testIdentifier}`,
             event: 'struct',
             contexts: {
               data: [geoContext, mobileContext],
@@ -340,7 +311,7 @@ describe('Snowplow Micro integration', () => {
       expect(
         logContains({
           event: {
-            app_id: `sp-${method}`,
+            app_id: `sp-${method}-${testIdentifier}`,
             event: 'unstruct',
             unstruct_event: {
               data: {
@@ -362,7 +333,7 @@ describe('Snowplow Micro integration', () => {
       expect(
         logContains({
           event: {
-            app_id: `sp-${method}`,
+            app_id: `sp-${method}-${testIdentifier}`,
             event: 'unstruct',
             unstruct_event: {
               data: {
@@ -391,7 +362,7 @@ describe('Snowplow Micro integration', () => {
           event: {
             event: 'page_view',
             platform: 'web',
-            app_id: `no-b64-${method}`,
+            app_id: `no-b64-${method}-${testIdentifier}`,
             page_title: 'My Title',
             contexts: {
               data: [
@@ -412,7 +383,7 @@ describe('Snowplow Micro integration', () => {
           event: {
             event: 'unstruct',
             platform: 'mob',
-            app_id: `sp-${method}`,
+            app_id: `sp-${method}-${testIdentifier}`,
             user_id: 'Malcolm',
             unstruct_event: {
               data: {
@@ -431,7 +402,7 @@ describe('Snowplow Micro integration', () => {
           event: {
             event: 'unstruct',
             platform: 'mob',
-            app_id: `sp-${method}`,
+            app_id: `sp-${method}-${testIdentifier}`,
             user_id: 'Malcolm',
             unstruct_event: {
               data: {
@@ -459,7 +430,7 @@ describe('Snowplow Micro integration', () => {
           event: {
             event: 'unstruct',
             platform: 'mob',
-            app_id: `sp-${method}`,
+            app_id: `sp-${method}-${testIdentifier}`,
             user_id: 'Malcolm',
             unstruct_event: {
               data: {
@@ -488,7 +459,7 @@ describe('Snowplow Micro integration', () => {
           event: {
             event: 'unstruct',
             platform: 'mob',
-            app_id: `sp-${method}`,
+            app_id: `sp-${method}-${testIdentifier}`,
             user_id: 'Malcolm',
             unstruct_event: {
               data: {
@@ -517,7 +488,7 @@ describe('Snowplow Micro integration', () => {
           event: {
             event: 'unstruct',
             platform: 'mob',
-            app_id: `sp-${method}`,
+            app_id: `sp-${method}-${testIdentifier}`,
             user_id: 'Malcolm',
             unstruct_event: {
               data: {
@@ -543,7 +514,7 @@ describe('Snowplow Micro integration', () => {
           event: {
             event: 'unstruct',
             platform: 'mob',
-            app_id: `sp-${method}`,
+            app_id: `sp-${method}-${testIdentifier}`,
             user_id: 'Malcolm',
             unstruct_event: {
               data: {
@@ -569,7 +540,7 @@ describe('Snowplow Micro integration', () => {
           event: {
             event: 'unstruct',
             platform: 'mob',
-            app_id: `sp-${method}`,
+            app_id: `sp-${method}-${testIdentifier}`,
             user_id: 'Malcolm',
             unstruct_event: {
               data: {
@@ -593,7 +564,7 @@ describe('Snowplow Micro integration', () => {
           event: {
             event: 'unstruct',
             platform: 'mob',
-            app_id: `sp-${method}`,
+            app_id: `sp-${method}-${testIdentifier}`,
             user_id: 'Malcolm',
             unstruct_event: {
               data: {
@@ -617,7 +588,7 @@ describe('Snowplow Micro integration', () => {
           event: {
             event: 'unstruct',
             platform: 'mob',
-            app_id: `sp-${method}`,
+            app_id: `sp-${method}-${testIdentifier}`,
             user_id: 'Malcolm',
             contexts: {
               data: [
@@ -651,7 +622,7 @@ describe('Snowplow Micro integration', () => {
           event: {
             event: 'unstruct',
             platform: 'mob',
-            app_id: `sp-${method}`,
+            app_id: `sp-${method}-${testIdentifier}`,
             user_id: 'Malcolm',
             contexts: {
               data: [
@@ -685,7 +656,7 @@ describe('Snowplow Micro integration', () => {
           event: {
             event: 'unstruct',
             platform: 'mob',
-            app_id: `sp-${method}`,
+            app_id: `sp-${method}-${testIdentifier}`,
             user_id: 'Malcolm',
             unstruct_event: {
               data: {
@@ -709,7 +680,7 @@ describe('Snowplow Micro integration', () => {
           event: {
             event: 'unstruct',
             platform: 'mob',
-            app_id: `sp-${method}`,
+            app_id: `sp-${method}-${testIdentifier}`,
             user_id: 'Malcolm',
             contexts: {
               data: [
@@ -776,7 +747,7 @@ describe('Snowplow Micro integration', () => {
       expect(
         logContains({
           event: {
-            app_id: `sp-${method}`,
+            app_id: `sp-${method}-${testIdentifier}`,
             event: 'struct',
             se_category: 'userIdTest1',
             user_id: 'Dave',
@@ -789,7 +760,7 @@ describe('Snowplow Micro integration', () => {
       expect(
         logContains({
           event: {
-            app_id: `sp-${method}`,
+            app_id: `sp-${method}-${testIdentifier}`,
             event: 'struct',
             se_category: 'userIdTest2',
             user_id: 'Dave',
@@ -802,7 +773,7 @@ describe('Snowplow Micro integration', () => {
       const results = log.filter(
         (event: any) =>
           event.rawEvent.context.headers.includes('Content-Language: de-DE, en-CA') &&
-          event.event.app_id === `sp-${method}`
+          event.event.app_id === `sp-${method}-${testIdentifier}`
       ) as Array<any>;
 
       if (method === 'beacon' || F.isMatch({ browserName: 'internet explorer', version: '9' }, browser.capabilities)) {

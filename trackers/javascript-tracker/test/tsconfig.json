@@ -1,7 +1,15 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "types": ["node", "@wdio/types", "@wdio/globals/types", "@wdio/jasmine-framework", "jest"]
+    "types": [
+      "node",
+      "@wdio/types",
+      "@wdio/globals/types",
+      "@wdio/jasmine-framework",
+      "jest",
+      "@wdio/shared-store-service",
+      "youtube"
+    ]
   },
   "include": ["./**/*.test.ts"]
 }

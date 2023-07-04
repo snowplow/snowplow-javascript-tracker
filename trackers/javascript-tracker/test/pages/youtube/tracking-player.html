@@ -2,7 +2,8 @@
 <head>
   <title>Page for YouTube tracking testing with Snowplow Micro</title>
   <script>
-    const collector_endpoint = document.cookie.split('container=')[1].split(';')[0].trim();
+    var collector_endpoint = document.cookie.split('container=')[1].split(';')[0].trim();
+    var testIdentifier = document.cookie.split('testIdentifier=')[1].split(';')[0].trim();
     document.body.className += ' loaded';
   </script>
 </head>
@@ -27,7 +28,7 @@
     document.write(collector_endpoint);
 
     window.snowplow('newTracker', 'sp2', collector_endpoint, {
-      appId: 'youtube-track-test',
+      appId: 'yt-player-' + testIdentifier,
     });
   </script>
   <div id="youtube"></div>
@@ -41,7 +42,7 @@
     // `onYouTubeIframeAPIReady` will run once the API is loaded
     function onYouTubeIframeAPIReady() {
       new YT.Player('youtube', {
-        videoId: 'zSM4ZyVe8xs',
+        videoId: 'ublEqhffop0',
         events: {
           onReady: (e) =>
             window.snowplow('enableYouTubeTracking', {

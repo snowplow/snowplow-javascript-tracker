@@ -3,7 +3,8 @@
   <head>
     <title>Page for HTML5 media tracking testing with Snowplow Micro</title>
     <script>
-      const collector_endpoint = document.cookie.split('container=')[1].split(';')[0].trim();
+      var collector_endpoint = document.cookie.split('container=')[1].split(';')[0].trim();
+      var testIdentifier = document.cookie.split('testIdentifier=')[1].split(';')[0].trim();
       document.body.className += ' loaded';
     </script>
   </head>
@@ -28,7 +29,7 @@
       document.write(collector_endpoint);
 
       window.snowplow('newTracker', 'sp2', collector_endpoint, {
-        appId: 'html5-track-test',
+        appId: 'media-default-events-' + testIdentifier,
       });
 
       window.snowplow('enableMediaTracking', {

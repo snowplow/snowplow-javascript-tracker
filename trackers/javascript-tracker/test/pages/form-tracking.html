@@ -66,6 +66,7 @@
 
     <script>
       var collector_endpoint = document.cookie.split('container=')[1].split(';')[0];
+      var testIdentifier = document.cookie.split('testIdentifier=')[1].split(';')[0].trim();
       document.body.className += ' loaded';
 
       var formHtml = '<form><input type="text" name="fname" id="fname"></form>';
@@ -96,7 +97,7 @@
       document.write(collector_endpoint);
 
       snowplow('newTracker', 'sp', collector_endpoint, {
-        appId: 'autotracking',
+        appId: 'autotracking-form-' + testIdentifier,
       });
       snowplow(function () {
         document.getElementById('init').innerText = 'true';
