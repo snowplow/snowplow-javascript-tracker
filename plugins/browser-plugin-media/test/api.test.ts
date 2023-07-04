@@ -467,6 +467,16 @@ describe('Media Tracking API', () => {
 
         expect(eventQueue).toMatchObject([{ context: [{ schema: MEDIA_PLAYER_SCHEMA }, { schema: 'entity' }] }]);
       });
+
+      it('flushes events that are waiting to be filtered automatically after timeout', (done) => {
+        startMediaTracking({ id, filterOutRepeatedEvents: { flushTimeoutMs: 0 } });
+        trackMediaVolumeChange({ id, newVolume: 50 });
+
+        setTimeout(() => {
+          expect(eventQueue.length).toBe(1);
+          done();
+        }, 0);
+      });
     });
 
     it('adds custom context entities to all events', () => {

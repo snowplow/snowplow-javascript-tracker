@@ -7,7 +7,9 @@ import { FilterOutRepeatedEvents, MediaEventType, EventWithContext } from './typ
  */
 export class RepeatedEventFilter {
   private aggregateEventsWithOrder: { [schema: string]: boolean } = {};
-  private eventsToAggregate: { [schema: string]: EventWithContext[] } = {};
+  private eventsToAggregate: { [schema: string]: (() => void)[] } = {};
+  private flushTimeout?: number;
+  private flushTimeoutMs: number;
 
   constructor(configuration?: FilterOutRepeatedEvents) {
     let allFiltersEnabled = configuration === undefined || configuration === true;
@@ -19,44 +21,59 @@ export class RepeatedEventFilter {
       this.aggregateEventsWithOrder[getMediaEventSchema(MediaEventType.VolumeChange)] = false;
     }
 
+    this.flushTimeoutMs = (typeof configuration === 'object' ? configuration.flushTimeoutMs : undefined) ?? 5000;
+
     Object.keys(this.aggregateEventsWithOrder).forEach((schema) => {
       this.eventsToAggregate[schema] = [];
     });
   }
 
-  filterEventsToTrack(events: EventWithContext[]): EventWithContext[] {
-    let eventsToTrack: EventWithContext[] = [];
+  trackFilteredEvents(events: EventWithContext[], trackEvent: (event: EventWithContext) => void) {
+    let startFlushTimeout = false;
 
     events.forEach(({ event, context }) => {
       if (this.eventsToAggregate[event.schema] !== undefined) {
-        this.eventsToAggregate[event.schema].push({ event, context });
+        startFlushTimeout = true;
+        this.eventsToAggregate[event.schema].push(() => trackEvent({ event, context }));
       } else {
+        startFlushTimeout = false;
         // flush any events waiting
-        let flushed = this.flush();
-        if (flushed.length > 0) {
-          eventsToTrack = eventsToTrack.concat(flushed);
-        }
+        this.flush();
 
-        eventsToTrack.push({ event, context });
+        trackEvent({ event, context });
       }
     });
 
-    return eventsToTrack;
+    if (startFlushTimeout && this.flushTimeout === undefined) {
+      this.setFlushTimeout();
+    }
   }
 
-  flush(): EventWithContext[] {
-    let flushed: EventWithContext[] = [];
+  flush() {
+    this.clearFlushTimeout();
+
     Object.keys(this.eventsToAggregate).forEach((schema) => {
       let eventsToAggregate = this.eventsToAggregate[schema];
       if (eventsToAggregate.length > 0) {
         if (this.aggregateEventsWithOrder[schema]) {
-          flushed.push(eventsToAggregate[0]);
+          eventsToAggregate[0]();
         } else {
-          flushed.push(eventsToAggregate[eventsToAggregate.length - 1]);
+          eventsToAggregate[eventsToAggregate.length - 1]();
         }
         this.eventsToAggregate[schema] = [];
       }
     });
-    return flushed;
+  }
+
+  private clearFlushTimeout() {
+    if (this.flushTimeout !== undefined) {
+      clearTimeout(this.flushTimeout);
+      this.flushTimeout = undefined;
+    }
+  }
+
+  private setFlushTimeout() {
+    this.clearFlushTimeout();
+    this.flushTimeout = window.setTimeout(() => this.flush(), this.flushTimeoutMs);
   }
 }

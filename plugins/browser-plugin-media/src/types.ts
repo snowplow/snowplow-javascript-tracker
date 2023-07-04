@@ -86,9 +86,13 @@ export type FilterOutRepeatedEvents =
        * Whether to filter out volume change events tracked after each other.
        */
       volumeChangeEvents?: boolean;
+      /**
+       * Timeout in milliseconds after which to send the events that are queued for filtering.
+       * Defaults to 5000 ms.
+       */
+      flushTimeoutMs?: number;
     }
   | boolean;
-
 
 export type MediaTrackingConfiguration = {
   /** Unique ID of the media tracking. The same ID will be used for media player session if enabled. */
@@ -410,4 +414,4 @@ export interface CommonMediaEventProperties extends CommonEventProperties {
 
 export interface EventWithContext extends CommonEventProperties {
   event: SelfDescribingJson;
-};
+}

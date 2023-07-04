@@ -83,9 +83,9 @@ export class MediaTracking {
   /**
    * Called when user calls `endMediaTracking()`.
    */
-  flushAndStop(): EventWithContext[] {
+  flushAndStop() {
     this.pingInterval?.clear();
-    return this.repeatedEventFilter.flush();
+    this.repeatedEventFilter.flush();
   }
 
   /**
@@ -97,12 +97,13 @@ export class MediaTracking {
    * @returns List of events with entities to track.
    */
   update(
+    trackEvent: (event: EventWithContext) => void,
     mediaEvent?: MediaEvent,
     customEvent?: SelfDescribingJson,
     player?: MediaPlayerUpdate,
     ad?: MediaAdUpdate,
     adBreak?: MediaPlayerAdBreakUpdate
-  ): EventWithContext[] {
+  ) {
     // update state
     this.updatePlayer(player);
     if (mediaEvent !== undefined) {
@@ -144,11 +145,8 @@ export class MediaTracking {
     if (customEvent !== undefined) {
       eventsToTrack.push({ event: customEvent, context: context });
     }
-    return eventsToTrack;
-  }
 
-  filterRepeatedEvents(events: EventWithContext[]): EventWithContext[] {
-    return this.repeatedEventFilter.filterEventsToTrack(events);
+    this.repeatedEventFilter.trackFilteredEvents(eventsToTrack, trackEvent);
   }
 
   shouldUpdatePageActivity(): boolean {

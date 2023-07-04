@@ -93,16 +93,8 @@ export function startMediaTracking(
  */
 export function endMediaTracking(configuration: { id: string }) {
   if (activeMedias[configuration.id]) {
-    let events = activeMedias[configuration.id].flushAndStop();
+    activeMedias[configuration.id].flushAndStop();
     delete activeMedias[configuration.id];
-
-    if (events.length > 0) {
-      dispatchToTrackersInCollection(Object.keys(_trackers), _trackers, (t) => {
-        events.forEach((event) => {
-          t.core.track(buildSelfDescribingEvent(event), event.context, event.timestamp);
-        });
-      });
-    }
   }
 }
 
@@ -714,7 +706,13 @@ function track(
     return;
   }
 
-  const events = mediaTracking.update(mediaEvent, customEvent, player, ad, adBreak);
+  const trackEvent = (event: EventWithContext) => {
+    dispatchToTrackersInCollection(trackers, _trackers, (t) => {
+      t.core.track(buildSelfDescribingEvent(event), (event.context ?? []).concat(context), timestamp);
+    });
+  };
+
+  mediaTracking.update(trackEvent, mediaEvent, customEvent, player, ad, adBreak);
 
   // Update page activity in order to keep sending page pings if needed
   if (mediaTracking.shouldUpdatePageActivity()) {
@@ -722,26 +720,4 @@ function track(
       t.updatePageActivity();
     });
   }
-
-  // Processes events with context and timestamp and filters out repeated events
-  const eventsToTrack: EventWithContext[] = mediaTracking.filterRepeatedEvents(
-    events.map((event) => {
-      return {
-        ...event,
-        context: (event.context ?? []).concat(context),
-        timestamp,
-      };
-    })
-  );
-
-  if (eventsToTrack.length == 0) {
-    return;
-  }
-
-  // Send all created events to the trackers
-  dispatchToTrackersInCollection(trackers, _trackers, (t) => {
-    eventsToTrack.forEach((event) => {
-      t.core.track(buildSelfDescribingEvent(event), event.context, event.timestamp);
-    });
-  });
 }
