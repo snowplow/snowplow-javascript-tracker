@@ -60,11 +60,11 @@ describe('AdTrackingPlugin', () => {
   });
 
   it('makes a request to Kantar endpoint with user ID', async () => {
-    let tracker = createTrackerWithPlugin();
+    const tracker = createTrackerWithPlugin();
     enableFocalMeterIntegration({ kantarEndpoint: domain });
 
     tracker?.trackPageView();
-    let userId = tracker?.getDomainUserId();
+    const userId = tracker?.getDomainUserId();
 
     await checkMock(() => {
       expect(xhrOpenMock).toHaveBeenCalledTimes(2);
@@ -72,8 +72,21 @@ describe('AdTrackingPlugin', () => {
     });
   });
 
+  it('makes a request to Kantar endpoint with processed user ID', async () => {
+    const tracker = createTrackerWithPlugin();
+    enableFocalMeterIntegration({ kantarEndpoint: domain, processUserId: (userId) => userId + '-processed' });
+
+    tracker?.trackPageView();
+    const userId = tracker?.getDomainUserId();
+
+    await checkMock(() => {
+      expect(xhrOpenMock).toHaveBeenCalledTimes(2);
+      expect(xhrOpenMock).toHaveBeenLastCalledWith('GET', `${domain}?vendor=snowplow&cs_fpid=${userId}-processed&c12=not_set`);
+    });
+  });
+
   it('makes a request to Kantar endpoint when user ID changes', async () => {
-    let tracker = createTrackerWithPlugin();
+    const tracker = createTrackerWithPlugin();
     enableFocalMeterIntegration({ kantarEndpoint: domain });
 
     // Doesn't make a request if anonymous tracking
@@ -86,7 +99,7 @@ describe('AdTrackingPlugin', () => {
     // Makes a request when disabling anonymous tracking
     tracker?.disableAnonymousTracking();
     tracker?.trackPageView();
-    let userId = tracker?.getDomainUserId();
+    const userId = tracker?.getDomainUserId();
     await checkMock(() => {
       expect(xhrOpenMock).toHaveBeenCalledTimes(2);
       expect(xhrOpenMock).toHaveBeenLastCalledWith('GET', `${domain}?vendor=snowplow&cs_fpid=${userId}&c12=not_set`);
@@ -100,8 +113,8 @@ describe('AdTrackingPlugin', () => {
   });
 
   it('can work with multiple trackers', async () => {
-    let tracker1 = createTrackerWithPlugin();
-    let tracker2 = createTrackerWithPlugin();
+    const tracker1 = createTrackerWithPlugin();
+    const tracker2 = createTrackerWithPlugin();
 
     enableFocalMeterIntegration(
       {

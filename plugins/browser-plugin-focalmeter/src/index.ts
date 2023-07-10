@@ -43,6 +43,8 @@ export interface FocalMeterConfiguration {
   kantarEndpoint: string;
   /** Whether to store information about the last submitted user ID in local storage to prevent sending it again on next load (defaults not to use local storage) */
   useLocalStorage?: boolean;
+  /** Callback to process user ID before sending it in a request. This may be used to apply hashing to the value. */
+  processUserId?: (userId: string) => string;
 }
 
 const _trackers: Record<string, BrowserTracker> = {};
@@ -77,21 +79,22 @@ export function FocalMeterPlugin(): BrowserPlugin {
         return;
       }
 
-      let newUserId = payload['duid'] as string;
-      let { kantarEndpoint, useLocalStorage } = _configurations[trackerId];
+      const newUserId = payload['duid'] as string;
+      const { kantarEndpoint, useLocalStorage, processUserId } = _configurations[trackerId];
 
       if (!lastUserId && useLocalStorage && hasLocalStorage()) {
-        let key = getLocalStorageKey(trackerId);
+        const key = getLocalStorageKey(trackerId);
         lastUserId = attemptGetLocalStorage(key);
       }
 
       if (newUserId && newUserId != lastUserId) {
         lastUserId = newUserId;
+        const processedUserId = processUserId !== undefined ?  processUserId(newUserId) : newUserId;
 
-        sendRequest(kantarEndpoint, newUserId, LOG, () => {
+        sendRequest(kantarEndpoint, processedUserId, LOG, () => {
           // only write in local storage if the request succeeded
           if (useLocalStorage && hasLocalStorage()) {
-            let key = getLocalStorageKey(trackerId);
+            const key = getLocalStorageKey(trackerId);
             attemptWriteLocalStorage(key, newUserId);
           }
         });
@@ -141,7 +144,7 @@ function sendRequest(url: string, userId: string, LOG: Logger, successCallback: 
 }
 
 function getKantarURL(url: string, userId: string): string {
-  let query: Record<string, string> = {
+  const query: Record<string, string> = {
     vendor: 'snowplow',
     cs_fpid: userId,
     c12: 'not_set',
