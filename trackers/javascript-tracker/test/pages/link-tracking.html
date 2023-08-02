@@ -25,6 +25,7 @@
 
     <script>
       var collector_endpoint = document.cookie.split('container=')[1].split(';')[0];
+      var testIdentifier = document.cookie.split('testIdentifier=')[1].split(';')[0].trim();
       document.body.className += ' loaded';
     </script>
 
@@ -48,7 +49,7 @@
       document.write(collector_endpoint);
 
       snowplow('newTracker', 'sp', collector_endpoint, {
-        appId: 'autotracking',
+        appId: 'autotracking-link-' + testIdentifier,
       });
       snowplow(function () {
         document.getElementById('init').innerText = 'true';

@@ -9,10 +9,11 @@
 
     <div id="init"></div>
     <div id="secondInit"></div>
-    <div id="bottomRight" style="position: absolute; bottom: 0; right: 0">Bottom right</div>
+    <button id="bottomRight">Bottom right button</button>
 
     <script>
       var collector_endpoint = document.cookie.split('container=')[1].split(';')[0];
+      var testIdentifier = document.cookie.split('testIdentifier=')[1].split(';')[0].trim();
       document.body.className += ' loaded';
     </script>
 
@@ -66,7 +67,7 @@
       var eventMethod = parseQuery().eventMethod;
 
       window.snowplow('newTracker', 'sp', collector_endpoint, {
-        appId: 'sp-' + eventMethod,
+        appId: 'sp-' + eventMethod + '-' + testIdentifier,
         platform: 'mob',
         eventMethod: eventMethod,
         contexts: {
@@ -78,7 +79,7 @@
       });
 
       window.secondSnowplow('newTracker', 'b64off', collector_endpoint, {
-        appId: 'no-b64-' + eventMethod,
+        appId: 'no-b64-' + eventMethod + '-' + testIdentifier,
         platform: 'web',
         eventMethod: eventMethod,
         encodeBase64: false,

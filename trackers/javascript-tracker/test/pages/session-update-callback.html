@@ -10,6 +10,7 @@
 
     <script>
       var collector_endpoint = document.cookie.split('container=')[1].split(';')[0];
+      var testIdentifier = document.cookie.split('testIdentifier=')[1].split(';')[0].trim();
       document.body.className += ' loaded';
     </script>
 
@@ -33,9 +34,10 @@
       document.write(collector_endpoint);
 
       snowplow('newTracker', 'sp', collector_endpoint, {
-        appId: 'onSessionCallback',
+        appId: 'onSessionCallback' + testIdentifier,
         cookieSameSite: 'Lax',
         cookieSecure: false,
+        eventMethod: 'get',
         onSessionUpdateCallback: function (session) {
           snowplow('trackStructEvent:sp', {
             category: 'session_callback',
