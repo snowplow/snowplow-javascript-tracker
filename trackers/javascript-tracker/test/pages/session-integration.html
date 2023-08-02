@@ -8,6 +8,7 @@
 
     <script>
       var collector_endpoint = document.cookie.split('container=')[1].split(';')[0];
+      var testIdentifier = document.cookie.split('testIdentifier=')[1].split(';')[0].trim();
       document.body.className += ' loaded';
     </script>
 
@@ -31,9 +32,11 @@
       document.write(collector_endpoint);
 
       window.snowplow('newTracker', 'cookieSessionTracker', collector_endpoint, {
+        appId: 'session-integration-' + testIdentifier,
         sessionCookieTimeout: 1,
         cookieSameSite: 'Lax',
         cookieSecure: false,
+        cookieName: testIdentifier,
         contexts: {
           session: true,
           webPage: false,
@@ -50,6 +53,8 @@
       }, 3000);
 
       window.snowplow('newTracker', 'localStorageSessionTracker', collector_endpoint, {
+        appId: 'session-integration-' + testIdentifier,
+        cookieName: testIdentifier,
         sessionCookieTimeout: 1,
         stateStorageStrategy: 'localStorage',
       });
@@ -64,6 +69,8 @@
       }, 3000);
 
       window.snowplow('newTracker', 'anonymousSessionTracker', collector_endpoint, {
+        appId: 'session-integration-' + testIdentifier,
+        cookieName: testIdentifier,
         sessionCookieTimeout: 1,
         stateStorageStrategy: 'localStorage',
         anonymousTracking: { withSessionTracking: true },

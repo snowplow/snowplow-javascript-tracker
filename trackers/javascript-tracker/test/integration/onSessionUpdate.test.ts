@@ -1,6 +1,6 @@
 import F from 'lodash/fp';
-import { DockerWrapper, clearCache, fetchResults, start, stop } from '../micro';
-import { waitUntil } from './helpers';
+import { fetchResults } from '../micro';
+import { pageSetup } from './helpers';
 
 describe('onSessionUpdate callback feature', () => {
   if (
@@ -17,7 +17,7 @@ describe('onSessionUpdate callback feature', () => {
   }
 
   let log: Array<unknown> = [];
-  let docker: DockerWrapper;
+  let testIdentifier = '';
 
   const logContains = (ev: unknown) => F.some(F.isMatch(ev as object), log);
 
@@ -31,33 +31,24 @@ describe('onSessionUpdate callback feature', () => {
   };
 
   beforeAll(async () => {
-    await browser.call(async () => (docker = await start()));
-    await waitUntil(browser, async () => {
-      return await browser.call(async () => await clearCache(docker.url));
-    });
-    await browser.url('/index.html');
-    await browser.setCookies({ name: 'container', value: docker.url });
+    testIdentifier = await pageSetup();
     await loadUrlAndWait('/session-update-callback.html');
     await browser.pause(2000);
-    log = await browser.call(async () => await fetchResults(docker.url));
-    await browser.pause(2000);
-  });
-
-  afterAll(async () => {
-    await browser.call(async () => await stop(docker?.container));
+    log = await browser.call(async () => await fetchResults());
   });
 
   it(`properly runs the onSessionCallback`, async () => {
     expect(
       logContains({
         event: {
-          app_id: `onSessionCallback`,
+          app_id: 'onSessionCallback' + testIdentifier,
           event: 'struct',
           se_category: 'session_callback',
           se_action: 'called',
         },
       })
     ).toBe(true);
-    expect(log.length).toEqual(2);
+    const results = log.filter((event: any) => event.event.app_id === 'onSessionCallback' + testIdentifier);
+    expect(results.length).toEqual(2);
   });
 });

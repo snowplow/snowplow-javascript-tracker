@@ -1,67 +1,29 @@
-/*
- * Copyright (c) 2022 Snowplow Analytics Ltd, 2010 Anthon Pang
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- * 3. Neither the name of the copyright holder nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
-import util from 'util';
 import F from 'lodash/fp';
-import { DockerWrapper, fetchResults, start, stop } from '../micro';
-
-const dumpLog = (log: Array<unknown>) => console.log(util.inspect(log, true, null, true));
+import { fetchResults } from '../micro';
+import { pageSetup } from './helpers';
 
 const retrieveSchemaData = (schema: unknown) => F.compose(F.get('data'), F.find({ schema }), F.get('data'));
 
 describe('Anonymous tracking features', () => {
   let log: Array<unknown> = [];
-  let docker: DockerWrapper;
+  let testIdentifier = '';
 
   const listContains = (items: Array<unknown>, ev: unknown) => F.some(F.isMatch(ev as object), items);
 
   beforeAll(async () => {
-    await browser.call(async () => (docker = await start()));
-    await browser.url('/index.html');
-    await browser.setCookies({ name: 'container', value: docker.url });
+    testIdentifier = await pageSetup();
     await browser.url('/cookieless.html');
     await browser.pause(5000); // Time for requests to get written
     await browser.url('/cookieless.html?ieTest=true');
     await browser.pause(2500); // Time for requests to get written
 
-    log = await browser.call(async () => await fetchResults(docker.url));
-  });
-
-  afterAll(async () => {
-    await browser.call(async () => await stop(docker.container));
+    log = await browser.call(async () => await fetchResults());
   });
 
   it('should have no user information in page view when server anonymisation ', () => {
     const expected = {
       event: 'page_view',
-      app_id: 'anon',
+      app_id: 'cookieless-anon-' + testIdentifier,
       page_title: 'Server Anon',
       user_id: null,
       domain_userid: null,
@@ -72,7 +34,7 @@ describe('Anonymous tracking features', () => {
     const pageViews = F.filter(
       (ev) =>
         F.get('event.event', ev) === 'page_view' &&
-        F.get('event.app_id', ev) === 'anon' &&
+        F.get('event.app_id', ev) === 'cookieless-anon-' + testIdentifier &&
         F.get('event.page_title', ev) === 'Server Anon',
       log
     );
@@ -105,7 +67,7 @@ describe('Anonymous tracking features', () => {
     const pageViews = F.filter(
       (ev) =>
         F.get('event.event', ev) === 'page_view' &&
-        F.get('event.app_id', ev) === 'anon' &&
+        F.get('event.app_id', ev) === 'cookieless-anon-' + testIdentifier &&
         F.get('event.page_title', ev) === 'No Anon',
       log
     );
@@ -114,7 +76,7 @@ describe('Anonymous tracking features', () => {
       listContains(pageViews, {
         event: {
           event: 'page_view',
-          app_id: 'anon',
+          app_id: 'cookieless-anon-' + testIdentifier,
           page_title: 'No Anon',
           user_id: 'Malcolm',
         },
@@ -134,7 +96,7 @@ describe('Anonymous tracking features', () => {
     const pageViews = F.filter(
       (ev) =>
         F.get('event.event', ev) === 'page_view' &&
-        F.get('event.app_id', ev) === 'anon' &&
+        F.get('event.app_id', ev) === 'cookieless-anon-' + testIdentifier &&
         F.get('event.page_title', ev) === 'Client Anon',
       log
     );
@@ -143,7 +105,7 @@ describe('Anonymous tracking features', () => {
       listContains(pageViews, {
         event: {
           event: 'page_view',
-          app_id: 'anon',
+          app_id: 'cookieless-anon-' + testIdentifier,
           page_title: 'Client Anon',
           user_id: null,
           domain_userid: null,
@@ -176,7 +138,8 @@ describe('Anonymous tracking features', () => {
 
   it('should send no events in IE9 when server anonymisation is enabled', () => {
     const pageViews = F.filter(
-      (ev) => F.get('event.event', ev) === 'page_view' && F.get('event.app_id', ev) === 'ie',
+      (ev) =>
+        F.get('event.event', ev) === 'page_view' && F.get('event.app_id', ev) === 'cookieless-ie-' + testIdentifier,
       log
     );
 

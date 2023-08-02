@@ -1,3 +1,4 @@
+import { Options } from '@wdio/types';
 import { config as defaultConfig } from './wdio.default.conf';
 
 let buildIdentifier = Math.floor(Math.random() * 1000000).toString();
@@ -7,7 +8,7 @@ if (process.env.GITHUB_WORKFLOW) {
 
 const buildName = `snowplow-js-tracker-${buildIdentifier}`;
 
-export const config = {
+export const config: Partial<Options.Testrunner> = {
   ...defaultConfig,
 
   user: process.env.SAUCE_USERNAME,
@@ -50,15 +51,7 @@ export const config = {
     {
       browserName: 'MicrosoftEdge',
       platformName: 'Windows 10',
-      browserVersion: '97',
-      'sauce:options': {
-        build: buildName,
-      },
-    },
-    {
-      browserName: 'internet explorer',
-      platformName: 'Windows 8.1',
-      browserVersion: '11',
+      browserVersion: 'latest',
       'sauce:options': {
         build: buildName,
       },
@@ -95,5 +88,6 @@ export const config = {
         port: 8080,
       },
     ],
+    'shared-store',
   ],
 };

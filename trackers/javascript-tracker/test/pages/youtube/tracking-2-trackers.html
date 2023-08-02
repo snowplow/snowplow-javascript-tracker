@@ -2,7 +2,8 @@
 <head>
   <title>Page for YouTube tracking testing with Snowplow Micro</title>
   <script>
-    const collector_endpoint = document.cookie.split('container=')[1].split(';')[0].trim();
+    var collector_endpoint = document.cookie.split('container=')[1].split(';')[0].trim();
+    var testIdentifier = document.cookie.split('testIdentifier=')[1].split(';')[0].trim();
     document.body.className += ' loaded';
   </script>
 </head>
@@ -27,14 +28,14 @@
     document.write(collector_endpoint);
 
     window.snowplow('newTracker', 'sp1', collector_endpoint, {
-      appId: 'youtube-track-test',
+      appId: 'yt-2-trackers-' + testIdentifier,
     });
 
     window.snowplow('newTracker', 'sp2', collector_endpoint, {
-      appId: 'youtube-track-test',
+      appId: 'yt-2-trackers-' + testIdentifier,
     });
 
-    let args = {
+    var args = {
       id: 'youtube',
       options: {
         label: 'test-label',
@@ -48,7 +49,7 @@
     id="youtube"
     width="560"
     height="315"
-    src="https://www.youtube.com/embed/zSM4ZyVe8xs"
+    src="https://www.youtube.com/embed/ublEqhffop0"
     title="YouTube video player"
     rel="0"
     frameborder="0"

@@ -179,6 +179,10 @@
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
+      "name": "@types/node-fetch",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "@types/randomcolor",
       "allowedCategories": [ "plugins" ]
     },
@@ -196,7 +200,7 @@
     },
     {
       "name": "@types/youtube",
-      "allowedCategories": [ "plugins" ]
+      "allowedCategories": [ "plugins", "trackers" ]
     },
     {
       "name": "@typescript-eslint/eslint-plugin",
@@ -211,6 +215,10 @@
       "allowedCategories": [ "trackers" ]
     },
     {
+      "name": "@wdio/globals",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "@wdio/jasmine-framework",
       "allowedCategories": [ "trackers" ]
     },
@@ -220,6 +228,10 @@
     },
     {
       "name": "@wdio/sauce-service",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@wdio/shared-store-service",
       "allowedCategories": [ "trackers" ]
     },
     {
@@ -248,6 +260,10 @@
     },
     {
       "name": "dockerode",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "edgedriver",
       "allowedCategories": [ "trackers" ]
     },
     {
@@ -300,6 +316,10 @@
     },
     {
       "name": "nock",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "node-fetch",
       "allowedCategories": [ "trackers" ]
     },
     {
@@ -376,6 +396,14 @@
     },
     {
       "name": "wdio-chromedriver-service",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "wdio-edgedriver-service",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "wdio-safaridriver-service",
       "allowedCategories": [ "trackers" ]
     },
     {

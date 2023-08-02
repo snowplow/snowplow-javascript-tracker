@@ -1,9 +1,10 @@
+import { Options } from '@wdio/types';
 import { config as defaultConfig } from './wdio.default.conf';
 
-export const config = {
+export const config: Partial<Options.Testrunner> = {
   ...defaultConfig,
 
-  maxInstances: 1,
+  maxInstances: 2,
   capabilities: [
     {
       browserName: 'chrome',
@@ -11,12 +12,24 @@ export const config = {
         args: ['--auto-open-devtools-for-tabs'],
       },
     },
+    // {
+    //   browserName: 'safari',
+    // },
+    // {
+    //   browserName: 'MicrosoftEdge',
+    //   port: 9515,
+    //   'ms:edgeOptions': {
+    //     args: ['--auto-open-devtools-for-tabs'],
+    //   },
+    // }
   ],
   specFileRetries: 0,
-  logLevel: 'debug',
-  bail: 1,
+  logLevel: 'info',
+  bail: 4,
   services: [
-    ['chromedriver', {}],
+    'chromedriver',
+    // 'safaridriver',
+    // 'edgedriver',
     [
       'static-server',
       {
@@ -24,5 +37,6 @@ export const config = {
         port: 8080,
       },
     ],
+    'shared-store',
   ],
 };
