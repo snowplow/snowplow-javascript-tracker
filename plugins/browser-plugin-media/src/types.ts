@@ -72,16 +72,40 @@ export enum MediaEventType {
   Error = 'error',
 }
 
+/**
+ * Configuration for filtering out repeated events of the same type tracked after each other.
+ * By default, the seek start, seek end and volume change events are filtered out.
+ */
+export type FilterOutRepeatedEvents =
+  | {
+      /**
+       * Whether to filter out seek start and end events tracked after each other.
+       */
+      seekEvents?: boolean;
+      /**
+       * Whether to filter out volume change events tracked after each other.
+       */
+      volumeChangeEvents?: boolean;
+      /**
+       * Timeout in milliseconds after which to send the events that are queued for filtering.
+       * Defaults to 5000 ms.
+       */
+      flushTimeoutMs?: number;
+    }
+  | boolean;
+
 export type MediaTrackingConfiguration = {
   /** Unique ID of the media tracking. The same ID will be used for media player session if enabled. */
   id: string;
   /** Attributes for the media player context entity */
   player?: MediaPlayerUpdate;
   /** Attributes for the media player session context entity or false to disable it. Enabled by default. */
-  session?: {
-    /** Local date-time timestamp of when the session started. Automatically set to current time if not given. */
-    startedAt?: Date
-  } | false;
+  session?:
+    | {
+        /** Local date-time timestamp of when the session started. Automatically set to current time if not given. */
+        startedAt?: Date;
+      }
+    | false;
   /** Configuration for sending ping events. Enabled by default.  */
   pings?:
     | {
@@ -101,6 +125,13 @@ export type MediaTrackingConfiguration = {
    * Otherwise, tracked event types not present in the list will be discarded.
    */
   captureEvents?: MediaEventType[];
+  /**
+   * Whether to filter out repeated events of the same type tracked after each other.
+   * Useful to filter out repeated seek and volume change events tracked when the user holds down the seek or volume control.
+   * Only applies to seek and volume change events.
+   * Defaults to true.
+   */
+  filterOutRepeatedEvents?: FilterOutRepeatedEvents;
 };
 
 export type MediaTrackPlaybackRateChangeArguments = {
@@ -379,4 +410,8 @@ export interface MediaPlayerAdBreakUpdate {
 export interface CommonMediaEventProperties extends CommonEventProperties {
   /** Add context entities to an event by setting an Array of Self Describing JSON */
   context?: Array<SelfDescribingJson>;
+}
+
+export interface EventWithContext extends CommonEventProperties {
+  event: SelfDescribingJson;
 }

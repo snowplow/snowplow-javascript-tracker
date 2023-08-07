@@ -20,6 +20,7 @@ import {
   MediaTrackQualityChangeArguments,
   MediaTrackErrorArguments,
   MediaTrackSelfDescribingEventArguments,
+  EventWithContext,
 } from './types';
 
 export { MediaAdBreakType as MediaPlayerAdBreakType };
@@ -78,6 +79,7 @@ export function startMediaTracking(
     config.boundaries,
     config.captureEvents,
     config.updatePageActivityWhilePlaying,
+    config.filterOutRepeatedEvents,
     config.context
   );
   activeMedias[mediaTracking.id] = mediaTracking;
@@ -85,13 +87,13 @@ export function startMediaTracking(
 
 /**
  * Ends media tracking with the given ID if previously started.
- * Clears local state for the media tracking.
+ * Clears local state for the media tracking and sends any events waiting to be sent.
  *
  * @param configuration Configuration with the media tracking ID
  */
 export function endMediaTracking(configuration: { id: string }) {
   if (activeMedias[configuration.id]) {
-    activeMedias[configuration.id].stop();
+    activeMedias[configuration.id].flushAndStop();
     delete activeMedias[configuration.id];
   }
 }
@@ -704,7 +706,13 @@ function track(
     return;
   }
 
-  const events = mediaTracking.update(mediaEvent, customEvent, player, ad, adBreak);
+  const trackEvent = (event: EventWithContext) => {
+    dispatchToTrackersInCollection(trackers, _trackers, (t) => {
+      t.core.track(buildSelfDescribingEvent(event), (event.context ?? []).concat(context), timestamp);
+    });
+  };
+
+  mediaTracking.update(trackEvent, mediaEvent, customEvent, player, ad, adBreak);
 
   // Update page activity in order to keep sending page pings if needed
   if (mediaTracking.shouldUpdatePageActivity()) {
@@ -712,15 +720,4 @@ function track(
       t.updatePageActivity();
     });
   }
-
-  if (events.length == 0) {
-    return;
-  }
-
-  // Send all created events to the trackers
-  dispatchToTrackersInCollection(trackers, _trackers, (t) => {
-    events.forEach((event) => {
-      t.core.track(buildSelfDescribingEvent(event), event.context.concat(context), timestamp);
-    });
-  });
 }
