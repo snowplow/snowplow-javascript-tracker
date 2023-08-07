@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-vimeo-tracking",
+      "comment": "Add Vimeo tracking plugin (close #1156)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-vimeo-tracking"
+}

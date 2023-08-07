@@ -58,6 +58,8 @@
     "@snowplow/browser-plugin-snowplow-ecommerce": "workspace:*",
     "@snowplow/browser-plugin-timezone": "workspace:*",
     "@snowplow/browser-plugin-youtube-tracking": "workspace:*",
+    "@snowplow/browser-plugin-media": "workspace:*",
+    "@snowplow/browser-plugin-vimeo-tracking": "workspace:*",
     "@snowplow/browser-tracker": "workspace:*",
     "@snowplow/browser-tracker-core": "workspace:*",
     "@snowplow/tracker-core": "workspace:*",

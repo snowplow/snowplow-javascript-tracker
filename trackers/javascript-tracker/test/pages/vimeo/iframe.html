@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<head>
+  <title>Page for YouTube tracking testing with Snowplow Micro</title>
+  <script>
+    var collector_endpoint = document.cookie.split('container=')[1].split(';')[0].trim();
+    var testIdentifier = document.cookie.split('testIdentifier=')[1].split(';')[0].trim();
+    document.body.className += ' loaded';
+  </script>
+</head>
+<body>
+  <script>
+    (function (p, l, o, w, i, n, g) {
+      if (!p[i]) {
+        p.GlobalSnowplowNamespace = p.GlobalSnowplowNamespace || [];
+        p.GlobalSnowplowNamespace.push(i);
+        p[i] = function () {
+          (p[i].q = p[i].q || []).push(arguments);
+        };
+        p[i].q = p[i].q || [];
+        n = l.createElement(o);
+        g = l.getElementsByTagName(o)[0];
+        n.async = 1;
+        n.src = w;
+        g.parentNode.insertBefore(n, g);
+      }
+    })(window, document, 'script', '../snowplow.js', 'snowplow');
+
+    window.snowplow('newTracker', 'sp2', collector_endpoint, {
+      appId: 'vimeo-iframe-test-' + testIdentifier,
+      encodeBase64: false,
+    });
+  </script>
+
+  <iframe
+    id="vimeo"
+    src="https://player.vimeo.com/video/808787686?h=3044aad004&amp;title=0&amp;byline=0&amp;portrait=0&amp;speed=0&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479"
+    width="640"
+    height="360"
+    frameborder="0"
+    allow="autoplay; fullscreen; picture-in-picture"
+    allowfullscreen
+    title="JavaScript Tracker - Vimeo Plugin Test Video"
+  ></iframe>
+
+  <script>
+    window.snowplow('startVimeoTracking', {
+      video: document.getElementById('vimeo'),
+      boundaries: [1],
+      id: 'test',
+    });
+  </script>
+</body>
