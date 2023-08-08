@@ -275,4 +275,67 @@ describe('Activity tracker behaviour', () => {
     expect(firstPageId).toBe(extractPageId(pph));
     expect(secondPageId).toBe(extractPageId(ppl));
   });
+
+  it('disables activity tracking', () => {
+    const state = new SharedState();
+    const t =
+      addTracker('sp6', 'sp6', '', '', state, { stateStorageStrategy: 'cookie' }) ?? fail('Failed to create tracker');
+    t.enableActivityTracking({ minimumVisitLength: 5, heartbeatDelay: 5 });
+    t.trackPageView();
+
+    jest.advanceTimersByTime(100);
+    t.updatePageActivity();
+    jest.advanceTimersByTime(4900);
+
+    expect(F.size(getPPEvents(state.outQueues))).toBe(1);
+
+    // page ping timer starts tracking
+    jest.advanceTimersByTime(100);
+    t.updatePageActivity();
+    jest.advanceTimersByTime(4900);
+
+    expect(F.size(getPPEvents(state.outQueues))).toBe(2);
+
+    /* Disabling activity tracking and callback is expected to not allow more activity actions */
+    t.disableActivityTracking();
+    t.disableActivityTrackingCallback();
+
+    jest.advanceTimersByTime(100);
+    t.updatePageActivity();
+    jest.advanceTimersByTime(4900);
+
+    expect(F.size(getPPEvents(state.outQueues))).toBe(2);
+  });
+
+  it('disables activity tracking callback', () => {
+    let callbacks = 0;
+    const state = new SharedState();
+    const t =
+      addTracker('sp7', 'sp7', '', '', state, { stateStorageStrategy: 'cookie' }) ?? fail('Failed to create tracker');
+    t.enableActivityTrackingCallback({ minimumVisitLength: 5, heartbeatDelay: 5, callback: () => callbacks++ });
+    t.trackPageView();
+
+    jest.advanceTimersByTime(100);
+    t.updatePageActivity();
+    jest.advanceTimersByTime(4900);
+
+    expect(callbacks).toBe(1);
+
+    // page ping timer starts tracking
+    jest.advanceTimersByTime(100);
+    t.updatePageActivity();
+    jest.advanceTimersByTime(4900);
+
+    expect(callbacks).toBe(2);
+
+    /* Disabling activity tracking and callback is expected to not allow more activity actions */
+    t.disableActivityTracking();
+    t.disableActivityTrackingCallback();
+
+    jest.advanceTimersByTime(100);
+    t.updatePageActivity();
+    jest.advanceTimersByTime(4900);
+
+    expect(callbacks).toBe(2);
+  });
 });

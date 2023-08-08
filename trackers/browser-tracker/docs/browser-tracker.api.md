@@ -63,6 +63,8 @@ export interface BrowserTracker {
     // Warning: (ae-forgotten-export) The symbol "TrackerCore" needs to be exported by the entry point index.module.d.ts
     core: TrackerCore;
     crossDomainLinker: (crossDomainLinkerCriterion: (elt: HTMLAnchorElement | HTMLAreaElement) => boolean) => void;
+    disableActivityTracking: () => void;
+    disableActivityTrackingCallback: () => void;
     disableAnonymousTracking: (configuration?: DisableAnonymousTrackingConfiguration) => void;
     discardBrace: (enableFilter: boolean) => void;
     discardHashTag: (enableFilter: boolean) => void;
@@ -171,6 +173,12 @@ export type CookieSameSite = "None" | "Lax" | "Strict";
 
 // @public
 export function crossDomainLinker(crossDomainLinkerCriterion: (elt: HTMLAnchorElement | HTMLAreaElement) => boolean, trackers?: Array<string>): void;
+
+// @public
+export function disableActivityTracking(trackers?: Array<string>): void;
+
+// @public
+export function disableActivityTrackingCallback(trackers?: Array<string>): void;
 
 // @public
 export function disableAnonymousTracking(configuration?: DisableAnonymousTrackingConfiguration, trackers?: Array<string>): void;
