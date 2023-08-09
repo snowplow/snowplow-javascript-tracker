@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/javascript-tracker",
+      "comment": "Introduce PrivacySandboxPlugin",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/javascript-tracker"
+}

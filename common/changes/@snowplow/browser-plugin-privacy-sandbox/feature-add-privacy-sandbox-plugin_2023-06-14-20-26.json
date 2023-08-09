@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-privacy-sandbox",
+      "comment": "Introduce PrivacySandboxPlugin",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-privacy-sandbox"
+}

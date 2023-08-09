@@ -53,6 +53,7 @@ import { JavaScriptTrackerConfiguration } from './configuration';
 import * as EnhancedConsent from '@snowplow/browser-plugin-enhanced-consent';
 import * as SnowplowMedia from '@snowplow/browser-plugin-media';
 import * as VimeoTracking from '@snowplow/browser-plugin-vimeo-tracking';
+import * as PrivacySandbox from '@snowplow/browser-plugin-privacy-sandbox';
 
 /**
  * Calculates the required plugins to intialise per tracker
@@ -206,6 +207,11 @@ export function Plugins(configuration: JavaScriptTrackerConfiguration) {
   if (plugins.vimeoTracking) {
     const { VimeoTrackingPlugin, ...apiMethods } = VimeoTracking;
     activatedPlugins.push([VimeoTrackingPlugin(), apiMethods]);
+  }
+  
+  if (plugins.privacySandbox) {
+    const { PrivacySandboxPlugin, ...apiMethods } = PrivacySandbox;
+    activatedPlugins.push([PrivacySandboxPlugin(), apiMethods]);
   }
 
   return activatedPlugins;
