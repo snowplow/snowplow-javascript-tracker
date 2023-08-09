@@ -50,3 +50,4 @@ export const youtubeTracking = false;
 export const enhancedConsent = false;
 export const snowplowMedia = false;
 export const vimeoTracking = false;
+export const privacySandbox = false;

@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Privacy Sandbox plugin Returns no values when feature policy "browsing-topics" is off 1`] = `undefined`;
+
+exports[`Privacy Sandbox plugin Returns values for Privacy Sandbox properties 1`] = `
+Object {
+  "data": Array [
+    Object {
+      "data": Object {
+        "topics": Array [
+          Object {
+            "topic": 1,
+            "version": "chrome.1:1:1",
+          },
+        ],
+      },
+      "schema": "iglu:com.google.privacysandbox/topics/jsonschema/1-0-0",
+    },
+  ],
+  "schema": "iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0",
+}
+`;
