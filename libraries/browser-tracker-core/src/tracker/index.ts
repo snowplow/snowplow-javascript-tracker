@@ -1048,20 +1048,20 @@ export function Tracker(
             //Clear page ping heartbeat on new page view
             window.clearInterval(config.activityInterval);
 
-            activityInterval(config, context, contextCallback);
+            scheduleActivityInterval(config, context, contextCallback);
           }
         }
       }
     }
 
-    function activityInterval(
+    function scheduleActivityInterval(
       config: ActivityConfig,
       context?: Array<SelfDescribingJson> | null,
       contextCallback?: (() => Array<SelfDescribingJson>) | null
     ) {
-      const executePagePing = (cb: ActivityCallback, c: Array<SelfDescribingJson>) => {
+      const executePagePing = (cb: ActivityCallback, context: Array<SelfDescribingJson>) => {
         refreshUrl();
-        cb({ context: c, pageViewId: getPageViewId(), minXOffset, minYOffset, maxXOffset, maxYOffset });
+        cb({ context, pageViewId: getPageViewId(), minXOffset, minYOffset, maxXOffset, maxYOffset });
         resetMaxScrolls();
       };
 
@@ -1087,10 +1087,10 @@ export function Tracker(
         }
       };
 
-      if (config.configMinimumVisitLength != 0) {
-        config.activityInterval = window.setTimeout(timeout, config.configMinimumVisitLength);
-      } else {
+      if (config.configMinimumVisitLength === 0) {
         config.activityInterval = window.setInterval(heartbeat, config.configHeartBeatTimer);
+      } else {
+        config.activityInterval = window.setTimeout(timeout, config.configMinimumVisitLength);
       }
     }
 
@@ -1135,6 +1135,17 @@ export function Tracker(
         }),
         context
       );
+    }
+
+    function disableActivityTrackingAction(actionKey: keyof ActivityConfigurations) {
+      const callbackConfiguration = activityTrackingConfig.configurations[actionKey];
+      if (callbackConfiguration?.configMinimumVisitLength === 0) {
+        window.clearTimeout(callbackConfiguration?.activityInterval);
+      } else {
+        window.clearInterval(callbackConfiguration?.activityInterval);
+      }
+
+      activityTrackingConfig.configurations[actionKey] = undefined;
     }
 
     const apiMethods = {
@@ -1217,6 +1228,14 @@ export function Tracker(
           activityTrackingConfig.enabled = true;
           activityTrackingConfig.configurations.callback = configureActivityTracking(configuration);
         }
+      },
+
+      disableActivityTracking: function () {
+        disableActivityTrackingAction('pagePing');
+      },
+
+      disableActivityTrackingCallback: function () {
+        disableActivityTrackingAction('callback');
       },
 
       updatePageActivity: function () {
