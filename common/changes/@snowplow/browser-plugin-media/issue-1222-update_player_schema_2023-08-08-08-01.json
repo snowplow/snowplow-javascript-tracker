@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-media",
+      "comment": "Update version of the player schema used in the media plugin to 2-0-0 (#1222)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-media"
+}

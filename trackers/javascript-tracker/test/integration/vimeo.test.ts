@@ -24,7 +24,7 @@ const makeContext = () => {
     schema: 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0',
     data: [
       {
-        schema: 'iglu:com.snowplowanalytics.snowplow.media/player/jsonschema/1-0-0',
+        schema: 'iglu:com.snowplowanalytics.snowplow/media_player/jsonschema/2-0-0',
         data: {
           currentTime: jasmine.any(Number),
           paused: jasmine.any(Boolean),
