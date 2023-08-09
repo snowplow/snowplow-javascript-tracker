@@ -227,6 +227,28 @@ export function enableActivityTrackingCallback(
 }
 
 /**
+ * Disables page activity tracking.
+ *
+ * @param trackers - The tracker identifiers the activity tracking will be disabled.
+ */
+export function disableActivityTracking(trackers?: Array<string>) {
+  dispatchToTrackers(trackers, (t) => {
+    t.disableActivityTracking();
+  });
+}
+
+/**
+ * Disables page activity tracking callback.
+ *
+ * @param trackers - The tracker identifiers the activity tracking callback will be disabled.
+ */
+export function disableActivityTrackingCallback(trackers?: Array<string>) {
+  dispatchToTrackers(trackers, (t) => {
+    t.disableActivityTrackingCallback();
+  });
+}
+
+/**
  * Triggers the activityHandler manually to allow external user defined activity. i.e. While watching a video
  *
  * @param trackers - The tracker identifiers which will be updated

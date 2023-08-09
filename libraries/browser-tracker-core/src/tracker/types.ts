@@ -482,6 +482,16 @@ export interface BrowserTracker {
   ) => void;
 
   /**
+   * Disables page activity tracking.
+   */
+  disableActivityTracking: () => void;
+
+  /**
+   * Disables page activity tracking callback.
+   */
+  disableActivityTrackingCallback: () => void;
+
+  /**
    * Triggers the activityHandler manually to allow external user defined
    * activity. i.e. While watching a video
    */
