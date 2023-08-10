@@ -20,6 +20,8 @@ interface BrowserTracker
 |  [clearUserData](./browser-tracker.browsertracker.clearuserdata.md) | (configuration?: ClearUserDataConfiguration) =&gt; void | Clears all cookies and local storage containing user and session identifiers |
 |  [core](./browser-tracker.browsertracker.core.md) | TrackerCore | The instance of the core library which this tracker has initialised |
 |  [crossDomainLinker](./browser-tracker.browsertracker.crossdomainlinker.md) | (crossDomainLinkerCriterion: (elt: HTMLAnchorElement \| HTMLAreaElement) =&gt; boolean) =&gt; void | Enable querystring decoration for links passing a filter |
+|  [disableActivityTracking](./browser-tracker.browsertracker.disableactivitytracking.md) | () =&gt; void | Disables page activity tracking. |
+|  [disableActivityTrackingCallback](./browser-tracker.browsertracker.disableactivitytrackingcallback.md) | () =&gt; void | Disables page activity tracking callback. |
 |  [disableAnonymousTracking](./browser-tracker.browsertracker.disableanonymoustracking.md) | (configuration?: DisableAnonymousTrackingConfiguration) =&gt; void | Disables anonymous tracking if active (ie. tracker initialized with <code>anonymousTracking</code>) For stateStorageStrategy override, uses supplied value first, falls back to one defined in initial config, otherwise uses cookieAndLocalStorage. |
 |  [discardBrace](./browser-tracker.browsertracker.discardbrace.md) | (enableFilter: boolean) =&gt; void | Strip braces from URL |
 |  [discardHashTag](./browser-tracker.browsertracker.discardhashtag.md) | (enableFilter: boolean) =&gt; void | Strip hash tag (or anchor) from URL |

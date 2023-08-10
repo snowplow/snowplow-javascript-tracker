@@ -13,6 +13,8 @@
 |  [clearGlobalContexts(trackers)](./browser-tracker.clearglobalcontexts.md) | Clear all global contexts that are sent with events |
 |  [clearUserData(configuration, trackers)](./browser-tracker.clearuserdata.md) | Clears all cookies and local storage containing user and session identifiers |
 |  [crossDomainLinker(crossDomainLinkerCriterion, trackers)](./browser-tracker.crossdomainlinker.md) | Enable querystring decoration for links pasing a filter |
+|  [disableActivityTracking(trackers)](./browser-tracker.disableactivitytracking.md) | Disables page activity tracking. |
+|  [disableActivityTrackingCallback(trackers)](./browser-tracker.disableactivitytrackingcallback.md) | Disables page activity tracking callback. |
 |  [disableAnonymousTracking(configuration, trackers)](./browser-tracker.disableanonymoustracking.md) | Disables anonymous tracking if active (ie. tracker initialized with <code>anonymousTracking</code>) For stateStorageStrategy override, uses supplied value first, falls back to one defined in initial config, otherwise uses cookieAndLocalStorage. |
 |  [discardBrace(enable, trackers)](./browser-tracker.discardbrace.md) | Strip braces from URL |
 |  [discardHashTag(enable, trackers)](./browser-tracker.discardhashtag.md) | Strip hash tag (or anchor) from URL |
