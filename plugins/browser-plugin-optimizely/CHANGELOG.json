@@ -2,6 +2,12 @@
   "name": "@snowplow/browser-plugin-optimizely",
   "entries": [
     {
+      "version": "3.14.0",
+      "tag": "@snowplow/browser-plugin-optimizely_v3.14.0",
+      "date": "Thu, 10 Aug 2023 13:56:44 GMT",
+      "comments": {}
+    },
+    {
       "version": "3.13.1",
       "tag": "@snowplow/browser-plugin-optimizely_v3.13.1",
       "date": "Thu, 29 Jun 2023 14:20:06 GMT",

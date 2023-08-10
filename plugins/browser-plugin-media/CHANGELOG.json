@@ -2,6 +2,21 @@
   "name": "@snowplow/browser-plugin-media",
   "entries": [
     {
+      "version": "3.14.0",
+      "tag": "@snowplow/browser-plugin-media_v3.14.0",
+      "date": "Thu, 10 Aug 2023 13:56:44 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Filter out repeated seek and volume change events happening when user holds down the player controls (#1218)"
+          },
+          {
+            "comment": "Update version of the player schema used in the media plugin to 2-0-0 (#1222)"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.13.1",
       "tag": "@snowplow/browser-plugin-media_v3.13.1",
       "date": "Thu, 29 Jun 2023 14:20:06 GMT",

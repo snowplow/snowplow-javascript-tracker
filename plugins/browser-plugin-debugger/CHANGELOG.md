@@ -1,6 +1,11 @@
 # Change Log - @snowplow/browser-plugin-debugger
 
-This log was last generated on Thu, 29 Jun 2023 14:20:06 GMT and should not be manually modified.
+This log was last generated on Thu, 10 Aug 2023 13:56:44 GMT and should not be manually modified.
+
+## 3.14.0
+Thu, 10 Aug 2023 13:56:44 GMT
+
+_Version update only_
 
 ## 3.13.1
 Thu, 29 Jun 2023 14:20:06 GMT

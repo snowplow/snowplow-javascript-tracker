@@ -1,6 +1,14 @@
 # Change Log - @snowplow/browser-plugin-media
 
-This log was last generated on Thu, 29 Jun 2023 14:20:06 GMT and should not be manually modified.
+This log was last generated on Thu, 10 Aug 2023 13:56:44 GMT and should not be manually modified.
+
+## 3.14.0
+Thu, 10 Aug 2023 13:56:44 GMT
+
+### Updates
+
+- Filter out repeated seek and volume change events happening when user holds down the player controls (#1218)
+- Update version of the player schema used in the media plugin to 2-0-0 (#1222)
 
 ## 3.13.1
 Thu, 29 Jun 2023 14:20:06 GMT

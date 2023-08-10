@@ -1,0 +1,17 @@
+{
+  "name": "@snowplow/browser-plugin-privacy-sandbox",
+  "entries": [
+    {
+      "version": "3.14.0",
+      "tag": "@snowplow/browser-plugin-privacy-sandbox_v3.14.0",
+      "date": "Thu, 10 Aug 2023 13:56:44 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Introduce PrivacySandboxPlugin"
+          }
+        ]
+      }
+    }
+  ]
+}
