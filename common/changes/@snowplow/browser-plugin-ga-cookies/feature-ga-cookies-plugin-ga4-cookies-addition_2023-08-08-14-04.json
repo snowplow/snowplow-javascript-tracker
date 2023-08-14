@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-ga-cookies",
+      "comment": "Update to include options for Google Analytics 4 cookies",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-ga-cookies"
+}

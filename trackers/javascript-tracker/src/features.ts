@@ -121,7 +121,8 @@ export function Plugins(configuration: JavaScriptTrackerConfiguration) {
 
   if (plugins.gaCookies && gaCookies) {
     const { GaCookiesPlugin, ...apiMethods } = GaCookies;
-    activatedPlugins.push([GaCookiesPlugin(), apiMethods]);
+    const gaCookiesPlugin = typeof gaCookies === 'object' ? GaCookiesPlugin(gaCookies) : GaCookiesPlugin();
+    activatedPlugins.push([gaCookiesPlugin, apiMethods]);
   }
 
   if (plugins.consent) {
@@ -208,7 +209,7 @@ export function Plugins(configuration: JavaScriptTrackerConfiguration) {
     const { VimeoTrackingPlugin, ...apiMethods } = VimeoTracking;
     activatedPlugins.push([VimeoTrackingPlugin(), apiMethods]);
   }
-  
+
   if (plugins.privacySandbox) {
     const { PrivacySandboxPlugin, ...apiMethods } = PrivacySandbox;
     activatedPlugins.push([PrivacySandboxPlugin(), apiMethods]);
