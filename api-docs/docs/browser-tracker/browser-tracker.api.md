@@ -264,10 +264,7 @@ export type GetBatch = string[];
 export function newSession(trackers?: Array<string>): void;
 
 // @public
-export function newTracker(trackerId: string, endpoint: string): BrowserTracker;
-
-// @public
-export function newTracker(trackerId: string, endpoint: string, configuration: TrackerConfiguration): BrowserTracker;
+export function newTracker(trackerId: string, endpoint: string, configuration?: TrackerConfiguration): BrowserTracker | null | undefined;
 
 // @public
 export interface PageViewEvent {
