@@ -48,7 +48,8 @@ export async function pageSetup() {
   if (!dockerUrl) {
     throw 'dockerInstanceUrl not available in `browser.sharedStore`';
   }
-  const testIdentifier = browser.capabilities.browserName + '_' + browser.capabilities.browserVersion;
+  const testIdentifier =
+    browser.capabilities.browserName + '_' + browser.capabilities.browserVersion + '_' + Math.random();
   await browser.url('/index.html');
   await browser.setCookies([
     { name: 'container', value: dockerUrl },
