@@ -63,6 +63,7 @@ export interface OutQueue {
  * @param withCredentials - Sets the value of the withCredentials flag on XMLHttpRequest (GET and POST) requests
  * @param retryStatusCodes – Failure HTTP response status codes from Collector for which sending events should be retried (they can override the `dontRetryStatusCodes`)
  * @param dontRetryStatusCodes – Failure HTTP response status codes from Collector for which sending events should not be retried
+ * @param idService - Id service full URL. This URL will be added to the queue and will be called using a GET method.
  * @returns object OutQueueManager instance
  */
 export function OutQueueManager(
@@ -81,7 +82,8 @@ export function OutQueueManager(
   customHeaders: Record<string, string>,
   withCredentials: boolean,
   retryStatusCodes: number[],
-  dontRetryStatusCodes: number[]
+  dontRetryStatusCodes: number[],
+  idService?: string
 ): OutQueue {
   type PostEvent = {
     evt: Record<string, unknown>;
@@ -90,7 +92,8 @@ export function OutQueueManager(
 
   let executingQueue = false,
     configCollectorUrl: string,
-    outQueue: Array<PostEvent> | Array<string> = [];
+    outQueue: Array<PostEvent> | Array<string> = [],
+    idServiceCalled = false;
 
   //Force to lower case if its a string
   eventMethod = typeof eventMethod === 'string' ? eventMethod.toLowerCase() : eventMethod;
@@ -222,7 +225,7 @@ export function OutQueueManager(
   }
 
   const postable = (queue: Array<PostEvent> | Array<string>): queue is Array<PostEvent> => {
-    return typeof queue[0] === 'object';
+    return typeof queue[0] === 'object' && 'evt' in queue[0];
   };
 
   /**
@@ -293,7 +296,7 @@ export function OutQueueManager(
       outQueue.shift();
     }
 
-    if (outQueue.length < 1) {
+    if (!outQueue.length) {
       executingQueue = false;
       return;
     }
@@ -304,6 +307,19 @@ export function OutQueueManager(
     }
 
     executingQueue = true;
+
+    if (idService && !idServiceCalled) {
+      const xhr = initializeXMLHttpRequest(idService, false, sync);
+      idServiceCalled = true;
+      xhr.timeout = connectionTimeout;
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          executeQueue();
+        }
+      };
+      xhr.send();
+      return;
+    }
 
     if (useXhr) {
       // Keep track of number of events to delete from queue
