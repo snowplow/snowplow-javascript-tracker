@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-tracker-core",
+      "comment": "Add idService option",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker-core"
+}
