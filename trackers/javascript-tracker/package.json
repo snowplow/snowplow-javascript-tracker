@@ -65,7 +65,9 @@
     "@snowplow/tracker-core": "workspace:*",
     "tslib": "^2.3.1",
     "@snowplow/browser-plugin-enhanced-consent": "workspace:*",
-    "@snowplow/browser-plugin-privacy-sandbox": "workspace:*"
+    "@snowplow/browser-plugin-privacy-sandbox": "workspace:*",
+    "@snowplow/browser-plugin-web-vitals": "workspace:*",
+    "@snowplow/browser-plugin-performance-navigation-timing": "workspace:*"
   },
   "devDependencies": {
     "@ampproject/rollup-plugin-closure-compiler": "~0.27.0",
