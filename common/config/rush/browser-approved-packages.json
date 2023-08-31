@@ -91,6 +91,10 @@
       "allowedCategories": [ "trackers" ]
     },
     {
+      "name": "@snowplow/browser-plugin-performance-navigation-timing",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "@snowplow/browser-plugin-performance-timing",
       "allowedCategories": [ "trackers" ]
     },
@@ -112,6 +116,10 @@
     },
     {
       "name": "@snowplow/browser-plugin-vimeo-tracking",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@snowplow/browser-plugin-web-vitals",
       "allowedCategories": [ "trackers" ]
     },
     {

@@ -54,6 +54,8 @@ import * as EnhancedConsent from '@snowplow/browser-plugin-enhanced-consent';
 import * as SnowplowMedia from '@snowplow/browser-plugin-media';
 import * as VimeoTracking from '@snowplow/browser-plugin-vimeo-tracking';
 import * as PrivacySandbox from '@snowplow/browser-plugin-privacy-sandbox';
+import * as WebVitals from '@snowplow/browser-plugin-web-vitals';
+import * as PerformanceNavigationTiming from '@snowplow/browser-plugin-performance-navigation-timing';
 
 /**
  * Calculates the required plugins to intialise per tracker
@@ -208,10 +210,20 @@ export function Plugins(configuration: JavaScriptTrackerConfiguration) {
     const { VimeoTrackingPlugin, ...apiMethods } = VimeoTracking;
     activatedPlugins.push([VimeoTrackingPlugin(), apiMethods]);
   }
-  
+
   if (plugins.privacySandbox) {
     const { PrivacySandboxPlugin, ...apiMethods } = PrivacySandbox;
     activatedPlugins.push([PrivacySandboxPlugin(), apiMethods]);
+  }
+
+  if (plugins.webVitals) {
+    const { WebVitalsPlugin, ...apiMethods } = WebVitals;
+    activatedPlugins.push([WebVitalsPlugin(), apiMethods]);
+  }
+
+  if (plugins.performanceNavigationTiming) {
+    const { PerformanceNavigationTimingPlugin, ...apiMethods } = PerformanceNavigationTiming;
+    activatedPlugins.push([PerformanceNavigationTimingPlugin(), apiMethods]);
   }
 
   return activatedPlugins;
