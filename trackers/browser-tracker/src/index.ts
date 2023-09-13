@@ -50,7 +50,7 @@ const state = typeof window !== 'undefined' ? createSharedState() : undefined;
  * @param endpoint - Collector endpoint in the form collector.mysite.com
  * @param configuration - The initialisation options of the tracker
  */
-export function newTracker(trackerId: string, endpoint: string, configuration: TrackerConfiguration = {}) {
+export function newTracker(trackerId: string, endpoint: string, configuration?: TrackerConfiguration) {
   if (state) {
     return addTracker(trackerId, trackerId, `js-${version}`, endpoint, state, configuration);
   } else {
