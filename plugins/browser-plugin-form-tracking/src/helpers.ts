@@ -1,33 +1,3 @@
-/*
- * Copyright (c) 2022 Snowplow Analytics Ltd, 2010 Anthon Pang
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- * 3. Neither the name of the copyright holder nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
 import {
   getCssClasses,
   addEventListener,
@@ -90,11 +60,17 @@ export interface ElementData extends Record<string, string | null | undefined> {
   type?: string;
 }
 
-export type transformFn = (x: string | null, elt: ElementData | TrackedHTMLElement) => string | null;
+export type transformFn = (
+  elementValue: string | null,
+  elementInfo: ElementData | TrackedHTMLElement,
+  elt: TrackedHTMLElement
+) => string | null;
 
 export const innerElementTags: Array<keyof TrackedHTMLElementTagNameMap> = ['textarea', 'input', 'select'];
 
 type TrackedHTMLElementWithMarker = TrackedHTMLElement & Record<string, boolean>;
+
+type ElementDataWrapper = { elementData: ElementData; originalElement: TrackedHTMLElement };
 
 const defaultTransformFn: transformFn = (x) => x;
 
@@ -242,7 +218,7 @@ function getParentFormIdentifier(elt: Node | null) {
  * Returns a list of the input, textarea, and select elements inside a form along with their values
  */
 function getInnerFormElements(trackingMarker: string, elt: HTMLFormElement) {
-  var innerElements: Array<ElementData> = [];
+  var innerElements: Array<ElementDataWrapper> = [];
   Array.prototype.slice.call(innerElementTags).forEach((tagname: 'textarea' | 'input' | 'select') => {
     let trackedChildren = Array.prototype.slice.call(elt.getElementsByTagName(tagname)).filter(function (child) {
       return child.hasOwnProperty(trackingMarker);
@@ -252,17 +228,20 @@ function getInnerFormElements(trackingMarker: string, elt: HTMLFormElement) {
       if (child.type === 'submit') {
         return;
       }
-      var elementJson: ElementData = {
-        name: getElementIdentifier(child),
-        value: child.value,
-        nodeName: child.nodeName,
+      var elementJson: ElementDataWrapper = {
+        elementData: {
+          name: getElementIdentifier(child),
+          value: child.value,
+          nodeName: child.nodeName,
+        },
+        originalElement: child,
       };
       if (child.type && child.nodeName.toUpperCase() === 'INPUT') {
-        elementJson.type = child.type;
+        elementJson.elementData.type = child.type;
       }
 
       if ((child.type === 'checkbox' || child.type === 'radio') && !(child as HTMLInputElement).checked) {
-        elementJson.value = null;
+        elementJson.elementData.value = null;
       }
       innerElements.push(elementJson);
     });
@@ -285,7 +264,9 @@ function getFormChangeListener(
     if (elt) {
       var type = elt.nodeName && elt.nodeName.toUpperCase() === 'INPUT' ? elt.type : null;
       var value =
-        elt.type === 'checkbox' && !(elt as HTMLInputElement).checked ? null : config.fieldTransform(elt.value, elt);
+        elt.type === 'checkbox' && !(elt as HTMLInputElement).checked
+          ? null
+          : config.fieldTransform(elt.value, elt, elt);
       if (event_type === 'change_form' || (type !== 'checkbox' && type !== 'radio')) {
         tracker.core.track(
           buildFormFocusOrChange({
@@ -317,15 +298,17 @@ function getFormSubmissionListener(
     var elt = e.target as HTMLFormElement;
     var innerElements = getInnerFormElements(trackingMarker, elt);
     innerElements.forEach(function (innerElement) {
-      innerElement.value = config.fieldTransform(innerElement.value, innerElement) ?? innerElement.value;
+      var eltData = innerElement.elementData;
+      eltData.value = config.fieldTransform(eltData.value, eltData, innerElement.originalElement) ?? eltData.value;
     });
+    var elementsData = innerElements.map((elt) => elt.elementData);
     tracker.core.track(
       buildFormSubmission({
         formId: getElementIdentifier(elt) ?? '',
         formClasses: getCssClasses(elt),
-        elements: innerElements,
+        elements: elementsData,
       }),
-      resolveDynamicContext(context, elt, innerElements)
+      resolveDynamicContext(context, elt, elementsData)
     );
   };
 }
