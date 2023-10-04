@@ -1,38 +1,9 @@
-/*
- * Copyright (c) 2022 Snowplow Analytics Ltd, 2010 Anthon Pang
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- * 3. Neither the name of the copyright holder nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
 import { attemptWriteLocalStorage, isString } from '../helpers';
 import { SharedState } from '../state';
 import { localStorageAccessible } from '../detectors';
 import { LOG, Payload } from '@snowplow/tracker-core';
 import { PAYLOAD_DATA_SCHEMA } from './schemata';
+import { EventBatch, RequestFailure } from './types';
 
 export interface OutQueue {
   enqueueRequest: (request: Payload, url: string) => void;
@@ -65,6 +36,8 @@ export interface OutQueue {
  * @param dontRetryStatusCodes – Failure HTTP response status codes from Collector for which sending events should not be retried
  * @param idService - Id service full URL. This URL will be added to the queue and will be called using a GET method.
  * @param retryFailedRequests - Whether to retry failed requests - Takes precedent over `retryStatusCodes` and `dontRetryStatusCodes`
+ * @param onRequestSuccess - Function called when a request succeeds
+ * @param onRequestFailure - Function called when a request does not succeed
  * @returns object OutQueueManager instance
  */
 export function OutQueueManager(
@@ -85,7 +58,9 @@ export function OutQueueManager(
   retryStatusCodes: number[],
   dontRetryStatusCodes: number[],
   idService?: string,
-  retryFailedRequests: boolean = true
+  retryFailedRequests: boolean = true,
+  onRequestSuccess?: (data: EventBatch) => void,
+  onRequestFailure?: (data: RequestFailure) => void
 ): OutQueue {
   type PostEvent = {
     evt: Record<string, unknown>;
@@ -237,7 +212,75 @@ export function OutQueueManager(
    */
   function sendPostRequestWithoutQueueing(body: PostEvent, configCollectorUrl: string) {
     const xhr = initializeXMLHttpRequest(configCollectorUrl, true, false);
-    xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent([body.evt])));
+    const batch = attachStmToEvent([body.evt]);
+
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        if (isSuccessfulRequest(xhr.status)) {
+          onRequestSuccess?.(batch);
+        } else {
+          onRequestFailure?.({
+            status: xhr.status,
+            message: xhr.statusText,
+            events: batch,
+            willRetry: false,
+          });
+        }
+      }
+    };
+
+    xhr.send(encloseInPayloadDataEnvelope(batch));
+  }
+
+  function removeEventsFromQueue(numberToSend: number): void {
+    for (let deleteCount = 0; deleteCount < numberToSend; deleteCount++) {
+      outQueue.shift();
+    }
+    if (useLocalStorage) {
+      attemptWriteLocalStorage(queueName, JSON.stringify(outQueue.slice(0, maxLocalStorageQueueSize)));
+    }
+  }
+
+  function setXhrCallbacks(xhr: XMLHttpRequest, numberToSend: number, batch: EventBatch) {
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        clearTimeout(xhrTimeout);
+        if (isSuccessfulRequest(xhr.status)) {
+          removeEventsFromQueue(numberToSend);
+          onRequestSuccess?.(batch);
+          executeQueue();
+        } else {
+          const willRetry = shouldRetryForStatusCode(xhr.status);
+          if (!willRetry) {
+            LOG.error(`Status ${xhr.status}, will not retry.`);
+            removeEventsFromQueue(numberToSend);
+          }
+          onRequestFailure?.({
+            status: xhr.status,
+            message: xhr.statusText,
+            events: batch,
+            willRetry,
+          });
+
+          executingQueue = false;
+        }
+      }
+    };
+
+    // Time out POST requests after connectionTimeout
+    const xhrTimeout = setTimeout(function () {
+      xhr.abort();
+      if (!retryFailedRequests) {
+        removeEventsFromQueue(numberToSend);
+      }
+      onRequestFailure?.({
+        status: 0,
+        message: 'timeout',
+        events: batch,
+        willRetry: retryFailedRequests,
+      });
+      executingQueue = false;
+    }, connectionTimeout);
   }
 
   /*
@@ -350,49 +393,9 @@ export function OutQueueManager(
         numberToSend = 1;
       }
 
-      // Time out POST requests after connectionTimeout
-      const xhrTimeout = setTimeout(function () {
-        xhr.abort();
-
-        if (!retryFailedRequests) {
-          removeEventsFromQueue(numberToSend);
-        }
-        executingQueue = false;
-      }, connectionTimeout);
-
-      const removeEventsFromQueue = (numberToSend: number): void => {
-        for (let deleteCount = 0; deleteCount < numberToSend; deleteCount++) {
-          outQueue.shift();
-        }
-        if (useLocalStorage) {
-          attemptWriteLocalStorage(queueName, JSON.stringify(outQueue.slice(0, maxLocalStorageQueueSize)));
-        }
-      };
-
-      // The events (`numberToSend` of them), have been sent, so we remove them from the outQueue
-      // We also call executeQueue() again, to let executeQueue() check if we should keep running through the queue
-      const onPostSuccess = (numberToSend: number): void => {
-        removeEventsFromQueue(numberToSend);
-        executeQueue();
-      };
-
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-          clearTimeout(xhrTimeout);
-          if (xhr.status >= 200 && xhr.status < 300) {
-            onPostSuccess(numberToSend);
-          } else {
-            if (!shouldRetryForStatusCode(xhr.status)) {
-              LOG.error(`Status ${xhr.status}, will not retry.`);
-              removeEventsFromQueue(numberToSend);
-            }
-            executingQueue = false;
-          }
-        }
-      };
-
       if (!postable(outQueue)) {
         // If not postable then it's a GET so just send it
+        setXhrCallbacks(xhr, numberToSend, [url]);
         xhr.send();
       } else {
         let batch = outQueue.slice(0, numberToSend);
@@ -418,9 +421,13 @@ export function OutQueueManager(
           // When beaconStatus is true, we can't _guarantee_ that it was successful (beacon queues asynchronously)
           // but the browser has taken it out of our hands, so we want to flush the queue assuming it will do its job
           if (beaconStatus === true) {
-            onPostSuccess(numberToSend);
+            removeEventsFromQueue(numberToSend);
+            onRequestSuccess?.(batch);
+            executeQueue();
           } else {
-            xhr.send(encloseInPayloadDataEnvelope(attachStmToEvent(eventBatch)));
+            const batch = attachStmToEvent(eventBatch);
+            setXhrCallbacks(xhr, numberToSend, batch);
+            xhr.send(encloseInPayloadDataEnvelope(batch));
           }
         }
       }
@@ -458,9 +465,20 @@ export function OutQueueManager(
     }
   }
 
+  /**
+   * Determines whether a request was successful, based on its status code
+   * Anything in the 2xx range is considered successful
+   *
+   * @param statusCode The status code of the request
+   * @returns Whether the request was successful
+   */
+  function isSuccessfulRequest(statusCode: number): boolean {
+    return statusCode >= 200 && statusCode < 300;
+  }
+
   function shouldRetryForStatusCode(statusCode: number) {
     // success, don't retry
-    if (statusCode >= 200 && statusCode < 300) {
+    if (isSuccessfulRequest(statusCode)) {
       return false;
     }
 

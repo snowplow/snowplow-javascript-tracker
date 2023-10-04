@@ -17,7 +17,7 @@
     },
     {
       "path": "./trackers/javascript-tracker/dist/sp.lite.js",
-      "maxSize": "15kb",
+      "maxSize": "15.5kb",
       "maxPercentIncrease": 10
     },
     {
