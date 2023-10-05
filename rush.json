@@ -571,6 +571,12 @@
       "projectFolder": "plugins/browser-plugin-privacy-sandbox",
       "reviewCategory": "plugins",
       "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-plugin-focalmeter",
+      "projectFolder": "plugins/browser-plugin-focalmeter",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
     }
   ]
 }
