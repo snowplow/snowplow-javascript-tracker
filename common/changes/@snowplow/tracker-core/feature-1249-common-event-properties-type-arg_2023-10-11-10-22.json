@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/tracker-core",
+      "comment": "Add CommonEventProperties type argument",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/tracker-core"
+}
