@@ -41,6 +41,10 @@
         <input type="text" id="fname" name="fname" value="John" class="test" /><br />
         <label for="lname">Last name:</label><br />
         <input type="text" id="lname" name="lname" value="Doe" /><br /><br />
+
+        <label for="pii">Personal Info:</label><br />
+        <input type="text" id="pid" name="pname" value="danger" /><br /><br />
+
         <input type="radio" id="bike" name="vehicle" value="Bike" />
         <label for="bike"> I have a bike</label><br />
       </fieldset>
@@ -106,6 +110,12 @@
       function formFilter(formElement) {
         return formElement.id !== 'lname';
       }
+      function redactPII(eltValue, _, elt) {
+        if (elt.id === 'pid') {
+          return 'redacted';
+        }
+        return eltValue;
+      }
 
       switch (parseQuery().filter) {
         case 'exclude':
@@ -119,6 +129,13 @@
             options: {
               forms: { allowlist: ['formy-mcformface'] },
               fields: { filter: formFilter },
+            },
+          });
+          break;
+        case 'transform':
+          snowplow('enableFormTracking', {
+            options: {
+              fields: { transform: redactPII },
             },
           });
           break;
