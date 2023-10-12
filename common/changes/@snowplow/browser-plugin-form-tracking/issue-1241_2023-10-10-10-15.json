@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-form-tracking",
+      "comment": "Fix transform function for submit_form event",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-form-tracking"
+}

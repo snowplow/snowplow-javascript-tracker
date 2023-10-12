@@ -280,6 +280,11 @@ describe('Auto tracking', () => {
     await $('#fname').click();
     await $('#lname').click();
 
+    await loadUrlAndWait('/form-tracking.html?filter=transform');
+
+    await $('#pid').click();
+    await $('#submit').click();
+
     await browser.pause(1000);
 
     await loadUrlAndWait('/form-tracking.html?filter=excludedForm');
@@ -802,6 +807,71 @@ describe('Auto tracking', () => {
           unstruct_event: {
             data: {
               schema: 'iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0',
+            },
+          },
+        },
+      })
+    ).toBe(true);
+  });
+
+  it('should use transform function for pii field', () => {
+    expect(
+      logContains({
+        event: {
+          event: 'unstruct',
+          app_id: 'autotracking-form-' + testIdentifier,
+          unstruct_event: {
+            data: {
+              schema: 'iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0',
+              data: {
+                formId: 'myForm',
+                elementId: 'pname',
+                nodeName: 'INPUT',
+                elementClasses: [],
+                value: 'redacted',
+                elementType: 'text',
+              },
+            },
+          },
+        },
+      })
+    ).toBe(true);
+
+    expect(
+      logContains({
+        event: {
+          event: 'unstruct',
+          app_id: 'autotracking-form-' + testIdentifier,
+          unstruct_event: {
+            data: {
+              schema: 'iglu:com.snowplowanalytics.snowplow/submit_form/jsonschema/1-0-0',
+              data: {
+                formId: 'myForm',
+                formClasses: ['formy-mcformface'],
+                elements: [
+                  {
+                    name: 'message',
+                    value: 'This is a message',
+                    nodeName: 'TEXTAREA',
+                  },
+                  {
+                    name: 'fname',
+                    value: 'John',
+                    nodeName: 'INPUT',
+                    type: 'text',
+                  },
+                  { name: 'lname', value: 'Doe', nodeName: 'INPUT', type: 'text' },
+                  {
+                    name: 'pname',
+                    value: 'redacted',
+                    nodeName: 'INPUT',
+                    type: 'text',
+                  },
+                  { name: 'vehicle', value: null, nodeName: 'INPUT', type: 'radio' },
+                  { name: 'terms', value: null, nodeName: 'INPUT', type: 'checkbox' },
+                  { name: 'cars', value: 'volvo', nodeName: 'SELECT' },
+                ],
+              },
             },
           },
         },
