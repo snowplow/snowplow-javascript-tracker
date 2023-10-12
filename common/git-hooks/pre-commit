@@ -12,7 +12,7 @@ ERROR_COLOR='\033[0;31m'
 WARNING_COLOR='\033[0;33m'
 STOP_COLOR='\033[0m'
 
-if ! command -v gitleaks &> /dev/null
+if ! command -v gitleaks > /dev/null 2>&1
 then
    echo "${ERROR_COLOR}\nGitleaks not found. To commit you safely, you need to install it per the instructions at https://github.com/gitleaks/gitleaks.${STOP_COLOR}"
    exit 1
