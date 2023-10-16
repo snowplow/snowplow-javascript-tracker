@@ -1,6 +1,13 @@
 # Change Log - @snowplow/browser-plugin-form-tracking
 
-This log was last generated on Mon, 28 Aug 2023 14:25:14 GMT and should not be manually modified.
+This log was last generated on Mon, 16 Oct 2023 14:58:08 GMT and should not be manually modified.
+
+## 3.16.0
+Mon, 16 Oct 2023 14:58:08 GMT
+
+### Updates
+
+- Fix transform function for submit_form event
 
 ## 3.15.0
 Mon, 28 Aug 2023 14:25:14 GMT

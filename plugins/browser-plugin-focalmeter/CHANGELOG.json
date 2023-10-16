@@ -1,5 +1,17 @@
 {
   "name": "@snowplow/browser-plugin-focalmeter",
   "entries": [
+    {
+      "version": "3.16.0",
+      "tag": "@snowplow/browser-plugin-focalmeter_v3.16.0",
+      "date": "Mon, 16 Oct 2023 14:58:08 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add plugin to send requests with user ID to a Kantar FocalMeter endpoint (#1133)"
+          }
+        ]
+      }
+    }
   ]
 }
