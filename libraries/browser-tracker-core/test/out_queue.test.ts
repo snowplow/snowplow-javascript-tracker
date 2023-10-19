@@ -31,6 +31,12 @@
 import { OutQueueManager, OutQueue } from '../src/tracker/out_queue';
 import { SharedState } from '../src/state';
 
+const readPostQueue = () => {
+  return JSON.parse(
+    window.localStorage.getItem('snowplowOutQueue_sp_post2') ?? fail('Unable to find local storage queue')
+  );
+};
+
 describe('OutQueueManager', () => {
   const maxQueueSize = 2;
 
@@ -45,6 +51,7 @@ describe('OutQueueManager', () => {
       send: jest.fn(),
       setRequestHeader: jest.fn(),
       withCredentials: true,
+      abort: jest.fn(),
     };
 
     jest.spyOn(window, 'XMLHttpRequest').mockImplementation(() => xhrMock as XMLHttpRequest);
@@ -219,11 +226,6 @@ describe('OutQueueManager', () => {
 
   describe('idService requests', () => {
     const idServiceEndpoint = 'http://example.com/id';
-    const readPostQueue = () => {
-      return JSON.parse(
-        window.localStorage.getItem('snowplowOutQueue_sp_post2') ?? fail('Unable to find local storage queue')
-      );
-    };
 
     const readGetQueue = () =>
       JSON.parse(window.localStorage.getItem('snowplowOutQueue_sp_get') ?? fail('Unable to find local storage queue'));
@@ -335,6 +337,88 @@ describe('OutQueueManager', () => {
         retrievedQueue = readPostQueue();
         expect(retrievedQueue).toHaveLength(0);
       });
+    });
+  });
+
+  describe('retryFailures = true', () => {
+    const request = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
+    let createOutQueue = () =>
+      OutQueueManager(
+        'sp',
+        new SharedState(),
+        true,
+        'post',
+        '/com.snowplowanalytics.snowplow/tp2',
+        1,
+        40000,
+        0,
+        false,
+        maxQueueSize,
+        10,
+        false,
+        {},
+        true,
+        [],
+        [],
+        '',
+        true
+      );
+
+    it('should remain in queue on failure', (done) => {
+      let outQueue = createOutQueue();
+      outQueue.enqueueRequest(request, 'http://example.com');
+
+      let retrievedQueue = readPostQueue();
+      expect(retrievedQueue).toHaveLength(1);
+
+      respondMockRequest(0);
+
+      setTimeout(() => {
+        retrievedQueue = readPostQueue();
+        expect(retrievedQueue).toHaveLength(1);
+        done();
+      }, 20);
+    });
+  });
+
+  describe('retryFailures = false', () => {
+    const request = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
+    let createOutQueue = () =>
+      OutQueueManager(
+        'sp',
+        new SharedState(),
+        true,
+        'post',
+        '/com.snowplowanalytics.snowplow/tp2',
+        1,
+        40000,
+        0,
+        false,
+        maxQueueSize,
+        0,
+        false,
+        {},
+        true,
+        [],
+        [],
+        '',
+        false
+      );
+
+    it('should remove from queue on failure', (done) => {
+      let outQueue = createOutQueue();
+      outQueue.enqueueRequest(request, 'http://example.com');
+
+      let retrievedQueue = readPostQueue();
+      expect(retrievedQueue).toHaveLength(1);
+
+      respondMockRequest(0);
+
+      setTimeout(() => {
+        retrievedQueue = readPostQueue();
+        expect(retrievedQueue).toHaveLength(0);
+        done();
+      }, 20);
     });
   });
 });

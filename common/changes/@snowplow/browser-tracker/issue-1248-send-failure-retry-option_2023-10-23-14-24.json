@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-tracker",
+      "comment": "Update API docs with retryFailedRequests",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker"
+}

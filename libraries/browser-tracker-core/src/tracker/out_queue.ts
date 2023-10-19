@@ -64,6 +64,7 @@ export interface OutQueue {
  * @param retryStatusCodes – Failure HTTP response status codes from Collector for which sending events should be retried (they can override the `dontRetryStatusCodes`)
  * @param dontRetryStatusCodes – Failure HTTP response status codes from Collector for which sending events should not be retried
  * @param idService - Id service full URL. This URL will be added to the queue and will be called using a GET method.
+ * @param retryFailedRequests - Whether to retry failed requests - Takes precedent over `retryStatusCodes` and `dontRetryStatusCodes`
  * @returns object OutQueueManager instance
  */
 export function OutQueueManager(
@@ -83,7 +84,8 @@ export function OutQueueManager(
   withCredentials: boolean,
   retryStatusCodes: number[],
   dontRetryStatusCodes: number[],
-  idService?: string
+  idService?: string,
+  retryFailedRequests: boolean = true
 ): OutQueue {
   type PostEvent = {
     evt: Record<string, unknown>;
@@ -351,6 +353,10 @@ export function OutQueueManager(
       // Time out POST requests after connectionTimeout
       const xhrTimeout = setTimeout(function () {
         xhr.abort();
+
+        if (!retryFailedRequests) {
+          removeEventsFromQueue(numberToSend);
+        }
         executingQueue = false;
       }, connectionTimeout);
 
@@ -455,6 +461,10 @@ export function OutQueueManager(
   function shouldRetryForStatusCode(statusCode: number) {
     // success, don't retry
     if (statusCode >= 200 && statusCode < 300) {
+      return false;
+    }
+
+    if (!retryFailedRequests) {
       return false;
     }
 
