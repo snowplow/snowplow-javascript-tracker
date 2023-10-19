@@ -249,6 +249,19 @@ export type TrackerConfiguration = {
    * The request respects the `anonymousTracking` option, including the SP-Anonymous header if needed, and any additional custom headers from the customHeaders option.
    */
   idService?: string;
+  /**
+   * Whether to retry failed requests to the collector.
+   *
+   * Failed requests are requests that failed due to
+   * [timeouts](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/timeout_event),
+   * [network errors](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/error_event),
+   * and [abort events](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/abort_event).
+   *
+   * Takes precedent over `retryStatusCodes` and `dontRetryStatusCodes`.
+   *
+   * @defaultValue true
+   */
+  retryFailedRequests?: boolean;
 };
 
 /**
