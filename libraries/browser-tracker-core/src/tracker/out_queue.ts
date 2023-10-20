@@ -371,9 +371,9 @@ export function OutQueueManager(
       };
 
       xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status >= 200) {
+        if (xhr.readyState === 4) {
           clearTimeout(xhrTimeout);
-          if (xhr.status < 300) {
+          if (xhr.status >= 200 && xhr.status < 300) {
             onPostSuccess(numberToSend);
           } else {
             if (!shouldRetryForStatusCode(xhr.status)) {
