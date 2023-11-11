@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-client-hints",
+      "comment": "Drop invalid client hints",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-client-hints"
+}
