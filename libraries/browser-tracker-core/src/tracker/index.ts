@@ -90,7 +90,6 @@ import {
   ParsedIdCookie,
   clientSessionFromIdCookie,
   incrementEventIndexInIdCookie,
-  emptyIdCookie,
   eventIndexFromIdCookie,
 } from './id_cookie';
 import { CLIENT_SESSION_SCHEMA, WEB_PAGE_SCHEMA, BROWSER_CONTEXT_SCHEMA } from './schemata';

@@ -61,11 +61,6 @@ export type ParsedIdCookie = [
   number // eventIndex
 ];
 
-export function emptyIdCookie() {
-  const idCookie: ParsedIdCookie = ['1', '', 0, 0, 0, undefined, '', '', '', undefined, 0];
-  return idCookie;
-}
-
 /**
  * Parses the cookie values from its string representation.
  *
