@@ -689,9 +689,10 @@ export function Tracker(
      * Load visitor ID cookie
      */
     function loadDomainUserIdCookie() {
-      if (configStateStorageStrategy == 'none') {
-        return emptyIdCookie();
-      }
+      // KEVIN TILLER - Removing this so we can have in-memory domainuserid when cookies are disallowed.
+      // if (configStateStorageStrategy == 'none') {
+      //   return emptyIdCookie();
+      // }
       const id = getSnowplowCookieValue('id') || undefined;
       return parseIdCookie(id, domainUserId, memorizedSessionId, memorizedVisitCount);
     }
