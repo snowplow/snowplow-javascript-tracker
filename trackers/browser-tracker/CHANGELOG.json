@@ -2,6 +2,24 @@
   "name": "@snowplow/browser-tracker",
   "entries": [
     {
+      "version": "3.17.0",
+      "tag": "@snowplow/browser-tracker_v3.17.0",
+      "date": "Tue, 14 Nov 2023 17:58:26 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add CommonEventProperties type argument"
+          },
+          {
+            "comment": "Update API docs with retryFailedRequests"
+          },
+          {
+            "comment": "Add retryFailedRequests"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.16.0",
       "tag": "@snowplow/browser-tracker_v3.16.0",
       "date": "Mon, 16 Oct 2023 14:58:08 GMT",

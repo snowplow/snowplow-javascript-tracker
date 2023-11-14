@@ -2,6 +2,18 @@
   "name": "@snowplow/browser-plugin-ga-cookies",
   "entries": [
     {
+      "version": "3.17.0",
+      "tag": "@snowplow/browser-plugin-ga-cookies_v3.17.0",
+      "date": "Tue, 14 Nov 2023 17:58:26 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Update to include options for Google Analytics 4 cookies"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.16.0",
       "tag": "@snowplow/browser-plugin-ga-cookies_v3.16.0",
       "date": "Mon, 16 Oct 2023 14:58:08 GMT",
