@@ -9,5 +9,5 @@ Add context to an event by setting an Array of Self Describing JSON
 <b>Signature:</b>
 
 ```typescript
-context?: Array<SelfDescribingJson> | null;
+context?: Array<SelfDescribingJson<T>> | null;
 ```

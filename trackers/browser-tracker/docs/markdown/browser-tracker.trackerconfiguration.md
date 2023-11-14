@@ -41,6 +41,7 @@ type TrackerConfiguration = {
     dontRetryStatusCodes?: number[];
     onSessionUpdateCallback?: (updatedSession: ClientSession) => void;
     idService?: string;
+    retryFailedRequests?: boolean;
 };
 ```
 
