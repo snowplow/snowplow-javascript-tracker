@@ -119,9 +119,9 @@ function getTimestamp(timestamp?: Timestamp | null): TimestampPayload {
 }
 
 /** Additional data points to set when tracking an event */
-export interface CommonEventProperties {
+export interface CommonEventProperties<T = Record<string, unknown>> {
   /** Add context to an event by setting an Array of Self Describing JSON */
-  context?: Array<SelfDescribingJson> | null;
+  context?: Array<SelfDescribingJson<T>> | null;
   /** Set the true timestamp or overwrite the device sent timestamp on an event */
   timestamp?: Timestamp | null;
 }
