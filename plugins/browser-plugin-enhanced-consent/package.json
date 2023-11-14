@@ -1,6 +1,6 @@
 {
   "name": "@snowplow/browser-plugin-enhanced-consent",
-  "version": "3.16.0",
+  "version": "3.17.0",
   "description": "Consent tracking for Snowplow",
   "bugs": "https://github.com/snowplow/snowplow-javascript-tracker/issues",
   "repository": {
@@ -49,6 +49,6 @@
     "typescript": "~4.6.2"
   },
   "peerDependencies": {
-    "@snowplow/browser-tracker": "~3.16.0"
+    "@snowplow/browser-tracker": "~3.17.0"
   }
 }
