@@ -1332,6 +1332,11 @@ export function Tracker(
       },
     };
 
+  // KEVIN TILLER - Workaround until getDomainUserId works from GTM
+  if (namespace === 'fliptoSa') {
+    ((window as any).fliptoDataLayer = (window as any).fliptoDataLayer || []).snowplow = tracker;
+  }
+
   // Initialise each plugin with the tracker
   browserPlugins.forEach((p) => {
     p.activateBrowserPlugin?.(tracker);
