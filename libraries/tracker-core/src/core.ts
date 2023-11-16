@@ -1366,7 +1366,7 @@ export function buildConsentGranted(event: ConsentGrantedEvent) {
  * @param exemptFields - Set of fields which should not be removed even if empty
  * @returns A cleaned copy of eventJson
  */
-function removeEmptyProperties(
+export function removeEmptyProperties(
   event: Record<string, unknown>,
   exemptFields: Record<string, boolean> = {}
 ): Record<string, unknown> {

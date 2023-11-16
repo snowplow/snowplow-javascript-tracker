@@ -207,6 +207,59 @@ importers:
       ts-jest: 27.1.3_60149d457e34ffba7d4e845dde6a1263
       typescript: 4.6.2
 
+  ../../plugins/browser-plugin-button-click-tracking:
+    specifiers:
+      '@ampproject/rollup-plugin-closure-compiler': ~0.27.0
+      '@rollup/plugin-commonjs': ~21.0.2
+      '@rollup/plugin-node-resolve': ~13.1.3
+      '@snowplow/browser-tracker-core': workspace:*
+      '@snowplow/tracker-core': workspace:*
+      '@types/jest': ~27.4.1
+      '@types/jsdom': ~16.2.14
+      '@types/lodash': ~4.14.180
+      '@typescript-eslint/eslint-plugin': ~5.15.0
+      '@typescript-eslint/parser': ~5.15.0
+      eslint: ~8.11.0
+      jest: ~27.5.1
+      jest-environment-jsdom: ~27.5.1
+      jest-environment-jsdom-global: ~3.0.0
+      jest-standard-reporter: ~2.0.0
+      lodash: ~4.17.21
+      rollup: ~2.70.1
+      rollup-plugin-cleanup: ~3.2.1
+      rollup-plugin-license: ~2.6.1
+      rollup-plugin-terser: ~7.0.2
+      rollup-plugin-ts: ~2.0.5
+      ts-jest: ~27.1.3
+      tslib: ^2.3.1
+      typescript: ~4.6.2
+    dependencies:
+      '@snowplow/browser-tracker-core': link:../../libraries/browser-tracker-core
+      '@snowplow/tracker-core': link:../../libraries/tracker-core
+      tslib: 2.3.1
+    devDependencies:
+      '@ampproject/rollup-plugin-closure-compiler': 0.27.0_rollup@2.70.1
+      '@rollup/plugin-commonjs': 21.0.2_rollup@2.70.1
+      '@rollup/plugin-node-resolve': 13.1.3_rollup@2.70.1
+      '@types/jest': 27.4.1
+      '@types/jsdom': 16.2.14
+      '@types/lodash': 4.14.180
+      '@typescript-eslint/eslint-plugin': 5.15.0_f2c49ce7d0e93ebcfdb4b7d25b131b28
+      '@typescript-eslint/parser': 5.15.0_eslint@8.11.0+typescript@4.6.2
+      eslint: 8.11.0
+      jest: 27.5.1
+      jest-environment-jsdom: 27.5.1
+      jest-environment-jsdom-global: 3.0.0_jest-environment-jsdom@27.5.1
+      jest-standard-reporter: 2.0.0
+      lodash: 4.17.21
+      rollup: 2.70.1
+      rollup-plugin-cleanup: 3.2.1_rollup@2.70.1
+      rollup-plugin-license: 2.6.1_rollup@2.70.1
+      rollup-plugin-terser: 7.0.2_rollup@2.70.1
+      rollup-plugin-ts: 2.0.5_rollup@2.70.1+typescript@4.6.2
+      ts-jest: 27.1.3_60149d457e34ffba7d4e845dde6a1263
+      typescript: 4.6.2
+
   ../../plugins/browser-plugin-client-hints:
     specifiers:
       '@ampproject/rollup-plugin-closure-compiler': ~0.27.0
@@ -1551,6 +1604,7 @@ importers:
       '@rollup/plugin-replace': ~4.0.0
       '@snowplow/browser-plugin-ad-tracking': workspace:*
       '@snowplow/browser-plugin-browser-features': workspace:*
+      '@snowplow/browser-plugin-button-click-tracking': workspace:*
       '@snowplow/browser-plugin-client-hints': workspace:*
       '@snowplow/browser-plugin-consent': workspace:*
       '@snowplow/browser-plugin-ecommerce': workspace:*
@@ -1620,6 +1674,7 @@ importers:
     dependencies:
       '@snowplow/browser-plugin-ad-tracking': link:../../plugins/browser-plugin-ad-tracking
       '@snowplow/browser-plugin-browser-features': link:../../plugins/browser-plugin-browser-features
+      '@snowplow/browser-plugin-button-click-tracking': link:../../plugins/browser-plugin-button-click-tracking
       '@snowplow/browser-plugin-client-hints': link:../../plugins/browser-plugin-client-hints
       '@snowplow/browser-plugin-consent': link:../../plugins/browser-plugin-consent
       '@snowplow/browser-plugin-ecommerce': link:../../plugins/browser-plugin-ecommerce
@@ -1669,7 +1724,7 @@ importers:
       '@wdio/static-server-service': 8.17.0
       '@wdio/types': 8.17.0
       chalk: 4.1.2
-      chromedriver: 114.0.2
+      chromedriver: 114.0.3
       dockerode: 3.3.1
       jest: 27.5.1_ts-node@10.9.1
       jest-environment-jsdom: 27.5.1
@@ -1689,7 +1744,7 @@ importers:
       ts-jest: 27.1.3_60149d457e34ffba7d4e845dde6a1263
       ts-node: 10.9.1_3a45c3db8dee5edcd277f201fb244988
       typescript: 4.6.2
-      wdio-chromedriver-service: 8.1.1_514dbdcecc2bde428ae175e957c6d0fe
+      wdio-chromedriver-service: 8.1.1_e56eb4ff7720135f2fea4d5c81e984e9
       wdio-edgedriver-service: 3.0.3_@wdio+types@8.17.0
       wdio-safaridriver-service: 2.1.1_4fb69569f1618470b3fa12973abeed28
       webdriverio: 8.18.2_typescript@4.6.2
@@ -1785,7 +1840,7 @@ packages:
     resolution: {integrity: sha512-eTAlQKq65zHfkHZV0sIVODCPGVgoo1HdBlbSLi9CqOzuZanMv2ihzY+4paiKr1mH+XmYESMAmJ/dpZ68eN6d8w==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/code-frame': 7.16.7
+      '@babel/code-frame': 7.22.13
       '@babel/generator': 7.12.11
       '@babel/helper-module-transforms': 7.12.1
       '@babel/helpers': 7.12.5
@@ -1845,7 +1900,7 @@ packages:
       '@babel/helper-replace-supers': 7.12.11
       '@babel/helper-simple-access': 7.12.1
       '@babel/helper-split-export-declaration': 7.12.11
-      '@babel/helper-validator-identifier': 7.16.7
+      '@babel/helper-validator-identifier': 7.22.20
       '@babel/template': 7.12.7
       '@babel/traverse': 7.12.10
       '@babel/types': 7.16.8
@@ -2060,7 +2115,7 @@ packages:
   /@babel/template/7.12.7:
     resolution: {integrity: sha512-GkDzmHS6GV7ZeXfJZ0tLRBhZcMcY0/Lnb+eEbXDBfCAcZCjrZKe6p3J4we/D24O9Y8enxWAg1cWwof59yLh2ow==}
     dependencies:
-      '@babel/code-frame': 7.16.7
+      '@babel/code-frame': 7.22.13
       '@babel/parser': 7.16.12
       '@babel/types': 7.16.8
     dev: true
@@ -2068,7 +2123,7 @@ packages:
   /@babel/traverse/7.12.10:
     resolution: {integrity: sha512-6aEtf0IeRgbYWzta29lePeYSk+YAFIC3kyqESeft8o5CkFlYIMX+EQDDWEiAQ9LHOA3d0oHdgrSsID/CKqXJlg==}
     dependencies:
-      '@babel/code-frame': 7.16.7
+      '@babel/code-frame': 7.22.13
       '@babel/generator': 7.12.11
       '@babel/helper-function-name': 7.12.11
       '@babel/helper-split-export-declaration': 7.12.11
@@ -2085,7 +2140,7 @@ packages:
     resolution: {integrity: sha512-smN2DQc5s4M7fntyjGtyIPbRJv6wW4rU/94fmYJ7PKQuZkC0qGMHXJbg6sNGt12JmVr4k5YaptI/XtiLJBnmIg==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/helper-validator-identifier': 7.16.7
+      '@babel/helper-validator-identifier': 7.22.20
       to-fast-properties: 2.0.0
     dev: true
 
@@ -2210,7 +2265,7 @@ packages:
       '@jest/transform': 27.5.1
       '@jest/types': 27.5.1
       '@types/node': 14.6.4
-      ansi-escapes: 4.3.1
+      ansi-escapes: 4.3.2
       chalk: 4.1.2
       emittery: 0.8.1
       exit: 0.1.2
@@ -2255,7 +2310,7 @@ packages:
       '@jest/transform': 27.5.1
       '@jest/types': 27.5.1
       '@types/node': 14.6.4
-      ansi-escapes: 4.3.1
+      ansi-escapes: 4.3.2
       chalk: 4.1.2
       emittery: 0.8.1
       exit: 0.1.2
@@ -2787,8 +2842,8 @@ packages:
       defer-to-connect: 2.0.1
     dev: true
 
-  /@testim/chrome-version/1.1.3:
-    resolution: {integrity: sha512-g697J3WxV/Zytemz8aTuKjTGYtta9+02kva3C1xc7KXB8GdbfE1akGJIsZLyY/FSh2QrnE+fiB7vmWU3XNcb6A==}
+  /@testim/chrome-version/1.1.4:
+    resolution: {integrity: sha512-kIhULpw9TrGYnHp/8VfdcneIcxKnLixmADtukQRtJUmsVlMg0niMkwV0xZmi8hqa57xqilIHjWFA0GKvEjVU5g==}
     dev: true
 
   /@tootallnate/once/1.1.2:
@@ -3604,13 +3659,6 @@ packages:
       string-width: 4.2.3
     dev: true
 
-  /ansi-escapes/4.3.1:
-    resolution: {integrity: sha512-JWF7ocqNrp8u9oqpgV+wH5ftbt+cfvv+PTjOvKLT3AdYly/LmORARfEVT1iyjwN+4MqE5UmVKoAdIBqeoCHgLA==}
-    engines: {node: '>=8'}
-    dependencies:
-      type-fest: 0.11.0
-    dev: true
-
   /ansi-escapes/4.3.2:
     resolution: {integrity: sha512-gKXj5ALrKWQLsYG9jlTRmR/xKluxHV+Z9QEwNIgCfM1/uwPMCuzVVnh5mwTd+OuBZcwSIMbqssNWRm1lE51QaQ==}
     engines: {node: '>=8'}
@@ -3854,8 +3902,8 @@ packages:
     resolution: {integrity: sha512-xh1Rl34h6Fi1DC2WWKfxUTVqRsNnr6LsKz2+hfwDxQJWmrx8+c7ylaqBMcHfl1U1r2dsifOvKX3LQuLNZ+XSvA==}
     dev: true
 
-  /axios/1.4.0:
-    resolution: {integrity: sha512-S4XCWMEmzvo64T9GfvQDOXgYRDJ/wsSZc7Jvdgx5u1sd0JwsuPLqb3SYmusag+edF6ziyMensPVqLTSc1PiSEA==}
+  /axios/1.6.2:
+    resolution: {integrity: sha512-7i24Ri4pmDRfJTR7LDBhsOTtcm+9kjX5WiY1X3wIisx6G9So3pfMkEiU7emUBe46oceVImccTEM3k6C5dbVW8A==}
     dependencies:
       follow-redirects: 1.15.2
       form-data: 4.0.0
@@ -4431,15 +4479,15 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /chromedriver/114.0.2:
-    resolution: {integrity: sha512-v0qrXRBknbxqmtklG7RWOe3TJ/dLaHhtB0jVxE7BAdYERxUjEaNRyqBwoGgVfQDibHCB0swzvzsj158nnfPgZw==}
+  /chromedriver/114.0.3:
+    resolution: {integrity: sha512-Qy5kqsAUrCDwpovM5pIWFkb3X3IgJLoorigwFEDgC1boL094svny3N7yw06marJHAuyX4CE/hhd25RarIcKvKg==}
     engines: {node: '>=16'}
     hasBin: true
     requiresBuild: true
     dependencies:
-      '@testim/chrome-version': 1.1.3
-      axios: 1.4.0
-      compare-versions: 5.0.3
+      '@testim/chrome-version': 1.1.4
+      axios: 1.6.2
+      compare-versions: 6.1.0
       extract-zip: 2.0.1
       https-proxy-agent: 5.0.1
       proxy-from-env: 1.1.0
@@ -4649,8 +4697,8 @@ packages:
     resolution: {integrity: sha1-3dgA2gxmEnOTzKWVDqloo6rxJTs=}
     dev: true
 
-  /compare-versions/5.0.3:
-    resolution: {integrity: sha512-4UZlZP8Z99MGEY+Ovg/uJxJuvoXuN4M6B3hKaiackiHrgzQFEe3diJi1mf1PNHbFujM7FvLrK2bpgIaImbtZ1A==}
+  /compare-versions/6.1.0:
+    resolution: {integrity: sha512-LNZQXhqUvqUTotpZ00qLSaify3b4VFD588aRr8MKFw4CMUr98ytzCW5wDH5qx/DEY5kCDXcbcRuCqL0szEf2tg==}
     dev: true
 
   /compatfactory/0.0.12_typescript@4.6.2:
@@ -7813,7 +7861,7 @@ packages:
       '@jest/test-result': 27.5.1
       '@jest/types': 27.5.1
       '@types/node': 14.6.4
-      ansi-escapes: 4.3.1
+      ansi-escapes: 4.3.2
       chalk: 4.1.2
       jest-util: 27.5.1
       string-length: 4.0.1
@@ -9223,7 +9271,7 @@ packages:
     resolution: {integrity: sha512-ayCKvm/phCGxOkYRSCM82iDwct8/EonSEgCSxWxD7ve6jHggsFl4fZVQBPRNgQoKiuV/odhFrGzQXZwbifC8Rg==}
     engines: {node: '>=8'}
     dependencies:
-      '@babel/code-frame': 7.16.7
+      '@babel/code-frame': 7.22.13
       error-ex: 1.3.2
       json-parse-even-better-errors: 2.3.1
       lines-and-columns: 1.2.4
@@ -10854,7 +10902,7 @@ packages:
     resolution: {integrity: sha512-un0FmiRUQNr5PJqy9kP7c40F5BOfpGlYTrxonDChEZB7pzZxRNp/bt+ymiy9/npwXya9KH99nJ/GXFIiUkYGFQ==}
     engines: {node: '>=8'}
     dependencies:
-      ansi-escapes: 4.3.1
+      ansi-escapes: 4.3.2
       supports-hyperlinks: 2.1.0
     dev: true
 
@@ -10875,7 +10923,7 @@ packages:
     dependencies:
       '@istanbuljs/schema': 0.1.2
       glob: 7.2.0
-      minimatch: 3.0.4
+      minimatch: 3.1.2
     dev: true
 
   /text-table/0.2.0:
@@ -11102,11 +11150,6 @@ packages:
   /type-detect/4.0.8:
     resolution: {integrity: sha512-0fr/mIH1dlO+x7TlcMy+bIDqKPsw/70tVyeHW787goQjhmqaZe10uwLujubK9q9Lg6Fiho1KUKDYz0Z7k7g5/g==}
     engines: {node: '>=4'}
-    dev: true
-
-  /type-fest/0.11.0:
-    resolution: {integrity: sha512-OdjXJxnCN1AvyLSzeKIgXTXxV+99ZuXl3Hpo9XpJAv9MBcHrrJOQ5kV7ypXOuQie+AmWG25hLbiKdwYTifzcfQ==}
-    engines: {node: '>=8'}
     dev: true
 
   /type-fest/0.13.1:
@@ -11378,7 +11421,7 @@ packages:
       defaults: 1.0.3
     dev: true
 
-  /wdio-chromedriver-service/8.1.1_514dbdcecc2bde428ae175e957c6d0fe:
+  /wdio-chromedriver-service/8.1.1_e56eb4ff7720135f2fea4d5c81e984e9:
     resolution: {integrity: sha512-pN3GiOkTIMnalfq4PJAHdX95pDp1orHnTY8W1fIbd6ok81ba97UjerTgS7lUDRUh1p0MAm35Ww0uc0/9wzB7SA==}
     engines: {node: ^16.13 || >=18}
     peerDependencies:
@@ -11393,7 +11436,7 @@ packages:
     dependencies:
       '@wdio/logger': 8.16.17
       '@wdio/types': 8.17.0
-      chromedriver: 114.0.2
+      chromedriver: 114.0.3
       fs-extra: 11.1.0
       split2: 4.2.0
       tcp-port-used: 1.0.2
