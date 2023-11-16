@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/tracker-core",
+      "comment": "Export 'removeEmptyProperties'",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/tracker-core"
+}
