@@ -35,6 +35,10 @@
       "allowedCategories": [ "trackers" ]
     },
     {
+      "name": "@snowplow/browser-plugin-button-click-tracking",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "@snowplow/browser-plugin-client-hints",
       "allowedCategories": [ "trackers" ]
     },
@@ -56,6 +60,10 @@
     },
     {
       "name": "@snowplow/browser-plugin-error-tracking",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@snowplow/browser-plugin-focalmeter",
       "allowedCategories": [ "trackers" ]
     },
     {
@@ -116,10 +124,6 @@
     },
     {
       "name": "@snowplow/browser-plugin-youtube-tracking",
-      "allowedCategories": [ "trackers" ]
-    },
-    {
-      "name": "@snowplow/browser-plugin-focalmeter",
       "allowedCategories": [ "trackers" ]
     },
     {

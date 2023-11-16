@@ -51,3 +51,4 @@ export const enhancedConsent = false;
 export const snowplowMedia = true;
 export const vimeoTracking = true;
 export const privacySandbox = false;
+export const buttonClickTracking = true;
