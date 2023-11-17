@@ -77,6 +77,7 @@ export interface BrowserTracker {
     getDomainUserId: () => void;
     getDomainUserInfo: () => void;
     getPageViewId: () => string;
+    getQueueName: (eventMethod?: Exclude<EventMethod, "beacon">) => string;
     getTabId: () => string | null;
     getUserId: () => void;
     id: string;

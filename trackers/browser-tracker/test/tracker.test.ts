@@ -30,6 +30,7 @@
 
 import { SharedState, addTracker } from '@snowplow/browser-tracker-core';
 import F from 'lodash/fp';
+import { createTracker } from './helpers';
 
 jest.useFakeTimers('modern');
 
@@ -337,5 +338,28 @@ describe('Activity tracker behaviour', () => {
     jest.advanceTimersByTime(4900);
 
     expect(callbacks).toBe(2);
+  });
+});
+
+describe('API', () => {
+  describe('getQueueName', () => {
+    it('does return the queue name', () => {
+      let rand = Math.random();
+      const mathSpy = jest.spyOn(global.Math, 'random');
+      mathSpy.mockReturnValueOnce(rand);
+
+      const postTracker = createTracker();
+      expect(postTracker?.getQueueName()).toBe(`snowplowOutQueue_sp-${rand}_post2`);
+      expect(postTracker?.getQueueName('get')).toBe(`snowplowOutQueue_sp-${rand}_get`);
+
+      rand = Math.random();
+      mathSpy.mockReturnValueOnce(rand);
+
+      const getTracker = createTracker({ eventMethod: 'get' });
+      expect(getTracker?.getQueueName()).toBe(`snowplowOutQueue_sp-${rand}_get`);
+      expect(getTracker?.getQueueName('post')).toBe(`snowplowOutQueue_sp-${rand}_post2`);
+
+      mathSpy.mockRestore();
+    });
   });
 });
