@@ -62,6 +62,20 @@ export type CookieSameSite = 'None' | 'Lax' | 'Strict';
 /* The supported methods which events can be sent with */
 export type EventMethod = 'post' | 'get' | 'beacon';
 
+/* Available configuration for the extended cross domain linker */
+export type ExtendedCrossDomainLinkerAttributes = {
+  userId?: boolean;
+  sessionId?: boolean;
+  sourceId?: boolean;
+  sourcePlatform?: boolean;
+  /**
+   * Allow for the collection of the link text when a cross-domain link is clicked. Can also accept a callback for customizing information collection.
+   */
+  reason?: boolean | ((evt: Event) => string);
+};
+
+export type ExtendedCrossDomainLinkerOptions = boolean | ExtendedCrossDomainLinkerAttributes;
+
 /**
  * The configuration object for initialising the tracker
  * @example
@@ -156,6 +170,11 @@ export type TrackerConfiguration = {
    * links on the callback
    */
   crossDomainLinker?: (elt: HTMLAnchorElement | HTMLAreaElement) => boolean;
+  /**
+   * Configure the cross domain linker to use the extended format, allowing for
+   * more user/session information to pass to the cross domain navigation.
+   */
+  useExtendedCrossDomainLinker?: ExtendedCrossDomainLinkerOptions;
   /**
    * The max size a POST request can be before the tracker will force send it
    * @defaultValue 40000

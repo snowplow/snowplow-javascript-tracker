@@ -218,6 +218,18 @@ export interface EnableAnonymousTrackingConfiguration {
 // @public (undocumented)
 export type EventMethod = "post" | "get" | "beacon";
 
+// @public (undocumented)
+export type ExtendedCrossDomainLinkerAttributes = {
+    userId?: boolean;
+    sessionId?: boolean;
+    sourceId?: boolean;
+    sourcePlatform?: boolean;
+    reason?: boolean | ((evt: Event) => string);
+};
+
+// @public (undocumented)
+export type ExtendedCrossDomainLinkerOptions = boolean | ExtendedCrossDomainLinkerAttributes;
+
 // @public
 export type FilterProvider = [
 ContextFilter,
@@ -354,6 +366,7 @@ export type TrackerConfiguration = {
     useStm?: boolean;
     bufferSize?: number;
     crossDomainLinker?: (elt: HTMLAnchorElement | HTMLAreaElement) => boolean;
+    useExtendedCrossDomainLinker?: ExtendedCrossDomainLinkerOptions;
     maxPostBytes?: number;
     maxGetBytes?: number;
     discoverRootDomain?: boolean;
