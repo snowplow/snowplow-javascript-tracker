@@ -28,5 +28,5 @@ jobs:
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folders: trackers/browser-tracker/docs
+          folder: trackers/browser-tracker/docs
             trackers/node-tracker/docs
