@@ -29,6 +29,7 @@
  */
 
 export * from './storage';
+export * from './cross_domain';
 
 declare global {
   interface EventTarget {
