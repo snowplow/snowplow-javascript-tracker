@@ -1,13 +1,31 @@
+# name: Documentation
+# on:
+#   push:
+#     branches:
+#       - issue/1255-host_js_docs
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: peaceiris/actions-gh-pages@v3
+#         with:
+#           github_token: ${{ secrets.GITHUB_TOKEN }}
+#           publish_dir: /trackers/browser-tracker/docs/markdown
+
 name: Documentation
 on:
   push:
     branches:
       - issue/1255-host_js_docs
+permissions:
+  contents: write
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: peaceiris/actions-gh-pages@v3
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: /trackers/browser-tracker/docs/markdown
+          folder: trackers/browser-tracker/docs
