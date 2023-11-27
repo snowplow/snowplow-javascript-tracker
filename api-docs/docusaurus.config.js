@@ -61,8 +61,8 @@ const config = {
             title: 'Docs',
             items: [
               {
-                label: 'Snowplow Docs',
-                to: 'https://docs.snowplow.io/docs/',
+                label: 'Snowplow JS Docs',
+                to: 'https://docs.snowplow.io/docs/collecting-data/collecting-from-own-applications/javascript-trackers/',
               },
             ],
           },
