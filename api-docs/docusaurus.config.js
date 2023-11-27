@@ -74,7 +74,7 @@ const config = {
             items: [
               {
                 label: 'Snowplow Docs',
-                to: '.snowplow.io/docs/',
+                to: 'https://docs.snowplow.io/docs/',
               },
             ],
           },
