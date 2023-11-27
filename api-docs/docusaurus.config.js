@@ -96,7 +96,7 @@ const config = {
       },
       algolia: {
         appId: 'CTW375YOEO',
-        apiKey: 'c2cf0bc8ae8fae9a389bfd29a61f84a8',
+        apiKey: '407eaebe5a9a3e73a4d9854d1969fbb6',
         indexName: 'snowplow-javascript-tracker',
         contextualSearch: true,
       },
