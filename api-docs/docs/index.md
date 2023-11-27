@@ -17,6 +17,6 @@ Find the documentation for both in the [Web trackers](https://docs.snowplow.io/d
 ## Server-side tracking
 Track events in server-side Node.js environments using the Node.js Tracker (v3). Used via npm.
 
-Find the documentation in the [Node.js tracker](https://docs.snowplow.io/docs/collecting-data/collecting-from-own-applications/javascript-trackers/node-js-tracker/index.md) section.
+Find the documentation in the [Node.js tracker](https://docs.snowplow.io/docs/collecting-data/collecting-from-own-applications/javascript-trackers/node-js-tracker) section.
 
 

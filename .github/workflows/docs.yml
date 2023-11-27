@@ -1,9 +1,10 @@
 name: Deploy to GitHub Pages
 
 on:
-  push:
-    branches:
-      - issue/1255-host_js_docs
+  workflow_run:
+    workflows: ['Deploy Tracker']
+    types:
+      - completed
 permissions:
   contents: write
 
