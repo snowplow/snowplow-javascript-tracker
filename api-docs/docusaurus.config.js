@@ -10,28 +10,16 @@ import { themes as prismThemes } from 'prism-react-renderer';
 const config = {
   title: 'Snowplow Javascript API Docs',
   favicon: 'img/favicon.ico',
-  // Set the production url of your site here
   url: 'http://snowplow.github.io/',
-  // Set the /<baseUrl>/ pathname under which your site is served
-  // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/snowplow-javascript-tracker/',
-
-  // GitHub pages deployment config.
-  // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'snowplow', // Usually your GitHub org/user name.
-  projectName: 'js-api-docs', // Usually your repo name.
-
+  organizationName: 'snowplow',
+  projectName: 'snowplow-javascript-tracker',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
-
-  // Even if you don't use internationalization, you can use this field to set
-  // useful metadata like html lang. For example, if your site is Chinese, you
-  // may want to replace "en" with "zh-Hans".
   i18n: {
     defaultLocale: 'en',
     locales: ['en'],
   },
-
   presets: [
     [
       'classic',
@@ -55,8 +43,8 @@ const config = {
         title: 'API Docs',
         logo: {
           src: 'img/favicon.ico',
-          href: '/docs', // Default to `siteConfig.baseUrl`.
-          target: '_self', // By default, this value is calculated based on the `href` attribute (the external link will open in a new tab, all others in the current one).
+          href: '/docs',
+          target: '_self',
         },
         items: [
           {
