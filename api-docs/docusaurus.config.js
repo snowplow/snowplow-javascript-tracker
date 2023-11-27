@@ -73,8 +73,8 @@ const config = {
             title: 'Docs',
             items: [
               {
-                label: 'API Docs',
-                to: '/docs/intro',
+                label: 'Snowplow Docs',
+                to: '.snowplow.io/docs/',
               },
             ],
           },
