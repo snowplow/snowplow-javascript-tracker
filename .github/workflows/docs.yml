@@ -19,8 +19,10 @@ jobs:
           cache: yarn
 
       - name: Install dependencies
+        working-directory: ./api-docs
         run: yarn install --frozen-lockfile
       - name: Build website
+        working-directory: ./api-docs
         run: yarn build
 
       # Popular action to deploy to GitHub Pages:
