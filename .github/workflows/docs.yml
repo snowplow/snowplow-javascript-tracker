@@ -20,10 +20,10 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./api-docs
-        run: yarn install --frozen-lockfile
+        run: npm install
       - name: Build website
         working-directory: ./api-docs
-        run: yarn build
+        run: npm build
 
       # Popular action to deploy to GitHub Pages:
       # Docs: https://github.com/peaceiris/actions-gh-pages#%EF%B8%8F-docusaurus
