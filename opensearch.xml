@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"
+                       xmlns:moz="http://www.mozilla.org/2006/browser/search/">
+  <ShortName>Snowplow Javascript API Docs</ShortName>
+  <Description>Search Snowplow Javascript API Docs</Description>
+  <InputEncoding>UTF-8</InputEncoding>
+  <Image width="16" height="16" type="image/x-icon">http://snowplow.github.io/snowplow-javascript-tracker/img/favicon.ico</Image>
+  <Url type="text/html" method="get" template="http://snowplow.github.io/snowplow-javascript-tracker/search?q={searchTerms}"/>
+  <Url type="application/opensearchdescription+xml" rel="self" template="http://snowplow.github.io/snowplow-javascript-tracker/opensearch.xml" />
+  <moz:SearchForm>http://snowplow.github.io/snowplow-javascript-tracker/</moz:SearchForm>
+</OpenSearchDescription>
