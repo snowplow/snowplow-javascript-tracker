@@ -94,6 +94,12 @@ const config = {
         theme: prismThemes.github,
         darkTheme: prismThemes.dracula,
       },
+      algolia: {
+        appId: 'CTW375YOEO',
+        apiKey: 'c2cf0bc8ae8fae9a389bfd29a61f84a8',
+        indexName: 'snowplow-javascript-tracker',
+        contextualSearch: true,
+      },
     }),
 };
 
