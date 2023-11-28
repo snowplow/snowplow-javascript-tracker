@@ -26,7 +26,7 @@ declare function buildConsentWithdrawn(event: ConsentWithdrawnEvent): {
 
 <b>Returns:</b>
 
-{ event: PayloadBuilder; context: { schema: string; data: Record&lt;string, unknown&gt;; }\[\]; }
+`{ event: PayloadBuilder; context: { schema: string; data: Record&lt;string, unknown&gt;; }\[\]; }`
 
 An object containing the PayloadBuilder to be sent to  and a 'consent\_document' context
 

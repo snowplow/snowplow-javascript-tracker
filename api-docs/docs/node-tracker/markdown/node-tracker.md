@@ -25,7 +25,7 @@
 |  [buildEcommerceTransactionItem(event)](./node-tracker.buildecommercetransactionitem.md) | Build an Ecommerce Transaction Item Event Related to the [buildEcommerceTransaction()](./node-tracker.buildecommercetransaction.md) Each Ecommerce Transaction may contain one or more EcommerceTransactionItem events |
 |  [buildFormFocusOrChange(event)](./node-tracker.buildformfocusorchange.md) | Build a Form Focus or Change Form Event based on schema property When a user focuses on a form element or when a user makes a change to a form element. |
 |  [buildFormSubmission(event)](./node-tracker.buildformsubmission.md) | Build a Form Submission Event Used to track when a user submits a form |
-|  [buildLinkClick(event)](./node-tracker.buildlinkclick.md) | Build a Link Click Event Used when a user clicks on a link on a webpage, typically an anchor tag <a> |
+|  [buildLinkClick(event)](./node-tracker.buildlinkclick.md) | Build a Link Click Event Used when a user clicks on a link on a webpage, typically an anchor tag `<a>` |
 |  [buildPagePing(event)](./node-tracker.buildpageping.md) | Build a Page Ping Event Fires when activity tracking is enabled in the browser. Tracks same information as the last tracked Page View and includes scroll information from the current page view |
 |  [buildPageView(event)](./node-tracker.buildpageview.md) | Build a Page View Event Represents a Page View, which is typically fired as soon as possible when a web page is loaded within the users browser. Often also fired on "virtual page views" within Single Page Applications (SPA). |
 |  [buildRemoveFromCart(event)](./node-tracker.buildremovefromcart.md) | Build a Remove From Cart Event For tracking users removing items from a cart on an ecommerce site. |
@@ -55,7 +55,7 @@
 |  [Emitter](./node-tracker.emitter.md) |  |
 |  [FormFocusOrChangeEvent](./node-tracker.formfocusorchangeevent.md) | Represents either a Form Focus or Form Change event When a user focuses on a form element or when a user makes a change to a form element. |
 |  [FormSubmissionEvent](./node-tracker.formsubmissionevent.md) | A Form Submission Event Used to track when a user submits a form |
-|  [LinkClickEvent](./node-tracker.linkclickevent.md) | A Link Click Event Used when a user clicks on a link on a webpage, typically an anchor tag <a> |
+|  [LinkClickEvent](./node-tracker.linkclickevent.md) | A Link Click Event Used when a user clicks on a link on a webpage, typically an anchor tag `<a>` |
 |  [PagePingEvent](./node-tracker.pagepingevent.md) | A Page Ping Event Fires when activity tracking is enabled in the browser. Tracks same information as the last tracked Page View and includes scroll information from the current page view |
 |  [PageViewEvent](./node-tracker.pageviewevent.md) | A Page View Event Represents a Page View, which is typically fired as soon as possible when a web page is loaded within the users browser. Often also fired on "virtual page views" within Single Page Applications (SPA). |
 |  [PayloadBuilder](./node-tracker.payloadbuilder.md) | Interface for mutable object encapsulating tracker payload |
@@ -80,6 +80,6 @@
 |  [ContextFilter](./node-tracker.contextfilter.md) | A context filter is a user-supplied callback that is evaluated for each event to determine if the context associated with the filter should be attached to the event |
 |  [ContextGenerator](./node-tracker.contextgenerator.md) | A context generator is a user-supplied callback that is evaluated for each event to allow an additional context to be dynamically attached to the event |
 |  [Payload](./node-tracker.payload.md) | Type for a Payload dictionary |
-|  [SelfDescribingJson](./node-tracker.selfdescribingjson.md) | export interface for any Self-Describing JSON such as context or Self Describing events |
+|  [SelfDescribingJson](./node-tracker.selfdescribingjson.md) | Export interface for any Self-Describing JSON such as context or Self Describing events |
 |  [Timestamp](./node-tracker.timestamp.md) | Algebraic datatype representing possible timestamp type choice |
 
