@@ -4,7 +4,7 @@
 
 ## SelfDescribingJson type
 
-Export interface for any Self-Describing JSON such as context or Self Describing events
+export interface for any Self-Describing JSON such as context or Self Describing events
 
 <b>Signature:</b>
 

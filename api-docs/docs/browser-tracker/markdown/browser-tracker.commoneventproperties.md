@@ -9,13 +9,13 @@ Additional data points to set when tracking an event
 <b>Signature:</b>
 
 ```typescript
-interface CommonEventProperties 
+interface CommonEventProperties<T = Record<string, unknown>> 
 ```
 
 ## Properties
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [context?](./browser-tracker.commoneventproperties.context.md) | Array&lt;SelfDescribingJson&gt; \| null | <i>(Optional)</i> Add context to an event by setting an Array of Self Describing JSON |
+|  [context?](./browser-tracker.commoneventproperties.context.md) | Array&lt;SelfDescribingJson&lt;T&gt;&gt; \| null | <i>(Optional)</i> Add context to an event by setting an Array of Self Describing JSON |
 |  [timestamp?](./browser-tracker.commoneventproperties.timestamp.md) | Timestamp \| null | <i>(Optional)</i> Set the true timestamp or overwrite the device sent timestamp on an event |
 
