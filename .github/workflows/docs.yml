@@ -1,0 +1,31 @@
+name: Deploy to GitHub Pages
+
+on:
+  workflow_run:
+    workflows: ['Deploy Tracker']
+    types:
+      - completed
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        working-directory: ./api-docs
+        run: npm install
+      - name: Build website
+        working-directory: ./api-docs
+        run: npm run build
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./api-docs/build

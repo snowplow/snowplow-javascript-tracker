@@ -4,7 +4,7 @@
 
 ## buildLinkClick() function
 
-Build a Link Click Event Used when a user clicks on a link on a webpage, typically an anchor tag <a>
+Build a Link Click Event Used when a user clicks on a link on a webpage, typically an anchor tag `<a>`
 
 <b>Signature:</b>
 

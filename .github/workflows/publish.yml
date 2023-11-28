@@ -67,18 +67,18 @@ jobs:
         working-directory: ./trackers/browser-tracker
         run: |
           api-extractor run
-          api-documenter markdown --input-folder temp --output-folder docs/markdown
+          api-documenter markdown --input-folder temp --output-folder ../../api-docs/docs/browser-tracker/markdown
 
       - name: Create API documentation for @snowplow/node-tracker
         working-directory: ./trackers/node-tracker
         run: |
           api-extractor run
-          api-documenter markdown --input-folder temp --output-folder docs/markdown
+          api-documenter markdown --input-folder temp --output-folder ../../api-docs/docs/node-tracker/markdown
 
       - name: Apply API documentation updates
         run: |
-          git add trackers/browser-tracker/docs
-          git add trackers/node-tracker/docs
+          git add api-docs/docs/browser-tracker
+          git add api-docs/docs/node-tracker
           git commit --no-verify --allow-empty -m "Applying documentation updates."
           git push
 
