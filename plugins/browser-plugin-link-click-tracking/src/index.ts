@@ -177,7 +177,7 @@ function processClick(tracker: BrowserTracker, sourceElement: Element, context?:
     var originalSourceHostName = anchorElement.hostname || getHostName(anchorElement.href),
       sourceHostName = originalSourceHostName.toLowerCase(),
       sourceHref = anchorElement.href.replace(originalSourceHostName, sourceHostName),
-      scriptProtocol = new RegExp('^(javascript|vbscript|jscript|mocha|livescript|ecmascript|mailto):', 'i');
+      scriptProtocol = new RegExp('^(javascript|vbscript|jscript|mocha|livescript|ecmascript):', 'i');
 
     // Ignore script pseudo-protocol links
     if (!scriptProtocol.test(sourceHref)) {
