@@ -1,0 +1,17 @@
+{
+  "name": "@snowplow/browser-plugin-button-click-tracking",
+  "entries": [
+    {
+      "version": "3.18.0",
+      "tag": "@snowplow/browser-plugin-button-click-tracking_v3.18.0",
+      "date": "Mon, 04 Dec 2023 13:44:02 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add Button Click tracking plugin (close #1267)"
+          }
+        ]
+      }
+    }
+  ]
+}
