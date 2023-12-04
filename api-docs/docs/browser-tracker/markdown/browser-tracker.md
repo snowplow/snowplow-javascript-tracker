@@ -88,7 +88,7 @@
 |  [FilterProvider](./browser-tracker.filterprovider.md) | A filter provider is a tuple that has two parts: a context filter and the context primitive(s) If the context filter evaluates to true, the tracker will attach the context primitive(s) |
 |  [Platform](./browser-tracker.platform.md) |  |
 |  [RuleSetProvider](./browser-tracker.rulesetprovider.md) | A ruleset provider is aa tuple that has two parts: a ruleset and the context primitive(s) If the ruleset allows the current event schema URI, the tracker will attach the context primitive(s) |
-|  [SelfDescribingJson](./browser-tracker.selfdescribingjson.md) | export interface for any Self-Describing JSON such as context or Self Describing events |
+|  [SelfDescribingJson](./browser-tracker.selfdescribingjson.md) | Export interface for any Self-Describing JSON such as context or Self Describing events |
 |  [StateStorageStrategy](./browser-tracker.statestoragestrategy.md) |  |
 |  [TrackerConfiguration](./browser-tracker.trackerconfiguration.md) | The configuration object for initialising the tracker |
 
