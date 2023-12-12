@@ -1,5 +1,5 @@
 import { BrowserPlugin, BrowserTracker, dispatchToTrackersInCollection } from '@snowplow/browser-tracker-core';
-import { buildSelfDescribingEvent } from '@snowplow/tracker-core';
+import { DynamicContext, buildSelfDescribingEvent, resolveDynamicContext } from '@snowplow/tracker-core';
 import { WEB_VITALS_SCHEMA } from './schemata';
 import { attachWebVitalsPageListeners, createWebVitalsScript, webVitalsListener } from './utils';
 
@@ -10,11 +10,13 @@ let listenersAttached = false;
 interface WebVitalsPluginOptions {
   loadWebVitalsScript?: boolean;
   webVitalsSource?: string;
+  context?: DynamicContext;
 }
 
 const defaultPluginOptions = {
   loadWebVitalsScript: true,
   webVitalsSource: WEB_VITALS_SOURCE,
+  context: [],
 };
 
 /**
@@ -45,7 +47,8 @@ export function WebVitalsPlugin(pluginOptions: WebVitalsPluginOptions = defaultP
                 schema: WEB_VITALS_SCHEMA,
                 data: webVitalsObject,
               },
-            })
+            }),
+            resolveDynamicContext(options.context ?? [], webVitalsObject)
           );
         });
       }

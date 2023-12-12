@@ -14,3 +14,19 @@ Object {
   "schema": "iglu:com.snowplowanalytics.snowplow/web_vitals/jsonschema/1-0-0",
 }
 `;
+
+exports[`Web Vitals plugin Returns values for Web Vitals properties: context 1`] = `
+Array [
+  Object {
+    "data": Array [
+      Object {
+        "data": Object {
+          "ok": true,
+        },
+        "schema": "iglu:com.example/test/jsonschema/1-0-0",
+      },
+    ],
+    "schema": "iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-0",
+  },
+]
+`;
