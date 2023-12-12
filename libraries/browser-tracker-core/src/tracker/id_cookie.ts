@@ -256,9 +256,17 @@ export function incrementEventIndexInIdCookie(idCookie: ParsedIdCookie) {
  * @param idCookie Parsed cookie
  * @returns String cookie value
  */
-export function serializeIdCookie(idCookie: ParsedIdCookie) {
-  idCookie.shift();
-  return idCookie.join('.');
+export function serializeIdCookie(idCookie: ParsedIdCookie, configAnonymousTracking: boolean) {
+  const propertiesToAnonymize = [domainUserIdIndex, previousSessionIdIndex];
+  const anonymizedIdCookie = idCookie.map((value, index) => {
+    if (configAnonymousTracking && propertiesToAnonymize.includes(index)) {
+      return '';
+    } else {
+      return value;
+    }
+  });
+  anonymizedIdCookie.shift();
+  return anonymizedIdCookie.join('.');
 }
 
 /**
