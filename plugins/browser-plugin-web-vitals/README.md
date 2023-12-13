@@ -43,7 +43,8 @@ newTracker('sp1', '{{collector}}', { plugins: [ WebVitalsPlugin(/* pluginOptions
  * {
  *  loadWebVitalsScript: Should the plugin immediately load the Core Web Vitals measurement script from UNPKG CDN.
  *  webVitalsSource: The URL endpoint the Web Vitals script should be loaded from. Defaults to the UNPKG CDN.
- * } 
+ *  context: Array of entity objects or entity-generating functions (the web_vitals payload is passed as a parameter) to attach to the web_vitals event.
+ * }
  */
 ```
 

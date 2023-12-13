@@ -40,13 +40,17 @@ describe('Web Vitals plugin', () => {
     const core = trackerCore({
       corePlugins: [],
       callback: (payloadBuilder) => {
-        const { data } = payloadBuilder.getJson()[0].json;
-        expect(data).toMatchSnapshot();
+        const [data, ...context] = payloadBuilder.getJson();
+        expect(data.json.data).toMatchSnapshot();
+        expect(context.map(({ json }) => json)).toMatchSnapshot('context');
         done();
       },
     });
 
-    WebVitalsPlugin({ loadWebVitalsScript: false }).activateBrowserPlugin?.({ core } as BrowserTracker);
+    WebVitalsPlugin({
+      loadWebVitalsScript: false,
+      context: [{ schema: 'iglu:com.example/test/jsonschema/1-0-0', data: { ok: true } }],
+    }).activateBrowserPlugin?.({ core } as BrowserTracker);
     const pagehideEvent = new PageTransitionEvent('pagehide');
     jsdom.window.dispatchEvent(pagehideEvent);
   });
