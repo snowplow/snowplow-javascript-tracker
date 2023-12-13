@@ -304,7 +304,9 @@ export function Tracker(
         trackerConfiguration.retryStatusCodes ?? [],
         (trackerConfiguration.dontRetryStatusCodes ?? []).concat([400, 401, 403, 410, 422]),
         trackerConfiguration.idService,
-        trackerConfiguration.retryFailedRequests
+        trackerConfiguration.retryFailedRequests,
+        trackerConfiguration.onRequestSuccess,
+        trackerConfiguration.onRequestFailure
       ),
       // Whether pageViewId should be regenerated after each trackPageView. Affect web_page context
       preservePageViewId = false,

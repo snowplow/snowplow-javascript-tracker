@@ -215,6 +215,9 @@ export interface EnableAnonymousTrackingConfiguration {
     stateStorageStrategy?: StateStorageStrategy;
 }
 
+// @public
+export type EventBatch = GetBatch | PostBatch;
+
 // @public (undocumented)
 export type EventMethod = "post" | "get" | "beacon";
 
@@ -235,6 +238,9 @@ export interface FlushBufferConfiguration {
 }
 
 // @public
+export type GetBatch = string[];
+
+// @public
 export function newSession(trackers?: Array<string>): void;
 
 // @public
@@ -253,10 +259,21 @@ export interface PageViewEvent {
 export type Platform = "web" | "mob" | "pc" | "srv" | "app" | "tv" | "cnsl" | "iot";
 
 // @public
+export type PostBatch = Record<string, unknown>[];
+
+// @public
 export function preservePageViewId(trackers?: Array<string>): void;
 
 // @public
 export function removeGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive>, trackers?: Array<string>): void;
+
+// @public
+export type RequestFailure = {
+    events: EventBatch;
+    status?: number;
+    message?: string;
+    willRetry: boolean;
+};
 
 // @public
 export interface RuleSet {
@@ -370,6 +387,8 @@ export type TrackerConfiguration = {
     onSessionUpdateCallback?: (updatedSession: ClientSession) => void;
     idService?: string;
     retryFailedRequests?: boolean;
+    onRequestSuccess?: (data: EventBatch) => void;
+    onRequestFailure?: (data: RequestFailure) => void;
 };
 
 // @public

@@ -232,6 +232,21 @@ export type TrackerConfiguration = {
    * @defaultValue true
    */
   retryFailedRequests?: boolean;
+  /**
+   * a callback function to be executed whenever a request is successfully sent to the collector.
+   * In practice this means any request which returns a 2xx status code will trigger this callback.
+   *
+   * @param data - The event batch that was successfully sent
+   */
+  onRequestSuccess?: (data: EventBatch) => void;
+
+  /**
+   * a callback function to be executed whenever a request fails to be sent to the collector.
+   * This is the inverse of the onRequestSuccess callback, so any non 2xx status code will trigger this callback.
+   *
+   * @param data - The data associated with the event(s) that failed to send
+   */
+  onRequestFailure?: (data: RequestFailure) => void;
 };
 
 /**
