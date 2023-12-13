@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-web-vitals",
+      "comment": "Add `context` support for the web_vitals event",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-web-vitals"
+}
