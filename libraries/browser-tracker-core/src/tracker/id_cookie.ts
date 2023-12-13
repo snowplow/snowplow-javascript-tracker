@@ -257,14 +257,11 @@ export function incrementEventIndexInIdCookie(idCookie: ParsedIdCookie) {
  * @returns String cookie value
  */
 export function serializeIdCookie(idCookie: ParsedIdCookie, configAnonymousTracking: boolean) {
-  const propertiesToAnonymize = [domainUserIdIndex, previousSessionIdIndex];
-  const anonymizedIdCookie = idCookie.map((value, index) => {
-    if (configAnonymousTracking && propertiesToAnonymize.includes(index)) {
-      return '';
-    } else {
-      return value;
-    }
-  });
+  const anonymizedIdCookie: (string | number | undefined)[] = [...idCookie];
+  if (configAnonymousTracking) {
+    anonymizedIdCookie[domainUserIdIndex] = '';
+    anonymizedIdCookie[previousSessionIdIndex] = '';
+  }
   anonymizedIdCookie.shift();
   return anonymizedIdCookie.join('.');
 }
