@@ -1,6 +1,13 @@
 # Change Log - @snowplow/browser-plugin-web-vitals
 
-This log was last generated on Mon, 04 Dec 2023 13:44:02 GMT and should not be manually modified.
+This log was last generated on Thu, 14 Dec 2023 10:45:23 GMT and should not be manually modified.
+
+## 3.19.0
+Thu, 14 Dec 2023 10:45:23 GMT
+
+### Updates
+
+- Add `context` support for the web_vitals event
 
 ## 3.18.0
 Mon, 04 Dec 2023 13:44:02 GMT

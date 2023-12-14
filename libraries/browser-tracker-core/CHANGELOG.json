@@ -2,6 +2,21 @@
   "name": "@snowplow/browser-tracker-core",
   "entries": [
     {
+      "version": "3.19.0",
+      "tag": "@snowplow/browser-tracker-core_v3.19.0",
+      "date": "Thu, 14 Dec 2023 10:45:23 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Do not set the previous session ID reference in cookies if anonymous tracking is enabled (#1268)"
+          },
+          {
+            "comment": "Fix config for callbacks"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.18.0",
       "tag": "@snowplow/browser-tracker-core_v3.18.0",
       "date": "Mon, 04 Dec 2023 13:44:02 GMT",
