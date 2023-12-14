@@ -262,7 +262,12 @@ describe('incrementEventIndexInIdCookie', () => {
 describe('serializeIdCookie', () => {
   it("Doesn't change the original cookie", () => {
     let cookie = `def.1653632272.10.1653632282.1653632262.ses.previous.fid.1653632252.9`;
-    expect(serializeIdCookie(parseIdCookie(cookie, '', '', 0))).toBe(cookie);
+    expect(serializeIdCookie(parseIdCookie(cookie, '', '', 0), false)).toBe(cookie);
+  });
+
+  it("Doesn't include domain user ID and previous session ID in case of anonymous tracking", () => {
+    let idCookie = parseIdCookie('def.1653632272.10.1653632282.1653632262.ses.previous.fid.1653632252.9', '', '', 0);
+    expect(serializeIdCookie(idCookie, true)).toBe('.1653632272.10.1653632282.1653632262.ses..fid.1653632252.9');
   });
 });
 

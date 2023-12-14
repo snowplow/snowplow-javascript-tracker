@@ -588,7 +588,7 @@ export function Tracker(
      */
     function setDomainUserIdCookie(idCookie: ParsedIdCookie) {
       const cookieName = getSnowplowCookieName('id');
-      const cookieValue = serializeIdCookie(idCookie);
+      const cookieValue = serializeIdCookie(idCookie, configAnonymousTracking);
       return persistValue(cookieName, cookieValue, configVisitorCookieTimeout);
     }
 
