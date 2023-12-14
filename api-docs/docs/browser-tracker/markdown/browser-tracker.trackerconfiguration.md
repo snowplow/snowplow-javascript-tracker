@@ -42,6 +42,8 @@ type TrackerConfiguration = {
     onSessionUpdateCallback?: (updatedSession: ClientSession) => void;
     idService?: string;
     retryFailedRequests?: boolean;
+    onRequestSuccess?: (data: EventBatch) => void;
+    onRequestFailure?: (data: RequestFailure) => void;
 };
 ```
 
