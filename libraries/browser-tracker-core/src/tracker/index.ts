@@ -479,10 +479,11 @@ export function Tracker(
       const fullName = getSnowplowCookieName(cookieName);
       if (configStateStorageStrategy == 'localStorage') {
         return attemptGetLocalStorage(fullName);
-      } else if (configStateStorageStrategy == 'cookie' || configStateStorageStrategy == 'cookieAndLocalStorage') {
-        return cookie(fullName);
-      }
-      return undefined;
+      } 
+      // KEVIN TILLER - It always makes sense to READ a cookie that pre-exists in case of 
+      // configurations where each page starts with no consent, then "updates" availability
+      // as third-party consent management widgets load
+      return cookie(fullName);
     }
 
     /*
@@ -1336,7 +1337,7 @@ export function Tracker(
   if (namespace === 'fliptoSa') {
     ((window as any).fliptoDataLayer = (window as any).fliptoDataLayer || []).snowplow = tracker;
   }
-
+  
   // Initialise each plugin with the tracker
   browserPlugins.forEach((p) => {
     p.activateBrowserPlugin?.(tracker);
