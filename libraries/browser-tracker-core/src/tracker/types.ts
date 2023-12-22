@@ -600,6 +600,12 @@ export interface BrowserTracker {
    * @param configuration - The plugin to add
    */
   addPlugin: (configuration: BrowserPluginConfiguration) => void;
+
+  /**
+   * Set the newtork user id
+   * @param networkUserId - The custom network user id
+   */
+  setNetworkUserId: (networkUserId: string) => void;
 }
 
 /**

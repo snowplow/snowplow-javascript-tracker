@@ -321,7 +321,8 @@ export function Tracker(
       configSessionContext = trackerConfiguration.contexts?.session ?? false,
       toOptoutByCookie: string | boolean,
       onSessionUpdateCallback = trackerConfiguration.onSessionUpdateCallback,
-      manualSessionUpdateCalled = false;
+      manualSessionUpdateCalled = false,
+      networkUserId: string | undefined;
 
     if (trackerConfiguration.hasOwnProperty('discoverRootDomain') && trackerConfiguration.discoverRootDomain) {
       configCookieDomain = findRootDomain(configCookieSameSite, configCookieSecure);
@@ -339,6 +340,7 @@ export function Tracker(
     core.addPayloadPair('lang', browserLanguage);
     core.addPayloadPair('res', resolution);
     core.addPayloadPair('cd', colorDepth);
+    setNetworkUserId(networkUserId);
 
     /*
      * Initialize tracker
@@ -1152,6 +1154,11 @@ export function Tracker(
       activityTrackingConfig.configurations[actionKey] = undefined;
     }
 
+    function setNetworkUserId(networkUserId: string | undefined): void {
+      if (networkUserId) {
+        core.addPayloadPair('tnuid', networkUserId);
+      }
+    }
     const apiMethods = {
       getDomainSessionIndex: function () {
         return memorizedVisitCount;
@@ -1314,6 +1321,8 @@ export function Tracker(
       },
 
       clearUserData: clearUserDataAndCookies,
+
+      setNetworkUserId,
     };
 
     return {

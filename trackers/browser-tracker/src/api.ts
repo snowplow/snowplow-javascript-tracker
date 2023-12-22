@@ -506,3 +506,15 @@ export function addPlugin(configuration: BrowserPluginConfiguration, trackers?: 
     t.addPlugin(configuration);
   });
 }
+
+/**
+ * Set the business-defined network user ID for this user.
+ *
+ * @param networkUserId - The business-defined network user ID
+ * @param trackers - The tracker identifiers which will be configured
+ */
+export function setNetworkUserId(networkUserId: string, trackers?: Array<string>) {
+  dispatchToTrackers(trackers, (t) => {
+    t.setNetworkUserId(networkUserId);
+  });
+}
