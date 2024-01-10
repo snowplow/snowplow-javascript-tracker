@@ -33,6 +33,9 @@
     <!-- A button that adds a new button dynamically -->
     <button id="addDynamic" onclick="addDynamicButton()">AddButton</button>
 
+    <!-- Ensure button tracked when children are clicked -->
+    <button><span id="button-child">TestChildren</span></button>
+
     <!-- Enable/disable testing -->
     <button id="disable" onclick="snowplow('disableButtonClickTracking')">Disable</button>
     <button id="disabled-click">DisabledClick</button>
