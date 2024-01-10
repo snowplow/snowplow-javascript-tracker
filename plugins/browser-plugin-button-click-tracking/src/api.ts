@@ -97,12 +97,18 @@ export function disableButtonClickTracking() {
  * @param context - The dynamic context which will be evaluated for each button click event
  */
 function eventHandler(event: MouseEvent, trackerId: string, filter: FilterFunction, context?: DynamicContext) {
-  const elem = event.target as HTMLElement;
-  if (elem.tagName === 'BUTTON' || (elem.tagName === 'INPUT' && (elem as HTMLInputElement).type === 'button')) {
-    if (filter(elem)) {
-      const buttonClickEvent = createEventFromButton(elem as HTMLButtonElement | HTMLInputElement);
-      buttonClickEvent.context = resolveDynamicContext(context, buttonClickEvent);
-      trackButtonClick(buttonClickEvent, [trackerId]);
+  let elem = event.target as HTMLElement | null;
+  while (elem) {
+    if (elem instanceof HTMLButtonElement || (elem instanceof HTMLInputElement && elem.type === 'button')) {
+      if (filter(elem)) {
+        const buttonClickEvent = createEventFromButton(elem);
+        buttonClickEvent.context = resolveDynamicContext(context, buttonClickEvent);
+        trackButtonClick(buttonClickEvent, [trackerId]);
+      }
+      // presume nested buttons aren't a thing
+      return;
     }
+
+    elem = elem.parentElement;
   }
 }
