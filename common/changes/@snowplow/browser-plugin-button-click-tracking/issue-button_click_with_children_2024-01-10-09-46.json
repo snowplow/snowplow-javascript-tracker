@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-button-click-tracking",
+      "comment": "Support clicks on child elements in button click tracking (#1280)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-button-click-tracking"
+}
