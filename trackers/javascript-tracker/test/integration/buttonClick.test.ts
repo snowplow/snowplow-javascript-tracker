@@ -65,6 +65,10 @@ describe('Snowplow Micro integration', () => {
       await (await $('#button7')).click();
       await browser.pause(500);
 
+      // Nested child
+      await (await $('#button-child')).click();
+      await browser.pause(500);
+
       // Disable/enable
 
       await (await $('#disable')).click();
@@ -128,6 +132,11 @@ describe('Snowplow Micro integration', () => {
 
     it('should get button7 after it is added dynamically', async () => {
       const ev = makeEvent({ id: 'button7', label: 'TestDynamicButton-' + method }, method);
+      logContainsButtonClick(ev);
+    });
+
+    it('should get button when click was on a child element', async () => {
+      const ev = makeEvent({ label: 'TestChildren' }, method);
       logContainsButtonClick(ev);
     });
 
