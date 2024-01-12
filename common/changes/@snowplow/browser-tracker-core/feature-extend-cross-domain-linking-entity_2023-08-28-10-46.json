@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-tracker-core",
+      "comment": "Allow for extended cross domain linking information using the useExtendedCrossDomainLinker option",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker-core"
+}

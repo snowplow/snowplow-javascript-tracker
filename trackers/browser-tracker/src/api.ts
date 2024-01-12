@@ -43,6 +43,8 @@ import {
   FlushBufferConfiguration,
   PageViewEvent,
   ClearUserDataConfiguration,
+  ExtendedCrossDomainLinkerOptions,
+  ExtendedCrossDomainLinkerAttributes,
 } from '@snowplow/browser-tracker-core';
 import {
   buildSelfDescribingEvent,
@@ -87,6 +89,8 @@ export {
   ContextEvent,
   ContextFilter,
   RuleSet,
+  ExtendedCrossDomainLinkerOptions,
+  ExtendedCrossDomainLinkerAttributes,
 };
 
 /**
@@ -185,7 +189,7 @@ export function setVisitorCookieTimeout(timeout: number, trackers?: Array<string
 }
 
 /**
- * Enable querystring decoration for links pasing a filter
+ * Enable querystring decoration for links passing a filter
  *
  * @param crossDomainLinker - Function used to determine which links to decorate
  * @param trackers - The tracker identifiers which will be configured
