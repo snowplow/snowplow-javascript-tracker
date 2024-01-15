@@ -12,7 +12,7 @@
 |  [addPlugin(configuration, trackers)](./browser-tracker.addplugin.md) | Add a plugin into the plugin collection after trackers have already been initialised |
 |  [clearGlobalContexts(trackers)](./browser-tracker.clearglobalcontexts.md) | Clear all global contexts that are sent with events |
 |  [clearUserData(configuration, trackers)](./browser-tracker.clearuserdata.md) | Clears all cookies and local storage containing user and session identifiers |
-|  [crossDomainLinker(crossDomainLinkerCriterion, trackers)](./browser-tracker.crossdomainlinker.md) | Enable querystring decoration for links pasing a filter |
+|  [crossDomainLinker(crossDomainLinkerCriterion, trackers)](./browser-tracker.crossdomainlinker.md) | Enable querystring decoration for links passing a filter |
 |  [disableActivityTracking(trackers)](./browser-tracker.disableactivitytracking.md) | Disables page activity tracking. |
 |  [disableActivityTrackingCallback(trackers)](./browser-tracker.disableactivitytrackingcallback.md) | Disables page activity tracking callback. |
 |  [disableAnonymousTracking(configuration, trackers)](./browser-tracker.disableanonymoustracking.md) | Disables anonymous tracking if active (ie. tracker initialized with <code>anonymousTracking</code>) For stateStorageStrategy override, uses supplied value first, falls back to one defined in initial config, otherwise uses cookieAndLocalStorage. |
@@ -86,6 +86,8 @@
 |  [CookieSameSite](./browser-tracker.cookiesamesite.md) |  |
 |  [EventBatch](./browser-tracker.eventbatch.md) | A collection of events which are sent to the collector. This can either be a collection of query strings or JSON objects. |
 |  [EventMethod](./browser-tracker.eventmethod.md) |  |
+|  [ExtendedCrossDomainLinkerAttributes](./browser-tracker.extendedcrossdomainlinkerattributes.md) |  |
+|  [ExtendedCrossDomainLinkerOptions](./browser-tracker.extendedcrossdomainlinkeroptions.md) |  |
 |  [FilterProvider](./browser-tracker.filterprovider.md) | A filter provider is a tuple that has two parts: a context filter and the context primitive(s) If the context filter evaluates to true, the tracker will attach the context primitive(s) |
 |  [GetBatch](./browser-tracker.getbatch.md) | A collection of GET events which are sent to the collector. This will be a collection of query strings. |
 |  [Platform](./browser-tracker.platform.md) |  |

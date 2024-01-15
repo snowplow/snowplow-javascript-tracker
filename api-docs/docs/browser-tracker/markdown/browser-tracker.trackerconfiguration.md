@@ -26,6 +26,7 @@ type TrackerConfiguration = {
     useStm?: boolean;
     bufferSize?: number;
     crossDomainLinker?: (elt: HTMLAnchorElement | HTMLAreaElement) => boolean;
+    useExtendedCrossDomainLinker?: ExtendedCrossDomainLinkerOptions;
     maxPostBytes?: number;
     maxGetBytes?: number;
     discoverRootDomain?: boolean;
