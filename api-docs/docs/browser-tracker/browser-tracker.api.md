@@ -72,13 +72,14 @@ export interface BrowserTracker {
     enableActivityTrackingCallback: (configuration: ActivityTrackingConfiguration & ActivityTrackingConfigurationCallback) => void;
     enableAnonymousTracking: (configuration?: EnableAnonymousTrackingConfiguration) => void;
     flushBuffer: (configuration?: FlushBufferConfiguration) => void;
-    getCookieName: (basename: string) => void;
-    getDomainSessionIndex: () => void;
-    getDomainUserId: () => void;
-    getDomainUserInfo: () => void;
+    getCookieName: (basename: string) => string;
+    getDomainSessionIndex: () => number;
+    getDomainUserId: () => string;
+    // Warning: (ae-forgotten-export) The symbol "ParsedIdCookie" needs to be exported by the entry point index.module.d.ts
+    getDomainUserInfo: () => ParsedIdCookie;
     getPageViewId: () => string;
     getTabId: () => string | null;
-    getUserId: () => void;
+    getUserId: () => string | null | undefined;
     id: string;
     namespace: string;
     newSession: () => void;
