@@ -1,33 +1,3 @@
-/*
- * Copyright (c) 2022 Snowplow Analytics Ltd
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- * 3. Neither the name of the copyright holder nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
 import util from 'util';
 import got, { Response, RequestError, Agents, RequiredRetryOptions, ToughCookieJar, PromiseCookieJar } from 'got';
 import { Payload, version } from '@snowplow/tracker-core';
@@ -46,6 +16,7 @@ import { Emitter, HttpProtocol, HttpMethod, preparePayload } from './emitter';
  * @param cookieJar - Add a cookieJar to `got` - https://github.com/sindresorhus/got/blob/v11.5.2/readme.md#cookiejar
  * @param callback - Callback called after a `got` request following retries - called with ErrorRequest (https://github.com/sindresorhus/got/blob/v11.5.2/readme.md#errors) and Response (https://github.com/sindresorhus/got/blob/v11.5.2/readme.md#response)
  * @param agents - Set new http.Agent and https.Agent objects on `got` requests - https://github.com/sindresorhus/got/blob/v11.5.2/readme.md#agent
+ * @param serverAnonymization - If the request should undergo server anonymization.
  */
 export function gotEmitter(
   endpoint: string,
@@ -56,7 +27,8 @@ export function gotEmitter(
   retry?: number | Partial<RequiredRetryOptions>,
   cookieJar?: PromiseCookieJar | ToughCookieJar,
   callback?: (error?: RequestError, response?: Response<string>) => void,
-  agents?: Agents
+  agents?: Agents,
+  serverAnonymization: boolean = false
 ): Emitter {
   const maxBufferLength = bufferSize ?? (method === HttpMethod.GET ? 0 : 10);
   const path = method === HttpMethod.GET ? '/i' : '/com.snowplowanalytics.snowplow/tp2';
@@ -103,6 +75,12 @@ export function gotEmitter(
       return;
     }
 
+    const headers = {
+      'user-agent': `snowplow-nodejs-tracker/${version}`,
+      ...(serverAnonymization && { 'SP-Anonymous': '*' }),
+      ...(method === HttpMethod.POST && { 'content-type': 'application/json; charset=utf-8' }),
+    };
+
     if (method === HttpMethod.POST) {
       const postJson = {
         schema: 'iglu:com.snowplowanalytics.snowplow/payload_data/jsonschema/1-0-4',
@@ -111,13 +89,10 @@ export function gotEmitter(
       got
         .post(targetUrl, {
           json: postJson,
-          headers: {
-            'content-type': 'application/json; charset=utf-8',
-            'user-agent': `snowplow-nodejs-tracker/${version}`,
-          },
           agent: agents,
-          retry: retry,
-          cookieJar: cookieJar,
+          headers,
+          retry,
+          cookieJar,
         })
         .then(handleSuccess, handleFailure);
     } else {
@@ -125,12 +100,10 @@ export function gotEmitter(
         got
           .get(targetUrl, {
             searchParams: preparePayload(bufferCopy[i]),
-            headers: {
-              'user-agent': `snowplow-nodejs-tracker/${version}`,
-            },
             agent: agents,
-            retry: retry,
-            cookieJar: cookieJar,
+            headers,
+            retry,
+            cookieJar,
           })
           .then(handleSuccess, handleFailure);
       }
@@ -148,11 +121,16 @@ export function gotEmitter(
     }
   };
 
+  const setAnonymization = (shouldAnonymize: boolean) => {
+    serverAnonymization = shouldAnonymize;
+  };
+
   return {
     /**
      * Send all events queued in the buffer to the collector
      */
     flush,
     input,
+    setAnonymization,
   };
 }

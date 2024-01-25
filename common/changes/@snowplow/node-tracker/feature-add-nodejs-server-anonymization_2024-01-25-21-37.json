@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/node-tracker",
+      "comment": "Add an anonymization method to Node.js emitter and API (close #1286)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/node-tracker"
+}
