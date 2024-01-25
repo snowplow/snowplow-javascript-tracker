@@ -1,3 +1,4 @@
+import { ParsedIdCookie } from './id_cookie';
 import { BrowserPlugin } from '../plugins';
 import {
   CommonEventProperties,
@@ -383,7 +384,7 @@ export interface BrowserTracker {
    *
    * @returns Domain session index
    */
-  getDomainSessionIndex: () => void;
+  getDomainSessionIndex: () => number;
 
   /**
    * Get the current page view ID
@@ -404,28 +405,28 @@ export interface BrowserTracker {
    *
    * @returns Cookie name
    */
-  getCookieName: (basename: string) => void;
+  getCookieName: (basename: string) => string;
 
   /**
    * Get the current user ID (as set previously with setUserId()).
    *
    * @returns Business-defined user ID
    */
-  getUserId: () => void;
+  getUserId: () => string | null | undefined;
 
   /**
    * Get visitor ID (from first party cookie)
    *
    * @returns Visitor ID (or null, if not yet known)
    */
-  getDomainUserId: () => void;
+  getDomainUserId: () => string;
 
   /**
    * Get the visitor information (from first party cookie)
    *
    * @returns The domain user information array
    */
-  getDomainUserInfo: () => void;
+  getDomainUserInfo: () => ParsedIdCookie;
 
   /**
    * Override referrer
