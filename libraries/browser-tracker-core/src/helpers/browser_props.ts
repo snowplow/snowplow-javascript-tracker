@@ -10,7 +10,7 @@ export function getBrowserProperties() {
     devicePixelRatio: window.devicePixelRatio,
     cookiesEnabled: window.navigator.cookieEnabled,
     online: window.navigator.onLine,
-    browserLanguage: navigator.language || (navigator as any).userLanguage,
+    browserLanguage: window.navigator.language || (window.navigator as any).userLanguage,
     documentLanguage: document.documentElement.lang,
     webdriver: window.navigator.webdriver,
     deviceMemory: (window.navigator as any).deviceMemory,

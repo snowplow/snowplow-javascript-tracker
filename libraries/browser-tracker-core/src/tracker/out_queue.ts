@@ -81,7 +81,7 @@ export function OutQueueManager(
     isBeaconAvailable = Boolean(
       isBeaconRequested &&
         window.navigator &&
-        window.navigator.sendBeacon &&
+        typeof window.navigator.sendBeacon === 'function' &&
         !hasWebKitBeaconBug(window.navigator.userAgent)
     ),
     useBeacon = isBeaconAvailable && isBeaconRequested,
@@ -412,7 +412,7 @@ export function OutQueueManager(
               type: 'application/json',
             });
             try {
-              beaconStatus = navigator.sendBeacon(url, blob);
+              beaconStatus = window.navigator.sendBeacon(url, blob);
             } catch (error) {
               beaconStatus = false;
             }

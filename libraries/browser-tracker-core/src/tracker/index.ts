@@ -228,7 +228,7 @@ export function Tracker(
       // First-party cookie secure attribute
       configCookieSecure = trackerConfiguration.cookieSecure ?? true,
       // Do Not Track browser feature
-      dnt = navigator.doNotTrack || navigator.msDoNotTrack || window.doNotTrack,
+      dnt = window.navigator.doNotTrack || window.navigator.msDoNotTrack || window.doNotTrack,
       // Do Not Track
       configDoNotTrack =
         typeof trackerConfiguration.respectDoNotTrack !== 'undefined'
