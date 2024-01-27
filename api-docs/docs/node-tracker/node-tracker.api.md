@@ -213,6 +213,7 @@ export interface Emitter {
     flush: () => void;
     // (undocumented)
     input: (payload: Payload) => void;
+    setAnonymization?: (shouldAnonymize: boolean) => void;
 }
 
 // @public
@@ -235,7 +236,7 @@ export interface FormSubmissionEvent {
 }
 
 // @public
-export function gotEmitter(endpoint: string, protocol?: HttpProtocol, port?: number, method?: HttpMethod, bufferSize?: number, retry?: number | Partial<RequiredRetryOptions>, cookieJar?: PromiseCookieJar | ToughCookieJar, callback?: (error?: RequestError, response?: Response<string>) => void, agents?: Agents): Emitter;
+export function gotEmitter(endpoint: string, protocol?: HttpProtocol, port?: number, method?: HttpMethod, bufferSize?: number, retry?: number | Partial<RequiredRetryOptions>, cookieJar?: PromiseCookieJar | ToughCookieJar, callback?: (error?: RequestError, response?: Response<string>) => void, agents?: Agents, serverAnonymization?: boolean): Emitter;
 
 // @public (undocumented)
 export enum HttpMethod {
