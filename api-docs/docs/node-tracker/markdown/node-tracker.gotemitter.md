@@ -9,7 +9,7 @@ Create an emitter object, which uses the `got` library, that will send events to
 <b>Signature:</b>
 
 ```typescript
-declare function gotEmitter(endpoint: string, protocol?: HttpProtocol, port?: number, method?: HttpMethod, bufferSize?: number, retry?: number | Partial<RequiredRetryOptions>, cookieJar?: PromiseCookieJar | ToughCookieJar, callback?: (error?: RequestError, response?: Response<string>) => void, agents?: Agents): Emitter;
+declare function gotEmitter(endpoint: string, protocol?: HttpProtocol, port?: number, method?: HttpMethod, bufferSize?: number, retry?: number | Partial<RequiredRetryOptions>, cookieJar?: PromiseCookieJar | ToughCookieJar, callback?: (error?: RequestError, response?: Response<string>) => void, agents?: Agents, serverAnonymization?: boolean): Emitter;
 ```
 
 ## Parameters
@@ -25,6 +25,7 @@ declare function gotEmitter(endpoint: string, protocol?: HttpProtocol, port?: nu
 |  cookieJar | PromiseCookieJar \| ToughCookieJar | Add a cookieJar to <code>got</code> - https://github.com/sindresorhus/got/blob/v11.5.2/readme.md\#cookiejar |
 |  callback | (error?: RequestError, response?: Response&lt;string&gt;) =&gt; void | Callback called after a <code>got</code> request following retries - called with ErrorRequest (https://github.com/sindresorhus/got/blob/v11.5.2/readme.md\#errors) and Response (https://github.com/sindresorhus/got/blob/v11.5.2/readme.md\#response) |
 |  agents | Agents | Set new http.Agent and https.Agent objects on <code>got</code> requests - https://github.com/sindresorhus/got/blob/v11.5.2/readme.md\#agent |
+|  serverAnonymization | boolean | If the request should undergo server anonymization. |
 
 <b>Returns:</b>
 

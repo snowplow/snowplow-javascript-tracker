@@ -34,7 +34,7 @@
 |  [buildSiteSearch(event)](./node-tracker.buildsitesearch.md) | Build a Site Search Event Used when a user performs a search action on a page |
 |  [buildSocialInteraction(event)](./node-tracker.buildsocialinteraction.md) | Build a Social Interaction Event Social tracking will be used to track the way users interact with Facebook, Twitter and Google + widgets e.g. to capture “like this” or “tweet this” events. |
 |  [buildStructEvent(event)](./node-tracker.buildstructevent.md) | Build a Structured Event A classic style of event tracking, allows for easier movement between analytics systems. A loosely typed event, creating a Self Describing event is preferred, but useful for interoperability. |
-|  [gotEmitter(endpoint, protocol, port, method, bufferSize, retry, cookieJar, callback, agents)](./node-tracker.gotemitter.md) | Create an emitter object, which uses the <code>got</code> library, that will send events to a collector |
+|  [gotEmitter(endpoint, protocol, port, method, bufferSize, retry, cookieJar, callback, agents, serverAnonymization)](./node-tracker.gotemitter.md) | Create an emitter object, which uses the <code>got</code> library, that will send events to a collector |
 |  [tracker(emitters, namespace, appId, encodeBase64)](./node-tracker.tracker.md) | Snowplow Node.js Tracker |
 
 ## Interfaces

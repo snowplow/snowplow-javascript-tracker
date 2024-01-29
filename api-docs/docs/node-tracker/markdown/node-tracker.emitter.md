@@ -16,4 +16,5 @@ interface Emitter
 |  --- | --- | --- |
 |  [flush](./node-tracker.emitter.flush.md) | () =&gt; void |  |
 |  [input](./node-tracker.emitter.input.md) | (payload: Payload) =&gt; void |  |
+|  [setAnonymization?](./node-tracker.emitter.setanonymization.md) | (shouldAnonymize: boolean) =&gt; void | <i>(Optional)</i> Set if the requests from the emitter should be anonymized. Read more about anonymization used at https://docs.snowplow.io/docs/collecting-data/collecting-from-own-applications/snowplow-tracker-protocol/going-deeper/http-headers/. |
 
