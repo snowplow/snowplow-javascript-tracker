@@ -2,6 +2,18 @@
   "name": "@snowplow/browser-tracker-core",
   "entries": [
     {
+      "version": "3.21.0",
+      "tag": "@snowplow/browser-tracker-core_v3.21.0",
+      "date": "Mon, 29 Jan 2024 08:34:06 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Consistently access navigator via window.navigator"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.20.0",
       "tag": "@snowplow/browser-tracker-core_v3.20.0",
       "date": "Mon, 15 Jan 2024 14:41:16 GMT",

@@ -1,6 +1,11 @@
 # Change Log - @snowplow/browser-plugin-client-hints
 
-This log was last generated on Mon, 15 Jan 2024 14:41:16 GMT and should not be manually modified.
+This log was last generated on Mon, 29 Jan 2024 08:34:06 GMT and should not be manually modified.
+
+## 3.21.0
+Mon, 29 Jan 2024 08:34:06 GMT
+
+_Version update only_
 
 ## 3.20.0
 Mon, 15 Jan 2024 14:41:16 GMT
