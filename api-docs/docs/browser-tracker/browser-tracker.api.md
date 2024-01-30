@@ -75,7 +75,6 @@ export interface BrowserTracker {
     getCookieName: (basename: string) => string;
     getDomainSessionIndex: () => number;
     getDomainUserId: () => string;
-    // Warning: (ae-forgotten-export) The symbol "ParsedIdCookie" needs to be exported by the entry point index.module.d.ts
     getDomainUserInfo: () => ParsedIdCookie;
     getPageViewId: () => string;
     getTabId: () => string | null;
@@ -267,6 +266,21 @@ export interface PageViewEvent {
     contextCallback?: (() => Array<SelfDescribingJson>) | null;
     title?: string | null;
 }
+
+// @public
+export type ParsedIdCookie = [
+cookieDisabled: string,
+domainUserId: string,
+cookieCreateTs: number,
+visitCount: number,
+nowTs: number,
+lastVisitTs: number | undefined,
+sessionId: string,
+previousSessionId: string,
+firstEventId: string,
+firstEventTs: number | undefined,
+eventIndex: number
+];
 
 // @public (undocumented)
 export type Platform = "web" | "mob" | "pc" | "srv" | "app" | "tv" | "cnsl" | "iot";

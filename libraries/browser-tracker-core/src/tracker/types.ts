@@ -1,4 +1,3 @@
-import { ParsedIdCookie } from './id_cookie';
 import { BrowserPlugin } from '../plugins';
 import {
   CommonEventProperties,
@@ -365,6 +364,23 @@ export interface BrowserPluginConfiguration extends CorePluginConfiguration {
   /* The plugin to add */
   plugin: BrowserPlugin;
 }
+
+/**
+ * The format of state elements stored in the `id` cookie.
+ */
+export type ParsedIdCookie = [
+  cookieDisabled: string,
+  domainUserId: string,
+  cookieCreateTs: number,
+  visitCount: number,
+  nowTs: number,
+  lastVisitTs: number | undefined,
+  sessionId: string,
+  previousSessionId: string,
+  firstEventId: string,
+  firstEventTs: number | undefined,
+  eventIndex: number
+];
 
 /**
  * The Browser Tracker
