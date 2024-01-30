@@ -30,7 +30,7 @@
 
 import { PayloadBuilder } from '@snowplow/tracker-core';
 import { v4 as uuid } from 'uuid';
-import { ClientSession } from './types';
+import { ClientSession, ParsedIdCookie } from './types';
 
 /**
  * Indices of cookie values
@@ -46,20 +46,6 @@ const cookieDisabledIndex = 0,
   firstEventIdIndex = 8,
   firstEventTsInMsIndex = 9,
   eventIndexIndex = 10;
-
-export type ParsedIdCookie = [
-  string, // cookieDisabled
-  string, // domainUserId
-  number, // cookieCreateTs
-  number, // visitCount
-  number, // nowTs
-  number | undefined, // lastVisitTs
-  string, // sessionId
-  string, // previousSessionId
-  string, // firstEventId
-  number | undefined, // firstEventTs
-  number // eventIndex
-];
 
 export function emptyIdCookie() {
   const idCookie: ParsedIdCookie = ['1', '', 0, 0, 0, undefined, '', '', '', undefined, 0];
