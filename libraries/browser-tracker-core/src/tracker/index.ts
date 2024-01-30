@@ -47,6 +47,7 @@ import {
   ClearUserDataConfiguration,
   ClientSession,
   ExtendedCrossDomainLinkerOptions,
+  ParsedIdCookie,
 } from './types';
 import {
   parseIdCookie,
@@ -59,7 +60,6 @@ import {
   updateFirstEventInIdCookie,
   visitCountFromIdCookie,
   cookiesEnabledInIdCookie,
-  ParsedIdCookie,
   clientSessionFromIdCookie,
   incrementEventIndexInIdCookie,
   emptyIdCookie,

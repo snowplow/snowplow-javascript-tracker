@@ -42,6 +42,7 @@ import {
   EventBatch,
   GetBatch,
   PostBatch,
+  ParsedIdCookie,
 } from '@snowplow/browser-tracker-core';
 import { version } from '@snowplow/tracker-core';
 
@@ -89,6 +90,7 @@ export {
   EventBatch,
   GetBatch,
   PostBatch,
+  ParsedIdCookie,
 };
 export { version };
 export * from './api';
