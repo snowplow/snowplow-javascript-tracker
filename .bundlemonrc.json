@@ -7,22 +7,22 @@
     },
     {
       "path": "./trackers/browser-tracker/dist/index.umd.min.js",
-      "maxSize": "15kb",
+      "maxSize": "15.5kb",
       "maxPercentIncrease": 10
     },
     {
       "path": "./trackers/javascript-tracker/dist/sp.js",
-      "maxSize": "25kb",
+      "maxSize": "25.5kb",
       "maxPercentIncrease": 10
     },
     {
       "path": "./trackers/javascript-tracker/dist/sp.lite.js",
-      "maxSize": "15kb",
+      "maxSize": "16kb",
       "maxPercentIncrease": 10
     },
     {
       "path": "./libraries/browser-tracker-core/dist/index.module.js",
-      "maxSize": "26kb",
+      "maxSize": "27kb",
       "maxPercentIncrease": 10
     },
     {

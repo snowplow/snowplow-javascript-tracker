@@ -577,6 +577,12 @@
       "projectFolder": "plugins/browser-plugin-focalmeter",
       "reviewCategory": "plugins",
       "versionPolicyName": "tracker"
+    },
+    {
+      "projectFolder": "plugins/browser-plugin-button-click-tracking",
+      "packageName": "@snowplow/browser-plugin-button-click-tracking",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
     }
   ]
 }

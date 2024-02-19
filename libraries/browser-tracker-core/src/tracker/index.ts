@@ -1,33 +1,3 @@
-/*
- * Copyright (c) 2022 Snowplow Analytics Ltd, 2010 Anthon Pang
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * 1. Redistributions of source code must retain the above copyright notice, this
- *    list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright notice,
- *    this list of conditions and the following disclaimer in the documentation
- *    and/or other materials provided with the distribution.
- *
- * 3. Neither the name of the copyright holder nor the names of its
- *    contributors may be used to endorse or promote products derived from
- *    this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
 import {
   trackerCore,
   buildPagePing,
@@ -56,6 +26,7 @@ import {
   isInteger,
   attemptGetSessionStorage,
   attemptWriteSessionStorage,
+  createCrossDomainParameterValue,
 } from '../helpers';
 import { BrowserPlugin } from '../plugins';
 import { OutQueueManager } from './out_queue';
@@ -75,6 +46,7 @@ import {
   BrowserPluginConfiguration,
   ClearUserDataConfiguration,
   ClientSession,
+  ExtendedCrossDomainLinkerOptions,
 } from './types';
 import {
   parseIdCookie,
@@ -185,7 +157,17 @@ export function Tracker(
       },
       getAnonymousTracking = (config: TrackerConfiguration) => !!config.anonymousTracking,
       isBrowserContextAvailable = trackerConfiguration?.contexts?.browser ?? false,
-      isWebPageContextAvailable = trackerConfiguration?.contexts?.webPage ?? true;
+      isWebPageContextAvailable = trackerConfiguration?.contexts?.webPage ?? true,
+      getExtendedCrossDomainTrackingConfiguration = (crossDomainTrackingConfig: ExtendedCrossDomainLinkerOptions) => {
+        if (typeof crossDomainTrackingConfig === 'boolean') {
+          return { useExtendedCrossDomainLinker: crossDomainTrackingConfig };
+        }
+
+        return {
+          useExtendedCrossDomainLinker: true,
+          collectCrossDomainAttributes: crossDomainTrackingConfig,
+        };
+      };
 
     // Get all injected plugins
     browserPlugins.push(getBrowserDataPlugin());
@@ -245,7 +227,7 @@ export function Tracker(
       // First-party cookie secure attribute
       configCookieSecure = trackerConfiguration.cookieSecure ?? true,
       // Do Not Track browser feature
-      dnt = navigator.doNotTrack || navigator.msDoNotTrack || window.doNotTrack,
+      dnt = window.navigator.doNotTrack || window.navigator.msDoNotTrack || window.doNotTrack,
       // Do Not Track
       configDoNotTrack =
         typeof trackerConfiguration.respectDoNotTrack !== 'undefined'
@@ -302,7 +284,10 @@ export function Tracker(
         trackerConfiguration.withCredentials ?? true,
         trackerConfiguration.retryStatusCodes ?? [],
         (trackerConfiguration.dontRetryStatusCodes ?? []).concat([400, 401, 403, 410, 422]),
-        trackerConfiguration.idService
+        trackerConfiguration.idService,
+        trackerConfiguration.retryFailedRequests,
+        trackerConfiguration.onRequestSuccess,
+        trackerConfiguration.onRequestFailure
       ),
       // Whether pageViewId should be regenerated after each trackPageView. Affect web_page context
       preservePageViewId = false,
@@ -317,7 +302,10 @@ export function Tracker(
       configSessionContext = trackerConfiguration.contexts?.session ?? false,
       toOptoutByCookie: string | boolean,
       onSessionUpdateCallback = trackerConfiguration.onSessionUpdateCallback,
-      manualSessionUpdateCalled = false;
+      manualSessionUpdateCalled = false,
+      { useExtendedCrossDomainLinker, collectCrossDomainAttributes } = getExtendedCrossDomainTrackingConfiguration(
+        trackerConfiguration.useExtendedCrossDomainLinker || false
+      );
 
     if (trackerConfiguration.hasOwnProperty('discoverRootDomain') && trackerConfiguration.discoverRootDomain) {
       configCookieDomain = findRootDomain(configCookieSameSite, configCookieSecure);
@@ -365,31 +353,45 @@ export function Tracker(
     }
 
     /**
-     * Decorate the querystring of a single link
+     * Create link handler to decorate the querystring of a link (onClick/onMouseDown)
      *
      * @param event - e The event targeting the link
      */
-    function linkDecorationHandler(evt: Event) {
-      const timestamp = new Date().getTime();
-      const elt = evt.currentTarget as HTMLAnchorElement | HTMLAreaElement | null;
-      if (elt?.href) {
-        elt.href = decorateQuerystring(elt.href, '_sp', domainUserId + '.' + timestamp);
-      }
+    function addLinkDecorationHandler(extended: boolean): (evt: Event) => void {
+      const CROSS_DOMAIN_PARAMETER_NAME = '_sp';
+
+      return (evt) => {
+        const elt = evt.currentTarget as HTMLAnchorElement | HTMLAreaElement | null;
+
+        const crossDomainParameterValue = createCrossDomainParameterValue(extended, collectCrossDomainAttributes, {
+          domainUserId,
+          userId: businessUserId || undefined,
+          sessionId: memorizedSessionId,
+          sourceId: configTrackerSiteId,
+          sourcePlatform: configPlatform,
+          event: evt,
+        });
+
+        if (elt?.href) {
+          elt.href = decorateQuerystring(elt.href, CROSS_DOMAIN_PARAMETER_NAME, crossDomainParameterValue);
+        }
+      };
     }
 
     /**
-     * Enable querystring decoration for links pasing a filter
+     * Enable querystring decoration for links passing a filter
      * Whenever such a link is clicked on or navigated to via the keyboard,
      * add "_sp={{duid}}.{{timestamp}}" to its querystring
      *
      * @param crossDomainLinker - Function used to determine which links to decorate
      */
     function decorateLinks(crossDomainLinker: (elt: HTMLAnchorElement | HTMLAreaElement) => boolean) {
+      const crossDomainLinkHandler = addLinkDecorationHandler(useExtendedCrossDomainLinker);
       for (let i = 0; i < document.links.length; i++) {
         const elt = document.links[i];
         if (!(elt as any).spDecorationEnabled && crossDomainLinker(elt)) {
-          addEventListener(elt, 'click', linkDecorationHandler, true);
-          addEventListener(elt, 'mousedown', linkDecorationHandler, true);
+          elt.addEventListener('click', crossDomainLinkHandler, true);
+          elt.addEventListener('mousedown', crossDomainLinkHandler, true);
 
           // Don't add event listeners more than once
           (elt as any).spDecorationEnabled = true;
@@ -585,7 +587,7 @@ export function Tracker(
      */
     function setDomainUserIdCookie(idCookie: ParsedIdCookie) {
       const cookieName = getSnowplowCookieName('id');
-      const cookieValue = serializeIdCookie(idCookie);
+      const cookieValue = serializeIdCookie(idCookie, configAnonymousTracking);
       return persistValue(cookieName, cookieValue, configVisitorCookieTimeout);
     }
 

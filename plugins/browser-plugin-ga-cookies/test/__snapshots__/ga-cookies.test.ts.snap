@@ -1,0 +1,170 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`GA Cookies plugin Correctly returns values for GA4 cookies for multiple measurement ids 1`] = `
+Array [
+  Object {
+    "data": Object {
+      "_ga": "1234",
+      "cookie_prefix": undefined,
+      "session_cookies": Array [
+        Object {
+          "measurement_id": "G-1234",
+          "session_cookie": "567",
+        },
+        Object {
+          "measurement_id": "G-5678",
+          "session_cookie": "789",
+        },
+      ],
+    },
+    "schema": "iglu:com.google.ga4/cookies/jsonschema/1-0-0",
+  },
+]
+`;
+
+exports[`GA Cookies plugin Correctly returns values for GA4 cookies with cookie prefix 1`] = `
+Array [
+  Object {
+    "data": Object {
+      "_ga": "1234",
+      "cookie_prefix": "test",
+      "session_cookies": Array [
+        Object {
+          "measurement_id": "G-1234",
+          "session_cookie": "567",
+        },
+      ],
+    },
+    "schema": "iglu:com.google.ga4/cookies/jsonschema/1-0-0",
+  },
+]
+`;
+
+exports[`GA Cookies plugin Does not add any additional GA4 context when GA4 cookies are not detected 1`] = `
+Array [
+  Object {
+    "data": Object {},
+    "schema": "iglu:com.google.analytics/cookies/jsonschema/1-0-0",
+  },
+]
+`;
+
+exports[`GA Cookies plugin Only returns values for GA4 user cookies without measurement id/s and GA4 enabled 1`] = `
+Array [
+  Object {
+    "data": Object {
+      "_ga": "1234",
+      "cookie_prefix": undefined,
+      "session_cookies": undefined,
+    },
+    "schema": "iglu:com.google.ga4/cookies/jsonschema/1-0-0",
+  },
+]
+`;
+
+exports[`GA Cookies plugin Returns separate contexts for GA4 enabled setup with different cookie_prefix options 1`] = `
+Array [
+  Object {
+    "data": Object {
+      "_ga": "1234",
+      "cookie_prefix": undefined,
+      "session_cookies": undefined,
+    },
+    "schema": "iglu:com.google.ga4/cookies/jsonschema/1-0-0",
+  },
+  Object {
+    "data": Object {
+      "_ga": "890",
+      "cookie_prefix": "test",
+      "session_cookies": undefined,
+    },
+    "schema": "iglu:com.google.ga4/cookies/jsonschema/1-0-0",
+  },
+]
+`;
+
+exports[`GA Cookies plugin Returns separate contexts for GA4 enabled setup with different cookie_prefix options and measurement ids 1`] = `
+Array [
+  Object {
+    "data": Object {
+      "_ga": "1234",
+      "cookie_prefix": undefined,
+      "session_cookies": Array [
+        Object {
+          "measurement_id": "G-1234",
+          "session_cookie": "567",
+        },
+      ],
+    },
+    "schema": "iglu:com.google.ga4/cookies/jsonschema/1-0-0",
+  },
+  Object {
+    "data": Object {
+      "_ga": "890",
+      "cookie_prefix": "test",
+      "session_cookies": Array [
+        Object {
+          "measurement_id": "G-567",
+          "session_cookie": "098",
+        },
+      ],
+    },
+    "schema": "iglu:com.google.ga4/cookies/jsonschema/1-0-0",
+  },
+]
+`;
+
+exports[`GA Cookies plugin Returns values for GA4 cookies and Universal Analytics cookies 1`] = `
+Array [
+  Object {
+    "data": Object {
+      "__utma": "567",
+      "_ga": "1234",
+    },
+    "schema": "iglu:com.google.analytics/cookies/jsonschema/1-0-0",
+  },
+  Object {
+    "data": Object {
+      "_ga": "1234",
+      "cookie_prefix": undefined,
+      "session_cookies": Array [
+        Object {
+          "measurement_id": "G-1234",
+          "session_cookie": "567",
+        },
+      ],
+    },
+    "schema": "iglu:com.google.ga4/cookies/jsonschema/1-0-0",
+  },
+]
+`;
+
+exports[`GA Cookies plugin Returns values for GA4 cookies and not Universal Analytics cookies 1`] = `
+Array [
+  Object {
+    "data": Object {
+      "_ga": "1234",
+      "cookie_prefix": undefined,
+      "session_cookies": Array [
+        Object {
+          "measurement_id": "G-1234",
+          "session_cookie": "567",
+        },
+      ],
+    },
+    "schema": "iglu:com.google.ga4/cookies/jsonschema/1-0-0",
+  },
+]
+`;
+
+exports[`GA Cookies plugin Returns values for Universal Analytics cookies by default 1`] = `
+Array [
+  Object {
+    "data": Object {
+      "__utma": "567",
+      "_ga": "1234",
+    },
+    "schema": "iglu:com.google.analytics/cookies/jsonschema/1-0-0",
+  },
+]
+`;

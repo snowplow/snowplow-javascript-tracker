@@ -54,6 +54,7 @@ import * as EnhancedConsent from '@snowplow/browser-plugin-enhanced-consent';
 import * as SnowplowMedia from '@snowplow/browser-plugin-media';
 import * as VimeoTracking from '@snowplow/browser-plugin-vimeo-tracking';
 import * as PrivacySandbox from '@snowplow/browser-plugin-privacy-sandbox';
+import * as ButtonClickTracking from '@snowplow/browser-plugin-button-click-tracking';
 
 /**
  * Calculates the required plugins to intialise per tracker
@@ -121,7 +122,8 @@ export function Plugins(configuration: JavaScriptTrackerConfiguration) {
 
   if (plugins.gaCookies && gaCookies) {
     const { GaCookiesPlugin, ...apiMethods } = GaCookies;
-    activatedPlugins.push([GaCookiesPlugin(), apiMethods]);
+    const gaCookiesPlugin = typeof gaCookies === 'object' ? GaCookiesPlugin(gaCookies) : GaCookiesPlugin();
+    activatedPlugins.push([gaCookiesPlugin, apiMethods]);
   }
 
   if (plugins.consent) {
@@ -208,10 +210,15 @@ export function Plugins(configuration: JavaScriptTrackerConfiguration) {
     const { VimeoTrackingPlugin, ...apiMethods } = VimeoTracking;
     activatedPlugins.push([VimeoTrackingPlugin(), apiMethods]);
   }
-  
+
   if (plugins.privacySandbox) {
     const { PrivacySandboxPlugin, ...apiMethods } = PrivacySandbox;
     activatedPlugins.push([PrivacySandboxPlugin(), apiMethods]);
+  }
+
+  if (plugins.buttonClickTracking) {
+    const { ButtonClickTrackingPlugin, ...apiMethods } = ButtonClickTracking;
+    activatedPlugins.push([ButtonClickTrackingPlugin(), apiMethods]);
   }
 
   return activatedPlugins;

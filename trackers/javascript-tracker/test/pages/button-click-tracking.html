@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Page for Link Click testing with Snowplow Micro</title>
+
+    <script>
+      function parseQuery() {
+        var query = {};
+        var pairs = window.location.search.substring(1).split('&');
+        for (var i = 0; i < pairs.length; i++) {
+          var pair = pairs[i].split('=');
+          query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
+        }
+        return query;
+      }
+    </script>
+  </head>
+  <body>
+    <p id="title">Page for Button Click testing with Snowplow Micro</p>
+    <div id="init"></div>
+    <button>TestMinimalButton</button>
+    <button id="button1">TestButton</button>
+    <button id="button2" class="test-class">TestButtonWithClass</button>
+    <button id="button3" class="test-class test-class2">TestButtonWithClasses</button>
+    <button id="button4" name="testName">TestWithName</button>
+
+    <!-- Test to ensure the `data-sp-button-label` attribute takes precedence -->
+    <button id="button5" data-sp-button-label="DataLabel">ButtonLabel</button>
+
+    <!-- Test to ensure input buttons work -->
+    <input id="button6" type="button" value="TestInputButton" />
+
+    <!-- A button that adds a new button dynamically -->
+    <button id="addDynamic" onclick="addDynamicButton()">AddButton</button>
+
+    <!-- Ensure button tracked when children are clicked -->
+    <button><span id="button-child">TestChildren</span></button>
+
+    <!-- Enable/disable testing -->
+    <button id="disable" onclick="snowplow('disableButtonClickTracking')">Disable</button>
+    <button id="disabled-click">DisabledClick</button>
+
+    <button id="enable" onclick="snowplow('enableButtonClickTracking')">Enable</button>
+    <button id="enabled-click">EnabledClick</button>
+
+    <!-- Ensuring the final config is used after multiple calls to `enableButtonClickTracking` -->
+    <button id="set-multiple-configs" onClick="setMultipleConfigs">Set Multiple Configs</button>
+    <button id="final-config" class="final-config">Final Config</button>
+
+    <script>
+      function setMultipleConfigs() {
+        enableButtonClickTracking({ denylist: ['final-config'] });
+        enableButtonClickTracking();
+      }
+    </script>
+
+    <script>
+      var collector_endpoint = document.cookie.split('container=')[1].split(';')[0];
+      var testIdentifier = document.cookie.split('testIdentifier=')[1].split(';')[0].trim();
+      document.body.className += ' loaded';
+    </script>
+
+    <script>
+      function addDynamicButton() {
+        // Add a new dynamic button
+        const newButton = document.createElement('button');
+        newButton.id = 'button7';
+        newButton.innerText = 'TestDynamicButton-' + parseQuery().eventMethod;
+        document.body.appendChild(newButton);
+      }
+    </script>
+
+    <script>
+      (function (p, l, o, w, i, n, g) {
+        if (!p[i]) {
+          p.GlobalSnowplowNamespace = p.GlobalSnowplowNamespace || [];
+          p.GlobalSnowplowNamespace.push(i);
+          p[i] = function () {
+            (p[i].q = p[i].q || []).push(arguments);
+          };
+          p[i].q = p[i].q || [];
+          n = l.createElement(o);
+          g = l.getElementsByTagName(o)[0];
+          n.async = 1;
+          n.src = w;
+          g.parentNode.insertBefore(n, g);
+        }
+      })(window, document, 'script', './snowplow.js', 'snowplow');
+
+      document.write(collector_endpoint);
+
+      snowplow('newTracker', 'sp', collector_endpoint, {
+        appId: 'button-click-tracking-' + testIdentifier,
+        method: parseQuery().eventMethod,
+      });
+      snowplow(function () {
+        document.getElementById('init').innerText = 'true';
+      });
+
+      snowplow('enableButtonClickTracking');
+    </script>
+  </body>
+</html>

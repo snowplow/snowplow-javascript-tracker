@@ -35,6 +35,10 @@
       "allowedCategories": [ "trackers" ]
     },
     {
+      "name": "@snowplow/browser-plugin-button-click-tracking",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "@snowplow/browser-plugin-client-hints",
       "allowedCategories": [ "trackers" ]
     },
@@ -56,6 +60,10 @@
     },
     {
       "name": "@snowplow/browser-plugin-error-tracking",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@snowplow/browser-plugin-focalmeter",
       "allowedCategories": [ "trackers" ]
     },
     {
@@ -119,10 +127,6 @@
       "allowedCategories": [ "trackers" ]
     },
     {
-      "name": "@snowplow/browser-plugin-focalmeter",
-      "allowedCategories": [ "trackers" ]
-    },
-    {
       "name": "@snowplow/browser-tracker",
       "allowedCategories": [ "plugins", "trackers" ]
     },
@@ -133,6 +137,10 @@
     {
       "name": "@snowplow/tracker-core",
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
+    },
+    {
+      "name": "@testing-library/dom",
+      "allowedCategories": [ "libraries" ]
     },
     {
       "name": "@types/dockerode",

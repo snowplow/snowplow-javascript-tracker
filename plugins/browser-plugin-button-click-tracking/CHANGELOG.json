@@ -1,0 +1,41 @@
+{
+  "name": "@snowplow/browser-plugin-button-click-tracking",
+  "entries": [
+    {
+      "version": "3.21.0",
+      "tag": "@snowplow/browser-plugin-button-click-tracking_v3.21.0",
+      "date": "Mon, 29 Jan 2024 08:34:06 GMT",
+      "comments": {}
+    },
+    {
+      "version": "3.20.0",
+      "tag": "@snowplow/browser-plugin-button-click-tracking_v3.20.0",
+      "date": "Mon, 15 Jan 2024 14:41:16 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Support clicks on child elements in button click tracking (#1280)"
+          }
+        ]
+      }
+    },
+    {
+      "version": "3.19.0",
+      "tag": "@snowplow/browser-plugin-button-click-tracking_v3.19.0",
+      "date": "Thu, 14 Dec 2023 10:45:22 GMT",
+      "comments": {}
+    },
+    {
+      "version": "3.18.0",
+      "tag": "@snowplow/browser-plugin-button-click-tracking_v3.18.0",
+      "date": "Mon, 04 Dec 2023 13:44:02 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add Button Click tracking plugin (close #1267)"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -50,12 +50,15 @@ describe('Snowplow Micro integration', () => {
   beforeAll(async () => {
     testIdentifier = await pageSetup();
     await loadUrlAndWait('/integration.html?eventMethod=get');
+    await browser.pause(2000); // Time for pings
     await $('#bottomRight').click();
     await browser.pause(5000); // Time for requests to get written
     await loadUrlAndWait('/integration.html?eventMethod=post');
+    await browser.pause(2000); // Time for pings
     await $('#bottomRight').click();
     await browser.pause(6000); // Time for requests to get written
     await loadUrlAndWait('/integration.html?eventMethod=beacon');
+    await browser.pause(2000); // Time for pings
     await $('#bottomRight').click();
     await browser.pause(6000); // Time for requests to get written
     log = await browser.call(async () => await fetchResults());

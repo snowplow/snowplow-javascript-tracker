@@ -42,7 +42,7 @@ import { CorePlugin } from './plugins';
 import { LOG } from './logger';
 
 /**
- * export interface for any Self-Describing JSON such as context or Self Describing events
+ * Export interface for any Self-Describing JSON such as context or Self Describing events
  * @typeParam T - The type of the data object within a SelfDescribingJson
  */
 export type SelfDescribingJson<T extends Record<keyof T, unknown> = Record<string, unknown>> = {
@@ -58,7 +58,7 @@ export type SelfDescribingJson<T extends Record<keyof T, unknown> = Record<strin
 };
 
 /**
- * export interface for any Self-Describing JSON which has the data attribute as an array
+ * Export interface for any Self-Describing JSON which has the data attribute as an array
  * @typeParam T - The type of the data object within the SelfDescribingJson data array
  */
 export type SelfDescribingJsonArray<T extends Record<keyof T, unknown> = Record<string, unknown>> = {
@@ -119,15 +119,15 @@ function getTimestamp(timestamp?: Timestamp | null): TimestampPayload {
 }
 
 /** Additional data points to set when tracking an event */
-export interface CommonEventProperties {
+export interface CommonEventProperties<T = Record<string, unknown>> {
   /** Add context to an event by setting an Array of Self Describing JSON */
-  context?: Array<SelfDescribingJson> | null;
+  context?: Array<SelfDescribingJson<T>> | null;
   /** Set the true timestamp or overwrite the device sent timestamp on an event */
   timestamp?: Timestamp | null;
 }
 
 /**
- * export interface containing all Core functions
+ * Export interface containing all Core functions
  */
 export interface TrackerCore {
   /**
@@ -819,7 +819,7 @@ export function buildScreenView(event: ScreenViewEvent): PayloadBuilder {
 
 /**
  * A Link Click Event
- * Used when a user clicks on a link on a webpage, typically an anchor tag <a>
+ * Used when a user clicks on a link on a webpage, typically an anchor tag `<a>`
  */
 export interface LinkClickEvent {
   /** The target URL of the link */
@@ -836,7 +836,7 @@ export interface LinkClickEvent {
 
 /**
  * Build a Link Click Event
- * Used when a user clicks on a link on a webpage, typically an anchor tag <a>
+ * Used when a user clicks on a link on a webpage, typically an anchor tag `<a>`
  *
  * @param event - Contains the properties for the Link Click event
  * @returns PayloadBuilder to be sent to {@link @snowplow/tracker-core#TrackerCore.track}
@@ -1366,7 +1366,7 @@ export function buildConsentGranted(event: ConsentGrantedEvent) {
  * @param exemptFields - Set of fields which should not be removed even if empty
  * @returns A cleaned copy of eventJson
  */
-function removeEmptyProperties(
+export function removeEmptyProperties(
   event: Record<string, unknown>,
   exemptFields: Record<string, boolean> = {}
 ): Record<string, unknown> {

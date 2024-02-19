@@ -251,9 +251,14 @@ export function incrementEventIndexInIdCookie(idCookie: ParsedIdCookie) {
  * @param idCookie Parsed cookie
  * @returns String cookie value
  */
-export function serializeIdCookie(idCookie: ParsedIdCookie) {
-  idCookie.shift();
-  return idCookie.join('.');
+export function serializeIdCookie(idCookie: ParsedIdCookie, configAnonymousTracking: boolean) {
+  const anonymizedIdCookie: (string | number | undefined)[] = [...idCookie];
+  if (configAnonymousTracking) {
+    anonymizedIdCookie[domainUserIdIndex] = '';
+    anonymizedIdCookie[previousSessionIdIndex] = '';
+  }
+  anonymizedIdCookie.shift();
+  return anonymizedIdCookie.join('.');
 }
 
 /**

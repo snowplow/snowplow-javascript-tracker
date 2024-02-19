@@ -2,6 +2,60 @@
   "name": "@snowplow/browser-tracker",
   "entries": [
     {
+      "version": "3.21.0",
+      "tag": "@snowplow/browser-tracker_v3.21.0",
+      "date": "Mon, 29 Jan 2024 08:34:06 GMT",
+      "comments": {}
+    },
+    {
+      "version": "3.20.0",
+      "tag": "@snowplow/browser-tracker_v3.20.0",
+      "date": "Mon, 15 Jan 2024 14:41:16 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add new useExtendedCrossDomainLinker option"
+          }
+        ]
+      }
+    },
+    {
+      "version": "3.19.0",
+      "tag": "@snowplow/browser-tracker_v3.19.0",
+      "date": "Thu, 14 Dec 2023 10:45:23 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Update API docs for callbacks"
+          }
+        ]
+      }
+    },
+    {
+      "version": "3.18.0",
+      "tag": "@snowplow/browser-tracker_v3.18.0",
+      "date": "Mon, 04 Dec 2023 13:44:02 GMT",
+      "comments": {}
+    },
+    {
+      "version": "3.17.0",
+      "tag": "@snowplow/browser-tracker_v3.17.0",
+      "date": "Tue, 14 Nov 2023 17:58:26 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add CommonEventProperties type argument"
+          },
+          {
+            "comment": "Update API docs with retryFailedRequests"
+          },
+          {
+            "comment": "Add retryFailedRequests"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.16.0",
       "tag": "@snowplow/browser-tracker_v3.16.0",
       "date": "Mon, 16 Oct 2023 14:58:08 GMT",
