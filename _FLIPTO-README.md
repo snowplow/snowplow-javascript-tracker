@@ -20,3 +20,6 @@ C:\Git\snowplow-javascript-tracker\trackers\javascript-tracker\dist
 Take the code built for snowplow.lite and rename to ftsa.js and ftsa.js.map
 Ensure you rename the mapping url and remove any header text from ftsa as well!
 Publish to Azure Storage and clear CDN
+
+HOW TO COMMIT
+Workaround gitleaks by using --no-verify i.e. git commit --no-verify -m "Adding cool new feature"
