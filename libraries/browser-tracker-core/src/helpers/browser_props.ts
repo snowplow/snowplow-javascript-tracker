@@ -1,8 +1,17 @@
+let cachedProperties: any = null;
+
 /* Separator used for dimension values e.g. widthxheight */
 const DIMENSION_SEPARATOR = 'x';
 
 export function getBrowserProperties() {
-  return {
+  if (!cachedProperties) {
+    updateBrowserProperties();
+  }
+  return cachedProperties;
+}
+
+function updateBrowserProperties() {
+  cachedProperties = {
     viewport: floorDimensionFields(detectViewport()),
     documentSize: floorDimensionFields(detectDocumentSize()),
     resolution: floorDimensionFields(detectScreenResolution()),
@@ -17,6 +26,20 @@ export function getBrowserProperties() {
     hardwareConcurrency: (window.navigator as any).hardwareConcurrency,
   };
 }
+
+// Initialize the ResizeObserver
+const resizeObserver = new ResizeObserver((entries) => {
+  for (let entry of entries) {
+    // Check if the observed entry is for document's body or root element
+    if (entry.target === document.body || entry.target === document.documentElement) {
+      updateBrowserProperties(); // Update the cache if there's a change
+    }
+  }
+});
+
+// Start observing the document's body and root element for size changes
+resizeObserver.observe(document.body);
+resizeObserver.observe(document.documentElement);
 
 /**
  * Gets the current viewport.
