@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-snowplow-ecommerce",
+      "comment": "Expose types",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-snowplow-ecommerce"
+}
