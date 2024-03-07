@@ -317,9 +317,9 @@ export interface User {
   email?: string;
 }
 
-export interface CommonEcommerceEventProperties extends CommonEventProperties {
+export interface CommonEcommerceEventProperties<T = Record<string, unknown>> extends CommonEventProperties<T> {
   /** Add context to an event by setting an Array of Self Describing JSON */
-  context?: Array<SelfDescribingJson>;
+  context?: Array<SelfDescribingJson<T>>;
 }
 
 export type ListViewEvent = { name: string; products: Product[] };
