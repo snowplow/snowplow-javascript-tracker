@@ -1,17 +1,49 @@
-let cachedProperties: any = null;
+interface BrowserProperties {
+  viewport?: string | null;
+  documentSize?: string | null;
+  resolution?: string | null;
+  colorDepth: number;
+  devicePixelRatio: number;
+  cookiesEnabled: boolean;
+  online: boolean;
+  browserLanguage: string;
+  documentLanguage: string;
+  webdriver: boolean;
+  deviceMemory?: number; // Optional because it's not supported in all browsers
+  hardwareConcurrency?: number;
+}
+
+const strategy = 'ResizeObserver' in window ? 'Cached' : 'Read';
+let cachedProperties: BrowserProperties;
 
 /* Separator used for dimension values e.g. widthxheight */
 const DIMENSION_SEPARATOR = 'x';
 
+/**
+ * Gets various browser properties (that are expensive to read!)
+ * - Will use a "ResizeObserver" approach in modern browsers to update cached properties only on change
+ * - Will fallback to a direct read approach without cache in old browsers
+ *
+ * @returns BrowserProperties
+ */
 export function getBrowserProperties() {
+  if (strategy === 'Read') {
+    return readBrowserProperties();
+  }
+
   if (!cachedProperties) {
-    updateBrowserProperties();
+    cachedProperties = readBrowserProperties();
   }
   return cachedProperties;
 }
 
-function updateBrowserProperties() {
-  cachedProperties = {
+/**
+ * Reads the browser properties - expensive call!
+ *
+ * @returns BrowserProperties
+ */
+function readBrowserProperties(): BrowserProperties {
+  return {
     viewport: floorDimensionFields(detectViewport()),
     documentSize: floorDimensionFields(detectDocumentSize()),
     resolution: floorDimensionFields(detectScreenResolution()),
@@ -26,20 +58,6 @@ function updateBrowserProperties() {
     hardwareConcurrency: (window.navigator as any).hardwareConcurrency,
   };
 }
-
-// Initialize the ResizeObserver
-const resizeObserver = new ResizeObserver((entries) => {
-  for (let entry of entries) {
-    // Check if the observed entry is for document's body or root element
-    if (entry.target === document.body || entry.target === document.documentElement) {
-      updateBrowserProperties(); // Update the cache if there's a change
-    }
-  }
-});
-
-// Start observing the document's body and root element for size changes
-resizeObserver.observe(document.body);
-resizeObserver.observe(document.documentElement);
 
 /**
  * Gets the current viewport.
@@ -96,4 +114,16 @@ export function floorDimensionFields(field?: string | null) {
       .map((dimension) => Math.floor(Number(dimension)))
       .join(DIMENSION_SEPARATOR)
   );
+}
+
+if (strategy === 'Cached') {
+  const resizeObserver = new ResizeObserver((entries) => {
+    for (let entry of entries) {
+      if (entry.target === document.body || entry.target === document.documentElement) {
+        cachedProperties = readBrowserProperties();
+      }
+    }
+  });
+  resizeObserver.observe(document.body);
+  resizeObserver.observe(document.documentElement);
 }
