@@ -1,6 +1,13 @@
 # Change Log - @snowplow/browser-plugin-snowplow-ecommerce
 
-This log was last generated on Mon, 29 Jan 2024 08:34:06 GMT and should not be manually modified.
+This log was last generated on Fri, 08 Mar 2024 08:13:04 GMT and should not be manually modified.
+
+## 3.22.0
+Fri, 08 Mar 2024 08:13:04 GMT
+
+### Updates
+
+- Expose types
 
 ## 3.21.0
 Mon, 29 Jan 2024 08:34:06 GMT
