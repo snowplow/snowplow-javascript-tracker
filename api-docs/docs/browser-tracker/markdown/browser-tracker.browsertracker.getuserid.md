@@ -9,5 +9,5 @@ Get the current user ID (as set previously with setUserId()).
 <b>Signature:</b>
 
 ```typescript
-getUserId: () => void;
+getUserId: () => string | null | undefined;
 ```
