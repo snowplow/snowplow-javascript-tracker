@@ -159,7 +159,7 @@ export type Product = {
 /**
  * Type/Schema for a promotion entity in Ecommerce
  */
-export interface Promotion {
+export interface SPPromotion {
   /**
    * The ID of the promotion.
    */
@@ -193,7 +193,7 @@ export interface Promotion {
 /**
  * Type/Schema for a transaction entity in Ecommerce
  */
-export interface Transaction {
+export interface SPTransaction {
   /**
    * The ID of the transaction
    */
@@ -296,7 +296,7 @@ export interface TransactionError {
   /**
    * The transaction object representing the transaction that ended up in an error.
    */
-  transaction: Transaction;
+  transaction: SPTransaction;
 }
 
 /**
