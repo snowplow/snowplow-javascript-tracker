@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-snowplow-ecommerce",
+      "comment": "Fix snowplow ecommerce type conflicts",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-snowplow-ecommerce"
+}

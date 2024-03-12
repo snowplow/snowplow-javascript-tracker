@@ -53,7 +53,7 @@ import {
   TRANSACTION_SCHEMA,
   TRANSACTION_ERROR_SCHEMA,
 } from '../src/schemata';
-import { CheckoutStep, Product, Promotion, Refund, Transaction, TransactionError } from '../src/types';
+import { CheckoutStep, Product, SPPromotion, Refund, SPTransaction, TransactionError } from '../src/types';
 
 const extractStateProperties = ({
   outQueues: [
@@ -168,7 +168,7 @@ describe('SnowplowEcommercePlugin events', () => {
   });
 
   it('trackPromotionView adds the expected "promotion view" event to the queue', () => {
-    const promoX: Promotion = {
+    const promoX: SPPromotion = {
       id: '1234',
       name: 'promo_winter',
       product_ids: ['P1234'],
@@ -193,7 +193,7 @@ describe('SnowplowEcommercePlugin events', () => {
   });
 
   it('trackPromotionClick adds the expected "promotion click" event to the queue', () => {
-    const promoX: Promotion = {
+    const promoX: SPPromotion = {
       id: '1234',
       name: 'promo_winter',
       product_ids: ['P1234'],
@@ -292,7 +292,12 @@ describe('SnowplowEcommercePlugin events', () => {
   it('trackTransaction adds the expected "transaction" event to the queue', () => {
     const productX: Product = { id: '1234', price: 12, currency: 'EUR', quantity: 4 };
     const productY: Product = { id: '12345', price: 25, currency: 'EUR', quantity: 1 };
-    const transaction: Transaction = { revenue: 45, currency: 'EUR', transaction_id: '12345', payment_method: 'card' };
+    const transaction: SPTransaction = {
+      revenue: 45,
+      currency: 'EUR',
+      transaction_id: '12345',
+      payment_method: 'card',
+    };
     trackTransaction({
       ...transaction,
       products: [productX, productY],
@@ -365,7 +370,12 @@ describe('SnowplowEcommercePlugin events', () => {
       error_shortcode: 'CARD_DECLINE',
       error_type: 'hard',
     };
-    const transaction: Transaction = { revenue: 45, currency: 'EUR', transaction_id: '12345', payment_method: 'card' };
+    const transaction: SPTransaction = {
+      revenue: 45,
+      currency: 'EUR',
+      transaction_id: '12345',
+      payment_method: 'card',
+    };
     trackTransactionError({
       ...transactionError,
       transaction,
