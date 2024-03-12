@@ -20,9 +20,9 @@ import {
   ListViewEvent,
   Page as PageContext,
   Product,
-  Promotion,
+  SPPromotion,
   Refund,
-  Transaction,
+  SPTransaction,
   TransactionError,
   User as UserContext,
 } from './types';
@@ -109,7 +109,7 @@ export function trackProductListClick(
  * @param trackers - The tracker identifiers which the event will be sent to
  */
 export function trackPromotionView(
-  promotionView: Promotion & CommonEcommerceEventProperties,
+  promotionView: SPPromotion & CommonEcommerceEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   const { context = [], timestamp, ...promotion } = promotionView;
@@ -127,7 +127,7 @@ export function trackPromotionView(
  * @param trackers - The tracker identifiers which the event will be sent to
  */
 export function trackPromotionClick(
-  promotionClick: Promotion & CommonEcommerceEventProperties,
+  promotionClick: SPPromotion & CommonEcommerceEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   const { context = [], timestamp, ...promotion } = promotionClick;
@@ -201,7 +201,7 @@ export function trackRemoveFromCart(
  * @param trackers - The tracker identifiers which the event will be sent to
  */
 export function trackTransaction(
-  transaction: Transaction & CommonEcommerceEventProperties,
+  transaction: SPTransaction & CommonEcommerceEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   let totalQuantity = 0;
