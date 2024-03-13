@@ -2,6 +2,18 @@
   "name": "@snowplow/browser-plugin-snowplow-ecommerce",
   "entries": [
     {
+      "version": "3.22.1",
+      "tag": "@snowplow/browser-plugin-snowplow-ecommerce_v3.22.1",
+      "date": "Wed, 13 Mar 2024 08:39:48 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fix snowplow ecommerce type conflicts"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.22.0",
       "tag": "@snowplow/browser-plugin-snowplow-ecommerce_v3.22.0",
       "date": "Fri, 08 Mar 2024 08:13:04 GMT",

@@ -2,6 +2,12 @@
   "name": "@snowplow/browser-plugin-vimeo-tracking",
   "entries": [
     {
+      "version": "3.22.1",
+      "tag": "@snowplow/browser-plugin-vimeo-tracking_v3.22.1",
+      "date": "Wed, 13 Mar 2024 08:39:48 GMT",
+      "comments": {}
+    },
+    {
       "version": "3.22.0",
       "tag": "@snowplow/browser-plugin-vimeo-tracking_v3.22.0",
       "date": "Fri, 08 Mar 2024 08:13:04 GMT",
