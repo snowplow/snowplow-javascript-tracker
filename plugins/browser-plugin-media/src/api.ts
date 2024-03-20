@@ -21,23 +21,29 @@ import {
   MediaTrackErrorArguments,
   MediaTrackSelfDescribingEventArguments,
   EventWithContext,
+  MediaPluginOptions,
 } from './types';
+import { setEventSpecificationContext } from './utils';
 
 export { MediaAdBreakType as MediaPlayerAdBreakType };
 
 const _trackers: Record<string, BrowserTracker> = {};
 const _context: Record<string, SelfDescribingJson[]> = {};
+const defaultPluginOptions = {};
 
 /**
  * Adds media tracking
  */
-export function SnowplowMediaPlugin(): BrowserPlugin {
+export function SnowplowMediaPlugin(pluginOptions: MediaPluginOptions = defaultPluginOptions): BrowserPlugin {
   let trackerId: string;
   return {
     activateBrowserPlugin: (tracker) => {
       trackerId = tracker.id;
       _trackers[trackerId] = tracker;
       _context[trackerId] = [];
+    },
+    beforeTrack(payloadBuilder) {
+      setEventSpecificationContext(payloadBuilder, pluginOptions.eventSpecificationIds);
     },
     contexts: () => {
       return _context[trackerId] || [];
@@ -396,7 +402,9 @@ export function trackMediaAdSkip(
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   let { percentProgress } = args;
-  if (percentProgress !== undefined) { percentProgress = Math.floor(percentProgress); }
+  if (percentProgress !== undefined) {
+    percentProgress = Math.floor(percentProgress);
+  }
   track(
     {
       mediaEvent: {
@@ -506,7 +514,9 @@ export function trackMediaAdClick(
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   let { percentProgress } = args;
-  if (percentProgress !== undefined) { percentProgress = Math.floor(percentProgress); }
+  if (percentProgress !== undefined) {
+    percentProgress = Math.floor(percentProgress);
+  }
   track(
     {
       mediaEvent: {
@@ -534,7 +544,9 @@ export function trackMediaAdPause(
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   let { percentProgress } = args;
-  if (percentProgress !== undefined) { percentProgress = Math.floor(percentProgress); }
+  if (percentProgress !== undefined) {
+    percentProgress = Math.floor(percentProgress);
+  }
   track(
     {
       mediaEvent: {
@@ -563,7 +575,9 @@ export function trackMediaAdResume(
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   let { percentProgress } = args;
-  if (percentProgress !== undefined) { percentProgress = Math.floor(percentProgress); }
+  if (percentProgress !== undefined) {
+    percentProgress = Math.floor(percentProgress);
+  }
   track(
     {
       mediaEvent: {

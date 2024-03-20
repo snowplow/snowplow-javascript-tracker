@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-media",
+      "comment": "Add eventSpecificationIds option to the plugin initialization",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-media"
+}

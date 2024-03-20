@@ -1,5 +1,12 @@
 import { CommonEventProperties, SelfDescribingJson } from '@snowplow/tracker-core';
 
+export interface MediaPluginOptions {
+  /**
+   * Option to match Media Events to Event Specification identifiers. Keys are almost always MediaEventType + "_event"
+   */
+  eventSpecificationIds?: Record<string, string>;
+}
+
 /** Type of media player event */
 export enum MediaEventType {
   // Controlling the playback
