@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-event-specifications",
+      "comment": "Created",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-event-specifications"
+}
