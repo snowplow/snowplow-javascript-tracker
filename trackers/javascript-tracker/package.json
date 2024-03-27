@@ -66,7 +66,8 @@
     "tslib": "^2.3.1",
     "@snowplow/browser-plugin-enhanced-consent": "workspace:*",
     "@snowplow/browser-plugin-privacy-sandbox": "workspace:*",
-    "@snowplow/browser-plugin-button-click-tracking": "workspace:*"
+    "@snowplow/browser-plugin-button-click-tracking": "workspace:*",
+    "@snowplow/browser-plugin-event-specifications": "workspace:*"
   },
   "devDependencies": {
     "@ampproject/rollup-plugin-closure-compiler": "~0.27.0",

@@ -63,6 +63,10 @@
       "allowedCategories": [ "trackers" ]
     },
     {
+      "name": "@snowplow/browser-plugin-event-specifications",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "@snowplow/browser-plugin-focalmeter",
       "allowedCategories": [ "trackers" ]
     },
