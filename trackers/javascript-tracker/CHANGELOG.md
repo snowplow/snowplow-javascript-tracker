@@ -1,6 +1,14 @@
 # Change Log - @snowplow/javascript-tracker
 
-This log was last generated on Wed, 13 Mar 2024 08:39:48 GMT and should not be manually modified.
+This log was last generated on Thu, 28 Mar 2024 11:28:45 GMT and should not be manually modified.
+
+## 3.23.0
+Thu, 28 Mar 2024 11:28:45 GMT
+
+### Updates
+
+- Additions for the Event Specifications plugin
+- Update webdriverio to 8.35 and saucelabs to 7.5 (#1301)
 
 ## 3.22.1
 Wed, 13 Mar 2024 08:39:48 GMT

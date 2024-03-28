@@ -2,6 +2,21 @@
   "name": "@snowplow/javascript-tracker",
   "entries": [
     {
+      "version": "3.23.0",
+      "tag": "@snowplow/javascript-tracker_v3.23.0",
+      "date": "Thu, 28 Mar 2024 11:28:45 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Additions for the Event Specifications plugin"
+          },
+          {
+            "comment": "Update webdriverio to 8.35 and saucelabs to 7.5 (#1301)"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.22.1",
       "tag": "@snowplow/javascript-tracker_v3.22.1",
       "date": "Wed, 13 Mar 2024 08:39:48 GMT",

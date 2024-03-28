@@ -1,0 +1,17 @@
+{
+  "name": "@snowplow/browser-plugin-event-specifications",
+  "entries": [
+    {
+      "version": "3.23.0",
+      "tag": "@snowplow/browser-plugin-event-specifications_v3.23.0",
+      "date": "Thu, 28 Mar 2024 11:28:45 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Created"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -2,6 +2,18 @@
   "name": "@snowplow/browser-tracker-core",
   "entries": [
     {
+      "version": "3.23.0",
+      "tag": "@snowplow/browser-tracker-core_v3.23.0",
+      "date": "Thu, 28 Mar 2024 11:28:45 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Cache browser properties and use the ResizeObserver to update when changed (#1295) thanks to @rvetere"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.22.1",
       "tag": "@snowplow/browser-tracker-core_v3.22.1",
       "date": "Wed, 13 Mar 2024 08:39:48 GMT",
