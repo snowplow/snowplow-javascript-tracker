@@ -61,8 +61,9 @@ function detectDocumentSize() {
   return isNaN(w) || isNaN(h) ? '' : w + DIMENSION_SEPARATOR + h;
 }
 
+// KEVIN TILLER - Fix resolution being sent as NaNxNaN
 function detectScreenResolution() {
-  return screen.width + DIMENSION_SEPARATOR + screen.height;
+  return screen.width && screen.height ? screen.width + DIMENSION_SEPARATOR + screen.height : null;
 }
 
 export function floorDimensionFields(field?: string | null) {
