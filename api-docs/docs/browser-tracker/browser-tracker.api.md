@@ -83,6 +83,7 @@ export interface BrowserTracker {
     namespace: string;
     newSession: () => void;
     preservePageViewId: () => void;
+    preservePageViewIdForUrl: (preserve: PreservePageViewIdForUrl) => void;
     setBufferSize: (newBufferSize: number) => void;
     setCollectorUrl: (collectorUrl: string) => void;
     setCookiePath: (path: string) => void;
@@ -291,6 +292,9 @@ export type PostBatch = Record<string, unknown>[];
 // @public
 export function preservePageViewId(trackers?: Array<string>): void;
 
+// @public (undocumented)
+export type PreservePageViewIdForUrl = boolean | "full" | "pathname" | "pathnameAndSearch";
+
 // @public
 export function removeGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive>, trackers?: Array<string>): void;
 
@@ -417,6 +421,7 @@ export type TrackerConfiguration = {
     retryFailedRequests?: boolean;
     onRequestSuccess?: (data: EventBatch) => void;
     onRequestFailure?: (data: RequestFailure) => void;
+    preservePageViewIdForUrl?: PreservePageViewIdForUrl;
 };
 
 // @public
