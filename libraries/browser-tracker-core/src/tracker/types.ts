@@ -46,6 +46,9 @@ export type ExtendedCrossDomainLinkerAttributes = {
 
 export type ExtendedCrossDomainLinkerOptions = boolean | ExtendedCrossDomainLinkerAttributes;
 
+/* Setting for the `preservePageViewIdForUrl` configuration that decides how to preserve the pageViewId on URL changes. */
+export type PreservePageViewIdForUrl = boolean | 'full' | 'pathname' | 'pathnameAndSearch';
+
 /**
  * The configuration object for initialising the tracker
  * @example
@@ -266,6 +269,17 @@ export type TrackerConfiguration = {
    * @param data - The data associated with the event(s) that failed to send
    */
   onRequestFailure?: (data: RequestFailure) => void;
+
+  /**
+   * Decide how the `pageViewId` should be preserved based on the URL.
+   * If set to `false`, the `pageViewId` will be regenerated on the second and each following page view event (first page view doesn't change the page view ID since tracker initialization).
+   * If set to `true` or `'full'`, the `pageViewId` will be kept the same for all page views with that exact URL (even for events tracked before the page view event).
+   * If set to `'pathname'`, the `pageViewId` will be kept the same for all page views with the same pathname (search params or fragment may change).
+   * If set to `'pathnameAndSearch'`, the `pageViewId` will be kept the same for all page views with the same pathname and search params (fragment may change).
+   * If `preservePageViewId` is enabled, the `preservePageViewIdForUrl` setting is ignored.
+   * Defaults to `false`.
+   */
+  preservePageViewIdForUrl?: PreservePageViewIdForUrl;
 };
 
 /**
@@ -602,6 +616,17 @@ export interface BrowserTracker {
    * Stop regenerating `pageViewId` (available from `web_page` context)
    */
   preservePageViewId: () => void;
+
+  /**
+   * Decide how the `pageViewId` should be preserved based on the URL.
+   * If set to `false`, the `pageViewId` will be regenerated on the second and each following page view event (first page view doesn't change the page view ID since tracker initialization).
+   * If set to `true` or `'full'`, the `pageViewId` will be kept the same for all page views with that exact URL (even for events tracked before the page view event).
+   * If set to `'pathname'`, the `pageViewId` will be kept the same for all page views with the same pathname (search params or fragment may change).
+   * If set to `'pathnameAndSearch'`, the `pageViewId` will be kept the same for all page views with the same pathname and search params (fragment may change).
+   * If `preservePageViewId` is enabled, the `preservePageViewIdForUrl` setting is ignored.
+   * Defaults to `false`.
+   */
+  preservePageViewIdForUrl: (preserve: PreservePageViewIdForUrl) => void;
 
   /**
    * Log visit to this page

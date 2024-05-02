@@ -48,6 +48,7 @@ import {
   ClientSession,
   ExtendedCrossDomainLinkerOptions,
   ParsedIdCookie,
+  PreservePageViewIdForUrl,
 } from './types';
 import {
   parseIdCookie,
@@ -292,6 +293,8 @@ export function Tracker(
       ),
       // Whether pageViewId should be regenerated after each trackPageView. Affect web_page context
       preservePageViewId = false,
+      // Whether pageViewId should be kept the same until the page URL changes. Affects web_page context
+      preservePageViewIdForUrl = trackerConfiguration.preservePageViewIdForUrl ?? false,
       // Whether first trackPageView was fired and pageViewId should not be changed anymore until reload
       pageViewSent = false,
       // Activity tracking config for callback and page ping variants
@@ -719,6 +722,7 @@ export function Tracker(
     function resetPageView() {
       if (!preservePageViewId || state.pageViewId == null) {
         state.pageViewId = uuid();
+        state.pageViewUrl = configCustomUrl || locationHrefAlias;
       }
     }
 
@@ -727,10 +731,42 @@ export function Tracker(
      * Generates it if it wasn't initialized by other tracker
      */
     function getPageViewId() {
-      if (state.pageViewId == null) {
+      if (shouldGenerateNewPageViewId()) {
         state.pageViewId = uuid();
+        state.pageViewUrl = configCustomUrl || locationHrefAlias;
       }
-      return state.pageViewId;
+      return state.pageViewId!;
+    }
+
+    function shouldGenerateNewPageViewId() {
+      // If pageViewId is not initialized, generate it
+      if (state.pageViewId == null) {
+        return true;
+      }
+      // If pageViewId should be preserved regardless of the URL, don't generate a new one
+      if (preservePageViewId || !preservePageViewIdForUrl) {
+        return false;
+      }
+      // If doesn't have previous URL in state, generate a new pageViewId
+      if (state.pageViewUrl === undefined) {
+        return true;
+      }
+      const current = configCustomUrl || locationHrefAlias;
+      // If full preserve is enabled, compare the full URL
+      if (preservePageViewIdForUrl === true || preservePageViewIdForUrl == 'full' || !('URL' in window)) {
+        return state.pageViewUrl != current;
+      }
+      const currentUrl = new URL(current);
+      const previousUrl = new URL(state.pageViewUrl);
+      // If pathname preserve is enabled, compare the pathname
+      if (preservePageViewIdForUrl == 'pathname') {
+        return currentUrl.pathname != previousUrl.pathname;
+      }
+      // If pathname and search preserve is enabled, compare the pathname and search
+      if (preservePageViewIdForUrl == 'pathnameAndSearch') {
+        return currentUrl.pathname != previousUrl.pathname || currentUrl.search != previousUrl.search;
+      }
+      return false;
     }
 
     /**
@@ -943,7 +979,7 @@ export function Tracker(
 
     function logPageView({ title, context, timestamp, contextCallback }: PageViewEvent & CommonEventProperties) {
       refreshUrl();
-      if (pageViewSent) {
+      if (pageViewSent && !preservePageViewIdForUrl) {
         // Do not reset pageViewId if previous events were not page_view
         resetPageView();
       }
@@ -1289,6 +1325,10 @@ export function Tracker(
 
       preservePageViewId: function () {
         preservePageViewId = true;
+      },
+
+      preservePageViewIdForUrl: function (preserve: PreservePageViewIdForUrl) {
+        preservePageViewIdForUrl = preserve;
       },
 
       disableAnonymousTracking: function (configuration?: DisableAnonymousTrackingConfiguration) {
