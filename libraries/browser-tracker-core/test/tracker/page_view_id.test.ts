@@ -305,4 +305,55 @@ describe('Tracker API: page view IDs', () => {
       expect(pageView1).not.toEqual(pageView2);
     });
   });
+
+  describe('Multiple trackers with a shared state', () => {
+    it('Keeps the page view ID for each page view pairs', () => {
+      const tracker1 = createTracker();
+      const tracker2 = createTracker(undefined, tracker1?.sharedState);
+
+      tracker1?.setCustomUrl('http://example.com/1');
+      tracker1?.trackPageView();
+      const pageView1 = tracker1?.getPageViewId();
+
+      tracker2?.trackPageView();
+      const pageView2 = tracker2?.getPageViewId();
+
+      expect(pageView1).toEqual(pageView2);
+
+      tracker1?.trackPageView();
+      const pageView3 = tracker1?.getPageViewId();
+
+      tracker2?.trackPageView();
+      const pageView4 = tracker2?.getPageViewId();
+
+      expect(pageView1).not.toEqual(pageView3);
+      expect(pageView3).toEqual(pageView4);
+    });
+
+    it("Doesn't keep the page view ID for multiple calls to one tracker", () => {
+      const tracker1 = createTracker();
+      const tracker2 = createTracker(undefined, tracker1?.sharedState);
+
+      tracker1?.setCustomUrl('http://example.com/1');
+      tracker1?.trackPageView();
+      const pageView1 = tracker1?.getPageViewId();
+      tracker1?.trackPageView();
+      const pageView2 = tracker1?.getPageViewId();
+
+      tracker2?.trackPageView();
+      const pageView3 = tracker2?.getPageViewId();
+
+      expect(pageView1).not.toEqual(pageView2);
+      expect(pageView2).toEqual(pageView3);
+
+      tracker1?.trackPageView();
+      const pageView4 = tracker1?.getPageViewId();
+
+      tracker2?.trackPageView();
+      const pageView5 = tracker2?.getPageViewId();
+
+      expect(pageView3).not.toEqual(pageView4);
+      expect(pageView4).toEqual(pageView5);
+    });
+  });
 });

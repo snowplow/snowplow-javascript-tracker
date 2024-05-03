@@ -295,8 +295,8 @@ export function Tracker(
       preservePageViewId = false,
       // Whether pageViewId should be kept the same until the page URL changes. Affects web_page context
       preservePageViewIdForUrl = trackerConfiguration.preservePageViewIdForUrl ?? false,
-      // Whether first trackPageView was fired and pageViewId should not be changed anymore until reload
-      pageViewSent = false,
+      // The pageViewId of the last page view event or undefined if no page view tracked yet. Used to determine if pageViewId should be regenerated for a new page view.
+      lastSentPageViewId: string | undefined = undefined,
       // Activity tracking config for callback and page ping variants
       activityTrackingConfig: ActivityTrackingConfig = {
         enabled: false,
@@ -734,7 +734,6 @@ export function Tracker(
       if (shouldGenerateNewPageViewId()) {
         state.pageViewId = uuid();
         state.pageViewUrl = configCustomUrl || locationHrefAlias;
-        pageViewSent = false;
       }
       return state.pageViewId!;
     }
@@ -980,11 +979,11 @@ export function Tracker(
 
     function logPageView({ title, context, timestamp, contextCallback }: PageViewEvent & CommonEventProperties) {
       refreshUrl();
-      if (pageViewSent) {
-        // Do not reset pageViewId if previous events were not page_view
+      if (lastSentPageViewId && lastSentPageViewId == getPageViewId()) {
+        // Do not reset pageViewId if a page view was not tracked yet or a different page view ID was used (in order to support multiple trackers with shared state)
         resetPageView();
       }
-      pageViewSent = true;
+      lastSentPageViewId = getPageViewId();
 
       // So we know what document.title was at the time of trackPageView
       lastDocumentTitle = document.title;
