@@ -75,7 +75,7 @@ describe('Tracker API: page view IDs', () => {
   });
 
   describe('preservePageViewIdForUrl: full', () => {
-    it("Doesn't generate new page view ID on second page view", () => {
+    it("Generates new page view ID on second page view on the same URL", () => {
       const tracker = createTracker();
       tracker?.preservePageViewIdForUrl('full');
 
@@ -88,7 +88,7 @@ describe('Tracker API: page view IDs', () => {
       const pageView3 = tracker?.getPageViewId();
 
       expect(pageView1).toEqual(pageView2);
-      expect(pageView2).toEqual(pageView3);
+      expect(pageView2).not.toEqual(pageView3);
     });
 
     it("Doesn't generate new page view ID for the same URL", () => {
@@ -169,7 +169,7 @@ describe('Tracker API: page view IDs', () => {
   });
 
   describe('preservePageViewIdForUrl: pathname', () => {
-    it("Doesn't generate new page view ID on second page view", () => {
+    it("Generates new page view ID on second page view on the same URL", () => {
       const tracker = createTracker();
       tracker?.preservePageViewIdForUrl('pathname');
 
@@ -182,7 +182,7 @@ describe('Tracker API: page view IDs', () => {
       const pageView3 = tracker?.getPageViewId();
 
       expect(pageView1).toEqual(pageView2);
-      expect(pageView2).toEqual(pageView3);
+      expect(pageView2).not.toEqual(pageView3);
     });
 
     it("Doesn't generate new page view ID for the same URL", () => {
@@ -238,7 +238,7 @@ describe('Tracker API: page view IDs', () => {
   });
 
   describe('preservePageViewIdForUrl: pathnameAndSearch', () => {
-    it("Doesn't generate new page view ID on second page view", () => {
+    it("Generates new page view ID on second page view on the same URL", () => {
       const tracker = createTracker();
       tracker?.preservePageViewIdForUrl('pathnameAndSearch');
 
@@ -251,7 +251,7 @@ describe('Tracker API: page view IDs', () => {
       const pageView3 = tracker?.getPageViewId();
 
       expect(pageView1).toEqual(pageView2);
-      expect(pageView2).toEqual(pageView3);
+      expect(pageView2).not.toEqual(pageView3);
     });
 
     it("Doesn't generate new page view ID for the same URL", () => {

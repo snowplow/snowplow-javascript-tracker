@@ -734,6 +734,7 @@ export function Tracker(
       if (shouldGenerateNewPageViewId()) {
         state.pageViewId = uuid();
         state.pageViewUrl = configCustomUrl || locationHrefAlias;
+        pageViewSent = false;
       }
       return state.pageViewId!;
     }
@@ -979,7 +980,7 @@ export function Tracker(
 
     function logPageView({ title, context, timestamp, contextCallback }: PageViewEvent & CommonEventProperties) {
       refreshUrl();
-      if (pageViewSent && !preservePageViewIdForUrl) {
+      if (pageViewSent) {
         // Do not reset pageViewId if previous events were not page_view
         resetPageView();
       }
