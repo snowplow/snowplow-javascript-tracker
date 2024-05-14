@@ -1698,7 +1698,7 @@ importers:
       '@wdio/static-server-service': ~8.36.1
       '@wdio/types': ~8.36.1
       chalk: 4.1.2
-      chromedriver: ~114.0.0
+      chromedriver: ~124.0.3
       dockerode: ~3.3.1
       jest: ~27.5.1
       jest-environment-jsdom: ~27.5.1
@@ -1777,7 +1777,7 @@ importers:
       '@wdio/static-server-service': 8.36.1
       '@wdio/types': 8.36.1
       chalk: 4.1.2
-      chromedriver: 114.0.3
+      chromedriver: 124.0.3
       dockerode: 3.3.1
       jest: 27.5.1_ts-node@10.9.1
       jest-environment-jsdom: 27.5.1
@@ -1797,7 +1797,7 @@ importers:
       ts-jest: 27.1.3_60149d457e34ffba7d4e845dde6a1263
       ts-node: 10.9.1_3a45c3db8dee5edcd277f201fb244988
       typescript: 4.6.2
-      wdio-chromedriver-service: 8.1.1_efb02edebfd27f7d4c7cde48e18a099b
+      wdio-chromedriver-service: 8.1.1_13d5c9a187d81a3040fb94df4a1e31ad
       wdio-edgedriver-service: 3.0.3_@wdio+types@8.36.1
       wdio-safaridriver-service: 2.1.1_e44f7dae2e7ecd391a74ad83b25c9493
       webdriverio: 8.36.1_typescript@4.6.2
@@ -3999,10 +3999,10 @@ packages:
     resolution: {integrity: sha512-xh1Rl34h6Fi1DC2WWKfxUTVqRsNnr6LsKz2+hfwDxQJWmrx8+c7ylaqBMcHfl1U1r2dsifOvKX3LQuLNZ+XSvA==}
     dev: true
 
-  /axios/1.6.2:
-    resolution: {integrity: sha512-7i24Ri4pmDRfJTR7LDBhsOTtcm+9kjX5WiY1X3wIisx6G9So3pfMkEiU7emUBe46oceVImccTEM3k6C5dbVW8A==}
+  /axios/1.6.8:
+    resolution: {integrity: sha512-v/ZHtJDU39mDpyBoFVkETcd/uNdxrWRrg3bKpOKzXFA6Bvqopts6ALSMU3y6ijYxbw2B+wPrIv46egTzJXCLGQ==}
     dependencies:
-      follow-redirects: 1.15.2
+      follow-redirects: 1.15.6
       form-data: 4.0.0
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
@@ -4575,17 +4575,17 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /chromedriver/114.0.3:
-    resolution: {integrity: sha512-Qy5kqsAUrCDwpovM5pIWFkb3X3IgJLoorigwFEDgC1boL094svny3N7yw06marJHAuyX4CE/hhd25RarIcKvKg==}
-    engines: {node: '>=16'}
+  /chromedriver/124.0.3:
+    resolution: {integrity: sha512-k6Xu9fwDMgi//bGHB944QMmDHF0BBWGk4PAyVZBEuP6wnZMfQP4V6Sv+l/nuAPA006RllS6X07ZpjPwRPS4BaA==}
+    engines: {node: '>=18'}
     hasBin: true
     requiresBuild: true
     dependencies:
       '@testim/chrome-version': 1.1.4
-      axios: 1.6.2
+      axios: 1.6.8
       compare-versions: 6.1.0
       extract-zip: 2.0.1
-      https-proxy-agent: 5.0.1
+      proxy-agent: 6.4.0
       proxy-from-env: 1.1.0
       tcp-port-used: 1.0.2
     transitivePeerDependencies:
@@ -6047,8 +6047,8 @@ packages:
     resolution: {integrity: sha512-3VELfuWCLVzt5d2Gblk8qcqFro6nuwvxwMzHaENVDHI7rxcBRtMCwTk/E9FXcgh+82DSpavPNDueA9+RxXJoFg==}
     dev: true
 
-  /follow-redirects/1.15.2:
-    resolution: {integrity: sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==}
+  /follow-redirects/1.15.6:
+    resolution: {integrity: sha512-wWN62YITEaOpSK584EZXJafH1AGpO8RVgElfkuXbTOrPX4fIfOyEpW/CsiNd8JdYrAoOvafRTOEnvsO++qCqFA==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'
@@ -9578,6 +9578,22 @@ packages:
       - supports-color
     dev: true
 
+  /proxy-agent/6.4.0:
+    resolution: {integrity: sha512-u0piLU+nCOHMgGjRbimiXmA9kM/L9EHh3zL81xCdp7m+Y2pHIsnmbdDoEDoAz5geaonNR6q6+yOPQs6n4T6sBQ==}
+    engines: {node: '>= 14'}
+    dependencies:
+      agent-base: 7.1.0
+      debug: 4.3.4
+      http-proxy-agent: 7.0.2
+      https-proxy-agent: 7.0.4
+      lru-cache: 7.18.3
+      pac-proxy-agent: 7.0.1
+      proxy-from-env: 1.1.0
+      socks-proxy-agent: 8.0.2
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
   /proxy-from-env/1.1.0:
     resolution: {integrity: sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==}
     dev: true
@@ -11287,7 +11303,7 @@ packages:
       defaults: 1.0.3
     dev: true
 
-  /wdio-chromedriver-service/8.1.1_efb02edebfd27f7d4c7cde48e18a099b:
+  /wdio-chromedriver-service/8.1.1_13d5c9a187d81a3040fb94df4a1e31ad:
     resolution: {integrity: sha512-pN3GiOkTIMnalfq4PJAHdX95pDp1orHnTY8W1fIbd6ok81ba97UjerTgS7lUDRUh1p0MAm35Ww0uc0/9wzB7SA==}
     engines: {node: ^16.13 || >=18}
     peerDependencies:
@@ -11302,7 +11318,7 @@ packages:
     dependencies:
       '@wdio/logger': 8.16.17
       '@wdio/types': 8.36.1
-      chromedriver: 114.0.3
+      chromedriver: 124.0.3
       fs-extra: 11.1.0
       split2: 4.2.0
       tcp-port-used: 1.0.2
