@@ -17,7 +17,7 @@ const docker = new Docker();
 export const start = (isRemote?: boolean) => {
   return docker
     .createContainer({
-      Image: 'snowplow/snowplow-micro:latest',
+      Image: 'snowplow/snowplow-micro:2.0.0',
       AttachStdin: false,
       AttachStdout: true,
       AttachStderr: true,

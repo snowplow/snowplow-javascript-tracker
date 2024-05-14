@@ -30,7 +30,7 @@
   ],
   "scripts": {
     "build": "rollup -c --silent --failAfterWarnings",
-    "docker:micro": "docker pull snowplow/snowplow-micro:latest",
+    "docker:micro": "docker pull snowplow/snowplow-micro:2.0.0",
     "test": "jest test/unit/*.test.ts --no-cache",
     "test:build": "rollup --config rollup.config.test.js --silent",
     "test:e2e:local": "npm-run-all --parallel test:build docker:micro --serial wdio:local",
