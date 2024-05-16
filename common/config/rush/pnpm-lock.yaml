@@ -1688,17 +1688,17 @@ importers:
       '@types/node': ~14.6.0
       '@types/node-fetch': '2'
       '@types/youtube': ~0.0.46
-      '@wdio/cli': ~8.35.1
-      '@wdio/globals': ~8.35.1
-      '@wdio/jasmine-framework': ~8.35.1
-      '@wdio/local-runner': ~8.35.1
-      '@wdio/sauce-service': ~8.35.1
-      '@wdio/shared-store-service': ~8.35.1
-      '@wdio/spec-reporter': ~8.32.4
-      '@wdio/static-server-service': ~8.32.4
-      '@wdio/types': ~8.32.4
+      '@wdio/cli': ~8.36.1
+      '@wdio/globals': ~8.36.1
+      '@wdio/jasmine-framework': ~8.36.1
+      '@wdio/local-runner': ~8.36.1
+      '@wdio/sauce-service': ~8.36.1
+      '@wdio/shared-store-service': ~8.36.1
+      '@wdio/spec-reporter': ~8.36.1
+      '@wdio/static-server-service': ~8.36.1
+      '@wdio/types': ~8.36.1
       chalk: 4.1.2
-      chromedriver: ~114.0.0
+      chromedriver: ~124.0.3
       dockerode: ~3.3.1
       jest: ~27.5.1
       jest-environment-jsdom: ~27.5.1
@@ -1722,7 +1722,7 @@ importers:
       wdio-chromedriver-service: ~8.1.1
       wdio-edgedriver-service: ~3.0.3
       wdio-safaridriver-service: ~2.1.1
-      webdriverio: ~8.35.1
+      webdriverio: ~8.36.1
     dependencies:
       '@snowplow/browser-plugin-ad-tracking': link:../../plugins/browser-plugin-ad-tracking
       '@snowplow/browser-plugin-browser-features': link:../../plugins/browser-plugin-browser-features
@@ -1767,17 +1767,17 @@ importers:
       '@types/node': 14.6.4
       '@types/node-fetch': 2.6.4
       '@types/youtube': 0.0.46
-      '@wdio/cli': 8.35.1_typescript@4.6.2
-      '@wdio/globals': 8.35.1_typescript@4.6.2
-      '@wdio/jasmine-framework': 8.35.1_typescript@4.6.2
-      '@wdio/local-runner': 8.35.1_typescript@4.6.2
-      '@wdio/sauce-service': 8.35.1_typescript@4.6.2
-      '@wdio/shared-store-service': 8.35.1_typescript@4.6.2
-      '@wdio/spec-reporter': 8.32.4
-      '@wdio/static-server-service': 8.32.4
-      '@wdio/types': 8.32.4
+      '@wdio/cli': 8.36.1_typescript@4.6.2
+      '@wdio/globals': 8.36.1_typescript@4.6.2
+      '@wdio/jasmine-framework': 8.36.1_typescript@4.6.2
+      '@wdio/local-runner': 8.36.1_typescript@4.6.2
+      '@wdio/sauce-service': 8.36.1_typescript@4.6.2
+      '@wdio/shared-store-service': 8.36.1_typescript@4.6.2
+      '@wdio/spec-reporter': 8.36.1
+      '@wdio/static-server-service': 8.36.1
+      '@wdio/types': 8.36.1
       chalk: 4.1.2
-      chromedriver: 114.0.3
+      chromedriver: 124.0.3
       dockerode: 3.3.1
       jest: 27.5.1_ts-node@10.9.1
       jest-environment-jsdom: 27.5.1
@@ -1797,10 +1797,10 @@ importers:
       ts-jest: 27.1.3_60149d457e34ffba7d4e845dde6a1263
       ts-node: 10.9.1_3a45c3db8dee5edcd277f201fb244988
       typescript: 4.6.2
-      wdio-chromedriver-service: 8.1.1_82a50f9b94298870e694c5dcc288131d
-      wdio-edgedriver-service: 3.0.3_@wdio+types@8.32.4
-      wdio-safaridriver-service: 2.1.1_0d8a82dcaf3d16fa8af174431bab2630
-      webdriverio: 8.35.1_typescript@4.6.2
+      wdio-chromedriver-service: 8.1.1_13d5c9a187d81a3040fb94df4a1e31ad
+      wdio-edgedriver-service: 3.0.3_@wdio+types@8.36.1
+      wdio-safaridriver-service: 2.1.1_e44f7dae2e7ecd391a74ad83b25c9493
+      webdriverio: 8.36.1_typescript@4.6.2
 
   ../../trackers/node-tracker:
     specifiers:
@@ -3077,10 +3077,6 @@ packages:
       undici-types: 5.26.5
     dev: true
 
-  /@types/node/20.3.3:
-    resolution: {integrity: sha512-wheIYdr4NYML61AjC8MKj/2jrR/kDQri/CIpVoZwldwhnIrD/j9jIU5bJ8yBKuB2VhpFV7Ab6G2XkBjv9r9Zzw==}
-    dev: true
-
   /@types/normalize-package-data/2.4.1:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
     dev: true
@@ -3360,19 +3356,19 @@ packages:
       pretty-format: 29.7.0
     dev: true
 
-  /@wdio/cli/8.35.1_typescript@4.6.2:
-    resolution: {integrity: sha512-cdFmd6P/eQJdP2lChQ+Fa9b1c2p0bDIPmetVHGCuHiW8ZPkanrvBFtHMUhMu44a1koni9LvN/hu7vIJ/aAC+Rg==}
+  /@wdio/cli/8.36.1_typescript@4.6.2:
+    resolution: {integrity: sha512-LZBZiwcvvv5P0HuRXt8IV09UiFT5dnDr1Ag5u2roJL2D7l8wDHHa70PXw9MmlbrnyFCUN3hO7FQVUi9MAsDbDQ==}
     engines: {node: ^16.13 || >=18}
     hasBin: true
     dependencies:
-      '@types/node': 20.3.3
+      '@types/node': 20.11.30
       '@vitest/snapshot': 1.4.0
-      '@wdio/config': 8.35.0
-      '@wdio/globals': 8.35.1_typescript@4.6.2
+      '@wdio/config': 8.36.1
+      '@wdio/globals': 8.36.1_typescript@4.6.2
       '@wdio/logger': 8.28.0
       '@wdio/protocols': 8.32.0
-      '@wdio/types': 8.32.4
-      '@wdio/utils': 8.35.0
+      '@wdio/types': 8.36.1
+      '@wdio/utils': 8.36.1
       async-exit-hook: 2.0.1
       chalk: 5.3.0
       chokidar: 3.5.3
@@ -3387,7 +3383,7 @@ packages:
       lodash.union: 4.6.0
       read-pkg-up: 10.0.0
       recursive-readdir: 2.2.3
-      webdriverio: 8.35.1_typescript@4.6.2
+      webdriverio: 8.36.1_typescript@4.6.2
       yargs: 17.7.2
     transitivePeerDependencies:
       - bufferutil
@@ -3398,13 +3394,13 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@wdio/config/8.35.0:
-    resolution: {integrity: sha512-I36sBPMl/+LCyQ3Pwb8gGQM6KxwmUfhOPp16TxN21Qo/Bc0fZfyGIg6KevmRu4DuqpGUm5MMVSfyPhLUkMk3Cg==}
+  /@wdio/config/8.36.1:
+    resolution: {integrity: sha512-yCENnym0CrYuLKMJ3fv00WkjCR8QpPqVohGBkq5FvZOZpVJEpoG86Q8l4HtyRnd6ggMTKCA1vTQ/myhbPmZmaQ==}
     engines: {node: ^16.13 || >=18}
     dependencies:
       '@wdio/logger': 8.28.0
-      '@wdio/types': 8.32.4
-      '@wdio/utils': 8.35.0
+      '@wdio/types': 8.36.1
+      '@wdio/utils': 8.36.1
       decamelize: 6.0.0
       deepmerge-ts: 5.1.0
       glob: 10.3.1
@@ -3413,12 +3409,12 @@ packages:
       - supports-color
     dev: true
 
-  /@wdio/globals/8.35.1_typescript@4.6.2:
-    resolution: {integrity: sha512-T3IUFcKXRU9WWleAV72DGFWUiXSSr8SBvpc2cUJrvZ5Je9R2gEsrts5eHCY7amXtfeylfMgy5EayGMajgcna6A==}
+  /@wdio/globals/8.36.1_typescript@4.6.2:
+    resolution: {integrity: sha512-Qpj6gZCRNxqdVkTwYyi4JdeYO4tLSUj3Ti6yxO0v9A4IRaKW1tS29KUcGgjL9CFSBKAOi2zRY8vvFz1u6ewxtQ==}
     engines: {node: ^16.13 || >=18}
     optionalDependencies:
       expect-webdriverio: 4.12.2_typescript@4.6.2
-      webdriverio: 8.35.1_typescript@4.6.2
+      webdriverio: 8.36.1_typescript@4.6.2
     transitivePeerDependencies:
       - bufferutil
       - devtools
@@ -3428,15 +3424,15 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@wdio/jasmine-framework/8.35.1_typescript@4.6.2:
-    resolution: {integrity: sha512-qHr/5aPawNpRhzHfljXNZHYeIrCYCp8IDjK6gX/sNbDdwX7OIw0BmboOVfkWYNDo6EI7pw7+xVmBaWAE3a7biQ==}
+  /@wdio/jasmine-framework/8.36.1_typescript@4.6.2:
+    resolution: {integrity: sha512-MI6ojRPlVVxvkb8AzJmBXgjHBRxeasVy6vtiXwtnxO0z1LWkcUnemms0yH6jLykTIgzprx1ixRd72+knd6mamw==}
     engines: {node: ^16.13 || >=18}
     dependencies:
-      '@types/node': 20.3.3
-      '@wdio/globals': 8.35.1_typescript@4.6.2
+      '@types/node': 20.11.30
+      '@wdio/globals': 8.36.1_typescript@4.6.2
       '@wdio/logger': 8.28.0
-      '@wdio/types': 8.32.4
-      '@wdio/utils': 8.35.0
+      '@wdio/types': 8.36.1
+      '@wdio/utils': 8.36.1
       expect-webdriverio: 4.12.2_typescript@4.6.2
       jasmine: 5.1.0
     transitivePeerDependencies:
@@ -3448,15 +3444,15 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@wdio/local-runner/8.35.1_typescript@4.6.2:
-    resolution: {integrity: sha512-PG+bADoY5VoWPmAfRi030rtxbFj68MVPlcwEN0dN1lDdYKz1ATzzGUK12sqCgGz1ktcC7sQzmJZVBklzbvn3mQ==}
+  /@wdio/local-runner/8.36.1_typescript@4.6.2:
+    resolution: {integrity: sha512-FYsTzbNGRnrniOsLWrZO7+DLecAS9W75AIzFZQVQxruiDFkGmKY5OV6gsuvMlasaqAQXW1s+w29bqrLY4DxdEw==}
     engines: {node: ^16.13 || >=18}
     dependencies:
-      '@types/node': 20.3.3
+      '@types/node': 20.11.30
       '@wdio/logger': 8.28.0
       '@wdio/repl': 8.24.12
-      '@wdio/runner': 8.35.1_typescript@4.6.2
-      '@wdio/types': 8.32.4
+      '@wdio/runner': 8.36.1_typescript@4.6.2
+      '@wdio/types': 8.36.1
       async-exit-hook: 2.0.1
       split2: 4.2.0
       stream-buffers: 3.0.2
@@ -3497,35 +3493,35 @@ packages:
     resolution: {integrity: sha512-321F3sWafnlw93uRTSjEBVuvWCxTkWNDs7ektQS15drrroL3TMeFOynu4rDrIz0jXD9Vas0HCD2Tq/P0uxFLdw==}
     engines: {node: ^16.13 || >=18}
     dependencies:
-      '@types/node': 20.3.3
+      '@types/node': 20.11.30
     dev: true
 
-  /@wdio/reporter/8.32.4:
-    resolution: {integrity: sha512-kZXbyNuZSSpk4kBavDb+ac25ODu9NVZED6WwZafrlMSnBHcDkoMt26Q0Jp3RKUj+FTyuKH0HvfeLrwVkk6QKDw==}
+  /@wdio/reporter/8.36.1:
+    resolution: {integrity: sha512-HcXr9XKq/6kPC9nexMRXIc/ft3Lvp0yCaW5tps01Axus9wbi5ysLHi2z5sB84F2YdpM+aRf7Lac56xkc4Jldeg==}
     engines: {node: ^16.13 || >=18}
     dependencies:
       '@types/node': 20.11.30
       '@wdio/logger': 8.28.0
-      '@wdio/types': 8.32.4
+      '@wdio/types': 8.36.1
       diff: 5.0.0
       object-inspect: 1.12.0
     dev: true
 
-  /@wdio/runner/8.35.1_typescript@4.6.2:
-    resolution: {integrity: sha512-5F6cbOYeZjF34Vsnycp5JPnDljI52fmyxsV2O/L3h6F2+83YXpbsqBplw/2G24JtIUudV7VOY/38bUicn1OyXg==}
+  /@wdio/runner/8.36.1_typescript@4.6.2:
+    resolution: {integrity: sha512-bLkxQ46MLEbzIf30adl2nyz8kxED/V0IjcQASm0VKfNmsG8LOf7iOIz+udOF4GkMoF++5JuONA5abUsyLvwatg==}
     engines: {node: ^16.13 || >=18}
     dependencies:
       '@types/node': 20.11.30
-      '@wdio/config': 8.35.0
-      '@wdio/globals': 8.35.1_typescript@4.6.2
+      '@wdio/config': 8.36.1
+      '@wdio/globals': 8.36.1_typescript@4.6.2
       '@wdio/logger': 8.28.0
-      '@wdio/types': 8.32.4
-      '@wdio/utils': 8.35.0
+      '@wdio/types': 8.36.1
+      '@wdio/utils': 8.36.1
       deepmerge-ts: 5.1.0
       expect-webdriverio: 4.12.2_typescript@4.6.2
       gaze: 1.1.3
-      webdriver: 8.35.0
-      webdriverio: 8.35.1_typescript@4.6.2
+      webdriver: 8.36.1
+      webdriverio: 8.36.1_typescript@4.6.2
     transitivePeerDependencies:
       - bufferutil
       - devtools
@@ -3535,16 +3531,16 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@wdio/sauce-service/8.35.1_typescript@4.6.2:
-    resolution: {integrity: sha512-MEBJBNtS4/dvZ3P8m7ubfuwGFfWUihkLoEWOYH71ulfx6kez+N1pcw+oaAUuSbrv5sTxLOpTId5Y8eTtnfAOYg==}
+  /@wdio/sauce-service/8.36.1_typescript@4.6.2:
+    resolution: {integrity: sha512-yyUy27bG4iHtbWYkmTzCBtvi1Xh+Nwb2UNZJmvNegAu3XnzeuOsr5aIDrrpAtk3onCzK5plWaCrwvkGMIdzHRg==}
     engines: {node: ^16.13 || >=18}
     dependencies:
       '@wdio/logger': 8.28.0
-      '@wdio/types': 8.32.4
-      '@wdio/utils': 8.35.0
+      '@wdio/types': 8.36.1
+      '@wdio/utils': 8.36.1
       ip: 2.0.1
       saucelabs: 7.5.0
-      webdriverio: 8.35.1_typescript@4.6.2
+      webdriverio: 8.36.1_typescript@4.6.2
     transitivePeerDependencies:
       - bufferutil
       - devtools
@@ -3554,16 +3550,16 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@wdio/shared-store-service/8.35.1_typescript@4.6.2:
-    resolution: {integrity: sha512-qUetXFdXsnGx8tW7DGyReou7akjz5HfDUQAKm64r6OsFp8rZYgS4XZKtwvtXivuJgMOP/qdzYu6YSfi9E/2w5A==}
+  /@wdio/shared-store-service/8.36.1_typescript@4.6.2:
+    resolution: {integrity: sha512-VJEkU5mDXVdWGdVLU7Z9W3RzEKFags2UZBWssfOnBhacI2yNZy3jCX6nTyiY5eAdSWtysucZGsOXMZjO/Hu/IQ==}
     engines: {node: ^16.13 || >=18}
     dependencies:
       '@polka/parse': 1.0.0-next.0
       '@wdio/logger': 8.28.0
-      '@wdio/types': 8.32.4
+      '@wdio/types': 8.36.1
       got: 12.6.1
       polka: 0.5.2
-      webdriverio: 8.35.1_typescript@4.6.2
+      webdriverio: 8.36.1_typescript@4.6.2
     transitivePeerDependencies:
       - bufferutil
       - devtools
@@ -3573,41 +3569,41 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@wdio/spec-reporter/8.32.4:
-    resolution: {integrity: sha512-3TbD/KrK+EhUex5d5/11qSEKqyNiMHqm27my86tdiK0Ltt9pc/9Ybg1YBiWKlzV9U9MI4seVBRZCXltG17ky/A==}
+  /@wdio/spec-reporter/8.36.1:
+    resolution: {integrity: sha512-VgAd8VQCfwKYz4A3BPDUYNIQxXhRSTaVNbmDzSlYfo5Jekygk7fz0LRFYBpJ69l7eQH0P5nzEyF92oW/rvE3VA==}
     engines: {node: ^16.13 || >=18}
     dependencies:
-      '@wdio/reporter': 8.32.4
-      '@wdio/types': 8.32.4
+      '@wdio/reporter': 8.36.1
+      '@wdio/types': 8.36.1
       chalk: 5.3.0
       easy-table: 1.2.0
       pretty-ms: 7.0.1
     dev: true
 
-  /@wdio/static-server-service/8.32.4:
-    resolution: {integrity: sha512-oAq7gEWjNLB6zSQllD/E7+Ij9+scsTLg2Y1JpgqOEvRF9PNOnef14uW10WzE0SbiUcEBEwDa0CmM+0NrKqW2Rg==}
+  /@wdio/static-server-service/8.36.1:
+    resolution: {integrity: sha512-ExOLTXQj7EvRO47t+oOrIiBIzQJSYeIrc3EEmCF9TkcOqCl/JyVlGyf35/wPXMSP29BGYHSRYngoe48ERA+JtA==}
     engines: {node: ^16.13 || >=18}
     dependencies:
       '@wdio/logger': 8.28.0
-      '@wdio/types': 8.32.4
+      '@wdio/types': 8.36.1
       express: 4.17.1
       morgan: 1.10.0
     dev: true
 
-  /@wdio/types/8.32.4:
-    resolution: {integrity: sha512-pDPGcCvq0MQF8u0sjw9m4aMI2gAKn6vphyBB2+1IxYriL777gbbxd7WQ+PygMBvYVprCYIkLPvhUFwF85WakmA==}
+  /@wdio/types/8.36.1:
+    resolution: {integrity: sha512-kKtyJbypasKo/VQuJ6dTQQwFtHE9qoygjoCZjrQCLGraRSjOEiqZHPR0497wbeCvcgHIYyImbmcylqZNGUE0CQ==}
     engines: {node: ^16.13 || >=18}
     dependencies:
-      '@types/node': 20.3.3
+      '@types/node': 20.11.30
     dev: true
 
-  /@wdio/utils/8.35.0:
-    resolution: {integrity: sha512-9KCyn4aS+9tWfthnUkNFVe52AM6QrLGAeIxgGxNlzTAcQGl7jjwdDM7aSK0RjLkWI3a/88DRH21mN/t2LGDmPQ==}
+  /@wdio/utils/8.36.1:
+    resolution: {integrity: sha512-xmgPHU11/o9n2FeRmDFkPRC0okiwA1i2xOcR2c3aSpuk99XkAm9RaMn/6u9LFaqsCpgaVxazcYEGSceO7U4hZA==}
     engines: {node: ^16.13 || >=18}
     dependencies:
       '@puppeteer/browsers': 1.7.1
       '@wdio/logger': 8.28.0
-      '@wdio/types': 8.32.4
+      '@wdio/types': 8.36.1
       decamelize: 6.0.0
       deepmerge-ts: 5.1.0
       edgedriver: 5.3.8
@@ -4003,10 +3999,10 @@ packages:
     resolution: {integrity: sha512-xh1Rl34h6Fi1DC2WWKfxUTVqRsNnr6LsKz2+hfwDxQJWmrx8+c7ylaqBMcHfl1U1r2dsifOvKX3LQuLNZ+XSvA==}
     dev: true
 
-  /axios/1.6.2:
-    resolution: {integrity: sha512-7i24Ri4pmDRfJTR7LDBhsOTtcm+9kjX5WiY1X3wIisx6G9So3pfMkEiU7emUBe46oceVImccTEM3k6C5dbVW8A==}
+  /axios/1.6.8:
+    resolution: {integrity: sha512-v/ZHtJDU39mDpyBoFVkETcd/uNdxrWRrg3bKpOKzXFA6Bvqopts6ALSMU3y6ijYxbw2B+wPrIv46egTzJXCLGQ==}
     dependencies:
-      follow-redirects: 1.15.2
+      follow-redirects: 1.15.6
       form-data: 4.0.0
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
@@ -4579,17 +4575,17 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /chromedriver/114.0.3:
-    resolution: {integrity: sha512-Qy5kqsAUrCDwpovM5pIWFkb3X3IgJLoorigwFEDgC1boL094svny3N7yw06marJHAuyX4CE/hhd25RarIcKvKg==}
-    engines: {node: '>=16'}
+  /chromedriver/124.0.3:
+    resolution: {integrity: sha512-k6Xu9fwDMgi//bGHB944QMmDHF0BBWGk4PAyVZBEuP6wnZMfQP4V6Sv+l/nuAPA006RllS6X07ZpjPwRPS4BaA==}
+    engines: {node: '>=18'}
     hasBin: true
     requiresBuild: true
     dependencies:
       '@testim/chrome-version': 1.1.4
-      axios: 1.6.2
+      axios: 1.6.8
       compare-versions: 6.1.0
       extract-zip: 2.0.1
-      https-proxy-agent: 5.0.1
+      proxy-agent: 6.4.0
       proxy-from-env: 1.1.0
       tcp-port-used: 1.0.2
     transitivePeerDependencies:
@@ -5229,8 +5225,8 @@ packages:
     resolution: {integrity: sha512-hyWmRrexdhbZ1tcJUGpO95ivbRhWXz++F4Ko+n21AY5PNln2ovoJw+8ZMNDTtip+CNFQfrtLVh/w4009dXO/eQ==}
     dev: true
 
-  /devtools-protocol/0.0.1273771:
-    resolution: {integrity: sha512-QDbb27xcTVReQQW/GHJsdQqGKwYBE7re7gxehj467kKP2DKuYBUj6i2k5LRiAC66J1yZG/9gsxooz/s9pcm0Og==}
+  /devtools-protocol/0.0.1282316:
+    resolution: {integrity: sha512-i7eIqWdVxeXBY/M+v83yRkOV1sTHnr3XYiC0YNBivLIE6hBfE2H0c2o8VC5ynT44yjy+Ei0kLrBQFK/RUKaAHQ==}
     dev: true
 
   /diff-sequences/27.5.1:
@@ -5776,9 +5772,9 @@ packages:
       jest-matcher-utils: 29.7.0
       lodash.isequal: 4.5.0
     optionalDependencies:
-      '@wdio/globals': 8.35.1_typescript@4.6.2
+      '@wdio/globals': 8.36.1_typescript@4.6.2
       '@wdio/logger': 8.28.0
-      webdriverio: 8.35.1_typescript@4.6.2
+      webdriverio: 8.36.1_typescript@4.6.2
     transitivePeerDependencies:
       - bufferutil
       - devtools
@@ -6051,8 +6047,8 @@ packages:
     resolution: {integrity: sha512-3VELfuWCLVzt5d2Gblk8qcqFro6nuwvxwMzHaENVDHI7rxcBRtMCwTk/E9FXcgh+82DSpavPNDueA9+RxXJoFg==}
     dev: true
 
-  /follow-redirects/1.15.2:
-    resolution: {integrity: sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==}
+  /follow-redirects/1.15.6:
+    resolution: {integrity: sha512-wWN62YITEaOpSK584EZXJafH1AGpO8RVgElfkuXbTOrPX4fIfOyEpW/CsiNd8JdYrAoOvafRTOEnvsO++qCqFA==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'
@@ -6900,6 +6896,7 @@ packages:
 
   /ip/2.0.1:
     resolution: {integrity: sha512-lJUL9imLTNi1ZfXT+DU6rBBdbiKGBuay9B6xGSPVjUeQwaH1RIGqef8RZkUtHioLmSNpPR5M4HVKJGm1j8FWVQ==}
+    dev: true
 
   /ipaddr.js/1.9.1:
     resolution: {integrity: sha512-0KI/607xoxSToH7GjN1FfSbLoU0+btTicjsQSWQlh/hZykN8KpmMf7uYwPW3R+akZ6R/w18ZlXSHBYXiYUPO3g==}
@@ -9581,6 +9578,22 @@ packages:
       - supports-color
     dev: true
 
+  /proxy-agent/6.4.0:
+    resolution: {integrity: sha512-u0piLU+nCOHMgGjRbimiXmA9kM/L9EHh3zL81xCdp7m+Y2pHIsnmbdDoEDoAz5geaonNR6q6+yOPQs6n4T6sBQ==}
+    engines: {node: '>= 14'}
+    dependencies:
+      agent-base: 7.1.0
+      debug: 4.3.4
+      http-proxy-agent: 7.0.2
+      https-proxy-agent: 7.0.4
+      lru-cache: 7.18.3
+      pac-proxy-agent: 7.0.1
+      proxy-from-env: 1.1.0
+      socks-proxy-agent: 8.0.2
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
   /proxy-from-env/1.1.0:
     resolution: {integrity: sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==}
     dev: true
@@ -11290,7 +11303,7 @@ packages:
       defaults: 1.0.3
     dev: true
 
-  /wdio-chromedriver-service/8.1.1_82a50f9b94298870e694c5dcc288131d:
+  /wdio-chromedriver-service/8.1.1_13d5c9a187d81a3040fb94df4a1e31ad:
     resolution: {integrity: sha512-pN3GiOkTIMnalfq4PJAHdX95pDp1orHnTY8W1fIbd6ok81ba97UjerTgS7lUDRUh1p0MAm35Ww0uc0/9wzB7SA==}
     engines: {node: ^16.13 || >=18}
     peerDependencies:
@@ -11304,17 +11317,17 @@ packages:
         optional: true
     dependencies:
       '@wdio/logger': 8.16.17
-      '@wdio/types': 8.32.4
-      chromedriver: 114.0.3
+      '@wdio/types': 8.36.1
+      chromedriver: 124.0.3
       fs-extra: 11.1.0
       split2: 4.2.0
       tcp-port-used: 1.0.2
-      webdriverio: 8.35.1_typescript@4.6.2
+      webdriverio: 8.36.1_typescript@4.6.2
     transitivePeerDependencies:
       - supports-color
     dev: true
 
-  /wdio-edgedriver-service/3.0.3_@wdio+types@8.32.4:
+  /wdio-edgedriver-service/3.0.3_@wdio+types@8.36.1:
     resolution: {integrity: sha512-oHKUFnh9Nn4s749Yl8hp20xvfF8GnK4jNV84qoy52/a0ETgWh0FG5qlRVXBIqIulqhGlfrCgL5/pIizMnEix1w==}
     engines: {node: ^16.13 || >=18}
     peerDependencies:
@@ -11324,7 +11337,7 @@ packages:
         optional: true
     dependencies:
       '@wdio/logger': 8.16.17
-      '@wdio/types': 8.32.4
+      '@wdio/types': 8.36.1
       edgedriver: 5.3.8
       get-port: 7.0.0
       split2: 4.2.0
@@ -11333,7 +11346,7 @@ packages:
       - supports-color
     dev: true
 
-  /wdio-safaridriver-service/2.1.1_0d8a82dcaf3d16fa8af174431bab2630:
+  /wdio-safaridriver-service/2.1.1_e44f7dae2e7ecd391a74ad83b25c9493:
     resolution: {integrity: sha512-Rz8uls7EY0bHOZJpykmAMIQzT0gNe6lg32XdCjO/ppSvscWKP57lePGWD80RCU4kKnwX1TbrTivqfjl6vK/1rQ==}
     engines: {node: ^16.13 || >=18}
     peerDependencies:
@@ -11346,12 +11359,12 @@ packages:
       '@types/split2': 4.2.1
       '@types/tcp-port-used': 1.0.1
       '@wdio/logger': 8.16.17
-      '@wdio/types': 8.32.4
+      '@wdio/types': 8.36.1
       fs-extra: 11.1.1
       safaridriver: 0.0.6
       split2: 4.2.0
       tcp-port-used: 1.0.2
-      webdriverio: 8.35.1_typescript@4.6.2
+      webdriverio: 8.36.1_typescript@4.6.2
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -11370,17 +11383,17 @@ packages:
     resolution: {integrity: sha512-qRkpmSeKfEWAzNhtX541xA8gCJ+pqCqBmUlDVkVDSCSYUvfvNqF+k9g8I+uyreRcDBdfiJrd0/aLbTy5ydo49Q==}
     dev: false
 
-  /webdriver/8.35.0:
-    resolution: {integrity: sha512-D13EroddIXDqdq3jgO8j6sorgTWqTwEiTqwlDoJizpRIgHGBy+UjkNM7XW1yVcvt8gsD2Dei2LQth2tJEnu5Ng==}
+  /webdriver/8.36.1:
+    resolution: {integrity: sha512-547RivYCHStVqtiGQBBcABAkzJbPnAWsxpXGzmj5KL+TOM2JF41N2iQRtUxXqr0jme1Nzzye7WS7Y7iSnK6i1g==}
     engines: {node: ^16.13 || >=18}
     dependencies:
       '@types/node': 20.11.30
       '@types/ws': 8.5.4
-      '@wdio/config': 8.35.0
+      '@wdio/config': 8.36.1
       '@wdio/logger': 8.28.0
       '@wdio/protocols': 8.32.0
-      '@wdio/types': 8.32.4
-      '@wdio/utils': 8.35.0
+      '@wdio/types': 8.36.1
+      '@wdio/utils': 8.36.1
       deepmerge-ts: 5.1.0
       got: 12.6.1
       ky: 0.33.2
@@ -11391,8 +11404,8 @@ packages:
       - utf-8-validate
     dev: true
 
-  /webdriverio/8.35.1_typescript@4.6.2:
-    resolution: {integrity: sha512-YAuKR4JERGiMqCJmm5fEVZ160iiFPyupwALqfXfzrYVcEmKltKPFY/oUCArmi6Uzqd+Sa2Kp9WZtz2Eu1R76JA==}
+  /webdriverio/8.36.1_typescript@4.6.2:
+    resolution: {integrity: sha512-vzE09oFQeMbOYJ/75jZ13sDIljzC3HH7uoUJKAMAEtyrn/bu1F9Sg/4IDEsvQaRD3pz3ae6SkRld33lcQk6HJA==}
     engines: {node: ^16.13 || >=18}
     peerDependencies:
       devtools: ^8.14.0
@@ -11400,18 +11413,18 @@ packages:
       devtools:
         optional: true
     dependencies:
-      '@types/node': 20.3.3
-      '@wdio/config': 8.35.0
+      '@types/node': 20.11.30
+      '@wdio/config': 8.36.1
       '@wdio/logger': 8.28.0
       '@wdio/protocols': 8.32.0
       '@wdio/repl': 8.24.12
-      '@wdio/types': 8.32.4
-      '@wdio/utils': 8.35.0
+      '@wdio/types': 8.36.1
+      '@wdio/utils': 8.36.1
       archiver: 7.0.1
       aria-query: 5.1.3
       css-shorthand-properties: 1.1.1
       css-value: 0.0.1
-      devtools-protocol: 0.0.1273771
+      devtools-protocol: 0.0.1282316
       grapheme-splitter: 1.0.4
       import-meta-resolve: 4.0.0
       is-plain-obj: 4.1.0
@@ -11423,7 +11436,7 @@ packages:
       resq: 1.10.0
       rgb2hex: 0.2.5
       serialize-error: 11.0.2
-      webdriver: 8.35.0
+      webdriver: 8.36.1
     transitivePeerDependencies:
       - bufferutil
       - encoding
