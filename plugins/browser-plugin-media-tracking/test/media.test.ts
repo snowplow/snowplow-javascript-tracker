@@ -30,7 +30,12 @@
 
 import { AllEvents, DefaultEvents } from '../src/eventGroups';
 import { findMediaElem } from '../src/findMediaElement';
-import { boundaryErrorHandling, dataUrlHandler, trackingOptionsParser } from '../src/helperFunctions';
+import {
+  boundaryErrorHandling,
+  dataUrlHandler,
+  getUriFileExtension,
+  trackingOptionsParser,
+} from '../src/helperFunctions';
 import { MediaTrackingOptions, TrackingOptions } from '../src/types';
 
 describe('config parser', () => {
@@ -190,5 +195,47 @@ describe('dataUrlHandler', () => {
     const test_url = 'data:image/png;base64,iVBORw0KGgoAA5ErkJggg==';
     const output = dataUrlHandler(test_url);
     expect(output).toBe('DATA_URL');
+  });
+});
+
+describe('getUriFileExtension', () => {
+  it('parses simple URLs', () => {
+    const test_url = 'http://example.com/example.mp4';
+    const output = getUriFileExtension(test_url);
+    expect(output).toBe('mp4');
+  });
+
+  it('ignores uri cruft', () => {
+    let test_url = 'http://example.com/example.wmv?abc=123';
+    let output = getUriFileExtension(test_url);
+    expect(output).toBe('wmv');
+
+    test_url = 'http://example.com/example.avi#fragment';
+    output = getUriFileExtension(test_url);
+    expect(output).toBe('avi');
+  });
+
+  it('prefers the uri pathname', () => {
+    // there is ambiguity here, taking only from the path if possible
+    const test_url = 'http://example.com/example.mp4?token=123.abc';
+    const output = getUriFileExtension(test_url);
+    expect(output).toBe('mp4');
+  });
+
+  it('falls back to rest of uri', () => {
+    const test_url = 'http://example.com/media?file=test.mov';
+    const output = getUriFileExtension(test_url);
+    expect(output).toBe('mov');
+  });
+
+  it('ignores data uris', () => {
+    /*
+    schema description is "The media file format", so could make an argument
+    for pulling the MIME type here, but the name fileExtension implies this
+    should be derived from the name, which we do not have for data URIs
+    */
+    const test_url = 'data:image/png;base64,iVBORw0KGgoAA5ErkJggg==';
+    const output = getUriFileExtension(test_url);
+    expect(output).toBe(null);
   });
 });
