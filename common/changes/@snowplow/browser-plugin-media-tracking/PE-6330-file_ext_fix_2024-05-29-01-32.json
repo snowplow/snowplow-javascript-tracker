@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-media-tracking",
+      "comment": "Adjust extraction of media_element.fileExtension from source URIs.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-media-tracking"
+}
