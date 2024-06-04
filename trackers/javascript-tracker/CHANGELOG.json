@@ -2,6 +2,18 @@
   "name": "@snowplow/javascript-tracker",
   "entries": [
     {
+      "version": "3.23.1",
+      "tag": "@snowplow/javascript-tracker_v3.23.1",
+      "date": "Tue, 04 Jun 2024 13:34:45 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add E2E test compatibility with Micro v3"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.23.0",
       "tag": "@snowplow/javascript-tracker_v3.23.0",
       "date": "Thu, 28 Mar 2024 11:28:45 GMT",
