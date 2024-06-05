@@ -7,7 +7,7 @@
     },
     {
       "path": "./trackers/browser-tracker/dist/index.umd.min.js",
-      "maxSize": "15.5kb",
+      "maxSize": "16kb",
       "maxPercentIncrease": 10
     },
     {
@@ -22,7 +22,7 @@
     },
     {
       "path": "./libraries/browser-tracker-core/dist/index.module.js",
-      "maxSize": "27kb",
+      "maxSize": "28kb",
       "maxPercentIncrease": 10
     },
     {

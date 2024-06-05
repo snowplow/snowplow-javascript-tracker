@@ -52,6 +52,8 @@ export class SharedState {
   /* pageViewId, which can changed by other trackers on page;
    * initialized by tracker sent first event */
   pageViewId?: string;
+  /* URL of the page view which the `pageViewId` was generated for */
+  pageViewUrl?: string;
 }
 
 export function createSharedState(): SharedState {
