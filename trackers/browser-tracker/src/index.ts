@@ -43,6 +43,7 @@ import {
   GetBatch,
   PostBatch,
   ParsedIdCookie,
+  PreservePageViewIdForUrl,
 } from '@snowplow/browser-tracker-core';
 import { version } from '@snowplow/tracker-core';
 
@@ -91,6 +92,7 @@ export {
   GetBatch,
   PostBatch,
   ParsedIdCookie,
+  PreservePageViewIdForUrl,
 };
 export { version };
 export * from './api';

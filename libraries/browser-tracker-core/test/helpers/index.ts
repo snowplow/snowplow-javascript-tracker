@@ -75,7 +75,7 @@ export function createTestSessionIdCookie(params?: CreateTestSessionIdCookie) {
   return `_sp_ses.${domainHash}=*; Expires=; Path=/; SameSite=None; Secure;`;
 }
 
-export function createTracker(configuration?: TrackerConfiguration) {
+export function createTracker(configuration?: TrackerConfiguration, sharedState?: SharedState) {
   let id = 'sp-' + Math.random();
-  return addTracker(id, id, '', '', new SharedState(), configuration);
+  return addTracker(id, id, '', '', sharedState ?? new SharedState(), configuration);
 }
