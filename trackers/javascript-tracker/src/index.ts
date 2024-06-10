@@ -42,7 +42,10 @@ declare global {
 }
 
 const functionName = window.GlobalSnowplowNamespace.shift() as string,
-  queue = window[functionName] as { q: Queue | Array<unknown> };
+  queue = window[functionName] as { q: Queue | Array<unknown> | null };
 
 // Now replace initialization array with queue manager object
-queue.q = InQueueManager(functionName, queue.q as Array<unknown>);
+// KEVIN TILLER - Fix error when running tracker script twice
+if (queue) {
+  queue.q = InQueueManager(functionName, queue.q as Array<unknown>);
+}

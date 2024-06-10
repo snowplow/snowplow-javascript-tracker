@@ -45,11 +45,11 @@
 	// Stop if the Snowplow namespace i already exists
 	if (!p[i]) { 
 	
-		// Initialise the 'GlobalSnowplowNamespace' array
-		p['GlobalSnowplowNamespace'] = p['GlobalSnowplowNamespace'] || [];
+		// Initialise the 'FliptoFliptoFliptoFliptoGlobalSnowplowNamespace' array
+		p['FliptoFliptoFliptoFliptoGlobalSnowplowNamespace'] = p['FliptoFliptoFliptoFliptoGlobalSnowplowNamespace'] || [];
 	
 		// Add the new Snowplow namespace to the global array so sp.js can find it
-		p['GlobalSnowplowNamespace'].push(i);
+		p['FliptoFliptoFliptoFliptoGlobalSnowplowNamespace'].push(i);
 	
 		// Create the Snowplow function
 		p[i] = function() {
