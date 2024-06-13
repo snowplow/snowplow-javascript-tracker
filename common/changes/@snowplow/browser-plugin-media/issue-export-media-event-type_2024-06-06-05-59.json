@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-media",
+      "comment": "Expose MediaEventType",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-media"
+}
