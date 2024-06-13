@@ -951,7 +951,7 @@ export function Tracker(
 
       // So we know what document.title was at the time of trackPageView
       lastDocumentTitle = document.title;
-      lastConfigTitle = title;
+      lastConfigTitle = title ?? lastConfigTitle;
 
       // Fixup page title
       const pageTitle = fixupTitle(lastConfigTitle || lastDocumentTitle);
