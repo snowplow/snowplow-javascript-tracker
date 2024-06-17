@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-media-tracking",
+      "comment": "Handle Infinity/NaN durations in Media Tracking",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-media-tracking"
+}

@@ -33,6 +33,7 @@ import { findMediaElem } from '../src/findMediaElement';
 import {
   boundaryErrorHandling,
   dataUrlHandler,
+  getDuration,
   getUriFileExtension,
   trackingOptionsParser,
 } from '../src/helperFunctions';
@@ -237,5 +238,71 @@ describe('getUriFileExtension', () => {
     const test_url = 'data:image/png;base64,iVBORw0KGgoAA5ErkJggg==';
     const output = getUriFileExtension(test_url);
     expect(output).toBe(null);
+  });
+});
+
+describe('getDuration of a ', () => {
+  describe('video element', () => {
+    it('returns the duration if valid', () => {
+      const video = { duration: 10 } as HTMLVideoElement;
+      const output = getDuration(video);
+      expect(output).toBe(10);
+    });
+
+    it('returns null if the duration is Infinity', () => {
+      const video = { duration: Infinity } as HTMLVideoElement;
+      const output = getDuration(video);
+      expect(output).toBe(null);
+    });
+
+    it('returns null if the duration is +Infinity', () => {
+      const video = { duration: +Infinity } as HTMLVideoElement;
+      const output = getDuration(video);
+      expect(output).toBe(null);
+    });
+
+    it('returns null if the duration is NaN', () => {
+      const video = { duration: NaN } as HTMLVideoElement;
+      const output = getDuration(video);
+      expect(output).toBe(null);
+    });
+
+    it('returns null if the duration is not available', () => {
+      const video = {} as HTMLVideoElement;
+      const output = getDuration(video);
+      expect(output).toBe(null);
+    });
+  });
+
+  describe('audio element', () => {
+    it('returns the duration if valid', () => {
+      const audio = { duration: 10 } as HTMLAudioElement;
+      const output = getDuration(audio);
+      expect(output).toBe(10);
+    });
+
+    it('returns null if the duration is Infinity', () => {
+      const audio = { duration: Infinity } as HTMLAudioElement;
+      const output = getDuration(audio);
+      expect(output).toBe(null);
+    });
+
+    it('returns null if the duration is +Infinity', () => {
+      const audio = { duration: +Infinity } as HTMLAudioElement;
+      const output = getDuration(audio);
+      expect(output).toBe(null);
+    });
+
+    it('returns null if the duration is NaN', () => {
+      const audio = { duration: NaN } as HTMLAudioElement;
+      const output = getDuration(audio);
+      expect(output).toBe(null);
+    });
+
+    it('returns null if the duration is not available', () => {
+      const audio = {} as HTMLAudioElement;
+      const output = getDuration(audio);
+      expect(output).toBe(null);
+    });
   });
 });

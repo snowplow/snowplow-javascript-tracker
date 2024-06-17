@@ -2,6 +2,7 @@ import { eventNames, NETWORK_STATE, READY_STATE } from './constants';
 import { MediaElement, MediaPlayer, MediaPlayerEvent, VideoElement } from './contexts';
 import {
   dataUrlHandler,
+  getDuration,
   getUriFileExtension,
   isElementFullScreen,
   textTrackListToJson,
@@ -29,7 +30,7 @@ export function buildMediaEvent(
 function getMediaPlayerEntities(el: HTMLAudioElement | HTMLVideoElement, detail?: EventDetail): MediaEntities {
   const data: MediaPlayer = {
     currentTime: el.currentTime || 0,
-    duration: el.duration || 0,
+    duration: getDuration(el),
     ended: el.ended,
     loop: el.loop,
     muted: el.muted,
