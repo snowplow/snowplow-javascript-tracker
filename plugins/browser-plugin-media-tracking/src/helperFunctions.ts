@@ -113,3 +113,13 @@ export function dataUrlHandler(url: string): string {
   }
   return url;
 }
+
+export function getDuration(el: HTMLAudioElement | HTMLVideoElement): number | null {
+  const duration = el.duration;
+  // A NaN value is returned if duration is not available, or Infinity if the media resource is streaming.
+  if (isNaN(duration) || duration === Infinity) {
+    return null;
+  }
+
+  return duration;
+}
