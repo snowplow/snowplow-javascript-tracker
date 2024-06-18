@@ -1,0 +1,10 @@
+{
+    "changes": [
+      {
+        "packageName": "@snowplow/browser-tracker-core",
+        "comment": "Fix custom document title override using setDocumentTitle (#1317)",
+        "type": "none"
+      }
+    ],
+    "packageName": "@snowplow/browser-tracker-core"
+  }
