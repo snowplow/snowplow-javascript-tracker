@@ -44,7 +44,7 @@ export const start = (isRemote?: boolean) => {
       return c.start().then(() => {
         const outs = new Writable({
           write(chunk, _, callback) {
-            let found = chunk.toString().includes('REST interface bound');
+            let found = /(REST interface bound|http4s.+started at)/.test(chunk.toString());
             if (found) this.end();
             callback();
           },

@@ -46,6 +46,21 @@ export function boundaryErrorHandling(boundaries: number[]): number[] {
   return boundaries;
 }
 
+export function getUriFileExtension(uri: string): string | null {
+  // greedily match until the final '.' is found with trailing characters, capture those as extension
+  // only capture until finding URI metacharacters
+  const pattern = /.+\.([^\.?&#]+)/;
+
+  let uriPath = uri;
+  try {
+    uriPath = new URL(uri).pathname;
+  } catch (e) {}
+
+  // try to match against the pathname only first, if unsuccessful try against the full URI
+  const match = pattern.exec(uriPath) || pattern.exec(uri);
+  return match && match[1];
+}
+
 export function trackingOptionsParser(id: string, trackingOptions?: MediaTrackingOptions): TrackingOptions {
   const defaults: TrackingOptions = {
     id: id,

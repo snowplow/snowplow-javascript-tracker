@@ -29,13 +29,13 @@ interface BrowserTracker
 |  [enableActivityTrackingCallback](./browser-tracker.browsertracker.enableactivitytrackingcallback.md) | (configuration: ActivityTrackingConfiguration &amp; ActivityTrackingConfigurationCallback) =&gt; void | Enables page activity tracking (replaces collector ping with callback). |
 |  [enableAnonymousTracking](./browser-tracker.browsertracker.enableanonymoustracking.md) | (configuration?: EnableAnonymousTrackingConfiguration) =&gt; void | Enables anonymous tracking (ie. tracker initialized without <code>anonymousTracking</code>) |
 |  [flushBuffer](./browser-tracker.browsertracker.flushbuffer.md) | (configuration?: FlushBufferConfiguration) =&gt; void | Send all events in the outQueue Only need to use this when sending events with a bufferSize of at least 2 |
-|  [getCookieName](./browser-tracker.browsertracker.getcookiename.md) | (basename: string) =&gt; void | Get the cookie name as cookieNamePrefix + basename + . + domain. |
-|  [getDomainSessionIndex](./browser-tracker.browsertracker.getdomainsessionindex.md) | () =&gt; void | Get the domain session index also known as current memorized visit count. |
-|  [getDomainUserId](./browser-tracker.browsertracker.getdomainuserid.md) | () =&gt; void | Get visitor ID (from first party cookie) |
-|  [getDomainUserInfo](./browser-tracker.browsertracker.getdomainuserinfo.md) | () =&gt; void | Get the visitor information (from first party cookie) |
+|  [getCookieName](./browser-tracker.browsertracker.getcookiename.md) | (basename: string) =&gt; string | Get the cookie name as cookieNamePrefix + basename + . + domain. |
+|  [getDomainSessionIndex](./browser-tracker.browsertracker.getdomainsessionindex.md) | () =&gt; number | Get the domain session index also known as current memorized visit count. |
+|  [getDomainUserId](./browser-tracker.browsertracker.getdomainuserid.md) | () =&gt; string | Get visitor ID (from first party cookie) |
+|  [getDomainUserInfo](./browser-tracker.browsertracker.getdomainuserinfo.md) | () =&gt; ParsedIdCookie | Get the visitor information (from first party cookie) |
 |  [getPageViewId](./browser-tracker.browsertracker.getpageviewid.md) | () =&gt; string | Get the current page view ID |
 |  [getTabId](./browser-tracker.browsertracker.gettabid.md) | () =&gt; string \| null | Get the current browser tab ID |
-|  [getUserId](./browser-tracker.browsertracker.getuserid.md) | () =&gt; void | Get the current user ID (as set previously with setUserId()). |
+|  [getUserId](./browser-tracker.browsertracker.getuserid.md) | () =&gt; string \| null \| undefined | Get the current user ID (as set previously with setUserId()). |
 |  [id](./browser-tracker.browsertracker.id.md) | string | The unique identifier of this tracker |
 |  [namespace](./browser-tracker.browsertracker.namespace.md) | string | The tracker namespace |
 |  [newSession](./browser-tracker.browsertracker.newsession.md) | () =&gt; void | Expires current session and starts a new session. |

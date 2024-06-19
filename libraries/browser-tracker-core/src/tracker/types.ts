@@ -366,6 +366,23 @@ export interface BrowserPluginConfiguration extends CorePluginConfiguration {
 }
 
 /**
+ * The format of state elements stored in the `id` cookie.
+ */
+export type ParsedIdCookie = [
+  cookieDisabled: string,
+  domainUserId: string,
+  cookieCreateTs: number,
+  visitCount: number,
+  nowTs: number,
+  lastVisitTs: number | undefined,
+  sessionId: string,
+  previousSessionId: string,
+  firstEventId: string,
+  firstEventTs: number | undefined,
+  eventIndex: number
+];
+
+/**
  * The Browser Tracker
  */
 export interface BrowserTracker {
@@ -383,7 +400,7 @@ export interface BrowserTracker {
    *
    * @returns Domain session index
    */
-  getDomainSessionIndex: () => void;
+  getDomainSessionIndex: () => number;
 
   /**
    * Get the current page view ID
@@ -404,28 +421,28 @@ export interface BrowserTracker {
    *
    * @returns Cookie name
    */
-  getCookieName: (basename: string) => void;
+  getCookieName: (basename: string) => string;
 
   /**
    * Get the current user ID (as set previously with setUserId()).
    *
    * @returns Business-defined user ID
    */
-  getUserId: () => void;
+  getUserId: () => string | null | undefined;
 
   /**
    * Get visitor ID (from first party cookie)
    *
    * @returns Visitor ID (or null, if not yet known)
    */
-  getDomainUserId: () => void;
+  getDomainUserId: () => string;
 
   /**
    * Get the visitor information (from first party cookie)
    *
    * @returns The domain user information array
    */
-  getDomainUserInfo: () => void;
+  getDomainUserInfo: () => ParsedIdCookie;
 
   /**
    * Override referrer

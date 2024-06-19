@@ -30,7 +30,7 @@
 
 import { PayloadBuilder } from '@snowplow/tracker-core';
 import { v4 as uuid } from 'uuid';
-import { ClientSession } from './types';
+import { ClientSession, ParsedIdCookie } from './types';
 
 /**
  * Indices of cookie values

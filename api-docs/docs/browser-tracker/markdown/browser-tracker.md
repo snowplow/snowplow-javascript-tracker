@@ -90,6 +90,7 @@
 |  [ExtendedCrossDomainLinkerOptions](./browser-tracker.extendedcrossdomainlinkeroptions.md) |  |
 |  [FilterProvider](./browser-tracker.filterprovider.md) | A filter provider is a tuple that has two parts: a context filter and the context primitive(s) If the context filter evaluates to true, the tracker will attach the context primitive(s) |
 |  [GetBatch](./browser-tracker.getbatch.md) | A collection of GET events which are sent to the collector. This will be a collection of query strings. |
+|  [ParsedIdCookie](./browser-tracker.parsedidcookie.md) | The format of state elements stored in the <code>id</code> cookie. |
 |  [Platform](./browser-tracker.platform.md) |  |
 |  [PostBatch](./browser-tracker.postbatch.md) | A collection of POST events which are sent to the collector. This will be a collection of JSON objects. |
 |  [RequestFailure](./browser-tracker.requestfailure.md) | The data that will be available to the <code>onRequestFailure</code> callback |

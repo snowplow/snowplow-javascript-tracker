@@ -583,6 +583,12 @@
       "packageName": "@snowplow/browser-plugin-button-click-tracking",
       "reviewCategory": "plugins",
       "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-plugin-event-specifications",
+      "projectFolder": "plugins/browser-plugin-event-specifications",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
     }
   ]
 }

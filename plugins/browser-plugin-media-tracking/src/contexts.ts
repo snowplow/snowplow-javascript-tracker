@@ -112,7 +112,7 @@ export interface MediaElement {
   /**
    * The media file format
    **/
-  fileExtension: string;
+  fileExtension: string | null;
 
   /**
    * If the video element is fullscreen

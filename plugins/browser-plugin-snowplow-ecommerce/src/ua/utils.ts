@@ -1,4 +1,4 @@
-import { Product, Promotion } from '../types';
+import { Product, SPPromotion } from '../types';
 import { EEProduct, EEPromo } from './types';
 
 export function transformUAProductsToSPProducts(products: EEProduct[], currency: string): Product[] {
@@ -18,7 +18,7 @@ export function transformUAProductsToSPProducts(products: EEProduct[], currency:
   });
 }
 
-export function transformUAPromotionsToSPPromotions(promotions: EEPromo[]): Promotion[] {
+export function transformUAPromotionsToSPPromotions(promotions: EEPromo[]): SPPromotion[] {
   return promotions.map((promotion) => ({
     name: promotion.name,
     slot: promotion.position,

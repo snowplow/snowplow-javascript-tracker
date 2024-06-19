@@ -9,5 +9,5 @@ Get the domain session index also known as current memorized visit count.
 <b>Signature:</b>
 
 ```typescript
-getDomainSessionIndex: () => void;
+getDomainSessionIndex: () => number;
 ```
