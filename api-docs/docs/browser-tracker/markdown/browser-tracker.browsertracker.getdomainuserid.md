@@ -9,5 +9,5 @@ Get visitor ID (from first party cookie)
 <b>Signature:</b>
 
 ```typescript
-getDomainUserId: () => void;
+getDomainUserId: () => string;
 ```

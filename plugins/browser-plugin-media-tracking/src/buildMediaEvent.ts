@@ -1,6 +1,12 @@
 import { eventNames, NETWORK_STATE, READY_STATE } from './constants';
 import { MediaElement, MediaPlayer, MediaPlayerEvent, VideoElement } from './contexts';
-import { dataUrlHandler, isElementFullScreen, textTrackListToJson, timeRangesToObjectArray } from './helperFunctions';
+import {
+  dataUrlHandler,
+  getUriFileExtension,
+  isElementFullScreen,
+  textTrackListToJson,
+  timeRangesToObjectArray,
+} from './helperFunctions';
 import { EventDetail, MediaEntities, MediaEventData, TrackingOptions } from './types';
 
 export function buildMediaEvent(
@@ -60,7 +66,7 @@ function getHTMLMediaElementEntities(el: HTMLAudioElement | HTMLVideoElement, co
     seeking: el.seeking,
     src: dataUrlHandler(el.src || el.currentSrc),
     textTracks: textTrackListToJson(el.textTracks),
-    fileExtension: el.currentSrc.split('.').pop() as string,
+    fileExtension: getUriFileExtension(el.currentSrc),
     fullscreen: isElementFullScreen(el.id),
     pictureInPicture: document.pictureInPictureElement?.id === el.id,
   };

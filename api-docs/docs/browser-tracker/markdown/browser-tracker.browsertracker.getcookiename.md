@@ -9,5 +9,5 @@ Get the cookie name as cookieNamePrefix + basename + . + domain.
 <b>Signature:</b>
 
 ```typescript
-getCookieName: (basename: string) => void;
+getCookieName: (basename: string) => string;
 ```

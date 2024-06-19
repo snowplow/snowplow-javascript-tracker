@@ -1,4 +1,4 @@
-import { Product, Promotion } from '../types';
+import { Product, SPPromotion } from '../types';
 import { Item, Promotion as GA4Promotion, GA4EcommerceObject } from './types';
 
 interface GA4ItemTransformation {
@@ -32,7 +32,7 @@ export function transformG4ItemsToSPProducts(
   });
 }
 
-export function transformGA4PromotionToSPPromotion(promotion: GA4EcommerceObject & GA4Promotion): Promotion {
+export function transformGA4PromotionToSPPromotion(promotion: GA4EcommerceObject & GA4Promotion): SPPromotion {
   const productIds = promotion.items.map((item) => item.item_id);
 
   return {

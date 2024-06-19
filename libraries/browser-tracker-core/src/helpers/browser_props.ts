@@ -1,7 +1,70 @@
+interface BrowserProperties {
+  viewport?: string | null;
+  documentSize?: string | null;
+  resolution?: string | null;
+  colorDepth: number;
+  devicePixelRatio: number;
+  cookiesEnabled: boolean;
+  online: boolean;
+  browserLanguage: string;
+  documentLanguage: string;
+  webdriver: boolean;
+  deviceMemory?: number; // Optional because it's not supported in all browsers
+  hardwareConcurrency?: number;
+}
+
+function useResizeObserver(): boolean {
+  return 'ResizeObserver' in window;
+}
+
+let resizeObserverInitialized = false;
+function initializeResizeObserver() {
+  if (resizeObserverInitialized) {
+    return;
+  }
+  resizeObserverInitialized = true;
+
+  const resizeObserver = new ResizeObserver((entries) => {
+    for (let entry of entries) {
+      if (entry.target === document.body || entry.target === document.documentElement) {
+        cachedProperties = readBrowserProperties();
+      }
+    }
+  });
+  resizeObserver.observe(document.body);
+  resizeObserver.observe(document.documentElement);
+}
+
+let cachedProperties: BrowserProperties;
+
 /* Separator used for dimension values e.g. widthxheight */
 const DIMENSION_SEPARATOR = 'x';
 
+/**
+ * Gets various browser properties (that are expensive to read!)
+ * - Will use a "ResizeObserver" approach in modern browsers to update cached properties only on change
+ * - Will fallback to a direct read approach without cache in old browsers
+ *
+ * @returns BrowserProperties
+ */
 export function getBrowserProperties() {
+  if (!useResizeObserver()) {
+    return readBrowserProperties();
+  }
+
+  if (!cachedProperties) {
+    cachedProperties = readBrowserProperties();
+  }
+  initializeResizeObserver();
+  return cachedProperties;
+}
+
+/**
+ * Reads the browser properties - expensive call!
+ *
+ * @returns BrowserProperties
+ */
+function readBrowserProperties(): BrowserProperties {
   return {
     viewport: floorDimensionFields(detectViewport()),
     documentSize: floorDimensionFields(detectDocumentSize()),

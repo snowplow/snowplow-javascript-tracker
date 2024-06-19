@@ -72,13 +72,13 @@ export interface BrowserTracker {
     enableActivityTrackingCallback: (configuration: ActivityTrackingConfiguration & ActivityTrackingConfigurationCallback) => void;
     enableAnonymousTracking: (configuration?: EnableAnonymousTrackingConfiguration) => void;
     flushBuffer: (configuration?: FlushBufferConfiguration) => void;
-    getCookieName: (basename: string) => void;
-    getDomainSessionIndex: () => void;
-    getDomainUserId: () => void;
-    getDomainUserInfo: () => void;
+    getCookieName: (basename: string) => string;
+    getDomainSessionIndex: () => number;
+    getDomainUserId: () => string;
+    getDomainUserInfo: () => ParsedIdCookie;
     getPageViewId: () => string;
     getTabId: () => string | null;
-    getUserId: () => void;
+    getUserId: () => string | null | undefined;
     id: string;
     namespace: string;
     newSession: () => void;
@@ -266,6 +266,21 @@ export interface PageViewEvent {
     contextCallback?: (() => Array<SelfDescribingJson>) | null;
     title?: string | null;
 }
+
+// @public
+export type ParsedIdCookie = [
+cookieDisabled: string,
+domainUserId: string,
+cookieCreateTs: number,
+visitCount: number,
+nowTs: number,
+lastVisitTs: number | undefined,
+sessionId: string,
+previousSessionId: string,
+firstEventId: string,
+firstEventTs: number | undefined,
+eventIndex: number
+];
 
 // @public (undocumented)
 export type Platform = "web" | "mob" | "pc" | "srv" | "app" | "tv" | "cnsl" | "iot";
