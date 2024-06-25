@@ -1,6 +1,14 @@
 # Change Log - @snowplow/browser-tracker-core
 
-This log was last generated on Tue, 04 Jun 2024 13:34:45 GMT and should not be manually modified.
+This log was last generated on Tue, 25 Jun 2024 08:31:05 GMT and should not be manually modified.
+
+## 3.24.0
+Tue, 25 Jun 2024 08:31:05 GMT
+
+### Updates
+
+- Add an option to generate the page view ID according to changes in the page URL to account for events tracked before page views in SPAs (#1307 and #1125)
+- Fix custom document title override using setDocumentTitle (#1317)
 
 ## 3.23.1
 Tue, 04 Jun 2024 13:34:45 GMT

@@ -2,6 +2,21 @@
   "name": "@snowplow/browser-tracker",
   "entries": [
     {
+      "version": "3.24.0",
+      "tag": "@snowplow/browser-tracker_v3.24.0",
+      "date": "Tue, 25 Jun 2024 08:31:05 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add an option to generate the page view ID according to changes in the page URL to account for events tracked before page views in SPAs (#1307 and #1125)"
+          },
+          {
+            "comment": "Expose MediaEventType"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.23.1",
       "tag": "@snowplow/browser-tracker_v3.23.1",
       "date": "Tue, 04 Jun 2024 13:34:45 GMT",
