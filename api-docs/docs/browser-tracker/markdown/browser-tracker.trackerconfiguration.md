@@ -45,6 +45,7 @@ type TrackerConfiguration = {
     retryFailedRequests?: boolean;
     onRequestSuccess?: (data: EventBatch) => void;
     onRequestFailure?: (data: RequestFailure) => void;
+    preservePageViewIdForUrl?: PreservePageViewIdForUrl;
 };
 ```
 

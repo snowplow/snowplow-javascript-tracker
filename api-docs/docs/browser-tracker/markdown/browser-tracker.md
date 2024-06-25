@@ -93,6 +93,7 @@
 |  [ParsedIdCookie](./browser-tracker.parsedidcookie.md) | The format of state elements stored in the <code>id</code> cookie. |
 |  [Platform](./browser-tracker.platform.md) |  |
 |  [PostBatch](./browser-tracker.postbatch.md) | A collection of POST events which are sent to the collector. This will be a collection of JSON objects. |
+|  [PreservePageViewIdForUrl](./browser-tracker.preservepageviewidforurl.md) |  |
 |  [RequestFailure](./browser-tracker.requestfailure.md) | The data that will be available to the <code>onRequestFailure</code> callback |
 |  [RuleSetProvider](./browser-tracker.rulesetprovider.md) | A ruleset provider is aa tuple that has two parts: a ruleset and the context primitive(s) If the ruleset allows the current event schema URI, the tracker will attach the context primitive(s) |
 |  [SelfDescribingJson](./browser-tracker.selfdescribingjson.md) | Export interface for any Self-Describing JSON such as context or Self Describing events |
