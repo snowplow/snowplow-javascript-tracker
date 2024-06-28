@@ -22,6 +22,9 @@ function initializeResizeObserver() {
   if (resizeObserverInitialized) {
     return;
   }
+  if(!document || !document.body || !document.documentElement) {
+    return;
+  }
   resizeObserverInitialized = true;
 
   const resizeObserver = new ResizeObserver((entries) => {
