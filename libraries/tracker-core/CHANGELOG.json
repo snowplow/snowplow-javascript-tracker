@@ -2,6 +2,12 @@
   "name": "@snowplow/tracker-core",
   "entries": [
     {
+      "version": "3.24.1",
+      "tag": "@snowplow/tracker-core_v3.24.1",
+      "date": "Tue, 02 Jul 2024 07:08:17 GMT",
+      "comments": {}
+    },
+    {
       "version": "3.24.0",
       "tag": "@snowplow/tracker-core_v3.24.0",
       "date": "Tue, 25 Jun 2024 08:31:05 GMT",

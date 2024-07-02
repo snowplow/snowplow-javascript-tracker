@@ -1,6 +1,13 @@
 # Change Log - @snowplow/browser-tracker-core
 
-This log was last generated on Tue, 25 Jun 2024 08:31:05 GMT and should not be manually modified.
+This log was last generated on Tue, 02 Jul 2024 07:08:17 GMT and should not be manually modified.
+
+## 3.24.1
+Tue, 02 Jul 2024 07:08:17 GMT
+
+### Updates
+
+- Fix ResizeObserver initialization if document.body does not exist yet (#1311)
 
 ## 3.24.0
 Tue, 25 Jun 2024 08:31:05 GMT
