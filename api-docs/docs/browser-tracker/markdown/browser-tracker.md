@@ -59,6 +59,7 @@
 |  [ContextEvent](./browser-tracker.contextevent.md) | Argument for [ContextGenerator](./browser-tracker.contextgenerator.md) and [ContextFilter](./browser-tracker.contextfilter.md) callback |
 |  [DisableAnonymousTrackingConfiguration](./browser-tracker.disableanonymoustrackingconfiguration.md) | The configuration that can be changed when disabling anonymous tracking |
 |  [EnableAnonymousTrackingConfiguration](./browser-tracker.enableanonymoustrackingconfiguration.md) | The configuration that can be changed when enabling anonymous tracking |
+|  [EventPayloadAndContext](./browser-tracker.eventpayloadandcontext.md) | Interface for returning a built event (PayloadBuilder) and context (Array of SelfDescribingJson). |
 |  [FlushBufferConfiguration](./browser-tracker.flushbufferconfiguration.md) | The configuration that can be changed when flushing the buffer |
 |  [PageViewEvent](./browser-tracker.pageviewevent.md) | A Page View event Used for tracking a page view |
 |  [RuleSet](./browser-tracker.ruleset.md) | A ruleset has accept or reject properties that contain rules for matching Iglu schema URIs |

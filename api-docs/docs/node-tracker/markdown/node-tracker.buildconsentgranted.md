@@ -9,13 +9,7 @@ Build a Consent Granted Event Used for tracking when a user grants their consent
 <b>Signature:</b>
 
 ```typescript
-declare function buildConsentGranted(event: ConsentGrantedEvent): {
-    event: PayloadBuilder;
-    context: {
-        schema: string;
-        data: Record<string, unknown>;
-    }[];
-};
+declare function buildConsentGranted(event: ConsentGrantedEvent): EventPayloadAndContext;
 ```
 
 ## Parameters
@@ -26,7 +20,7 @@ declare function buildConsentGranted(event: ConsentGrantedEvent): {
 
 <b>Returns:</b>
 
-{ event: PayloadBuilder; context: { schema: string; data: Record&lt;string, unknown&gt;; }\[\]; }
+EventPayloadAndContext
 
 An object containing the PayloadBuilder to be sent to  and a 'consent\_document' context
 

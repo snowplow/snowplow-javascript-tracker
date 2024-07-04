@@ -61,6 +61,7 @@ import {
   ContextEvent,
   ContextFilter,
   RuleSet,
+  EventPayloadAndContext,
 } from '@snowplow/tracker-core';
 
 export {
@@ -91,6 +92,7 @@ export {
   RuleSet,
   ExtendedCrossDomainLinkerOptions,
   ExtendedCrossDomainLinkerAttributes,
+  EventPayloadAndContext,
 };
 
 /**
