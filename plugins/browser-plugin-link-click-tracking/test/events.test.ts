@@ -36,17 +36,15 @@ const getUEEvents = F.compose(F.filter(F.compose(F.eq('ue'), F.get('evt.e'))));
 const extractEventProperties = F.map(F.compose(F.get('data'), (cx: string) => JSON.parse(cx), F.get('evt.ue_pr')));
 const extractUeEvent = (schema: string) => {
   return {
-    from: F.compose(
-      F.first,
-      F.filter(F.compose(F.eq(schema), F.get('schema'))),
-      F.flatten,
-      extractEventProperties,
-      getUEEvents
-    ),
+    from: (a: any, n: number = 0) =>
+      F.nth(
+        n,
+        F.compose(F.filter(F.compose(F.eq(schema), F.get('schema'))), F.flatten, extractEventProperties, getUEEvents)(a)
+      ),
   };
 };
 
-describe('AdTrackingPlugin', () => {
+describe('LinkClickTrackingPlugin', () => {
   const state = new SharedState();
   addTracker('sp1', 'sp1', 'js-3.0.0', '', state, {
     stateStorageStrategy: 'cookie',
@@ -71,6 +69,31 @@ describe('AdTrackingPlugin', () => {
         targetUrl: 'https://www.example.com',
         elementClasses: ['class-1', 'class-2'],
         elementContent: 'content-1',
+        elementId: 'id-1234',
+        elementTarget: '_blank',
+      },
+    });
+  });
+
+  it('trackLinkClick with element adds the expected link click event to the queue', () => {
+    const a = Object.assign(document.createElement('a'), {
+      href: 'https://www.example.com/abc',
+      className: 'class-1 class-2',
+      textContent: 'content-1',
+      id: 'id-1234',
+      target: '_blank',
+    });
+
+    trackLinkClick({ element: a });
+
+    expect(
+      extractUeEvent('iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1').from(state.outQueues[0], 1)
+    ).toMatchObject({
+      schema: 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1',
+      data: {
+        targetUrl: 'https://www.example.com/abc',
+        elementClasses: ['class-1', 'class-2'],
+        //elementContent: missing because disabled in default configuration
         elementId: 'id-1234',
         elementTarget: '_blank',
       },
