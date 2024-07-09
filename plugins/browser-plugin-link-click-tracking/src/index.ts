@@ -145,9 +145,9 @@ export function disableLinkClickTracking(trackers: Array<string> = Object.keys(_
   trackers.forEach((id) => {
     if (_trackers[id] && _listeners[id]) {
       // remove all possible cases where the handler may have been attached
-      window.removeEventListener('click', _listeners[id]);
-      window.removeEventListener('mouseup', _listeners[id]);
-      window.removeEventListener('mousedown', _listeners[id]);
+      window.removeEventListener('click', _listeners[id], true);
+      window.removeEventListener('mouseup', _listeners[id], true);
+      window.removeEventListener('mousedown', _listeners[id], true);
     }
   });
 }
