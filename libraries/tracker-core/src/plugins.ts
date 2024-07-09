@@ -58,7 +58,7 @@ export interface CorePlugin {
    * @param payload - The final event payload, can't be modified.
    * @returns True if the payload should be sent, false if it should be skipped
    */
-  filter?: (payloadBuilder: Payload) => boolean;
+  filter?: (payload: Payload) => boolean;
   /**
    * Called when constructing the context for each event
    * Useful for adding additional context to events
