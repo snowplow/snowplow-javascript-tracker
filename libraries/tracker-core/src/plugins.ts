@@ -54,6 +54,12 @@ export interface CorePlugin {
    */
   afterTrack?: (payload: Payload) => void;
   /**
+   * Called before the payload is sent to the callback to decide whether to send the payload or skip it
+   * @param payload - The final event payload, can't be modified.
+   * @returns True if the payload should be sent, false if it should be skipped
+   */
+  filter?: (payloadBuilder: Payload) => boolean;
+  /**
    * Called when constructing the context for each event
    * Useful for adding additional context to events
    */

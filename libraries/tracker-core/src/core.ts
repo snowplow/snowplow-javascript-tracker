@@ -138,7 +138,7 @@ export interface TrackerCore {
    * @param pb - Payload
    * @param context - Custom contexts relating to the event
    * @param timestamp - Timestamp of the event
-   * @returns Payload after the callback is applied
+   * @returns Payload after the callback is applied or undefined if the event is skipped
    */
   track: (
     /** A PayloadBuilder created by one of the `buildX` functions */
@@ -147,7 +147,7 @@ export interface TrackerCore {
     context?: Array<SelfDescribingJson> | null,
     /** Timestamp override */
     timestamp?: Timestamp | null
-  ) => Payload;
+  ) => Payload | undefined;
 
   /**
    * Set a persistent key-value pair to be added to every payload
@@ -376,13 +376,13 @@ export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore 
      * @param pb - Payload
      * @param context - Custom contexts relating to the event
      * @param timestamp - Timestamp of the event
-     * @returns Payload after the callback is applied
+     * @returns Payload after the callback is applied or undefined if the event is skipped
      */
     function track(
       pb: PayloadBuilder,
       context?: Array<SelfDescribingJson> | null,
       timestamp?: Timestamp | null
-    ): Payload {
+    ): Payload | undefined {
       pb.withJsonProcessor(payloadJsonProcessor(encodeBase64));
       pb.add('eid', uuid());
       pb.addDict(payloadPairs);
@@ -403,6 +403,19 @@ export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore 
           LOG.error('Plugin beforeTrack', ex);
         }
       });
+
+      // Call the filter on plugins to determine if the event should be tracked
+      const skip = corePlugins.find((plugin) => {
+        try {
+          return plugin.filter && !plugin.filter(pb.build());
+        } catch (ex) {
+          LOG.error('Plugin filter', ex);
+          return false;
+        }
+      });
+      if (skip) {
+        return undefined;
+      }
 
       if (typeof callback === 'function') {
         callback(pb);
