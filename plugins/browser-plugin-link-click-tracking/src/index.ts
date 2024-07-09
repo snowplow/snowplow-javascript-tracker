@@ -198,20 +198,18 @@ function processClick(sourceElement: TrackableElement, includeContent: boolean =
   const anchorElement = sourceElement;
   // browsers, such as Safari, don't downcase hostname and href
   const originalSourceHostName = anchorElement.hostname || getHostName(anchorElement.href);
-  let sourceHref = anchorElement.href.replace(originalSourceHostName, (s) => s.toLowerCase());
+  const targetUrl = anchorElement.href.replace(originalSourceHostName, (s) => s.toLowerCase());
 
   // Ignore script pseudo-protocol links
-  if (!ELEMENT_PROTOCOL_FILTER.test(sourceHref)) {
+  if (!ELEMENT_PROTOCOL_FILTER.test(targetUrl)) {
     elementId = anchorElement.id;
     elementClasses = getCssClasses(anchorElement);
     elementTarget = anchorElement.target;
     elementContent = includeContent ? anchorElement.innerHTML : undefined;
 
     // decodeUrl %xx
-    // NOTE(jethron): Why do we do this?
-    sourceHref = unescape(sourceHref);
     return buildLinkClick({
-      targetUrl: sourceHref,
+      targetUrl,
       elementId,
       elementClasses,
       elementTarget,
