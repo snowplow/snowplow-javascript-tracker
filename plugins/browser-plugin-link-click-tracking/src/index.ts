@@ -166,17 +166,17 @@ export function refreshLinkClickTracking(_trackers: Array<string> = []) {
 /**
  * Manually log a click.
  *
- * @param event The event information
+ * @param event The event or element information
  * @param trackers The tracker identifiers which the event will be sent to
  */
 export function trackLinkClick(
-  event: (LinkClickEvent | { element: TrackableElement }) & CommonEventProperties,
+  event: (LinkClickEvent | { element: TrackableElement; trackContent?: boolean }) & CommonEventProperties,
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   dispatchToTrackersInCollection(trackers, _trackers, (t) => {
     let payload: PayloadBuilder | undefined;
     if ('element' in event) {
-      const includeContent = _configuration[t.id]?.linkTrackingContent ?? false;
+      const includeContent = event.trackContent ?? _configuration[t.id]?.linkTrackingContent ?? false;
       payload = processClick(event.element, includeContent);
     } else {
       payload = buildLinkClick(event);
