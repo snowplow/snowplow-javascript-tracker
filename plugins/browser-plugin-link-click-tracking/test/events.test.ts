@@ -58,6 +58,7 @@ describe('LinkClickTrackingPlugin', () => {
   afterEach(() => {
     // clear the outQueue(s) after each test
     state.outQueues.forEach((queue) => Array.isArray(queue) && (queue.length = 0));
+    jest.clearAllMocks();
   });
 
   describe('trackLinkClick', () => {
@@ -282,8 +283,8 @@ describe('LinkClickTrackingPlugin', () => {
       disableLinkClickTracking();
 
       const addCalls = $addEventListener.mock.calls;
-      console.log('addCalls', addCalls);
 
+      expect(addCalls).toHaveLength(1);
       expect($removeEventListener.mock.calls).toContainEqual(addCalls[0]);
     });
   });
