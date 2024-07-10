@@ -44,7 +44,7 @@ export interface CorePlugin {
    */
   activateCorePlugin?: (core: TrackerCore) => void;
   /**
-   * Called just before the trackerCore callback fires
+   * Called before the `filter` method is called and before the trackerCore callback fires (if the filter passes)
    * @param payloadBuilder - The payloadBuilder which will be sent to the callback, can be modified
    */
   beforeTrack?: (payloadBuilder: PayloadBuilder) => void;
