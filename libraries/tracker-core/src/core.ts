@@ -407,7 +407,7 @@ export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore 
       // Call the filter on plugins to determine if the event should be tracked
       const skip = corePlugins.find((plugin) => {
         try {
-          return plugin.filter && !plugin.filter(pb.build());
+          return plugin.filter && plugin.filter(pb.build()) === false;
         } catch (ex) {
           LOG.error('Plugin filter', ex);
           return false;
