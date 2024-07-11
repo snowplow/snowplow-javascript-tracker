@@ -20,5 +20,6 @@ interface CorePlugin
 |  [afterTrack?](./node-tracker.coreplugin.aftertrack.md) | (payload: Payload) =&gt; void | <i>(Optional)</i> Called just after the trackerCore callback fires |
 |  [beforeTrack?](./node-tracker.coreplugin.beforetrack.md) | (payloadBuilder: PayloadBuilder) =&gt; void | <i>(Optional)</i> Called just before the trackerCore callback fires |
 |  [contexts?](./node-tracker.coreplugin.contexts.md) | () =&gt; SelfDescribingJson\[\] | <i>(Optional)</i> Called when constructing the context for each event Useful for adding additional context to events |
+|  [filter?](./node-tracker.coreplugin.filter.md) | (payload: Payload) =&gt; boolean | <i>(Optional)</i> Called before the payload is sent to the callback to decide whether to send the payload or skip it |
 |  [logger?](./node-tracker.coreplugin.logger.md) | (logger: Logger) =&gt; void | <i>(Optional)</i> Passed a logger instance which can be used to send log information to the active logger |
 

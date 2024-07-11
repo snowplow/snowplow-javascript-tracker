@@ -23,8 +23,7 @@
 |  [enableAnonymousTracking(configuration, trackers)](./browser-tracker.enableanonymoustracking.md) | Enables anonymous tracking (ie. tracker initialized without <code>anonymousTracking</code>) |
 |  [flushBuffer(configuration, trackers)](./browser-tracker.flushbuffer.md) | Send all events in the outQueue Only need to use this when sending events with a bufferSize of at least 2 |
 |  [newSession(trackers)](./browser-tracker.newsession.md) | Expires current session and starts a new session. |
-|  [newTracker(trackerId, endpoint)](./browser-tracker.newtracker.md) | Initialise a new tracker |
-|  [newTracker(trackerId, endpoint, configuration)](./browser-tracker.newtracker_1.md) | Initialise a new tracker |
+|  [newTracker(trackerId, endpoint, configuration)](./browser-tracker.newtracker.md) | Initialise a new tracker |
 |  [preservePageViewId(trackers)](./browser-tracker.preservepageviewid.md) | Stop regenerating <code>pageViewId</code> (available from <code>web_page</code> context) |
 |  [removeGlobalContexts(contexts, trackers)](./browser-tracker.removeglobalcontexts.md) | All provided contexts will no longer be sent with every event |
 |  [setBufferSize(newBufferSize, trackers)](./browser-tracker.setbuffersize.md) | Set the buffer size Can be useful if you want to stop batching requests to ensure events start sending closer to event creation |

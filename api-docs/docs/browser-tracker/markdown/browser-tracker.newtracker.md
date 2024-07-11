@@ -9,7 +9,7 @@ Initialise a new tracker
 <b>Signature:</b>
 
 ```typescript
-declare function newTracker(trackerId: string, endpoint: string): BrowserTracker;
+declare function newTracker(trackerId: string, endpoint: string, configuration?: TrackerConfiguration): BrowserTracker | null | undefined;
 ```
 
 ## Parameters
@@ -18,8 +18,9 @@ declare function newTracker(trackerId: string, endpoint: string): BrowserTracker
 |  --- | --- | --- |
 |  trackerId | string | The tracker id - also known as tracker namespace |
 |  endpoint | string | Collector endpoint in the form collector.mysite.com |
+|  configuration | TrackerConfiguration | The initialisation options of the tracker |
 
 <b>Returns:</b>
 
-BrowserTracker
+BrowserTracker \| null \| undefined
 

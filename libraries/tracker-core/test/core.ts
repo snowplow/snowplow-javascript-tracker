@@ -80,7 +80,7 @@ test('tracker.track API should return the eid attribute', (t) => {
     page: pageTitle,
     refr: referrer,
   };
-  const eventPayload = tracker.track(buildPageView({ pageUrl, pageTitle, referrer }));
+  const eventPayload = tracker.track(buildPageView({ pageUrl, pageTitle, referrer }))!;
   t.truthy(eventPayload.eid);
   t.regex(eventPayload.eid as string, UUID_REGEX);
   compare(eventPayload, expected, t);
@@ -96,7 +96,7 @@ test('should track a page view', (t) => {
     page: pageTitle,
     refr: referrer,
   };
-  compare(tracker.track(buildPageView({ pageUrl, pageTitle, referrer })), expected, t);
+  compare(tracker.track(buildPageView({ pageUrl, pageTitle, referrer }))!, expected, t);
 });
 test('should track a page ping', (t) => {
   const pageUrl = 'http://www.example.com';
@@ -115,7 +115,7 @@ test('should track a page ping', (t) => {
   compare(
     tracker.track(
       buildPagePing({ pageUrl, pageTitle, referrer, minXOffset: 1, maxXOffset: 2, minYOffset: 3, maxYOffset: 4 })
-    ),
+    )!,
     expected,
     t
   );
@@ -130,7 +130,7 @@ test('should track a structured event', (t) => {
     se_va: '1',
   };
   compare(
-    tracker.track(buildStructEvent({ category: 'cat', action: 'act', label: 'lab', property: 'prop', value: 1 })),
+    tracker.track(buildStructEvent({ category: 'cat', action: 'act', label: 'lab', property: 'prop', value: 1 }))!,
     expected,
     t
   );
@@ -170,7 +170,7 @@ test('should track an ecommerce transaction event', (t) => {
         country,
         currency,
       })
-    ),
+    )!,
     expected,
     t
   );
@@ -194,7 +194,7 @@ test('should track an ecommerce transaction item event', (t) => {
     ti_cu: currency,
   };
   compare(
-    tracker.track(buildEcommerceTransactionItem({ orderId, sku, name, category, price, quantity, currency })),
+    tracker.track(buildEcommerceTransactionItem({ orderId, sku, name, category, price, quantity, currency }))!,
     expected,
     t
   );
@@ -213,7 +213,7 @@ test('should track a self-describing event', (t) => {
       data: inputJson,
     }),
   };
-  compare(tracker.track(buildSelfDescribingEvent({ event: inputJson })), expected, t);
+  compare(tracker.track(buildSelfDescribingEvent({ event: inputJson }))!, expected, t);
 });
 test('should track a link click', (t) => {
   const targetUrl = 'http://www.example.com';
@@ -239,7 +239,7 @@ test('should track a link click', (t) => {
     }),
   };
   compare(
-    tracker.track(buildLinkClick({ targetUrl, elementId, elementClasses, elementTarget, elementContent })),
+    tracker.track(buildLinkClick({ targetUrl, elementId, elementClasses, elementTarget, elementContent }))!,
     expected,
     t
   );
@@ -261,7 +261,7 @@ test('should track a screen view', (t) => {
       data: inputJson,
     }),
   };
-  compare(tracker.track(buildScreenView({ name, id })), expected, t);
+  compare(tracker.track(buildScreenView({ name, id }))!, expected, t);
 });
 test('should track an ad impression', (t) => {
   const impressionId = 'a0e8f8780ab3';
@@ -295,7 +295,7 @@ test('should track an ad impression', (t) => {
   compare(
     tracker.track(
       buildAdImpression({ impressionId, costModel, cost, targetUrl, bannerId, zoneId, advertiserId, campaignId })
-    ),
+    )!,
     expected,
     t
   );
@@ -334,7 +334,7 @@ test('should track an ad click', (t) => {
   compare(
     tracker.track(
       buildAdClick({ targetUrl, clickId, costModel, cost, bannerId, zoneId, impressionId, advertiserId, campaignId })
-    ),
+    )!,
     expected,
     t
   );
@@ -383,7 +383,7 @@ test('should track an ad conversion', (t) => {
         advertiserId,
         campaignId,
       })
-    ),
+    )!,
     expected,
     t
   );
@@ -407,7 +407,7 @@ test('should track a social interaction', (t) => {
       data: inputJson,
     }),
   };
-  compare(tracker.track(buildSocialInteraction({ action, network, target })), expected, t);
+  compare(tracker.track(buildSocialInteraction({ action, network, target }))!, expected, t);
 });
 test('should track an add-to-cart event', (t) => {
   const sku = '4q345';
@@ -434,7 +434,7 @@ test('should track an add-to-cart event', (t) => {
       data: inputJson,
     }),
   };
-  compare(tracker.track(buildAddToCart({ sku, name, category, unitPrice, quantity, currency })), expected, t);
+  compare(tracker.track(buildAddToCart({ sku, name, category, unitPrice, quantity, currency }))!, expected, t);
 });
 test('should track a remove-from-cart event', (t) => {
   const sku = '4q345';
@@ -461,7 +461,7 @@ test('should track a remove-from-cart event', (t) => {
       data: inputJson,
     }),
   };
-  compare(tracker.track(buildRemoveFromCart({ sku, name, category, unitPrice, quantity, currency })), expected, t);
+  compare(tracker.track(buildRemoveFromCart({ sku, name, category, unitPrice, quantity, currency }))!, expected, t);
 });
 test('should track a form focus event', (t) => {
   const formId = 'parent';
@@ -491,7 +491,7 @@ test('should track a form focus event', (t) => {
   compare(
     tracker.track(
       buildFormFocusOrChange({ schema: 'focus_form', formId, elementId, nodeName, type, elementClasses, value })
-    ),
+    )!,
     expected,
     t
   );
@@ -524,7 +524,7 @@ test('should track a form change event', (t) => {
   compare(
     tracker.track(
       buildFormFocusOrChange({ schema: 'change_form', formId, elementId, nodeName, type, elementClasses, value })
-    ),
+    )!,
     expected,
     t
   );
@@ -555,7 +555,7 @@ test('should track a form submission event', (t) => {
       data: inputJson,
     }),
   };
-  compare(tracker.track(buildFormSubmission({ formId, formClasses, elements })), expected, t);
+  compare(tracker.track(buildFormSubmission({ formId, formClasses, elements }))!, expected, t);
 });
 test('should track a site seach event', (t) => {
   const terms = ['javascript', 'development'];
@@ -581,7 +581,7 @@ test('should track a site seach event', (t) => {
       data: inputJson,
     }),
   };
-  compare(tracker.track(buildSiteSearch({ terms, filters, totalResults, pageResults })), expected, t);
+  compare(tracker.track(buildSiteSearch({ terms, filters, totalResults, pageResults }))!, expected, t);
 });
 test('should track a consent withdrawn event', (t) => {
   const all = false;
@@ -619,7 +619,7 @@ test('should track a consent withdrawn event', (t) => {
     }),
   };
   const consentEvent = buildConsentWithdrawn({ all, id, version, name, description });
-  compare(tracker.track(consentEvent.event, consentEvent.context, timestamp), expected, t);
+  compare(tracker.track(consentEvent.event, consentEvent.context, timestamp)!, expected, t);
 });
 test('should track a consent granted event', (t) => {
   const id = '1234';
@@ -657,7 +657,7 @@ test('should track a consent granted event', (t) => {
     }),
   };
   const consentEvent = buildConsentGranted({ id, version, name, description, expiry });
-  compare(tracker.track(consentEvent.event, consentEvent.context, timestamp), expected, t);
+  compare(tracker.track(consentEvent.event, consentEvent.context, timestamp)!, expected, t);
 });
 test('should track a page view with custom context', (t) => {
   const pageUrl = 'http://www.example.com';
@@ -682,7 +682,7 @@ test('should track a page view with custom context', (t) => {
       data: inputContext,
     }),
   };
-  compare(tracker.track(buildPageView({ pageUrl, pageTitle, referrer }), inputContext), expected, t);
+  compare(tracker.track(buildPageView({ pageUrl, pageTitle, referrer }), inputContext)!, expected, t);
 });
 test('should track a page view with a timestamp', (t) => {
   const timestamp = 1000000000000;
@@ -691,7 +691,7 @@ test('should track a page view with a timestamp', (t) => {
       buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'title', referrer: 'ref' }),
       [],
       timestamp
-    )['dtm'],
+    )!['dtm'],
     '1000000000000'
   );
 });
@@ -710,7 +710,7 @@ test('should add individual name-value pairs to the payload', (t) => {
   };
   tracker.addPayloadPair('tna', 'sp');
   tracker.addPayloadPair('tv', 'js-2.0.0');
-  compare(tracker.track(buildPageView({ pageUrl, pageTitle, referrer })), expected, t);
+  compare(tracker.track(buildPageView({ pageUrl, pageTitle, referrer }))!, expected, t);
 });
 test('should add a dictionary of name-value pairs to the payload', (t) => {
   const tracker = trackerCore({ base64: false });
@@ -731,7 +731,7 @@ test('should add a dictionary of name-value pairs to the payload', (t) => {
     tna: 'sp',
     aid: 'sp325',
   });
-  compare(tracker.track(buildPageView({ pageUrl, pageTitle, referrer })), expected, t);
+  compare(tracker.track(buildPageView({ pageUrl, pageTitle, referrer }))!, expected, t);
 });
 test('should reset payload name-value pairs', (t) => {
   const tracker = trackerCore({ base64: false });
@@ -747,7 +747,7 @@ test('should reset payload name-value pairs', (t) => {
   };
   tracker.addPayloadPair('tna', 'mistake');
   tracker.resetPayloadPairs({ tna: 'sp' });
-  compare(tracker.track(buildPageView({ pageUrl, pageTitle, referrer })), expected, t);
+  compare(tracker.track(buildPageView({ pageUrl, pageTitle, referrer }))!, expected, t);
 });
 test('should execute a callback', (t) => {
   const tracker = trackerCore({
@@ -802,7 +802,7 @@ test('should use setter methods', (t) => {
     ua: 'SnowplowJavascript/0.0.1',
     refr: referrer,
   };
-  compare(tracker.track(buildPageView({ pageUrl, pageTitle, referrer })), expected, t);
+  compare(tracker.track(buildPageView({ pageUrl, pageTitle, referrer }))!, expected, t);
 });
 
 test('should set true timestamp', (t) => {
@@ -812,7 +812,7 @@ test('should set true timestamp', (t) => {
   const result = tracker.track(buildPageView({ pageUrl, pageTitle, referrer }), undefined, {
     type: 'ttm',
     value: 1477403862,
-  });
+  })!;
   t.true('ttm' in result);
   t.is(result['ttm'], '1477403862');
   t.false('dtm' in result);
@@ -828,7 +828,7 @@ test('should set device timestamp as ADT', (t) => {
   const result = tracker.track(buildSelfDescribingEvent({ event: inputJson }), [inputJson], {
     type: 'dtm',
     value: 1477403869,
-  });
+  })!;
   t.true('dtm' in result);
   t.is(result['dtm'], '1477403869');
   t.false('ttm' in result);
@@ -931,4 +931,106 @@ test('should run plugin before and after track callbacks on each track event', (
 
   t.is(beforeCount, fs.length);
   t.is(afterCount, fs.length);
+});
+
+test('should skip events in case the plugin filter function returns false', (t) => {
+  let countTracked = 0;
+  const tracker = trackerCore({
+    base64: false,
+    corePlugins: [
+      {
+        filter: (payload) => {
+          return payload.e !== 'pv';
+        },
+      },
+      {
+        filter: (payload) => {
+          return payload.e !== 'pp';
+        },
+      },
+      {
+        afterTrack: () => {
+          countTracked += 1;
+        },
+      },
+    ],
+  });
+
+  t.falsy(
+    tracker.track(
+      buildPageView({
+        pageUrl: 'http://www.example.com',
+        pageTitle: 'title page',
+        referrer: 'https://www.google.com',
+      })
+    )
+  );
+
+  t.falsy(
+    tracker.track(
+      buildPagePing({
+        pageUrl: 'http://www.example.com',
+        pageTitle: 'title page',
+        referrer: 'https://www.google.com',
+        maxXOffset: 1,
+        maxYOffset: 1,
+        minXOffset: 1,
+        minYOffset: 1,
+      })
+    )
+  );
+
+  t.truthy(
+    tracker.track(
+      buildAddToCart({
+        category: 'cat',
+        name: 'name',
+        quantity: 1,
+        sku: 'sku',
+        unitPrice: 1,
+      })
+    )
+  );
+
+  t.assert(countTracked === 1);
+});
+
+test('filter is passed full payload including dynamic context', (t) => {
+  let countTracked = 0;
+  const tracker = trackerCore({
+    base64: false,
+    corePlugins: [
+      {
+        contexts: () => {
+          return [
+            {
+              schema: 'iglu:com.acme/user/jsonschema/1-0-0',
+              data: {
+                userType: 'tester',
+                userName: 'Jon',
+              },
+            },
+          ]
+        },
+        filter: (payload) => {
+          return (payload.co as string).includes('com.acme');
+        },
+        afterTrack: () => {
+          countTracked += 1;
+        },
+      },
+    ],
+  });
+
+  t.truthy(
+    tracker.track(
+      buildPageView({
+        pageUrl: 'http://www.example.com',
+        pageTitle: 'title page',
+        referrer: 'https://www.google.com',
+      })
+    )
+  );
+
+  t.assert(countTracked === 1);
 });

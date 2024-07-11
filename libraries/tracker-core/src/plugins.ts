@@ -44,7 +44,7 @@ export interface CorePlugin {
    */
   activateCorePlugin?: (core: TrackerCore) => void;
   /**
-   * Called just before the trackerCore callback fires
+   * Called before the `filter` method is called and before the trackerCore callback fires (if the filter passes)
    * @param payloadBuilder - The payloadBuilder which will be sent to the callback, can be modified
    */
   beforeTrack?: (payloadBuilder: PayloadBuilder) => void;
@@ -53,6 +53,12 @@ export interface CorePlugin {
    * @param payload - The final built payload
    */
   afterTrack?: (payload: Payload) => void;
+  /**
+   * Called before the payload is sent to the callback to decide whether to send the payload or skip it
+   * @param payload - The final event payload, can't be modified.
+   * @returns True if the payload should be sent, false if it should be skipped
+   */
+  filter?: (payload: Payload) => boolean;
   /**
    * Called when constructing the context for each event
    * Useful for adding additional context to events

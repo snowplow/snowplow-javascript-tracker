@@ -110,7 +110,7 @@ for (const method of testMethods) {
     const eventPayload = track.track(
       buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'example page', referrer: 'http://google.com' }),
       context
-    );
+    )!;
     t.truthy(eventPayload.eid);
     t.regex(eventPayload.eid as string, UUID_REGEX);
   });
