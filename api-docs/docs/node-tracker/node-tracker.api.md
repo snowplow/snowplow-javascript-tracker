@@ -167,6 +167,7 @@ export interface CorePlugin {
     afterTrack?: (payload: Payload) => void;
     beforeTrack?: (payloadBuilder: PayloadBuilder) => void;
     contexts?: () => SelfDescribingJson[];
+    filter?: (payload: Payload) => boolean;
     // Warning: (ae-forgotten-export) The symbol "Logger" needs to be exported by the entry point index.module.d.ts
     logger?: (logger: Logger) => void;
 }
