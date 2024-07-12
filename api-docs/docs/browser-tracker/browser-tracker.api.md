@@ -222,6 +222,13 @@ export type EventBatch = GetBatch | PostBatch;
 // @public (undocumented)
 export type EventMethod = "post" | "get" | "beacon";
 
+// @public
+export interface EventPayloadAndContext {
+    context: Array<SelfDescribingJson>;
+    // Warning: (ae-forgotten-export) The symbol "PayloadBuilder" needs to be exported by the entry point index.module.d.ts
+    event: PayloadBuilder;
+}
+
 // @public (undocumented)
 export type ExtendedCrossDomainLinkerAttributes = {
     userId?: boolean;

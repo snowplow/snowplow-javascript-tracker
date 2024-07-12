@@ -9,13 +9,7 @@ Build a Consent Withdrawn Event Used for tracking when a user withdraws their co
 <b>Signature:</b>
 
 ```typescript
-declare function buildConsentWithdrawn(event: ConsentWithdrawnEvent): {
-    event: PayloadBuilder;
-    context: {
-        schema: string;
-        data: Record<string, unknown>;
-    }[];
-};
+declare function buildConsentWithdrawn(event: ConsentWithdrawnEvent): EventPayloadAndContext;
 ```
 
 ## Parameters
@@ -26,7 +20,7 @@ declare function buildConsentWithdrawn(event: ConsentWithdrawnEvent): {
 
 <b>Returns:</b>
 
-{ event: PayloadBuilder; context: { schema: string; data: Record&lt;string, unknown&gt;; }\[\]; }
+EventPayloadAndContext
 
 An object containing the PayloadBuilder to be sent to  and a 'consent\_document' context
 

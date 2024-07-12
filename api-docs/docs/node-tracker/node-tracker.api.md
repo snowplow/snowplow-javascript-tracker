@@ -72,22 +72,10 @@ export function buildAddToCart(event: AddToCartEvent): PayloadBuilder;
 export function buildAdImpression(event: AdImpressionEvent): PayloadBuilder;
 
 // @public
-export function buildConsentGranted(event: ConsentGrantedEvent): {
-    event: PayloadBuilder;
-    context: {
-        schema: string;
-        data: Record<string, unknown>;
-    }[];
-};
+export function buildConsentGranted(event: ConsentGrantedEvent): EventPayloadAndContext;
 
 // @public
-export function buildConsentWithdrawn(event: ConsentWithdrawnEvent): {
-    event: PayloadBuilder;
-    context: {
-        schema: string;
-        data: Record<string, unknown>;
-    }[];
-};
+export function buildConsentWithdrawn(event: ConsentWithdrawnEvent): EventPayloadAndContext;
 
 // @public
 export function buildEcommerceTransaction(event: EcommerceTransactionEvent): PayloadBuilder;
@@ -214,6 +202,12 @@ export interface Emitter {
     // (undocumented)
     input: (payload: Payload) => void;
     setAnonymization?: (shouldAnonymize: boolean) => void;
+}
+
+// @public
+export interface EventPayloadAndContext {
+    context: Array<SelfDescribingJson>;
+    event: PayloadBuilder;
 }
 
 // @public
