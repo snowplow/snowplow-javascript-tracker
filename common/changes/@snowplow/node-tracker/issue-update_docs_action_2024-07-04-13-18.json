@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/node-tracker",
+      "comment": "Fix API docs CI action and update it's dependencies",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/node-tracker"
+}
