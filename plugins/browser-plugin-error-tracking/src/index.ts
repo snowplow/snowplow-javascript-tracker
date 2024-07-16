@@ -36,6 +36,7 @@ import {
   dispatchToTrackersInCollection,
 } from '@snowplow/browser-tracker-core';
 import { buildSelfDescribingEvent, CommonEventProperties, SelfDescribingJson } from '@snowplow/tracker-core';
+import { truncateStackTrace } from './util';
 
 let _trackers: Record<string, BrowserTracker> = {};
 
@@ -74,7 +75,7 @@ export function trackError(
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   const { message, filename, lineno, colno, error, context, timestamp } = event,
-    stack = error && error.stack ? error.stack : null;
+    stack = error && truncateStackTrace(error.stack);
 
   dispatchToTrackersInCollection(trackers, _trackers, (t) => {
     t.core.track(

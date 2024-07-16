@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-error-tracking",
+      "comment": "Truncate error stack trace if it's size is greater than 8kb",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-error-tracking"
+}
