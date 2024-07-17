@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { fetchResults } from '../micro';
-import { pageSetup, waitUntil } from './helpers';
+import { pageSetup, waitUntil } from '../integration/helpers';
 
 const playVideoElement1Callback = () => {
   return (done: (_: void) => void) => {
