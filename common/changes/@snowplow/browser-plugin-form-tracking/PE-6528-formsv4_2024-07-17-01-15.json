@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-form-tracking",
+      "comment": "Add event delegation for link click tracking",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-form-tracking"
+}

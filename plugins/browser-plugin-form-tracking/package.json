@@ -19,7 +19,7 @@
   ],
   "scripts": {
     "build": "rollup -c --silent --failAfterWarnings",
-    "test": ""
+    "test": "jest"
   },
   "dependencies": {
     "@snowplow/browser-tracker-core": "workspace:*",
