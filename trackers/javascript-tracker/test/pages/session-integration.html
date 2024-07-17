@@ -43,30 +43,12 @@
         },
       });
 
-      setTimeout(function () {
-        window.snowplow('trackPageView:cookieSessionTracker');
-        window.snowplow('trackPageView:cookieSessionTracker');
-      }, 0);
-
-      setTimeout(function () {
-        window.snowplow('trackPageView:cookieSessionTracker');
-      }, 3000);
-
       window.snowplow('newTracker', 'localStorageSessionTracker', collector_endpoint, {
         appId: 'session-integration-' + testIdentifier,
         cookieName: testIdentifier,
         sessionCookieTimeout: 1,
         stateStorageStrategy: 'localStorage',
       });
-
-      setTimeout(function () {
-        window.snowplow('trackPageView:localStorageSessionTracker');
-        window.snowplow('trackPageView:localStorageSessionTracker');
-      }, 0);
-
-      setTimeout(function () {
-        window.snowplow('trackPageView:localStorageSessionTracker');
-      }, 3000);
 
       window.snowplow('newTracker', 'anonymousSessionTracker', collector_endpoint, {
         appId: 'session-integration-' + testIdentifier,
@@ -76,14 +58,33 @@
         anonymousTracking: { withSessionTracking: true },
       });
 
-      setTimeout(function () {
-        window.snowplow('trackPageView:anonymousSessionTracker');
-        window.snowplow('trackPageView:anonymousSessionTracker');
-      }, 0);
+      const currentUrl = window.location.href;
+      const url = new URL(currentUrl);
+      if (url.searchParams.has("delayed")) {
+        setTimeout(function () {
+          window.snowplow('trackPageView:cookieSessionTracker');
 
-      setTimeout(function () {
-        window.snowplow('trackPageView:anonymousSessionTracker');
-      }, 3000);
+          window.snowplow('trackPageView:localStorageSessionTracker');
+
+          window.snowplow('trackPageView:anonymousSessionTracker');
+        }, 0);
+      } else {
+        setTimeout(function () {
+          window.snowplow('trackPageView:cookieSessionTracker');
+          window.snowplow('trackPageView:cookieSessionTracker');
+
+          window.snowplow('trackPageView:localStorageSessionTracker');
+          window.snowplow('trackPageView:localStorageSessionTracker');
+
+          window.snowplow('trackPageView:anonymousSessionTracker');
+          window.snowplow('trackPageView:anonymousSessionTracker');
+        }, 0);
+
+        setTimeout(function () {
+          url.searchParams.set("delayed", "1");
+          window.location.href = url.toString();
+        }, 3000);
+      }
     </script>
   </body>
 </html>
