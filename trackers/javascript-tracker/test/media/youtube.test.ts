@@ -1,5 +1,5 @@
 import { fetchResults } from '../micro';
-import { pageSetup, waitUntil } from './helpers';
+import { pageSetup, waitUntil } from '../integration/helpers';
 
 declare var player: YT.Player;
 
