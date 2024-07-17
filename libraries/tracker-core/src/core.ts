@@ -273,7 +273,11 @@ export interface TrackerCore {
    * Adds contexts globally, contexts added here will be attached to all applicable events
    * @param contexts - An array containing either contexts or a conditional contexts
    */
-  addGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive>): void;
+  addGlobalContexts(
+    contexts:
+      | Array<ConditionalContextProvider | ContextPrimitive>
+      | Record<string, ConditionalContextProvider | ContextPrimitive>
+  ): void;
 
   /**
    * Removes all global contexts
@@ -284,7 +288,7 @@ export interface TrackerCore {
    * Removes previously added global context, performs a deep comparison of the contexts or conditional contexts
    * @param contexts - An array containing either contexts or a conditional contexts
    */
-  removeGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive>): void;
+  removeGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive | string>): void;
 
   /**
    * Add a plugin into the plugin collection after Core has already been initialised

@@ -411,7 +411,9 @@ export function trackSelfDescribingEvent(event: SelfDescribingEvent & CommonEven
  * @param trackers - The tracker identifiers which the global contexts will be added to
  */
 export function addGlobalContexts(
-  contexts: Array<ConditionalContextProvider | ContextPrimitive>,
+  contexts:
+    | Array<ConditionalContextProvider | ContextPrimitive>
+    | Record<string, ConditionalContextProvider | ContextPrimitive>,
   trackers?: Array<string>
 ) {
   dispatchToTrackers(trackers, (t) => {
@@ -426,7 +428,7 @@ export function addGlobalContexts(
  * @param trackers - The tracker identifiers which the global contexts will be remove from
  */
 export function removeGlobalContexts(
-  contexts: Array<ConditionalContextProvider | ContextPrimitive>,
+  contexts: Array<ConditionalContextProvider | ContextPrimitive | string>,
   trackers?: Array<string>
 ) {
   dispatchToTrackers(trackers, (t) => {

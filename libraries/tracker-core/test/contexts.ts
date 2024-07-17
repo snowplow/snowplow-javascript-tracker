@@ -215,6 +215,75 @@ test('Add global contexts', (t) => {
   t.is(globalContexts.getConditionalProviders().length, 2, 'Correct number of conditional providers added');
 });
 
+test('Handle named global contexts', (t) => {
+  const geolocationContext = {
+    schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
+    data: {
+      latitude: 40.0,
+      longitude: 55.1,
+    },
+  };
+
+  function eventTypeContextGenerator(args?: contexts.ContextEvent) {
+    const context: SelfDescribingJson = {
+      schema: 'iglu:com.snowplowanalytics.snowplow/mobile_context/jsonschema/1-0-1',
+      data: {
+        osType: 'ubuntu',
+        osVersion: '2018.04',
+        deviceManufacturer: 'ASUS',
+        deviceModel: args ? String(args['eventType']) : '',
+      },
+    };
+    return context;
+  }
+
+  const bothRuleSet = {
+    accept: ['iglu:com.snowplowanalytics.snowplow/*/jsonschema/*-*-*'],
+    reject: ['iglu:com.snowplowanalytics.snowplow/*/jsonschema/*-*-*'],
+  };
+
+  const filterFunction = function (args?: contexts.ContextEvent) {
+    return args?.eventType === 'ue';
+  };
+
+  const filterProvider: contexts.FilterProvider = [filterFunction, [geolocationContext, eventTypeContextGenerator]];
+  const ruleSetProvider: contexts.RuleSetProvider = [bothRuleSet, [geolocationContext, eventTypeContextGenerator]];
+
+  const namedContexts = {
+    filters: filterProvider,
+    rules: ruleSetProvider,
+    static: geolocationContext,
+    generator: eventTypeContextGenerator,
+  };
+  const globalContexts = contexts.globalContexts();
+
+  globalContexts.addGlobalContexts(namedContexts);
+  t.is(globalContexts.getGlobalPrimitives().length, 2, 'Correct number of primitives added');
+  t.is(globalContexts.getConditionalProviders().length, 2, 'Correct number of conditional providers added');
+
+  globalContexts.removeGlobalContexts(['static', 'rules']);
+  t.is(globalContexts.getGlobalPrimitives().length, 1, 'Correct number of primitives removed');
+  t.is(globalContexts.getConditionalProviders().length, 1, 'Correct number of conditional providers removed');
+
+  globalContexts.clearGlobalContexts();
+  t.is(globalContexts.getGlobalPrimitives().length, 0, 'All primitives removed');
+  t.is(globalContexts.getConditionalProviders().length, 0, 'All conditional providers removed');
+
+  globalContexts.addGlobalContexts([geolocationContext]);
+  globalContexts.addGlobalContexts({ geo: geolocationContext });
+  t.is(globalContexts.getGlobalPrimitives().length, 2, 'Treats anonymous and named globals separately');
+
+  const mutatedGeolocationContext = JSON.parse(JSON.stringify(geolocationContext));
+  mutatedGeolocationContext.data.latitude = 30;
+
+  globalContexts.addGlobalContexts({ geo: mutatedGeolocationContext });
+  t.deepEqual(
+    globalContexts.getGlobalPrimitives(),
+    [geolocationContext, mutatedGeolocationContext],
+    'Upserts named globals'
+  );
+});
+
 test('Remove one of two global context primitives', (t) => {
   const geolocationContext = {
     schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
