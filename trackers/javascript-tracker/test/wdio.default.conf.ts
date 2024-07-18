@@ -9,7 +9,12 @@ function getFullPath(path: string): string {
 type CustomTestRunnerConfig = Options.Testrunner & { dockerInstance?: DockerWrapper };
 
 export const config: Omit<Options.Testrunner, 'capabilities'> = {
-  specs: [[getFullPath('test/functional/*.test.ts'), getFullPath('test/integration/*.test.ts')]],
+  specs: [[
+    getFullPath('test/functional/*.test.ts'),
+    getFullPath('test/integration/*.test.ts'),
+    getFullPath('test/media/media.test.ts'),
+    getFullPath('test/media/youtube.test.ts'),
+  ]],
   logLevel: 'warn',
   baseUrl: 'http://snowplow-js-tracker.local:8080',
   waitforTimeout: 30000,
