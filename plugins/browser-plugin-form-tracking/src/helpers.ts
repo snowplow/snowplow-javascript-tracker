@@ -1,16 +1,16 @@
 import {
-  getCssClasses,
   addEventListener,
-  BrowserTracker,
-  FilterCriterion,
+  getCssClasses,
   getFilterByClass,
   getFilterByName,
+  type BrowserTracker,
+  type FilterCriterion,
 } from '@snowplow/browser-tracker-core';
 import {
-  resolveDynamicContext,
-  DynamicContext,
   buildFormFocusOrChange,
   buildFormSubmission,
+  resolveDynamicContext,
+  type DynamicContext,
 } from '@snowplow/tracker-core';
 
 /** The form tracking configuration */
@@ -22,7 +22,7 @@ export interface FormTrackingConfiguration {
 }
 
 /** Events to capture in form tracking */
-export enum FormTrackingEvent {
+enum FormTrackingEvent {
   /** Form field changed event */
   CHANGE_FORM = 'change_form',
   /** Form field focused event */
@@ -31,44 +31,44 @@ export enum FormTrackingEvent {
   SUBMIT_FORM = 'submit_form',
 }
 
-/** List of form tracking events to capture */
-export type FormTrackingEvents = Array<FormTrackingEvent>;
 const defaultFormTrackingEvents = [
   FormTrackingEvent.CHANGE_FORM,
   FormTrackingEvent.FOCUS_FORM,
   FormTrackingEvent.SUBMIT_FORM,
 ];
 
-export interface FormTrackingOptions {
-  forms?: FilterCriterion<HTMLElement> | HTMLCollectionOf<HTMLFormElement> | NodeListOf<HTMLFormElement>;
-  fields?: FilterCriterion<TrackedHTMLElement> & { transform: transformFn };
-  events?: FormTrackingEvents;
+/** Form tracking plugin options to determine which events to fire and the elements to listen for */
+interface FormTrackingOptions {
+  /** List of `form` elements that are allowed to generate events, or criteria for deciding that when the event listener handles the event */
+  forms?:
+    | FilterCriterion<HTMLElement>
+    | HTMLCollectionOf<HTMLFormElement>
+    | NodeListOf<HTMLFormElement>
+    | HTMLFormElement[];
+  /** Criteria for fields within forms that should generate focus or change events; you may also include a transformation function for fields that may include personal data */
+  fields?: FilterCriterion<TrackedHTMLElement> & { transform?: transformFn };
+  /** Allow list of events to enable tracking for; can be any combination of focus_form, change_form, or submit_form */
+  events?: `${FormTrackingEvent}`[];
+  /** A list of targets to add event listeners to. If not provided, defaults to the current `document` */
+  targets?: EventTarget[];
 }
 
-export interface TrackedHTMLElementTagNameMap {
-  textarea: HTMLTextAreaElement;
-  input: HTMLInputElement;
-  select: HTMLSelectElement;
-}
+type TrackedHTMLElementTagNameMap = Pick<HTMLElementTagNameMap, 'textarea' | 'input' | 'select'>;
 
-export type TrackedHTMLElement = TrackedHTMLElementTagNameMap[keyof TrackedHTMLElementTagNameMap];
+type TrackedHTMLElement = TrackedHTMLElementTagNameMap[keyof TrackedHTMLElementTagNameMap];
 
-export interface ElementData extends Record<string, string | null | undefined> {
+interface ElementData extends Record<string, string | null | undefined> {
   name: string;
   value: string | null;
   nodeName: string;
   type?: string;
 }
 
-export type transformFn = (
+type transformFn = (
   elementValue: string | null,
   elementInfo: ElementData | TrackedHTMLElement,
   elt: TrackedHTMLElement
 ) => string | null;
-
-export const innerElementTags: Array<keyof TrackedHTMLElementTagNameMap> = ['textarea', 'input', 'select'];
-
-type TrackedHTMLElementWithMarker = TrackedHTMLElement & Record<string, boolean>;
 
 type ElementDataWrapper = { elementData: ElementData; originalElement: TrackedHTMLElement };
 
@@ -78,57 +78,76 @@ interface FormConfiguration {
   formFilter: (_: HTMLFormElement) => boolean;
   fieldFilter: (_: TrackedHTMLElement) => boolean;
   fieldTransform: transformFn;
+  forms: HTMLCollectionOf<HTMLFormElement> | NodeListOf<HTMLFormElement> | HTMLFormElement[] | null;
 }
 
-/*
- * Add submission event listeners to all form elements
- * Add value change event listeners to all mutable inner form elements
+const _focusListeners: Record<string, EventListener> = {};
+const _changeListeners: Record<string, EventListener> = {};
+const _submitListeners: Record<string, EventListener> = {};
+const _targets: Record<string, EventTarget[]> = {};
+
+/**
+ * Add submission/focus/change event listeners to page for forms and elements according to `configuration`
+ *
+ * @param tracker The tracker instance the listener belongs to that will be used to track events
+ * @param configuration Plugin configuration controlling the events to track and forms/fields to target or transform
  */
 export function addFormListeners(tracker: BrowserTracker, configuration: FormTrackingConfiguration) {
   const { options, context } = configuration,
-    trackingMarker = tracker.id + 'form',
     config = getConfigurationForOptions(options);
 
-  let forms = config.forms ?? document.getElementsByTagName('form');
-  Array.prototype.slice.call(forms).forEach(function (form: HTMLFormElement) {
-    if (config.formFilter(form)) {
-      Array.prototype.slice.call(innerElementTags).forEach(function (tagname: keyof TrackedHTMLElementTagNameMap) {
-        Array.prototype.slice
-          .call(form.getElementsByTagName(tagname))
-          .forEach(function (innerElement: TrackedHTMLElementWithMarker) {
-            if (
-              config.fieldFilter(innerElement) &&
-              !innerElement[trackingMarker] &&
-              innerElement.type.toLowerCase() !== 'password'
-            ) {
-              if (config.eventFilter(FormTrackingEvent.FOCUS_FORM)) {
-                addEventListener(
-                  innerElement,
-                  'focus',
-                  getFormChangeListener(tracker, config, 'focus_form', context),
-                  false
-                );
-              }
-              if (config.eventFilter(FormTrackingEvent.CHANGE_FORM)) {
-                addEventListener(
-                  innerElement,
-                  'change',
-                  getFormChangeListener(tracker, config, 'change_form', context),
-                  false
-                );
-              }
-              innerElement[trackingMarker] = true;
-            }
-          });
-      });
+  const events = options?.events ?? defaultFormTrackingEvents;
 
-      if (!form[trackingMarker]) {
-        if (config.eventFilter(FormTrackingEvent.SUBMIT_FORM)) {
-          addEventListener(form, 'submit', getFormSubmissionListener(tracker, config, trackingMarker, context));
-        }
-        form[trackingMarker] = true;
-      }
-    }
+  const targets = (_targets[tracker.id] = getTargetList(options?.targets, config.forms));
+
+  if (events.indexOf(FormTrackingEvent.FOCUS_FORM) !== -1) {
+    _focusListeners[tracker.id] = getFormChangeListener(tracker, config, FormTrackingEvent.FOCUS_FORM, context);
+    targets.forEach((target) => addEventListener(target, 'focus', _focusListeners[tracker.id], true));
+  }
+  if (events.indexOf(FormTrackingEvent.CHANGE_FORM) !== -1) {
+    _changeListeners[tracker.id] = getFormChangeListener(tracker, config, FormTrackingEvent.CHANGE_FORM, context);
+    targets.forEach((target) => addEventListener(target, 'change', _changeListeners[tracker.id], true));
+  }
+  if (events.indexOf(FormTrackingEvent.SUBMIT_FORM) !== -1) {
+    _submitListeners[tracker.id] = getFormSubmissionListener(tracker, config, context);
+    targets.forEach((target) => addEventListener(target, 'submit', _submitListeners[tracker.id], true));
+  }
+}
+
+/**
+ * Builds a list of targets for the plugin event listeners
+ *
+ * The list can include any specifically provided targets, and will be extended to include the root nodes of any explicit HTMLFormElements provided
+ * With neither provided, defaults to the current page's `document` element
+ *
+ * @param configTargets Explicitly configured list of event target listeners, if any
+ * @param forms Explicitly configured list of form elements to track, if any
+ * @returns List of EventTargets to add the listener to
+ */
+function getTargetList(configTargets: EventTarget[] | undefined, forms: FormConfiguration['forms']) {
+  // we attach to document rather than window because the window focus event occurs more often than we require
+  const targets = configTargets ?? [document];
+
+  if (forms) {
+    Array.prototype.forEach.call(forms, (form: HTMLFormElement) => {
+      targets.push(form.ownerDocument.documentElement);
+    });
+  }
+
+  return targets;
+}
+
+/**
+ * Remove all submission/focus/change event listeners from page that have been added via a call to `addFormListeners`
+ *
+ * @param tracker The tracker instance the listener belongs to that will be used to track events
+ */
+export function removeFormListeners(tracker: BrowserTracker) {
+  const targets = _targets[tracker.id] ?? [document];
+  targets.forEach((target) => {
+    if (_focusListeners[tracker.id]) target.removeEventListener('focus', _focusListeners[tracker.id], true);
+    if (_changeListeners[tracker.id]) target.removeEventListener('change', _changeListeners[tracker.id], true);
+    if (_submitListeners[tracker.id]) target.removeEventListener('submit', _submitListeners[tracker.id], true);
   });
 }
 
@@ -136,31 +155,69 @@ export function addFormListeners(tracker: BrowserTracker, configuration: FormTra
  * Check if forms array is a collection of HTML form elements or a filter or undefined
  */
 function isCollectionOfHTMLFormElements(
-  forms?: FilterCriterion<HTMLFormElement> | HTMLCollectionOf<HTMLFormElement> | NodeListOf<HTMLFormElement>
-): forms is HTMLCollectionOf<HTMLFormElement> | NodeListOf<HTMLFormElement> {
+  forms?:
+    | FilterCriterion<HTMLFormElement>
+    | HTMLCollectionOf<HTMLFormElement>
+    | NodeListOf<HTMLFormElement>
+    | HTMLFormElement[]
+): forms is HTMLCollectionOf<HTMLFormElement> | NodeListOf<HTMLFormElement> | HTMLFormElement[] {
   return forms != null && Array.prototype.slice.call(forms).length > 0;
 }
 
-/*
- * Configures form tracking: which forms and fields will be tracked, and the context to attach
+/**
+ * Typeguard for `element` to see if it appears to be the HTMLElement with tagName `type`
+ *
+ * instanceof checks don't work for cross-document nodes, which this plugin supports
+ *
+ * @param elem Object to check element type
+ * @param type Element type we're checking for
+ * @returns If `element` is an element with tagName `type`
  */
-function getConfigurationForOptions(options?: FormTrackingOptions) {
+function isElement<E extends Uppercase<keyof HTMLElementTagNameMap>>(
+  elem: unknown,
+  type: E
+): elem is HTMLElementTagNameMap[Lowercase<E>] {
+  if (typeof elem === 'object' && elem) {
+    if ('tagName' in elem && typeof (elem as Element)['tagName'] === 'string') {
+      return (elem as Element).tagName.toUpperCase() === type;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Determine if given object is a `TrackedHTMLElement` or not
+ *
+ * @param element Value to determine
+ * @returns If `element` is `TrackedHTMLElement`
+ */
+function isTrackableElement(element: EventTarget | null): element is TrackedHTMLElement {
+  return isElement(element, 'INPUT') || isElement(element, 'SELECT') || isElement(element, 'TEXTAREA');
+}
+
+/**
+ * Configures form tracking: which forms and fields will be tracked, and the context to attach
+ *
+ * @param options User-supplied configuration
+ * @returns Final configuration incorporating defaults
+ */
+function getConfigurationForOptions(options?: FormTrackingOptions): FormConfiguration {
   if (options) {
     let formFilter = (_: HTMLElement) => true;
-    let forms: HTMLCollectionOf<HTMLFormElement> | NodeListOf<HTMLFormElement> | null = null;
+    let forms: HTMLCollectionOf<HTMLFormElement> | NodeListOf<HTMLFormElement> | HTMLFormElement[] | null = null;
     if (isCollectionOfHTMLFormElements(options.forms)) {
-      // options.forms is a collection of HTML form elements
+      // options.forms is an explicity allowlist of HTML form elements
       forms = options.forms;
     } else {
       // options.forms is null or a filter
       formFilter = getFilterByClass(options.forms);
     }
     return {
-      forms: forms,
-      formFilter: formFilter,
+      forms,
+      formFilter,
       fieldFilter: getFilterByName<TrackedHTMLElement>(options.fields),
       fieldTransform: getTransform(options.fields),
-      eventFilter: (event: FormTrackingEvent) => (options.events ?? defaultFormTrackingEvents).indexOf(event) > -1,
     };
   } else {
     return {
@@ -168,31 +225,51 @@ function getConfigurationForOptions(options?: FormTrackingOptions) {
       formFilter: () => true,
       fieldFilter: () => true,
       fieldTransform: defaultTransformFn,
-      eventFilter: () => true,
     };
   }
 }
 
 /**
+ * Check if the found target element is included in the explicit form allowlist, if provided.
+ *
+ * @param target A `form` element to check if we're allowed to track.
+ * @param allowed An optional list of form elements we want to track against.
+ * @returns True if there is no allowlist or the `target` is in the allowlist, false otherwise.
+ */
+function explicitlyAllowedForm(target: HTMLFormElement, allowed: FormConfiguration['forms']) {
+  if (!allowed) return true;
+
+  for (let i = 0; i < allowed.length; i++) {
+    if (allowed[i].isSameNode(target)) return true;
+  }
+
+  return false;
+}
+
+/**
  * Convert a criterion object to a transform function
  *
- * @param object - criterion {transform: function (elt) {return the result of transform function applied to element}
+ * @param criterion
+ * @returns Transformation function if provided in `criterion`, or a default identity function
  */
-function getTransform(criterion?: { transform: transformFn }): transformFn {
-  if (criterion && Object.prototype.hasOwnProperty.call(criterion, 'transform')) {
+function getTransform(criterion?: { transform?: transformFn }): transformFn {
+  if (criterion && typeof criterion.transform === 'function') {
     return criterion.transform;
   }
 
   return defaultTransformFn;
 }
 
-/*
- * Get an identifier for a form, input, textarea, or select element
+/**
+ * Get an identifier for a form or `TrackedHTMLElement`
+ *
+ * @param elt Element to identify
+ * @returns Identifier for `elt`
  */
 function getElementIdentifier(elt: Record<string, any>) {
-  const properties: Array<'name' | 'id' | 'type' | 'nodeName'> = ['name', 'id', 'type', 'nodeName'];
+  const properties = ['name', 'id', 'type', 'nodeName'] as const;
   for (const propName of properties) {
-    if (elt[propName] != false && typeof elt[propName] === 'string') {
+    if (elt[propName] && typeof elt[propName] === 'string') {
       return elt[propName];
     }
   }
@@ -200,115 +277,152 @@ function getElementIdentifier(elt: Record<string, any>) {
   return null;
 }
 
-/*
- * Identifies the parent form in which an element is contained
+/**
+ * Discovers the parent form in which an element is contained
+ *
+ * @param elt Child control to identify the owning form for
+ * @returns The form element this control belongs to or null if not found
  */
-function getParentFormIdentifier(elt: Node | null) {
-  while (elt && elt.nodeName && elt.nodeName.toUpperCase() !== 'HTML' && elt.nodeName.toUpperCase() !== 'FORM') {
-    elt = elt.parentNode;
-  }
-  if (elt && elt.nodeName && elt.nodeName.toUpperCase() === 'FORM') {
-    return getElementIdentifier(elt);
+function getParentForm(elt: TrackedHTMLElement | null) {
+  if (elt && elt.form) return elt.form;
+
+  let parent: ParentNode | null = elt;
+
+  while (parent) {
+    if (isElement(parent, 'FORM')) {
+      return parent;
+    }
+    parent = parent.parentNode;
   }
 
-  return null;
+  return parent;
 }
 
-/*
- * Returns a list of the input, textarea, and select elements inside a form along with their values
+/**
+ * Returns a list of the `TrackedHTMLElement`s inside a form along with their values
+ *
+ * @param elt Form element to get the control elements for
+ * @returns Array of wrapped control elements belonging to the form
  */
-function getInnerFormElements(trackingMarker: string, elt: HTMLFormElement) {
-  var innerElements: Array<ElementDataWrapper> = [];
-  Array.prototype.slice.call(innerElementTags).forEach((tagname: 'textarea' | 'input' | 'select') => {
-    let trackedChildren = Array.prototype.slice.call(elt.getElementsByTagName(tagname)).filter(function (child) {
-      return child.hasOwnProperty(trackingMarker);
-    });
+function getInnerFormElements(elt: HTMLFormElement) {
+  const innerElements: Array<ElementDataWrapper> = [];
 
-    Array.prototype.slice.call(trackedChildren).forEach(function (child) {
-      if (child.type === 'submit') {
-        return;
-      }
-      var elementJson: ElementDataWrapper = {
-        elementData: {
-          name: getElementIdentifier(child),
-          value: child.value,
-          nodeName: child.nodeName,
-        },
-        originalElement: child,
-      };
-      if (child.type && child.nodeName.toUpperCase() === 'INPUT') {
-        elementJson.elementData.type = child.type;
-      }
+  Array.prototype.forEach.call(elt.elements, function (child: Element) {
+    if (!isTrackableElement(child)) return;
 
-      if ((child.type === 'checkbox' || child.type === 'radio') && !(child as HTMLInputElement).checked) {
+    const inputType = (child.type || 'text').toLowerCase();
+
+    // submit and image are roughly equivalent
+    if (inputType === 'submit' || inputType === 'image') {
+      return;
+    }
+
+    const elementJson: ElementDataWrapper = {
+      elementData: {
+        name: getElementIdentifier(child)!,
+        value: child.value,
+        nodeName: child.nodeName,
+      },
+      originalElement: child,
+    };
+
+    if (isElement(child, 'INPUT')) {
+      elementJson.elementData.type = inputType;
+
+      if (inputType === 'password' || ((inputType === 'checkbox' || inputType === 'radio') && !child.checked)) {
         elementJson.elementData.value = null;
       }
-      innerElements.push(elementJson);
-    });
+    }
+
+    innerElements.push(elementJson);
   });
 
   return innerElements;
 }
 
-/*
- * Return function to handle form field change event
+/**
+ * Create closure function to handle form field change/focus event
+ *
+ * @param tracker The tracker instance to generate the event with
+ * @param config Plugin configuration
+ * @param event_type Type of event to generate
+ * @param context List of entities or context generators to evaluate with the event
+ * @returns A form change/focus handler
  */
 function getFormChangeListener(
   tracker: BrowserTracker,
   config: FormConfiguration,
-  event_type: 'change_form' | 'focus_form',
+  event_type: Exclude<FormTrackingEvent, FormTrackingEvent.SUBMIT_FORM>,
   context?: DynamicContext | null
 ) {
-  return function (e: Event) {
-    var elt = e.target as TrackedHTMLElement;
-    if (elt) {
-      var type = elt.nodeName && elt.nodeName.toUpperCase() === 'INPUT' ? elt.type : null;
-      var value =
-        elt.type === 'checkbox' && !(elt as HTMLInputElement).checked
-          ? null
-          : config.fieldTransform(elt.value, elt, elt);
+  return function ({ target }: Event) {
+    if (isTrackableElement(target) && config.fieldFilter(target)) {
+      let value: string | null = null;
+      let type: string | null = null;
+
+      if (isElement(target, 'INPUT')) {
+        type = (target.type || 'text').toLowerCase();
+        value =
+          (type === 'checkbox' && !target.checked) || type === 'password'
+            ? null
+            : config.fieldTransform(target.value, target, target);
+      } else {
+        value = config.fieldTransform(target.value, target, target);
+      }
+
+      const form = getParentForm(target);
+      if (!(form && config.formFilter(form) && explicitlyAllowedForm(form, config.forms))) return;
+
       if (event_type === 'change_form' || (type !== 'checkbox' && type !== 'radio')) {
         tracker.core.track(
           buildFormFocusOrChange({
             schema: event_type,
-            formId: getParentFormIdentifier(elt) ?? '',
-            elementId: getElementIdentifier(elt) ?? '',
-            nodeName: elt.nodeName,
+            formId: getElementIdentifier(form ?? {}) ?? '',
+            elementId: getElementIdentifier(target) ?? '',
+            nodeName: target.nodeName,
             type,
-            elementClasses: getCssClasses(elt),
+            elementClasses: getCssClasses(target),
             value: value ?? null,
           }),
-          resolveDynamicContext(context, elt, type, value)
+          resolveDynamicContext(context, target, type, value)
         );
       }
     }
   };
 }
 
-/*
- * Return function to handle form submission event
+/**
+ * Create closure function to handle form submission event
+ *
+ * @param tracker The tracker instance to generate the event with
+ * @param config Plugin configuration
+ * @param context List of entities or context generators to evaluate with the event
+ * @returns A form submit handler
  */
 function getFormSubmissionListener(
   tracker: BrowserTracker,
   config: FormConfiguration,
-  trackingMarker: string,
   context?: DynamicContext | null
 ) {
-  return function (e: Event) {
-    var elt = e.target as HTMLFormElement;
-    var innerElements = getInnerFormElements(trackingMarker, elt);
-    innerElements.forEach(function (innerElement) {
-      var eltData = innerElement.elementData;
-      eltData.value = config.fieldTransform(eltData.value, eltData, innerElement.originalElement) ?? eltData.value;
-    });
-    var elementsData = innerElements.map((elt) => elt.elementData);
-    tracker.core.track(
-      buildFormSubmission({
-        formId: getElementIdentifier(elt) ?? '',
-        formClasses: getCssClasses(elt),
-        elements: elementsData,
-      }),
-      resolveDynamicContext(context, elt, elementsData)
-    );
+  return function ({ target }: Event) {
+    if (isElement(target, 'FORM') && config.formFilter(target) && explicitlyAllowedForm(target, config.forms)) {
+      const elementsData: ElementData[] = [];
+
+      getInnerFormElements(target).forEach(function ({ elementData, originalElement }) {
+        if (config.fieldFilter(originalElement) && originalElement.type.toLowerCase() !== 'password') {
+          elementData.value = config.fieldTransform(elementData.value, elementData, originalElement);
+          elementsData.push(elementData);
+        }
+      });
+
+      tracker.core.track(
+        buildFormSubmission({
+          formId: getElementIdentifier(target) ?? '',
+          formClasses: getCssClasses(target),
+          elements: elementsData,
+        }),
+        resolveDynamicContext(context, target, elementsData)
+      );
+    }
   };
 }
