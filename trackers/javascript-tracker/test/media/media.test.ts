@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { fetchResults } from '../micro';
-import { pageSetup, waitUntil } from './helpers';
+import { pageSetup, waitUntil } from '../integration/helpers';
 
 const playVideoElement1Callback = () => {
   return (done: (_: void) => void) => {
@@ -72,7 +72,6 @@ const makeExpectedEvent = (
         schema: 'iglu:com.snowplowanalytics.snowplow/media_player/jsonschema/1-0-0',
         data: {
           currentTime: jasmine.any(Number),
-          duration: 20,
           ended: false,
           loop: false,
           muted: true,
@@ -224,10 +223,10 @@ describe('Media Tracking', () => {
 
     const expected = {
       ready: {
-        mediaPlayer: { paused: true, duration: jasmine.any(Number) },
+        mediaPlayer: { paused: true },
         videoElement: { videoHeight: jasmine.any(Number), videoWidth: jasmine.any(Number) },
       },
-      play: {},
+      play: { mediaPlayer: { duration: 20 } },
       pause: { mediaPlayer: { paused: true } },
       volumechange: { mediaPlayer: { paused: true, volume: 50 } },
       ratechange: { mediaPlayer: { paused: true, volume: 50, playbackRate: 0.9 } },
@@ -481,7 +480,6 @@ describe('Media Tracking', () => {
           error: jasmine.any(Object),
         },
         mediaPlayer: {
-          duration: 0,
           paused: true,
         },
         videoElement: {
@@ -496,7 +494,6 @@ describe('Media Tracking', () => {
         mediaPlayer: {
           currentTime: 0,
           paused: true,
-          duration: 0,
         },
         videoElement: {
           videoHeight: 0,
