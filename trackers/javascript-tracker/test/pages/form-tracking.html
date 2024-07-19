@@ -148,6 +148,7 @@
         case 'iframeForm':
           var forms = iframe.contentWindow.document.getElementsByTagName('form');
           snowplow('enableFormTracking', { options: { forms: forms } });
+          break;
         default:
           snowplow('enableFormTracking', {
             context: [
