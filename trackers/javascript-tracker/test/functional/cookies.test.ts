@@ -2,15 +2,15 @@ describe('Tracker created domain cookies', () => {
   it('contain the expected cookie names', async () => {
     await browser.url('/cookies.html');
     await browser.waitUntil(async () => (await $('#init').getText()) === 'true', {
-      timeout: 10000,
+      timeout: 5000,
       timeoutMsg: 'expected init after 5s',
-      interval: 5000,
+      interval: 250,
     });
 
     await browser.waitUntil(async () => (await $('#cookies').getText()) !== '', {
-      timeout: 10000,
+      timeout: 5000,
       timeoutMsg: 'expected cookie to be set after 5s',
-      interval: 5000,
+      interval: 250,
     });
 
     const cookies = await $('#cookies').getText();
