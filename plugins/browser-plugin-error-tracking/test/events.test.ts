@@ -60,9 +60,17 @@ describe('AdTrackingPlugin', () => {
     encodeBase64: false,
     plugins: [ErrorTrackingPlugin()],
   });
+  addTracker('sp4', 'sp4', 'js-3.0.0', '', state, {
+    encodeBase64: false,
+    plugins: [ErrorTrackingPlugin()],
+  });
 
   const error = new Error('this is an error');
   error.stack = 'stacktrace-1';
+
+  const oversizedError = new Error('this is a longer error');
+  oversizedError.stack = 'x'.repeat(10000);
+  const oversizedMessage = 'y'.repeat(10000);
 
   trackError(
     {
@@ -87,6 +95,14 @@ describe('AdTrackingPlugin', () => {
       message: <any>undefined,
     },
     ['sp3']
+  );
+
+  trackError(
+    {
+      message: oversizedMessage,
+      error: oversizedError,
+    },
+    ['sp4']
   );
 
   it('trackError adds the expected application error event to the queue', () => {
@@ -123,6 +139,18 @@ describe('AdTrackingPlugin', () => {
       schema: 'iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1',
       data: {
         message: "JS Exception. Browser doesn't support ErrorEvent API",
+      },
+    });
+  });
+
+  it('trackError replaces undefined messages with placeholder', () => {
+    expect(
+      extractUeEvent('iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1').from(state.outQueues[3])
+    ).toMatchObject({
+      schema: 'iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1',
+      data: {
+        message: 'y'.repeat(2048),
+        stackTrace: 'x'.repeat(8192),
       },
     });
   });

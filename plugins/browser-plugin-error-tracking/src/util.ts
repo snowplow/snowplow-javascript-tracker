@@ -1,21 +1,15 @@
 /**
- * Truncate stack trace if it's size is greater than 8kb
+ * Truncate string if it's longer than 8192 chars
  *
- * @param stackTrace - The stack trace to truncate
- * @returns The trucated stack trace
+ * @param string - The stack trace to truncate
+ * @param maxLength - The maximum length of the truncated string. Default = 8192
+ * @returns The truncated string
  */
-export function truncateStackTrace(stackTrace?: string): string | undefined {
-  const byteSize = (str: string) => new Blob([str]).size;
-
-  if (stackTrace && byteSize(stackTrace) > 8000) {
-    const encoder = new TextEncoder();
-    const encodedText = encoder.encode(stackTrace);
-    const truncatedEncodedText = encodedText.slice(0, 8000);
-    const decoder = new TextDecoder();
-    const truncatedStackTrace = decoder.decode(truncatedEncodedText);
-
-    return truncatedStackTrace;
+export function truncateString(string?: string, maxLength: number = 8192): string | undefined {
+  if (string && string.length > 8192) {
+    const truncatedString = string.substring(0, maxLength);
+    return truncatedString;
   }
 
-  return stackTrace;
+  return string;
 }
