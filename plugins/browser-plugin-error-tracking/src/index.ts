@@ -36,6 +36,7 @@ import {
   dispatchToTrackersInCollection,
 } from '@snowplow/browser-tracker-core';
 import { buildSelfDescribingEvent, CommonEventProperties, SelfDescribingJson } from '@snowplow/tracker-core';
+import { truncateString } from './util';
 
 let _trackers: Record<string, BrowserTracker> = {};
 
@@ -74,7 +75,8 @@ export function trackError(
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   const { message, filename, lineno, colno, error, context, timestamp } = event,
-    stack = error && error.stack ? error.stack : null;
+    stack = error && truncateString(error.stack, 8192),
+    truncatedMessage = message && truncateString(message, 2048);
 
   dispatchToTrackersInCollection(trackers, _trackers, (t) => {
     t.core.track(
@@ -83,7 +85,7 @@ export function trackError(
           schema: 'iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1',
           data: {
             programmingLanguage: 'JAVASCRIPT',
-            message: message ?? "JS Exception. Browser doesn't support ErrorEvent API",
+            message: truncatedMessage ?? "JS Exception. Browser doesn't support ErrorEvent API",
             stackTrace: stack,
             lineNumber: lineno,
             lineColumn: colno,
