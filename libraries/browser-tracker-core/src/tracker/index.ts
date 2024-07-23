@@ -210,6 +210,10 @@ export function Tracker(
       lastDocumentTitle = document.title,
       // Custom title
       lastConfigTitle: string | null | undefined,
+      // Indicates that the lastConfigTitle was set from a trackPageView call
+      // Custom title configured this way has a shorter lifespan than when set using setDocumentTitle.
+      // It only lasts until the next trackPageView call.
+      lastConfigTitleFromTrackPageView: boolean = false,
       // Controls whether activity tracking page ping event timers are reset on page view events
       resetActivityTrackingOnPageView = trackerConfiguration.resetActivityTrackingOnPageView ?? true,
       // Disallow hash tags in URL. TODO: Should this be set to true by default?
@@ -987,7 +991,12 @@ export function Tracker(
 
       // So we know what document.title was at the time of trackPageView
       lastDocumentTitle = document.title;
-      lastConfigTitle = title ?? lastConfigTitle;
+      if (title) {
+        lastConfigTitle = title;
+        lastConfigTitleFromTrackPageView = true;
+      } else if (lastConfigTitleFromTrackPageView) {
+        lastConfigTitle = null;
+      }
 
       // Fixup page title
       const pageTitle = fixupTitle(lastConfigTitle || lastDocumentTitle);
@@ -1227,6 +1236,7 @@ export function Tracker(
         // So we know what document.title was at the time of trackPageView
         lastDocumentTitle = document.title;
         lastConfigTitle = title;
+        lastConfigTitleFromTrackPageView = false;
       },
 
       discardHashTag: function (enableFilter: boolean) {
