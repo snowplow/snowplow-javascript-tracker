@@ -29,7 +29,7 @@ export interface ActivityTrackingConfigurationCallback {
 }
 
 // @public
-export function addGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive>, trackers?: Array<string>): void;
+export function addGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive> | Record<string, ConditionalContextProvider | ContextPrimitive>, trackers?: Array<string>): void;
 
 // @public
 export function addPlugin(configuration: BrowserPluginConfiguration, trackers?: Array<string>): void;
@@ -300,7 +300,7 @@ export function preservePageViewId(trackers?: Array<string>): void;
 export type PreservePageViewIdForUrl = boolean | "full" | "pathname" | "pathnameAndSearch";
 
 // @public
-export function removeGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive>, trackers?: Array<string>): void;
+export function removeGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive | string>, trackers?: Array<string>): void;
 
 // @public
 export type RequestFailure = {
