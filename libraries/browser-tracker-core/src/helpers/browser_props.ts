@@ -18,20 +18,26 @@ function useResizeObserver(): boolean {
 }
 
 let resizeObserverInitialized = false;
+let readBrowserPropertiesTask: number | null = null;
 function initializeResizeObserver() {
   if (resizeObserverInitialized) {
     return;
   }
-  if(!document || !document.body || !document.documentElement) {
+  if (!document || !document.body || !document.documentElement) {
     return;
   }
   resizeObserverInitialized = true;
 
-  const resizeObserver = new ResizeObserver((entries) => {
-    for (let entry of entries) {
-      if (entry.target === document.body || entry.target === document.documentElement) {
+  const resizeObserver = new ResizeObserver(() => {
+    if (!readBrowserPropertiesTask) {
+      // The browser property lookup causes a forced synchronous layout when offsets/sizes are
+      // queried. It's possible that the forced synchronous layout causes the ResizeObserver
+      // to be fired again, leading to an infinite loop and the "ResizeObserver loop completed
+      // with undelivered notifications" error.
+      readBrowserPropertiesTask = requestAnimationFrame(() => {
+        readBrowserPropertiesTask = null;
         cachedProperties = readBrowserProperties();
-      }
+      });
     }
   });
   resizeObserver.observe(document.body);
