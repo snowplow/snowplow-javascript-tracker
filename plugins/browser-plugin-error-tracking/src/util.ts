@@ -6,7 +6,7 @@
  * @returns The truncated string
  */
 export function truncateString(string?: string, maxLength: number = 8192): string | undefined {
-  if (string && string.length > 8192) {
+  if (string && string.length > maxLength) {
     const truncatedString = string.substring(0, maxLength);
     return truncatedString;
   }
