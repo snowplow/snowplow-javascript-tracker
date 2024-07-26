@@ -143,7 +143,9 @@ export interface ClientSession extends Record<string, unknown> {
 }
 
 // @public
-export interface CommonEventProperties<T = Record<string, unknown>> {
+export interface CommonEventProperties<T extends {
+    [_: string]: unknown;
+} = Record<string, unknown>> {
     context?: Array<SelfDescribingJson<T>> | null;
     // Warning: (ae-forgotten-export) The symbol "Timestamp" needs to be exported by the entry point index.module.d.ts
     timestamp?: Timestamp | null;
@@ -330,7 +332,9 @@ export interface SelfDescribingEvent {
 }
 
 // @public
-export type SelfDescribingJson<T extends Record<keyof T, unknown> = Record<string, unknown>> = {
+export type SelfDescribingJson<T extends {
+    [_: string]: unknown;
+} = Record<string, unknown>> = {
     schema: string;
     data: T;
 };

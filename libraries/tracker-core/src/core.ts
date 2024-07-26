@@ -45,7 +45,7 @@ import { LOG } from './logger';
  * Export interface for any Self-Describing JSON such as context or Self Describing events
  * @typeParam T - The type of the data object within a SelfDescribingJson
  */
-export type SelfDescribingJson<T extends Record<keyof T, unknown> = Record<string, unknown>> = {
+export type SelfDescribingJson<T extends { [_: string]: unknown } = Record<string, unknown>> = {
   /**
    * The schema string
    * @example 'iglu:com.snowplowanalytics.snowplow/web_page/jsonschema/1-0-0'
@@ -61,7 +61,7 @@ export type SelfDescribingJson<T extends Record<keyof T, unknown> = Record<strin
  * Export interface for any Self-Describing JSON which has the data attribute as an array
  * @typeParam T - The type of the data object within the SelfDescribingJson data array
  */
-export type SelfDescribingJsonArray<T extends Record<keyof T, unknown> = Record<string, unknown>> = {
+export type SelfDescribingJsonArray<T extends { [_: string]: unknown } = Record<string, unknown>> = {
   /**
    * The schema string
    * @example 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-1'
@@ -70,7 +70,7 @@ export type SelfDescribingJsonArray<T extends Record<keyof T, unknown> = Record<
   /**
    * The data array which should conform to the supplied schema
    */
-  data: Array<T>;
+  data: (T extends SelfDescribingJson ? T : SelfDescribingJson<T>)[];
 };
 
 /**
@@ -119,7 +119,7 @@ function getTimestamp(timestamp?: Timestamp | null): TimestampPayload {
 }
 
 /** Additional data points to set when tracking an event */
-export interface CommonEventProperties<T = Record<string, unknown>> {
+export interface CommonEventProperties<T extends { [_: string]: unknown } = Record<string, unknown>> {
   /** Add context to an event by setting an Array of Self Describing JSON */
   context?: Array<SelfDescribingJson<T>> | null;
   /** Set the true timestamp or overwrite the device sent timestamp on an event */
