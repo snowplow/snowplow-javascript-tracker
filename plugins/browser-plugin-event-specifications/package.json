@@ -1,6 +1,6 @@
 {
   "name": "@snowplow/browser-plugin-event-specifications",
-  "version": "3.24.1",
+  "version": "3.24.2",
   "description": "Automatically adds Event Specifications context to event specifications of a Data Product template.",
   "homepage": "https://github.com/snowplow/snowplow-javascript-tracker",
   "bugs": "https://github.com/snowplow/snowplow-javascript-tracker/issues",
@@ -48,6 +48,6 @@
     "typescript": "~4.6.2"
   },
   "peerDependencies": {
-    "@snowplow/browser-tracker": "~3.24.1"
+    "@snowplow/browser-tracker": "~3.24.2"
   }
 }

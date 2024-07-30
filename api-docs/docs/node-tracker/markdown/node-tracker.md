@@ -53,6 +53,7 @@
 |  [EcommerceTransactionEvent](./node-tracker.ecommercetransactionevent.md) | An Ecommerce Transaction Event Allows for tracking common ecommerce events, this event is usually used when a customer completes a transaction. |
 |  [EcommerceTransactionItemEvent](./node-tracker.ecommercetransactionitemevent.md) | An Ecommerce Transaction Item Related to the [EcommerceTransactionEvent](./node-tracker.ecommercetransactionevent.md) Each Ecommerce Transaction may contain one or more EcommerceTransactionItem events |
 |  [Emitter](./node-tracker.emitter.md) |  |
+|  [EventPayloadAndContext](./node-tracker.eventpayloadandcontext.md) | Interface for returning a built event (PayloadBuilder) and context (Array of SelfDescribingJson). |
 |  [FormFocusOrChangeEvent](./node-tracker.formfocusorchangeevent.md) | Represents either a Form Focus or Form Change event When a user focuses on a form element or when a user makes a change to a form element. |
 |  [FormSubmissionEvent](./node-tracker.formsubmissionevent.md) | A Form Submission Event Used to track when a user submits a form |
 |  [LinkClickEvent](./node-tracker.linkclickevent.md) | A Link Click Event Used when a user clicks on a link on a webpage, typically an anchor tag <code>&lt;a&gt;</code> |

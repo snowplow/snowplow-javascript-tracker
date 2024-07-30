@@ -2,6 +2,18 @@
   "name": "@snowplow/tracker-core",
   "entries": [
     {
+      "version": "3.24.2",
+      "tag": "@snowplow/tracker-core_v3.24.2",
+      "date": "Wed, 24 Jul 2024 08:59:00 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fix API docs CI action and update it's dependencies"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.24.1",
       "tag": "@snowplow/tracker-core_v3.24.1",
       "date": "Tue, 02 Jul 2024 07:08:17 GMT",

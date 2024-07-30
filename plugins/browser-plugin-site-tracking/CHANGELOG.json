@@ -2,6 +2,12 @@
   "name": "@snowplow/browser-plugin-site-tracking",
   "entries": [
     {
+      "version": "3.24.2",
+      "tag": "@snowplow/browser-plugin-site-tracking_v3.24.2",
+      "date": "Wed, 24 Jul 2024 08:59:00 GMT",
+      "comments": {}
+    },
+    {
       "version": "3.24.1",
       "tag": "@snowplow/browser-plugin-site-tracking_v3.24.1",
       "date": "Tue, 02 Jul 2024 07:08:17 GMT",

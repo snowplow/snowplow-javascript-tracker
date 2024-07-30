@@ -2,6 +2,18 @@
   "name": "@snowplow/javascript-tracker",
   "entries": [
     {
+      "version": "3.24.2",
+      "tag": "@snowplow/javascript-tracker_v3.24.2",
+      "date": "Wed, 24 Jul 2024 08:59:00 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fix integration tests (#826)"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.24.1",
       "tag": "@snowplow/javascript-tracker_v3.24.1",
       "date": "Tue, 02 Jul 2024 07:08:17 GMT",

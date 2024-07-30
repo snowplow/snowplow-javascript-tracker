@@ -1,6 +1,13 @@
 # Change Log - @snowplow/browser-tracker
 
-This log was last generated on Tue, 02 Jul 2024 07:08:17 GMT and should not be manually modified.
+This log was last generated on Wed, 24 Jul 2024 08:59:00 GMT and should not be manually modified.
+
+## 3.24.2
+Wed, 24 Jul 2024 08:59:00 GMT
+
+### Updates
+
+- Fix API docs CI action and update it's dependencies
 
 ## 3.24.1
 Tue, 02 Jul 2024 07:08:17 GMT

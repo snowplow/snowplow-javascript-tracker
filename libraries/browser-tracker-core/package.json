@@ -1,6 +1,6 @@
 {
   "name": "@snowplow/browser-tracker-core",
-  "version": "3.24.1",
+  "version": "3.24.2",
   "description": "Core functionality for Snowplow Browser trackers",
   "homepage": "http://bit.ly/sp-js",
   "bugs": "https://github.com/snowplow/snowplow-javascript-tracker/issues",

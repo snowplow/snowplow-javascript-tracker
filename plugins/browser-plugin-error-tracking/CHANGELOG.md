@@ -1,6 +1,13 @@
 # Change Log - @snowplow/browser-plugin-error-tracking
 
-This log was last generated on Tue, 02 Jul 2024 07:08:17 GMT and should not be manually modified.
+This log was last generated on Wed, 24 Jul 2024 08:59:00 GMT and should not be manually modified.
+
+## 3.24.2
+Wed, 24 Jul 2024 08:59:00 GMT
+
+### Updates
+
+- Truncate error stack trace if it's size is greater than 8kb
 
 ## 3.24.1
 Tue, 02 Jul 2024 07:08:17 GMT

@@ -1,5 +1,5 @@
 import { VimeoEvent } from '@snowplow/browser-plugin-vimeo-tracking';
-import { pageSetup } from './helpers';
+import { pageSetup } from '../integration/helpers';
 import { fetchResults } from '../micro';
 
 function compareContextObjects(expected: any, received: any) {

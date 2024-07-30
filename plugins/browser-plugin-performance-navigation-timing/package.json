@@ -1,6 +1,6 @@
 {
   "name": "@snowplow/browser-plugin-performance-navigation-timing",
-  "version": "3.24.1",
+  "version": "3.24.2",
   "description": "Attaches Performance Navigation Timing data to Snowplow events",
   "homepage": "https://docs.snowplow.io/",
   "bugs": "https://github.com/snowplow/snowplow-javascript-tracker/issues",
@@ -48,6 +48,6 @@
     "typescript": "~4.6.2"
   },
   "peerDependencies": {
-    "@snowplow/browser-tracker": "~3.24.1"
+    "@snowplow/browser-tracker": "~3.24.2"
   }
 }

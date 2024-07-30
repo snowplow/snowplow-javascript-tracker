@@ -81,4 +81,5 @@ export {
   CoreConfiguration,
   ContextGenerator,
   ContextFilter,
+  EventPayloadAndContext,
 } from '@snowplow/tracker-core';

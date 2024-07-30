@@ -1289,13 +1289,23 @@ export interface ConsentWithdrawnEvent {
 }
 
 /**
+ * Interface for returning a built event (PayloadBuilder) and context (Array of SelfDescribingJson).
+ */
+export interface EventPayloadAndContext {
+  /** Tracker payload for the event data */
+  event: PayloadBuilder;
+  /** List of context entities to track along with the event */
+  context: Array<SelfDescribingJson>;
+}
+
+/**
  * Build a Consent Withdrawn Event
  * Used for tracking when a user withdraws their consent
  *
  * @param event - Contains the properties for the Consent Withdrawn event
  * @returns An object containing the PayloadBuilder to be sent to {@link @snowplow/tracker-core#TrackerCore.track} and a 'consent_document' context
  */
-export function buildConsentWithdrawn(event: ConsentWithdrawnEvent) {
+export function buildConsentWithdrawn(event: ConsentWithdrawnEvent): EventPayloadAndContext {
   const { all, id, version, name, description } = event;
   const documentJson = {
     schema: 'iglu:com.snowplowanalytics.snowplow/consent_document/jsonschema/1-0-0',
@@ -1339,7 +1349,7 @@ export interface ConsentGrantedEvent {
  * @param event - Contains the properties for the Consent Granted event
  * @returns An object containing the PayloadBuilder to be sent to {@link @snowplow/tracker-core#TrackerCore.track} and a 'consent_document' context
  */
-export function buildConsentGranted(event: ConsentGrantedEvent) {
+export function buildConsentGranted(event: ConsentGrantedEvent): EventPayloadAndContext {
   const { expiry, id, version, name, description } = event;
   const documentJson = {
     schema: 'iglu:com.snowplowanalytics.snowplow/consent_document/jsonschema/1-0-0',
