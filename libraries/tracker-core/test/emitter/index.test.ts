@@ -11,6 +11,10 @@ function createMockFetch(status: number, requests: Request[]) {
   };
 }
 
+test.before(() => {
+  console.error = () => {}; // Silence console.error globally
+});
+
 test("input adds an event to the event store", async (t) => {
   const requests: Request[] = [];
   const mockFetch = createMockFetch(200, requests);
