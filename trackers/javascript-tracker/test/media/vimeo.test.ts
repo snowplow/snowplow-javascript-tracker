@@ -1,6 +1,7 @@
 import { VimeoEvent } from '@snowplow/browser-plugin-vimeo-tracking';
 import { pageSetup } from '../integration/helpers';
 import { fetchResults } from '../micro';
+import { Capabilities } from '@wdio/types';
 
 function compareContextObjects(expected: any, received: any) {
   expect(expected.schema).toEqual(received.schema);
@@ -51,37 +52,38 @@ const makeContext = () => {
 };
 
 const skipBrowsers = (browser: any) => {
-  if (browser.capabilities.browserName === 'internet explorer' && browser.capabilities.version === '9') {
-    fit('Skip IE 9', () => true);
+  const capabilities = browser.capabilities as Capabilities.DesiredCapabilities;
+  if (capabilities.browserName === 'internet explorer' && capabilities.version === '9') {
+    fit('Skip IE 9', () => {});
     return;
   }
 
-  if (browser.capabilities.browserName === 'internet explorer' && browser.capabilities.browserVersion === '10') {
-    fit('Skip IE 10', () => true);
+  if (capabilities.browserName === 'internet explorer' && capabilities.browserVersion === '10') {
+    fit('Skip IE 10', () => {});
     return;
   }
 
   // element not interactable: Element is not displayed
-  if (browser.capabilities.browserName === 'internet explorer' && browser.capabilities.browserVersion === '11') {
-    fit('Skip IE 11', () => true);
+  if (capabilities.browserName === 'internet explorer' && capabilities.browserVersion === '11') {
+    fit('Skip IE 11', () => {});
     return;
   }
 
   // Unknown command: {"name":"sendKeysToActiveElement","parameters":{"value":["k"]}}
-  if (browser.capabilities.browserName === 'safari' && browser.capabilities.version === '8.0') {
-    fit('Skip Safari 8', () => true);
+  if (capabilities.browserName === 'safari' && capabilities.version === '8.0') {
+    fit('Skip Safari 8', () => {});
     return;
   }
 
   // Element is obscured (WARNING: The server did not provide any stacktrace information)
-  if (browser.capabilities.browserName === 'MicrosoftEdge' && browser.capabilities.browserVersion === '13.10586') {
-    fit('Skip Edge 13', () => true);
+  if (capabilities.browserName === 'MicrosoftEdge' && capabilities.browserVersion === '13.10586') {
+    fit('Skip Edge 13', () => {});
     return;
   }
 
   // Driver info: driver.version: unknown
-  if (browser.capabilities.browserName === 'firefox' && browser.capabilities.version === '53.0') {
-    fit('Skip Firefox 53', () => true);
+  if (capabilities.browserName === 'firefox' && capabilities.version === '53.0') {
+    fit('Skip Firefox 53', () => {});
     return;
   }
 };

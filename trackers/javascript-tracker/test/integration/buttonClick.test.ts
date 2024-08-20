@@ -1,6 +1,7 @@
 import F from 'lodash/fp';
 import { fetchResults } from '../micro';
 import { pageSetup } from './helpers';
+import { Capabilities } from '@wdio/types';
 
 const loadUrlAndWait = async (url: string) => {
   await browser.url(url);
@@ -11,8 +12,9 @@ const loadUrlAndWait = async (url: string) => {
 };
 
 describe('Snowplow Micro integration', () => {
-  if (browser.capabilities.browserName === 'internet explorer') {
-    fit('Skip IE', () => true);
+  const browserName = (browser.capabilities as Capabilities.DesiredCapabilities).browserName;
+  if (browserName === 'internet explorer') {
+    fit('Skip IE', () => {});
     return;
   }
 

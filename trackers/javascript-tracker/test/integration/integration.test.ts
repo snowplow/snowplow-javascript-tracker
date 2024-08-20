@@ -2,6 +2,7 @@ import F from 'lodash/fp';
 import { fetchResults } from '../micro';
 import { version } from '../../package.json';
 import { pageSetup } from './helpers';
+import { Capabilities } from '@wdio/types';
 
 const retrieveSchemaData = (schema: unknown) => F.compose(F.get('data'), F.find({ schema }), F.get('data'));
 
@@ -35,8 +36,9 @@ const geoContext = {
 };
 
 describe('Snowplow Micro integration', () => {
-  if (browser.capabilities.browserName === 'internet explorer') {
-    fit('Skip IE', () => true);
+  const browserName = (browser.capabilities as Capabilities.DesiredCapabilities).browserName;
+  if (browserName === 'internet explorer') {
+    fit('Skip IE', () => {});
     return;
   }
 
