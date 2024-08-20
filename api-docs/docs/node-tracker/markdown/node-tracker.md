@@ -4,6 +4,12 @@
 
 ## node-tracker package
 
+## Enumerations
+
+|  Enumeration | Description |
+|  --- | --- |
+|  [LOG\_LEVEL](./node-tracker.log_level.md) |  |
+
 ## Functions
 
 |  Function | Description |
@@ -27,7 +33,34 @@
 |  [buildSiteSearch(event)](./node-tracker.buildsitesearch.md) | Build a Site Search Event Used when a user performs a search action on a page |
 |  [buildSocialInteraction(event)](./node-tracker.buildsocialinteraction.md) | Build a Social Interaction Event Social tracking will be used to track the way users interact with Facebook, Twitter and Google + widgets e.g. to capture “like this” or “tweet this” events. |
 |  [buildStructEvent(event)](./node-tracker.buildstructevent.md) | Build a Structured Event A classic style of event tracking, allows for easier movement between analytics systems. A loosely typed event, creating a Self Describing event is preferred, but useful for interoperability. |
+|  [getRuleParts(input)](./node-tracker.getruleparts.md) | Checks for validity of input and returns all the sections of a schema string that are used to match rules in a ruleset |
+|  [getSchemaParts(input)](./node-tracker.getschemaparts.md) | Slices a schema into its composite parts. Useful for ruleset filtering. |
+|  [globalContexts()](./node-tracker.globalcontexts.md) | Contains helper functions to aid in the addition and removal of Global Contexts |
+|  [isConditionalContextProvider(input)](./node-tracker.isconditionalcontextprovider.md) | Checks if an input array is either a filter provider or a rule set provider |
+|  [isContextCallbackFunction(input)](./node-tracker.iscontextcallbackfunction.md) | Validates if the function can be a valid context generator function |
+|  [isContextPrimitive(input)](./node-tracker.iscontextprimitive.md) | Validates if the function can be a valid context primitive function or self describing json |
+|  [isFilterProvider(input)](./node-tracker.isfilterprovider.md) | Validates if an array is a valid shape to be a Filter Provider |
+|  [isJson(property)](./node-tracker.isjson.md) | Is property a JSON? |
+|  [isNonEmptyJson(property)](./node-tracker.isnonemptyjson.md) | Is property a non-empty JSON? |
+|  [isRuleSet(input)](./node-tracker.isruleset.md) | Validates if the input object contains the expected properties of a ruleset |
+|  [isRuleSetProvider(input)](./node-tracker.isrulesetprovider.md) | Validates if an array is a valid shape to be an array of rule sets |
+|  [isSelfDescribingJson(input)](./node-tracker.isselfdescribingjson.md) | Check if a variable is a valid, non-empty Self Describing JSON |
+|  [isStringArray(input)](./node-tracker.isstringarray.md) | Check if a variable is an Array containing only strings |
+|  [isValidRule(input)](./node-tracker.isvalidrule.md) | Ensures the rules specified in a schema string of a ruleset are valid |
+|  [isValidRuleSetArg(input)](./node-tracker.isvalidrulesetarg.md) | Validates whether a rule set is an array of valid ruleset strings |
+|  [matchSchemaAgainstRule(rule, schema)](./node-tracker.matchschemaagainstrule.md) | Checks if a given schema matches a specific rule from a rule set |
+|  [matchSchemaAgainstRuleSet(ruleSet, schema)](./node-tracker.matchschemaagainstruleset.md) | Checks if a given schema matches any rules within the provided rule set |
+|  [newEmitter({ endpoint, eventMethod, protocol, port, maxPostBytes, maxGetBytes, bufferSize, customHeaders, serverAnonymization, connectionTimeout, keepalive, idService, dontRetryStatusCodes, retryStatusCodes, retryFailedRequests, onRequestFailure, onRequestSuccess, customFetch, useStm, eventStore, credentials })](./node-tracker.newemitter.md) |  |
+|  [newInMemoryEventStore({ maxSize, events })](./node-tracker.newinmemoryeventstore.md) |  |
 |  [newTracker(trackerConfiguration, emitterConfiguration)](./node-tracker.newtracker.md) |  |
+|  [payloadBuilder()](./node-tracker.payloadbuilder.md) |  |
+|  [payloadJsonProcessor(encodeBase64)](./node-tracker.payloadjsonprocessor.md) | A helper to build a Snowplow request from a set of name-value pairs, provided using the add methods. Will base64 encode JSON, if desired, on build |
+|  [pluginContexts(plugins)](./node-tracker.plugincontexts.md) |  |
+|  [removeEmptyProperties(event, exemptFields)](./node-tracker.removeemptyproperties.md) | Returns a copy of a JSON with undefined and null properties removed |
+|  [resolveDynamicContext(dynamicOrStaticContexts, extraParams)](./node-tracker.resolvedynamiccontext.md) | Find dynamic context generating functions and return their results to be merged into the static contexts Combine an array of unchanging contexts with the result of a context-creating function |
+|  [trackerCore(configuration)](./node-tracker.trackercore.md) | Create a tracker core object |
+|  [validateVendor(input)](./node-tracker.validatevendor.md) | Validates the vendor part of a schema string is valid for a rule set |
+|  [validateVendorParts(parts)](./node-tracker.validatevendorparts.md) | Validates the vendor section of a schema string contains allowed wildcard values |
 
 ## Interfaces
 
@@ -37,42 +70,71 @@
 |  [AdConversionEvent](./node-tracker.adconversionevent.md) | An Ad Conversion Event Used to track an advertisement click |
 |  [AddToCartEvent](./node-tracker.addtocartevent.md) | An Add To Cart Event For tracking users adding items from a cart on an ecommerce site. |
 |  [AdImpressionEvent](./node-tracker.adimpressionevent.md) | An Ad Impression Event Used to track an advertisement impression |
+|  [CommonEventProperties](./node-tracker.commoneventproperties.md) | Additional data points to set when tracking an event |
 |  [ConsentGrantedEvent](./node-tracker.consentgrantedevent.md) | A Consent Granted Event Used for tracking when a user grants their consent |
 |  [ConsentWithdrawnEvent](./node-tracker.consentwithdrawnevent.md) | A Consent Withdrawn Event Used for tracking when a user withdraws their consent |
 |  [ContextEvent](./node-tracker.contextevent.md) | Argument for [ContextGenerator](./node-tracker.contextgenerator.md) and [ContextFilter](./node-tracker.contextfilter.md) callback |
 |  [CoreConfiguration](./node-tracker.coreconfiguration.md) | The configuration object for the tracker core library |
 |  [CorePlugin](./node-tracker.coreplugin.md) | Interface which defines Core Plugins |
+|  [CorePluginConfiguration](./node-tracker.corepluginconfiguration.md) | The configuration of the plugin to add |
+|  [DeviceTimestamp](./node-tracker.devicetimestamp.md) | A representation of a Device Timestamp (dtm) |
 |  [EcommerceTransactionEvent](./node-tracker.ecommercetransactionevent.md) | An Ecommerce Transaction Event Allows for tracking common ecommerce events, this event is usually used when a customer completes a transaction. |
 |  [EcommerceTransactionItemEvent](./node-tracker.ecommercetransactionitemevent.md) | An Ecommerce Transaction Item Related to the [EcommerceTransactionEvent](./node-tracker.ecommercetransactionevent.md) Each Ecommerce Transaction may contain one or more EcommerceTransactionItem events |
-|  [Emitter](./node-tracker.emitter.md) |  |
+|  [Emitter](./node-tracker.emitter.md) | Emitter is responsible for sending events to the collector. It manages the event queue and sends events in batches depending on configuration. |
+|  [EmitterConfiguration](./node-tracker.emitterconfiguration.md) |  |
+|  [EmitterConfigurationBase](./node-tracker.emitterconfigurationbase.md) |  |
 |  [EventPayloadAndContext](./node-tracker.eventpayloadandcontext.md) | Interface for returning a built event (PayloadBuilder) and context (Array of SelfDescribingJson). |
+|  [EventStore](./node-tracker.eventstore.md) | EventStore allows storing and retrieving events before they are sent to the collector |
+|  [EventStoreConfiguration](./node-tracker.eventstoreconfiguration.md) |  |
+|  [EventStoreIterator](./node-tracker.eventstoreiterator.md) |  |
 |  [FormFocusOrChangeEvent](./node-tracker.formfocusorchangeevent.md) | Represents either a Form Focus or Form Change event When a user focuses on a form element or when a user makes a change to a form element. |
 |  [FormSubmissionEvent](./node-tracker.formsubmissionevent.md) | A Form Submission Event Used to track when a user submits a form |
+|  [GlobalContexts](./node-tracker.globalcontexts.md) |  |
+|  [InMemoryEventStoreConfiguration](./node-tracker.inmemoryeventstoreconfiguration.md) |  |
 |  [LinkClickEvent](./node-tracker.linkclickevent.md) | A Link Click Event Used when a user clicks on a link on a webpage, typically an anchor tag <code>&lt;a&gt;</code> |
+|  [Logger](./node-tracker.logger.md) |  |
 |  [PagePingEvent](./node-tracker.pagepingevent.md) | A Page Ping Event Fires when activity tracking is enabled in the browser. Tracks same information as the last tracked Page View and includes scroll information from the current page view |
 |  [PageViewEvent](./node-tracker.pageviewevent.md) | A Page View Event Represents a Page View, which is typically fired as soon as possible when a web page is loaded within the users browser. Often also fired on "virtual page views" within Single Page Applications (SPA). |
 |  [PayloadBuilder](./node-tracker.payloadbuilder.md) | Interface for mutable object encapsulating tracker payload |
+|  [PluginContexts](./node-tracker.plugincontexts.md) |  |
 |  [RemoveFromCartEvent](./node-tracker.removefromcartevent.md) | An Remove To Cart Event For tracking users removing items from a cart on an ecommerce site. |
+|  [RuleSet](./node-tracker.ruleset.md) | A ruleset has accept or reject properties that contain rules for matching Iglu schema URIs |
 |  [ScreenViewEvent](./node-tracker.screenviewevent.md) | A Screen View Event Similar to a Page View but less focused on typical web properties Often used for mobile applications as the user is presented with new views as they performance navigation events |
 |  [SelfDescribingEvent](./node-tracker.selfdescribingevent.md) | A Self Describing Event A custom event type, allowing for an event to be tracked using your own custom schema and a data object which conforms to the supplied schema |
 |  [SiteSearchEvent](./node-tracker.sitesearchevent.md) | A Site Search Event Used when a user performs a search action on a page |
 |  [SocialInteractionEvent](./node-tracker.socialinteractionevent.md) | A Social Interaction Event Social tracking will be used to track the way users interact with Facebook, Twitter and Google + widgets e.g. to capture “like this” or “tweet this” events. |
 |  [StructuredEvent](./node-tracker.structuredevent.md) | A Structured Event A classic style of event tracking, allows for easier movement between analytics systems. A loosely typed event, creating a Self Describing event is preferred, but useful for interoperability. |
 |  [Tracker](./node-tracker.tracker.md) |  |
+|  [TrackerCore](./node-tracker.trackercore.md) | Export interface containing all Core functions |
+|  [TrueTimestamp](./node-tracker.truetimestamp.md) | A representation of a True Timestamp (ttm) |
 
 ## Variables
 
 |  Variable | Description |
 |  --- | --- |
+|  [LOG](./node-tracker.log.md) |  |
 |  [version](./node-tracker.version.md) |  |
 
 ## Type Aliases
 
 |  Type Alias | Description |
 |  --- | --- |
+|  [ConditionalContextProvider](./node-tracker.conditionalcontextprovider.md) | Conditional context providers are two element arrays used to decide when to attach contexts, where: - the first element is some conditional criterion - the second element is any number of context primitives |
 |  [ContextFilter](./node-tracker.contextfilter.md) | A context filter is a user-supplied callback that is evaluated for each event to determine if the context associated with the filter should be attached to the event |
 |  [ContextGenerator](./node-tracker.contextgenerator.md) | A context generator is a user-supplied callback that is evaluated for each event to allow an additional context to be dynamically attached to the event |
+|  [ContextPrimitive](./node-tracker.contextprimitive.md) | A context primitive is either a self-describing JSON or a context generator |
+|  [DynamicContext](./node-tracker.dynamiccontext.md) | A Dynamic context is an array of Self Describing JSON contexts, or an array of callbacks which return Self Describing JSON contexts The array can be a mix of both contexts and callbacks which generate contexts |
+|  [EventBatch](./node-tracker.eventbatch.md) | A collection of event payloads which are sent to the collector. |
+|  [EventJson](./node-tracker.eventjson.md) | An array of tuples which represents the unprocessed JSON to be added to the Payload |
+|  [EventJsonWithKeys](./node-tracker.eventjsonwithkeys.md) | A tuple which represents the unprocessed JSON to be added to the Payload |
+|  [EventMethod](./node-tracker.eventmethod.md) |  |
+|  [FilterProvider](./node-tracker.filterprovider.md) | A filter provider is a tuple that has two parts: a context filter and the context primitive(s) If the context filter evaluates to true, the tracker will attach the context primitive(s) |
+|  [FormElement](./node-tracker.formelement.md) | A representation of an element within a form |
+|  [JsonProcessor](./node-tracker.jsonprocessor.md) | A function which will processor the Json onto the injected PayloadBuilder |
 |  [Payload](./node-tracker.payload.md) | Type for a Payload dictionary |
+|  [RequestFailure](./node-tracker.requestfailure.md) | The data that will be available to the <code>onRequestFailure</code> callback |
+|  [RuleSetProvider](./node-tracker.rulesetprovider.md) | A ruleset provider is aa tuple that has two parts: a ruleset and the context primitive(s) If the ruleset allows the current event schema URI, the tracker will attach the context primitive(s) |
 |  [SelfDescribingJson](./node-tracker.selfdescribingjson.md) | Export interface for any Self-Describing JSON such as context or Self Describing events |
+|  [SelfDescribingJsonArray](./node-tracker.selfdescribingjsonarray.md) | Export interface for any Self-Describing JSON which has the data attribute as an array |
 |  [Timestamp](./node-tracker.timestamp.md) | Algebraic datatype representing possible timestamp type choice |
 

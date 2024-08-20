@@ -14,7 +14,7 @@ export type EventBatch = Payload[];
  */
 export type RequestFailure = {
   /** The batch of events that failed to send */
-  events: Payload[];
+  events: EventBatch;
   /** The status code of the failed request */
   status?: number;
   /** The error message of the failed request */
@@ -41,7 +41,7 @@ export interface EmitterConfigurationBase {
   /**
    * The amount of events that should be buffered before sending
    * Recommended to leave as 1 to reduce change of losing events
-   * @defaultValue 1
+   * @defaultValue 1 on Web, 10 on Node
    */
   bufferSize?: number;
   /**
@@ -128,7 +128,7 @@ export interface EmitterConfigurationBase {
    *
    * @param data - The event batch that was successfully sent
    */
-  onRequestSuccess?: (data: Payload[]) => void;
+  onRequestSuccess?: (data: EventBatch) => void;
   /**
    * A callback function to be executed whenever a request fails to be sent to the collector.
    * This is the inverse of the onRequestSuccess callback, so any non 2xx status code will trigger this callback.

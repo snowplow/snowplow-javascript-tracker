@@ -59,6 +59,8 @@
 |  [DisableAnonymousTrackingConfiguration](./browser-tracker.disableanonymoustrackingconfiguration.md) | The configuration that can be changed when disabling anonymous tracking |
 |  [EnableAnonymousTrackingConfiguration](./browser-tracker.enableanonymoustrackingconfiguration.md) | The configuration that can be changed when enabling anonymous tracking |
 |  [EventPayloadAndContext](./browser-tracker.eventpayloadandcontext.md) | Interface for returning a built event (PayloadBuilder) and context (Array of SelfDescribingJson). |
+|  [EventStore](./browser-tracker.eventstore.md) | EventStore allows storing and retrieving events before they are sent to the collector |
+|  [EventStoreIterator](./browser-tracker.eventstoreiterator.md) |  |
 |  [FlushBufferConfiguration](./browser-tracker.flushbufferconfiguration.md) | The configuration that can be changed when flushing the buffer |
 |  [PageViewEvent](./browser-tracker.pageviewevent.md) | A Page View event Used for tracking a page view |
 |  [RuleSet](./browser-tracker.ruleset.md) | A ruleset has accept or reject properties that contain rules for matching Iglu schema URIs |
@@ -84,15 +86,13 @@
 |  [ContextGenerator](./browser-tracker.contextgenerator.md) | A context generator is a user-supplied callback that is evaluated for each event to allow an additional context to be dynamically attached to the event |
 |  [ContextPrimitive](./browser-tracker.contextprimitive.md) | A context primitive is either a self-describing JSON or a context generator |
 |  [CookieSameSite](./browser-tracker.cookiesamesite.md) |  |
-|  [EventBatch](./browser-tracker.eventbatch.md) | A collection of events which are sent to the collector. This can either be a collection of query strings or JSON objects. |
+|  [EventBatch](./browser-tracker.eventbatch.md) | A collection of event payloads which are sent to the collector. |
 |  [EventMethod](./browser-tracker.eventmethod.md) |  |
 |  [ExtendedCrossDomainLinkerAttributes](./browser-tracker.extendedcrossdomainlinkerattributes.md) |  |
 |  [ExtendedCrossDomainLinkerOptions](./browser-tracker.extendedcrossdomainlinkeroptions.md) |  |
 |  [FilterProvider](./browser-tracker.filterprovider.md) | A filter provider is a tuple that has two parts: a context filter and the context primitive(s) If the context filter evaluates to true, the tracker will attach the context primitive(s) |
-|  [GetBatch](./browser-tracker.getbatch.md) | A collection of GET events which are sent to the collector. This will be a collection of query strings. |
 |  [ParsedIdCookie](./browser-tracker.parsedidcookie.md) | The format of state elements stored in the <code>id</code> cookie. |
 |  [Platform](./browser-tracker.platform.md) |  |
-|  [PostBatch](./browser-tracker.postbatch.md) | A collection of POST events which are sent to the collector. This will be a collection of JSON objects. |
 |  [PreservePageViewIdForUrl](./browser-tracker.preservepageviewidforurl.md) |  |
 |  [RequestFailure](./browser-tracker.requestfailure.md) | The data that will be available to the <code>onRequestFailure</code> callback |
 |  [RuleSetProvider](./browser-tracker.rulesetprovider.md) | A ruleset provider is aa tuple that has two parts: a ruleset and the context primitive(s) If the ruleset allows the current event schema URI, the tracker will attach the context primitive(s) |

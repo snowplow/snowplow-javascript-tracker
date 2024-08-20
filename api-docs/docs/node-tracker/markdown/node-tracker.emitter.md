@@ -4,6 +4,8 @@
 
 ## Emitter interface
 
+Emitter is responsible for sending events to the collector. It manages the event queue and sends events in batches depending on configuration.
+
 <b>Signature:</b>
 
 ```typescript
@@ -14,7 +16,9 @@ interface Emitter
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [flush](./node-tracker.emitter.flush.md) | () =&gt; void |  |
-|  [input](./node-tracker.emitter.input.md) | (payload: Payload) =&gt; void |  |
-|  [setAnonymization?](./node-tracker.emitter.setanonymization.md) | (shouldAnonymize: boolean) =&gt; void | <i>(Optional)</i> Set if the requests from the emitter should be anonymized. Read more about anonymization used at https://docs.snowplow.io/docs/collecting-data/collecting-from-own-applications/snowplow-tracker-protocol/going-deeper/http-headers/. |
+|  [flush](./node-tracker.emitter.flush.md) | () =&gt; Promise&lt;void&gt; | Forces the emitter to send all events in the event store to the collector. |
+|  [input](./node-tracker.emitter.input.md) | (payload: Payload) =&gt; Promise&lt;void&gt; | Adds a payload to the event store or sends it to the collector. |
+|  [setAnonymousTracking](./node-tracker.emitter.setanonymoustracking.md) | (anonymous: boolean) =&gt; void | Sets the server anonymization flag. |
+|  [setBufferSize](./node-tracker.emitter.setbuffersize.md) | (bufferSize: number) =&gt; void | Updates the buffer size of the emitter. |
+|  [setCollectorUrl](./node-tracker.emitter.setcollectorurl.md) | (url: string) =&gt; void | Updates the collector URL to which events will be sent. |
 

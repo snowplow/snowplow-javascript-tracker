@@ -7,7 +7,7 @@
 <b>Signature:</b>
 
 ```typescript
-declare function newTracker(trackerConfiguration: TrackerConfiguration, emitterConfiguration: EmitterConfiguration | EmitterConfiguration[]): Tracker;
+declare function newTracker(trackerConfiguration: TrackerConfiguration, emitterConfiguration: EmitterConfiguration): Tracker;
 ```
 
 ## Parameters
@@ -15,7 +15,7 @@ declare function newTracker(trackerConfiguration: TrackerConfiguration, emitterC
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  trackerConfiguration | TrackerConfiguration |  |
-|  emitterConfiguration | EmitterConfiguration \| EmitterConfiguration\[\] |  |
+|  emitterConfiguration | EmitterConfiguration |  |
 
 <b>Returns:</b>
 

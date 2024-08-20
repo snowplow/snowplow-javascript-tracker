@@ -217,16 +217,33 @@ export interface EnableAnonymousTrackingConfiguration {
 }
 
 // @public
-export type EventBatch = GetBatch | PostBatch;
+export type EventBatch = Payload[];
 
 // @public (undocumented)
-export type EventMethod = "post" | "get" | "beacon";
+export type EventMethod = "post" | "get";
 
 // @public
 export interface EventPayloadAndContext {
     context: Array<SelfDescribingJson>;
     // Warning: (ae-forgotten-export) The symbol "PayloadBuilder" needs to be exported by the entry point index.module.d.ts
     event: PayloadBuilder;
+}
+
+// @public
+export interface EventStore {
+    add: (payload: Payload) => Promise<void>;
+    count: () => Promise<number>;
+    getAll: () => Promise<Payload[]>;
+    iterator: () => EventStoreIterator;
+    removeHead: (count: number) => Promise<void>;
+}
+
+// @public (undocumented)
+export interface EventStoreIterator {
+    next: () => Promise<{
+        payload: Payload | undefined;
+        done: boolean;
+    }>;
 }
 
 // @public (undocumented)
@@ -258,9 +275,6 @@ export interface FlushBufferConfiguration {
 }
 
 // @public
-export type GetBatch = string[];
-
-// @public
 export function newSession(trackers?: Array<string>): void;
 
 // @public
@@ -289,9 +303,6 @@ eventIndex: number
 
 // @public (undocumented)
 export type Platform = "web" | "mob" | "pc" | "srv" | "app" | "tv" | "cnsl" | "iot";
-
-// @public
-export type PostBatch = Record<string, unknown>[];
 
 // @public
 export function preservePageViewId(trackers?: Array<string>): void;
@@ -388,6 +399,9 @@ export interface StructuredEvent {
     value?: number;
 }
 
+// Warning: (ae-forgotten-export) The symbol "EmitterConfigurationBase" needs to be exported by the entry point index.module.d.ts
+// Warning: (ae-forgotten-export) The symbol "LocalStorageEventStoreConfigurationBase" needs to be exported by the entry point index.module.d.ts
+//
 // @public
 export type TrackerConfiguration = {
     encodeBase64?: boolean;
@@ -396,37 +410,21 @@ export type TrackerConfiguration = {
     cookieSameSite?: CookieSameSite;
     cookieSecure?: boolean;
     cookieLifetime?: number;
-    withCredentials?: boolean;
     sessionCookieTimeout?: number;
     appId?: string;
     platform?: Platform;
     respectDoNotTrack?: boolean;
-    eventMethod?: EventMethod;
-    postPath?: string;
-    useStm?: boolean;
-    bufferSize?: number;
     crossDomainLinker?: (elt: HTMLAnchorElement | HTMLAreaElement) => boolean;
     useExtendedCrossDomainLinker?: ExtendedCrossDomainLinkerOptions;
-    maxPostBytes?: number;
-    maxGetBytes?: number;
     discoverRootDomain?: boolean;
     stateStorageStrategy?: StateStorageStrategy;
-    maxLocalStorageQueueSize?: number;
     resetActivityTrackingOnPageView?: boolean;
-    connectionTimeout?: number;
     anonymousTracking?: AnonymousTrackingOptions;
     contexts?: BuiltInContexts;
     plugins?: Array<BrowserPlugin>;
-    customHeaders?: Record<string, string>;
-    retryStatusCodes?: number[];
-    dontRetryStatusCodes?: number[];
     onSessionUpdateCallback?: (updatedSession: ClientSession) => void;
-    idService?: string;
-    retryFailedRequests?: boolean;
-    onRequestSuccess?: (data: EventBatch) => void;
-    onRequestFailure?: (data: RequestFailure) => void;
     preservePageViewIdForUrl?: PreservePageViewIdForUrl;
-};
+} & EmitterConfigurationBase & LocalStorageEventStoreConfigurationBase;
 
 // @public
 export function trackPageView(event?: PageViewEvent & CommonEventProperties, trackers?: Array<string>): void;

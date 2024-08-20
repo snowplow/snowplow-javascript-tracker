@@ -61,6 +61,10 @@ export interface Tracker extends TrackerCore {
    */
   setSessionIndex: (sessionIndex: string | number) => void;
 
+  /**
+   * Calls flush on all emitters in order to send all queued events to the collector
+   * @returns Promise<void> - Promise that resolves when all emitters have flushed
+   */
   flush: () => Promise<void>;
 }
 
@@ -80,6 +84,17 @@ type CustomEmitter = {
 
 type EmitterConfiguration = CustomEmitter | CoreEmitterConfiguration | CoreEmitterConfiguration[];
 
+/**
+ * Updates the defaults for the emitter configuration
+ */
+function newNodeEmitter(configuration: CoreEmitterConfiguration): Emitter {
+  // Set the default buffer size to 10 instead of 1
+  if (configuration.bufferSize === undefined) {
+    configuration.bufferSize = 10;
+  }
+  return newEmitter(configuration);
+}
+
 export function newTracker(
   trackerConfiguration: TrackerConfiguration,
   emitterConfiguration: EmitterConfiguration
@@ -88,12 +103,12 @@ export function newTracker(
 
   let allEmitters: Emitter[] = [];
   if (Array.isArray(emitterConfiguration)) {
-    allEmitters = emitterConfiguration.map((config) => newEmitter(config as CoreEmitterConfiguration));
+    allEmitters = emitterConfiguration.map((config) => newNodeEmitter(config as CoreEmitterConfiguration));
   } else if (emitterConfiguration && emitterConfiguration.hasOwnProperty('customEmitter')) {
     const customEmitters = (emitterConfiguration as CustomEmitter).customEmitter();
     allEmitters = Array.isArray(customEmitters) ? customEmitters : [customEmitters];
   } else {
-    allEmitters = [newEmitter(emitterConfiguration as CoreEmitterConfiguration)];
+    allEmitters = [newNodeEmitter(emitterConfiguration as CoreEmitterConfiguration)];
   }
 
   let domainUserId: string;

@@ -7,5 +7,5 @@
 <b>Signature:</b>
 
 ```typescript
-type EventMethod = "post" | "get" | "beacon";
+type EventMethod = "post" | "get";
 ```
