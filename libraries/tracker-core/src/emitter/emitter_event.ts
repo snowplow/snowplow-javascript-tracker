@@ -30,7 +30,7 @@ export interface EmitterEvent {
  * Count the number of bytes a string will occupy when UTF-8 encoded
  * Taken from http://stackoverflow.com/questions/2848462/count-bytes-in-textarea-using-javascript/
  *
- * @param string - s
+ * @param s - The string
  * @returns number Length of s in bytes when UTF-8 encoded
  */
 function getUTF8Length(s: string) {

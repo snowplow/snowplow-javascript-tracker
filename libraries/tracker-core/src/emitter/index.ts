@@ -117,8 +117,8 @@ export interface EmitterConfigurationBase {
   keepalive?: boolean;
   /**
    * Enables overriding the default fetch function with a custom implementation.
-   * @param input Instance of Request
-   * @param options Additional options for the request
+   * @param input - Instance of Request
+   * @param options - Additional options for the request
    * @returns A Promise that resolves to the Response.
    */
   customFetch?: (input: Request, options?: RequestInit) => Promise<Response>;
@@ -165,13 +165,13 @@ export interface Emitter {
   flush: () => Promise<void>;
   /**
    * Adds a payload to the event store or sends it to the collector.
-   * @param payload A payload to be sent to the collector
+   * @param payload - A payload to be sent to the collector
    * @returns Promise that resolves when the payload has been added to the event store or sent to the collector
    */
   input: (payload: Payload) => Promise<void>;
   /**
    * Updates the collector URL to which events will be sent.
-   * @param url New collector URL
+   * @param url - New collector URL
    */
   setCollectorUrl: (url: string) => void;
   /**
