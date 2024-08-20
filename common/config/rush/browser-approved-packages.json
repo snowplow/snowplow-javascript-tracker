@@ -405,6 +405,10 @@
     {
       "name": "webdriverio",
       "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "whatwg-fetch",
+      "allowedCategories": [ "libraries", "trackers" ]
     }
   ]
 }

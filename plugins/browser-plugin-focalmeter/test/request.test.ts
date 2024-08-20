@@ -31,7 +31,7 @@
 import { addTracker, SharedState } from '@snowplow/browser-tracker-core';
 import { enableFocalMeterIntegration, FocalMeterPlugin } from '../src';
 
-describe('AdTrackingPlugin', () => {
+describe('FocalmeterPlugin', () => {
   // Mock XHR network requests
   let xhrMock: Partial<XMLHttpRequest>;
   let xhrOpenMock: jest.Mock;
@@ -67,7 +67,7 @@ describe('AdTrackingPlugin', () => {
     const userId = tracker?.getDomainUserId();
 
     await checkMock(() => {
-      expect(xhrOpenMock).toHaveBeenCalledTimes(2);
+      expect(xhrOpenMock).toHaveBeenCalledTimes(1);
       expect(xhrOpenMock).toHaveBeenLastCalledWith('GET', `${domain}?vendor=snowplow&cs_fpid=${userId}&c12=not_set`);
     });
   });
@@ -80,7 +80,7 @@ describe('AdTrackingPlugin', () => {
     const userId = tracker?.getDomainUserId();
 
     await checkMock(() => {
-      expect(xhrOpenMock).toHaveBeenCalledTimes(2);
+      expect(xhrOpenMock).toHaveBeenCalledTimes(1);
       expect(xhrOpenMock).toHaveBeenLastCalledWith('GET', `${domain}?vendor=snowplow&cs_fpid=${userId}-processed&c12=not_set`);
     });
   });
@@ -93,7 +93,7 @@ describe('AdTrackingPlugin', () => {
     tracker?.enableAnonymousTracking();
     tracker?.trackPageView();
     await checkMock(() => {
-      expect(xhrOpenMock).toHaveBeenCalledTimes(1);
+      expect(xhrOpenMock).toHaveBeenCalledTimes(0);
     });
 
     // Makes a request when disabling anonymous tracking
@@ -101,14 +101,14 @@ describe('AdTrackingPlugin', () => {
     tracker?.trackPageView();
     const userId = tracker?.getDomainUserId();
     await checkMock(() => {
-      expect(xhrOpenMock).toHaveBeenCalledTimes(2);
+      expect(xhrOpenMock).toHaveBeenCalledTimes(1);
       expect(xhrOpenMock).toHaveBeenLastCalledWith('GET', `${domain}?vendor=snowplow&cs_fpid=${userId}&c12=not_set`);
     });
 
     // Doesn't make another request since user ID didn't change
     tracker?.trackPageView();
     await checkMock(() => {
-      expect(xhrOpenMock).toHaveBeenCalledTimes(1);
+      expect(xhrOpenMock).toHaveBeenCalledTimes(0);
     });
   });
 
@@ -125,15 +125,15 @@ describe('AdTrackingPlugin', () => {
 
     // Makes requests for both trackers
     tracker1?.trackPageView();
-    await checkMock(() => expect(xhrOpenMock).toHaveBeenCalledTimes(2));
+    await checkMock(() => expect(xhrOpenMock).toHaveBeenCalledTimes(1));
     tracker2?.trackPageView();
-    await checkMock(() => expect(xhrOpenMock).toHaveBeenCalledTimes(2));
+    await checkMock(() => expect(xhrOpenMock).toHaveBeenCalledTimes(1));
 
     // Doesn't make any more requests for the trackers
     tracker1?.trackPageView();
-    await checkMock(() => expect(xhrOpenMock).toHaveBeenCalledTimes(1));
+    await checkMock(() => expect(xhrOpenMock).toHaveBeenCalledTimes(0));
     tracker2?.trackPageView();
-    await checkMock(() => expect(xhrOpenMock).toHaveBeenCalledTimes(1));
+    await checkMock(() => expect(xhrOpenMock).toHaveBeenCalledTimes(0));
   });
 
   function createTrackerWithPlugin(id: string | undefined = undefined) {
@@ -144,6 +144,7 @@ describe('AdTrackingPlugin', () => {
       stateStorageStrategy: 'cookie',
       encodeBase64: false,
       plugins: [FocalMeterPlugin()],
+      customFetch: async () => new Response(null, { status: 200 }),
     });
   }
 

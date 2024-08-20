@@ -43,3 +43,5 @@ export * from './plugins';
 export * from './payload';
 export * from './core';
 export * from './logger';
+export * from './emitter';
+export * from './event_store';

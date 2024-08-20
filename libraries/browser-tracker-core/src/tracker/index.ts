@@ -29,7 +29,7 @@ import {
   createCrossDomainParameterValue,
 } from '../helpers';
 import { BrowserPlugin } from '../plugins';
-import { OutQueueManager } from './out_queue';
+import { newOutQueue } from './out_queue';
 import { fixupUrl } from '../proxies';
 import { SharedState } from '../state';
 import {
@@ -198,10 +198,6 @@ export function Tracker(
       customReferrer: string,
       // Platform defaults to web for this tracker
       configPlatform = trackerConfiguration.platform ?? 'web',
-      // Snowplow collector URL
-      configCollectorUrl = asCollectorUrl(endpoint),
-      // Custom path for post requests (to get around adblockers)
-      configPostPath = trackerConfiguration.postPath ?? '/com.snowplowanalytics.snowplow/tp2',
       // Site ID
       configTrackerSiteId = trackerConfiguration.appId ?? '',
       // Document URL
@@ -274,27 +270,16 @@ export function Tracker(
       // Business-defined unique user ID
       businessUserId: string | null | undefined,
       // Manager for local storage queue
-      outQueue = OutQueueManager(
-        trackerId,
-        state,
-        configStateStorageStrategy == 'localStorage' || configStateStorageStrategy == 'cookieAndLocalStorage',
-        trackerConfiguration.eventMethod,
-        configPostPath,
-        trackerConfiguration.bufferSize ?? 1,
-        trackerConfiguration.maxPostBytes ?? 40000,
-        trackerConfiguration.maxGetBytes ?? 0,
-        trackerConfiguration.useStm ?? true,
-        trackerConfiguration.maxLocalStorageQueueSize ?? 1000,
-        trackerConfiguration.connectionTimeout ?? 5000,
-        configAnonymousServerTracking,
-        trackerConfiguration.customHeaders ?? {},
-        trackerConfiguration.withCredentials ?? true,
-        trackerConfiguration.retryStatusCodes ?? [],
-        (trackerConfiguration.dontRetryStatusCodes ?? []).concat([400, 401, 403, 410, 422]),
-        trackerConfiguration.idService,
-        trackerConfiguration.retryFailedRequests,
-        trackerConfiguration.onRequestSuccess,
-        trackerConfiguration.onRequestFailure
+      outQueue = newOutQueue(
+        {
+          trackerId,
+          endpoint: asCollectorUrl(endpoint),
+          serverAnonymization: configAnonymousServerTracking,
+          useLocalStorage:
+            configStateStorageStrategy == 'localStorage' || configStateStorageStrategy == 'cookieAndLocalStorage',
+          ...trackerConfiguration,
+        },
+        state
       ),
       // Whether pageViewId should be regenerated after each trackPageView. Affect web_page context
       preservePageViewId = false,
@@ -472,7 +457,7 @@ export function Tracker(
      */
     function sendRequest(request: PayloadBuilder) {
       if (!(configDoNotTrack || toOptoutByCookie)) {
-        outQueue.enqueueRequest(request.build(), configCollectorUrl);
+        outQueue.enqueueRequest(request.build());
       }
     }
 
@@ -1315,8 +1300,7 @@ export function Tracker(
       },
 
       setCollectorUrl: function (collectorUrl: string) {
-        configCollectorUrl = asCollectorUrl(collectorUrl);
-        outQueue.setCollectorUrl(configCollectorUrl);
+        outQueue.setCollectorUrl(asCollectorUrl(collectorUrl));
       },
 
       setBufferSize: function (newBufferSize: number) {

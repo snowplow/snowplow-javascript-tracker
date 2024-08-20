@@ -28,7 +28,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-export { Emitter } from './emitter';
 export { newTracker, Tracker } from './tracker';
 
 export {
@@ -81,4 +80,9 @@ export {
   ContextGenerator,
   ContextFilter,
   EventPayloadAndContext,
+  Emitter,
+  RequestFailure,
+  EventBatch,
+  EventStore,
+  EventStoreIterator,
 } from '@snowplow/tracker-core';

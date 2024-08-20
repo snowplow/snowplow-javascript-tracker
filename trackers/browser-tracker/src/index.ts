@@ -40,10 +40,10 @@ import {
   ClientSession,
   RequestFailure,
   EventBatch,
-  GetBatch,
-  PostBatch,
   ParsedIdCookie,
   PreservePageViewIdForUrl,
+  EventStore,
+  EventStoreIterator,
 } from '@snowplow/browser-tracker-core';
 import { version } from '@snowplow/tracker-core';
 
@@ -74,10 +74,10 @@ export {
   ClientSession,
   RequestFailure,
   EventBatch,
-  GetBatch,
-  PostBatch,
   ParsedIdCookie,
   PreservePageViewIdForUrl,
+  EventStore,
+  EventStoreIterator,
 };
 export { version };
 export * from './api';

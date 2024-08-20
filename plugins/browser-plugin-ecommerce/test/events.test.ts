@@ -29,12 +29,12 @@
  */
 
 import { addTracker, BrowserTracker, SharedState } from '@snowplow/browser-tracker-core';
-import { trackerCore } from '@snowplow/tracker-core';
+import { newInMemoryEventStore, trackerCore } from '@snowplow/tracker-core';
 import F from 'lodash/fp';
 import { EcommercePlugin, trackAddToCart, trackRemoveFromCart, addItem, addTrans, trackTrans } from '../src';
 
-const getUEEvents = F.compose(F.filter(F.compose(F.eq('ue'), F.get('evt.e'))));
-const extractEventProperties = F.map(F.compose(F.get('data'), (cx: string) => JSON.parse(cx), F.get('evt.ue_pr')));
+const getUEEvents = F.compose(F.filter(F.compose(F.eq('ue'), F.get('e'))));
+const extractEventProperties = F.map(F.compose(F.get('data'), (cx: string) => JSON.parse(cx), F.get('ue_pr')));
 const extractUeEvent = (schema: string) => {
   return {
     from: F.compose(
@@ -49,13 +49,16 @@ const extractUeEvent = (schema: string) => {
 
 describe('EcommercePlugin', () => {
   const state = new SharedState();
+  const eventStore = newInMemoryEventStore({});
   addTracker('sp1', 'sp1', 'js-3.0.0', '', state, {
     stateStorageStrategy: 'cookie',
     encodeBase64: false,
     plugins: [EcommercePlugin()],
+    eventStore,
+    customFetch: async () => new Response(null, { status: 500 }),
   });
 
-  it('trackAddToCart adds the expected add to cart event to the queue', () => {
+  it('trackAddToCart adds the expected add to cart event to the queue', async () => {
     trackAddToCart(
       {
         quantity: 1,
@@ -69,7 +72,7 @@ describe('EcommercePlugin', () => {
     );
 
     expect(
-      extractUeEvent('iglu:com.snowplowanalytics.snowplow/add_to_cart/jsonschema/1-0-0').from(state.outQueues[0])
+      extractUeEvent('iglu:com.snowplowanalytics.snowplow/add_to_cart/jsonschema/1-0-0').from(await eventStore.getAll())
     ).toMatchObject({
       schema: 'iglu:com.snowplowanalytics.snowplow/add_to_cart/jsonschema/1-0-0',
       data: {
@@ -83,7 +86,7 @@ describe('EcommercePlugin', () => {
     });
   });
 
-  it('trackRemoveFromCart adds the expected remove from cart event to the queue', () => {
+  it('trackRemoveFromCart adds the expected remove from cart event to the queue', async () => {
     trackRemoveFromCart(
       {
         quantity: 1,
@@ -97,7 +100,7 @@ describe('EcommercePlugin', () => {
     );
 
     expect(
-      extractUeEvent('iglu:com.snowplowanalytics.snowplow/remove_from_cart/jsonschema/1-0-0').from(state.outQueues[0])
+      extractUeEvent('iglu:com.snowplowanalytics.snowplow/remove_from_cart/jsonschema/1-0-0').from(await eventStore.getAll())
     ).toMatchObject({
       schema: 'iglu:com.snowplowanalytics.snowplow/remove_from_cart/jsonschema/1-0-0',
       data: {

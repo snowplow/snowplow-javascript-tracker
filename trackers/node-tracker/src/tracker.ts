@@ -30,8 +30,7 @@
 
 import { trackerCore, PayloadBuilder, TrackerCore, version } from '@snowplow/tracker-core';
 
-import { Emitter } from './emitter';
-import { gotEmitter, GotEmitterConfiguration } from './got_emitter';
+import { Emitter, newEmitter, EmitterConfiguration as CoreEmitterConfiguration } from '@snowplow/tracker-core';
 
 export interface Tracker extends TrackerCore {
   /**
@@ -61,6 +60,8 @@ export interface Tracker extends TrackerCore {
    * @param sessionIndex - The session index
    */
   setSessionIndex: (sessionIndex: string | number) => void;
+
+  flush: () => Promise<void>;
 }
 
 interface TrackerConfiguration {
@@ -77,22 +78,22 @@ type CustomEmitter = {
   customEmitter: () => Emitter | Array<Emitter>;
 };
 
-type EmitterConfiguration = CustomEmitter | GotEmitterConfiguration;
+type EmitterConfiguration = CustomEmitter | CoreEmitterConfiguration | CoreEmitterConfiguration[];
 
 export function newTracker(
   trackerConfiguration: TrackerConfiguration,
-  emitterConfiguration: EmitterConfiguration | EmitterConfiguration[]
+  emitterConfiguration: EmitterConfiguration
 ): Tracker {
   const { namespace, appId, encodeBase64 = true } = trackerConfiguration;
 
   let allEmitters: Emitter[] = [];
   if (Array.isArray(emitterConfiguration)) {
-    allEmitters = emitterConfiguration.map((config) => gotEmitter(config as GotEmitterConfiguration));
+    allEmitters = emitterConfiguration.map((config) => newEmitter(config as CoreEmitterConfiguration));
   } else if (emitterConfiguration && emitterConfiguration.hasOwnProperty('customEmitter')) {
     const customEmitters = (emitterConfiguration as CustomEmitter).customEmitter();
     allEmitters = Array.isArray(customEmitters) ? customEmitters : [customEmitters];
   } else {
-    allEmitters = [gotEmitter(emitterConfiguration as GotEmitterConfiguration)];
+    allEmitters = [newEmitter(emitterConfiguration as CoreEmitterConfiguration)];
   }
 
   let domainUserId: string;
@@ -143,11 +144,18 @@ export function newTracker(
     sessionIndex = currentSessionIndex;
   };
 
+  const flush = async () => {
+    for (let i = 0; i < allEmitters.length; i++) {
+      await allEmitters[i].flush();
+    }
+  }
+
   return {
     setDomainUserId,
     setNetworkUserId,
     setSessionId,
     setSessionIndex,
+    flush,
     ...core,
   };
 }

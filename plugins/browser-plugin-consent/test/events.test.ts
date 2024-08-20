@@ -31,10 +31,11 @@
 import { addTracker, SharedState } from '@snowplow/browser-tracker-core';
 import F from 'lodash/fp';
 import { ConsentPlugin, trackConsentWithdrawn, trackConsentGranted, enableGdprContext } from '../src';
+import { newInMemoryEventStore } from '@snowplow/tracker-core';
 
-const getUEEvents = F.compose(F.filter(F.compose(F.eq('ue'), F.get('evt.e'))));
-const extractEventProperties = F.map(F.compose(F.get('data'), (cx: string) => JSON.parse(cx), F.get('evt.ue_pr')));
-const extractEventContext = F.map(F.compose(F.get('data'), (cx: string) => JSON.parse(cx), F.get('evt.co')));
+const getUEEvents = F.compose(F.filter(F.compose(F.eq('ue'), F.get('e'))));
+const extractEventProperties = F.map(F.compose(F.get('data'), (cx: string) => JSON.parse(cx), F.get('ue_pr')));
+const extractEventContext = F.map(F.compose(F.get('data'), (cx: string) => JSON.parse(cx), F.get('co')));
 const extractUeEvent = (schema: string) => {
   return {
     from: F.compose(
@@ -59,16 +60,24 @@ const extractContext = (schema: string) => {
 };
 
 describe('AdTrackingPlugin', () => {
+  const eventStore1 = newInMemoryEventStore({});
+  const eventStore2 = newInMemoryEventStore({});
   const state = new SharedState();
+  const customFetch = async () => new Response(null, { status: 500 });
+
   addTracker('sp1', 'sp1', 'js-3.0.0', '', state, {
     stateStorageStrategy: 'cookie',
     encodeBase64: false,
     plugins: [ConsentPlugin()],
+    customFetch,
+    eventStore: eventStore1
   });
   addTracker('sp2', 'sp2', 'js-3.0.0', '', state, {
     stateStorageStrategy: 'cookie',
     encodeBase64: false,
     plugins: [ConsentPlugin()],
+    customFetch,
+    eventStore: eventStore2
   });
 
   enableGdprContext({
@@ -100,9 +109,9 @@ describe('AdTrackingPlugin', () => {
     ['sp2']
   );
 
-  it('trackConsentWithdrawn adds the expected consent withdrawn event to the queue', () => {
+  it('trackConsentWithdrawn adds the expected consent withdrawn event to the queue', async () => {
     expect(
-      extractUeEvent('iglu:com.snowplowanalytics.snowplow/consent_withdrawn/jsonschema/1-0-0').from(state.outQueues[0])
+      extractUeEvent('iglu:com.snowplowanalytics.snowplow/consent_withdrawn/jsonschema/1-0-0').from(await eventStore1.getAll())
     ).toMatchObject({
       schema: 'iglu:com.snowplowanalytics.snowplow/consent_withdrawn/jsonschema/1-0-0',
       data: {
@@ -111,7 +120,7 @@ describe('AdTrackingPlugin', () => {
     });
 
     expect(
-      extractContext('iglu:com.snowplowanalytics.snowplow/consent_document/jsonschema/1-0-0').from(state.outQueues[0])
+      extractContext('iglu:com.snowplowanalytics.snowplow/consent_document/jsonschema/1-0-0').from(await eventStore1.getAll())
     ).toMatchObject({
       schema: 'iglu:com.snowplowanalytics.snowplow/consent_document/jsonschema/1-0-0',
       data: {
@@ -123,9 +132,9 @@ describe('AdTrackingPlugin', () => {
     });
   });
 
-  it('trackConsentGranted adds the expected consent granted event to the queue', () => {
+  it('trackConsentGranted adds the expected consent granted event to the queue', async () => {
     expect(
-      extractUeEvent('iglu:com.snowplowanalytics.snowplow/consent_granted/jsonschema/1-0-0').from(state.outQueues[1])
+      extractUeEvent('iglu:com.snowplowanalytics.snowplow/consent_granted/jsonschema/1-0-0').from(await eventStore2.getAll())
     ).toMatchObject({
       schema: 'iglu:com.snowplowanalytics.snowplow/consent_granted/jsonschema/1-0-0',
       data: {
@@ -134,7 +143,7 @@ describe('AdTrackingPlugin', () => {
     });
 
     expect(
-      extractContext('iglu:com.snowplowanalytics.snowplow/consent_document/jsonschema/1-0-0').from(state.outQueues[1])
+      extractContext('iglu:com.snowplowanalytics.snowplow/consent_document/jsonschema/1-0-0').from(await eventStore2.getAll())
     ).toMatchObject({
       schema: 'iglu:com.snowplowanalytics.snowplow/consent_document/jsonschema/1-0-0',
       data: {
@@ -146,9 +155,9 @@ describe('AdTrackingPlugin', () => {
     });
   });
 
-  it('events contain the GDPR context', () => {
+  it('events contain the GDPR context', async () => {
     expect(
-      extractContext('iglu:com.snowplowanalytics.snowplow/gdpr/jsonschema/1-0-0').from(state.outQueues[0])
+      extractContext('iglu:com.snowplowanalytics.snowplow/gdpr/jsonschema/1-0-0').from(await eventStore1.getAll())
     ).toMatchObject({
       schema: 'iglu:com.snowplowanalytics.snowplow/gdpr/jsonschema/1-0-0',
       data: {
@@ -160,7 +169,7 @@ describe('AdTrackingPlugin', () => {
     });
 
     expect(
-      extractContext('iglu:com.snowplowanalytics.snowplow/gdpr/jsonschema/1-0-0').from(state.outQueues[1])
+      extractContext('iglu:com.snowplowanalytics.snowplow/gdpr/jsonschema/1-0-0').from(await eventStore2.getAll())
     ).toMatchObject({
       schema: 'iglu:com.snowplowanalytics.snowplow/gdpr/jsonschema/1-0-0',
       data: {
