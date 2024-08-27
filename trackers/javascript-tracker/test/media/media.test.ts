@@ -103,7 +103,7 @@ const makeExpectedEvent = (
     },
   };
 
-  const browserName = (browser.capabilities as Capabilities.DesiredCapabilities).browserName;
+  const browserName = 'browserName' in browser.capabilities && browser.capabilities.browserName;
   if (browserName === 'internet explorer') {
     data.context[0].data.defaultMuted = false;
   }

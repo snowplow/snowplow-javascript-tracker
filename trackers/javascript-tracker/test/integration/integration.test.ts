@@ -2,7 +2,6 @@ import F from 'lodash/fp';
 import { fetchResults } from '../micro';
 import { version } from '../../package.json';
 import { pageSetup } from './helpers';
-import { Capabilities } from '@wdio/types';
 
 const retrieveSchemaData = (schema: unknown) => F.compose(F.get('data'), F.find({ schema }), F.get('data'));
 
@@ -36,7 +35,7 @@ const geoContext = {
 };
 
 describe('Snowplow Micro integration', () => {
-  const browserName = (browser.capabilities as Capabilities.DesiredCapabilities).browserName;
+  const browserName = 'browserName' in browser.capabilities && browser.capabilities.browserName;
   if (browserName === 'internet explorer') {
     fit('Skip IE', () => {});
     return;

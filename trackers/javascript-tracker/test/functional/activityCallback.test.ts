@@ -1,6 +1,5 @@
 import F from 'lodash/fp';
 import { pageSetup } from '../integration/helpers';
-import { Capabilities } from '@wdio/types';
 
 declare var trackPageView: () => void;
 declare var findMaxX: () => number;
@@ -10,7 +9,7 @@ declare var findFirstEventForPageViewId: (id: string) => Record<string, unknown>
 declare var findLastEventForPageViewId: (id: string) => Record<string, unknown>;
 
 describe('Activity tracking with callbacks', () => {
-  const browserName = (browser.capabilities as Capabilities.DesiredCapabilities).browserName;
+  const browserName = 'browserName' in browser.capabilities && browser.capabilities.browserName;
   if (browserName === 'internet explorer') {
     fit('Skip IE', () => {});
     return;
