@@ -55,7 +55,7 @@ export function newInMemoryEventStore({
   maxSize = 1000,
   events = [],
 }: EventStoreConfiguration & InMemoryEventStoreConfiguration): EventStore {
-  let store: Payload[] = events;
+  let store: Payload[] = [...events];
 
   return {
     count: () => Promise.resolve(store.length),
