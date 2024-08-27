@@ -82,34 +82,33 @@ type CustomEmitter = {
   customEmitter: () => Emitter | Array<Emitter>;
 };
 
-type EmitterConfiguration = CustomEmitter | CoreEmitterConfiguration | CoreEmitterConfiguration[];
+type EmitterConfiguration = CustomEmitter | CoreEmitterConfiguration;
 
 /**
  * Updates the defaults for the emitter configuration
  */
-function newNodeEmitter(configuration: CoreEmitterConfiguration): Emitter {
-  // Set the default buffer size to 10 instead of 1
-  if (configuration.bufferSize === undefined) {
-    configuration.bufferSize = 10;
+function newNodeEmitters(configuration: EmitterConfiguration): Emitter[] {
+  if (configuration.hasOwnProperty('customEmitter')) {
+    const customEmitters = (configuration as CustomEmitter).customEmitter();
+    return Array.isArray(customEmitters) ? customEmitters : [customEmitters];
+  } else {
+    configuration = configuration as CoreEmitterConfiguration;
+    // Set the default buffer size to 10 instead of 1
+    if (configuration.bufferSize === undefined) {
+      configuration.bufferSize = 10;
+    }
+    return [newEmitter(configuration)];
   }
-  return newEmitter(configuration);
 }
 
 export function newTracker(
   trackerConfiguration: TrackerConfiguration,
-  emitterConfiguration: EmitterConfiguration
+  emitterConfiguration: EmitterConfiguration | EmitterConfiguration[]
 ): Tracker {
   const { namespace, appId, encodeBase64 = true } = trackerConfiguration;
 
-  let allEmitters: Emitter[] = [];
-  if (Array.isArray(emitterConfiguration)) {
-    allEmitters = emitterConfiguration.map((config) => newNodeEmitter(config as CoreEmitterConfiguration));
-  } else if (emitterConfiguration && emitterConfiguration.hasOwnProperty('customEmitter')) {
-    const customEmitters = (emitterConfiguration as CustomEmitter).customEmitter();
-    allEmitters = Array.isArray(customEmitters) ? customEmitters : [customEmitters];
-  } else {
-    allEmitters = [newNodeEmitter(emitterConfiguration as CoreEmitterConfiguration)];
-  }
+  const configs = Array.isArray(emitterConfiguration) ? emitterConfiguration : [emitterConfiguration];
+  const allEmitters = configs.flatMap(newNodeEmitters);
 
   let domainUserId: string;
   let networkUserId: string;
