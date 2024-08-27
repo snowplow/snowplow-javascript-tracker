@@ -50,3 +50,17 @@ test('does not exceed maxSize', async (t) => {
   t.is(await eventStore.count(), 1);
   t.is((await eventStore.iterator().next()).value?.e, 'pv2');
 });
+
+test('iterator does not consider mutations', async (t) => {
+  const eventStore = newInMemoryEventStore({});
+  await eventStore.add({ e: 'pv' });
+
+  const iterator = eventStore.iterator();
+  await iterator.next();
+
+  await eventStore.add({ e: 'pv' });
+
+  const { value } = await iterator.next();
+
+  t.is(value, undefined);
+});

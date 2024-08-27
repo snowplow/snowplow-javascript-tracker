@@ -74,10 +74,12 @@ export function newInMemoryEventStore({
     },
     iterator: () => {
       let index = 0;
+      // copy the store to prevent mutation
+      let events = [...store];
       return {
         next: () => {
-          if (index < store.length) {
-            return Promise.resolve({ value: store[index++], done: false });
+          if (index < events.length) {
+            return Promise.resolve({ value: events[index++], done: false });
           }
           return Promise.resolve({ value: undefined, done: true });
         },
