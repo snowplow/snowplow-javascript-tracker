@@ -30,7 +30,7 @@ export interface EventStore {
   /**
    * Retrieve all events in the store
    */
-  getAll: () => Promise<Payload[]>;
+  getAll: () => Promise<readonly Payload[]>;
 }
 
 export interface EventStoreConfiguration {
@@ -85,6 +85,6 @@ export function newInMemoryEventStore({
         },
       };
     },
-    getAll: () => Promise.resolve(store),
+    getAll: () => Promise.resolve([...store]),
   };
 }
