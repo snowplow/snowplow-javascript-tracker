@@ -159,10 +159,8 @@ export function newTracker(
     sessionIndex = currentSessionIndex;
   };
 
-  const flush = async () => {
-    for (let i = 0; i < allEmitters.length; i++) {
-      await allEmitters[i].flush();
-    }
+  const flush = () => {
+    return Promise.allSettled(allEmitters.map((emitter) => emitter.flush())).then(() => {});
   }
 
   return {
