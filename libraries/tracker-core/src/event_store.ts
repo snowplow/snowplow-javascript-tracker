@@ -4,7 +4,7 @@ export interface EventStoreIterator {
   /**
    * Retrieve the next event in the store
    */
-  next: () => Promise<{ payload: Payload | undefined; done: boolean }>;
+  next: () => Promise<{ value: Payload | undefined; done: boolean }>;
 }
 
 /**
@@ -75,9 +75,9 @@ export function newInMemoryEventStore({
       return {
         next: () => {
           if (index < store.length) {
-            return Promise.resolve({ payload: store[index++], done: false });
+            return Promise.resolve({ value: store[index++], done: false });
           }
-          return Promise.resolve({ payload: undefined, done: true });
+          return Promise.resolve({ value: undefined, done: true });
         },
       };
     },

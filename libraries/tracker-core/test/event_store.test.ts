@@ -16,8 +16,8 @@ test('iterator returns all events', async (t) => {
   await eventStore.add({ e: 'pv' });
 
   const iterator = eventStore.iterator();
-  const { payload: first } = await iterator.next();
-  const { payload: second } = await iterator.next();
+  const { value: first } = await iterator.next();
+  const { value: second } = await iterator.next();
   const { done } = await iterator.next();
 
   t.deepEqual(first, { e: 'pv' });
@@ -48,5 +48,5 @@ test('does not exceed maxSize', async (t) => {
   await eventStore.add({ e: 'pv2' });
 
   t.is(await eventStore.count(), 1);
-  t.is((await eventStore.iterator().next()).payload?.e, 'pv2');
+  t.is((await eventStore.iterator().next()).value?.e, 'pv2');
 });

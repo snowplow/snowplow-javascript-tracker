@@ -347,12 +347,12 @@ export function newEmitter({
         break;
       }
 
-      const { payload, done } = await eventStoreIterator.next();
-      if (done || payload === undefined) {
+      const { value, done } = await eventStoreIterator.next();
+      if (done || value === undefined) {
         break;
       }
 
-      const event = newEmitterEvent(payload);
+      const event = newEmitterEvent(value);
       request.addEvent(event);
     }
 
