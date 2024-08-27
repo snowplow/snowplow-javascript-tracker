@@ -72,7 +72,8 @@ export interface EmitterConfigurationBase {
    */
   customHeaders?: Record<string, string>;
   /**
-   * Controls whether or not the browser sends credentials (defaults to 'same-origin')
+   * Controls whether or not the browser sends credentials (defaults to 'include')
+   * @defaultValue 'include'
    */
   credentials?: 'omit' | 'same-origin' | 'include';
   /**

@@ -92,7 +92,7 @@ export function newEmitterRequest({
   useStm = true,
   bufferSize,
   maxPostBytes = 40000,
-  credentials = 'same-origin',
+  credentials = 'include',
 }: EmitterRequestConfiguration): EmitterRequest {
   let events: EmitterEvent[] = [];
   let usePost = eventMethod.toLowerCase() === 'post';

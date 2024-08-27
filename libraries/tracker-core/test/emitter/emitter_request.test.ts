@@ -213,18 +213,18 @@ test('toRequest contains default credentials', (t) => {
 
   request.addEvent(newEmitterEvent({ e: 'pv', p: 'web' }));
   const req = request.toRequest()!;
-  t.is(req.credentials, 'same-origin');
+  t.is(req.credentials, 'include');
 });
 
 test('toRequest contains credentials', (t) => {
   const request = newEmitterRequest({
     endpoint: 'https://example.com',
-    credentials: 'include',
+    credentials: 'omit',
   });
 
   request.addEvent(newEmitterEvent({ e: 'pv', p: 'web' }));
   const req = request.toRequest()!;
-  t.is(req.credentials, 'include');
+  t.is(req.credentials, 'omit');
 });
 
 test('toRequest adds stm to POST request', async (t) => {
