@@ -67,7 +67,9 @@ export function newInMemoryEventStore({
       return Promise.resolve();
     },
     removeHead: (count: number) => {
-      store.splice(0, count);
+      for (let i = 0; i < count; i++) {
+        store.shift();
+      }
       return Promise.resolve();
     },
     iterator: () => {
