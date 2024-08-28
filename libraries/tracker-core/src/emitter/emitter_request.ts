@@ -87,7 +87,7 @@ export function newEmitterRequest({
   customHeaders,
   serverAnonymization,
   connectionTimeout,
-  keepalive,
+  keepalive = true,
   postPath = '/com.snowplowanalytics.snowplow/tp2',
   useStm = true,
   bufferSize,

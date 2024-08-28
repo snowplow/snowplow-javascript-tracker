@@ -113,7 +113,7 @@ export interface EmitterConfigurationBase {
   /**
    * Indicates that the request should be allowed to outlive the webpage that initiated it.
    * Enables collector requests to complete even if the page is closed or navigated away from.
-   * Defaults to false.
+   * @defaultValue true (not supported in Node.js)
    */
   keepalive?: boolean;
   /**
