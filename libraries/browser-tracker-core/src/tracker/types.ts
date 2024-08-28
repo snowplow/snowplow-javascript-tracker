@@ -6,8 +6,7 @@ import {
   CorePluginConfiguration,
 } from '@snowplow/tracker-core';
 import { SharedState } from '../state';
-import { EmitterConfigurationBase } from '@snowplow/tracker-core';
-import { LocalStorageEventStoreConfigurationBase } from './local_storage_event_store';
+import { EmitterConfigurationBase, EventStoreConfiguration } from '@snowplow/tracker-core';
 
 type RequireAtLeastOne<T> = { [K in keyof T]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<keyof T, K>>> }[keyof T];
 
@@ -48,6 +47,24 @@ export type ExtendedCrossDomainLinkerOptions = boolean | ExtendedCrossDomainLink
 
 /* Setting for the `preservePageViewIdForUrl` configuration that decides how to preserve the pageViewId on URL changes. */
 export type PreservePageViewIdForUrl = boolean | 'full' | 'pathname' | 'pathnameAndSearch';
+
+export interface LocalStorageEventStoreConfigurationBase extends EventStoreConfiguration {
+  /**
+   * The maximum amount of events that will be buffered in local storage
+   *
+   * This is useful to ensure the Tracker doesn't fill the 5MB or 10MB available to
+   * each website should the collector be unavailable due to lost connectivity.
+   * Will drop events once the limit is hit
+   * @defaultValue 1000
+   */
+  maxLocalStorageQueueSize?: number;
+
+  /**
+   * Whether to use localStorage at all
+   * Default is true
+   */
+  useLocalStorage?: boolean;
+}
 
 /**
  * The configuration object for initialising the tracker
@@ -602,14 +619,4 @@ export interface ClientSession extends Record<string, unknown> {
   firstEventTimestamp: string | null;
 }
 
-export {
-  RequestFailure,
-  EventBatch,
-  EventMethod,
-  EventStore,
-  EventStoreIterator,
-  Payload,
-  EmitterConfigurationBase,
-} from '@snowplow/tracker-core';
-
-export { LocalStorageEventStoreConfigurationBase } from './local_storage_event_store';
+export { RequestFailure, EventBatch, EventMethod, EventStore, EventStoreIterator, Payload } from '@snowplow/tracker-core';

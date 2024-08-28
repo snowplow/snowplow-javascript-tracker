@@ -1,22 +1,5 @@
-import { EventStore, EventStoreConfiguration, newInMemoryEventStore, Payload } from '@snowplow/tracker-core';
-
-export interface LocalStorageEventStoreConfigurationBase extends EventStoreConfiguration {
-  /**
-   * The maximum amount of events that will be buffered in local storage
-   *
-   * This is useful to ensure the Tracker doesn't fill the 5MB or 10MB available to
-   * each website should the collector be unavailable due to lost connectivity.
-   * Will drop events once the limit is hit
-   * @defaultValue 1000
-   */
-  maxLocalStorageQueueSize?: number;
-
-  /**
-   * Whether to use localStorage at all
-   * Default is true
-   */
-  useLocalStorage?: boolean;
-}
+import { EventStore, newInMemoryEventStore, Payload } from '@snowplow/tracker-core';
+import { LocalStorageEventStoreConfigurationBase } from './types';
 
 export interface LocalStorageEventStoreConfiguration extends LocalStorageEventStoreConfigurationBase {
   /**

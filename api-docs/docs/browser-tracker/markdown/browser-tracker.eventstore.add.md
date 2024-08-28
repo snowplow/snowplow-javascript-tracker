@@ -9,5 +9,5 @@ Add an event to the store
 <b>Signature:</b>
 
 ```typescript
-add: (payload: Payload) => Promise<void>;
+add: (payload: Payload) => Promise<number>;
 ```

@@ -40,15 +40,11 @@ export type AnonymousTrackingOptions = boolean | {
     withServerAnonymisation?: boolean;
 };
 
-// Warning: (ae-forgotten-export) The symbol "CorePlugin" needs to be exported by the entry point index.module.d.ts
-//
 // @public
 export interface BrowserPlugin extends CorePlugin {
     activateBrowserPlugin?: (tracker: BrowserTracker) => void;
 }
 
-// Warning: (ae-forgotten-export) The symbol "CorePluginConfiguration" needs to be exported by the entry point index.module.d.ts
-//
 // @public
 export interface BrowserPluginConfiguration extends CorePluginConfiguration {
     /* The plugin to add */
@@ -60,7 +56,6 @@ export interface BrowserPluginConfiguration extends CorePluginConfiguration {
 export interface BrowserTracker {
     addPlugin: (configuration: BrowserPluginConfiguration) => void;
     clearUserData: (configuration?: ClearUserDataConfiguration) => void;
-    // Warning: (ae-forgotten-export) The symbol "TrackerCore" needs to be exported by the entry point index.module.d.ts
     core: TrackerCore;
     crossDomainLinker: (crossDomainLinkerCriterion: (elt: HTMLAnchorElement | HTMLAreaElement) => boolean) => void;
     disableActivityTracking: () => void;
@@ -96,7 +91,6 @@ export interface BrowserTracker {
     setUserIdFromLocation: (querystringField: string) => void;
     setUserIdFromReferrer: (querystringField: string) => void;
     setVisitorCookieTimeout: (timeout: number) => void;
-    // Warning: (ae-forgotten-export) The symbol "SharedState" needs to be exported by the entry point index.module.d.ts
     sharedState: SharedState;
     trackPageView: (event?: PageViewEvent & CommonEventProperties) => void;
     updatePageActivity: () => void;
@@ -145,7 +139,6 @@ export interface ClientSession extends Record<string, unknown> {
 // @public
 export interface CommonEventProperties<T = Record<string, unknown>> {
     context?: Array<SelfDescribingJson<T>> | null;
-    // Warning: (ae-forgotten-export) The symbol "Timestamp" needs to be exported by the entry point index.module.d.ts
     timestamp?: Timestamp | null;
 }
 
@@ -154,7 +147,6 @@ export type ConditionalContextProvider = FilterProvider | RuleSetProvider;
 
 // @public
 export interface ContextEvent {
-    // Warning: (ae-forgotten-export) The symbol "Payload" needs to be exported by the entry point index.module.d.ts
     event: Payload;
     eventSchema: string;
     eventType: string;
@@ -173,7 +165,32 @@ export type ContextPrimitive = SelfDescribingJson | ContextGenerator;
 export type CookieSameSite = "None" | "Lax" | "Strict";
 
 // @public
+export interface CorePlugin {
+    activateCorePlugin?: (core: TrackerCore) => void;
+    afterTrack?: (payload: Payload) => void;
+    beforeTrack?: (payloadBuilder: PayloadBuilder) => void;
+    contexts?: () => SelfDescribingJson[];
+    filter?: (payload: Payload) => boolean;
+    logger?: (logger: Logger) => void;
+}
+
+// @public
+export interface CorePluginConfiguration {
+    /* The plugin to add */
+    // (undocumented)
+    plugin: CorePlugin;
+}
+
+// @public
 export function crossDomainLinker(crossDomainLinkerCriterion: (elt: HTMLAnchorElement | HTMLAreaElement) => boolean, trackers?: Array<string>): void;
+
+// @public
+export interface DeviceTimestamp {
+    // (undocumented)
+    readonly type: "dtm";
+    // (undocumented)
+    readonly value: number;
+}
 
 // @public
 export function disableActivityTracking(trackers?: Array<string>): void;
@@ -197,6 +214,28 @@ export function discardBrace(enable: boolean, trackers?: Array<string>): void;
 // @public
 export function discardHashTag(enable: boolean, trackers?: Array<string>): void;
 
+// @public (undocumented)
+export interface EmitterConfigurationBase {
+    bufferSize?: number;
+    connectionTimeout?: number;
+    credentials?: "omit" | "same-origin" | "include";
+    customFetch?: (input: Request, options?: RequestInit) => Promise<Response>;
+    customHeaders?: Record<string, string>;
+    dontRetryStatusCodes?: number[];
+    eventMethod?: EventMethod;
+    eventStore?: EventStore;
+    idService?: string;
+    keepalive?: boolean;
+    maxGetBytes?: number;
+    maxPostBytes?: number;
+    onRequestFailure?: (data: RequestFailure) => void;
+    onRequestSuccess?: (data: EventBatch) => void;
+    postPath?: string;
+    retryFailedRequests?: boolean;
+    retryStatusCodes?: number[];
+    useStm?: boolean;
+}
+
 // @public
 export function enableActivityTracking(configuration: ActivityTrackingConfiguration, trackers?: Array<string>): void;
 
@@ -219,29 +258,38 @@ export interface EnableAnonymousTrackingConfiguration {
 // @public
 export type EventBatch = Payload[];
 
+// Warning: (ae-forgotten-export) The symbol "EventJsonWithKeys" needs to be exported by the entry point index.module.d.ts
+//
+// @public
+export type EventJson = Array<EventJsonWithKeys>;
+
 // @public (undocumented)
 export type EventMethod = "post" | "get";
 
 // @public
 export interface EventPayloadAndContext {
     context: Array<SelfDescribingJson>;
-    // Warning: (ae-forgotten-export) The symbol "PayloadBuilder" needs to be exported by the entry point index.module.d.ts
     event: PayloadBuilder;
 }
 
 // @public
 export interface EventStore {
-    add: (payload: Payload) => Promise<void>;
+    add: (payload: Payload) => Promise<number>;
     count: () => Promise<number>;
-    getAll: () => Promise<Payload[]>;
+    getAll: () => Promise<readonly Payload[]>;
     iterator: () => EventStoreIterator;
     removeHead: (count: number) => Promise<void>;
 }
 
 // @public (undocumented)
+export interface EventStoreConfiguration {
+    maxSize?: number;
+}
+
+// @public (undocumented)
 export interface EventStoreIterator {
     next: () => Promise<{
-        payload: Payload | undefined;
+        value: Payload | undefined;
         done: boolean;
     }>;
 }
@@ -275,6 +323,31 @@ export interface FlushBufferConfiguration {
 }
 
 // @public
+export type JsonProcessor = (payloadBuilder: PayloadBuilder, jsonForProcessing: EventJson, contextEntitiesForProcessing: SelfDescribingJson[]) => void;
+
+// @public (undocumented)
+export interface LocalStorageEventStoreConfigurationBase extends EventStoreConfiguration {
+    maxLocalStorageQueueSize?: number;
+    useLocalStorage?: boolean;
+}
+
+// @public (undocumented)
+export interface Logger {
+    // (undocumented)
+    debug: (message: string, ...extraParams: unknown[]) => void;
+    // (undocumented)
+    error: (message: string, error?: unknown, ...extraParams: unknown[]) => void;
+    // (undocumented)
+    info: (message: string, ...extraParams: unknown[]) => void;
+    // Warning: (ae-forgotten-export) The symbol "LOG_LEVEL" needs to be exported by the entry point index.module.d.ts
+    //
+    // (undocumented)
+    setLogLevel: (level: LOG_LEVEL) => void;
+    // (undocumented)
+    warn: (message: string, error?: unknown, ...extraParams: unknown[]) => void;
+}
+
+// @public
 export function newSession(trackers?: Array<string>): void;
 
 // @public
@@ -300,6 +373,21 @@ firstEventId: string,
 firstEventTs: number | undefined,
 eventIndex: number
 ];
+
+// @public
+export type Payload = Record<string, unknown>;
+
+// @public
+export interface PayloadBuilder {
+    add: (key: string, value: unknown) => void;
+    addContextEntity: (entity: SelfDescribingJson) => void;
+    addDict: (dict: Payload) => void;
+    addJson: (keyIfEncoded: string, keyIfNotEncoded: string, json: Record<string, unknown>) => void;
+    build: () => Payload;
+    getJson: () => EventJson;
+    getPayload: () => Payload;
+    withJsonProcessor: (jsonProcessor: JsonProcessor) => void;
+}
 
 // @public (undocumented)
 export type Platform = "web" | "mob" | "pc" | "srv" | "app" | "tv" | "cnsl" | "iot";
@@ -382,6 +470,24 @@ export function setUserIdFromReferrer(querystringField: string, trackers?: Array
 // @public
 export function setVisitorCookieTimeout(timeout: number, trackers?: Array<string>): void;
 
+// @public
+export class SharedState {
+    // (undocumented)
+    bufferFlushers: Array<(sync: boolean) => void>;
+    /* DOM Ready */
+    // (undocumented)
+    hasLoaded: boolean;
+    /* DOM Ready */
+    // (undocumented)
+    pageViewId?: string;
+    /* DOM Ready */
+    // (undocumented)
+    pageViewUrl?: string;
+    /* DOM Ready */
+    // (undocumented)
+    registeredOnLoadHandlers: Array<() => void>;
+}
+
 // @public (undocumented)
 export type StateStorageStrategy = "cookieAndLocalStorage" | "cookie" | "localStorage" | "none";
 
@@ -399,9 +505,9 @@ export interface StructuredEvent {
     value?: number;
 }
 
-// Warning: (ae-forgotten-export) The symbol "EmitterConfigurationBase" needs to be exported by the entry point index.module.d.ts
-// Warning: (ae-forgotten-export) The symbol "LocalStorageEventStoreConfigurationBase" needs to be exported by the entry point index.module.d.ts
-//
+// @public
+export type Timestamp = TrueTimestamp | DeviceTimestamp | number;
+
 // @public
 export type TrackerConfiguration = {
     encodeBase64?: boolean;
@@ -427,6 +533,32 @@ export type TrackerConfiguration = {
 } & EmitterConfigurationBase & LocalStorageEventStoreConfigurationBase;
 
 // @public
+export interface TrackerCore {
+    addGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive> | Record<string, ConditionalContextProvider | ContextPrimitive>): void;
+    addPayloadDict(dict: Payload): void;
+    addPayloadPair: (key: string, value: unknown) => void;
+    addPlugin(configuration: CorePluginConfiguration): void;
+    clearGlobalContexts(): void;
+    getBase64Encoding(): boolean;
+    removeGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive | string>): void;
+    resetPayloadPairs(dict: Payload): void;
+    setAppId(appId: string): void;
+    setBase64Encoding(encode: boolean): void;
+    setColorDepth(depth: string): void;
+    setIpAddress(ip: string): void;
+    setLang(lang: string): void;
+    setPlatform(value: string): void;
+    setScreenResolution(width: string, height: string): void;
+    setTimezone(timezone: string): void;
+    setTrackerNamespace(name: string): void;
+    setTrackerVersion(version: string): void;
+    setUseragent(useragent: string): void;
+    setUserId(userId: string): void;
+    setViewport(width: string, height: string): void;
+    track: (pb: PayloadBuilder, context?: Array<SelfDescribingJson> | null, timestamp?: Timestamp | null) => Payload | undefined;
+}
+
+// @public
 export function trackPageView(event?: PageViewEvent & CommonEventProperties, trackers?: Array<string>): void;
 
 // @public
@@ -434,6 +566,14 @@ export function trackSelfDescribingEvent(event: SelfDescribingEvent & CommonEven
 
 // @public
 export function trackStructEvent(event: StructuredEvent & CommonEventProperties, trackers?: Array<string>): void;
+
+// @public
+export interface TrueTimestamp {
+    // (undocumented)
+    readonly type: "ttm";
+    // (undocumented)
+    readonly value: number;
+}
 
 // @public
 export function updatePageActivity(trackers?: Array<string>): void;
