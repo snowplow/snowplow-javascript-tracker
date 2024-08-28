@@ -7,7 +7,7 @@ test('getGETRequestURL returns the correct URL with stm', (t) => {
   const payload = { e: 'pv' };
   const event = newEmitterEvent(payload);
   const url = event.getGETRequestURL(collectorUrl, true);
-  t.is(url, `${collectorUrl}?stm=${new Date().getTime()}&e=pv`);
+  t.regex(url, new RegExp(`${collectorUrl}\\?stm=\\d+&e=pv`));
 });
 
 test('getGETRequestURL returns the correct URL without stm', (t) => {
