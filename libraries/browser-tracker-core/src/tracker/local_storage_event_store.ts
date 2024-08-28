@@ -25,7 +25,7 @@ export interface LocalStorageEventStoreConfiguration extends LocalStorageEventSt
   trackerId: string;
 }
 
-export interface LocalStorageEventStore {
+export interface LocalStorageEventStore extends EventStore {
   setUseLocalStorage: (localStorage: boolean) => void;
 }
 
@@ -33,7 +33,7 @@ export function newLocalStorageEventStore({
   trackerId,
   maxLocalStorageQueueSize = 1000,
   useLocalStorage = true,
-}: LocalStorageEventStoreConfiguration): EventStore & LocalStorageEventStore {
+}: LocalStorageEventStoreConfiguration): LocalStorageEventStore {
   const queueName = `snowplowOutQueue_${trackerId}`;
 
   function newInMemoryEventStoreFromLocalStorage() {

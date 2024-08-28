@@ -34,7 +34,7 @@ export function newOutQueue(
     setBufferSize: emitter.setBufferSize,
     setUseLocalStorage: (localStorage: boolean) => {
       if (eventStore.hasOwnProperty('setUseLocalStorage')) {
-        const localStorageStore = eventStore as unknown as LocalStorageEventStore;
+        const localStorageStore = eventStore as LocalStorageEventStore;
         localStorageStore.setUseLocalStorage(localStorage);
       }
     },
