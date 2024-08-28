@@ -39,6 +39,13 @@ test('getPOSTRequestBytesCount returns the correct byte count', (t) => {
   t.is(count, 20);
 });
 
+test('getPOSTRequestBytesCount counts multibyte chars properly', (t) => {
+  const payload = { e: 'pv', p: '🍕' };
+  const event = newEmitterEvent(payload);
+  const count = event.getPOSTRequestBytesCount();
+  t.is(count, 21);
+});
+
 test('getPayload returns the payload', (t) => {
   const payload = { e: 'pv' };
   const event = newEmitterEvent(payload);
