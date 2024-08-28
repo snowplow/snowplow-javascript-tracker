@@ -125,6 +125,25 @@ test('calls onRequestSuccess when the request is successful', async (t) => {
   await emitter.flush();
 });
 
+test('handles errors when onRequestSuccess throws', async (t) => {
+  const requests: Request[] = [];
+  const mockFetch = createMockFetch(200, requests);
+  const eventStore = newInMemoryEventStore({});
+  const emitter: Emitter = newEmitter({
+    endpoint: 'https://example.com',
+    bufferSize: 5,
+    customFetch: mockFetch,
+    onRequestSuccess: () => {
+      throw new Error('error');
+    },
+    eventStore,
+  });
+
+  await emitter.input({ e: 'pv' });
+  await emitter.flush();
+  t.is(await eventStore.count(), 0);
+});
+
 test('calls onRequestFailure when the request fails', async (t) => {
   const requests: Request[] = [];
   const mockFetch = createMockFetch(500, requests);

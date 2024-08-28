@@ -245,32 +245,44 @@ export function newEmitter({
       throw new Error('Request is undefined');
     }
 
-    let payloads = request.getEvents().map((event) => event.getPayload());
+    const payloads = request.getEvents().map((event) => event.getPayload());
     try {
       const response = await customFetch(fetchRequest);
 
       request.cancelTimeoutTimer();
 
       if (response.ok) {
-        onRequestSuccess?.(payloads);
+        try {
+          onRequestSuccess?.(payloads);
+        } catch (e) {
+          LOG.error('Error in onRequestSuccess', e);
+        }
         return { success: true, retry: false, status: response.status };
       } else {
         const willRetry = shouldRetryForStatusCode(response.status);
-        onRequestFailure?.({
-          events: payloads,
-          status: response.status,
-          message: response.statusText,
-          willRetry: willRetry,
-        });
+        try {
+          onRequestFailure?.({
+            events: payloads,
+            status: response.status,
+            message: response.statusText,
+            willRetry: willRetry,
+          });
+        } catch (e) {
+          LOG.error('Error in onRequestFailure', e);
+        }
         return { success: false, retry: willRetry, status: response.status };
       }
     } catch (e) {
       const message = typeof e === 'string' ? e : e ? (e as Error).message : 'Unknown error';
-      onRequestFailure?.({
-        events: payloads,
-        message: message,
-        willRetry: true,
-      });
+      try {
+        onRequestFailure?.({
+          events: payloads,
+          message: message,
+          willRetry: true,
+        });
+      } catch (e) {
+        LOG.error('Error in onRequestFailure', e);
+      }
       return { success: false, retry: true };
     }
   }
