@@ -60,28 +60,23 @@ function getUTF8Length(s: string) {
   * The context field is the last in the querystring
   */
 function getQuerystring(request: Payload) {
-  let querystring = '?',
-    lowPriorityKeys = { co: true, cx: true },
-    firstPair = true;
+  let lowPriorityKeys: { [key: string]: boolean } = { co: true, cx: true };
+
+  let args: string[] = [];
 
   for (const key in request) {
-    if (request.hasOwnProperty(key) && !lowPriorityKeys.hasOwnProperty(key)) {
-      if (!firstPair) {
-        querystring += '&';
-      } else {
-        firstPair = false;
-      }
-      querystring += encodeURIComponent(key) + '=' + encodeURIComponent(request[key] as string | number | boolean);
+    if (request.hasOwnProperty(key) && !lowPriorityKeys[key]) {
+      args.push(key + '=' + encodeURIComponent(request[key] as string | number | boolean));
     }
   }
 
   for (const contextKey in lowPriorityKeys) {
-    if (request.hasOwnProperty(contextKey) && lowPriorityKeys.hasOwnProperty(contextKey)) {
-      querystring += '&' + contextKey + '=' + encodeURIComponent(request[contextKey] as string | number | boolean);
+    if (request.hasOwnProperty(contextKey) && lowPriorityKeys[contextKey]) {
+      args.push(contextKey + '=' + encodeURIComponent(request[contextKey] as string | number | boolean));
     }
   }
 
-  return querystring;
+  return '?' + args.join('&');
 }
 
 /*

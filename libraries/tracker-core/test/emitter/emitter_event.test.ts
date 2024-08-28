@@ -12,10 +12,10 @@ test('getGETRequestURL returns the correct URL with stm', (t) => {
 
 test('getGETRequestURL returns the correct URL without stm', (t) => {
   const collectorUrl = 'https://example.com';
-  const payload = { e: 'pv' };
+  const payload = { e: 'pv', p: 'web' };
   const event = newEmitterEvent(payload);
   const url = event.getGETRequestURL(collectorUrl, false);
-  t.is(url, `${collectorUrl}?e=pv`);
+  t.is(url, `${collectorUrl}?e=pv&p=web`);
 });
 
 test('getGETRequestBytesCount returns the correct byte count', (t) => {
