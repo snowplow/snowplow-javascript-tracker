@@ -30,7 +30,7 @@
 
 import { trackerCore, PayloadBuilder, TrackerCore, version } from '@snowplow/tracker-core';
 
-import { Emitter, newEmitter, EmitterConfiguration as CoreEmitterConfiguration } from '@snowplow/tracker-core';
+import { Emitter, newEmitter, EmitterConfiguration } from '@snowplow/tracker-core';
 
 export interface Tracker extends TrackerCore {
   /**
@@ -68,7 +68,7 @@ export interface Tracker extends TrackerCore {
   flush: () => Promise<void>;
 }
 
-interface TrackerConfiguration {
+export interface TrackerConfiguration {
   /* The namespace of the tracker */
   namespace: string;
   /* The application ID */
@@ -77,22 +77,22 @@ interface TrackerConfiguration {
   encodeBase64: boolean;
 }
 
-type CustomEmitter = {
+export type CustomEmitter = {
   /* Function returning custom Emitter or Emitter[] to be used. If set, other options are irrelevant */
   customEmitter: () => Emitter | Array<Emitter>;
 };
 
-type EmitterConfiguration = CustomEmitter | CoreEmitterConfiguration;
+export type NodeEmitterConfiguration = CustomEmitter | EmitterConfiguration;
 
 /**
  * Updates the defaults for the emitter configuration
  */
-function newNodeEmitters(configuration: EmitterConfiguration): Emitter[] {
+function newNodeEmitters(configuration: NodeEmitterConfiguration): Emitter[] {
   if (configuration.hasOwnProperty('customEmitter')) {
     const customEmitters = (configuration as CustomEmitter).customEmitter();
     return Array.isArray(customEmitters) ? customEmitters : [customEmitters];
   } else {
-    configuration = configuration as CoreEmitterConfiguration;
+    configuration = configuration as EmitterConfiguration;
     // Set the default buffer size to 10 instead of 1
     if (configuration.bufferSize === undefined) {
       configuration.bufferSize = 10;
@@ -103,7 +103,7 @@ function newNodeEmitters(configuration: EmitterConfiguration): Emitter[] {
 
 export function newTracker(
   trackerConfiguration: TrackerConfiguration,
-  emitterConfiguration: EmitterConfiguration | EmitterConfiguration[]
+  emitterConfiguration: NodeEmitterConfiguration | NodeEmitterConfiguration[]
 ): Tracker {
   const { namespace, appId, encodeBase64 = true } = trackerConfiguration;
 

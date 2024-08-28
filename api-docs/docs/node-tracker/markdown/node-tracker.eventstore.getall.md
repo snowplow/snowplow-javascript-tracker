@@ -4,10 +4,10 @@
 
 ## EventStore.getAll property
 
-Retrieve all events in the store
+Retrieve all payloads including their meta configuration in the store
 
 <b>Signature:</b>
 
 ```typescript
-getAll: () => Promise<readonly Payload[]>;
+getAll: () => Promise<readonly EventStorePayload[]>;
 ```

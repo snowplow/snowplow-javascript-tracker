@@ -10,7 +10,7 @@ Retrieve the next event in the store
 
 ```typescript
 next: () => Promise<{
-        value: Payload | undefined;
+        value: EventStorePayload | undefined;
         done: boolean;
     }>;
 ```

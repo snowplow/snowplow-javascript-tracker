@@ -110,12 +110,6 @@ export function buildSocialInteraction(event: SocialInteractionEvent): PayloadBu
 export function buildStructEvent(event: StructuredEvent): PayloadBuilder;
 
 // @public
-export interface CommonEventProperties<T = Record<string, unknown>> {
-    context?: Array<SelfDescribingJson<T>> | null;
-    timestamp?: Timestamp | null;
-}
-
-// @public
 export type ConditionalContextProvider = FilterProvider | RuleSetProvider;
 
 // @public
@@ -182,6 +176,12 @@ export interface CorePluginConfiguration {
     plugin: CorePlugin;
 }
 
+// @public (undocumented)
+export type CustomEmitter = {
+    /* Function returning custom Emitter or Emitter[] to be used. If set, other options are irrelevant */
+    customEmitter: () => Emitter | Array<Emitter>;
+};
+
 // @public
 export interface DeviceTimestamp {
     // (undocumented)
@@ -189,9 +189,6 @@ export interface DeviceTimestamp {
     // (undocumented)
     readonly value: number;
 }
-
-// @public
-export type DynamicContext = Array<SelfDescribingJson | ((...params: any[]) => SelfDescribingJson | null)>;
 
 // @public
 export interface EcommerceTransactionEvent {
@@ -288,9 +285,10 @@ export interface EventPayloadAndContext {
 
 // @public
 export interface EventStore {
-    add: (payload: Payload) => Promise<number>;
+    add: (payload: EventStorePayload) => Promise<number>;
     count: () => Promise<number>;
-    getAll: () => Promise<readonly Payload[]>;
+    getAll: () => Promise<readonly EventStorePayload[]>;
+    getAllPayloads: () => Promise<readonly Payload[]>;
     iterator: () => EventStoreIterator;
     removeHead: (count: number) => Promise<void>;
 }
@@ -303,9 +301,15 @@ export interface EventStoreConfiguration {
 // @public (undocumented)
 export interface EventStoreIterator {
     next: () => Promise<{
-        value: Payload | undefined;
+        value: EventStorePayload | undefined;
         done: boolean;
     }>;
+}
+
+// @public (undocumented)
+export interface EventStorePayload {
+    payload: Payload;
+    svrAnon?: boolean;
 }
 
 // @public
@@ -341,66 +345,6 @@ export interface FormSubmissionEvent {
 }
 
 // @public
-export function getRuleParts(input: string): Array<string> | undefined;
-
-// @public
-export function getSchemaParts(input: string): Array<string> | undefined;
-
-// @public (undocumented)
-export interface GlobalContexts {
-    addGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive> | Record<string, ConditionalContextProvider | ContextPrimitive>): void;
-    clearGlobalContexts(): void;
-    getApplicableContexts(event: PayloadBuilder): Array<SelfDescribingJson>;
-    getConditionalProviders(): Array<ConditionalContextProvider>;
-    getGlobalPrimitives(): Array<ContextPrimitive>;
-    removeGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive | string>): void;
-}
-
-// @public
-export function globalContexts(): GlobalContexts;
-
-// @public (undocumented)
-export interface InMemoryEventStoreConfiguration {
-    events?: Payload[];
-}
-
-// @public
-export function isConditionalContextProvider(input: unknown): input is ConditionalContextProvider;
-
-// @public
-export function isContextCallbackFunction(input: unknown): boolean;
-
-// @public
-export function isContextPrimitive(input: unknown): input is ContextPrimitive;
-
-// @public
-export function isFilterProvider(input: unknown): boolean;
-
-// @public
-export function isJson(property?: Record<string, unknown>): boolean;
-
-// @public
-export function isNonEmptyJson(property?: Record<string, unknown>): boolean;
-
-// @public
-export function isRuleSet(input: unknown): input is Record<string, unknown>;
-
-// @public
-export function isRuleSetProvider(input: unknown): boolean;
-
-// @public
-export function isSelfDescribingJson(input: unknown): input is SelfDescribingJson;
-
-// @public
-export function isStringArray(input: unknown): input is Array<string>;
-
-// @public
-export function isValidRule(input: string): boolean;
-
-// @public
-export function isValidRuleSetArg(input: unknown): boolean;
-
-// @public
 export type JsonProcessor = (payloadBuilder: PayloadBuilder, jsonForProcessing: EventJson, contextEntitiesForProcessing: SelfDescribingJson[]) => void;
 
 // @public
@@ -411,9 +355,6 @@ export interface LinkClickEvent {
     elementTarget?: string;
     targetUrl: string;
 }
-
-// @public (undocumented)
-export const LOG: Logger;
 
 // @public (undocumented)
 export enum LOG_LEVEL {
@@ -443,23 +384,11 @@ export interface Logger {
     warn: (message: string, error?: unknown, ...extraParams: unknown[]) => void;
 }
 
-// @public
-export function matchSchemaAgainstRule(rule: string, schema: string): boolean;
-
-// @public
-export function matchSchemaAgainstRuleSet(ruleSet: RuleSet, schema: string): boolean;
+// @public (undocumented)
+export function newTracker(trackerConfiguration: TrackerConfiguration, emitterConfiguration: NodeEmitterConfiguration | NodeEmitterConfiguration[]): Tracker;
 
 // @public (undocumented)
-export function newEmitter({ endpoint, eventMethod, protocol, port, maxPostBytes, maxGetBytes, bufferSize, customHeaders, serverAnonymization, connectionTimeout, keepalive, idService, dontRetryStatusCodes, retryStatusCodes, retryFailedRequests, onRequestFailure, onRequestSuccess, customFetch, useStm, eventStore, credentials }: EmitterConfiguration): Emitter;
-
-// @public (undocumented)
-export function newInMemoryEventStore({ maxSize, events }: EventStoreConfiguration & InMemoryEventStoreConfiguration): EventStore;
-
-// Warning: (ae-forgotten-export) The symbol "TrackerConfiguration" needs to be exported by the entry point index.module.d.ts
-// Warning: (ae-forgotten-export) The symbol "EmitterConfiguration" needs to be exported by the entry point index.module.d.ts
-//
-// @public (undocumented)
-export function newTracker(trackerConfiguration: TrackerConfiguration, emitterConfiguration: EmitterConfiguration_2 | EmitterConfiguration_2[]): Tracker;
+export type NodeEmitterConfiguration = CustomEmitter | EmitterConfiguration;
 
 // @public
 export interface PagePingEvent extends PageViewEvent {
@@ -491,23 +420,6 @@ export interface PayloadBuilder {
     withJsonProcessor: (jsonProcessor: JsonProcessor) => void;
 }
 
-// @public (undocumented)
-export function payloadBuilder(): PayloadBuilder;
-
-// @public
-export function payloadJsonProcessor(encodeBase64: boolean): JsonProcessor;
-
-// @public (undocumented)
-export interface PluginContexts {
-    addPluginContexts: (additionalContexts?: SelfDescribingJson[] | null) => SelfDescribingJson[];
-}
-
-// @public (undocumented)
-export function pluginContexts(plugins: Array<CorePlugin>): PluginContexts;
-
-// @public
-export function removeEmptyProperties(event: Record<string, unknown>, exemptFields?: Record<string, boolean>): Record<string, unknown>;
-
 // @public
 export interface RemoveFromCartEvent {
     category?: string;
@@ -525,9 +437,6 @@ export type RequestFailure = {
     message?: string;
     willRetry: boolean;
 };
-
-// @public
-export function resolveDynamicContext(dynamicOrStaticContexts?: DynamicContext | null, ...extraParams: any[]): Array<SelfDescribingJson>;
 
 // @public
 export interface RuleSet {
@@ -558,12 +467,6 @@ export interface SelfDescribingEvent {
 export type SelfDescribingJson<T extends Record<keyof T, unknown> = Record<string, unknown>> = {
     schema: string;
     data: T;
-};
-
-// @public
-export type SelfDescribingJsonArray<T extends Record<keyof T, unknown> = Record<string, unknown>> = {
-    schema: string;
-    data: Array<T>;
 };
 
 // @public
@@ -607,6 +510,19 @@ export interface Tracker extends TrackerCore {
     setSessionIndex: (sessionIndex: string | number) => void;
 }
 
+// @public (undocumented)
+export interface TrackerConfiguration {
+    /* The namespace of the tracker */
+    // (undocumented)
+    appId: string;
+    /* The application ID */
+    // (undocumented)
+    encodeBase64: boolean;
+    /* The application ID */
+    // (undocumented)
+    namespace: string;
+}
+
 // @public
 export interface TrackerCore {
     addGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive> | Record<string, ConditionalContextProvider | ContextPrimitive>): void;
@@ -634,21 +550,12 @@ export interface TrackerCore {
 }
 
 // @public
-export function trackerCore(configuration?: CoreConfiguration): TrackerCore;
-
-// @public
 export interface TrueTimestamp {
     // (undocumented)
     readonly type: "ttm";
     // (undocumented)
     readonly value: number;
 }
-
-// @public
-export function validateVendor(input: string): boolean;
-
-// @public
-export function validateVendorParts(parts: Array<string>): boolean;
 
 // @public (undocumented)
 export const version: string;
