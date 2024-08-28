@@ -134,19 +134,21 @@ test('calls onRequestSuccess when the request is successful', async (t) => {
   const requests: Request[] = [];
   const mockFetch = createMockFetch(200, requests);
   const eventStore = newInMemoryEventStore({});
-  const emitter: Emitter = newEmitter({
-    endpoint: 'https://example.com',
-    bufferSize: 5,
-    customFetch: mockFetch,
-    onRequestSuccess: (data) => {
-      t.is(data.length, 1);
-      t.pass();
-    },
-    eventStore,
-  });
 
-  await emitter.input({ e: 'pv' });
-  await emitter.flush();
+  await new Promise((resolve) => {
+    const emitter: Emitter = newEmitter({
+      endpoint: 'https://example.com',
+      bufferSize: 5,
+      customFetch: mockFetch,
+      onRequestSuccess: (data) => {
+        t.is(data.length, 1);
+        resolve(null);
+      },
+      eventStore,
+    });
+
+    emitter.input({ e: 'pv' }).then(() => emitter.flush());
+  });
 });
 
 test('handles errors when onRequestSuccess throws', async (t) => {
@@ -172,20 +174,23 @@ test('calls onRequestFailure when the request fails', async (t) => {
   const requests: Request[] = [];
   const mockFetch = createMockFetch(500, requests);
   const eventStore = newInMemoryEventStore({});
-  const emitter: Emitter = newEmitter({
-    endpoint: 'https://example.com',
-    bufferSize: 5,
-    customFetch: mockFetch,
-    onRequestFailure: (requestFailure) => {
-      t.is(requestFailure.events.length, 1);
-      t.is(requestFailure.status, 500);
-      t.pass();
-    },
-    eventStore,
-  });
 
-  await emitter.input({ e: 'pv' });
-  await emitter.flush();
+  await new Promise((resolve) => {
+    const emitter: Emitter = newEmitter({
+      endpoint: 'https://example.com',
+      bufferSize: 5,
+      customFetch: mockFetch,
+      onRequestFailure: (requestFailure, response) => {
+        t.is(requestFailure.events.length, 1);
+        t.is(requestFailure.status, 500);
+        t.is(response?.status, 500);
+        resolve(null);
+      },
+      eventStore,
+    });
+
+    emitter.input({ e: 'pv' }).then(() => emitter.flush());
+  });
 });
 
 test('retries when the request fails', async (t) => {

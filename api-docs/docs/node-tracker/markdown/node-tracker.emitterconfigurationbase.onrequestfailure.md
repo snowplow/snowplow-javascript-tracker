@@ -9,5 +9,5 @@ A callback function to be executed whenever a request fails to be sent to the co
 <b>Signature:</b>
 
 ```typescript
-onRequestFailure?: (data: RequestFailure) => void;
+onRequestFailure?: (data: RequestFailure, response?: Response) => void;
 ```

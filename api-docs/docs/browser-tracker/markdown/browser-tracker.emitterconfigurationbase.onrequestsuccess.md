@@ -9,5 +9,5 @@ A callback function to be executed whenever a request is successfully sent to th
 <b>Signature:</b>
 
 ```typescript
-onRequestSuccess?: (data: EventBatch) => void;
+onRequestSuccess?: (data: EventBatch, response: Response) => void;
 ```

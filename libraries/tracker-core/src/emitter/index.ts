@@ -131,14 +131,14 @@ export interface EmitterConfigurationBase {
    *
    * @param data - The event batch that was successfully sent
    */
-  onRequestSuccess?: (data: EventBatch) => void;
+  onRequestSuccess?: (data: EventBatch, response: Response) => void;
   /**
    * A callback function to be executed whenever a request fails to be sent to the collector.
    * This is the inverse of the onRequestSuccess callback, so any non 2xx status code will trigger this callback.
    *
    * @param data - The data associated with the event(s) that failed to send
    */
-  onRequestFailure?: (data: RequestFailure) => void;
+  onRequestFailure?: (data: RequestFailure, response?: Response) => void;
   /**
    * Enables providing a custom EventStore implementation to store events before sending them to the collector.
    */
@@ -240,6 +240,30 @@ export function newEmitter({
     return !dontRetryStatusCodes.includes(statusCode);
   }
 
+  function callOnRequestSuccess(payloads: Payload[], response: Response) {
+    if (onRequestSuccess !== undefined) {
+      setTimeout(() => {
+        try {
+          onRequestSuccess?.(payloads, response);
+        } catch (e) {
+          LOG.error('Error in onRequestSuccess', e);
+        }
+      }, 0);
+    }
+  }
+
+  function callOnRequestFailure(failure: RequestFailure, response?: Response) {
+    if (onRequestFailure !== undefined) {
+      setTimeout(() => {
+        try {
+          onRequestFailure?.(failure, response);
+        } catch (e) {
+          LOG.error('Error in onRequestFailure', e);
+        }
+      }, 0);
+    }
+  }
+
   async function executeRequest(request: EmitterRequest): Promise<RequestResult> {
     const fetchRequest = request.toRequest();
     if (fetchRequest === undefined) {
@@ -253,37 +277,28 @@ export function newEmitter({
       request.cancelTimeoutTimer();
 
       if (response.ok) {
-        try {
-          onRequestSuccess?.(payloads);
-        } catch (e) {
-          LOG.error('Error in onRequestSuccess', e);
-        }
+        callOnRequestSuccess(payloads, response);
         return { success: true, retry: false, status: response.status };
       } else {
         const willRetry = shouldRetryForStatusCode(response.status);
-        try {
-          onRequestFailure?.({
+        callOnRequestFailure(
+          {
             events: payloads,
             status: response.status,
             message: response.statusText,
             willRetry: willRetry,
-          });
-        } catch (e) {
-          LOG.error('Error in onRequestFailure', e);
-        }
+          },
+          response
+        );
         return { success: false, retry: willRetry, status: response.status };
       }
     } catch (e) {
       const message = typeof e === 'string' ? e : e ? (e as Error).message : 'Unknown error';
-      try {
-        onRequestFailure?.({
-          events: payloads,
-          message: message,
-          willRetry: true,
-        });
-      } catch (e) {
-        LOG.error('Error in onRequestFailure', e);
-      }
+      callOnRequestFailure({
+        events: payloads,
+        message: message,
+        willRetry: true,
+      });
       return { success: false, retry: true };
     }
   }

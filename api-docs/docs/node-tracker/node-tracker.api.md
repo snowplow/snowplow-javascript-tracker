@@ -253,8 +253,8 @@ export interface EmitterConfigurationBase {
     keepalive?: boolean;
     maxGetBytes?: number;
     maxPostBytes?: number;
-    onRequestFailure?: (data: RequestFailure) => void;
-    onRequestSuccess?: (data: EventBatch) => void;
+    onRequestFailure?: (data: RequestFailure, response?: Response) => void;
+    onRequestSuccess?: (data: EventBatch, response: Response) => void;
     postPath?: string;
     retryFailedRequests?: boolean;
     retryStatusCodes?: number[];
