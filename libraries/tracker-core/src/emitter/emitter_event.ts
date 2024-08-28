@@ -140,7 +140,7 @@ export function newEmitterEvent(payload: Payload): EmitterEvent {
 
   function getPOSTRequestBytesCount(): number {
     if (byteCountPOST === null) {
-      byteCountPOST = getUTF8Length(JSON.stringify(preparePostBody(payload)));
+      byteCountPOST = getUTF8Length(JSON.stringify(getPOSTRequestBody()));
     }
     return byteCountPOST;
   }
