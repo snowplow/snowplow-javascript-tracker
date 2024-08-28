@@ -1,4 +1,4 @@
-import { EventStore, newInMemoryEventStore, Payload } from '@snowplow/tracker-core';
+import { EventStore, newInMemoryEventStore, EventStorePayload } from '@snowplow/tracker-core';
 import { LocalStorageEventStoreConfigurationBase } from './types';
 
 export interface LocalStorageEventStoreConfiguration extends LocalStorageEventStoreConfigurationBase {
@@ -22,7 +22,7 @@ export function newLocalStorageEventStore({
   function newInMemoryEventStoreFromLocalStorage() {
     if (useLocalStorage) {
       const localStorageQueue = window.localStorage.getItem(queueName);
-      const events: Payload[] = localStorageQueue ? JSON.parse(localStorageQueue) : [];
+      const events: EventStorePayload[] = localStorageQueue ? JSON.parse(localStorageQueue) : [];
       return newInMemoryEventStore({ maxSize: maxLocalStorageQueueSize, events });
     } else {
       return newInMemoryEventStore({ maxSize: maxLocalStorageQueueSize });
@@ -43,7 +43,7 @@ export function newLocalStorageEventStore({
 
   return {
     count,
-    add: (payload: Payload) => {
+    add: (payload: EventStorePayload) => {
       add(payload);
       return sync().then(count);
     },

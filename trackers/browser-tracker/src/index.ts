@@ -45,6 +45,8 @@ import {
   PreservePageViewIdForUrl,
   EventStore,
   EventStoreIterator,
+  EventStorePayload,
+  EventStoreConfiguration,
   LocalStorageEventStoreConfigurationBase,
 } from '@snowplow/browser-tracker-core';
 import {
@@ -56,7 +58,6 @@ import {
   Payload,
   PayloadBuilder,
   Logger,
-  EventStoreConfiguration,
   EventJson,
   JsonProcessor,
   TrueTimestamp,
@@ -95,6 +96,7 @@ export {
   PreservePageViewIdForUrl,
   EventStore,
   EventStoreIterator,
+  EventStorePayload,
   EmitterConfigurationBase,
   LocalStorageEventStoreConfigurationBase,
   CorePlugin,

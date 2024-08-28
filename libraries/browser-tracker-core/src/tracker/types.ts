@@ -619,4 +619,13 @@ export interface ClientSession extends Record<string, unknown> {
   firstEventTimestamp: string | null;
 }
 
-export { RequestFailure, EventBatch, EventMethod, EventStore, EventStoreIterator, Payload } from '@snowplow/tracker-core';
+export {
+  RequestFailure,
+  EventBatch,
+  EventMethod,
+  EventStore,
+  EventStoreIterator,
+  EventStorePayload,
+  EventStoreConfiguration,
+  Payload,
+} from '@snowplow/tracker-core';

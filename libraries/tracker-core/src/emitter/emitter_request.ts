@@ -9,8 +9,9 @@ import { EmitterEvent } from "./emitter_event";
 export interface EmitterRequest {
   /**
    * Add an event to the request
+   * @returns true if the event was added, false if the server anonymization setting does not match the existing events
    */
-  addEvent: (event: EmitterEvent) => void;
+  addEvent: (event: EmitterEvent) => boolean;
   /**
    * Get the events attached to the request
    */
@@ -43,7 +44,6 @@ export interface EmitterRequestConfiguration {
   protocol?: 'http' | 'https';
   eventMethod?: 'get' | 'post';
   customHeaders?: Record<string, string>;
-  serverAnonymization?: boolean;
   connectionTimeout?: number;
   keepalive?: boolean;
   postPath?: string;
@@ -85,7 +85,6 @@ export function newEmitterRequest({
   port,
   eventMethod = 'post',
   customHeaders,
-  serverAnonymization,
   connectionTimeout,
   keepalive = true,
   postPath = '/com.snowplowanalytics.snowplow/tp2',
@@ -109,8 +108,18 @@ export function newEmitterRequest({
     return events.length;
   }
 
+  function getServerAnonymizationOfExistingEvents(): boolean | undefined {
+    return events.length > 0 ? events[0].getServerAnonymization() : undefined;
+  }
+
+
   function addEvent(event: EmitterEvent) {
-    events.push(event);
+    if (events.length > 0 && getServerAnonymizationOfExistingEvents() !== event.getServerAnonymization()) {
+      return false;
+    } else {
+      events.push(event);
+      return true;
+    }
   }
 
   function getEvents(): EmitterEvent[] {
@@ -138,7 +147,7 @@ export function newEmitterRequest({
         headers.append(key, customHeaders[key]);
       });
     }
-    if (serverAnonymization) {
+    if (getServerAnonymizationOfExistingEvents()) {
       headers.append('SP-Anonymous', '*');
     }
     return headers;

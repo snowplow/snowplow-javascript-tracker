@@ -2,6 +2,7 @@ import { EventStore, newInMemoryEventStore } from '../event_store';
 import { Payload } from '../payload';
 import { EmitterRequest, newEmitterRequest } from './emitter_request';
 import { EmitterEvent, newEmitterEvent } from './emitter_event';
+import { newEventStorePayload } from '../event_store_payload';
 import { LOG } from '../logger';
 
 /**
@@ -294,7 +295,6 @@ export function newEmitter({
       port,
       eventMethod,
       customHeaders,
-      serverAnonymization,
       connectionTimeout,
       keepalive,
       bufferSize,
@@ -367,7 +367,9 @@ export function newEmitter({
       }
 
       const event = newEmitterEvent(value);
-      request.addEvent(event);
+      if (!request.addEvent(event)) {
+        break;
+      }
     }
 
     if (request.countEvents() === 0) {
@@ -389,13 +391,14 @@ export function newEmitter({
   }
 
   async function input(payload: Payload) {
-    const event = newEmitterEvent(payload);
+    const eventStorePayload = newEventStorePayload({ payload, svrAnon: serverAnonymization });
+    const event = newEmitterEvent(eventStorePayload);
     if (shouldSkipEventStore(event)) {
       const request = newEmitterRequestWithConfig();
       request.addEvent(event);
       await executeRequest(request);
     } else {
-      const count = await eventStore.add(payload);
+      const count = await eventStore.add(eventStorePayload);
       if (count >= bufferSize) {
         await flush();
       }

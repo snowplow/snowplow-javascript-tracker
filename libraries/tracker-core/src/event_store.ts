@@ -1,10 +1,10 @@
-import { Payload } from './payload';
+import { EventStorePayload } from './event_store_payload';
 
 export interface EventStoreIterator {
   /**
    * Retrieve the next event in the store
    */
-  next: () => Promise<{ value: Payload | undefined; done: boolean }>;
+  next: () => Promise<{ value: EventStorePayload | undefined; done: boolean }>;
 }
 
 /**
@@ -19,7 +19,7 @@ export interface EventStore {
    * Add an event to the store
    * @returns the number of events in the store after adding
    */
-  add: (payload: Payload) => Promise<number>;
+  add: (payload: EventStorePayload) => Promise<number>;
   /**
    * Remove the first `count` events from the store
    */
@@ -31,7 +31,7 @@ export interface EventStore {
   /**
    * Retrieve all events in the store
    */
-  getAll: () => Promise<readonly Payload[]>;
+  getAll: () => Promise<readonly EventStorePayload[]>;
 }
 
 export interface EventStoreConfiguration {
@@ -49,20 +49,20 @@ export interface InMemoryEventStoreConfiguration {
   /**
    * Initial events to add to the store
    */
-  events?: Payload[];
+  events?: EventStorePayload[];
 }
 
 export function newInMemoryEventStore({
   maxSize = 1000,
   events = [],
 }: EventStoreConfiguration & InMemoryEventStoreConfiguration): EventStore {
-  let store: Payload[] = [...events];
+  let store: EventStorePayload[] = [...events];
 
   const count = () => Promise.resolve(store.length);
 
   return {
     count,
-    add: (payload: Payload) => {
+    add: (payload: EventStorePayload) => {
       store.push(payload);
       while (store.length > maxSize) {
         store.shift();

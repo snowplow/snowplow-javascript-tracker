@@ -86,6 +86,30 @@ test('flush does not make any request when the event store is empty', async (t) 
   t.is(await eventStore.count(), 0);
 });
 
+test('flush makes separate requests for server anonymization settings in events', async (t) => {
+  const requests: Request[] = [];
+  const mockFetch = createMockFetch(200, requests);
+  const eventStore = newInMemoryEventStore({});
+  const emitter: Emitter = newEmitter({
+    endpoint: 'https://example.com',
+    bufferSize: 5,
+    customFetch: mockFetch,
+    eventStore,
+  });
+
+  await emitter.input({ e: 'pv' });
+  await emitter.input({ e: 'pv' });
+  emitter.setAnonymousTracking(true);
+  await emitter.input({ e: 'pv' });
+  await emitter.input({ e: 'pv' });
+  await emitter.flush();
+
+  t.is(requests.length, 2);
+  t.is(requests[0].headers.get('SP-Anonymous'), null);
+  t.is(requests[1].headers.get('SP-Anonymous'), '*');
+  t.is(await eventStore.count(), 0);
+});
+
 test('setCollectorUrl changes the collector URL', async (t) => {
   const requests: Request[] = [];
   const mockFetch = createMockFetch(200, requests);

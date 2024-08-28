@@ -1,3 +1,4 @@
+import { EventStorePayload } from "../event_store_payload";
 import { Payload } from "../payload";
 
 /**
@@ -8,6 +9,11 @@ export interface EmitterEvent {
    * Get the original payload
    */
   getPayload: () => Payload;
+  /**
+   * Get the server anonymization setting
+   * @returns true if the server should anonymize the IP address
+   */
+  getServerAnonymization: () => boolean;
   /**
    * Prepare the payload for a POST request
    */
@@ -92,14 +98,18 @@ function preparePostBody(request: Payload): Record<string, unknown> {
   return cleanedRequest;
 }
 
-export function newEmitterEvent(payload: Payload): EmitterEvent {
+export function newEmitterEvent(eventStorePayload: EventStorePayload): EmitterEvent {
   let querystring: string | null = null;
   let postBody: Record<string, unknown> | null = null;
   let byteCountGET: number | null = null;
   let byteCountPOST: number | null = null;
 
   function getPayload(): Payload {
-    return payload;
+    return eventStorePayload.payload;
+  }
+
+  function getServerAnonymization(): boolean {
+    return eventStorePayload.svrAnon ?? false;
   }
 
   function getCachedQuerystring(payload: Payload): string {
@@ -110,7 +120,7 @@ export function newEmitterEvent(payload: Payload): EmitterEvent {
   }
 
   function getGETRequestURL(collectorUrl: string, useStm: boolean): string {
-    const querystring = getCachedQuerystring(payload);
+    const querystring = getCachedQuerystring(getPayload());
     if (useStm) {
       return collectorUrl + querystring.replace('?', '?stm=' + new Date().getTime() + '&');
     }
@@ -120,7 +130,7 @@ export function newEmitterEvent(payload: Payload): EmitterEvent {
 
   function getGETRequestBytesCount(): number {
     if (byteCountGET === null) {
-      const querystring = getCachedQuerystring(payload);
+      const querystring = getCachedQuerystring(getPayload());
       byteCountGET = getUTF8Length(querystring);
     }
     return byteCountGET;
@@ -128,7 +138,7 @@ export function newEmitterEvent(payload: Payload): EmitterEvent {
 
   function getPOSTRequestBody(): Record<string, unknown> {
     if (postBody === null) {
-      postBody = preparePostBody(payload);
+      postBody = preparePostBody(getPayload());
     }
     return postBody;
   }
@@ -141,6 +151,7 @@ export function newEmitterEvent(payload: Payload): EmitterEvent {
   }
   return {
     getPayload,
+    getServerAnonymization,
     getGETRequestURL,
     getGETRequestBytesCount,
     getPOSTRequestBody,
