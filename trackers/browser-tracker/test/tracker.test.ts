@@ -34,7 +34,7 @@ import { newInMemoryEventStore } from '@snowplow/tracker-core';
 
 jest.useFakeTimers('modern');
 
-const getPPEvents: (events: Payload[]) => Payload[] = (events) => {
+const getPPEvents: (events: readonly Payload[]) => Payload[] = (events) => {
   return events.filter((payload) => payload.e === 'pp');
 }
 
