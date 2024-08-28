@@ -87,7 +87,7 @@ describe('SnowplowEcommercePlugin events', () => {
       products: [productX, productY],
     });
 
-    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAll());
+    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAllPayloads());
 
     expect(context).toMatchObject([
       {
@@ -121,7 +121,7 @@ describe('SnowplowEcommercePlugin events', () => {
       products: [productX],
     });
 
-    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAll());
+    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAllPayloads());
 
     expect(context).toMatchObject([
       {
@@ -152,7 +152,7 @@ describe('SnowplowEcommercePlugin events', () => {
     };
     trackProductView(productX);
 
-    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAll());
+    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAllPayloads());
 
     expect(context).toMatchObject([
       {
@@ -177,7 +177,7 @@ describe('SnowplowEcommercePlugin events', () => {
     };
     trackPromotionView(promoX);
 
-    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAll());
+    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAllPayloads());
 
     expect(context).toMatchObject([
       {
@@ -202,7 +202,7 @@ describe('SnowplowEcommercePlugin events', () => {
     };
     trackPromotionClick(promoX);
 
-    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAll());
+    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAllPayloads());
 
     expect(context).toMatchObject([
       {
@@ -225,7 +225,7 @@ describe('SnowplowEcommercePlugin events', () => {
       products: [productX, productY],
     });
 
-    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAll());
+    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAllPayloads());
 
     expect(context).toMatchObject([
       {
@@ -251,7 +251,7 @@ describe('SnowplowEcommercePlugin events', () => {
       product: productX,
     });
 
-    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAll());
+    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAllPayloads());
 
     expect(context).toMatchObject([
       {
@@ -274,7 +274,7 @@ describe('SnowplowEcommercePlugin events', () => {
     };
     trackCheckoutStep(checkoutStep);
 
-    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAll());
+    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAllPayloads());
 
     expect(context).toMatchObject([
       {
@@ -303,7 +303,7 @@ describe('SnowplowEcommercePlugin events', () => {
       products: [productX, productY],
     });
 
-    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAll());
+    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAllPayloads());
 
     expect(context).toMatchObject([
       {
@@ -340,7 +340,7 @@ describe('SnowplowEcommercePlugin events', () => {
       products: [productX, productY],
     });
 
-    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAll());
+    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAllPayloads());
 
     expect(context).toMatchObject([
       {
@@ -381,7 +381,7 @@ describe('SnowplowEcommercePlugin events', () => {
       transaction,
     });
 
-    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAll());
+    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAllPayloads());
 
     expect(context).toMatchObject([
       {

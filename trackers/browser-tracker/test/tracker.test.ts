@@ -36,12 +36,12 @@ jest.useFakeTimers('modern');
 
 const getPPEvents: (events: readonly Payload[]) => Payload[] = (events) => {
   return events.filter((payload) => payload.e === 'pp');
-}
+};
 
 const extractSchemas: (events: Payload[]) => any[] = (events) => {
   return events.map((payload) => {
     return JSON.parse(payload.co as string).data;
-  })
+  });
 };
 
 const extractPageId: (payload: Payload) => string = (payload) => {
@@ -68,7 +68,8 @@ describe('Activity tracker behaviour', () => {
     let callbacks = 0;
     const state = new SharedState();
     const t =
-      addTracker('sp1', 'sp1', '', '', state, { stateStorageStrategy: 'cookie', customFetch, eventStore }) ?? fail('Failed to create tracker');
+      addTracker('sp1', 'sp1', '', '', state, { stateStorageStrategy: 'cookie', customFetch, eventStore }) ??
+      fail('Failed to create tracker');
     t.enableActivityTracking({ minimumVisitLength: 10, heartbeatDelay: 10 });
     t.enableActivityTrackingCallback({
       minimumVisitLength: 5,
@@ -96,7 +97,7 @@ describe('Activity tracker behaviour', () => {
     // window for page ping ticks
 
     expect(callbacks).toBe(4);
-    const events = await eventStore.getAll();
+    const events = await eventStore.getAllPayloads();
     expect(F.size(getPPEvents(events))).toBe(2);
   });
 
@@ -157,7 +158,7 @@ describe('Activity tracker behaviour', () => {
 
     // we expect there to be two page pings with static contexts attached
     // they should both have the time from page one.
-    const events = await eventStore.getAll();
+    const events = await eventStore.getAllPayloads();
     expect(countWithStaticValueEq(pageOneTime)(events)).toBe(2);
     expect(countWithStaticValueEq(pageTwoTime)(events)).toBe(0);
   });
@@ -189,7 +190,7 @@ describe('Activity tracker behaviour', () => {
     jest.advanceTimersByTime(25000);
 
     // Activity tracking is currently not reset per page view so we get an extra page ping on page two.
-    const events = await eventStore.getAll();
+    const events = await eventStore.getAllPayloads();
     const pps = getPPEvents(events);
     expect(F.size(pps)).toBe(2);
   });
@@ -229,7 +230,7 @@ describe('Activity tracker behaviour', () => {
     // Activity began tracking on the first page but moved on before 30 seconds.
     // Activity tracking should still not have fire despite being on site 30 seconds, as user has moved page.
 
-    const events = await eventStore.getAll();
+    const events = await eventStore.getAllPayloads();
     const pps = getPPEvents(events);
 
     expect(F.size(pps)).toBe(1);
@@ -256,7 +257,7 @@ describe('Activity tracker behaviour', () => {
 
     jest.advanceTimersByTime(5000);
 
-    const initial_pps = getPPEvents(await eventStore.getAll());
+    const initial_pps = getPPEvents(await eventStore.getAllPayloads());
     expect(F.size(initial_pps)).toBe(0);
 
     jest.advanceTimersByTime(5000); // PP = 1
@@ -281,7 +282,7 @@ describe('Activity tracker behaviour', () => {
     jest.advanceTimersByTime(5000);
 
     // Should still only have 3 page pings from first page
-    const first_page_only_pps = getPPEvents(await eventStore.getAll());
+    const first_page_only_pps = getPPEvents(await eventStore.getAllPayloads());
     expect(F.size(first_page_only_pps)).toBe(3);
 
     jest.advanceTimersByTime(5000); // PP = 4
@@ -293,7 +294,7 @@ describe('Activity tracker behaviour', () => {
     // Activity began tracking on the first page and tracked two page pings in 16 seconds.
     // Activity tracking only fires one further event over next 11 seconds as a page view event occurs, resetting timer back to 10 seconds.
 
-    const pps = getPPEvents(await eventStore.getAll());
+    const pps = getPPEvents(await eventStore.getAllPayloads());
 
     expect(F.size(pps)).toBe(5);
 
@@ -316,14 +317,14 @@ describe('Activity tracker behaviour', () => {
     t.updatePageActivity();
     jest.advanceTimersByTime(4900);
 
-    expect(F.size(getPPEvents(await eventStore.getAll()))).toBe(1);
+    expect(F.size(getPPEvents(await eventStore.getAllPayloads()))).toBe(1);
 
     // page ping timer starts tracking
     jest.advanceTimersByTime(100);
     t.updatePageActivity();
     jest.advanceTimersByTime(4900);
 
-    expect(F.size(getPPEvents(await eventStore.getAll()))).toBe(2);
+    expect(F.size(getPPEvents(await eventStore.getAllPayloads()))).toBe(2);
 
     /* Disabling activity tracking and callback is expected to not allow more activity actions */
     t.disableActivityTracking();
@@ -333,7 +334,7 @@ describe('Activity tracker behaviour', () => {
     t.updatePageActivity();
     jest.advanceTimersByTime(4900);
 
-    expect(F.size(getPPEvents(await eventStore.getAll()))).toBe(2);
+    expect(F.size(getPPEvents(await eventStore.getAllPayloads()))).toBe(2);
   });
 
   it('disables activity tracking callback', () => {

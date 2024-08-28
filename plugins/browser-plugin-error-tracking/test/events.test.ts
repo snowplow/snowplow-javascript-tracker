@@ -121,7 +121,9 @@ describe('AdTrackingPlugin', () => {
 
   it('trackError adds the expected application error event to the queue', async () => {
     expect(
-      extractUeEvent('iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1').from(await eventStore1.getAll())
+      extractUeEvent('iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1').from(
+        await eventStore1.getAllPayloads()
+      )
     ).toMatchObject({
       schema: 'iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1',
       data: {
@@ -137,7 +139,9 @@ describe('AdTrackingPlugin', () => {
 
   it('trackError accepts empty error messages', async () => {
     expect(
-      extractUeEvent('iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1').from(await eventStore2.getAll())
+      extractUeEvent('iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1').from(
+        await eventStore2.getAllPayloads()
+      )
     ).toMatchObject({
       schema: 'iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1',
       data: {
@@ -148,7 +152,9 @@ describe('AdTrackingPlugin', () => {
 
   it('trackError replaces undefined messages with placeholder', async () => {
     expect(
-      extractUeEvent('iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1').from(await eventStore3.getAll())
+      extractUeEvent('iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1').from(
+        await eventStore3.getAllPayloads()
+      )
     ).toMatchObject({
       schema: 'iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1',
       data: {
@@ -159,7 +165,9 @@ describe('AdTrackingPlugin', () => {
 
   it('trackError replaces undefined messages with placeholder', async () => {
     expect(
-      extractUeEvent('iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1').from(await eventStore4.getAll())
+      extractUeEvent('iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1').from(
+        await eventStore4.getAllPayloads()
+      )
     ).toMatchObject({
       schema: 'iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1',
       data: {

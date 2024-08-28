@@ -66,5 +66,5 @@ it('attaches enhanced ecommerce contexts to enhanced ecommerce events', async ()
     F.compose(F.size, F.filter(F.compose(F.eq(value), F.get('data.id'))), extractContextsWithStaticValue);
 
   // we expect there to be four contexts added to the event
-  expect(countWithStaticValueEq('1234-5678')(await eventStore.getAll())).toBe(4);
+  expect(countWithStaticValueEq('1234-5678')(await eventStore.getAllPayloads())).toBe(4);
 });

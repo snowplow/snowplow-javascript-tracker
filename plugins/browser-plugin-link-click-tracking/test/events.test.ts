@@ -75,7 +75,9 @@ describe('LinkClickTrackingPlugin', () => {
       });
 
       expect(
-        extractUeEvent('iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1').from(await eventStore.getAll())
+        extractUeEvent('iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1').from(
+          await eventStore.getAllPayloads()
+        )
       ).toMatchObject({
         schema: 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1',
         data: {
@@ -100,7 +102,9 @@ describe('LinkClickTrackingPlugin', () => {
       trackLinkClick({ element: a });
 
       expect(
-        extractUeEvent('iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1').from(await eventStore.getAll())
+        extractUeEvent('iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1').from(
+          await eventStore.getAllPayloads()
+        )
       ).toMatchObject({
         schema: 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1',
         data: {
@@ -125,7 +129,7 @@ describe('LinkClickTrackingPlugin', () => {
         []
       );
 
-      expect(await eventStore.getAll()).toHaveLength(0);
+      expect(await eventStore.getAllPayloads()).toHaveLength(0);
     });
 
     it('does nothing for fake trackers', async () => {
@@ -140,7 +144,7 @@ describe('LinkClickTrackingPlugin', () => {
         ['doesNotExist']
       );
 
-      expect(await eventStore.getAll()).toHaveLength(0);
+      expect(await eventStore.getAllPayloads()).toHaveLength(0);
     });
   });
 
@@ -171,7 +175,9 @@ describe('LinkClickTrackingPlugin', () => {
       target.click();
 
       expect(
-        extractUeEvent('iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1').from(await eventStore.getAll())
+        extractUeEvent('iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1').from(
+          await eventStore.getAllPayloads()
+        )
       ).toMatchObject({
         schema: 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1',
         data: {
@@ -190,7 +196,9 @@ describe('LinkClickTrackingPlugin', () => {
       target.click();
 
       expect(
-        extractUeEvent('iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1').from(await eventStore.getAll())
+        extractUeEvent('iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1').from(
+          await eventStore.getAllPayloads()
+        )
       ).toMatchObject({
         schema: 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1',
         data: {
@@ -214,7 +222,9 @@ describe('LinkClickTrackingPlugin', () => {
       target.click();
 
       expect(
-        extractUeEvent('iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1').from(await eventStore.getAll())
+        extractUeEvent('iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1').from(
+          await eventStore.getAllPayloads()
+        )
       ).toMatchObject({
         schema: 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1',
         data: {
@@ -232,11 +242,11 @@ describe('LinkClickTrackingPlugin', () => {
       target.href = 'https://www.example.com/multiple';
       document.body.appendChild(target);
 
-      expect(await eventStore.getAll()).toHaveLength(0);
+      expect(await eventStore.getAllPayloads()).toHaveLength(0);
 
       target.click();
 
-      expect(await eventStore.getAll()).toHaveLength(1);
+      expect(await eventStore.getAllPayloads()).toHaveLength(1);
     });
 
     it('ignores links that match denylist criteria', async () => {
@@ -247,16 +257,16 @@ describe('LinkClickTrackingPlugin', () => {
       target.className = 'exclude';
       document.body.appendChild(target);
 
-      expect(await eventStore.getAll()).toHaveLength(0);
+      expect(await eventStore.getAllPayloads()).toHaveLength(0);
 
       target.click();
 
-      expect(await eventStore.getAll()).toHaveLength(0);
+      expect(await eventStore.getAllPayloads()).toHaveLength(0);
 
       target.className = 'include';
       target.click();
 
-      expect(await eventStore.getAll()).toHaveLength(1);
+      expect(await eventStore.getAllPayloads()).toHaveLength(1);
     });
 
     it('ignores links that dont match allowlist criteria', async () => {
@@ -267,16 +277,16 @@ describe('LinkClickTrackingPlugin', () => {
       target.className = 'exclude';
       document.body.appendChild(target);
 
-      expect(await eventStore.getAll()).toHaveLength(0);
+      expect(await eventStore.getAllPayloads()).toHaveLength(0);
 
       target.click();
 
-      expect(await eventStore.getAll()).toHaveLength(0);
+      expect(await eventStore.getAllPayloads()).toHaveLength(0);
 
       target.className = 'include';
       target.click();
 
-      expect(await eventStore.getAll()).toHaveLength(1);
+      expect(await eventStore.getAllPayloads()).toHaveLength(1);
     });
   });
 

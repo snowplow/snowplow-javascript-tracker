@@ -29,7 +29,7 @@ export function newLocalStorageEventStore({
     }
   }
 
-  const { getAll, add, count, iterator, removeHead } = newInMemoryEventStoreFromLocalStorage();
+  const { getAll, getAllPayloads, add, count, iterator, removeHead } = newInMemoryEventStoreFromLocalStorage();
 
   function sync(): Promise<void> {
     if (useLocalStorage) {
@@ -53,6 +53,7 @@ export function newLocalStorageEventStore({
     },
     iterator,
     getAll,
+    getAllPayloads,
     setUseLocalStorage: (use: boolean) => {
       useLocalStorage = use;
     },

@@ -72,7 +72,9 @@ describe('EcommercePlugin', () => {
     );
 
     expect(
-      extractUeEvent('iglu:com.snowplowanalytics.snowplow/add_to_cart/jsonschema/1-0-0').from(await eventStore.getAll())
+      extractUeEvent('iglu:com.snowplowanalytics.snowplow/add_to_cart/jsonschema/1-0-0').from(
+        await eventStore.getAllPayloads()
+      )
     ).toMatchObject({
       schema: 'iglu:com.snowplowanalytics.snowplow/add_to_cart/jsonschema/1-0-0',
       data: {
@@ -100,7 +102,9 @@ describe('EcommercePlugin', () => {
     );
 
     expect(
-      extractUeEvent('iglu:com.snowplowanalytics.snowplow/remove_from_cart/jsonschema/1-0-0').from(await eventStore.getAll())
+      extractUeEvent('iglu:com.snowplowanalytics.snowplow/remove_from_cart/jsonschema/1-0-0').from(
+        await eventStore.getAllPayloads()
+      )
     ).toMatchObject({
       schema: 'iglu:com.snowplowanalytics.snowplow/remove_from_cart/jsonschema/1-0-0',
       data: {

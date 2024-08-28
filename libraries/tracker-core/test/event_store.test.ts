@@ -72,9 +72,21 @@ test('stores server anonymization setting', async (t) => {
   await eventStore.add(newEventStorePayload({ payload: { e: 'pv' }, svrAnon: false }));
   await eventStore.add(newEventStorePayload({ payload: { e: 'pv' } }));
 
-  const all = await eventStore.getAll();
-  t.is(all.length, 3);
-  t.true(all[0].svrAnon);
-  t.false(all[1].svrAnon);
-  t.false(all[1].svrAnon);
+  t.is(await eventStore.count(), 3);
+  const iterator = eventStore.iterator();
+  const first = await iterator.next();
+  const second = await iterator.next();
+  const third = await iterator.next();
+
+  t.true(first?.value?.svrAnon);
+  t.false(second?.value?.svrAnon);
+  t.false(third?.value?.svrAnon);
+});
+
+test('getAllPayloads returns all payloads', async (t) => {
+  const eventStore = newInMemoryEventStore({});
+  await eventStore.add(newEventStorePayload({ payload: { e: 'pv' } }));
+  await eventStore.add(newEventStorePayload({ payload: { e: 'pv' } }));
+
+  t.deepEqual(await eventStore.getAllPayloads(), [{ e: 'pv' }, { e: 'pv' }]);
 });

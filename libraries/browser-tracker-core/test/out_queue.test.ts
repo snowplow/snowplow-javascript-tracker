@@ -45,6 +45,7 @@ function newMockEventStore({ maxSize }: { maxSize: number }): EventStore & { add
     count: eventStore.count,
     iterator: eventStore.iterator,
     getAll: eventStore.getAll,
+    getAllPayloads: eventStore.getAllPayloads,
     addCount: () => addCount,
   };
 }
@@ -90,7 +91,7 @@ describe('OutQueueManager', () => {
       await outQueue.enqueueRequest(expected);
 
       expect(await eventStore.count()).toEqual(1);
-      const events = await eventStore.getAll();
+      const events = await eventStore.getAllPayloads();
       expect(events[0]).toMatchObject(expected);
     });
 
@@ -105,7 +106,7 @@ describe('OutQueueManager', () => {
       await outQueue.enqueueRequest(expected2);
 
       expect(await eventStore.count()).toEqual(maxQueueSize);
-      const events = await eventStore.getAll();
+      const events = await eventStore.getAllPayloads();
       expect(events[0]).toMatchObject(expected1);
       expect(events[1]).toMatchObject(expected2);
     });

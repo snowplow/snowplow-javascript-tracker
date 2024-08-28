@@ -36,7 +36,7 @@ describe('EnhancedConsentPlugin events', () => {
       elapsedTime: 1500,
     });
 
-    const { unstructuredEvent } = extractEventProperties(await eventStore.getAll());
+    const { unstructuredEvent } = extractEventProperties(await eventStore.getAllPayloads());
 
     expect(unstructuredEvent).toMatchObject({
       schema: CMP_VISIBLE_SCHEMA,
@@ -53,7 +53,7 @@ describe('EnhancedConsentPlugin events', () => {
       domainsApplied: ['www.example.com'],
     });
 
-    const { unstructuredEvent } = extractEventProperties(await eventStore.getAll());
+    const { unstructuredEvent } = extractEventProperties(await eventStore.getAllPayloads());
 
     expect(unstructuredEvent).toMatchObject({
       data: {
@@ -76,7 +76,7 @@ describe('EnhancedConsentPlugin events', () => {
       domainsApplied: ['www.example.com', 'blog.example.com'],
     });
 
-    const { unstructuredEvent } = extractEventProperties(await eventStore.getAll());
+    const { unstructuredEvent } = extractEventProperties(await eventStore.getAllPayloads());
 
     expect(unstructuredEvent).toMatchObject({
       data: {
@@ -99,7 +99,7 @@ describe('EnhancedConsentPlugin events', () => {
       domainsApplied: ['www.example.com'],
     });
 
-    const { unstructuredEvent } = extractEventProperties(await eventStore.getAll());
+    const { unstructuredEvent } = extractEventProperties(await eventStore.getAllPayloads());
 
     expect(unstructuredEvent).toMatchObject({
       data: {
@@ -122,7 +122,7 @@ describe('EnhancedConsentPlugin events', () => {
       domainsApplied: ['www.example.com'],
     });
 
-    const { unstructuredEvent } = extractEventProperties(await eventStore.getAll());
+    const { unstructuredEvent } = extractEventProperties(await eventStore.getAllPayloads());
 
     expect(unstructuredEvent).toMatchObject({
       data: {
@@ -145,7 +145,7 @@ describe('EnhancedConsentPlugin events', () => {
       domainsApplied: ['www.example.com'],
     });
 
-    const { unstructuredEvent } = extractEventProperties(await eventStore.getAll());
+    const { unstructuredEvent } = extractEventProperties(await eventStore.getAllPayloads());
 
     expect(unstructuredEvent).toMatchObject({
       data: {
@@ -168,7 +168,7 @@ describe('EnhancedConsentPlugin events', () => {
       domainsApplied: ['www.example.com'],
     });
 
-    const { unstructuredEvent } = extractEventProperties(await eventStore.getAll());
+    const { unstructuredEvent } = extractEventProperties(await eventStore.getAllPayloads());
 
     expect(unstructuredEvent).toMatchObject({
       data: {
@@ -191,7 +191,7 @@ describe('EnhancedConsentPlugin events', () => {
       domainsApplied: ['www.example.com'],
     });
 
-    const { unstructuredEvent } = extractEventProperties(await eventStore.getAll());
+    const { unstructuredEvent } = extractEventProperties(await eventStore.getAllPayloads());
 
     expect(unstructuredEvent).toMatchObject({
       data: {

@@ -39,7 +39,7 @@ describe('SnowplowEcommercePlugin contexts', () => {
     };
     trackCheckoutStep(checkoutStep);
 
-    const { context } = extractEventsProperties(await eventStore.getAll());
+    const { context } = extractEventsProperties(await eventStore.getAllPayloads());
 
     expect(context).toMatchObject([
       {
@@ -59,7 +59,7 @@ describe('SnowplowEcommercePlugin contexts', () => {
     };
     trackCheckoutStep(checkoutStep);
 
-    const { context } = extractEventsProperties(await eventStore.getAll());
+    const { context } = extractEventsProperties(await eventStore.getAllPayloads());
 
     expect(context).toMatchObject([
       {

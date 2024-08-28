@@ -1,4 +1,5 @@
 import { EventStorePayload } from './event_store_payload';
+import { Payload } from './payload';
 
 export interface EventStoreIterator {
   /**
@@ -29,9 +30,13 @@ export interface EventStore {
    */
   iterator: () => EventStoreIterator;
   /**
-   * Retrieve all events in the store
+   * Retrieve all payloads including their meta configuration in the store
    */
   getAll: () => Promise<readonly EventStorePayload[]>;
+  /**
+   * Retrieve all pure payloads in the store
+   */
+  getAllPayloads: () => Promise<readonly Payload[]>;
 }
 
 export interface EventStoreConfiguration {
@@ -89,5 +94,6 @@ export function newInMemoryEventStore({
       };
     },
     getAll: () => Promise.resolve([...store]),
+    getAllPayloads: () => Promise.resolve(store.map((e) => e.payload)),
   };
 }

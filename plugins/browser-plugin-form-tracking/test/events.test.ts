@@ -86,7 +86,9 @@ describe('FormTrackingPlugin', () => {
       target.focus();
 
       expect(
-        extractUeEvent('iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0').from(await eventStore.getAll())
+        extractUeEvent('iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0').from(
+          await eventStore.getAllPayloads()
+        )
       ).toMatchObject({
         schema: 'iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0',
         data: {
@@ -104,7 +106,9 @@ describe('FormTrackingPlugin', () => {
       target.focus();
 
       expect(
-        extractUeEvent('iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0').from(await eventStore.getAll())
+        extractUeEvent('iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0').from(
+          await eventStore.getAllPayloads()
+        )
       ).toMatchObject({
         schema: 'iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0',
         data: {
@@ -123,7 +127,9 @@ describe('FormTrackingPlugin', () => {
       target.dispatchEvent(new Event('change'));
 
       expect(
-        extractUeEvent('iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0').from(await eventStore.getAll())
+        extractUeEvent('iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0').from(
+          await eventStore.getAllPayloads()
+        )
       ).toMatchObject({
         schema: 'iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0',
         data: {
@@ -143,7 +149,9 @@ describe('FormTrackingPlugin', () => {
       target.focus();
 
       expect(
-        extractUeEvent('iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0').from(await eventStore.getAll())
+        extractUeEvent('iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0').from(
+          await eventStore.getAllPayloads()
+        )
       ).toMatchObject({
         schema: 'iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0',
         data: {
@@ -167,7 +175,9 @@ describe('FormTrackingPlugin', () => {
       target.dispatchEvent(new Event('change'));
 
       expect(
-        extractUeEvent('iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0').from(await eventStore.getAll())
+        extractUeEvent('iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0').from(
+          await eventStore.getAllPayloads()
+        )
       ).toMatchObject({
         schema: 'iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0',
         data: {
@@ -179,7 +189,9 @@ describe('FormTrackingPlugin', () => {
       });
 
       expect(
-        extractUeEvent('iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0').from(await eventStore.getAll())
+        extractUeEvent('iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0').from(
+          await eventStore.getAllPayloads()
+        )
       ).toMatchObject({
         schema: 'iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0',
         data: {
@@ -208,14 +220,16 @@ describe('FormTrackingPlugin', () => {
       extra.appendChild(target);
       target.focus();
 
-      expect(await eventStore.getAll()).toHaveLength(0);
+      expect(await eventStore.getAllPayloads()).toHaveLength(0);
 
       target = document.createElement('input');
       document.forms[0].appendChild(target);
       target.focus();
 
       expect(
-        extractUeEvent('iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0').from(await eventStore.getAll())
+        extractUeEvent('iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0').from(
+          await eventStore.getAllPayloads()
+        )
       ).toMatchObject({
         schema: 'iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0',
         data: {
@@ -224,7 +238,9 @@ describe('FormTrackingPlugin', () => {
       });
 
       expect(
-        extractUeEvent('iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0').from(await eventStore.getAll())
+        extractUeEvent('iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0').from(
+          await eventStore.getAllPayloads()
+        )
       ).not.toMatchObject({
         schema: 'iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0',
         data: {

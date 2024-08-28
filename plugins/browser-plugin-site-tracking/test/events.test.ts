@@ -66,7 +66,9 @@ describe('AdTrackingPlugin', () => {
     });
 
     expect(
-      extractUeEvent('iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0').from(await eventStore.getAll())
+      extractUeEvent('iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0').from(
+        await eventStore.getAllPayloads()
+      )
     ).toMatchObject({
       schema: 'iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0',
       data: {
@@ -87,7 +89,9 @@ describe('AdTrackingPlugin', () => {
     });
 
     expect(
-      extractUeEvent('iglu:com.snowplowanalytics.snowplow/site_search/jsonschema/1-0-0').from(await eventStore.getAll())
+      extractUeEvent('iglu:com.snowplowanalytics.snowplow/site_search/jsonschema/1-0-0').from(
+        await eventStore.getAllPayloads()
+      )
     ).toMatchObject({
       schema: 'iglu:com.snowplowanalytics.snowplow/site_search/jsonschema/1-0-0',
       data: {
@@ -107,7 +111,9 @@ describe('AdTrackingPlugin', () => {
     });
 
     expect(
-      extractUeEvent('iglu:com.snowplowanalytics.snowplow/social_interaction/jsonschema/1-0-0').from(await eventStore.getAll())
+      extractUeEvent('iglu:com.snowplowanalytics.snowplow/social_interaction/jsonschema/1-0-0').from(
+        await eventStore.getAllPayloads()
+      )
     ).toMatchObject({
       schema: 'iglu:com.snowplowanalytics.snowplow/social_interaction/jsonschema/1-0-0',
       data: {
