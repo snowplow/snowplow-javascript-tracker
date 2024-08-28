@@ -62,7 +62,7 @@ export function newLocalStorageEventStore({
     count,
     add: (payload: Payload) => {
       add(payload);
-      return sync();
+      return sync().then(count);
     },
     removeHead: (count: number) => {
       removeHead(count);

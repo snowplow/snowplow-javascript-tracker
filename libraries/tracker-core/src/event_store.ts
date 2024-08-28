@@ -17,8 +17,9 @@ export interface EventStore {
   count: () => Promise<number>;
   /**
    * Add an event to the store
+   * @returns the number of events in the store after adding
    */
-  add: (payload: Payload) => Promise<void>;
+  add: (payload: Payload) => Promise<number>;
   /**
    * Remove the first `count` events from the store
    */
@@ -57,14 +58,16 @@ export function newInMemoryEventStore({
 }: EventStoreConfiguration & InMemoryEventStoreConfiguration): EventStore {
   let store: Payload[] = [...events];
 
+  const count = () => Promise.resolve(store.length);
+
   return {
-    count: () => Promise.resolve(store.length),
+    count,
     add: (payload: Payload) => {
       store.push(payload);
       while (store.length > maxSize) {
         store.shift();
       }
-      return Promise.resolve();
+      return count();
     },
     removeHead: (count: number) => {
       for (let i = 0; i < count; i++) {

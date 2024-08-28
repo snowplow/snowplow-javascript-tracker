@@ -4,9 +4,9 @@ import { newInMemoryEventStore } from '../src/event_store';
 
 test('count returns the number of events', async (t) => {
   const eventStore = newInMemoryEventStore({});
-  await eventStore.add({ e: 'pv' });
-  await eventStore.add({ e: 'pv' });
 
+  t.is(await eventStore.add({ e: 'pv' }), 1);
+  t.is(await eventStore.add({ e: 'pv' }), 2);
   t.is(await eventStore.count(), 2);
 });
 

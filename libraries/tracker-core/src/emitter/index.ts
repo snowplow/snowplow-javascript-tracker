@@ -242,7 +242,7 @@ export function newEmitter({
   async function executeRequest(request: EmitterRequest): Promise<RequestResult> {
     const fetchRequest = request.toRequest();
     if (fetchRequest === undefined) {
-      throw new Error('Request is undefined');
+      throw new Error('Empty batch');
     }
 
     const payloads = request.getEvents().map((event) => event.getPayload());
@@ -374,7 +374,7 @@ export function newEmitter({
       return;
     }
 
-    let { success, retry, status } = await executeRequest(request);
+    const { success, retry, status } = await executeRequest(request);
 
     if (success || !retry) {
       if (!success) {
@@ -395,8 +395,8 @@ export function newEmitter({
       request.addEvent(event);
       await executeRequest(request);
     } else {
-      await eventStore.add(payload);
-      if ((await eventStore.count()) >= bufferSize) {
+      const count = await eventStore.add(payload);
+      if (count >= bufferSize) {
         await flush();
       }
     }
