@@ -72,6 +72,7 @@
 |  [EventStore](./browser-tracker.eventstore.md) | EventStore allows storing and retrieving events before they are sent to the collector |
 |  [EventStoreConfiguration](./browser-tracker.eventstoreconfiguration.md) |  |
 |  [EventStoreIterator](./browser-tracker.eventstoreiterator.md) |  |
+|  [EventStorePayload](./browser-tracker.eventstorepayload.md) |  |
 |  [FlushBufferConfiguration](./browser-tracker.flushbufferconfiguration.md) | The configuration that can be changed when flushing the buffer |
 |  [LocalStorageEventStoreConfigurationBase](./browser-tracker.localstorageeventstoreconfigurationbase.md) |  |
 |  [Logger](./browser-tracker.logger.md) |  |

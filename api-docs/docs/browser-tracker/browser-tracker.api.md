@@ -274,9 +274,10 @@ export interface EventPayloadAndContext {
 
 // @public
 export interface EventStore {
-    add: (payload: Payload) => Promise<number>;
+    add: (payload: EventStorePayload) => Promise<number>;
     count: () => Promise<number>;
-    getAll: () => Promise<readonly Payload[]>;
+    getAll: () => Promise<readonly EventStorePayload[]>;
+    getAllPayloads: () => Promise<readonly Payload[]>;
     iterator: () => EventStoreIterator;
     removeHead: (count: number) => Promise<void>;
 }
@@ -289,9 +290,15 @@ export interface EventStoreConfiguration {
 // @public (undocumented)
 export interface EventStoreIterator {
     next: () => Promise<{
-        value: Payload | undefined;
+        value: EventStorePayload | undefined;
         done: boolean;
     }>;
+}
+
+// @public (undocumented)
+export interface EventStorePayload {
+    payload: Payload;
+    svrAnon?: boolean;
 }
 
 // @public (undocumented)

@@ -16,9 +16,10 @@ interface EventStore
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [add](./browser-tracker.eventstore.add.md) | (payload: Payload) =&gt; Promise&lt;number&gt; | Add an event to the store |
+|  [add](./browser-tracker.eventstore.add.md) | (payload: EventStorePayload) =&gt; Promise&lt;number&gt; | Add an event to the store |
 |  [count](./browser-tracker.eventstore.count.md) | () =&gt; Promise&lt;number&gt; | Count all events in the store |
-|  [getAll](./browser-tracker.eventstore.getall.md) | () =&gt; Promise&lt;readonly Payload\[\]&gt; | Retrieve all events in the store |
+|  [getAll](./browser-tracker.eventstore.getall.md) | () =&gt; Promise&lt;readonly EventStorePayload\[\]&gt; | Retrieve all payloads including their meta configuration in the store |
+|  [getAllPayloads](./browser-tracker.eventstore.getallpayloads.md) | () =&gt; Promise&lt;readonly Payload\[\]&gt; | Retrieve all pure payloads in the store |
 |  [iterator](./browser-tracker.eventstore.iterator.md) | () =&gt; EventStoreIterator | Get an iterator over all events in the store |
 |  [removeHead](./browser-tracker.eventstore.removehead.md) | (count: number) =&gt; Promise&lt;void&gt; | Remove the first <code>count</code> events from the store |
 
