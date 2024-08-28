@@ -9,5 +9,5 @@ Retrieve all events in the store
 <b>Signature:</b>
 
 ```typescript
-getAll: () => Promise<Payload[]>;
+getAll: () => Promise<readonly Payload[]>;
 ```

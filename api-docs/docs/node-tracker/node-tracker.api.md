@@ -288,9 +288,9 @@ export interface EventPayloadAndContext {
 
 // @public
 export interface EventStore {
-    add: (payload: Payload) => Promise<void>;
+    add: (payload: Payload) => Promise<number>;
     count: () => Promise<number>;
-    getAll: () => Promise<Payload[]>;
+    getAll: () => Promise<readonly Payload[]>;
     iterator: () => EventStoreIterator;
     removeHead: (count: number) => Promise<void>;
 }
@@ -303,7 +303,7 @@ export interface EventStoreConfiguration {
 // @public (undocumented)
 export interface EventStoreIterator {
     next: () => Promise<{
-        payload: Payload | undefined;
+        value: Payload | undefined;
         done: boolean;
     }>;
 }
@@ -459,7 +459,7 @@ export function newInMemoryEventStore({ maxSize, events }: EventStoreConfigurati
 // Warning: (ae-forgotten-export) The symbol "EmitterConfiguration" needs to be exported by the entry point index.module.d.ts
 //
 // @public (undocumented)
-export function newTracker(trackerConfiguration: TrackerConfiguration, emitterConfiguration: EmitterConfiguration_2): Tracker;
+export function newTracker(trackerConfiguration: TrackerConfiguration, emitterConfiguration: EmitterConfiguration_2 | EmitterConfiguration_2[]): Tracker;
 
 // @public
 export interface PagePingEvent extends PageViewEvent {

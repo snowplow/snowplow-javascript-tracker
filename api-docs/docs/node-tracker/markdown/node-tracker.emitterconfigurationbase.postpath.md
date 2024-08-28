@@ -4,7 +4,7 @@
 
 ## EmitterConfigurationBase.postPath property
 
-The post path which events will be sent to Ensure your collector is configured to accept events on this post path
+The post path which events will be sent to. Ensure your collector is configured to accept events on this post path
 
 <b>Signature:</b>
 

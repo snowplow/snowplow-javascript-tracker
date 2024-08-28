@@ -4,7 +4,7 @@
 
 ## EmitterConfigurationBase.keepalive property
 
-Indicates that the request should be allowed to outlive the webpage that initiated it. Enables collector requests to complete even if the page is closed or navigated away from. Defaults to false.
+Indicates that the request should be allowed to outlive the webpage that initiated it. Enables collector requests to complete even if the page is closed or navigated away from.
 
 <b>Signature:</b>
 

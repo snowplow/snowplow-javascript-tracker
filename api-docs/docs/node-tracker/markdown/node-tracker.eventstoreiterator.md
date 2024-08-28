@@ -14,5 +14,5 @@ interface EventStoreIterator
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [next](./node-tracker.eventstoreiterator.next.md) | () =&gt; Promise&lt;{ payload: Payload \| undefined; done: boolean; }&gt; | Retrieve the next event in the store |
+|  [next](./node-tracker.eventstoreiterator.next.md) | () =&gt; Promise&lt;{ value: Payload \| undefined; done: boolean; }&gt; | Retrieve the next event in the store |
 

@@ -4,7 +4,7 @@
 
 ## EmitterConfigurationBase.dontRetryStatusCodes property
 
-List of HTTP response status codes for which events sent to Collector should not be retried in future request. Only non-success status codes are considered (greater or equal to 300). The don't retry codes are only considered for GET and POST requests. By default, the tracker retries on all non-success status codes except for 400, 401, 403, 410, and 422.
+List of HTTP response status codes for which events sent to Collector should not be retried in future request. Only non-success status codes are considered (greater or equal to 300). The don't retry codes are only considered for GET and POST requests. By default, the tracker retries on all non-success status codes except for 400, 401, 403, 410, and 422 (these don't retry codes will remain even if you set your own `dontRetryStatusCodes` but can be changed using the `retryStatusCodes`<!-- -->).
 
 <b>Signature:</b>
 

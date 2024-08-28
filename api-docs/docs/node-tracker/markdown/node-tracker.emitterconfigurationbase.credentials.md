@@ -4,7 +4,7 @@
 
 ## EmitterConfigurationBase.credentials property
 
-Controls whether or not the browser sends credentials (defaults to 'same-origin')
+Controls whether or not the browser sends credentials (defaults to 'include')
 
 <b>Signature:</b>
 
