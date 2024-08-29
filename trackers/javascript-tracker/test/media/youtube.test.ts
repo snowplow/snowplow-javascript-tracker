@@ -1,5 +1,6 @@
 import { fetchResults } from '../micro';
 import { pageSetup, waitUntil } from '../integration/helpers';
+import { Capabilities } from '@wdio/types';
 
 declare var player: YT.Player;
 
@@ -67,14 +68,15 @@ const compare = (expected: any, received: any) => {
 let log: Array<unknown> = [];
 
 function shouldSkipBrowser(browser: any): boolean {
+  const capabilities = browser.capabilities as Capabilities.DesiredCapabilities;
   return (
-    browser.capabilities.browserName === 'internet explorer' ||
+    capabilities.browserName === 'internet explorer' ||
     // Unknown command: {"name":"sendKeysToActiveElement","parameters":{"value":["k"]}}, Safari 12 keeps crashing
-    (browser.capabilities.browserName === 'safari' && browser.capabilities.browserVersion < 14) ||
+    (capabilities.browserName === 'safari' && parseInt(capabilities.browserVersion ?? "") < 14) ||
     // Element is obscured (WARNING: The server did not provide any stacktrace information)
-    (browser.capabilities.browserName === 'MicrosoftEdge' && browser.capabilities.browserVersion === '13.10586') ||
+    (capabilities.browserName === 'MicrosoftEdge' && capabilities.browserVersion === '13.10586') ||
     // Driver info: driver.version: unknown
-    (browser.capabilities.browserName === 'firefox' && browser.capabilities.version === '53.0')
+    (capabilities.browserName === 'firefox' && capabilities.version === '53.0')
   );
 }
 
@@ -112,7 +114,7 @@ describe('Youtube tracking', () => {
 
   describe('YouTube Tracker', () => {
     if (shouldSkipBrowser(browser)) {
-      fit('Skip browser', () => true);
+      fit('Skip browser', () => {});
       return;
     }
 
@@ -188,13 +190,14 @@ describe('Youtube tracking', () => {
     };
 
     Object.entries(expected).forEach(([name, properties]) => {
-      if (browser.capabilities.browserName === 'internet explorer' && name === 'playbackratechange') {
+      const capabilities = browser.capabilities as Capabilities.DesiredCapabilities;
+      if (capabilities.browserName === 'internet explorer' && name === 'playbackratechange') {
         return;
         // The hotkey for playback rate change doesn't work in IE
         // Trying to create a key sequence to change the option in the UI has proved to be
         // very unreliable, so this test is skipped
       }
-      if (browser.capabilities.browserName === 'safari' && name == 'percentprogress') {
+      if (capabilities.browserName === 'safari' && name == 'percentprogress') {
         return;
         // percentprogress events seem not be tracked reliably in Safari, should investigate why
       }
@@ -208,7 +211,7 @@ describe('Youtube tracking', () => {
 
   describe('YouTube Tracker (2 videos, 1 tracker)', () => {
     if (shouldSkipBrowser(browser)) {
-      fit('Skip browser', () => true);
+      fit('Skip browser', () => {});
       return;
     }
 
@@ -251,7 +254,7 @@ describe('Youtube tracking', () => {
 
   describe('YouTube Tracker (1 video, 2 trackers)', () => {
     if (shouldSkipBrowser(browser)) {
-      fit('Skip browser', () => true);
+      fit('Skip browser', () => {});
       return;
     }
 
