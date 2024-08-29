@@ -30,8 +30,7 @@
 
 import { trackerCore, PayloadBuilder, TrackerCore, version } from '@snowplow/tracker-core';
 
-import { Emitter } from './emitter';
-import { gotEmitter, GotEmitterConfiguration } from './got_emitter';
+import { Emitter, newEmitter, EmitterConfiguration } from '@snowplow/tracker-core';
 
 export interface Tracker extends TrackerCore {
   /**
@@ -61,9 +60,15 @@ export interface Tracker extends TrackerCore {
    * @param sessionIndex - The session index
    */
   setSessionIndex: (sessionIndex: string | number) => void;
+
+  /**
+   * Calls flush on all emitters in order to send all queued events to the collector
+   * @returns Promise<void> - Promise that resolves when all emitters have flushed
+   */
+  flush: () => Promise<void>;
 }
 
-interface TrackerConfiguration {
+export interface TrackerConfiguration {
   /* The namespace of the tracker */
   namespace: string;
   /* The application ID */
@@ -72,28 +77,38 @@ interface TrackerConfiguration {
   encodeBase64: boolean;
 }
 
-type CustomEmitter = {
+export type CustomEmitter = {
   /* Function returning custom Emitter or Emitter[] to be used. If set, other options are irrelevant */
   customEmitter: () => Emitter | Array<Emitter>;
 };
 
-type EmitterConfiguration = CustomEmitter | GotEmitterConfiguration;
+export type NodeEmitterConfiguration = CustomEmitter | EmitterConfiguration;
+
+/**
+ * Updates the defaults for the emitter configuration
+ */
+function newNodeEmitters(configuration: NodeEmitterConfiguration): Emitter[] {
+  if (configuration.hasOwnProperty('customEmitter')) {
+    const customEmitters = (configuration as CustomEmitter).customEmitter();
+    return Array.isArray(customEmitters) ? customEmitters : [customEmitters];
+  } else {
+    configuration = configuration as EmitterConfiguration;
+    // Set the default buffer size to 10 instead of 1
+    if (configuration.bufferSize === undefined) {
+      configuration.bufferSize = 10;
+    }
+    return [newEmitter(configuration)];
+  }
+}
 
 export function newTracker(
   trackerConfiguration: TrackerConfiguration,
-  emitterConfiguration: EmitterConfiguration | EmitterConfiguration[]
+  emitterConfiguration: NodeEmitterConfiguration | NodeEmitterConfiguration[]
 ): Tracker {
   const { namespace, appId, encodeBase64 = true } = trackerConfiguration;
 
-  let allEmitters: Emitter[] = [];
-  if (Array.isArray(emitterConfiguration)) {
-    allEmitters = emitterConfiguration.map((config) => gotEmitter(config as GotEmitterConfiguration));
-  } else if (emitterConfiguration && emitterConfiguration.hasOwnProperty('customEmitter')) {
-    const customEmitters = (emitterConfiguration as CustomEmitter).customEmitter();
-    allEmitters = Array.isArray(customEmitters) ? customEmitters : [customEmitters];
-  } else {
-    allEmitters = [gotEmitter(emitterConfiguration as GotEmitterConfiguration)];
-  }
+  const configs = Array.isArray(emitterConfiguration) ? emitterConfiguration : [emitterConfiguration];
+  const allEmitters = configs.flatMap(newNodeEmitters);
 
   let domainUserId: string;
   let networkUserId: string;
@@ -143,11 +158,16 @@ export function newTracker(
     sessionIndex = currentSessionIndex;
   };
 
+  const flush = () => {
+    return Promise.allSettled(allEmitters.map((emitter) => emitter.flush())).then(() => {});
+  }
+
   return {
     setDomainUserId,
     setNetworkUserId,
     setSessionId,
     setSessionIndex,
+    flush,
     ...core,
   };
 }

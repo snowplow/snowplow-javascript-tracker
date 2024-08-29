@@ -41,5 +41,8 @@ export const version = v;
 export * from './contexts';
 export * from './plugins';
 export * from './payload';
+export * from './event_store_payload';
 export * from './core';
 export * from './logger';
+export * from './emitter';
+export * from './event_store';

@@ -9,14 +9,14 @@ All provided contexts will no longer be sent with every event
 <b>Signature:</b>
 
 ```typescript
-declare function removeGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive>, trackers?: Array<string>): void;
+declare function removeGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive | string>, trackers?: Array<string>): void;
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  contexts | Array&lt;ConditionalContextProvider \| ContextPrimitive&gt; | An array of contexts or conditional contexts |
+|  contexts | Array&lt;ConditionalContextProvider \| ContextPrimitive \| string&gt; | An array of contexts or conditional contexts |
 |  trackers | Array&lt;string&gt; | The tracker identifiers which the global contexts will be remove from |
 
 <b>Returns:</b>

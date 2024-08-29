@@ -31,9 +31,10 @@
 import { addTracker, SharedState } from '@snowplow/browser-tracker-core';
 import F from 'lodash/fp';
 import { AdTrackingPlugin, trackAdClick, trackAdConversion, trackAdImpression } from '../src';
+import { newInMemoryEventStore } from '@snowplow/tracker-core';
 
-const getUEEvents = F.compose(F.filter(F.compose(F.eq('ue'), F.get('evt.e'))));
-const extractEventProperties = F.map(F.compose(F.get('data'), (cx: string) => JSON.parse(cx), F.get('evt.ue_pr')));
+const getUEEvents = F.compose(F.filter(F.compose(F.eq('ue'), F.get('e'))));
+const extractEventProperties = F.map(F.compose(F.get('data'), (cx: string) => JSON.parse(cx), F.get('ue_pr')));
 const extractUeEvent = (schema: string) => {
   return {
     from: F.compose(
@@ -48,13 +49,18 @@ const extractUeEvent = (schema: string) => {
 
 describe('AdTrackingPlugin', () => {
   const state = new SharedState();
+  let eventStore = newInMemoryEventStore({});
+  const customFetch = async () => new Response(null, { status: 500 });
+
   addTracker('sp1', 'sp1', 'js-3.0.0', '', state, {
     stateStorageStrategy: 'cookie',
     encodeBase64: false,
     plugins: [AdTrackingPlugin()],
+    eventStore,
+    customFetch,
   });
 
-  it('trackAdClick adds the expected ad click event to the queue', () => {
+  it('trackAdClick adds the expected ad click event to the queue', async () => {
     trackAdClick({
       targetUrl: 'https://www.snowplowanalytics.com',
       bannerId: 'banner-1',
@@ -68,7 +74,9 @@ describe('AdTrackingPlugin', () => {
     });
 
     expect(
-      extractUeEvent('iglu:com.snowplowanalytics.snowplow/ad_click/jsonschema/1-0-0').from(state.outQueues[0])
+      extractUeEvent('iglu:com.snowplowanalytics.snowplow/ad_click/jsonschema/1-0-0').from(
+        await eventStore.getAllPayloads()
+      )
     ).toMatchObject({
       schema: 'iglu:com.snowplowanalytics.snowplow/ad_click/jsonschema/1-0-0',
       data: {
@@ -85,7 +93,7 @@ describe('AdTrackingPlugin', () => {
     });
   });
 
-  it('trackAdConversion adds the expected ad conversion event to the queue', () => {
+  it('trackAdConversion adds the expected ad conversion event to the queue', async () => {
     trackAdConversion({
       action: 'action',
       advertiserId: 'advertiser-1',
@@ -99,7 +107,9 @@ describe('AdTrackingPlugin', () => {
     });
 
     expect(
-      extractUeEvent('iglu:com.snowplowanalytics.snowplow/ad_conversion/jsonschema/1-0-0').from(state.outQueues[0])
+      extractUeEvent('iglu:com.snowplowanalytics.snowplow/ad_conversion/jsonschema/1-0-0').from(
+        await eventStore.getAllPayloads()
+      )
     ).toMatchObject({
       schema: 'iglu:com.snowplowanalytics.snowplow/ad_conversion/jsonschema/1-0-0',
       data: {
@@ -116,7 +126,7 @@ describe('AdTrackingPlugin', () => {
     });
   });
 
-  it('trackAdImpression adds the expected ad impression event to the queue', () => {
+  it('trackAdImpression adds the expected ad impression event to the queue', async () => {
     trackAdImpression({
       advertiserId: 'advrtiser-1',
       bannerId: 'banner-1',
@@ -129,7 +139,9 @@ describe('AdTrackingPlugin', () => {
     });
 
     expect(
-      extractUeEvent('iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0').from(state.outQueues[0])
+      extractUeEvent('iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0').from(
+        await eventStore.getAllPayloads()
+      )
     ).toMatchObject({
       schema: 'iglu:com.snowplowanalytics.snowplow/ad_impression/jsonschema/1-0-0',
       data: {
