@@ -9,8 +9,9 @@ declare var findFirstEventForPageViewId: (id: string) => Record<string, unknown>
 declare var findLastEventForPageViewId: (id: string) => Record<string, unknown>;
 
 describe('Activity tracking with callbacks', () => {
-  if (browser.capabilities.browserName === 'internet explorer') {
-    fit('Skip IE', () => true);
+  const browserName = 'browserName' in browser.capabilities && browser.capabilities.browserName;
+  if (browserName === 'internet explorer') {
+    fit('Skip IE', () => {});
     return;
   }
 

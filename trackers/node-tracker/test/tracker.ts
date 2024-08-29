@@ -40,15 +40,13 @@ import {
   Payload,
 } from '../src/index';
 import test, { ExecutionContext } from 'ava';
-import nock from 'nock';
-import querystring from 'querystring';
-import { gotEmitter } from '../src/got_emitter';
+import { newEmitter } from '@snowplow/tracker-core';
 
 const UUID_REGEX = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/;
 
-const testMethods = ['get', 'post'] as const;
+const testMethods = ['post'] as const;
 
-const endpoint = 'd3rkrsqld9gmqf.cloudfront.net';
+const endpoint = 'example.com';
 
 const context = [
   {
@@ -64,30 +62,6 @@ const completedContext = JSON.stringify({
   data: context,
 });
 
-nock(new RegExp('https*://' + endpoint))
-  .persist()
-  .filteringPath(() => '/')
-  .get('/')
-  .reply(200, (uri) => querystring.parse(uri.slice(3)));
-
-nock(new RegExp('https*://' + endpoint))
-  .matchHeader('content-type', 'application/json; charset=utf-8')
-  .persist()
-  .filteringRequestBody(() => '*')
-  .post('/com.snowplowanalytics.snowplow/tp2', '*')
-  .reply(200, (_uri, body) => body);
-
-function extractPayload(response?: string, method?: string): Payload {
-  if (!response) return {};
-
-  const parsed = JSON.parse(response);
-  if (method === 'get') {
-    return parsed;
-  } else {
-    return (parsed['data'] as Array<unknown>)[0] as Payload;
-  }
-}
-
 function checkPayload(payloadDict: Payload, expected: Payload, t: ExecutionContext<unknown>): void {
   t.like(payloadDict, expected);
   t.deepEqual(payloadDict['co'], completedContext, 'a custom context should be attached');
@@ -96,17 +70,14 @@ function checkPayload(payloadDict: Payload, expected: Payload, t: ExecutionConte
   t.falsy(typeof payloadDict['vid'] === 'string' && payloadDict['vid'] === 'NaN', 'Session index should not be NaN');
 }
 
-test.before(() => {
-  nock.disableNetConnect();
-});
+const customFetch = () => Promise.resolve(new Response(null, { status: 200 }));
 
-test.after(() => {
-  nock.cleanAll();
-});
-
-for (const method of testMethods) {
-  test(method + ' method: track API should return eid in the payload', async (t) => {
-    const track = newTracker({ namespace: 'cf', appId: 'cfe35', encodeBase64: false }, { endpoint, protocol: 'http' });
+for (const eventMethod of testMethods) {
+  test(eventMethod + ' method: track API should return eid in the payload', (t) => {
+    const track = newTracker(
+      { namespace: 'cf', appId: 'cfe35', encodeBase64: false },
+      { endpoint, protocol: 'http', customFetch }
+    );
     const eventPayload = track.track(
       buildPageView({ pageUrl: 'http://www.example.com', pageTitle: 'example page', referrer: 'http://google.com' }),
       context
@@ -115,7 +86,7 @@ for (const method of testMethods) {
     t.regex(eventPayload.eid as string, UUID_REGEX);
   });
 
-  test(method + ' method: trackPageView should send a page view event', async (t) => {
+  test(eventMethod + ' method: trackPageView should send a page view event', async (t) => {
     const expected = {
       tv: 'node-' + version,
       tna: 'cf',
@@ -132,13 +103,14 @@ for (const method of testMethods) {
         { namespace: 'cf', appId: 'cfe35', encodeBase64: false },
         {
           endpoint,
-          method,
+          eventMethod,
           bufferSize: 0,
-          callback: function (error, response) {
-            checkPayload(extractPayload(response?.body, method), expected, t);
-            if (error) reject(error);
-            else resolve(response);
+          onRequestSuccess: (batch) => {
+            checkPayload(batch[0], expected, t);
+            resolve(batch);
           },
+          onRequestFailure: reject,
+          customFetch,
         }
       );
       track.track(
@@ -148,7 +120,7 @@ for (const method of testMethods) {
     });
   });
 
-  test(method + ' method: trackStructEvent should send a structured event', async (t) => {
+  test(eventMethod + ' method: trackStructEvent should send a structured event', async (t) => {
     const expected = {
       tv: 'node-' + version,
       tna: 'cf',
@@ -165,13 +137,14 @@ for (const method of testMethods) {
         { namespace: 'cf', appId: 'cfe35', encodeBase64: false },
         {
           endpoint,
-          method,
+          eventMethod,
           bufferSize: 0,
-          callback: function (error, response) {
-            checkPayload(extractPayload(response?.body, method), expected, t);
-            if (error) reject(error);
-            else resolve(response);
+          onRequestSuccess: (batch) => {
+            checkPayload(batch[0], expected, t);
+            resolve(batch);
           },
+          onRequestFailure: reject,
+          customFetch,
         }
       );
       track.track(
@@ -181,14 +154,14 @@ for (const method of testMethods) {
     });
   });
 
-  test(method + ' method: trackEcommerceTransactionWithItems should track an ecommerce transaction', async (t) => {
+  test(eventMethod + ' method: trackEcommerceTransactionWithItems should track an ecommerce transaction', async (t) => {
     const expectedTransaction = {
       e: 'tr',
       tr_id: 'order-7',
       tr_af: 'affiliate',
-      tr_tt: '15',
-      tr_tx: '5',
-      tr_sh: '0',
+      tr_tt: 15,
+      tr_tx: 5,
+      tr_sh: 0,
       tr_ci: 'Dover',
       tr_st: 'Delaware',
       tr_co: 'US',
@@ -200,14 +173,14 @@ for (const method of testMethods) {
         { namespace: 'cf', appId: 'cfe35', encodeBase64: false },
         {
           endpoint,
-          method,
+          eventMethod,
           bufferSize: 0,
-          callback: function (error, response) {
-            const payloadDict = extractPayload(response?.body, method);
-            checkPayload(payloadDict, expectedTransaction, t);
-            if (error) reject(error);
-            else resolve(response);
+          onRequestSuccess: (batch) => {
+            checkPayload(batch[0], expectedTransaction, t);
+            resolve(batch);
           },
+          onRequestFailure: reject,
+          customFetch,
         }
       );
       track.track(
@@ -228,7 +201,7 @@ for (const method of testMethods) {
   });
 
   test(
-    method + ' method: trackEcommerceTransactionWithItems should track an ecommerce transaction and items',
+    eventMethod + ' method: trackEcommerceTransactionWithItems should track an ecommerce transaction and items',
     async (t) => {
       const items = [
         {
@@ -243,9 +216,9 @@ for (const method of testMethods) {
         e: 'tr',
         tr_id: 'order-7',
         tr_af: 'affiliate',
-        tr_tt: '15',
-        tr_tx: '5',
-        tr_sh: '0',
+        tr_tt: 15,
+        tr_tx: 5,
+        tr_sh: 0,
         tr_ci: 'Dover',
         tr_st: 'Delaware',
         tr_co: 'US',
@@ -256,7 +229,7 @@ for (const method of testMethods) {
         ti_sk: 'item-729',
         ti_nm: 'red hat',
         ti_ca: 'headgear',
-        ti_qu: '1',
+        ti_qu: 1,
         ti_id: 'order-7',
         ti_cu: 'GBP',
       };
@@ -268,21 +241,20 @@ for (const method of testMethods) {
           { namespace: 'cf', appId: 'cfe35', encodeBase64: false },
           {
             endpoint,
-            method,
+            eventMethod,
             bufferSize: 0,
-            callback: function (error, response) {
-              const payloadDict = extractPayload(response?.body, method);
-              const expected = payloadDict['e'] === 'tr' ? expectedTransaction : expectedItem;
+            onRequestSuccess: (batch) => {
+              const expected = batch[0]['e'] === 'tr' ? expectedTransaction : expectedItem;
 
-              checkPayload(payloadDict, expected, t);
+              checkPayload(batch[0], expected, t);
 
               requestCount--;
               if (requestCount === 0) {
-                resolve(response);
+                resolve(batch);
               }
-
-              if (error) reject(error);
             },
+            onRequestFailure: reject,
+            customFetch,
           }
         );
         track.track(
@@ -318,7 +290,7 @@ for (const method of testMethods) {
     }
   );
 
-  test(method + ' method: trackUnstructEvent should send a structured event', async (t) => {
+  test(eventMethod + ' method: trackUnstructEvent should send a structured event', async (t) => {
     const inputJson = {
       schema: 'iglu:com.acme/viewed_product/jsonschema/1-0-0',
       data: {
@@ -341,20 +313,21 @@ for (const method of testMethods) {
         { namespace: 'cf', appId: 'cfe35', encodeBase64: false },
         {
           endpoint,
-          method,
+          eventMethod,
           bufferSize: 0,
-          callback: function (error, response) {
-            checkPayload(extractPayload(response?.body, method), expected, t);
-            if (error) reject(error);
-            else resolve(response);
+          onRequestSuccess: (batch) => {
+            checkPayload(batch[0], expected, t);
+            resolve(batch);
           },
+          onRequestFailure: reject,
+          customFetch,
         }
       );
       track.track(buildSelfDescribingEvent({ event: inputJson }), context);
     });
   });
 
-  test(method + ' method: trackScreenView should send a screen view event', async (t) => {
+  test(eventMethod + ' method: trackScreenView should send a screen view event', async (t) => {
     const expected = {
       tv: 'node-' + version,
       tna: 'cf',
@@ -377,20 +350,21 @@ for (const method of testMethods) {
         { namespace: 'cf', appId: 'cfe35', encodeBase64: false },
         {
           endpoint,
-          method,
+          eventMethod,
           bufferSize: 0,
-          callback: function (error, response) {
-            checkPayload(extractPayload(response?.body, method), expected, t);
-            if (error) reject(error);
-            else resolve(response);
+          onRequestSuccess: (batch) => {
+            checkPayload(batch[0], expected, t);
+            resolve(batch);
           },
+          onRequestFailure: reject,
+          customFetch,
         }
       );
       track.track(buildScreenView({ name: 'title screen', id: '12345' }), context);
     });
   });
 
-  test(method + ' method: setter methods should set user attributes', async (t) => {
+  test(eventMethod + ' method: setter methods should set user attributes', async (t) => {
     const expected = {
       tv: 'node-' + version,
       tna: 'cf',
@@ -402,7 +376,7 @@ for (const method of testMethods) {
       p: 'web',
       uid: 'jacob',
       sid: 'sessionId',
-      vid: '10',
+      vid: 10,
       res: '400x200',
       vp: '500x800',
       cd: '24',
@@ -415,13 +389,14 @@ for (const method of testMethods) {
         { namespace: 'cf', appId: 'cfe35', encodeBase64: false },
         {
           endpoint,
-          method,
+          eventMethod,
           bufferSize: 0,
-          callback: function (error, response) {
-            checkPayload(extractPayload(response?.body, method), expected, t);
-            if (error) reject(error);
-            else resolve(response);
+          onRequestSuccess: (batch) => {
+            checkPayload(batch[0], expected, t);
+            resolve(batch);
           },
+          onRequestFailure: reject,
+          customFetch,
         }
       );
 
@@ -443,7 +418,7 @@ for (const method of testMethods) {
   });
 
   test(
-    method + ' method: base 64 encoding should base 64 encode unstructured events and custom contexts',
+    eventMethod + ' method: base 64 encoding should base 64 encode unstructured events and custom contexts',
     async (t) => {
       const inputJson = {
         schema: 'iglu:com.acme/viewed_product/jsonschema/1-0-0',
@@ -457,10 +432,9 @@ for (const method of testMethods) {
           { namespace: 'cf', appId: 'cfe35', encodeBase64: true },
           {
             endpoint,
-            method,
+            eventMethod,
             bufferSize: 0,
-            callback: function (error, response) {
-              const pd = extractPayload(response?.body, method);
+            onRequestSuccess: ([pd]) => {
               t.is(
                 pd['ue_px'],
                 'eyJzY2hlbWEiOiJpZ2x1OmNvbS5zbm93cGxvd2FuYWx5dGljcy5zbm93cGxvdy91bnN0cnVjdF9ldmVudC9qc29uc2NoZW1hLzEtMC0wIiwiZGF0YSI6eyJzY2hlbWEiOiJpZ2x1OmNvbS5hY21lL3ZpZXdlZF9wcm9kdWN0L2pzb25zY2hlbWEvMS0wLTAiLCJkYXRhIjp7InByaWNlIjoyMH19fQ'
@@ -469,9 +443,10 @@ for (const method of testMethods) {
                 pd['cx'],
                 'eyJzY2hlbWEiOiJpZ2x1OmNvbS5zbm93cGxvd2FuYWx5dGljcy5zbm93cGxvdy9jb250ZXh0cy9qc29uc2NoZW1hLzEtMC0wIiwiZGF0YSI6W3sic2NoZW1hIjoiaWdsdTpjb20uYWNtZS91c2VyL2pzb25zY2hlbWEvMS0wLTAiLCJkYXRhIjp7InR5cGUiOiJ0ZXN0ZXIifX1dfQ'
               );
-              if (error) reject(error);
-              else resolve(response);
+              resolve(pd);
             },
+            onRequestFailure: reject,
+            customFetch,
           }
         );
         track.track(buildSelfDescribingEvent({ event: inputJson }), context);
@@ -479,7 +454,7 @@ for (const method of testMethods) {
     }
   );
 
-  test(method + ' method: multiple custom emitters should send an event to multiple collectors', async (t) => {
+  test(eventMethod + ' method: multiple custom emitters should send an event to multiple collectors', async (t) => {
     const expected = {
       tv: 'node-' + version,
       tna: 'cf',
@@ -493,21 +468,19 @@ for (const method of testMethods) {
     let count = 2;
 
     await new Promise((resolve, reject) => {
-      const e = gotEmitter({
+      const e = newEmitter({
         endpoint,
-        method,
+        eventMethod,
         bufferSize: 0,
-        callback: function (error, response) {
-          checkPayload(extractPayload(response?.body, method), expected, t);
+        onRequestSuccess: ([pl]) => {
+          checkPayload(pl, expected, t);
           count--;
           if (count === 0) {
-            resolve(response);
-          }
-
-          if (error) {
-            reject(error);
+            resolve(pl);
           }
         },
+        onRequestFailure: reject,
+        customFetch,
       });
 
       const track = newTracker(
@@ -521,7 +494,7 @@ for (const method of testMethods) {
     });
   });
 
-  test(method + ' method: multiple gotemitters should send an event to multiple collectors', async (t) => {
+  test(eventMethod + ' method: multiple gotemitters should send an event to multiple collectors', async (t) => {
     const expected = {
       tv: 'node-' + version,
       tna: 'cf',
@@ -538,35 +511,31 @@ for (const method of testMethods) {
       const track = newTracker({ namespace: 'cf', appId: 'cfe35', encodeBase64: false }, [
         {
           endpoint,
-          method,
+          eventMethod,
           bufferSize: 0,
-          callback: function (error, response) {
-            checkPayload(extractPayload(response?.body, method), expected, t);
+          onRequestSuccess: ([pl]) => {
+            checkPayload(pl, expected, t);
             count--;
             if (count === 0) {
-              resolve(response);
-            }
-
-            if (error) {
-              reject(error);
+              resolve(pl);
             }
           },
+          onRequestFailure: reject,
+          customFetch,
         },
         {
           endpoint,
-          method,
+          eventMethod,
           bufferSize: 0,
-          callback: function (error, response) {
-            checkPayload(extractPayload(response?.body, method), expected, t);
+          onRequestSuccess: ([pl]) => {
+            checkPayload(pl, expected, t);
             count--;
             if (count === 0) {
-              resolve(response);
-            }
-
-            if (error) {
-              reject(error);
+              resolve(pl);
             }
           },
+          onRequestFailure: reject,
+          customFetch,
         },
       ]);
       track.track(
@@ -576,7 +545,7 @@ for (const method of testMethods) {
     });
   });
 
-  test(method + ' method: setDomainUserId should attach a duid property to event', async (t) => {
+  test(eventMethod + ' method: setDomainUserId should attach a duid property to event', async (t) => {
     const expected = {
       duid: 'duid-test-1234',
     };
@@ -586,13 +555,14 @@ for (const method of testMethods) {
         { namespace: 'cf', appId: 'cfe35', encodeBase64: false },
         {
           endpoint,
-          method,
+          eventMethod,
           bufferSize: 0,
-          callback: function (error, response) {
-            checkPayload(extractPayload(response?.body, method), expected, t);
-            if (error) reject(error);
-            else resolve(response);
+          onRequestSuccess: ([pl]) => {
+            checkPayload(pl, expected, t);
+            resolve(pl);
           },
+          onRequestFailure: reject,
+          customFetch,
         }
       );
       track.setDomainUserId('duid-test-1234');
@@ -603,7 +573,7 @@ for (const method of testMethods) {
     });
   });
 
-  test(method + ' method: setNetworkUserID should attach a nuid property to event', async (t) => {
+  test(eventMethod + ' method: setNetworkUserID should attach a nuid property to event', async (t) => {
     const expected = {
       nuid: 'nuid-test-1234',
     };
@@ -613,13 +583,14 @@ for (const method of testMethods) {
         { namespace: 'cf', appId: 'cfe35', encodeBase64: false },
         {
           endpoint,
-          method,
+          eventMethod,
           bufferSize: 0,
-          callback: function (error, response) {
-            checkPayload(extractPayload(response?.body, method), expected, t);
-            if (error) reject(error);
-            else resolve(response);
+          onRequestSuccess: ([pl]) => {
+            checkPayload(pl, expected, t);
+            resolve(pl);
           },
+          onRequestFailure: reject,
+          customFetch,
         }
       );
       track.setNetworkUserId('nuid-test-1234');
@@ -630,7 +601,7 @@ for (const method of testMethods) {
     });
   });
 
-  test(method + ' method: setSessionId should attach a sid property to event', async (t) => {
+  test(eventMethod + ' method: setSessionId should attach a sid property to event', async (t) => {
     const expected = {
       sid: 'sid-test-1234',
     };
@@ -640,13 +611,14 @@ for (const method of testMethods) {
         { namespace: 'cf', appId: 'cfe35', encodeBase64: false },
         {
           endpoint,
-          method,
+          eventMethod,
           bufferSize: 0,
-          callback: function (error, response) {
-            checkPayload(extractPayload(response?.body, method), expected, t);
-            if (error) reject(error);
-            else resolve(response);
+          onRequestSuccess: ([pl]) => {
+            checkPayload(pl, expected, t);
+            resolve(pl);
           },
+          onRequestFailure: reject,
+          customFetch,
         }
       );
       track.setSessionId(expected.sid);
@@ -657,9 +629,9 @@ for (const method of testMethods) {
     });
   });
 
-  test(method + ' method: setSessionIndex should attach a vid property to event', async (t) => {
+  test(eventMethod + ' method: setSessionIndex should attach a vid property to event', async (t) => {
     const expected = {
-      vid: '1234',
+      vid: 1234,
     };
 
     await new Promise((resolve, reject) => {
@@ -667,13 +639,14 @@ for (const method of testMethods) {
         { namespace: 'cf', appId: 'cfe35', encodeBase64: false },
         {
           endpoint,
-          method,
+          eventMethod,
           bufferSize: 0,
-          callback: function (error, response) {
-            checkPayload(extractPayload(response?.body, method), expected, t);
-            if (error) reject(error);
-            else resolve(response);
+          onRequestSuccess: ([pl]) => {
+            checkPayload(pl, expected, t);
+            resolve(pl);
           },
+          onRequestFailure: reject,
+          customFetch,
         }
       );
       track.setSessionIndex(expected.vid);

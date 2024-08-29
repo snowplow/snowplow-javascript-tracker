@@ -6,6 +6,7 @@ import {
   CorePluginConfiguration,
 } from '@snowplow/tracker-core';
 import { SharedState } from '../state';
+import { EmitterConfigurationBase, EventStoreConfiguration } from '@snowplow/tracker-core';
 
 type RequireAtLeastOne<T> = { [K in keyof T]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<keyof T, K>>> }[keyof T];
 
@@ -29,8 +30,6 @@ export type StateStorageStrategy = 'cookieAndLocalStorage' | 'cookie' | 'localSt
 export type Platform = 'web' | 'mob' | 'pc' | 'srv' | 'app' | 'tv' | 'cnsl' | 'iot';
 /* The supported Cookie SameSite values */
 export type CookieSameSite = 'None' | 'Lax' | 'Strict';
-/* The supported methods which events can be sent with */
-export type EventMethod = 'post' | 'get' | 'beacon';
 
 /* Available configuration for the extended cross domain linker */
 export type ExtendedCrossDomainLinkerAttributes = {
@@ -48,6 +47,24 @@ export type ExtendedCrossDomainLinkerOptions = boolean | ExtendedCrossDomainLink
 
 /* Setting for the `preservePageViewIdForUrl` configuration that decides how to preserve the pageViewId on URL changes. */
 export type PreservePageViewIdForUrl = boolean | 'full' | 'pathname' | 'pathnameAndSearch';
+
+export interface LocalStorageEventStoreConfigurationBase extends EventStoreConfiguration {
+  /**
+   * The maximum amount of events that will be buffered in local storage
+   *
+   * This is useful to ensure the Tracker doesn't fill the 5MB or 10MB available to
+   * each website should the collector be unavailable due to lost connectivity.
+   * Will drop events once the limit is hit
+   * @defaultValue 1000
+   */
+  maxLocalStorageQueueSize?: number;
+
+  /**
+   * Whether to use localStorage at all
+   * Default is true
+   */
+  useLocalStorage?: boolean;
+}
 
 /**
  * The configuration object for initialising the tracker
@@ -94,12 +111,6 @@ export type TrackerConfiguration = {
    */
   cookieLifetime?: number;
   /**
-   * Sets the value of the withCredentials flag
-   * on XMLHttpRequest (GET and POST) requests
-   * @defaultValue true
-   */
-  withCredentials?: boolean;
-  /**
    * How long until a session expires
    * @defaultValue 1800 (30 minutes)
    */
@@ -117,28 +128,6 @@ export type TrackerConfiguration = {
    */
   respectDoNotTrack?: boolean;
   /**
-   * The preferred technique to use to send events
-   * @defaultValue post
-   */
-  eventMethod?: EventMethod;
-  /**
-   * The post path which events will be sent to
-   * Ensure your collector is configured to accept events on this post path
-   * @defaultValue '/com.snowplowanalytics.snowplow/tp2'
-   */
-  postPath?: string;
-  /**
-   * Should the Sent Timestamp be attached to events
-   * @defaultValue true
-   */
-  useStm?: boolean;
-  /**
-   * The amount of events that should be buffered before sending
-   * Recommended to leave as 1 to reduce change of losing events
-   * @defaultValue 1
-   */
-  bufferSize?: number;
-  /**
    * Configure the cross domain linker which will add user identifiers to
    * links on the callback
    */
@@ -148,16 +137,6 @@ export type TrackerConfiguration = {
    * more user/session information to pass to the cross domain navigation.
    */
   useExtendedCrossDomainLinker?: ExtendedCrossDomainLinkerOptions;
-  /**
-   * The max size a POST request can be before the tracker will force send it
-   * @defaultValue 40000
-   */
-  maxPostBytes?: number;
-  /**
-   * The max size a GET request (its complete URL) can be. Requests over this size will be tried as a POST request.
-   * @defaultValue unlimited
-   */
-  maxGetBytes?: number;
   /**
    * Whether the tracker should attempt to figure out what the root
    * domain is to store cookies on
@@ -174,26 +153,12 @@ export type TrackerConfiguration = {
    */
   stateStorageStrategy?: StateStorageStrategy;
   /**
-   * The maximum amount of events that will be buffered in local storage
-   *
-   * This is useful to ensure the Tracker doesn't fill the 5MB or 10MB available to
-   * each website should the collector be unavailable due to lost connectivity.
-   * Will drop events once the limit is hit
-   * @defaultValue 1000
-   */
-  maxLocalStorageQueueSize?: number;
-  /**
    * Whether to reset the Activity Tracking counters on a new page view.
    * Disabling this leads to legacy behavior due to a "bug".
    * Recommended to leave enabled, particularly on SPAs.
    * @defaultValue true
    */
   resetActivityTrackingOnPageView?: boolean;
-  /**
-   * How long to wait before aborting requests to the collector
-   * @defaultValue 5000 (milliseconds)
-   */
-  connectionTimeout?: number;
   /**
    * Configuration for Anonymous Tracking
    * @defaultValue false
@@ -210,65 +175,10 @@ export type TrackerConfiguration = {
    */
   plugins?: Array<BrowserPlugin>;
   /**
-   * An object of key value pairs which represent headers to
-   * attach when sending a POST request, only works for POST
-   * @defaultValue `{}`
-   */
-  customHeaders?: Record<string, string>;
-  /**
-   * List of HTTP response status codes for which events sent to Collector should be retried in future requests.
-   * Only non-success status codes are considered (greater or equal to 300).
-   * The retry codes are only considered for GET and POST requests.
-   * By default, the tracker retries on all non-success status codes except for 400, 401, 403, 410, and 422.
-   */
-  retryStatusCodes?: number[];
-  /**
-   * List of HTTP response status codes for which events sent to Collector should not be retried in future request.
-   * Only non-success status codes are considered (greater or equal to 300).
-   * The don't retry codes are only considered for GET and POST requests.
-   * By default, the tracker retries on all non-success status codes except for 400, 401, 403, 410, and 422.
-   */
-  dontRetryStatusCodes?: number[];
-  /**
    * Callback fired whenever the session identifier is updated.
    * @param updatedSession - On session update, the new session information plus the previous session id.
    */
   onSessionUpdateCallback?: (updatedSession: ClientSession) => void;
-  /**
-   * Id service full URL. This URL will be added to the queue and will be called using a GET method.
-   * This option is there to allow the service URL to be called in order to set any required identifiers e.g. extra cookies.
-   *
-   * The request respects the `anonymousTracking` option, including the SP-Anonymous header if needed, and any additional custom headers from the customHeaders option.
-   */
-  idService?: string;
-  /**
-   * Whether to retry failed requests to the collector.
-   *
-   * Failed requests are requests that failed due to
-   * [timeouts](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/timeout_event),
-   * [network errors](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/error_event),
-   * and [abort events](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/abort_event).
-   *
-   * Takes precedent over `retryStatusCodes` and `dontRetryStatusCodes`.
-   *
-   * @defaultValue true
-   */
-  retryFailedRequests?: boolean;
-  /**
-   * a callback function to be executed whenever a request is successfully sent to the collector.
-   * In practice this means any request which returns a 2xx status code will trigger this callback.
-   *
-   * @param data - The event batch that was successfully sent
-   */
-  onRequestSuccess?: (data: EventBatch) => void;
-
-  /**
-   * a callback function to be executed whenever a request fails to be sent to the collector.
-   * This is the inverse of the onRequestSuccess callback, so any non 2xx status code will trigger this callback.
-   *
-   * @param data - The data associated with the event(s) that failed to send
-   */
-  onRequestFailure?: (data: RequestFailure) => void;
 
   /**
    * Decide how the `pageViewId` should be preserved based on the URL.
@@ -280,7 +190,8 @@ export type TrackerConfiguration = {
    * Defaults to `false`.
    */
   preservePageViewIdForUrl?: PreservePageViewIdForUrl;
-};
+} & EmitterConfigurationBase &
+  LocalStorageEventStoreConfigurationBase;
 
 /**
  * The data which is passed to the Activity Tracking callback
@@ -708,34 +619,13 @@ export interface ClientSession extends Record<string, unknown> {
   firstEventTimestamp: string | null;
 }
 
-/**
- * A collection of GET events which are sent to the collector.
- * This will be a collection of query strings.
- */
-export type GetBatch = string[];
-
-/**
- * A collection of POST events which are sent to the collector.
- * This will be a collection of JSON objects.
- */
-export type PostBatch = Record<string, unknown>[];
-
-/**
- * A collection of events which are sent to the collector.
- * This can either be a collection of query strings or JSON objects.
- */
-export type EventBatch = GetBatch | PostBatch;
-
-/**
- * The data that will be available to the `onRequestFailure` callback
- */
-export type RequestFailure = {
-  /** The batch of events that failed to send */
-  events: EventBatch;
-  /** The status code of the failed request */
-  status?: number;
-  /** The error message of the failed request */
-  message?: string;
-  /** Whether the tracker will retry the request */
-  willRetry: boolean;
-};
+export {
+  RequestFailure,
+  EventBatch,
+  EventMethod,
+  EventStore,
+  EventStoreIterator,
+  EventStorePayload,
+  EventStoreConfiguration,
+  Payload,
+} from '@snowplow/tracker-core';

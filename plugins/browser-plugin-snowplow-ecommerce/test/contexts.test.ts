@@ -1,32 +1,34 @@
-import { addTracker, SharedState } from '@snowplow/browser-tracker-core';
+import { addTracker, SharedState, EventStore } from '@snowplow/browser-tracker-core';
 import { SnowplowEcommercePlugin, setEcommerceUser, setPageType, trackCheckoutStep } from '../src';
 import { CHECKOUT_STEP_SCHEMA } from '../src/schemata';
+import { newInMemoryEventStore } from '@snowplow/tracker-core';
 
-const extractStateProperties = ({
-  outQueues: [
-    [
-      {
-        evt: { ue_pr, co },
-      },
-    ],
-  ],
-}: any) => ({ unstructuredEvent: JSON.parse(ue_pr).data, context: JSON.parse(co).data });
+const extractEventsProperties = ([{ ue_pr, co }]: any) => ({
+  unstructuredEvent: JSON.parse(ue_pr).data,
+  context: JSON.parse(co).data,
+});
 
 describe('SnowplowEcommercePlugin contexts', () => {
-  let state: SharedState;
   let idx = 1;
+  let eventStore: EventStore;
+  const customFetch = async () => new Response(null, { status: 500 });
 
   beforeEach(() => {
-    state = new SharedState();
-    addTracker(`sp${idx++}`, `sp${idx++}`, 'js-3.0.0', '', state, {
+    eventStore = newInMemoryEventStore({});
+  });
+
+  beforeEach(() => {
+    addTracker(`sp${idx++}`, `sp${idx++}`, 'js-3.0.0', '', new SharedState(), {
       stateStorageStrategy: 'cookie',
       encodeBase64: false,
       plugins: [SnowplowEcommercePlugin()],
       contexts: { webPage: false },
+      customFetch,
+      eventStore,
     });
   });
 
-  it('setPageContext can only be added one time and the latest one is persisted', () => {
+  it('setPageContext can only be added one time and the latest one is persisted', async () => {
     const checkoutPageType = { type: 'Checkout', locale: 'us' };
     const homepagePageType = { type: 'Homepage', locale: 'us' };
     setPageType(homepagePageType);
@@ -37,7 +39,7 @@ describe('SnowplowEcommercePlugin contexts', () => {
     };
     trackCheckoutStep(checkoutStep);
 
-    const { context } = extractStateProperties(state);
+    const { context } = extractEventsProperties(await eventStore.getAllPayloads());
 
     expect(context).toMatchObject([
       {
@@ -48,7 +50,7 @@ describe('SnowplowEcommercePlugin contexts', () => {
     ]);
   });
 
-  it('setEcommerceUser can only be added one time and the latest one is persisted', () => {
+  it('setEcommerceUser can only be added one time and the latest one is persisted', async () => {
     setEcommerceUser({ id: 'testid' });
     setEcommerceUser({ id: 'testid', email: 'test@snowplow.com' });
 
@@ -57,7 +59,7 @@ describe('SnowplowEcommercePlugin contexts', () => {
     };
     trackCheckoutStep(checkoutStep);
 
-    const { context } = extractStateProperties(state);
+    const { context } = extractEventsProperties(await eventStore.getAllPayloads());
 
     expect(context).toMatchObject([
       {

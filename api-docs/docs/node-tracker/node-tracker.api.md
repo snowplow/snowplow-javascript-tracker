@@ -4,13 +4,6 @@
 
 ```ts
 
-import { Agents } from 'got';
-import { PromiseCookieJar } from 'got';
-import { RequestError } from 'got';
-import { RequiredRetryOptions } from 'got';
-import { Response } from 'got';
-import { ToughCookieJar } from 'got';
-
 // @public
 export interface AdClickEvent {
     advertiserId?: string;
@@ -117,6 +110,9 @@ export function buildSocialInteraction(event: SocialInteractionEvent): PayloadBu
 export function buildStructEvent(event: StructuredEvent): PayloadBuilder;
 
 // @public
+export type ConditionalContextProvider = FilterProvider | RuleSetProvider;
+
+// @public
 export interface ConsentGrantedEvent {
     description?: string;
     expiry?: string;
@@ -148,6 +144,9 @@ export type ContextFilter = (args?: ContextEvent) => boolean;
 export type ContextGenerator = (args?: ContextEvent) => SelfDescribingJson | SelfDescribingJson[] | undefined;
 
 // @public
+export type ContextPrimitive = SelfDescribingJson | ContextGenerator;
+
+// @public
 export interface CoreConfiguration {
     /* Should payloads be base64 encoded when built */
     // (undocumented)
@@ -162,14 +161,33 @@ export interface CoreConfiguration {
 
 // @public
 export interface CorePlugin {
-    // Warning: (ae-forgotten-export) The symbol "TrackerCore" needs to be exported by the entry point index.module.d.ts
     activateCorePlugin?: (core: TrackerCore) => void;
     afterTrack?: (payload: Payload) => void;
     beforeTrack?: (payloadBuilder: PayloadBuilder) => void;
     contexts?: () => SelfDescribingJson[];
     filter?: (payload: Payload) => boolean;
-    // Warning: (ae-forgotten-export) The symbol "Logger" needs to be exported by the entry point index.module.d.ts
     logger?: (logger: Logger) => void;
+}
+
+// @public
+export interface CorePluginConfiguration {
+    /* The plugin to add */
+    // (undocumented)
+    plugin: CorePlugin;
+}
+
+// @public (undocumented)
+export type CustomEmitter = {
+    /* Function returning custom Emitter or Emitter[] to be used. If set, other options are irrelevant */
+    customEmitter: () => Emitter | Array<Emitter>;
+};
+
+// @public
+export interface DeviceTimestamp {
+    // (undocumented)
+    readonly type: "dtm";
+    // (undocumented)
+    readonly value: number;
 }
 
 // @public
@@ -196,20 +214,117 @@ export interface EcommerceTransactionItemEvent {
     sku: string;
 }
 
-// @public (undocumented)
+// @public
 export interface Emitter {
-    // (undocumented)
-    flush: () => void;
-    // (undocumented)
-    input: (payload: Payload) => void;
-    setAnonymization?: (shouldAnonymize: boolean) => void;
+    flush: () => Promise<void>;
+    input: (payload: Payload) => Promise<void>;
+    setAnonymousTracking: (anonymous: boolean) => void;
+    setBufferSize: (bufferSize: number) => void;
+    setCollectorUrl: (url: string) => void;
 }
+
+// @public (undocumented)
+export interface EmitterConfiguration extends EmitterConfigurationBase {
+    /* The collector URL to which events will be sent */
+    // (undocumented)
+    endpoint: string;
+    /* http or https. Defaults to https */
+    // (undocumented)
+    port?: number;
+    /* http or https. Defaults to https */
+    // (undocumented)
+    protocol?: "http" | "https";
+    /* http or https. Defaults to https */
+    // (undocumented)
+    serverAnonymization?: boolean;
+}
+
+// @public (undocumented)
+export interface EmitterConfigurationBase {
+    bufferSize?: number;
+    connectionTimeout?: number;
+    credentials?: "omit" | "same-origin" | "include";
+    customFetch?: (input: Request, options?: RequestInit) => Promise<Response>;
+    customHeaders?: Record<string, string>;
+    dontRetryStatusCodes?: number[];
+    eventMethod?: EventMethod;
+    eventStore?: EventStore;
+    idService?: string;
+    keepalive?: boolean;
+    maxGetBytes?: number;
+    maxPostBytes?: number;
+    onRequestFailure?: (data: RequestFailure, response?: Response) => void;
+    onRequestSuccess?: (data: EventBatch, response: Response) => void;
+    postPath?: string;
+    retryFailedRequests?: boolean;
+    retryStatusCodes?: number[];
+    useStm?: boolean;
+}
+
+// @public
+export type EventBatch = Payload[];
+
+// @public
+export type EventJson = Array<EventJsonWithKeys>;
+
+// @public
+export type EventJsonWithKeys = {
+    keyIfEncoded: string;
+    keyIfNotEncoded: string;
+    json: Record<string, unknown>;
+};
+
+// @public (undocumented)
+export type EventMethod = "post" | "get";
 
 // @public
 export interface EventPayloadAndContext {
     context: Array<SelfDescribingJson>;
     event: PayloadBuilder;
 }
+
+// @public
+export interface EventStore {
+    add: (payload: EventStorePayload) => Promise<number>;
+    count: () => Promise<number>;
+    getAll: () => Promise<readonly EventStorePayload[]>;
+    getAllPayloads: () => Promise<readonly Payload[]>;
+    iterator: () => EventStoreIterator;
+    removeHead: (count: number) => Promise<void>;
+}
+
+// @public (undocumented)
+export interface EventStoreConfiguration {
+    maxSize?: number;
+}
+
+// @public (undocumented)
+export interface EventStoreIterator {
+    next: () => Promise<{
+        value: EventStorePayload | undefined;
+        done: boolean;
+    }>;
+}
+
+// @public (undocumented)
+export interface EventStorePayload {
+    payload: Payload;
+    svrAnon?: boolean;
+}
+
+// @public
+export type FilterProvider = [
+ContextFilter,
+Array<ContextPrimitive> | ContextPrimitive
+];
+
+// @public
+export type FormElement = {
+    name: string;
+    value: string | null;
+    nodeName: string;
+    type?: string | null;
+};
 
 // @public
 export interface FormFocusOrChangeEvent {
@@ -224,11 +339,13 @@ export interface FormFocusOrChangeEvent {
 
 // @public
 export interface FormSubmissionEvent {
-    // Warning: (ae-forgotten-export) The symbol "FormElement" needs to be exported by the entry point index.module.d.ts
     elements?: Array<FormElement>;
     formClasses?: Array<string>;
     formId: string;
 }
+
+// @public
+export type JsonProcessor = (payloadBuilder: PayloadBuilder, jsonForProcessing: EventJson, contextEntitiesForProcessing: SelfDescribingJson[]) => void;
 
 // @public
 export interface LinkClickEvent {
@@ -239,11 +356,39 @@ export interface LinkClickEvent {
     targetUrl: string;
 }
 
-// Warning: (ae-forgotten-export) The symbol "TrackerConfiguration" needs to be exported by the entry point index.module.d.ts
-// Warning: (ae-forgotten-export) The symbol "EmitterConfiguration" needs to be exported by the entry point index.module.d.ts
-//
 // @public (undocumented)
-export function newTracker(trackerConfiguration: TrackerConfiguration, emitterConfiguration: EmitterConfiguration | EmitterConfiguration[]): Tracker;
+export enum LOG_LEVEL {
+    // (undocumented)
+    debug = 3,
+    // (undocumented)
+    error = 1,
+    // (undocumented)
+    info = 4,
+    // (undocumented)
+    none = 0,
+    // (undocumented)
+    warn = 2
+}
+
+// @public (undocumented)
+export interface Logger {
+    // (undocumented)
+    debug: (message: string, ...extraParams: unknown[]) => void;
+    // (undocumented)
+    error: (message: string, error?: unknown, ...extraParams: unknown[]) => void;
+    // (undocumented)
+    info: (message: string, ...extraParams: unknown[]) => void;
+    // (undocumented)
+    setLogLevel: (level: LOG_LEVEL) => void;
+    // (undocumented)
+    warn: (message: string, error?: unknown, ...extraParams: unknown[]) => void;
+}
+
+// @public (undocumented)
+export function newTracker(trackerConfiguration: TrackerConfiguration, emitterConfiguration: NodeEmitterConfiguration | NodeEmitterConfiguration[]): Tracker;
+
+// @public (undocumented)
+export type NodeEmitterConfiguration = CustomEmitter | EmitterConfiguration;
 
 // @public
 export interface PagePingEvent extends PageViewEvent {
@@ -270,10 +415,8 @@ export interface PayloadBuilder {
     addDict: (dict: Payload) => void;
     addJson: (keyIfEncoded: string, keyIfNotEncoded: string, json: Record<string, unknown>) => void;
     build: () => Payload;
-    // Warning: (ae-forgotten-export) The symbol "EventJson" needs to be exported by the entry point index.module.d.ts
     getJson: () => EventJson;
     getPayload: () => Payload;
-    // Warning: (ae-forgotten-export) The symbol "JsonProcessor" needs to be exported by the entry point index.module.d.ts
     withJsonProcessor: (jsonProcessor: JsonProcessor) => void;
 }
 
@@ -286,6 +429,28 @@ export interface RemoveFromCartEvent {
     sku: string;
     unitPrice?: number;
 }
+
+// @public
+export type RequestFailure = {
+    events: EventBatch;
+    status?: number;
+    message?: string;
+    willRetry: boolean;
+};
+
+// @public
+export interface RuleSet {
+    // (undocumented)
+    accept?: Array<string> | string;
+    // (undocumented)
+    reject?: Array<string> | string;
+}
+
+// @public
+export type RuleSetProvider = [
+RuleSet,
+Array<ContextPrimitive> | ContextPrimitive
+];
 
 // @public
 export interface ScreenViewEvent {
@@ -333,18 +498,63 @@ export interface StructuredEvent {
     value?: number;
 }
 
-// Warning: (ae-forgotten-export) The symbol "TrueTimestamp" needs to be exported by the entry point index.module.d.ts
-// Warning: (ae-forgotten-export) The symbol "DeviceTimestamp" needs to be exported by the entry point index.module.d.ts
-//
 // @public
 export type Timestamp = TrueTimestamp | DeviceTimestamp | number;
 
 // @public (undocumented)
 export interface Tracker extends TrackerCore {
+    flush: () => Promise<void>;
     setDomainUserId: (userId: string) => void;
     setNetworkUserId: (userId: string) => void;
     setSessionId: (sessionId: string) => void;
     setSessionIndex: (sessionIndex: string | number) => void;
+}
+
+// @public (undocumented)
+export interface TrackerConfiguration {
+    /* The namespace of the tracker */
+    // (undocumented)
+    appId: string;
+    /* The application ID */
+    // (undocumented)
+    encodeBase64: boolean;
+    /* The application ID */
+    // (undocumented)
+    namespace: string;
+}
+
+// @public
+export interface TrackerCore {
+    addGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive> | Record<string, ConditionalContextProvider | ContextPrimitive>): void;
+    addPayloadDict(dict: Payload): void;
+    addPayloadPair: (key: string, value: unknown) => void;
+    addPlugin(configuration: CorePluginConfiguration): void;
+    clearGlobalContexts(): void;
+    getBase64Encoding(): boolean;
+    removeGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive | string>): void;
+    resetPayloadPairs(dict: Payload): void;
+    setAppId(appId: string): void;
+    setBase64Encoding(encode: boolean): void;
+    setColorDepth(depth: string): void;
+    setIpAddress(ip: string): void;
+    setLang(lang: string): void;
+    setPlatform(value: string): void;
+    setScreenResolution(width: string, height: string): void;
+    setTimezone(timezone: string): void;
+    setTrackerNamespace(name: string): void;
+    setTrackerVersion(version: string): void;
+    setUseragent(useragent: string): void;
+    setUserId(userId: string): void;
+    setViewport(width: string, height: string): void;
+    track: (pb: PayloadBuilder, context?: Array<SelfDescribingJson> | null, timestamp?: Timestamp | null) => Payload | undefined;
+}
+
+// @public
+export interface TrueTimestamp {
+    // (undocumented)
+    readonly type: "ttm";
+    // (undocumented)
+    readonly value: number;
 }
 
 // @public (undocumented)

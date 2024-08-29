@@ -41,8 +41,6 @@ declare global {
  * A set of variables which are shared among all initialised trackers
  */
 export class SharedState {
-  /* List of request queues - one per Tracker instance */
-  outQueues: Array<unknown> = [];
   bufferFlushers: Array<(sync: boolean) => void> = [];
 
   /* DOM Ready */

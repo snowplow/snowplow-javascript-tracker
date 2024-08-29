@@ -30,9 +30,10 @@
 
 import { addTracker, SharedState } from '@snowplow/browser-tracker-core';
 import { enableFormTracking, disableFormTracking, FormTrackingPlugin } from '../src';
+import { newInMemoryEventStore } from '@snowplow/tracker-core';
 
-const getUEEvents = (arr: any) => arr.filter(({ evt }: any) => evt.e === 'ue');
-const extractEventProperties = (arr: any) => arr.map(({ evt }: any) => JSON.parse(evt.ue_pr).data);
+const getUEEvents = (arr: any) => arr.filter(({ e }: any) => e === 'ue');
+const extractEventProperties = (arr: any) => arr.map(({ ue_pr }: any) => JSON.parse(ue_pr).data);
 const extractUeEvent = (schema: string) => ({
   from: (arr: any, n: number = 0) =>
     extractEventProperties(getUEEvents(arr))
@@ -41,11 +42,13 @@ const extractUeEvent = (schema: string) => ({
 });
 
 describe('FormTrackingPlugin', () => {
-  const state = new SharedState();
-  addTracker('sp1', 'sp1', 'js-3.0.0', '', state, {
+  const eventStore = newInMemoryEventStore({});
+  addTracker('sp1', 'sp1', 'js-3.0.0', '', new SharedState(), {
     stateStorageStrategy: 'cookie',
     encodeBase64: false,
     plugins: [FormTrackingPlugin()],
+    eventStore,
+    customFetch: async () => new Response(null, { status: 500 }),
   });
 
   const $addEventListener = jest.spyOn(document, 'addEventListener');
@@ -53,9 +56,9 @@ describe('FormTrackingPlugin', () => {
 
   document.body.appendChild(Object.assign(document.createElement('form'), { id: 'test-form' }));
 
-  afterEach(() => {
-    // clear the outQueue(s) after each test
-    state.outQueues.forEach((queue) => Array.isArray(queue) && (queue.length = 0));
+  afterEach(async () => {
+    // clear the event store after each test
+    await eventStore.removeHead(await eventStore.count());
     jest.clearAllMocks();
     document.forms[0].replaceChildren();
   });
@@ -74,7 +77,7 @@ describe('FormTrackingPlugin', () => {
       expect($addEventListener).toBeCalledWith('submit', expect.anything(), true);
     });
 
-    it('tracks focus on fields that already exist', () => {
+    it('tracks focus on fields that already exist', async () => {
       const target = document.createElement('input');
       document.forms[0].appendChild(target);
 
@@ -83,7 +86,9 @@ describe('FormTrackingPlugin', () => {
       target.focus();
 
       expect(
-        extractUeEvent('iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0').from(state.outQueues[0])
+        extractUeEvent('iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0').from(
+          await eventStore.getAllPayloads()
+        )
       ).toMatchObject({
         schema: 'iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0',
         data: {
@@ -92,7 +97,7 @@ describe('FormTrackingPlugin', () => {
       });
     });
 
-    it('tracks focus on fields added after enabling', () => {
+    it('tracks focus on fields added after enabling', async () => {
       enableFormTracking();
 
       const target = document.createElement('input');
@@ -101,7 +106,9 @@ describe('FormTrackingPlugin', () => {
       target.focus();
 
       expect(
-        extractUeEvent('iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0').from(state.outQueues[0])
+        extractUeEvent('iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0').from(
+          await eventStore.getAllPayloads()
+        )
       ).toMatchObject({
         schema: 'iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0',
         data: {
@@ -110,7 +117,7 @@ describe('FormTrackingPlugin', () => {
       });
     });
 
-    it('tracks changes on field values', () => {
+    it('tracks changes on field values', async () => {
       enableFormTracking();
 
       const target = document.createElement('input');
@@ -120,7 +127,9 @@ describe('FormTrackingPlugin', () => {
       target.dispatchEvent(new Event('change'));
 
       expect(
-        extractUeEvent('iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0').from(state.outQueues[0])
+        extractUeEvent('iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0').from(
+          await eventStore.getAllPayloads()
+        )
       ).toMatchObject({
         schema: 'iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0',
         data: {
@@ -130,7 +139,7 @@ describe('FormTrackingPlugin', () => {
       });
     });
 
-    it('associates non-nested forms correctly', () => {
+    it('associates non-nested forms correctly', async () => {
       enableFormTracking();
 
       const target = document.createElement('input');
@@ -140,7 +149,9 @@ describe('FormTrackingPlugin', () => {
       target.focus();
 
       expect(
-        extractUeEvent('iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0').from(state.outQueues[0])
+        extractUeEvent('iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0').from(
+          await eventStore.getAllPayloads()
+        )
       ).toMatchObject({
         schema: 'iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0',
         data: {
@@ -151,7 +162,7 @@ describe('FormTrackingPlugin', () => {
       document.body.removeChild(target);
     });
 
-    it('ignores password values', () => {
+    it('ignores password values', async () => {
       enableFormTracking();
 
       const target = document.createElement('input');
@@ -164,7 +175,9 @@ describe('FormTrackingPlugin', () => {
       target.dispatchEvent(new Event('change'));
 
       expect(
-        extractUeEvent('iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0').from(state.outQueues[0])
+        extractUeEvent('iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0').from(
+          await eventStore.getAllPayloads()
+        )
       ).toMatchObject({
         schema: 'iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0',
         data: {
@@ -176,7 +189,9 @@ describe('FormTrackingPlugin', () => {
       });
 
       expect(
-        extractUeEvent('iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0').from(state.outQueues[0])
+        extractUeEvent('iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0').from(
+          await eventStore.getAllPayloads()
+        )
       ).toMatchObject({
         schema: 'iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0',
         data: {
@@ -194,7 +209,7 @@ describe('FormTrackingPlugin', () => {
       expect($addEventListener).toBeCalledWith('focus', expect.anything(), true);
     });
 
-    it('ignores form that are not explicitly specified', () => {
+    it('ignores form that are not explicitly specified', async () => {
       const extra = document.createElement('form');
       extra.id = 'skipme';
       document.body.appendChild(extra);
@@ -205,14 +220,16 @@ describe('FormTrackingPlugin', () => {
       extra.appendChild(target);
       target.focus();
 
-      expect(state.outQueues[0]).toHaveLength(0);
+      expect(await eventStore.getAllPayloads()).toHaveLength(0);
 
       target = document.createElement('input');
       document.forms[0].appendChild(target);
       target.focus();
 
       expect(
-        extractUeEvent('iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0').from(state.outQueues[0])
+        extractUeEvent('iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0').from(
+          await eventStore.getAllPayloads()
+        )
       ).toMatchObject({
         schema: 'iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0',
         data: {
@@ -221,7 +238,9 @@ describe('FormTrackingPlugin', () => {
       });
 
       expect(
-        extractUeEvent('iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0').from(state.outQueues[0])
+        extractUeEvent('iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0').from(
+          await eventStore.getAllPayloads()
+        )
       ).not.toMatchObject({
         schema: 'iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0',
         data: {

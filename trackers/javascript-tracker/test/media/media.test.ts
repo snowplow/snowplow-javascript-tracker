@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { fetchResults } from '../micro';
 import { pageSetup, waitUntil } from '../integration/helpers';
+import { Capabilities } from '@wdio/types';
 
 const playVideoElement1Callback = () => {
   return (done: (_: void) => void) => {
@@ -102,7 +103,8 @@ const makeExpectedEvent = (
     },
   };
 
-  if (browser.capabilities.browserName === 'internet explorer') {
+  const browserName = 'browserName' in browser.capabilities && browser.capabilities.browserName;
+  if (browserName === 'internet explorer') {
     data.context[0].data.defaultMuted = false;
   }
 
@@ -151,16 +153,17 @@ describe('Media Tracking', () => {
       }
     };
 
+    const capabilities = browser.capabilities as Capabilities.DesiredCapabilities;
     if (
-      browser.capabilities.browserName === 'internet explorer' &&
-      (browser.capabilities.version === '9' || browser.capabilities.browserVersion === '10')
+      capabilities.browserName === 'internet explorer' &&
+      (capabilities.version === '9' || capabilities.browserVersion === '10')
     ) {
-      fit('Skip IE 9 and 10', () => true);
+      fit('Skip IE 9 and 10', () => {});
       return;
     }
 
-    if (browser.capabilities.browserName === 'safari' && browser.capabilities.version === '8.0') {
-      fit('Skip Safari 8', () => true);
+    if (capabilities.browserName === 'safari' && capabilities.version === '8.0') {
+      fit('Skip Safari 8', () => {});
       return;
     }
 
@@ -515,13 +518,14 @@ describe('Media Tracking', () => {
     Object.entries(expected).forEach(([name, properties]) => {
       // I can't find a good way of triggering an error event for firefox 53 or chrome 60, so they can
       // be skipped for now (events past 'error' are fired as a result of the error occouring)
+      const capabilities = browser.capabilities as Capabilities.DesiredCapabilities;
       if (
         (name === 'error' &&
-          browser.capabilities.browserName === 'firefox' &&
-          browser.capabilities.browserVersion === '53.0') ||
-        (browser.capabilities.browserName === 'chrome' && browser.capabilities.version === '60.0.3112.78')
+          capabilities.browserName === 'firefox' &&
+          capabilities.browserVersion === '53.0') ||
+        (capabilities.browserName === 'chrome' && capabilities.version === '60.0.3112.78')
       ) {
-        fit('Skip events from error', () => true);
+        fit('Skip events from error', () => {});
         return;
       } else {
         it('tracks ' + name, () => {

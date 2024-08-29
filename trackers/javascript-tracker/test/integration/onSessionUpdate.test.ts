@@ -1,18 +1,20 @@
 import F from 'lodash/fp';
 import { fetchResults } from '../micro';
 import { pageSetup } from './helpers';
+import { Capabilities } from '@wdio/types';
 
 describe('onSessionUpdate callback feature', () => {
+  const capabilities = browser.capabilities as Capabilities.DesiredCapabilities;
   if (
-    browser.capabilities.browserName === 'internet explorer' &&
-    (browser.capabilities.version === '9' || browser.capabilities.browserVersion === '10')
+    capabilities.browserName === 'internet explorer' &&
+    (capabilities.version === '9' || capabilities.browserVersion === '10')
   ) {
-    fit('Skip IE 9 and 10', () => true);
+    fit('Skip IE 9 and 10', () => {});
     return;
   }
 
-  if (browser.capabilities.browserName === 'safari' && browser.capabilities.version === '8.0') {
-    fit('Skip Safari 8', () => true);
+  if (capabilities.browserName === 'safari' && capabilities.version === '8.0') {
+    fit('Skip Safari 8', () => {});
     return;
   }
 

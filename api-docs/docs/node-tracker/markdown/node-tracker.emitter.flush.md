@@ -4,8 +4,10 @@
 
 ## Emitter.flush property
 
+Forces the emitter to send all events in the event store to the collector.
+
 <b>Signature:</b>
 
 ```typescript
-flush: () => void;
+flush: () => Promise<void>;
 ```

@@ -4,10 +4,10 @@
 
 ## EventBatch type
 
-A collection of events which are sent to the collector. This can either be a collection of query strings or JSON objects.
+A collection of event payloads which are sent to the collector.
 
 <b>Signature:</b>
 
 ```typescript
-type EventBatch = GetBatch | PostBatch;
+type EventBatch = Payload[];
 ```

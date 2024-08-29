@@ -9,14 +9,14 @@ All provided contexts will be sent with every event
 <b>Signature:</b>
 
 ```typescript
-declare function addGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive>, trackers?: Array<string>): void;
+declare function addGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive> | Record<string, ConditionalContextProvider | ContextPrimitive>, trackers?: Array<string>): void;
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  contexts | Array&lt;ConditionalContextProvider \| ContextPrimitive&gt; | An array of contexts or conditional contexts |
+|  contexts | Array&lt;ConditionalContextProvider \| ContextPrimitive&gt; \| Record&lt;string, ConditionalContextProvider \| ContextPrimitive&gt; | An array of contexts or conditional contexts |
 |  trackers | Array&lt;string&gt; | The tracker identifiers which the global contexts will be added to |
 
 <b>Returns:</b>

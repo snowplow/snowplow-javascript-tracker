@@ -31,9 +31,10 @@
 import { addTracker, SharedState } from '@snowplow/browser-tracker-core';
 import F from 'lodash/fp';
 import { SiteTrackingPlugin, trackTiming, trackSiteSearch, trackSocialInteraction } from '../src';
+import { newInMemoryEventStore } from '@snowplow/tracker-core';
 
-const getUEEvents = F.compose(F.filter(F.compose(F.eq('ue'), F.get('evt.e'))));
-const extractEventProperties = F.map(F.compose(F.get('data'), (cx: string) => JSON.parse(cx), F.get('evt.ue_pr')));
+const getUEEvents = F.compose(F.filter(F.compose(F.eq('ue'), F.get('e'))));
+const extractEventProperties = F.map(F.compose(F.get('data'), (cx: string) => JSON.parse(cx), F.get('ue_pr')));
 const extractUeEvent = (schema: string) => {
   return {
     from: F.compose(
@@ -47,14 +48,16 @@ const extractUeEvent = (schema: string) => {
 };
 
 describe('AdTrackingPlugin', () => {
-  const state = new SharedState();
-  addTracker('sp1', 'sp1', 'js-3.0.0', '', state, {
+  const eventStore = newInMemoryEventStore({});
+  addTracker('sp1', 'sp1', 'js-3.0.0', '', new SharedState(), {
     stateStorageStrategy: 'cookie',
     encodeBase64: false,
     plugins: [SiteTrackingPlugin()],
+    eventStore,
+    customFetch: async () => new Response(null, { status: 500 }),
   });
 
-  it('trackTiming adds the expected timing click event to the queue', () => {
+  it('trackTiming adds the expected timing click event to the queue', async () => {
     trackTiming({
       category: 'category-1',
       timing: 200,
@@ -63,7 +66,9 @@ describe('AdTrackingPlugin', () => {
     });
 
     expect(
-      extractUeEvent('iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0').from(state.outQueues[0])
+      extractUeEvent('iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0').from(
+        await eventStore.getAllPayloads()
+      )
     ).toMatchObject({
       schema: 'iglu:com.snowplowanalytics.snowplow/timing/jsonschema/1-0-0',
       data: {
@@ -75,7 +80,7 @@ describe('AdTrackingPlugin', () => {
     });
   });
 
-  it('trackSiteSearch adds the expected site search event to the queue', () => {
+  it('trackSiteSearch adds the expected site search event to the queue', async () => {
     trackSiteSearch({
       terms: ['term-1', 'term-2'],
       filters: { key: 'value' },
@@ -84,7 +89,9 @@ describe('AdTrackingPlugin', () => {
     });
 
     expect(
-      extractUeEvent('iglu:com.snowplowanalytics.snowplow/site_search/jsonschema/1-0-0').from(state.outQueues[0])
+      extractUeEvent('iglu:com.snowplowanalytics.snowplow/site_search/jsonschema/1-0-0').from(
+        await eventStore.getAllPayloads()
+      )
     ).toMatchObject({
       schema: 'iglu:com.snowplowanalytics.snowplow/site_search/jsonschema/1-0-0',
       data: {
@@ -96,7 +103,7 @@ describe('AdTrackingPlugin', () => {
     });
   });
 
-  it('trackSocialInteraction adds the expected social interaction event to the queue', () => {
+  it('trackSocialInteraction adds the expected social interaction event to the queue', async () => {
     trackSocialInteraction({
       action: 'action-1',
       network: 'network-1',
@@ -104,7 +111,9 @@ describe('AdTrackingPlugin', () => {
     });
 
     expect(
-      extractUeEvent('iglu:com.snowplowanalytics.snowplow/social_interaction/jsonschema/1-0-0').from(state.outQueues[0])
+      extractUeEvent('iglu:com.snowplowanalytics.snowplow/social_interaction/jsonschema/1-0-0').from(
+        await eventStore.getAllPayloads()
+      )
     ).toMatchObject({
       schema: 'iglu:com.snowplowanalytics.snowplow/social_interaction/jsonschema/1-0-0',
       data: {

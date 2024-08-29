@@ -4,7 +4,7 @@
 
 ## CorePlugin.beforeTrack property
 
-Called just before the trackerCore callback fires
+Called before the `filter` method is called and before the trackerCore callback fires (if the filter passes)
 
 <b>Signature:</b>
 

@@ -1,3 +1,4 @@
+import 'whatwg-fetch';
 const nodeCrypto = require('crypto');
 
 // @ts-expect-error

@@ -38,16 +38,19 @@ import {
   addEnhancedEcommercePromoContext,
   trackEnhancedEcommerceAction,
 } from '../src';
+import { newInMemoryEventStore } from '@snowplow/tracker-core';
 
-const getUEEvents = F.compose(F.filter(F.compose(F.eq('ue'), F.get('evt.e'))), F.first);
-const extractSchemas = F.map(F.compose(F.get('data'), (cx: string) => JSON.parse(cx), F.get('evt.co')));
+const getUEEvents = F.compose(F.filter(F.compose(F.eq('ue'), F.get('e'))));
+const extractSchemas = F.map(F.compose(F.get('data'), (cx: string) => JSON.parse(cx), F.get('co')));
 
-it('attaches enhanced ecommerce contexts to enhanced ecommerce events', () => {
-  const state = new SharedState();
-  addTracker('sp1', 'sp1', 'js-3.0.0', '', state, {
+it('attaches enhanced ecommerce contexts to enhanced ecommerce events', async () => {
+  const eventStore = newInMemoryEventStore({});
+  addTracker('sp1', 'sp1', 'js-3.0.0', '', new SharedState(), {
     stateStorageStrategy: 'cookie',
     encodeBase64: false,
     plugins: [EnhancedEcommercePlugin()],
+    eventStore,
+    customFetch: async () => new Response(null, { status: 500 }),
   });
 
   addEnhancedEcommerceProductContext({ id: '1234-5678', name: 'T-Shirt' });
@@ -63,5 +66,5 @@ it('attaches enhanced ecommerce contexts to enhanced ecommerce events', () => {
     F.compose(F.size, F.filter(F.compose(F.eq(value), F.get('data.id'))), extractContextsWithStaticValue);
 
   // we expect there to be four contexts added to the event
-  expect(countWithStaticValueEq('1234-5678')(state.outQueues)).toBe(4);
+  expect(countWithStaticValueEq('1234-5678')(await eventStore.getAllPayloads())).toBe(4);
 });
