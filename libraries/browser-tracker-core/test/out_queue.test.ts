@@ -350,12 +350,16 @@ describe('OutQueueManager', () => {
 
       it('should fire on a successful request', async () => {
         const callbacks: EventBatch[] = [];
-        const onSuccess = (e: EventBatch) => {
-          callbacks.push(e);
-        };
 
-        const postQueue = createQueue({ method, onSuccess });
-        await postQueue.enqueueRequest(request);
+        await new Promise(async (resolve) => {
+          const onSuccess = (e: EventBatch) => {
+            callbacks.push(e);
+            resolve(null);
+          };
+
+          const postQueue = createQueue({ method, onSuccess });
+          await postQueue.enqueueRequest(request);
+        });
 
         expect(requests).toHaveLength(1);
         expect(eventStore.addCount()).toEqual(1);
@@ -369,12 +373,15 @@ describe('OutQueueManager', () => {
       // Oversized events don't get placed in the queue, but the callback should still fire
       it('should fire on a successful oversized request', async () => {
         const callbackStorage: EventBatch[] = [];
-        const onSuccess = (e: EventBatch) => {
-          callbackStorage.push(e);
-        };
+        await new Promise(async (resolve) => {
+          const onSuccess = (e: EventBatch) => {
+            callbackStorage.push(e);
+            resolve(null);
+          };
 
-        const postQueue = createQueue({ method, onSuccess, maxPostBytes: 1 });
-        await postQueue.enqueueRequest(request);
+          const postQueue = createQueue({ method, onSuccess, maxPostBytes: 1 });
+          await postQueue.enqueueRequest(request);
+        });
 
         expect(requests).toHaveLength(1);
         expect(eventStore.addCount()).toEqual(0);
@@ -388,12 +395,15 @@ describe('OutQueueManager', () => {
 
       it('should fire on a successful request', async () => {
         let callbackStorage: EventBatch[] = [];
-        const onSuccess = (e: EventBatch) => {
-          callbackStorage.push(e);
-        };
+        await new Promise(async (resolve) => {
+          const onSuccess = (e: EventBatch) => {
+            callbackStorage.push(e);
+            resolve(null);
+          };
 
-        const getQueue = createQueue({ method, onSuccess });
-        await getQueue.enqueueRequest(request);
+          const getQueue = createQueue({ method, onSuccess });
+          await getQueue.enqueueRequest(request);
+        });
 
         expect(requests).toHaveLength(1);
         expect(eventStore.addCount()).toEqual(1);
@@ -407,12 +417,15 @@ describe('OutQueueManager', () => {
       // A single oversized events means no queue, but the callback should still fire
       it('should fire the onRequestSuccess on a successful oversized request', async () => {
         let callbackStorage: EventBatch[] = [];
-        const onSuccess = (e: EventBatch) => {
-          callbackStorage.push(e);
-        };
+        await new Promise(async (resolve) => {
+          const onSuccess = (e: EventBatch) => {
+            callbackStorage.push(e);
+            resolve(null);
+          };
 
-        const getQueue = createQueue({ method, onSuccess, maxGetBytes: 1 });
-        await getQueue.enqueueRequest(request);
+          const getQueue = createQueue({ method, onSuccess, maxGetBytes: 1 });
+          await getQueue.enqueueRequest(request);
+        });
 
         expect(requests).toHaveLength(1);
         expect(eventStore.addCount()).toEqual(0);
@@ -451,14 +464,17 @@ describe('OutQueueManager', () => {
 
       it('should fire on a failed request', async () => {
         const callbackStorage: RequestFailure[] = [];
-        const onFailure = (e: RequestFailure) => {
-          callbackStorage.push(e);
-        };
+        await new Promise(async (resolve) => {
+          const onFailure = (e: RequestFailure) => {
+            callbackStorage.push(e);
+            resolve(null);
+          };
 
-        responseStatusCode = 500;
+          responseStatusCode = 500;
 
-        const postQueue = createQueue({ method, onFailure });
-        await postQueue.enqueueRequest(request);
+          const postQueue = createQueue({ method, onFailure });
+          await postQueue.enqueueRequest(request);
+        });
 
         expect(requests).toHaveLength(1);
         expect(callbackStorage).toHaveLength(1);
@@ -476,14 +492,17 @@ describe('OutQueueManager', () => {
       // A single oversized events means no queue, but the callback should still fire
       it('should fire on a failed oversized request', async () => {
         const callbackStorage: RequestFailure[] = [];
-        const onFailure = (e: RequestFailure) => {
-          callbackStorage.push(e);
-        };
+        await new Promise(async (resolve) => {
+          const onFailure = (e: RequestFailure) => {
+            callbackStorage.push(e);
+            resolve(null);
+          };
 
-        responseStatusCode = 501;
+          responseStatusCode = 501;
 
-        const postQueue = createQueue({ method, onFailure, maxPostBytes: 1 });
-        await postQueue.enqueueRequest(request);
+          const postQueue = createQueue({ method, onFailure, maxPostBytes: 1 });
+          await postQueue.enqueueRequest(request);
+        });
 
         expect(requests).toHaveLength(1);
         expect(callbackStorage).toHaveLength(1);
@@ -501,14 +520,17 @@ describe('OutQueueManager', () => {
 
       it('should fire on a failed request', async () => {
         let callbackStorage: RequestFailure[] = [];
-        const onFailure = (e: RequestFailure) => {
-          callbackStorage.push(e);
-        };
+        await new Promise(async (resolve) => {
+          const onFailure = (e: RequestFailure) => {
+            callbackStorage.push(e);
+            resolve(null);
+          };
 
-        responseStatusCode = 500;
+          responseStatusCode = 500;
 
-        const getQueue = createQueue({ method, onFailure });
-        await getQueue.enqueueRequest(request);
+          const getQueue = createQueue({ method, onFailure });
+          await getQueue.enqueueRequest(request);
+        });
 
         expect(requests).toHaveLength(1);
         expect(callbackStorage).toHaveLength(1);
@@ -524,14 +546,17 @@ describe('OutQueueManager', () => {
       // A single oversized events means no queue, but the callback should still fire
       it('should fire on a failed oversized request', async () => {
         let callbackStorage: RequestFailure[] = [];
-        const onFailure = (e: RequestFailure) => {
-          callbackStorage.push(e);
-        };
+        await new Promise(async (resolve) => {
+          const onFailure = (e: RequestFailure) => {
+            callbackStorage.push(e);
+            resolve(null);
+          };
 
-        responseStatusCode = 500;
+          responseStatusCode = 500;
 
-        const getQueue = createQueue({ method, onFailure, maxGetBytes: 1 });
-        await getQueue.enqueueRequest(request);
+          const getQueue = createQueue({ method, onFailure, maxGetBytes: 1 });
+          await getQueue.enqueueRequest(request);
+        });
 
         expect(requests).toHaveLength(1);
         expect(callbackStorage).toHaveLength(1);
