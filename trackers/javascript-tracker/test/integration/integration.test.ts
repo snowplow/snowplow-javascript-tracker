@@ -35,8 +35,9 @@ const geoContext = {
 };
 
 describe('Snowplow Micro integration', () => {
-  if (browser.capabilities.browserName === 'internet explorer') {
-    fit('Skip IE', () => true);
+  const browserName = 'browserName' in browser.capabilities && browser.capabilities.browserName;
+  if (browserName === 'internet explorer') {
+    fit('Skip IE', () => {});
     return;
   }
 
