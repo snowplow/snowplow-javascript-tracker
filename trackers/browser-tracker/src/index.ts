@@ -30,6 +30,7 @@
 
 import {
   createSharedState,
+  SharedState,
   addTracker,
   TrackerConfiguration,
   BrowserTracker,
@@ -40,12 +41,29 @@ import {
   ClientSession,
   RequestFailure,
   EventBatch,
-  GetBatch,
-  PostBatch,
   ParsedIdCookie,
   PreservePageViewIdForUrl,
+  EventStore,
+  EventStoreIterator,
+  EventStorePayload,
+  EventStoreConfiguration,
+  LocalStorageEventStoreConfigurationBase,
 } from '@snowplow/browser-tracker-core';
-import { version } from '@snowplow/tracker-core';
+import {
+  version,
+  CorePlugin,
+  CorePluginConfiguration,
+  TrackerCore,
+  Timestamp,
+  Payload,
+  PayloadBuilder,
+  Logger,
+  EventJson,
+  JsonProcessor,
+  TrueTimestamp,
+  DeviceTimestamp,
+  EmitterConfigurationBase,
+} from '@snowplow/tracker-core';
 
 const state = typeof window !== 'undefined' ? createSharedState() : undefined;
 
@@ -74,10 +92,26 @@ export {
   ClientSession,
   RequestFailure,
   EventBatch,
-  GetBatch,
-  PostBatch,
   ParsedIdCookie,
   PreservePageViewIdForUrl,
+  EventStore,
+  EventStoreIterator,
+  EventStorePayload,
+  EmitterConfigurationBase,
+  LocalStorageEventStoreConfigurationBase,
+  CorePlugin,
+  CorePluginConfiguration,
+  TrackerCore,
+  SharedState,
+  Timestamp,
+  Payload,
+  PayloadBuilder,
+  Logger,
+  EventStoreConfiguration,
+  EventJson,
+  JsonProcessor,
+  TrueTimestamp,
+  DeviceTimestamp,
 };
 export { version };
 export * from './api';

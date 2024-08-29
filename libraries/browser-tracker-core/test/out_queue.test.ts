@@ -28,213 +28,173 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { OutQueueManager, OutQueue } from '../src/tracker/out_queue';
+import { newOutQueue, OutQueue } from '../src/tracker/out_queue';
 import { SharedState } from '../src/state';
-import { EventBatch, RequestFailure } from '../src/tracker/types';
+import { EventStore, newInMemoryEventStore, EventBatch, RequestFailure } from '@snowplow/tracker-core';
 
-const readPostQueue = () => {
-  return JSON.parse(
-    window.localStorage.getItem('snowplowOutQueue_sp_post2') ?? fail('Unable to find local storage queue')
-  );
-};
+function newMockEventStore({ maxSize }: { maxSize: number }): EventStore & { addCount: () => number } {
+  let eventStore = newInMemoryEventStore({ maxSize });
+  let addCount = 0;
 
-const readGetQueue = () =>
-  JSON.parse(window.localStorage.getItem('snowplowOutQueue_sp_get') ?? fail('Unable to find local storage queue'));
-
-const getQuerystring = (p: object) =>
-  '?' +
-  Object.entries(p)
-    .map(([k, v]) => k + '=' + encodeURIComponent(v))
-    .join('&');
+  return {
+    add: (payload) => {
+      addCount++;
+      return eventStore.add(payload);
+    },
+    removeHead: eventStore.removeHead,
+    count: eventStore.count,
+    iterator: eventStore.iterator,
+    getAll: eventStore.getAll,
+    getAllPayloads: eventStore.getAllPayloads,
+    addCount: () => addCount,
+  };
+}
 
 describe('OutQueueManager', () => {
   const maxQueueSize = 2;
 
-  var xhrMock: Partial<XMLHttpRequest>;
-  var xhrOpenMock: jest.Mock;
-  beforeEach(() => {
-    localStorage.clear();
-
-    xhrOpenMock = jest.fn();
-    xhrMock = {
-      open: xhrOpenMock,
-      send: jest.fn(),
-      setRequestHeader: jest.fn(),
-      withCredentials: true,
-      abort: jest.fn(),
-    };
-
-    jest.spyOn(window, 'XMLHttpRequest').mockImplementation(() => xhrMock as XMLHttpRequest);
-  });
-
-  const respondMockRequest = (status: number, statusText: string = '') => {
-    (xhrMock as any).status = status;
-    (xhrMock as any).response = '';
-    (xhrMock as any).statusText = statusText;
-    (xhrMock as any).readyState = 4;
-    (xhrMock as any).onreadystatechange();
+  let eventStore: EventStore & { addCount: () => number };
+  let responseStatusCode: number;
+  let requests: Request[];
+  const customFetch = async (request: Request) => {
+    requests.push(request);
+    return new Response(null, { status: responseStatusCode });
   };
 
-  describe('POST requests', () => {
-    var outQueue: OutQueue;
+  beforeEach(() => {
+    requests = [];
+    responseStatusCode = 200;
+    eventStore = newMockEventStore({ maxSize: maxQueueSize });
+  });
 
-    const getQueue = () => {
-      return JSON.parse(
-        window.localStorage.getItem('snowplowOutQueue_sp_post2') ?? fail('Unable to find local storage queue')
-      );
-    };
+  describe('POST requests', () => {
+    let outQueue: OutQueue;
 
     beforeEach(() => {
-      outQueue = OutQueueManager(
-        'sp',
-        new SharedState(),
-        true,
-        'post',
-        '/com.snowplowanalytics.snowplow/tp2',
-        1,
-        40000,
-        0, // maxGetBytes – 0 for no limit
-        false,
-        maxQueueSize,
-        5000,
-        false,
-        {},
-        true,
-        [401], // retry status codes - override don't retry ones
-        [401, 505] // don't retry status codes
+      outQueue = newOutQueue(
+        {
+          endpoint: 'http://example.com',
+          trackerId: 'sp',
+          useStm: false,
+          retryStatusCodes: [401], // retry status codes - override don't retry ones
+          dontRetryStatusCodes: [401, 505], // don't retry status codes
+          eventStore,
+          customFetch,
+        },
+        new SharedState()
       );
     });
 
-    it('should add event to outQueue and store event in local storage', () => {
+    it('should add event to outQueue and store event in local storage', async () => {
       const expected = { e: 'pv', eid: '20269f92-f07c-44a6-87ef-43e171305076' };
-      outQueue.enqueueRequest(expected, 'http://example.com');
+      outQueue.setBufferSize(5);
+      await outQueue.enqueueRequest(expected);
 
-      const retrievedQueue = getQueue();
-      expect(retrievedQueue).toHaveLength(1);
-      expect(retrievedQueue[0]).toMatchObject({ bytes: 55, evt: expected });
+      expect(await eventStore.count()).toEqual(1);
+      const events = await eventStore.getAllPayloads();
+      expect(events[0]).toMatchObject(expected);
     });
 
-    it('should add event to outQueue and store only events up to max local storage queue size in local storage', () => {
+    it('should add event to outQueue and store only events up to max local storage queue size in local storage', async () => {
       const expected1 = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
       const expected2 = { e: 'pv', eid: '6000c7bd-08a6-49c2-b61c-9531d3d46200' };
       const unexpected = { e: 'pv', eid: '7a3391a8-622b-4ce4-80ed-c941aa05baf5' };
 
-      outQueue.enqueueRequest(expected1, 'http://example.com');
-      outQueue.enqueueRequest(expected2, 'http://example.com');
-      outQueue.enqueueRequest(unexpected, 'http://example.com');
+      outQueue.setBufferSize(5);
+      await outQueue.enqueueRequest(unexpected);
+      await outQueue.enqueueRequest(expected1);
+      await outQueue.enqueueRequest(expected2);
 
-      const retrievedQueue = getQueue();
-      expect(retrievedQueue).toHaveLength(maxQueueSize);
-      expect(retrievedQueue[0]).toMatchObject({ bytes: 55, evt: expected1 });
-      expect(retrievedQueue[1]).toMatchObject({ bytes: 55, evt: expected2 });
+      expect(await eventStore.count()).toEqual(maxQueueSize);
+      const events = await eventStore.getAllPayloads();
+      expect(events[0]).toMatchObject(expected1);
+      expect(events[1]).toMatchObject(expected2);
     });
 
-    it('should remove events from event queue on success', () => {
+    it('should remove events from event queue on success', async () => {
       const request = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
-      outQueue.enqueueRequest(request, 'http://example.com');
+      await outQueue.enqueueRequest(request);
 
-      let retrievedQueue = getQueue();
-      expect(retrievedQueue).toHaveLength(1);
-
-      respondMockRequest(200);
-      retrievedQueue = getQueue();
-      expect(retrievedQueue).toHaveLength(0);
+      expect(await eventStore.count()).toEqual(0);
+      expect(requests).toHaveLength(1);
     });
 
-    it('should keep events in queue on failure', () => {
+    it('should keep events in queue on failure', async () => {
       const request = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
-      outQueue.enqueueRequest(request, 'http://example.com');
+      responseStatusCode = 500;
+      await outQueue.enqueueRequest(request);
 
-      let retrievedQueue = getQueue();
-      expect(retrievedQueue).toHaveLength(1);
-
-      respondMockRequest(500);
-      retrievedQueue = getQueue();
-      expect(retrievedQueue).toHaveLength(1);
+      expect(await eventStore.count()).toEqual(1);
+      expect(requests).toHaveLength(1);
     });
 
-    it('should retry on custom retry status code', () => {
+    it('should retry on custom retry status code', async () => {
       const request = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
-      outQueue.enqueueRequest(request, 'http://example.com');
+      responseStatusCode = 401;
+      await outQueue.enqueueRequest(request);
 
-      let retrievedQueue = getQueue();
-      expect(retrievedQueue).toHaveLength(1);
-
-      respondMockRequest(401);
-      retrievedQueue = getQueue();
-      expect(retrievedQueue).toHaveLength(1);
+      expect(requests).toHaveLength(1);
+      expect(await eventStore.count()).toEqual(1);
     });
 
-    it("should not retry on custom don't retry status code", () => {
+    it("should not retry on custom don't retry status code", async () => {
       const request = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
-      outQueue.enqueueRequest(request, 'http://example.com');
+      responseStatusCode = 505;
+      await outQueue.enqueueRequest(request);
 
-      let retrievedQueue = getQueue();
-      expect(retrievedQueue).toHaveLength(1);
-
-      respondMockRequest(505);
-      retrievedQueue = getQueue();
-      expect(retrievedQueue).toHaveLength(0);
+      expect(requests).toHaveLength(1);
+      expect(await eventStore.count()).toEqual(0);
     });
   });
 
   describe('GET requests', () => {
-    var getOutQueue: (maxGetBytes: number) => OutQueue;
+    let getOutQueue: (maxGetBytes?: number) => OutQueue;
 
     beforeEach(() => {
       getOutQueue = (maxGetBytes) =>
-        OutQueueManager(
-          'sp',
-          new SharedState(),
-          true,
-          'get',
-          '/com.snowplowanalytics.snowplow/tp2',
-          1,
-          40000,
-          maxGetBytes,
-          false,
-          maxQueueSize,
-          5000,
-          false,
-          {},
-          true,
-          [],
-          []
+        newOutQueue(
+          {
+            endpoint: 'http://example.com',
+            trackerId: 'sp',
+            eventMethod: 'get',
+            maxGetBytes,
+            useStm: false,
+            maxLocalStorageQueueSize: maxQueueSize,
+            eventStore,
+            customFetch,
+          },
+          new SharedState()
         );
     });
 
-    it('should add large event to out queue without bytes limit', () => {
-      var outQueue = getOutQueue(0);
+    it('should add large event to out queue without bytes limit', async () => {
+      let outQueue = getOutQueue(undefined);
 
       const expected = { e: 'pv', eid: '20269f92-f07c-44a6-87ef-43e171305076', aid: 'x'.repeat(1000) };
-      outQueue.enqueueRequest(expected, '');
+      await outQueue.enqueueRequest(expected);
 
-      const retrievedQueue = JSON.parse(
-        window.localStorage.getItem('snowplowOutQueue_sp_get') ?? fail('Unable to find local storage queue')
-      );
-      expect(retrievedQueue).toHaveLength(1);
-      expect(retrievedQueue[0]).toEqual(getQuerystring(expected));
+      expect(eventStore.addCount()).toEqual(1);
+      expect(await eventStore.count()).toEqual(0);
+      expect(requests).toHaveLength(1);
     });
 
-    it('should not add event larger than max bytes limit to queue but should try to send it as POST', () => {
-      var outQueue = getOutQueue(100);
+    it('should not add event larger than max bytes limit to queue but should try to send it as POST', async () => {
+      let outQueue = getOutQueue(100);
       const consoleWarn = jest.fn();
       global.console.warn = consoleWarn;
 
       const expected = { e: 'pv', eid: '20269f92-f07c-44a6-87ef-43e171305076', aid: 'x'.repeat(1000) };
-      outQueue.enqueueRequest(expected, 'http://acme.com');
+      outQueue.enqueueRequest(expected);
 
-      expect(window.localStorage.getItem('snowplowOutQueue_sp_get')).toBeNull; // should not save to local storage
+      expect(eventStore.addCount()).toEqual(0);
+      expect(await eventStore.count()).toEqual(0);
       expect(consoleWarn.mock.calls.length).toEqual(1); // should log a warning message
-      expect(xhrOpenMock).toHaveBeenCalledWith('POST', 'http://acme.com/com.snowplowanalytics.snowplow/tp2', true); // should make the POST request
+      expect(requests).toHaveLength(1);
     });
   });
 
   describe('idService requests', () => {
     const idServiceEndpoint = 'http://example.com/id';
-
-    const readGetQueue = () =>
-      JSON.parse(window.localStorage.getItem('snowplowOutQueue_sp_get') ?? fail('Unable to find local storage queue'));
 
     const getQuerystring = (p: object) =>
       '?' +
@@ -243,193 +203,122 @@ describe('OutQueueManager', () => {
         .join('&');
 
     describe('GET requests', () => {
-      const createGetQueue = () =>
-        OutQueueManager(
-          'sp',
-          new SharedState(),
-          true,
-          'get',
-          '/com.snowplowanalytics.snowplow/tp2',
-          1,
-          40000,
-          0,
-          false,
-          maxQueueSize,
-          5000,
-          false,
-          {},
-          true,
-          [],
-          [],
-          idServiceEndpoint
-        );
+      let createGetQueue = () => newOutQueue(
+        {
+          endpoint: 'http://example.com',
+          trackerId: 'sp',
+          eventMethod: 'get',
+          useStm: false,
+          maxLocalStorageQueueSize: maxQueueSize,
+          eventStore,
+          customFetch,
+          idService: idServiceEndpoint,
+        },
+        new SharedState()
+      );
+  
 
-      it('should first execute the idService request and in the same `enqueueRequest` the tracking request', () => {
+      it('should first execute the idService request and in the same `enqueueRequest` the tracking request', async () => {
         const request = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
         const getQueue = createGetQueue();
 
-        getQueue.enqueueRequest(request, 'http://example.com');
+        await getQueue.enqueueRequest(request);
 
-        let retrievedQueue = readGetQueue();
-        expect(retrievedQueue).toHaveLength(1);
-        /* The first XHR is for the idService */
-        respondMockRequest(200);
-        retrievedQueue = readGetQueue();
-        expect(retrievedQueue).toHaveLength(1);
-        expect(retrievedQueue[0]).toEqual(getQuerystring(request));
-        /* The second XHR is the event request */
-        respondMockRequest(200);
-        retrievedQueue = readGetQueue();
-        expect(retrievedQueue).toHaveLength(0);
+        expect(requests).toHaveLength(2);
+        expect(requests[0].url).toEqual(idServiceEndpoint);
+        expect(requests[1].url).toEqual('http://example.com/i' + getQuerystring(request));
       });
 
-      it('should first execute the idService request and in the same `enqueueRequest` the tracking request irregardless of failure of the idService endpoint', () => {
+      it('should first execute the idService request and in the same `enqueueRequest` the tracking request irregardless of failure of the idService endpoint', async () => {
         const request = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
         const getQueue = createGetQueue();
 
-        getQueue.enqueueRequest(request, 'http://example.com');
+        responseStatusCode = 500;
+        await getQueue.enqueueRequest(request);
 
-        let retrievedQueue = readGetQueue();
-        expect(retrievedQueue).toHaveLength(1);
-        /* The first XHR is for the idService */
-        respondMockRequest(500);
-        retrievedQueue = readGetQueue();
-        expect(retrievedQueue).toHaveLength(1);
-        expect(retrievedQueue[0]).toEqual(getQuerystring(request));
-        /* The second XHR is the event request */
-        respondMockRequest(200);
-        retrievedQueue = readGetQueue();
-        expect(retrievedQueue).toHaveLength(0);
+        expect(requests).toHaveLength(2);
+        expect(requests[0].url).toEqual(idServiceEndpoint);
+        expect(requests[1].url).toEqual('http://example.com/i' + getQuerystring(request));
+        expect(await eventStore.count()).toEqual(1);
       });
     });
 
     describe('POST requests', () => {
-      const createPostQueue = () =>
-        OutQueueManager(
-          'sp',
-          new SharedState(),
-          true,
-          'post',
-          '/com.snowplowanalytics.snowplow/tp2',
-          1,
-          40000,
-          0,
-          false,
-          maxQueueSize,
-          5000,
-          false,
-          {},
-          true,
-          [],
-          [],
-          idServiceEndpoint
-        );
+      let createPostQueue = () => newOutQueue(
+        {
+          endpoint: 'http://example.com',
+          trackerId: 'sp',
+          eventMethod: 'post',
+          eventStore,
+          customFetch,
+          idService: idServiceEndpoint,
+        },
+        new SharedState()
+      );
 
-      it('should first execute the idService request and in the same `enqueueRequest` the tracking request irregardless of failure of the idService endpoint', () => {
+      it('should first execute the idService request and in the same `enqueueRequest` the tracking request irregardless of failure of the idService endpoint', async () => {
         const request = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
         const postQueue = createPostQueue();
 
-        postQueue.enqueueRequest(request, 'http://example.com');
+        await postQueue.enqueueRequest(request);
 
-        let retrievedQueue = readPostQueue();
-        expect(retrievedQueue).toHaveLength(1);
-        /* The first XHR is for the idService */
-        respondMockRequest(500);
-        retrievedQueue = readPostQueue();
-        expect(retrievedQueue).toHaveLength(1);
-        expect(retrievedQueue[0].evt).toEqual(request);
-        /* The second XHR is the event request */
-        respondMockRequest(200);
-        retrievedQueue = readPostQueue();
-        expect(retrievedQueue).toHaveLength(0);
+        expect(requests).toHaveLength(2);
+        expect(requests[0].url).toEqual(idServiceEndpoint);
+        expect(requests[1].url).toEqual('http://example.com/com.snowplowanalytics.snowplow/tp2');
       });
     });
   });
 
   describe('retryFailures = true', () => {
     const request = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
-    let createOutQueue = () =>
-      OutQueueManager(
-        'sp',
-        new SharedState(),
-        true,
-        'post',
-        '/com.snowplowanalytics.snowplow/tp2',
-        1,
-        40000,
-        0,
-        false,
-        maxQueueSize,
-        10,
-        false,
-        {},
-        true,
-        [],
-        [],
-        '',
-        true
-      );
+    let createOutQueue = () => newOutQueue(
+      {
+        endpoint: 'http://example.com',
+        trackerId: 'sp',
+        eventMethod: 'post',
+        retryFailedRequests: true,
+        eventStore,
+        customFetch,
+      },
+      new SharedState()
+    );
 
-    it('should remain in queue on failure', (done) => {
+    it('should remain in queue on failure', async () => {
       let outQueue = createOutQueue();
-      outQueue.enqueueRequest(request, 'http://example.com');
+      responseStatusCode = 500;
+      await outQueue.enqueueRequest(request);
 
-      let retrievedQueue = readPostQueue();
-      expect(retrievedQueue).toHaveLength(1);
-
-      respondMockRequest(0);
-
-      setTimeout(() => {
-        retrievedQueue = readPostQueue();
-        expect(retrievedQueue).toHaveLength(1);
-        done();
-      }, 20);
+      expect(requests).toHaveLength(1);
+      expect(await eventStore.count()).toEqual(1);
     });
   });
 
   describe('retryFailures = false', () => {
     const request = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
-    let createOutQueue = () =>
-      OutQueueManager(
-        'sp',
-        new SharedState(),
-        true,
-        'post',
-        '/com.snowplowanalytics.snowplow/tp2',
-        1,
-        40000,
-        0,
-        false,
-        maxQueueSize,
-        0,
-        false,
-        {},
-        true,
-        [],
-        [],
-        '',
-        false
-      );
+    let createOutQueue = () => newOutQueue(
+      {
+        endpoint: 'http://example.com',
+        trackerId: 'sp',
+        eventMethod: 'post',
+        retryFailedRequests: false,
+        eventStore,
+        customFetch,
+      },
+      new SharedState()
+    );
 
-    it('should remove from queue on failure', (done) => {
+    it('should remove from queue on failure', async () => {
       let outQueue = createOutQueue();
-      outQueue.enqueueRequest(request, 'http://example.com');
+      responseStatusCode = 500;
+      await outQueue.enqueueRequest(request);
 
-      let retrievedQueue = readPostQueue();
-      expect(retrievedQueue).toHaveLength(1);
-
-      respondMockRequest(0);
-
-      setTimeout(() => {
-        retrievedQueue = readPostQueue();
-        expect(retrievedQueue).toHaveLength(0);
-        done();
-      }, 20);
+      expect(requests).toHaveLength(1);
+      expect(await eventStore.count()).toEqual(0);
     });
   });
 
   type createQueueArgs = {
-    method: string;
+    method: 'get' | 'post';
     onSuccess?: (data: EventBatch) => void;
     onFailure?: (data: RequestFailure) => void;
     maxPostBytes?: number;
@@ -437,117 +326,114 @@ describe('OutQueueManager', () => {
   };
 
   const createQueue = (args: createQueueArgs) =>
-    OutQueueManager(
-      'sp',
-      new SharedState(),
-      true,
-      args.method,
-      '/com.snowplowanalytics.snowplow/tp2',
-      1,
-      args.maxPostBytes ?? 40000,
-      args.maxGetBytes ?? 0,
-      true,
-      maxQueueSize,
-      5000,
-      false,
-      {},
-      true,
-      [],
-      [],
-      '',
-      false,
-      args.onSuccess,
-      args.onFailure
+    newOutQueue(
+      {
+        endpoint: 'http://example.com',
+        trackerId: 'sp',
+        eventMethod: args.method,
+        maxPostBytes: args.maxPostBytes,
+        maxGetBytes: args.maxGetBytes,
+        maxLocalStorageQueueSize: maxQueueSize,
+        onRequestSuccess: args.onSuccess,
+        onRequestFailure: args.onFailure,
+        customFetch,
+        eventStore,
+      },
+      new SharedState()
     );
 
   describe('onRequestSuccess', () => {
     const request = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
 
     describe('POST requests', () => {
-      const method = 'POST';
+      const method = 'post';
 
-      it('should fire on a successful request', () => {
-        const callbackStorage: EventBatch[] = [];
-        const onSuccess = (e: EventBatch) => {
-          callbackStorage.push(e);
-        };
+      it('should fire on a successful request', async () => {
+        const callbacks: EventBatch[] = [];
 
-        const postQueue = createQueue({ method, onSuccess });
-        postQueue.enqueueRequest(request, 'http://example.com');
+        await new Promise(async (resolve) => {
+          const onSuccess = (e: EventBatch) => {
+            callbacks.push(e);
+            resolve(null);
+          };
 
-        expect(readPostQueue()).toHaveLength(1);
+          const postQueue = createQueue({ method, onSuccess });
+          await postQueue.enqueueRequest(request);
+        });
 
-        respondMockRequest(200);
+        expect(requests).toHaveLength(1);
+        expect(eventStore.addCount()).toEqual(1);
+        expect(callbacks).toHaveLength(1);
+        expect(callbacks[0]).toHaveLength(1);
 
-        expect(readPostQueue()).toHaveLength(0);
-        expect(callbackStorage).toHaveLength(1);
-
-        let dataFromCallback = callbackStorage[0][0] as Record<string, unknown>;
-        expect(dataFromCallback.e).toEqual(request.e);
-        expect(dataFromCallback.eid).toEqual(request.eid);
-        expect(dataFromCallback.stm).toMatch(/\d{13}/);
+        let dataFromCallback = callbacks[0][0];
+        expect(dataFromCallback).toEqual(request);
       });
 
       // Oversized events don't get placed in the queue, but the callback should still fire
-      it('should fire on a successful oversized request', () => {
+      it('should fire on a successful oversized request', async () => {
         const callbackStorage: EventBatch[] = [];
-        const onSuccess = (e: EventBatch) => {
-          callbackStorage.push(e);
-        };
+        await new Promise(async (resolve) => {
+          const onSuccess = (e: EventBatch) => {
+            callbackStorage.push(e);
+            resolve(null);
+          };
 
-        const postQueue = createQueue({ method, onSuccess, maxPostBytes: 1 });
-        postQueue.enqueueRequest(request, 'http://example.com');
+          const postQueue = createQueue({ method, onSuccess, maxPostBytes: 1 });
+          await postQueue.enqueueRequest(request);
+        });
 
-        respondMockRequest(200);
-
-        expect(callbackStorage).toHaveLength(1);
-
-        let dataFromCallback = callbackStorage[0][0] as Record<string, unknown>;
-        expect(dataFromCallback.e).toEqual(request.e);
-        expect(dataFromCallback.eid).toEqual(request.eid);
-        expect(dataFromCallback.stm).toMatch(/\d{13}/);
+        expect(requests).toHaveLength(1);
+        expect(eventStore.addCount()).toEqual(0);
+        let dataFromCallback = callbackStorage[0][0];
+        expect(dataFromCallback).toEqual(request);
       });
     });
 
     describe('GET requests', () => {
-      const method = 'GET';
+      const method = 'get';
 
-      it('should fire on a successful request', () => {
+      it('should fire on a successful request', async () => {
         let callbackStorage: EventBatch[] = [];
-        const onSuccess = (e: EventBatch) => {
-          callbackStorage.push(e);
-        };
+        await new Promise(async (resolve) => {
+          const onSuccess = (e: EventBatch) => {
+            callbackStorage.push(e);
+            resolve(null);
+          };
 
-        const getQueue = createQueue({ method, onSuccess });
-        getQueue.enqueueRequest(request, 'http://example.com');
+          const getQueue = createQueue({ method, onSuccess });
+          await getQueue.enqueueRequest(request);
+        });
 
-        expect(readGetQueue()).toHaveLength(1);
-
-        respondMockRequest(200);
-
-        expect(readGetQueue()).toHaveLength(0);
+        expect(requests).toHaveLength(1);
+        expect(eventStore.addCount()).toEqual(1);
         expect(callbackStorage).toHaveLength(1);
+        expect(callbackStorage[0]).toHaveLength(1);
 
-        let dataFromCallback = callbackStorage[0][0] as string;
-        expect(dataFromCallback).toMatch(/\?stm=\d{13}&e=pv&eid=65cb78de-470c-4764-8c10-02bd79477a3a/);
+        let dataFromCallback = callbackStorage[0][0];
+        expect(dataFromCallback).toEqual(request);
       });
 
       // A single oversized events means no queue, but the callback should still fire
-      it('should fire the onRequestSuccess on a successful oversized request', () => {
+      it('should fire the onRequestSuccess on a successful oversized request', async () => {
         let callbackStorage: EventBatch[] = [];
-        const onSuccess = (e: EventBatch) => {
-          callbackStorage.push(e);
-        };
+        await new Promise(async (resolve) => {
+          const onSuccess = (e: EventBatch) => {
+            callbackStorage.push(e);
+            resolve(null);
+          };
 
-        const getQueue = createQueue({ method, onSuccess });
-        getQueue.enqueueRequest(request, 'http://example.com');
+          const getQueue = createQueue({ method, onSuccess, maxGetBytes: 1 });
+          await getQueue.enqueueRequest(request);
+        });
 
-        respondMockRequest(200);
-
+        expect(requests).toHaveLength(1);
+        expect(eventStore.addCount()).toEqual(0);
         expect(callbackStorage).toHaveLength(1);
+        expect(callbackStorage[0]).toHaveLength(1);
 
-        let dataFromCallback = callbackStorage[0][0] as string;
-        expect(dataFromCallback).toMatch(/\?stm=\d{13}&e=pv&eid=65cb78de-470c-4764-8c10-02bd79477a3a/);
+        let dataFromCallback = callbackStorage[0][0];
+        expect(dataFromCallback).toEqual(request);
       });
     });
   });
@@ -555,137 +441,131 @@ describe('OutQueueManager', () => {
   describe('onRequestFailure', () => {
     const request = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
 
-    const createQueue = (args: createQueueArgs) =>
-      OutQueueManager(
-        'sp',
-        new SharedState(),
-        true,
-        args.method,
-        '/com.snowplowanalytics.snowplow/tp2',
-        1,
-        40000,
-        0,
-        true,
-        maxQueueSize,
-        5000,
-        false,
-        {},
-        true,
-        [],
-        [500],
-        '',
-        false,
-        args.onSuccess,
-        args.onFailure
-      );
+  const createQueue = (args: createQueueArgs) =>
+    newOutQueue(
+      {
+        endpoint: 'http://example.com',
+        trackerId: 'sp',
+        eventMethod: args.method,
+        maxPostBytes: args.maxPostBytes,
+        maxGetBytes: args.maxGetBytes,
+        maxLocalStorageQueueSize: maxQueueSize,
+        onRequestSuccess: args.onSuccess,
+        onRequestFailure: args.onFailure,
+        dontRetryStatusCodes: [500],
+        customFetch,
+        eventStore,
+      },
+      new SharedState()
+    );
 
     describe('POST requests', () => {
-      const method = 'POST';
+      const method = 'post';
 
-      it('should fire on a failed request', () => {
+      it('should fire on a failed request', async () => {
         const callbackStorage: RequestFailure[] = [];
-        const onFailure = (e: RequestFailure) => {
-          callbackStorage.push(e);
-        };
+        await new Promise(async (resolve) => {
+          const onFailure = (e: RequestFailure) => {
+            callbackStorage.push(e);
+            resolve(null);
+          };
 
-        const postQueue = createQueue({ method, onFailure });
-        postQueue.enqueueRequest(request, 'http://example.com');
+          responseStatusCode = 500;
 
-        expect(readPostQueue()).toHaveLength(1);
+          const postQueue = createQueue({ method, onFailure });
+          await postQueue.enqueueRequest(request);
+        });
 
-        respondMockRequest(500, 'Internal Server Error');
-
-        expect(readPostQueue()).toHaveLength(0);
+        expect(requests).toHaveLength(1);
         expect(callbackStorage).toHaveLength(1);
+        expect(await eventStore.count()).toEqual(0);
 
         let dataFromCallback = callbackStorage[0] as RequestFailure;
 
-        const event = dataFromCallback.events[0] as Record<string, unknown>;
-        expect(event.e).toEqual(request.e);
-        expect(event.eid).toEqual(request.eid);
-        expect(event.stm).toMatch(/\d{13}/);
+        const event = dataFromCallback.events[0];
+        expect(event).toEqual(request);
 
         expect(dataFromCallback.status).toEqual(500);
-        expect(dataFromCallback.message).toEqual('Internal Server Error');
         expect(dataFromCallback.willRetry).toEqual(false);
       });
 
       // A single oversized events means no queue, but the callback should still fire
-      it('should fire on a failed oversized request', () => {
+      it('should fire on a failed oversized request', async () => {
         const callbackStorage: RequestFailure[] = [];
-        const onFailure = (e: RequestFailure) => {
-          callbackStorage.push(e);
-        };
+        await new Promise(async (resolve) => {
+          const onFailure = (e: RequestFailure) => {
+            callbackStorage.push(e);
+            resolve(null);
+          };
 
-        const postQueue = createQueue({ method, onFailure, maxPostBytes: 1 });
-        postQueue.enqueueRequest(request, 'http://example.com');
+          responseStatusCode = 501;
 
-        respondMockRequest(0, 'Request failed');
+          const postQueue = createQueue({ method, onFailure, maxPostBytes: 1 });
+          await postQueue.enqueueRequest(request);
+        });
 
+        expect(requests).toHaveLength(1);
         expect(callbackStorage).toHaveLength(1);
+        expect(eventStore.addCount()).toEqual(0);
+        expect(await eventStore.count()).toEqual(0);
 
-        let dataFromCallback = callbackStorage[0].events[0] as Record<string, unknown>;
-        expect(dataFromCallback.e).toEqual(request.e);
-        expect(dataFromCallback.eid).toEqual(request.eid);
-
-        // The payload will have had `stm` added to it
-        expect(dataFromCallback.stm).toMatch(/\d{13}/);
-        expect(callbackStorage[0].status).toEqual(0);
-        expect(callbackStorage[0].message).toEqual('Request failed');
+        let dataFromCallback = callbackStorage[0].events[0];
+        expect(dataFromCallback).toEqual(request);
+        expect(callbackStorage[0].status).toEqual(501);
       });
     });
 
     describe('GET requests', () => {
-      const method = 'GET';
+      const method = 'get';
 
-      it('should fire on a failed request', () => {
+      it('should fire on a failed request', async () => {
         let callbackStorage: RequestFailure[] = [];
-        const onFailure = (e: RequestFailure) => {
-          callbackStorage.push(e);
-        };
+        await new Promise(async (resolve) => {
+          const onFailure = (e: RequestFailure) => {
+            callbackStorage.push(e);
+            resolve(null);
+          };
 
-        const getQueue = createQueue({ method, onFailure });
-        getQueue.enqueueRequest(request, 'http://example.com');
+          responseStatusCode = 500;
 
-        expect(readGetQueue()).toHaveLength(1);
+          const getQueue = createQueue({ method, onFailure });
+          await getQueue.enqueueRequest(request);
+        });
 
-        respondMockRequest(500, 'Internal Server Error');
-
-        expect(readGetQueue()).toHaveLength(0);
+        expect(requests).toHaveLength(1);
         expect(callbackStorage).toHaveLength(1);
+        expect(await eventStore.count()).toEqual(0);
 
         let dataFromCallback = callbackStorage[0] as RequestFailure;
 
-        expect(dataFromCallback.events[0]).toMatch(/\?stm=\d{13}&e=pv&eid=65cb78de-470c-4764-8c10-02bd79477a3a/);
-
+        expect(dataFromCallback.events[0]).toEqual(request);
         expect(dataFromCallback.status).toEqual(500);
-        expect(dataFromCallback.message).toEqual('Internal Server Error');
         expect(dataFromCallback.willRetry).toEqual(false);
       });
 
       // A single oversized events means no queue, but the callback should still fire
-      it('should fire on a failed oversized request', () => {
+      it('should fire on a failed oversized request', async () => {
         let callbackStorage: RequestFailure[] = [];
-        const onFailure = (e: RequestFailure) => {
-          callbackStorage.push(e);
-        };
+        await new Promise(async (resolve) => {
+          const onFailure = (e: RequestFailure) => {
+            callbackStorage.push(e);
+            resolve(null);
+          };
 
-        const getQueue = createQueue({ method, onFailure, maxPostBytes: 1 });
-        getQueue.enqueueRequest(request, 'http://example.com');
+          responseStatusCode = 500;
 
-        expect(readGetQueue()).toHaveLength(1);
+          const getQueue = createQueue({ method, onFailure, maxGetBytes: 1 });
+          await getQueue.enqueueRequest(request);
+        });
 
-        respondMockRequest(500, 'Internal Server Error');
-
-        expect(readGetQueue()).toHaveLength(0);
+        expect(requests).toHaveLength(1);
         expect(callbackStorage).toHaveLength(1);
+        expect(eventStore.addCount()).toEqual(0);
 
-        let dataFromCallback = callbackStorage[0] as RequestFailure;
+        let dataFromCallback = callbackStorage[0];
 
-        expect(dataFromCallback.events[0]).toMatch(/\?stm=\d{13}&e=pv&eid=65cb78de-470c-4764-8c10-02bd79477a3a/);
-
+        expect(dataFromCallback.events[0]).toEqual(request);
         expect(dataFromCallback.status).toEqual(500);
-        expect(dataFromCallback.message).toEqual('Internal Server Error');
         expect(dataFromCallback.willRetry).toEqual(false);
       });
     });

@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { addTracker, SharedState } from '@snowplow/browser-tracker-core';
+import { addTracker, SharedState, EventStore } from '@snowplow/browser-tracker-core';
 import {
   SnowplowEcommercePlugin,
   trackAddToCart,
@@ -54,31 +54,31 @@ import {
   TRANSACTION_ERROR_SCHEMA,
 } from '../src/schemata';
 import { CheckoutStep, Product, SPPromotion, Refund, SPTransaction, TransactionError } from '../src/types';
+import { newInMemoryEventStore } from '@snowplow/tracker-core';
 
-const extractStateProperties = ({
-  outQueues: [
-    [
-      {
-        evt: { ue_pr, co },
-      },
-    ],
-  ],
-}: any) => ({ unstructuredEvent: JSON.parse(ue_pr).data, context: JSON.parse(co).data });
+const extractEventsProperties = ([{ ue_pr, co }]: any) => ({
+  unstructuredEvent: JSON.parse(ue_pr).data,
+  context: JSON.parse(co).data,
+});
 
 describe('SnowplowEcommercePlugin events', () => {
-  let state: SharedState;
   let idx = 1;
+  let eventStore: EventStore;
+
   beforeEach(() => {
-    state = new SharedState();
-    addTracker(`sp${idx++}`, `sp${idx++}`, 'js-3.0.0', '', state, {
+    eventStore = newInMemoryEventStore({});
+    const customFetch = async () => new Response(null, { status: 500 });
+    addTracker(`sp${idx++}`, `sp${idx++}`, 'js-3.0.0', '', new SharedState(), {
       stateStorageStrategy: 'cookie',
       encodeBase64: false,
       plugins: [SnowplowEcommercePlugin()],
       contexts: { webPage: false },
+      eventStore,
+      customFetch,
     });
   });
 
-  it('trackAddToCart adds the expected "add to cart" event to the queue', () => {
+  it('trackAddToCart adds the expected "add to cart" event to the queue', async () => {
     const productX: Product = { id: '1234', price: 12, currency: 'EUR' };
     const productY: Product = { id: '12345', price: 25, currency: 'EUR' };
     trackAddToCart({
@@ -87,7 +87,7 @@ describe('SnowplowEcommercePlugin events', () => {
       products: [productX, productY],
     });
 
-    const { context, unstructuredEvent } = extractStateProperties(state);
+    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAllPayloads());
 
     expect(context).toMatchObject([
       {
@@ -113,7 +113,7 @@ describe('SnowplowEcommercePlugin events', () => {
     });
   });
 
-  it('trackRemoveFromCart adds the expected "remove from cart" event to the queue', () => {
+  it('trackRemoveFromCart adds the expected "remove from cart" event to the queue', async () => {
     const productX: Product = { id: '1234', price: 12, currency: 'EUR' };
     trackRemoveFromCart({
       total_value: 40,
@@ -121,7 +121,7 @@ describe('SnowplowEcommercePlugin events', () => {
       products: [productX],
     });
 
-    const { context, unstructuredEvent } = extractStateProperties(state);
+    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAllPayloads());
 
     expect(context).toMatchObject([
       {
@@ -143,7 +143,7 @@ describe('SnowplowEcommercePlugin events', () => {
     });
   });
 
-  it('trackProductView adds the expected "product view" event to the queue', () => {
+  it('trackProductView adds the expected "product view" event to the queue', async () => {
     const productX: Product = {
       id: '1234',
       price: 25,
@@ -152,7 +152,7 @@ describe('SnowplowEcommercePlugin events', () => {
     };
     trackProductView(productX);
 
-    const { context, unstructuredEvent } = extractStateProperties(state);
+    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAllPayloads());
 
     expect(context).toMatchObject([
       {
@@ -167,7 +167,7 @@ describe('SnowplowEcommercePlugin events', () => {
     });
   });
 
-  it('trackPromotionView adds the expected "promotion view" event to the queue', () => {
+  it('trackPromotionView adds the expected "promotion view" event to the queue', async () => {
     const promoX: SPPromotion = {
       id: '1234',
       name: 'promo_winter',
@@ -177,7 +177,7 @@ describe('SnowplowEcommercePlugin events', () => {
     };
     trackPromotionView(promoX);
 
-    const { context, unstructuredEvent } = extractStateProperties(state);
+    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAllPayloads());
 
     expect(context).toMatchObject([
       {
@@ -192,7 +192,7 @@ describe('SnowplowEcommercePlugin events', () => {
     });
   });
 
-  it('trackPromotionClick adds the expected "promotion click" event to the queue', () => {
+  it('trackPromotionClick adds the expected "promotion click" event to the queue', async () => {
     const promoX: SPPromotion = {
       id: '1234',
       name: 'promo_winter',
@@ -202,7 +202,7 @@ describe('SnowplowEcommercePlugin events', () => {
     };
     trackPromotionClick(promoX);
 
-    const { context, unstructuredEvent } = extractStateProperties(state);
+    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAllPayloads());
 
     expect(context).toMatchObject([
       {
@@ -217,7 +217,7 @@ describe('SnowplowEcommercePlugin events', () => {
     });
   });
 
-  it('trackProductListView adds the expected "product list view" event to the queue', () => {
+  it('trackProductListView adds the expected "product list view" event to the queue', async () => {
     const productX: Product = { id: '1234', price: 12, currency: 'EUR' };
     const productY: Product = { id: '12345', price: 25, currency: 'EUR' };
     trackProductListView({
@@ -225,7 +225,7 @@ describe('SnowplowEcommercePlugin events', () => {
       products: [productX, productY],
     });
 
-    const { context, unstructuredEvent } = extractStateProperties(state);
+    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAllPayloads());
 
     expect(context).toMatchObject([
       {
@@ -244,14 +244,14 @@ describe('SnowplowEcommercePlugin events', () => {
     });
   });
 
-  it('trackProductListClick adds the expected "product list click" event to the queue', () => {
+  it('trackProductListClick adds the expected "product list click" event to the queue', async () => {
     const productX: Product = { id: '1234', price: 12, currency: 'EUR', position: 3 };
     trackProductListClick({
       name: 'recommended products',
       product: productX,
     });
 
-    const { context, unstructuredEvent } = extractStateProperties(state);
+    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAllPayloads());
 
     expect(context).toMatchObject([
       {
@@ -266,7 +266,7 @@ describe('SnowplowEcommercePlugin events', () => {
     });
   });
 
-  it('trackCheckoutStep adds the expected "checkout step" event to the queue', () => {
+  it('trackCheckoutStep adds the expected "checkout step" event to the queue', async () => {
     const checkoutStep: CheckoutStep = {
       step: 1,
       shipping_postcode: '1234',
@@ -274,7 +274,7 @@ describe('SnowplowEcommercePlugin events', () => {
     };
     trackCheckoutStep(checkoutStep);
 
-    const { context, unstructuredEvent } = extractStateProperties(state);
+    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAllPayloads());
 
     expect(context).toMatchObject([
       {
@@ -289,7 +289,7 @@ describe('SnowplowEcommercePlugin events', () => {
     });
   });
 
-  it('trackTransaction adds the expected "transaction" event to the queue', () => {
+  it('trackTransaction adds the expected "transaction" event to the queue', async () => {
     const productX: Product = { id: '1234', price: 12, currency: 'EUR', quantity: 4 };
     const productY: Product = { id: '12345', price: 25, currency: 'EUR', quantity: 1 };
     const transaction: SPTransaction = {
@@ -303,7 +303,7 @@ describe('SnowplowEcommercePlugin events', () => {
       products: [productX, productY],
     });
 
-    const { context, unstructuredEvent } = extractStateProperties(state);
+    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAllPayloads());
 
     expect(context).toMatchObject([
       {
@@ -331,7 +331,7 @@ describe('SnowplowEcommercePlugin events', () => {
     });
   });
 
-  it('trackRefund adds the expected "refund" event to the queue', () => {
+  it('trackRefund adds the expected "refund" event to the queue', async () => {
     const productX: Product = { id: '1234', price: 12, currency: 'EUR' };
     const productY: Product = { id: '12345', price: 25, currency: 'EUR' };
     const refund: Refund = { refund_amount: 45, currency: 'EUR', transaction_id: '12345', refund_reason: 'Return' };
@@ -340,7 +340,7 @@ describe('SnowplowEcommercePlugin events', () => {
       products: [productX, productY],
     });
 
-    const { context, unstructuredEvent } = extractStateProperties(state);
+    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAllPayloads());
 
     expect(context).toMatchObject([
       {
@@ -363,7 +363,7 @@ describe('SnowplowEcommercePlugin events', () => {
     });
   });
 
-  it('trackTransactionError adds the expected "trns_error" event to the queue', () => {
+  it('trackTransactionError adds the expected "trns_error" event to the queue', async () => {
     const transactionError: Omit<TransactionError, 'transaction'> = {
       resolution: 'rejection',
       error_code: 'E123',
@@ -381,7 +381,7 @@ describe('SnowplowEcommercePlugin events', () => {
       transaction,
     });
 
-    const { context, unstructuredEvent } = extractStateProperties(state);
+    const { context, unstructuredEvent } = extractEventsProperties(await eventStore.getAllPayloads());
 
     expect(context).toMatchObject([
       {

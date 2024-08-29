@@ -1,4 +1,4 @@
-import { addTracker, SharedState } from '@snowplow/browser-tracker-core';
+import { addTracker, SharedState, EventStore } from '@snowplow/browser-tracker-core';
 import {
   EnhancedConsentPlugin,
   trackCmpVisible,
@@ -11,36 +11,32 @@ import {
   trackConsentWithdrawn,
 } from '../src';
 import { CMP_VISIBLE_SCHEMA } from '../src/schemata';
+import { newInMemoryEventStore } from '@snowplow/tracker-core';
 
-const extractStateProperties = ({
-  outQueues: [
-    [
-      {
-        evt: { ue_pr },
-      },
-    ],
-  ],
-}: any) => ({ unstructuredEvent: JSON.parse(ue_pr).data });
+const extractEventProperties = ([{ ue_pr }]: any) => ({ unstructuredEvent: JSON.parse(ue_pr).data });
 
 describe('EnhancedConsentPlugin events', () => {
-  let state: SharedState;
   let idx = 1;
+  let eventStore: EventStore;
+
   beforeEach(() => {
-    state = new SharedState();
-    addTracker(`sp${idx++}`, `sp${idx++}`, 'js-3.0.0', '', state, {
+    eventStore = newInMemoryEventStore({});
+    addTracker(`sp${idx++}`, `sp${idx++}`, 'js-3.0.0', '', new SharedState(), {
       stateStorageStrategy: 'cookie',
       encodeBase64: false,
       plugins: [EnhancedConsentPlugin()],
       contexts: { webPage: false },
+      eventStore,
+      customFetch: async () => new Response(null, { status: 500 }),
     });
   });
 
-  it('trackCmpVisible adds the "CMP Visible" event to the queue', () => {
+  it('trackCmpVisible adds the "CMP Visible" event to the queue', async () => {
     trackCmpVisible({
       elapsedTime: 1500,
     });
 
-    const { unstructuredEvent } = extractStateProperties(state);
+    const { unstructuredEvent } = extractEventProperties(await eventStore.getAllPayloads());
 
     expect(unstructuredEvent).toMatchObject({
       schema: CMP_VISIBLE_SCHEMA,
@@ -48,7 +44,7 @@ describe('EnhancedConsentPlugin events', () => {
     });
   });
 
-  it('trackConsentAllow adds the "allow consent" event to the queue', () => {
+  it('trackConsentAllow adds the "allow consent" event to the queue', async () => {
     trackConsentAllow({
       basisForProcessing: 'consent',
       consentUrl: 'http://consent.url',
@@ -57,7 +53,7 @@ describe('EnhancedConsentPlugin events', () => {
       domainsApplied: ['www.example.com'],
     });
 
-    const { unstructuredEvent } = extractStateProperties(state);
+    const { unstructuredEvent } = extractEventProperties(await eventStore.getAllPayloads());
 
     expect(unstructuredEvent).toMatchObject({
       data: {
@@ -71,7 +67,7 @@ describe('EnhancedConsentPlugin events', () => {
     });
   });
 
-  it('trackConsentSelected adds the "allow selected consent" event to the queue', () => {
+  it('trackConsentSelected adds the "allow selected consent" event to the queue', async () => {
     trackConsentSelected({
       basisForProcessing: 'consent',
       consentUrl: 'http://consent.url',
@@ -80,7 +76,7 @@ describe('EnhancedConsentPlugin events', () => {
       domainsApplied: ['www.example.com', 'blog.example.com'],
     });
 
-    const { unstructuredEvent } = extractStateProperties(state);
+    const { unstructuredEvent } = extractEventProperties(await eventStore.getAllPayloads());
 
     expect(unstructuredEvent).toMatchObject({
       data: {
@@ -94,7 +90,7 @@ describe('EnhancedConsentPlugin events', () => {
     });
   });
 
-  it('trackConsentPending adds the "pending consent" event to the queue', () => {
+  it('trackConsentPending adds the "pending consent" event to the queue', async () => {
     trackConsentPending({
       basisForProcessing: 'consent',
       consentUrl: 'http://consent.url',
@@ -103,7 +99,7 @@ describe('EnhancedConsentPlugin events', () => {
       domainsApplied: ['www.example.com'],
     });
 
-    const { unstructuredEvent } = extractStateProperties(state);
+    const { unstructuredEvent } = extractEventProperties(await eventStore.getAllPayloads());
 
     expect(unstructuredEvent).toMatchObject({
       data: {
@@ -117,7 +113,7 @@ describe('EnhancedConsentPlugin events', () => {
     });
   });
 
-  it('trackConsentImplicit adds the "implicit consent" event to the queue', () => {
+  it('trackConsentImplicit adds the "implicit consent" event to the queue', async () => {
     trackConsentImplicit({
       basisForProcessing: 'consent',
       consentUrl: 'http://consent.url',
@@ -126,7 +122,7 @@ describe('EnhancedConsentPlugin events', () => {
       domainsApplied: ['www.example.com'],
     });
 
-    const { unstructuredEvent } = extractStateProperties(state);
+    const { unstructuredEvent } = extractEventProperties(await eventStore.getAllPayloads());
 
     expect(unstructuredEvent).toMatchObject({
       data: {
@@ -140,7 +136,7 @@ describe('EnhancedConsentPlugin events', () => {
     });
   });
 
-  it('trackConsentExpired adds the "expired consent" event to the queue', () => {
+  it('trackConsentExpired adds the "expired consent" event to the queue', async () => {
     trackConsentExpired({
       basisForProcessing: 'consent',
       consentUrl: 'http://consent.url',
@@ -149,7 +145,7 @@ describe('EnhancedConsentPlugin events', () => {
       domainsApplied: ['www.example.com'],
     });
 
-    const { unstructuredEvent } = extractStateProperties(state);
+    const { unstructuredEvent } = extractEventProperties(await eventStore.getAllPayloads());
 
     expect(unstructuredEvent).toMatchObject({
       data: {
@@ -163,7 +159,7 @@ describe('EnhancedConsentPlugin events', () => {
     });
   });
 
-  it('trackConsentDeny adds the "consent denied" event to the queue', () => {
+  it('trackConsentDeny adds the "consent denied" event to the queue', async () => {
     trackConsentDeny({
       basisForProcessing: 'consent',
       consentUrl: 'http://consent.url',
@@ -172,7 +168,7 @@ describe('EnhancedConsentPlugin events', () => {
       domainsApplied: ['www.example.com'],
     });
 
-    const { unstructuredEvent } = extractStateProperties(state);
+    const { unstructuredEvent } = extractEventProperties(await eventStore.getAllPayloads());
 
     expect(unstructuredEvent).toMatchObject({
       data: {
@@ -186,7 +182,7 @@ describe('EnhancedConsentPlugin events', () => {
     });
   });
 
-  it('trackConsentWithdrawn adds the "consent withdrawn" event to the queue', () => {
+  it('trackConsentWithdrawn adds the "consent withdrawn" event to the queue', async () => {
     trackConsentWithdrawn({
       basisForProcessing: 'consent',
       consentUrl: 'http://consent.url',
@@ -195,7 +191,7 @@ describe('EnhancedConsentPlugin events', () => {
       domainsApplied: ['www.example.com'],
     });
 
-    const { unstructuredEvent } = extractStateProperties(state);
+    const { unstructuredEvent } = extractEventProperties(await eventStore.getAllPayloads());
 
     expect(unstructuredEvent).toMatchObject({
       data: {

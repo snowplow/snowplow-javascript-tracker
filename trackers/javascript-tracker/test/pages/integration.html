@@ -69,7 +69,8 @@
       window.snowplow('newTracker', 'sp', collector_endpoint, {
         appId: 'sp-' + eventMethod + '-' + testIdentifier,
         platform: 'mob',
-        eventMethod: eventMethod,
+        eventMethod: eventMethod == 'beacon' ? 'post' : eventMethod,
+        keepalive: eventMethod == 'beacon',
         contexts: {
           webPage: true,
         },
@@ -81,7 +82,8 @@
       window.secondSnowplow('newTracker', 'b64off', collector_endpoint, {
         appId: 'no-b64-' + eventMethod + '-' + testIdentifier,
         platform: 'web',
-        eventMethod: eventMethod,
+        eventMethod: eventMethod == 'beacon' ? 'post' : eventMethod,
+        keepalive: eventMethod == 'beacon',
         encodeBase64: false,
         contexts: {
           webPage: false,

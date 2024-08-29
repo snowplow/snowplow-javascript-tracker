@@ -28,18 +28,34 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { SharedState, addTracker } from '@snowplow/browser-tracker-core';
+import { SharedState, addTracker, EventStore, Payload } from '@snowplow/browser-tracker-core';
 import F from 'lodash/fp';
+import { newInMemoryEventStore } from '@snowplow/tracker-core';
 
 jest.useFakeTimers('modern');
 
-const getPPEvents = F.compose(F.filter(F.compose(F.eq('pp'), F.get('evt.e'))), F.first);
+const getPPEvents: (events: readonly Payload[]) => Payload[] = (events) => {
+  return events.filter((payload) => payload.e === 'pp');
+};
 
-const extractSchemas = F.map(F.compose(F.get('data'), (cx: string) => JSON.parse(cx), F.get('evt.co')));
+const extractSchemas: (events: Payload[]) => any[] = (events) => {
+  return events.map((payload) => {
+    return JSON.parse(payload.co as string).data;
+  });
+};
 
-const extractPageId = F.compose(F.get('data[0].data.id'), (cx: string) => JSON.parse(cx), F.get('evt.co'));
+const extractPageId: (payload: Payload) => string = (payload) => {
+  return JSON.parse(payload.co as string).data[0].data.id;
+};
 
 describe('Activity tracker behaviour', () => {
+  let eventStore: EventStore;
+  const customFetch = async () => new Response(null, { status: 500 });
+
+  beforeEach(() => {
+    eventStore = newInMemoryEventStore({});
+  });
+
   beforeAll(() => {
     document.domain = 'http://localhost';
   });
@@ -48,11 +64,12 @@ describe('Activity tracker behaviour', () => {
     jest.clearAllTimers();
   });
 
-  it('supports different timings for ping vs callback activity tracking', () => {
+  it('supports different timings for ping vs callback activity tracking', async () => {
     let callbacks = 0;
     const state = new SharedState();
     const t =
-      addTracker('sp1', 'sp1', '', '', state, { stateStorageStrategy: 'cookie' }) ?? fail('Failed to create tracker');
+      addTracker('sp1', 'sp1', '', '', state, { stateStorageStrategy: 'cookie', customFetch, eventStore }) ??
+      fail('Failed to create tracker');
     t.enableActivityTracking({ minimumVisitLength: 10, heartbeatDelay: 10 });
     t.enableActivityTrackingCallback({
       minimumVisitLength: 5,
@@ -80,16 +97,19 @@ describe('Activity tracker behaviour', () => {
     // window for page ping ticks
 
     expect(callbacks).toBe(4);
-    expect(F.size(getPPEvents(state.outQueues))).toBe(2);
+    const events = await eventStore.getAllPayloads();
+    expect(F.size(getPPEvents(events))).toBe(2);
   });
 
-  it('maintains current static context behaviour', () => {
+  it('maintains current static context behaviour', async () => {
     const state = new SharedState();
     const t =
       addTracker('sp2', 'sp2', '', '', state, {
         resetActivityTrackingOnPageView: false,
         stateStorageStrategy: 'cookie',
         encodeBase64: false,
+        customFetch,
+        eventStore,
       }) ?? fail('Failed to create tracker');
     t.enableActivityTracking({ minimumVisitLength: 0, heartbeatDelay: 2 });
     t.trackPageView({
@@ -138,17 +158,20 @@ describe('Activity tracker behaviour', () => {
 
     // we expect there to be two page pings with static contexts attached
     // they should both have the time from page one.
-    expect(countWithStaticValueEq(pageOneTime)(state.outQueues)).toBe(2);
-    expect(countWithStaticValueEq(pageTwoTime)(state.outQueues)).toBe(0);
+    const events = await eventStore.getAllPayloads();
+    expect(countWithStaticValueEq(pageOneTime)(events)).toBe(2);
+    expect(countWithStaticValueEq(pageTwoTime)(events)).toBe(0);
   });
 
-  it('does not reset activity tracking on pageview when resetActivityTrackingOnPageView: false,', () => {
+  it('does not reset activity tracking on pageview when resetActivityTrackingOnPageView: false,', async () => {
     const state = new SharedState();
     const t =
       addTracker('sp3', 'sp3', '', '', state, {
         resetActivityTrackingOnPageView: false,
         stateStorageStrategy: 'cookie',
         encodeBase64: false,
+        customFetch,
+        eventStore,
       }) ?? fail('Failed to create tracker');
     t.enableActivityTracking({ minimumVisitLength: 0, heartbeatDelay: 30 });
     t.trackPageView();
@@ -167,16 +190,19 @@ describe('Activity tracker behaviour', () => {
     jest.advanceTimersByTime(25000);
 
     // Activity tracking is currently not reset per page view so we get an extra page ping on page two.
-    const pps = getPPEvents(state.outQueues);
+    const events = await eventStore.getAllPayloads();
+    const pps = getPPEvents(events);
     expect(F.size(pps)).toBe(2);
   });
 
-  it('does reset activity tracking on pageview by default', () => {
+  it('does reset activity tracking on pageview by default', async () => {
     const state = new SharedState();
     const t =
       addTracker('sp4', 'sp4', '', '', state, {
         stateStorageStrategy: 'cookie',
         encodeBase64: false,
+        customFetch,
+        eventStore,
       }) ?? fail('Failed to create tracker');
     t.enableActivityTracking({ minimumVisitLength: 0, heartbeatDelay: 30 });
     t.trackPageView();
@@ -204,17 +230,20 @@ describe('Activity tracker behaviour', () => {
     // Activity began tracking on the first page but moved on before 30 seconds.
     // Activity tracking should still not have fire despite being on site 30 seconds, as user has moved page.
 
-    const pps = getPPEvents(state.outQueues);
+    const events = await eventStore.getAllPayloads();
+    const pps = getPPEvents(events);
 
     expect(F.size(pps)).toBe(1);
   });
 
-  it('fires initial delayed activity tracking on first pageview and second pageview', () => {
+  it('fires initial delayed activity tracking on first pageview and second pageview', async () => {
     const state = new SharedState();
     const t =
       addTracker('sp5', 'sp5', '', '', state, {
         stateStorageStrategy: 'cookie',
         encodeBase64: false,
+        customFetch,
+        eventStore,
       }) ?? fail('Failed to create tracker');
     t.enableActivityTracking({ minimumVisitLength: 10, heartbeatDelay: 5 });
 
@@ -228,7 +257,7 @@ describe('Activity tracker behaviour', () => {
 
     jest.advanceTimersByTime(5000);
 
-    const initial_pps = getPPEvents(state.outQueues);
+    const initial_pps = getPPEvents(await eventStore.getAllPayloads());
     expect(F.size(initial_pps)).toBe(0);
 
     jest.advanceTimersByTime(5000); // PP = 1
@@ -253,7 +282,7 @@ describe('Activity tracker behaviour', () => {
     jest.advanceTimersByTime(5000);
 
     // Should still only have 3 page pings from first page
-    const first_page_only_pps = getPPEvents(state.outQueues);
+    const first_page_only_pps = getPPEvents(await eventStore.getAllPayloads());
     expect(F.size(first_page_only_pps)).toBe(3);
 
     jest.advanceTimersByTime(5000); // PP = 4
@@ -265,21 +294,22 @@ describe('Activity tracker behaviour', () => {
     // Activity began tracking on the first page and tracked two page pings in 16 seconds.
     // Activity tracking only fires one further event over next 11 seconds as a page view event occurs, resetting timer back to 10 seconds.
 
-    const pps = getPPEvents(state.outQueues);
+    const pps = getPPEvents(await eventStore.getAllPayloads());
 
     expect(F.size(pps)).toBe(5);
 
     const pph = F.head(pps);
     const ppl = F.last(pps);
 
-    expect(firstPageId).toBe(extractPageId(pph));
-    expect(secondPageId).toBe(extractPageId(ppl));
+    expect(firstPageId).toBe(extractPageId(pph!));
+    expect(secondPageId).toBe(extractPageId(ppl!));
   });
 
-  it('disables activity tracking', () => {
+  it('disables activity tracking', async () => {
     const state = new SharedState();
     const t =
-      addTracker('sp6', 'sp6', '', '', state, { stateStorageStrategy: 'cookie' }) ?? fail('Failed to create tracker');
+      addTracker('sp6', 'sp6', '', '', state, { stateStorageStrategy: 'cookie', customFetch, eventStore }) ??
+      fail('Failed to create tracker');
     t.enableActivityTracking({ minimumVisitLength: 5, heartbeatDelay: 5 });
     t.trackPageView();
 
@@ -287,14 +317,14 @@ describe('Activity tracker behaviour', () => {
     t.updatePageActivity();
     jest.advanceTimersByTime(4900);
 
-    expect(F.size(getPPEvents(state.outQueues))).toBe(1);
+    expect(F.size(getPPEvents(await eventStore.getAllPayloads()))).toBe(1);
 
     // page ping timer starts tracking
     jest.advanceTimersByTime(100);
     t.updatePageActivity();
     jest.advanceTimersByTime(4900);
 
-    expect(F.size(getPPEvents(state.outQueues))).toBe(2);
+    expect(F.size(getPPEvents(await eventStore.getAllPayloads()))).toBe(2);
 
     /* Disabling activity tracking and callback is expected to not allow more activity actions */
     t.disableActivityTracking();
@@ -304,14 +334,15 @@ describe('Activity tracker behaviour', () => {
     t.updatePageActivity();
     jest.advanceTimersByTime(4900);
 
-    expect(F.size(getPPEvents(state.outQueues))).toBe(2);
+    expect(F.size(getPPEvents(await eventStore.getAllPayloads()))).toBe(2);
   });
 
   it('disables activity tracking callback', () => {
     let callbacks = 0;
     const state = new SharedState();
     const t =
-      addTracker('sp7', 'sp7', '', '', state, { stateStorageStrategy: 'cookie' }) ?? fail('Failed to create tracker');
+      addTracker('sp7', 'sp7', '', '', state, { stateStorageStrategy: 'cookie', customFetch, eventStore }) ??
+      fail('Failed to create tracker');
     t.enableActivityTrackingCallback({ minimumVisitLength: 5, heartbeatDelay: 5, callback: () => callbacks++ });
     t.trackPageView();
 

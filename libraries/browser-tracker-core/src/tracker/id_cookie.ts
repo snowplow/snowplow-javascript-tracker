@@ -214,8 +214,8 @@ export function updateNowTsInIdCookie(idCookie: ParsedIdCookie) {
 /**
  * Updates the first event references according to the event payload if first event in session.
  *
- * @param idCookie Parsed cookie
- * @param payloadBuilder Event payload builder
+ * @param idCookie - Parsed cookie
+ * @param payloadBuilder - Event payload builder
  */
 export function updateFirstEventInIdCookie(idCookie: ParsedIdCookie, payloadBuilder: PayloadBuilder) {
   // Update first event references if new session or not present

@@ -16,37 +16,21 @@ type TrackerConfiguration = {
     cookieSameSite?: CookieSameSite;
     cookieSecure?: boolean;
     cookieLifetime?: number;
-    withCredentials?: boolean;
     sessionCookieTimeout?: number;
     appId?: string;
     platform?: Platform;
     respectDoNotTrack?: boolean;
-    eventMethod?: EventMethod;
-    postPath?: string;
-    useStm?: boolean;
-    bufferSize?: number;
     crossDomainLinker?: (elt: HTMLAnchorElement | HTMLAreaElement) => boolean;
     useExtendedCrossDomainLinker?: ExtendedCrossDomainLinkerOptions;
-    maxPostBytes?: number;
-    maxGetBytes?: number;
     discoverRootDomain?: boolean;
     stateStorageStrategy?: StateStorageStrategy;
-    maxLocalStorageQueueSize?: number;
     resetActivityTrackingOnPageView?: boolean;
-    connectionTimeout?: number;
     anonymousTracking?: AnonymousTrackingOptions;
     contexts?: BuiltInContexts;
     plugins?: Array<BrowserPlugin>;
-    customHeaders?: Record<string, string>;
-    retryStatusCodes?: number[];
-    dontRetryStatusCodes?: number[];
     onSessionUpdateCallback?: (updatedSession: ClientSession) => void;
-    idService?: string;
-    retryFailedRequests?: boolean;
-    onRequestSuccess?: (data: EventBatch) => void;
-    onRequestFailure?: (data: RequestFailure) => void;
     preservePageViewIdForUrl?: PreservePageViewIdForUrl;
-};
+} & EmitterConfigurationBase & LocalStorageEventStoreConfigurationBase;
 ```
 
 ## Example
@@ -59,6 +43,5 @@ newTracker('sp1', 'collector.my-website.com', {
  plugins: [ PerformanceTimingPlugin(), AdTrackingPlugin() ],
  stateStorageStrategy: 'cookieAndLocalStorage'
 });
-
 ```
 

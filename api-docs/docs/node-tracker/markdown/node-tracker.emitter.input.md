@@ -4,8 +4,10 @@
 
 ## Emitter.input property
 
+Adds a payload to the event store or sends it to the collector.
+
 <b>Signature:</b>
 
 ```typescript
-input: (payload: Payload) => void;
+input: (payload: Payload) => Promise<void>;
 ```
