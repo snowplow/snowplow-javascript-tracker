@@ -48,7 +48,7 @@ describe('Media Tracking API', () => {
         SnowplowMediaPlugin(),
         {
           beforeTrack: (pb: PayloadBuilder) => {
-            const { ue_pr, co, tna } = pb.getPayload();
+            const { ue_pr, co, tna } = pb.build();
             if (tna == `sp${idx - 1}`) {
               eventQueue.push({ event: JSON.parse(ue_pr as string).data, context: JSON.parse(co as string).data });
             }
