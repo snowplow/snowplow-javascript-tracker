@@ -27,6 +27,7 @@ import {
   attemptGetSessionStorage,
   attemptWriteSessionStorage,
   createCrossDomainParameterValue,
+  getTimeZone,
 } from '../helpers';
 import { BrowserPlugin } from '../plugins';
 import { newOutQueue } from './out_queue';
@@ -306,6 +307,7 @@ export function Tracker(
     }
 
     const { browserLanguage, resolution, colorDepth, cookiesEnabled } = getBrowserProperties();
+    const timeZone = getTimeZone();
 
     // Set up unchanging name-value pairs
     core.setTrackerVersion(version);
@@ -317,6 +319,7 @@ export function Tracker(
     core.addPayloadPair('lang', browserLanguage);
     core.addPayloadPair('res', resolution);
     core.addPayloadPair('cd', colorDepth);
+    if (timeZone) core.addPayloadPair('tz', timeZone);
 
     /*
      * Initialize tracker
