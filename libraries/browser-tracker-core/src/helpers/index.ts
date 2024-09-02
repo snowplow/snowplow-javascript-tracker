@@ -82,6 +82,18 @@ export function isFunction(func: unknown) {
 }
 
 /**
+ * Lightweight configured runtime timezone detection
+ * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/resolvedOptions#getting_the_users_time_zone_and_locale_preferences
+ * @returns IANA timezone name of current runtime preference
+ */
+export function getTimeZone(): string | void {
+  if (typeof Intl === 'object' && typeof Intl.DateTimeFormat === 'function') {
+    const systemPreferences = new Intl.DateTimeFormat().resolvedOptions();
+    return systemPreferences.timeZone;
+  }
+}
+
+/**
  * Cleans up the page title
  */
 export function fixupTitle(title: string | { text: string }) {
