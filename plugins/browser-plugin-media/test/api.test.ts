@@ -44,6 +44,7 @@ describe('Media Tracking API', () => {
     addTracker(`sp${idx++}`, `sp${idx++}`, 'js-3.9.0', '', new SharedState(), {
       stateStorageStrategy: 'cookie',
       encodeBase64: false,
+      synchronousCookieWrite: true,
       plugins: [
         SnowplowMediaPlugin(),
         {
