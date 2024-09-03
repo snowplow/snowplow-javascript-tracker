@@ -1,6 +1,13 @@
 # Change Log - @snowplow/browser-plugin-vimeo-tracking
 
-This log was last generated on Wed, 24 Jul 2024 08:59:00 GMT and should not be manually modified.
+This log was last generated on Tue, 03 Sep 2024 08:15:14 GMT and should not be manually modified.
+
+## 3.24.3
+Tue, 03 Sep 2024 08:15:14 GMT
+
+### Updates
+
+- Upgrade supported Node.JS versions in build to 18 - 20 and upgrade rush
 
 ## 3.24.2
 Wed, 24 Jul 2024 08:59:00 GMT

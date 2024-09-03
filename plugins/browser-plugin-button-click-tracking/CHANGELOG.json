@@ -2,6 +2,18 @@
   "name": "@snowplow/browser-plugin-button-click-tracking",
   "entries": [
     {
+      "version": "3.24.3",
+      "tag": "@snowplow/browser-plugin-button-click-tracking_v3.24.3",
+      "date": "Tue, 03 Sep 2024 08:15:14 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Upgrade supported Node.JS versions in build to 18 - 20 and upgrade rush"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.24.2",
       "tag": "@snowplow/browser-plugin-button-click-tracking_v3.24.2",
       "date": "Wed, 24 Jul 2024 08:59:00 GMT",
