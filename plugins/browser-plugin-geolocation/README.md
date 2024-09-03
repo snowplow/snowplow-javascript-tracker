@@ -10,7 +10,7 @@ Adds Geolocation to your Snowplow tracking.
 ## Maintainer quick start
 
 Part of the Snowplow JavaScript Tracker monorepo.  
-Build with [Node.js](https://nodejs.org/en/) (14 or 16) and [Rush](https://rushjs.io/).
+Build with [Node.js](https://nodejs.org/en/) (18 - 20) and [Rush](https://rushjs.io/).
 
 ### Setup repository
 

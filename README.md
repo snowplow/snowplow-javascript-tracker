@@ -51,7 +51,7 @@ client-side and server-side tiers of your websites and web apps.
 
 ### Maintainer quick start
 
-Assuming [git](https://git-scm.com/downloads), [Node.js 14 or 16](https://nodejs.org/en/download/releases/) are installed.
+Assuming [git](https://git-scm.com/downloads), [Node.js 18 - 20](https://nodejs.org/en/download/releases/) are installed.
 
 #### Clone repository
 
