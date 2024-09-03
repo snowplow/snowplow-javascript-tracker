@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-focalmeter",
+      "comment": "Upgrade supported Node.JS versions in build to 18 - 20 and upgrade rush",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-focalmeter"
+}

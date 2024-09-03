@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/tracker-core",
+      "comment": "Upgrade supported Node.JS versions in build to 18 - 20 and upgrade rush",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/tracker-core"
+}
