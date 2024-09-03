@@ -30,12 +30,13 @@
       }
     })(window, document, 'script', './snowplow.js', 'snowplow');
 
-    function testWithStorageStrategy(storageStrategy) {
+    function testWithStorageStrategy(storageStrategy, synchronousCookieWrite) {
       return new Promise((resolve) => {
         window.snowplow('newTracker', `sp-${storageStrategy}`, 'http://localhost:9090', {
           appId: 'sp-perf',
           cookieName: `sp-perf-${storageStrategy}`,
           stateStorageStrategy: storageStrategy,
+          synchronousCookieWrite: synchronousCookieWrite,
           customFetch: function (request) {
             return new Response(null, {
               status: 200,
@@ -50,7 +51,7 @@
             return {
               afterTrack: () => {
                 eventsTracked++;
-                if (eventsTracked === 5000) {
+                if (eventsTracked === 100) {
                   performance.mark('end');
                   resolve();
                 }
@@ -63,7 +64,7 @@
         window.snowplow(function () {
           setTimeout(() => {
             performance.mark('start');
-            for (var i = 0; i < 5000; i++) {
+            for (var i = 0; i < 100; i++) {
               window.snowplow(
                 'trackPageView',
                 {
@@ -84,8 +85,10 @@
       });
     }
 
-    const stateStorageStrategy = new URL(window.location.href).searchParams.get('stateStorageStrategy');
-    testWithStorageStrategy(stateStorageStrategy).then(() => {
+    const url = new URL(window.location.href);
+    const stateStorageStrategy = url.searchParams.get('stateStorageStrategy');
+    const synchronousCookieWrite = url.searchParams.get('synchronousCookieWrite') === 'true';
+    testWithStorageStrategy(stateStorageStrategy, synchronousCookieWrite).then(() => {
       console.log('done ' + stateStorageStrategy);
       document.getElementById('init').innerText = 'true';
     });
