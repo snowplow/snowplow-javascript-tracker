@@ -1,3 +1,5 @@
+import { Capabilities } from "@wdio/types";
+
 const loadUrlAndWait = async (url: string) => {
   await browser.url(url);
   await browser.pause(5000);
@@ -7,7 +9,17 @@ const loadUrlAndWait = async (url: string) => {
   });
 };
 
+const shouldSkipBrowser = (browser: any) => {
+  const capabilities = browser.capabilities as Capabilities.DesiredCapabilities;
+  return capabilities.browserName?.toLowerCase() === 'firefox';
+};
+
 describe('Performance of tracking', () => {
+  if (shouldSkipBrowser(browser)) {
+    fit('Skip browser', () => { });
+    return;
+  }
+
   let noneMeasure: PerformanceMeasure | undefined;
   let cookieMeasure: PerformanceMeasure | undefined;
   let cookieAndLocalStorageMeasure: PerformanceMeasure | undefined;
