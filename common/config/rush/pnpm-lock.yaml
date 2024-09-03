@@ -2481,9 +2481,6 @@ importers:
       '@types/node':
         specifier: ~14.6.0
         version: 14.6.4
-      '@types/node-fetch':
-        specifier: '2'
-        version: 2.6.11
       '@types/youtube':
         specifier: ~0.0.46
         version: 0.0.50
@@ -2538,9 +2535,6 @@ importers:
       lodash:
         specifier: ~4.17.21
         version: 4.17.21
-      node-fetch:
-        specifier: '2'
-        version: 2.7.0(encoding@0.1.13)
       npm-run-all:
         specifier: ~4.1.5
         version: 4.1.5
@@ -3213,9 +3207,6 @@ packages:
 
   '@types/lodash@4.14.202':
     resolution: {integrity: sha512-OvlIYQK9tNneDlS0VN54LLd5uiPCBOp7gS5Z0f1mjoJYBrtStzgmJBxONW3U6OZqdtNzZPmn9BS/7WI7BFFcFQ==}
-
-  '@types/node-fetch@2.6.11':
-    resolution: {integrity: sha512-24xFj9R5+rfQJLRyM56qh+wnVSYhyXC2tkoBndtY0U+vubqNsYXGjufB2nn8Q6gt0LrARwL6UBtMCSVCwl4B1g==}
 
   '@types/node@14.6.4':
     resolution: {integrity: sha512-Wk7nG1JSaMfMpoMJDKUsWYugliB2Vy55pdjLpmLixeyMi7HizW2I/9QoxsPCkXl3dO+ZOVqPumKaDUv5zJu2uQ==}
@@ -8532,11 +8523,6 @@ snapshots:
       '@types/node': 14.6.4
 
   '@types/lodash@4.14.202': {}
-
-  '@types/node-fetch@2.6.11':
-    dependencies:
-      '@types/node': 14.6.4
-      form-data: 4.0.0
 
   '@types/node@14.6.4': {}
 

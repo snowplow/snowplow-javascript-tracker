@@ -210,6 +210,7 @@ test('gotEmitter should add STM querystring parameter when sending POST requests
 });
 
 test('gotEmitter should add STM querystring parameter when sending GET requests', async (t) => {
+  sinon.restore();
   const testTime = new Date('2020-06-15T09:12:30.000Z').getTime();
   const clock = sinon.useFakeTimers(testTime);
 

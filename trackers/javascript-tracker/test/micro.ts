@@ -1,6 +1,5 @@
 import Docker from 'dockerode';
 import { Writable } from 'stream';
-import fetch from 'node-fetch';
 
 export interface DockerWrapper {
   url: string;
