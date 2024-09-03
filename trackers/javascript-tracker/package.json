@@ -111,8 +111,6 @@
     "wdio-chromedriver-service": "~8.1.1",
     "webdriverio": "~8.39.1",
     "@wdio/shared-store-service": "~8.39.1",
-    "node-fetch": "2",
-    "@types/node-fetch": "2",
     "@wdio/globals": "~8.39.1",
     "wdio-safaridriver-service": "~2.1.1",
     "wdio-edgedriver-service": "~3.0.3",
