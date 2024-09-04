@@ -1,5 +1,6 @@
 import {
   addEventListener,
+  flushPendingCookies,
   getCssClasses,
   getFilterByClass,
   getFilterByName,
@@ -423,6 +424,7 @@ function getFormSubmissionListener(
         }),
         resolveDynamicContext(context, target, elementsData)
       );
+      flushPendingCookies();
     }
   };
 }

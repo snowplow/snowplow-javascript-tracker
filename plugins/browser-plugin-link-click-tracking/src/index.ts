@@ -34,6 +34,7 @@ import {
   getCssClasses,
   getFilterByClass,
   getHostName,
+  flushPendingCookies,
   type BrowserPlugin,
   type BrowserTracker,
   type FilterCriterion,
@@ -183,6 +184,8 @@ export function trackLinkClick(
     }
     if (payload) t.core.track(payload, event.context, event.timestamp);
   });
+
+  flushPendingCookies();
 }
 
 /**

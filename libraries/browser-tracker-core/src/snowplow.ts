@@ -32,6 +32,7 @@ import { LOG } from '@snowplow/tracker-core';
 import { SharedState } from './state';
 import { Tracker } from './tracker';
 import { BrowserTracker, TrackerConfiguration } from './tracker/types';
+import { asyncCookieStorage } from './tracker/cookie_storage';
 
 const namedTrackers: Record<string, BrowserTracker> = {};
 
@@ -150,4 +151,13 @@ function getTrackersFromCollection(
     }
   }
   return trackers;
+}
+
+/**
+ * Write all pending cookies to the browser.
+ * Useful if you track events just before the page is unloaded.
+ * This call is not necessary if `synchronousCookieWrite` is set to `true`.
+ */
+export function flushPendingCookies() {
+  asyncCookieStorage.flush();
 }

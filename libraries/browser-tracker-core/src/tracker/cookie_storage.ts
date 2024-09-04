@@ -23,7 +23,7 @@ export interface CookieStorage {
    * @param domain - The cookies domain
    * @param samesite - The cookies samesite attribute
    * @param secure - Boolean to specify if cookie should be secure
-   * @returns string The cookies value
+   * @returns true if the cookie was set, false otherwise
    */
   setCookie(
     name: string,
@@ -44,37 +44,45 @@ export interface CookieStorage {
    * @param secure - Boolean to specify if cookie should be secure
    */
   deleteCookie(name: string, domainName?: string, sameSite?: string, secure?: boolean): void;
+}
 
+export interface AsyncCookieStorage extends CookieStorage {
   /**
    * Clear the cookie storage cache (does not delete any cookies)
    */
   clearCache(): void;
+
+  /**
+   * Write all pending cookies.
+   */
+  flush(): void;
 }
 
 interface Cookie {
   getValue: () => string;
   setValue: (value?: string, ttl?: number, path?: string, domain?: string, samesite?: string, secure?: boolean) => boolean;
   deleteValue: (domainName?: string, sameSite?: string, secure?: boolean) => void;
+  flush: () => void;
 }
 
 function newCookie(name: string): Cookie {
-  let cachedValue: string | undefined;
   let setCookieTimer: ReturnType<typeof setTimeout> | undefined;
+  let lastSetValueArgs: Parameters<typeof setValue> | undefined;
   const debounceTimeout = 10;
 
   function scheduleClearCache(ttl: number) {
     setCookieTimer = setTimeout(() => {
-      cachedValue = undefined;
+      lastSetValueArgs = undefined;
     }, ttl * 1000);
   }
 
   function getValue(): string {
     // Note: we can't cache the cookie value as we don't know the expiration date
-    return cachedValue ?? cookie(name);
+    return lastSetValueArgs?.[0] ?? cookie(name);
   }
 
   function setValue(value?: string, ttl?: number, path?: string, domain?: string, samesite?: string, secure?: boolean): boolean {
-    cachedValue = value;
+    lastSetValueArgs = [value, ttl, path, domain, samesite, secure];
 
     // debounce setting the cookie
     if (setCookieTimer !== undefined) {
@@ -82,17 +90,13 @@ function newCookie(name: string): Cookie {
     }
     setCookieTimer = setTimeout(() => {
       setCookieTimer = undefined;
-      cookie(name, value, ttl, path, domain, samesite, secure);
-
-      if (ttl !== undefined) {
-        scheduleClearCache(ttl);
-      }
+      flush()
     }, debounceTimeout);
     return true;
   }
 
   function deleteValue(domainName?: string, sameSite?: string, secure?: boolean): void {
-    cachedValue = undefined;
+    lastSetValueArgs = undefined;
 
     // cancel setting the cookie
     if (setCookieTimer !== undefined) {
@@ -101,10 +105,22 @@ function newCookie(name: string): Cookie {
     deleteCookie(name, domainName, sameSite, secure);
   }
 
+  function flush(): void {
+    if (lastSetValueArgs !== undefined) {
+      const [value, ttl, path, domain, samesite, secure] = lastSetValueArgs;
+      cookie(name, value, ttl, path, domain, samesite, secure);
+
+      if (ttl !== undefined) {
+        scheduleClearCache(ttl);
+      }
+    }
+  }
+
   return {
     getValue,
     setValue,
-    deleteValue
+    deleteValue,
+    flush,
   };
 }
 
@@ -113,7 +129,7 @@ function newCookie(name: string): Cookie {
  *
  * @returns A new cookie storage
  */
-export function newCookieStorage(): CookieStorage {
+export function newCookieStorage(): AsyncCookieStorage {
   let cache: Record<string, Cookie> = {};
 
   function getOrInitCookie(name: string): Cookie {
@@ -147,11 +163,18 @@ export function newCookieStorage(): CookieStorage {
     cache = {};
   }
 
+  function flush(): void {
+    for (const cookie of Object.values(cache)) {
+      cookie.flush();
+    }
+  }
+
   return {
     getCookie,
     setCookie,
     deleteCookie,
     clearCache,
+    flush,
   };
 }
 
@@ -164,11 +187,10 @@ export const asyncCookieStorage = newCookieStorage();
  * Cookie storage instance with synchronous cookie writes
  */
 export const syncCookieStorage: CookieStorage = {
-    getCookie: cookie,
-    setCookie: (name, value, ttl, path, domain, samesite, secure) => {
-      cookie(name, value, ttl, path, domain, samesite, secure);
-      return document.cookie.indexOf(`${name}=`) !== -1 ? true : false;
-    },
-    deleteCookie: deleteCookie,
-    clearCache: () => {},
+  getCookie: cookie,
+  setCookie: (name, value, ttl, path, domain, samesite, secure) => {
+    cookie(name, value, ttl, path, domain, samesite, secure);
+    return document.cookie.indexOf(`${name}=`) !== -1;
+  },
+  deleteCookie
 };
