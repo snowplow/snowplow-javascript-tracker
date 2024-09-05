@@ -51,3 +51,19 @@ test("asyncCookieStorage flushes pending cookies", () => {
   asyncCookieStorage.flush();
   expect(cookieJar).toBe("test=value");
 });
+
+test('writes the latest cookie value', (done) => {
+  let cookieJar = '';
+
+  jest.spyOn(document, 'cookie', 'set').mockImplementation((cookieValue) => {
+    cookieJar = cookieValue;
+  });
+
+  for (let i = 0; i < 100; i++) {
+    asyncCookieStorage.setCookie("test", `value${i}`);
+  }
+  setTimeout(() => {
+    expect(cookieJar).toBe('test=value99');
+    done();
+  }, 100);
+});
