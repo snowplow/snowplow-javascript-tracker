@@ -67,35 +67,33 @@ interface Cookie {
 
 function newCookie(name: string): Cookie {
   let flushTimer: ReturnType<typeof setTimeout> | undefined;
-  let expireCookieTimer: ReturnType<typeof setTimeout> | undefined;
   let lastSetValueArgs: Parameters<typeof setValue> | undefined;
+  let cacheExpireAt: Date | undefined;
+  let flushed = true;
   const flushTimeout = 10;
 
   function getValue(): string {
     // Note: we can't cache the cookie value as we don't know the expiration date
-    return lastSetValueArgs?.[0] ?? cookie(name);
+    if (lastSetValueArgs && (!cacheExpireAt || cacheExpireAt > new Date())) {
+      return lastSetValueArgs[0] ?? cookie(name);
+    }
+    return cookie(name);
   }
 
   function setValue(value?: string, ttl?: number, path?: string, domain?: string, samesite?: string, secure?: boolean): boolean {
     lastSetValueArgs = [value, ttl, path, domain, samesite, secure];
+    flushed = false;
 
     // throttle setting the cookie
     if (flushTimer === undefined) {
       flushTimer = setTimeout(() => {
         flushTimer = undefined;
-        flush()
+        flush();
       }, flushTimeout);
     }
 
-    // set expiration timer
-    if (expireCookieTimer !== undefined) {
-      clearTimeout(expireCookieTimer);
-      expireCookieTimer = undefined;
-    }
     if (ttl !== undefined) {
-      expireCookieTimer = setTimeout(() => {
-        lastSetValueArgs = undefined;
-      }, ttl * 1000);
+      cacheExpireAt = new Date(Date.now() + ttl * 1000);
     }
     return true;
   }
@@ -108,11 +106,6 @@ function newCookie(name: string): Cookie {
       clearTimeout(flushTimer);
       flushTimer = undefined;
     }
-    // cancel expiration timer
-    if (expireCookieTimer !== undefined) {
-      clearTimeout(expireCookieTimer);
-      expireCookieTimer = undefined;
-    }
 
     deleteCookie(name, domainName, sameSite, secure);
   }
@@ -122,6 +115,12 @@ function newCookie(name: string): Cookie {
       clearTimeout(flushTimer);
       flushTimer = undefined;
     }
+
+    if (flushed) {
+      return;
+    }
+    flushed = true;
+
     if (lastSetValueArgs !== undefined) {
       const [value, ttl, path, domain, samesite, secure] = lastSetValueArgs;
       cookie(name, value, ttl, path, domain, samesite, secure);
