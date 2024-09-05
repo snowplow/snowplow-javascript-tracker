@@ -621,8 +621,8 @@ export function Tracker(
       const sesname = getSnowplowCookieName('ses');
       attemptDeleteLocalStorage(idname);
       attemptDeleteLocalStorage(sesname);
-      cookieStorage.deleteCookie(idname, configCookieDomain, configCookieSameSite, configCookieSecure);
-      cookieStorage.deleteCookie(sesname, configCookieDomain, configCookieSameSite, configCookieSecure);
+      cookieStorage.deleteCookie(idname, configCookiePath, configCookieDomain, configCookieSameSite, configCookieSecure);
+      cookieStorage.deleteCookie(sesname, configCookiePath, configCookieDomain, configCookieSameSite, configCookieSecure);
       if (!configuration?.preserveSession) {
         memorizedSessionId = uuid();
         memorizedVisitCount = 1;

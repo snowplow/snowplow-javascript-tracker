@@ -43,7 +43,7 @@ export interface CookieStorage {
    * @param sameSite - The cookie same site attribute
    * @param secure - Boolean to specify if cookie should be secure
    */
-  deleteCookie(name: string, domainName?: string, sameSite?: string, secure?: boolean): void;
+  deleteCookie(name: string, path?: string, domainName?: string, sameSite?: string, secure?: boolean): void;
 }
 
 export interface AsyncCookieStorage extends CookieStorage {
@@ -61,7 +61,7 @@ export interface AsyncCookieStorage extends CookieStorage {
 interface Cookie {
   getValue: () => string;
   setValue: (value?: string, ttl?: number, path?: string, domain?: string, samesite?: string, secure?: boolean) => boolean;
-  deleteValue: (domainName?: string, sameSite?: string, secure?: boolean) => void;
+  deleteValue: (path?: string, domainName?: string, sameSite?: string, secure?: boolean) => void;
   flush: () => void;
 }
 
@@ -98,8 +98,9 @@ function newCookie(name: string): Cookie {
     return true;
   }
 
-  function deleteValue(domainName?: string, sameSite?: string, secure?: boolean): void {
+  function deleteValue(path?: string, domainName?: string, sameSite?: string, secure?: boolean): void {
     lastSetValueArgs = undefined;
+    flushed = true;
 
     // cancel setting the cookie
     if (flushTimer !== undefined) {
@@ -107,7 +108,7 @@ function newCookie(name: string): Cookie {
       flushTimer = undefined;
     }
 
-    deleteCookie(name, domainName, sameSite, secure);
+    deleteCookie(name, path, domainName, sameSite, secure);
   }
 
   function flush(): void {
@@ -166,8 +167,8 @@ export function newCookieStorage(): AsyncCookieStorage {
     return getOrInitCookie(name).setValue(value, ttl, path, domain, samesite, secure);
   }
 
-  function deleteCookie(name: string, domainName?: string, sameSite?: string, secure?: boolean): void {
-    getOrInitCookie(name).deleteValue(domainName, sameSite, secure);
+  function deleteCookie(name: string, path?: string, domainName?: string, sameSite?: string, secure?: boolean): void {
+    getOrInitCookie(name).deleteValue(path, domainName, sameSite, secure);
   }
 
   function clearCache(): void {
