@@ -30,7 +30,7 @@
 
 import { addTracker, SharedState } from '@snowplow/browser-tracker-core';
 import F from 'lodash/fp';
-import { ErrorTrackingPlugin, trackError } from '../src';
+import { ErrorTrackingPlugin, enableErrorTracking, trackError } from '../src';
 import { newInMemoryEventStore } from '@snowplow/tracker-core';
 
 const getUEEvents = F.compose(F.filter(F.compose(F.eq('ue'), F.get('e'))));
@@ -47,11 +47,12 @@ const extractUeEvent = (schema: string) => {
   };
 };
 
-describe('AdTrackingPlugin', () => {
+describe('ErrorTrackingPlugin', () => {
   const eventStore1 = newInMemoryEventStore({});
   const eventStore2 = newInMemoryEventStore({});
   const eventStore3 = newInMemoryEventStore({});
   const eventStore4 = newInMemoryEventStore({});
+  const eventStore5 = newInMemoryEventStore({});
 
   const state = new SharedState();
   addTracker('sp1', 'sp1', 'js-3.0.0', '', state, {
@@ -76,6 +77,12 @@ describe('AdTrackingPlugin', () => {
     encodeBase64: false,
     plugins: [ErrorTrackingPlugin()],
     eventStore: eventStore4,
+    customFetch: async () => new Response(null, { status: 500 }),
+  });
+  addTracker('sp5', 'sp5', 'js-3.0.0', '', state, {
+    encodeBase64: false,
+    plugins: [ErrorTrackingPlugin()],
+    eventStore: eventStore5,
     customFetch: async () => new Response(null, { status: 500 }),
   });
 
@@ -119,6 +126,8 @@ describe('AdTrackingPlugin', () => {
     ['sp4']
   );
 
+  enableErrorTracking({}, ['sp5']);
+
   it('trackError adds the expected application error event to the queue', async () => {
     expect(
       extractUeEvent('iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1').from(
@@ -158,12 +167,12 @@ describe('AdTrackingPlugin', () => {
     ).toMatchObject({
       schema: 'iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1',
       data: {
-        message: "JS Exception. Browser doesn't support ErrorEvent API",
+        message: 'trackError called without required message',
       },
     });
   });
 
-  it('trackError replaces undefined messages with placeholder', async () => {
+  it('trackError truncates long message and stack traces', async () => {
     expect(
       extractUeEvent('iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1').from(
         await eventStore4.getAllPayloads()
@@ -173,6 +182,29 @@ describe('AdTrackingPlugin', () => {
       data: {
         message: 'y'.repeat(2048),
         stackTrace: 'x'.repeat(8192),
+      },
+    });
+  });
+
+  it('trackError should be called by listener for resource errors', async () => {
+    const resourceUrl = '/fake-should-404.js';
+
+    await new Promise((resolve) => {
+      const resource = document.createElement('script');
+      resource.onerror = resolve;
+      resource.src = resourceUrl;
+      document.head.appendChild(resource);
+    });
+
+    expect(
+      extractUeEvent('iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1').from(
+        await eventStore5.getAllPayloads()
+      )
+    ).toMatchObject({
+      schema: 'iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1',
+      data: {
+        message: 'Non-script error on SCRIPT element',
+        fileName: 'http://localhost' + resourceUrl,
       },
     });
   });
