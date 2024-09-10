@@ -3,4 +3,5 @@ module.exports = {
   reporters: ['jest-standard-reporter'],
   setupFilesAfterEnv: ['../../setupTestGlobals.ts'],
   testEnvironment: 'jest-environment-jsdom-global',
+  testEnvironmentOptions: { resources: 'usable', runScripts: 'dangerously' },
 };
