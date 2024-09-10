@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-error-tracking",
+      "comment": "Fix message when a resource triggers error instead of script",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-error-tracking"
+}

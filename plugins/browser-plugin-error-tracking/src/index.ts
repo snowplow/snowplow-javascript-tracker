@@ -85,7 +85,7 @@ export function trackError(
           schema: 'iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1',
           data: {
             programmingLanguage: 'JAVASCRIPT',
-            message: truncatedMessage ?? "JS Exception. Browser doesn't support ErrorEvent API",
+            message: truncatedMessage ?? 'trackError called without required message',
             stackTrace: stack,
             lineNumber: lineno,
             lineColumn: colno,
@@ -103,10 +103,10 @@ export function trackError(
  * The configuration for automatic error tracking
  */
 export interface ErrorTrackingConfiguration {
-  /** A callback which allows on certain errors to be tracked */
-  filter?: (error: ErrorEvent) => boolean;
+  /** A callback which allows only certain errors to be tracked */
+  filter?: (error: ErrorEvent | Event) => boolean;
   /** A callback to dynamically add extra context based on the error */
-  contextAdder?: (error: ErrorEvent) => Array<SelfDescribingJson>;
+  contextAdder?: (error: ErrorEvent | Event) => Array<SelfDescribingJson>;
   /** Context to be added to every error */
   context?: Array<SelfDescribingJson>;
 }
@@ -121,9 +121,9 @@ export function enableErrorTracking(
   trackers: Array<string> = Object.keys(_trackers)
 ) {
   const { filter, contextAdder, context } = configuration,
-    captureError = (errorEvent: Event) => {
-      if ((filter && isFunction(filter) && filter(errorEvent as ErrorEvent)) || filter == null) {
-        sendError({ errorEvent: errorEvent as ErrorEvent, commonContext: context, contextAdder }, trackers);
+    captureError = (errorEvent: ErrorEvent | Event) => {
+      if ((filter && isFunction(filter) && filter(errorEvent)) || filter == null) {
+        sendError({ errorEvent: errorEvent, commonContext: context, contextAdder }, trackers);
       }
     };
 
@@ -136,9 +136,9 @@ function sendError(
     commonContext,
     contextAdder,
   }: {
-    errorEvent: ErrorEvent;
+    errorEvent: ErrorEvent | Event;
     commonContext?: Array<SelfDescribingJson>;
-    contextAdder?: (error: ErrorEvent) => Array<SelfDescribingJson>;
+    contextAdder?: (error: ErrorEvent | Event) => Array<SelfDescribingJson>;
   },
   trackers: Array<string>
 ) {
@@ -147,15 +147,35 @@ function sendError(
     context = context.concat(contextAdder(errorEvent));
   }
 
-  trackError(
-    {
-      message: errorEvent.message,
-      filename: errorEvent.filename,
-      lineno: errorEvent.lineno,
-      colno: errorEvent.colno,
-      error: errorEvent.error,
-      context,
-    },
-    trackers
-  );
+  if ('message' in errorEvent) {
+    trackError(
+      {
+        message: errorEvent.message,
+        filename: errorEvent.filename,
+        lineno: errorEvent.lineno,
+        colno: errorEvent.colno,
+        error: errorEvent.error,
+        context,
+      },
+      trackers
+    );
+  } else if (errorEvent.target && 'tagName' in errorEvent.target) {
+    const element: any = errorEvent.target;
+    trackError(
+      {
+        message: `Non-script error on ${element.tagName} element`,
+        filename: element.src || undefined,
+        context,
+      },
+      trackers
+    );
+  } else {
+    trackError(
+      {
+        message: "JS Exception. Browser doesn't support ErrorEvent API",
+        context,
+      },
+      trackers
+    );
+  }
 }
