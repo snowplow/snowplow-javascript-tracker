@@ -35,11 +35,10 @@
         appId: 'media-1-player-2-trackers-' + testIdentifier,
       });
 
-      window.snowplow('enableMediaTracking', {
-        id: 'html5',
-        options: {
-          label: 'test-label',
-        },
+      window.snowplow('startHtml5MediaTracking', {
+        id: testIdentifier,
+        video: 'html5',
+        label: 'test-label',
       });
     </script>
     <!--

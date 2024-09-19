@@ -1,4 +1,4 @@
-import { CommonEventProperties, SelfDescribingJson } from '@snowplow/tracker-core';
+import { CommonEventProperties, DynamicContext, SelfDescribingJson } from '@snowplow/tracker-core';
 
 /** Type of media player event */
 export enum MediaEventType {
@@ -407,9 +407,9 @@ export interface MediaPlayerAdBreakUpdate {
   podSize?: number;
 }
 
-export interface CommonMediaEventProperties extends CommonEventProperties {
+export interface CommonMediaEventProperties extends Omit<CommonEventProperties, 'context'> {
   /** Add context entities to an event by setting an Array of Self Describing JSON */
-  context?: Array<SelfDescribingJson>;
+  context?: DynamicContext;
 }
 
 export interface EventWithContext extends CommonEventProperties {
