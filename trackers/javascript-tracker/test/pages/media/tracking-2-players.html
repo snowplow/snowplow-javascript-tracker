@@ -32,15 +32,15 @@
         appId: 'media-2-players-1-tracker-' + testIdentifier,
       });
 
-      window.snowplow('enableMediaTracking', {
-        id: 'html5',
-        options: {
-          label: 'test-label',
-        },
+      window.snowplow('startHtml5MediaTracking', {
+        id: testIdentifier + '-1',
+        video: 'html5',
+        label: 'test-label',
       });
 
-      window.snowplow('enableMediaTracking', {
-        id: 'html5-2',
+      window.snowplow('startHtml5MediaTracking', {
+        id: testIdentifier + '-2',
+        video: 'html5-2',
         options: {
           label: 'test-label',
         },
