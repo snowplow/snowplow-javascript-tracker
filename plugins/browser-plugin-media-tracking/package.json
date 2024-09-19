@@ -21,9 +21,11 @@
     "test": "jest"
   },
   "dependencies": {
+    "@snowplow/browser-plugin-media": "workspace:*",
     "@snowplow/browser-tracker-core": "workspace:*",
     "@snowplow/tracker-core": "workspace:*",
-    "tslib": "^2.3.1"
+    "tslib": "^2.3.1",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@ampproject/rollup-plugin-closure-compiler": "~0.27.0",
@@ -31,6 +33,7 @@
     "@rollup/plugin-node-resolve": "~13.1.3",
     "@types/jest": "~27.4.1",
     "@types/jsdom": "~16.2.14",
+    "@types/uuid": "^8.3.2",
     "@typescript-eslint/eslint-plugin": "~5.15.0",
     "@typescript-eslint/parser": "~5.15.0",
     "eslint": "~8.11.0",

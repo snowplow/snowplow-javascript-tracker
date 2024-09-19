@@ -1,5 +1,5 @@
 import { BrowserPlugin, BrowserTracker, dispatchToTrackersInCollection } from '@snowplow/browser-tracker-core';
-import { buildSelfDescribingEvent, LOG, SelfDescribingJson } from '@snowplow/tracker-core';
+import { buildSelfDescribingEvent, resolveDynamicContext, LOG, SelfDescribingJson } from '@snowplow/tracker-core';
 import { MediaTracking } from './mediaTracking';
 import { MediaPingInterval } from './pingInterval';
 import { MediaSessionTracking } from './sessionTracking';
@@ -716,7 +716,11 @@ function track(
 
   const trackEvent = (event: EventWithContext) => {
     dispatchToTrackersInCollection(trackers, _trackers, (t) => {
-      t.core.track(buildSelfDescribingEvent(event), (event.context ?? []).concat(context), timestamp);
+      t.core.track(
+        buildSelfDescribingEvent(event),
+        (event.context ?? []).concat(resolveDynamicContext(context)),
+        timestamp
+      );
     });
   };
 
