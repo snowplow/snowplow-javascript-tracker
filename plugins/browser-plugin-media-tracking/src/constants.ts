@@ -1,6 +1,8 @@
-import { TextTrackEvent } from './mediaEvents';
-import { SearchError } from './types';
-
+export enum SEARCH_ERROR {
+  NOT_FOUND = 'Media element not found',
+  MULTIPLE_ELEMENTS = 'More than one media element in the provided node',
+  PLYR_CURRENTSRC = 'Plyr currentSrc not updated',
+}
 export const READY_STATE: Record<number, string> = {
   0: 'HAVE_NOTHING',
   1: 'HAVE_METADATA',
@@ -15,19 +17,3 @@ export const NETWORK_STATE: Record<number, string> = {
   2: 'NETWORK_LOADING',
   3: 'NETWORK_NO_SOURCE',
 };
-
-export const TAG: Record<string, string> = {
-  VIDEO: 'VIDEO',
-  AUDIO: 'AUDIO',
-};
-
-export const SEARCH_ERROR: SearchError = {
-  NOT_FOUND: 'Media element not found',
-  MULTIPLE_ELEMENTS: 'More than one media element in the provided node',
-  PLYR_CURRENTSRC: 'Plyr currentSrc not updated',
-};
-
-export const eventNames: Record<string, string> = {
-  [TextTrackEvent.CHANGE]: 'texttrackchange',
-};
-Object.keys(eventNames).forEach((k) => (eventNames[eventNames[k]] = k));

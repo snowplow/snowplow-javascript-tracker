@@ -32,13 +32,11 @@
         appId: 'media-default-events-' + testIdentifier,
       });
 
-      window.snowplow('enableMediaTracking', {
-        id: 'html5',
-        options: {
-          captureEvents: ['DefaultEvents'],
-          boundaries: [95],
-          label: 'test-label',
-        },
+      window.snowplow('startHtml5MediaTracking', {
+        id: testIdentifier,
+        video: 'html5',
+        boundaries: [95],
+        label: 'test-label',
       });
     </script>
     <!--

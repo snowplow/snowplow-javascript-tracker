@@ -1,4 +1,4 @@
-import { LOG, SelfDescribingJson } from '@snowplow/tracker-core';
+import { resolveDynamicContext, DynamicContext, LOG, SelfDescribingJson } from '@snowplow/tracker-core';
 import { MediaAdTracking } from './adTracking';
 import { buildMediaPlayerEntity, buildMediaPlayerEvent } from './core';
 import { MediaPingInterval } from './pingInterval';
@@ -43,7 +43,7 @@ export class MediaTracking {
   /// Manages ad entities.
   private adTracking = new MediaAdTracking();
   /// Context entities to attach to all events
-  private customContext?: Array<SelfDescribingJson>;
+  private customContext?: DynamicContext;
   /// Optional list of event types to allow tracking and discard others.
   private captureEvents?: MediaEventType[];
   // Whether to update page activity when playing media. Enabled by default.
@@ -60,7 +60,7 @@ export class MediaTracking {
     captureEvents?: MediaEventType[],
     updatePageActivityWhilePlaying?: boolean,
     filterRepeatedEvents?: FilterOutRepeatedEvents,
-    context?: Array<SelfDescribingJson>
+    context?: DynamicContext
   ) {
     this.id = id;
     this.updatePlayer(player);
@@ -118,7 +118,7 @@ export class MediaTracking {
       context.push(this.session.getContext());
     }
     if (this.customContext) {
-      context = context.concat(this.customContext);
+      context = context.concat(resolveDynamicContext(this.customContext, mediaEvent ?? customEvent));
     }
     context = context.concat(this.adTracking.getContext());
 
