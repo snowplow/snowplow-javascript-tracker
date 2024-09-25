@@ -8,7 +8,6 @@ export const linkClickTracking = false;
 export const formTracking = false;
 export const errorTracking = false;
 export const timezone = false;
-export const ecommerce = false;
 export const enhancedEcommerce = false;
 export const adTracking = false;
 export const siteTracking = false;

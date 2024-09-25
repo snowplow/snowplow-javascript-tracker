@@ -42,7 +42,6 @@
     "@snowplow/browser-plugin-ad-tracking": "workspace:*",
     "@snowplow/browser-plugin-client-hints": "workspace:*",
     "@snowplow/browser-plugin-consent": "workspace:*",
-    "@snowplow/browser-plugin-ecommerce": "workspace:*",
     "@snowplow/browser-plugin-enhanced-ecommerce": "workspace:*",
     "@snowplow/browser-plugin-error-tracking": "workspace:*",
     "@snowplow/browser-plugin-form-tracking": "workspace:*",

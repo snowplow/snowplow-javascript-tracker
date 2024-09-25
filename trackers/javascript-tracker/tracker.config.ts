@@ -24,5 +24,4 @@ export const eventSpecifications = false;
 
 /* Deprecated */
 export const consent = false;
-export const ecommerce = false;
 export const enhancedEcommerce = false;

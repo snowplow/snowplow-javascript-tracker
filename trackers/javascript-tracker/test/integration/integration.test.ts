@@ -174,44 +174,6 @@ describe('Snowplow Micro integration', () => {
       ).toBe(true);
     });
 
-    it(`${method}: contains a transaction event`, () => {
-      expect(
-        logContains({
-          event: {
-            app_id: `sp-${method}-${testIdentifier}`,
-            event: 'transaction',
-            tr_orderid: 'order-123',
-            tr_affiliation: 'acme',
-            tr_total: 8000,
-            tr_tax: 100,
-            tr_shipping: 50,
-            tr_city: 'pheonix',
-            tr_state: 'arizona',
-            tr_country: 'USA',
-            tr_currency: 'JPY',
-          },
-        })
-      ).toBe(true);
-    });
-
-    it(`${method}: contains a transaction item event`, () => {
-      expect(
-        logContains({
-          event: {
-            app_id: `sp-${method}-${testIdentifier}`,
-            event: 'transaction_item',
-            ti_orderid: 'order-123',
-            ti_sku: '1001',
-            ti_name: 'Blue t-shirt',
-            ti_category: 'clothing',
-            ti_price: 2000,
-            ti_quantity: 2,
-            ti_currency: 'JPY',
-          },
-        })
-      ).toBe(true);
-    });
-
     it(`${method}: contains an unhandled exception event`, () => {
       expect(
         logContains({
@@ -496,14 +458,9 @@ describe('Snowplow Micro integration', () => {
             user_id: 'Malcolm',
             unstruct_event: {
               data: {
-                schema: 'iglu:com.snowplowanalytics.snowplow/add_to_cart/jsonschema/1-0-0',
+                schema: 'iglu:com.snowplowanalytics.snowplow.ecommerce/snowplow_ecommerce_action/jsonschema/1-0-2',
                 data: {
-                  sku: '000345',
-                  name: 'blue tie',
-                  category: 'clothing',
-                  unitPrice: 3.49,
-                  quantity: 2,
-                  currency: 'GBP',
+                  type: 'add_to_cart',
                 },
               },
             },
@@ -522,14 +479,9 @@ describe('Snowplow Micro integration', () => {
             user_id: 'Malcolm',
             unstruct_event: {
               data: {
-                schema: 'iglu:com.snowplowanalytics.snowplow/remove_from_cart/jsonschema/1-0-0',
+                schema: 'iglu:com.snowplowanalytics.snowplow.ecommerce/snowplow_ecommerce_action/jsonschema/1-0-2',
                 data: {
-                  sku: '000345',
-                  name: 'blue tie',
-                  category: 'clothing',
-                  unitPrice: 3.49,
-                  quantity: 1,
-                  currency: 'GBP',
+                  type: 'remove_from_cart',
                 },
               },
             },

@@ -8,7 +8,6 @@ import * as LinkClickTracking from '@snowplow/browser-plugin-link-click-tracking
 import * as FormTracking from '@snowplow/browser-plugin-form-tracking';
 import * as ErrorTracking from '@snowplow/browser-plugin-error-tracking';
 import * as Timezone from '@snowplow/browser-plugin-timezone';
-import * as Ecommerce from '@snowplow/browser-plugin-ecommerce';
 import * as EnhancedEcommerce from '@snowplow/browser-plugin-enhanced-ecommerce';
 import * as AdTracking from '@snowplow/browser-plugin-ad-tracking';
 import * as SiteTracking from '@snowplow/browser-plugin-site-tracking';
@@ -86,11 +85,6 @@ export function Plugins(configuration: JavaScriptTrackerConfiguration) {
   if (plugins.errorTracking) {
     const { ErrorTrackingPlugin, ...apiMethods } = ErrorTracking;
     activatedPlugins.push([ErrorTrackingPlugin(), apiMethods]);
-  }
-
-  if (plugins.ecommerce) {
-    const { EcommercePlugin, ...apiMethods } = Ecommerce;
-    activatedPlugins.push([EcommercePlugin(), apiMethods]);
   }
 
   if (plugins.enhancedEcommerce) {
