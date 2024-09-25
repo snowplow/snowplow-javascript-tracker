@@ -127,13 +127,6 @@
         return {};
       }
 
-      window.snowplow('enableGdprContext:sp', {
-        basisForProcessing: 'consent',
-        documentId: 'someId',
-        documentVersion: '0.1.0',
-        documentDescription: 'this document is a test',
-      });
-
       window.snowplow('addGlobalContexts:sp', [erroneousContextGenerator]);
       window.snowplow('addGlobalContexts:sp', [
         [structuredEventFilter, [eventTypeContextGenerator, geolocationContext]],
@@ -307,22 +300,6 @@
         variable: 'map_loaded',
         timing: 50,
         label: 'Map loading time',
-      });
-
-      window.snowplow('trackConsentGranted:sp', {
-        id: '1234',
-        version: '5',
-        name: 'consent_document',
-        description: 'a document granting consent',
-        expiry: '2020-11-21T08:00:00.000Z',
-      });
-
-      window.snowplow('trackConsentWithdrawn:sp', {
-        all: false,
-        id: '1234',
-        version: '5',
-        name: 'consent_document',
-        description: 'a document withdrawing consent',
       });
 
       try {

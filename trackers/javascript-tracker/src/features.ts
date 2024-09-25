@@ -1,7 +1,6 @@
 import * as ClientHints from '@snowplow/browser-plugin-client-hints';
 import * as OptimizelyX from '@snowplow/browser-plugin-optimizely-x';
 import * as PerformanceTiming from '@snowplow/browser-plugin-performance-timing';
-import * as Consent from '@snowplow/browser-plugin-consent';
 import * as Geolocation from '@snowplow/browser-plugin-geolocation';
 import * as GaCookies from '@snowplow/browser-plugin-ga-cookies';
 import * as LinkClickTracking from '@snowplow/browser-plugin-link-click-tracking';
@@ -60,11 +59,6 @@ export function Plugins(configuration: JavaScriptTrackerConfiguration) {
     const { GaCookiesPlugin, ...apiMethods } = GaCookies;
     const gaCookiesPlugin = typeof gaCookies === 'object' ? GaCookiesPlugin(gaCookies) : GaCookiesPlugin();
     activatedPlugins.push([gaCookiesPlugin, apiMethods]);
-  }
-
-  if (plugins.consent) {
-    const { ConsentPlugin, ...apiMethods } = Consent;
-    activatedPlugins.push([ConsentPlugin(), apiMethods]);
   }
 
   if (plugins.geolocation) {

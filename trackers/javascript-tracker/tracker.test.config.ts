@@ -3,7 +3,6 @@ export const gaCookies = true;
 export const geolocation = true;
 export const optimizelyX = true;
 export const clientHints = true;
-export const consent = true;
 export const linkClickTracking = true;
 export const formTracking = true;
 export const errorTracking = true;

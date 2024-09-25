@@ -3,7 +3,6 @@ export const gaCookies = false;
 export const geolocation = false;
 export const optimizelyX = false;
 export const clientHints = false;
-export const consent = false;
 export const linkClickTracking = false;
 export const formTracking = false;
 export const errorTracking = false;

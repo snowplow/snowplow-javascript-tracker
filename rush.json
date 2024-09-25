@@ -404,12 +404,6 @@
       "versionPolicyName": "tracker"
     },
     {
-      "packageName": "@snowplow/browser-plugin-consent",
-      "projectFolder": "plugins/browser-plugin-consent",
-      "reviewCategory": "plugins",
-      "versionPolicyName": "tracker"
-    },
-    {
       "packageName": "@snowplow/browser-plugin-geolocation",
       "projectFolder": "plugins/browser-plugin-geolocation",
       "reviewCategory": "plugins",

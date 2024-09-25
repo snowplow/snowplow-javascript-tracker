@@ -23,5 +23,4 @@ export const privacySandbox = false;
 export const eventSpecifications = false;
 
 /* Deprecated */
-export const consent = false;
 export const enhancedEcommerce = false;
