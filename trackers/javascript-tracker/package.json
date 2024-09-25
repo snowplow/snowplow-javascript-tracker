@@ -87,7 +87,7 @@
     "@wdio/static-server-service": "~8.39.0",
     "@wdio/types": "~8.39.0",
     "chalk": "4.1.2",
-    "chromedriver": "~126.0.4",
+    "chromedriver": "~129.0.0",
     "dockerode": "~3.3.1",
     "jest": "~27.5.1",
     "jest-environment-jsdom": "~27.5.1",
