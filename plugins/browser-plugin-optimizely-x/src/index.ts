@@ -33,6 +33,14 @@ import { OptimizelyxSummary } from './contexts';
 
 declare global {
   interface Window {
+    /*
+    The following property is technically optional since the Optimizely SDK
+    loads asynchronously; the inner `get` is also optional for the older SDK
+    and during brief periods where the SDK is only partially loaded.
+    As Window interface type conflicts can break builds, we leave them as
+    non-optional for backwards compatibility, but changes to this plugin should
+    be aware that this interface may not be fully available. See #1343
+    */
     optimizely: {
       get: (property: string) => { [key: string]: any };
     };
@@ -47,16 +55,12 @@ export function OptimizelyXPlugin(): BrowserPlugin {
    * Check that *both* optimizely and optimizely.get exist
    *
    * @param property - optimizely data property
-   * @param snd - optional nested property
    */
-  function getOptimizelyXData(property: string, snd?: string) {
+  function getOptimizelyXData(property: string) {
     const windowOptimizelyAlias = window.optimizely;
-    let data;
+    let data: Record<string, any> | undefined;
     if (windowOptimizelyAlias && typeof windowOptimizelyAlias.get === 'function') {
       data = windowOptimizelyAlias.get(property);
-      if (typeof snd !== 'undefined' && data !== undefined) {
-        data = data[snd];
-      }
     }
     return data;
   }
@@ -67,12 +71,13 @@ export function OptimizelyXPlugin(): BrowserPlugin {
    * @returns Array content of lite optimizely lite context
    */
   function getOptimizelyXSummary(): OptimizelyxSummary[] {
-    var state = getOptimizelyXData('state');
-    var experiment_ids = state && state.getActiveExperimentIds();
-    var variationMap = state && state.getVariationMap();
+    const state = getOptimizelyXData('state');
+    if (state == null) return [];
+    var experiment_ids = state.getActiveExperimentIds() || [];
+    var variationMap = state.getVariationMap();
     var visitor = getOptimizelyXData('visitor');
 
-    return experiment_ids.map(function (activeExperiment: string) {
+    return experiment_ids.map((activeExperiment: string) => {
       var variation = variationMap[activeExperiment];
       var variationName = (variation && variation.name && variation.name.toString()) || null;
       var variationId = variation && variation.id;
