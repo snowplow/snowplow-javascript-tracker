@@ -61,26 +61,26 @@ jobs:
         run: node common/scripts/install-run-rush.js publish -p --pack --include-all
 
       - name: Upload packages
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: packages
           path: |
             ./common/temp/artifacts/packages/*
 
       - name: Upload sp.js artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: sp.js
           path: trackers/javascript-tracker/dist/sp.js
 
       - name: Upload sp.lite.js artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: sp.lite.js
           path: trackers/javascript-tracker/dist/sp.lite.js
 
       - name: Upload plugins
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: plugins.umd
           path: |
