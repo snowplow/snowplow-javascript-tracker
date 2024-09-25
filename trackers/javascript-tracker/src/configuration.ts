@@ -37,7 +37,6 @@ export interface JavaScriptTrackerConfiguration extends TrackerConfiguration {
     performanceTiming: boolean;
     gaCookies: boolean;
     geolocation: boolean;
-    optimizelyXSummary: boolean;
     clientHints: boolean | { includeHighEntropy: boolean };
   };
 }

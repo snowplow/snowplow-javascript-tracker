@@ -34,7 +34,6 @@ export function Plugins(configuration: JavaScriptTrackerConfiguration) {
     performanceTiming,
     gaCookies,
     geolocation,
-    optimizelyXSummary,
     clientHints,
   } = configuration?.contexts ?? {};
   const activatedPlugins: Array<[BrowserPlugin, {} | Record<string, Function>]> = [];
@@ -44,7 +43,7 @@ export function Plugins(configuration: JavaScriptTrackerConfiguration) {
     activatedPlugins.push([PerformanceTimingPlugin(), apiMethods]);
   }
 
-  if (plugins.optimizelyX && optimizelyXSummary) {
+  if (plugins.optimizelyX) {
     const { OptimizelyXPlugin, ...apiMethods } = OptimizelyX;
     activatedPlugins.push([OptimizelyXPlugin(), apiMethods]);
   }
