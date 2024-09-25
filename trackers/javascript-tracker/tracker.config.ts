@@ -23,7 +23,6 @@ export const privacySandbox = false;
 export const eventSpecifications = false;
 
 /* Deprecated */
-export const browserFeatures = false;
 export const consent = false;
 export const ecommerce = false;
 export const enhancedEcommerce = false;

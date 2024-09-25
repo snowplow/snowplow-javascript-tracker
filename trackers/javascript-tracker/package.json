@@ -40,7 +40,6 @@
   },
   "dependencies": {
     "@snowplow/browser-plugin-ad-tracking": "workspace:*",
-    "@snowplow/browser-plugin-browser-features": "workspace:*",
     "@snowplow/browser-plugin-client-hints": "workspace:*",
     "@snowplow/browser-plugin-consent": "workspace:*",
     "@snowplow/browser-plugin-ecommerce": "workspace:*",

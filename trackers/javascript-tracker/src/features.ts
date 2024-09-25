@@ -8,7 +8,6 @@ import * as GaCookies from '@snowplow/browser-plugin-ga-cookies';
 import * as LinkClickTracking from '@snowplow/browser-plugin-link-click-tracking';
 import * as FormTracking from '@snowplow/browser-plugin-form-tracking';
 import * as ErrorTracking from '@snowplow/browser-plugin-error-tracking';
-import * as BrowserFeatures from '@snowplow/browser-plugin-browser-features';
 import * as Timezone from '@snowplow/browser-plugin-timezone';
 import * as Ecommerce from '@snowplow/browser-plugin-ecommerce';
 import * as EnhancedEcommerce from '@snowplow/browser-plugin-enhanced-ecommerce';
@@ -145,11 +144,6 @@ export function Plugins(configuration: JavaScriptTrackerConfiguration) {
   if (plugins.snowplowEcommerceTracking) {
     const { SnowplowEcommercePlugin, ...apiMethods } = SnowplowEcommerce;
     activatedPlugins.push([SnowplowEcommercePlugin(), apiMethods]);
-  }
-
-  if (plugins.browserFeatures) {
-    const { BrowserFeaturesPlugin, ...apiMethods } = BrowserFeatures;
-    activatedPlugins.push([BrowserFeaturesPlugin(), apiMethods]);
   }
 
   if (plugins.timezone) {

@@ -446,12 +446,6 @@
       "versionPolicyName": "tracker"
     },
     {
-      "packageName": "@snowplow/browser-plugin-browser-features",
-      "projectFolder": "plugins/browser-plugin-browser-features",
-      "reviewCategory": "plugins",
-      "versionPolicyName": "tracker"
-    },
-    {
       "packageName": "@snowplow/browser-plugin-timezone",
       "projectFolder": "plugins/browser-plugin-timezone",
       "reviewCategory": "plugins",

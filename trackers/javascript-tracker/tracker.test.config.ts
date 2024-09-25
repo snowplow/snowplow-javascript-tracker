@@ -14,7 +14,6 @@ export const adTracking = true;
 export const siteTracking = true;
 export const snowplowEcommerceTracking = false;
 export const optimizely = true;
-export const browserFeatures = true;
 export const mediaTracking = true;
 export const youtubeTracking = true;
 export const enhancedConsent = false;
