@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-performance-timing",
+      "comment": "Deprecate performance-timing plugin",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-performance-timing"
+}
