@@ -1,5 +1,4 @@
 import * as ClientHints from '@snowplow/browser-plugin-client-hints';
-import * as Optimizely from '@snowplow/browser-plugin-optimizely';
 import * as OptimizelyX from '@snowplow/browser-plugin-optimizely-x';
 import * as PerformanceTiming from '@snowplow/browser-plugin-performance-timing';
 import * as Consent from '@snowplow/browser-plugin-consent';
@@ -35,42 +34,10 @@ export function Plugins(configuration: JavaScriptTrackerConfiguration) {
     performanceTiming,
     gaCookies,
     geolocation,
-    optimizelyExperiments,
-    optimizelyStates,
-    optimizelyVariations,
-    optimizelyVisitor,
-    optimizelyAudiences,
-    optimizelyDimensions,
-    optimizelySummary,
     optimizelyXSummary,
     clientHints,
   } = configuration?.contexts ?? {};
   const activatedPlugins: Array<[BrowserPlugin, {} | Record<string, Function>]> = [];
-
-  if (
-    plugins.optimizely &&
-    (optimizelySummary ||
-      optimizelyExperiments ||
-      optimizelyStates ||
-      optimizelyVariations ||
-      optimizelyVisitor ||
-      optimizelyAudiences ||
-      optimizelyDimensions)
-  ) {
-    const { OptimizelyPlugin, ...apiMethods } = Optimizely;
-    activatedPlugins.push([
-      OptimizelyPlugin(
-        optimizelySummary,
-        optimizelyExperiments,
-        optimizelyStates,
-        optimizelyVariations,
-        optimizelyVisitor,
-        optimizelyAudiences,
-        optimizelyDimensions
-      ),
-      apiMethods,
-    ]);
-  }
 
   if (plugins.performanceTiming && performanceTiming) {
     const { PerformanceTimingPlugin, ...apiMethods } = PerformanceTiming;

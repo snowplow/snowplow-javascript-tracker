@@ -26,4 +26,3 @@ export const eventSpecifications = false;
 export const consent = false;
 export const ecommerce = false;
 export const enhancedEcommerce = false;
-export const optimizely = false;

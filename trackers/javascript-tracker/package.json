@@ -50,7 +50,6 @@
     "@snowplow/browser-plugin-geolocation": "workspace:*",
     "@snowplow/browser-plugin-link-click-tracking": "workspace:*",
     "@snowplow/browser-plugin-media-tracking": "workspace:*",
-    "@snowplow/browser-plugin-optimizely": "workspace:*",
     "@snowplow/browser-plugin-optimizely-x": "workspace:*",
     "@snowplow/browser-plugin-performance-timing": "workspace:*",
     "@snowplow/browser-plugin-site-tracking": "workspace:*",

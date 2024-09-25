@@ -13,7 +13,6 @@ export const enhancedEcommerce = false;
 export const adTracking = false;
 export const siteTracking = false;
 export const snowplowEcommerceTracking = false;
-export const optimizely = false;
 export const mediaTracking = false;
 export const youtubeTracking = false;
 export const enhancedConsent = false;
