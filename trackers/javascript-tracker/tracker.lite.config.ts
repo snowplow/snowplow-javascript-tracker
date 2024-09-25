@@ -1,4 +1,5 @@
 export const performanceTiming = false;
+export const performanceNavigationTiming = false;
 export const gaCookies = false;
 export const geolocation = false;
 export const optimizelyX = false;
@@ -19,3 +20,4 @@ export const vimeoTracking = false;
 export const privacySandbox = false;
 export const buttonClickTracking = false;
 export const eventSpecifications = false;
+export const webVitals = false;

@@ -7,11 +7,12 @@ export const formTracking = true;
 export const gaCookies = true;
 export const geolocation = true;
 export const linkClickTracking = true;
-export const performanceTiming = true;
+export const performanceNavigationTiming = true;
 export const siteTracking = true;
 export const snowplowEcommerceTracking = true;
 export const timezone = true;
 export const buttonClickTracking = true;
+export const webVitals = true;
 
 /* By default excluded plugins in sp.js */
 export const mediaTracking = false;
@@ -24,3 +25,4 @@ export const eventSpecifications = false;
 
 /* Deprecated */
 export const enhancedEcommerce = false;
+export const performanceTiming = false;
