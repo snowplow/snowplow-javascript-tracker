@@ -1,6 +1,6 @@
 {
   "name": "@snowplow/node-tracker",
-  "version": "3.24.3",
+  "version": "3.24.4",
   "description": "Node tracker for Snowplow",
   "keywords": [
     "snowplow",
