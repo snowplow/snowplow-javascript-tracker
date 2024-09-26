@@ -2,6 +2,18 @@
   "name": "@snowplow/javascript-tracker",
   "entries": [
     {
+      "version": "3.24.4",
+      "tag": "@snowplow/javascript-tracker_v3.24.4",
+      "date": "Thu, 26 Sep 2024 06:10:22 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Skip YouTube integration tests since they are blocked on SauceLabs"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.24.3",
       "tag": "@snowplow/javascript-tracker_v3.24.3",
       "date": "Tue, 03 Sep 2024 08:15:14 GMT",

@@ -2,6 +2,12 @@
   "name": "@snowplow/browser-plugin-button-click-tracking",
   "entries": [
     {
+      "version": "3.24.4",
+      "tag": "@snowplow/browser-plugin-button-click-tracking_v3.24.4",
+      "date": "Thu, 26 Sep 2024 06:10:22 GMT",
+      "comments": {}
+    },
+    {
       "version": "3.24.3",
       "tag": "@snowplow/browser-plugin-button-click-tracking_v3.24.3",
       "date": "Tue, 03 Sep 2024 08:15:14 GMT",

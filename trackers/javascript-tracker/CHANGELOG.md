@@ -1,6 +1,13 @@
 # Change Log - @snowplow/javascript-tracker
 
-This log was last generated on Tue, 03 Sep 2024 08:15:14 GMT and should not be manually modified.
+This log was last generated on Thu, 26 Sep 2024 06:10:22 GMT and should not be manually modified.
+
+## 3.24.4
+Thu, 26 Sep 2024 06:10:22 GMT
+
+### Updates
+
+- Skip YouTube integration tests since they are blocked on SauceLabs
 
 ## 3.24.3
 Tue, 03 Sep 2024 08:15:14 GMT
