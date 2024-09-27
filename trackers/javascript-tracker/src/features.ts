@@ -35,6 +35,7 @@ export function Plugins(configuration: JavaScriptTrackerConfiguration) {
     gaCookies,
     geolocation,
     clientHints,
+    webVitals
   } = configuration?.contexts ?? {};
   const activatedPlugins: Array<[BrowserPlugin, {} | Record<string, Function>]> = [];
 
@@ -152,9 +153,9 @@ export function Plugins(configuration: JavaScriptTrackerConfiguration) {
     activatedPlugins.push([PerformanceNavigationTimingPlugin(), apiMethods]);
   }
 
-  if (plugins.webVitals) {
+  if (plugins.webVitals && webVitals) {
     const { WebVitalsPlugin, ...apiMethods } = WebVitals;
-    activatedPlugins.push([WebVitalsPlugin(), apiMethods]);
+    activatedPlugins.push([WebVitalsPlugin(typeof webVitals === 'object' ? webVitals : undefined), apiMethods]);
   }
 
   return activatedPlugins;
