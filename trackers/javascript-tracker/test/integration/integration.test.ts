@@ -420,6 +420,28 @@ describe('Snowplow Micro integration', () => {
                 },
               },
             },
+            contexts: {
+              data: [
+                {
+                  schema: 'iglu:com.snowplowanalytics.snowplow.ecommerce/product/jsonschema/1-0-0',
+                  data: {
+                    id: 'P125',
+                    name: 'Baseball T',
+                    brand: 'Snowplow',
+                    category: 'Mens/Apparel',
+                    price: 200,
+                    currency: 'USD',
+                  },
+                },
+                {
+                  schema: 'iglu:com.snowplowanalytics.snowplow.ecommerce/cart/jsonschema/1-0-0',
+                  data: {
+                    total_value: 200,
+                    currency: 'USD',
+                  },
+                },
+              ],
+            },
           },
         })
       ).toBe(true);
@@ -440,6 +462,28 @@ describe('Snowplow Micro integration', () => {
                   type: 'remove_from_cart',
                 },
               },
+            },
+            contexts: {
+              data: [
+                {
+                  schema: 'iglu:com.snowplowanalytics.snowplow.ecommerce/product/jsonschema/1-0-0',
+                  data: {
+                    id: 'P125',
+                    name: 'Baseball T',
+                    brand: 'Snowplow',
+                    category: 'Mens/Apparel',
+                    price: 200,
+                    currency: 'USD',
+                  },
+                },
+                {
+                  schema: 'iglu:com.snowplowanalytics.snowplow.ecommerce/cart/jsonschema/1-0-0',
+                  data: {
+                    total_value: 0,
+                    currency: 'USD',
+                  },
+                },
+              ],
             },
           },
         })
