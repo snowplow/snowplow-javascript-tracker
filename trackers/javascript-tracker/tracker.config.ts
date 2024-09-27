@@ -8,7 +8,6 @@ export const linkClickTracking = true;
 export const performanceNavigationTiming = true;
 export const siteTracking = true;
 export const snowplowEcommerceTracking = true;
-export const timezone = true;
 export const buttonClickTracking = true;
 export const webVitals = true;
 
@@ -22,6 +21,7 @@ export const vimeoTracking = false;
 export const privacySandbox = false;
 export const eventSpecifications = false;
 export const geolocation = false;
+export const timezone = false;
 
 /* Deprecated */
 export const enhancedEcommerce = false;
