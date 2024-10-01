@@ -70,7 +70,8 @@ function newCookie(name: string): Cookie {
   let lastSetValueArgs: Parameters<typeof setValue> | undefined;
   let cacheExpireAt: Date | undefined;
   let flushed = true;
-  const flushTimeout = 10;
+  const flushTimeout = 10; // milliseconds
+  const maxCacheTtl = 0.1; // seconds
 
   function getValue(): string {
     // Note: we can't cache the cookie value as we don't know the expiration date
@@ -92,9 +93,7 @@ function newCookie(name: string): Cookie {
       }, flushTimeout);
     }
 
-    if (ttl !== undefined) {
-      cacheExpireAt = new Date(Date.now() + ttl * 1000);
-    }
+    cacheExpireAt = new Date(Date.now() + Math.min(maxCacheTtl, ttl ?? maxCacheTtl) * 1000);
     return true;
   }
 
