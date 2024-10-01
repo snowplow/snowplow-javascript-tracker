@@ -464,7 +464,9 @@ export interface SelfDescribingEvent {
 }
 
 // @public
-export type SelfDescribingJson<T extends Record<keyof T, unknown> = Record<string, unknown>> = {
+export type SelfDescribingJson<T extends {
+    [_: string]: unknown;
+} = Record<string, unknown>> = {
     schema: string;
     data: T;
 };
