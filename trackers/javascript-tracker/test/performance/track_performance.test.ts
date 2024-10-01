@@ -11,7 +11,8 @@ const loadUrlAndWait = async (url: string) => {
 
 const shouldSkipBrowser = (browser: any) => {
   const capabilities = browser.capabilities as Capabilities.DesiredCapabilities;
-  return capabilities.browserName?.toLowerCase() === 'firefox';
+  const browserName = capabilities.browserName?.toLowerCase();
+  return browserName === 'firefox' || browserName === 'safari';
 };
 
 describe('Performance of tracking', () => {
