@@ -386,12 +386,6 @@
     },
 
     {
-      "packageName": "@snowplow/browser-plugin-optimizely",
-      "projectFolder": "plugins/browser-plugin-optimizely",
-      "reviewCategory": "plugins",
-      "versionPolicyName": "tracker"
-    },
-    {
       "packageName": "@snowplow/browser-plugin-optimizely-x",
       "projectFolder": "plugins/browser-plugin-optimizely-x",
       "reviewCategory": "plugins",
@@ -406,12 +400,6 @@
     {
       "packageName": "@snowplow/browser-plugin-performance-timing",
       "projectFolder": "plugins/browser-plugin-performance-timing",
-      "reviewCategory": "plugins",
-      "versionPolicyName": "tracker"
-    },
-    {
-      "packageName": "@snowplow/browser-plugin-consent",
-      "projectFolder": "plugins/browser-plugin-consent",
       "reviewCategory": "plugins",
       "versionPolicyName": "tracker"
     },
@@ -446,20 +434,8 @@
       "versionPolicyName": "tracker"
     },
     {
-      "packageName": "@snowplow/browser-plugin-browser-features",
-      "projectFolder": "plugins/browser-plugin-browser-features",
-      "reviewCategory": "plugins",
-      "versionPolicyName": "tracker"
-    },
-    {
       "packageName": "@snowplow/browser-plugin-timezone",
       "projectFolder": "plugins/browser-plugin-timezone",
-      "reviewCategory": "plugins",
-      "versionPolicyName": "tracker"
-    },
-    {
-      "packageName": "@snowplow/browser-plugin-ecommerce",
-      "projectFolder": "plugins/browser-plugin-ecommerce",
       "reviewCategory": "plugins",
       "versionPolicyName": "tracker"
     },
