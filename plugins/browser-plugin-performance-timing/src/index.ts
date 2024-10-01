@@ -46,6 +46,8 @@ declare global {
  * May not be fully populated when inital Page View fires
  * Often a good idea to take the latest performance timing context
  * for a given page view id when analysing in the warehouse
+ *
+ * @deprecated Use @snowplow/browser-plugin-performance-navigation-timing instead
  */
 export function PerformanceTimingPlugin(): BrowserPlugin {
   /**

@@ -43,6 +43,8 @@ const _context: Record<string, Array<SelfDescribingJson>> = {};
 /**
  * For tracking GA Enhanced Ecommerce events and contexts
  * {@link https://developers.google.com/analytics/devguides/collection/analyticsjs/enhanced-ecommerce}
+ *
+ * @deprecated Use @snowplow/browser-plugin-snowplow-ecommerce instead
  */
 export function EnhancedEcommercePlugin(): BrowserPlugin {
   return {

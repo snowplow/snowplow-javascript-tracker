@@ -37,14 +37,7 @@ export interface JavaScriptTrackerConfiguration extends TrackerConfiguration {
     performanceTiming: boolean;
     gaCookies: boolean;
     geolocation: boolean;
-    optimizelyExperiments: boolean;
-    optimizelyStates: boolean;
-    optimizelyVariations: boolean;
-    optimizelyVisitor: boolean;
-    optimizelyAudiences: boolean;
-    optimizelyDimensions: boolean;
-    optimizelySummary: boolean;
-    optimizelyXSummary: boolean;
     clientHints: boolean | { includeHighEntropy: boolean };
+    webVitals: boolean | { loadWebVitalsScript?: boolean; webVitalsSource?: string };
   };
 }
