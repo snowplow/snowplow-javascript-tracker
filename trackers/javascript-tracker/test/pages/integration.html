@@ -127,13 +127,6 @@
         return {};
       }
 
-      window.snowplow('enableGdprContext:sp', {
-        basisForProcessing: 'consent',
-        documentId: 'someId',
-        documentVersion: '0.1.0',
-        documentDescription: 'this document is a test',
-      });
-
       window.snowplow('addGlobalContexts:sp', [erroneousContextGenerator]);
       window.snowplow('addGlobalContexts:sp', [
         [structuredEventFilter, [eventTypeContextGenerator, geolocationContext]],
@@ -189,33 +182,6 @@
         context: [],
         timestamp: { type: 'ttm', value: 1477401868 },
       });
-
-      window.snowplow('addTrans:sp', {
-        orderId: 'order-123',
-        total: 8000,
-        affiliation: 'acme',
-        tax: 100,
-        shipping: 50,
-        city: 'pheonix',
-        state: 'arizona',
-        country: 'USA',
-        currency: 'JPY',
-      });
-
-      // addItem might be called for each item in the shopping cart, or not at all.
-      window.snowplow('addItem:sp', {
-        orderId: 'order-123',
-        sku: '1001',
-        name: 'Blue t-shirt',
-        category: 'clothing',
-        price: '2000',
-        quantity: '2',
-        currency: 'JPY',
-      });
-
-      // trackTrans sends the transaction to Snowplow tracking servers.
-      // Must be called last to commit the transaction.
-      window.snowplow('trackTrans:sp');
 
       var testAcceptRuleSet = {
         accept: ['iglu:com.snowplowanalytics.snowplow/*/jsonschema/*-*-*'],
@@ -294,20 +260,32 @@
       });
 
       window.snowplow('trackAddToCart:sp', {
-        sku: '000345',
-        name: 'blue tie',
-        category: 'clothing',
-        unitPrice: 3.49,
-        quantity: 2,
-        currency: 'GBP',
+        products: [
+          {
+            id: "P125",
+            name: "Baseball T",
+            brand: "Snowplow",
+            category: "Mens/Apparel",
+            price: 200,
+            currency: "USD",
+          },
+        ],
+        total_value: 200,
+        currency: "USD",
       });
       window.snowplow('trackRemoveFromCart:sp', {
-        sku: '000345',
-        name: 'blue tie',
-        category: 'clothing',
-        unitPrice: 3.49,
-        quantity: 1,
-        currency: 'GBP',
+        products: [
+          {
+            id: "P125",
+            name: "Baseball T",
+            brand: "Snowplow",
+            category: "Mens/Apparel",
+            price: 200,
+            currency: "USD",
+          },
+        ],
+        total_value: 0,
+        currency: "USD",
       });
 
       window.snowplow('trackSiteSearch:sp', {
@@ -322,22 +300,6 @@
         variable: 'map_loaded',
         timing: 50,
         label: 'Map loading time',
-      });
-
-      window.snowplow('trackConsentGranted:sp', {
-        id: '1234',
-        version: '5',
-        name: 'consent_document',
-        description: 'a document granting consent',
-        expiry: '2020-11-21T08:00:00.000Z',
-      });
-
-      window.snowplow('trackConsentWithdrawn:sp', {
-        all: false,
-        id: '1234',
-        version: '5',
-        name: 'consent_document',
-        description: 'a document withdrawing consent',
       });
 
       try {

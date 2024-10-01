@@ -235,76 +235,6 @@ importers:
         specifier: ~4.6.2
         version: 4.6.4
 
-  ../../plugins/browser-plugin-browser-features:
-    dependencies:
-      '@snowplow/browser-tracker-core':
-        specifier: workspace:*
-        version: link:../../libraries/browser-tracker-core
-      tslib:
-        specifier: ^2.3.1
-        version: 2.6.3
-    devDependencies:
-      '@ampproject/rollup-plugin-closure-compiler':
-        specifier: ~0.27.0
-        version: 0.27.0(rollup@2.70.2)
-      '@rollup/plugin-commonjs':
-        specifier: ~21.0.2
-        version: 21.0.3(rollup@2.70.2)
-      '@rollup/plugin-node-resolve':
-        specifier: ~13.1.3
-        version: 13.1.3(rollup@2.70.2)
-      '@snowplow/tracker-core':
-        specifier: workspace:*
-        version: link:../../libraries/tracker-core
-      '@types/jest':
-        specifier: ~27.4.1
-        version: 27.4.1
-      '@types/jsdom':
-        specifier: ~16.2.14
-        version: 16.2.15
-      '@typescript-eslint/eslint-plugin':
-        specifier: ~5.15.0
-        version: 5.15.0(@typescript-eslint/parser@5.15.0(eslint@8.11.0)(typescript@4.6.4))(eslint@8.11.0)(typescript@4.6.4)
-      '@typescript-eslint/parser':
-        specifier: ~5.15.0
-        version: 5.15.0(eslint@8.11.0)(typescript@4.6.4)
-      eslint:
-        specifier: ~8.11.0
-        version: 8.11.0
-      jest:
-        specifier: ~27.5.1
-        version: 27.5.1(ts-node@10.9.2(@types/node@20.14.15)(typescript@4.6.4))
-      jest-environment-jsdom:
-        specifier: ~27.5.1
-        version: 27.5.1
-      jest-environment-jsdom-global:
-        specifier: ~3.0.0
-        version: 3.0.0(jest-environment-jsdom@27.5.1)
-      jest-standard-reporter:
-        specifier: ~2.0.0
-        version: 2.0.0
-      rollup:
-        specifier: ~2.70.1
-        version: 2.70.2
-      rollup-plugin-cleanup:
-        specifier: ~3.2.1
-        version: 3.2.1(rollup@2.70.2)
-      rollup-plugin-license:
-        specifier: ~2.6.1
-        version: 2.6.1(rollup@2.70.2)
-      rollup-plugin-terser:
-        specifier: ~7.0.2
-        version: 7.0.2(rollup@2.70.2)
-      rollup-plugin-ts:
-        specifier: ~2.0.5
-        version: 2.0.7(@babel/core@7.25.2)(@babel/runtime@7.25.0)(rollup@2.70.2)(typescript@4.6.4)
-      ts-jest:
-        specifier: ~27.1.3
-        version: 27.1.5(@babel/core@7.25.2)(@types/jest@27.4.1)(babel-jest@27.5.1(@babel/core@7.25.2))(jest@27.5.1(ts-node@10.9.2(@types/node@20.14.15)(typescript@4.6.4)))(typescript@4.6.4)
-      typescript:
-        specifier: ~4.6.2
-        version: 4.6.4
-
   ../../plugins/browser-plugin-button-click-tracking:
     dependencies:
       '@snowplow/browser-tracker-core':
@@ -451,82 +381,6 @@ importers:
         specifier: ~4.6.2
         version: 4.6.4
 
-  ../../plugins/browser-plugin-consent:
-    dependencies:
-      '@snowplow/browser-tracker-core':
-        specifier: workspace:*
-        version: link:../../libraries/browser-tracker-core
-      '@snowplow/tracker-core':
-        specifier: workspace:*
-        version: link:../../libraries/tracker-core
-      tslib:
-        specifier: ^2.3.1
-        version: 2.6.3
-    devDependencies:
-      '@ampproject/rollup-plugin-closure-compiler':
-        specifier: ~0.27.0
-        version: 0.27.0(rollup@2.70.2)
-      '@rollup/plugin-commonjs':
-        specifier: ~21.0.2
-        version: 21.0.3(rollup@2.70.2)
-      '@rollup/plugin-node-resolve':
-        specifier: ~13.1.3
-        version: 13.1.3(rollup@2.70.2)
-      '@types/jest':
-        specifier: ~27.4.1
-        version: 27.4.1
-      '@types/jsdom':
-        specifier: ~16.2.14
-        version: 16.2.15
-      '@types/lodash':
-        specifier: ~4.14.180
-        version: 4.14.202
-      '@typescript-eslint/eslint-plugin':
-        specifier: ~5.15.0
-        version: 5.15.0(@typescript-eslint/parser@5.15.0(eslint@8.11.0)(typescript@4.6.4))(eslint@8.11.0)(typescript@4.6.4)
-      '@typescript-eslint/parser':
-        specifier: ~5.15.0
-        version: 5.15.0(eslint@8.11.0)(typescript@4.6.4)
-      eslint:
-        specifier: ~8.11.0
-        version: 8.11.0
-      jest:
-        specifier: ~27.5.1
-        version: 27.5.1(ts-node@10.9.2(@types/node@20.14.15)(typescript@4.6.4))
-      jest-environment-jsdom:
-        specifier: ~27.5.1
-        version: 27.5.1
-      jest-environment-jsdom-global:
-        specifier: ~3.0.0
-        version: 3.0.0(jest-environment-jsdom@27.5.1)
-      jest-standard-reporter:
-        specifier: ~2.0.0
-        version: 2.0.0
-      lodash:
-        specifier: ~4.17.21
-        version: 4.17.21
-      rollup:
-        specifier: ~2.70.1
-        version: 2.70.2
-      rollup-plugin-cleanup:
-        specifier: ~3.2.1
-        version: 3.2.1(rollup@2.70.2)
-      rollup-plugin-license:
-        specifier: ~2.6.1
-        version: 2.6.1(rollup@2.70.2)
-      rollup-plugin-terser:
-        specifier: ~7.0.2
-        version: 7.0.2(rollup@2.70.2)
-      rollup-plugin-ts:
-        specifier: ~2.0.5
-        version: 2.0.7(@babel/core@7.25.2)(@babel/runtime@7.25.0)(rollup@2.70.2)(typescript@4.6.4)
-      ts-jest:
-        specifier: ~27.1.3
-        version: 27.1.5(@babel/core@7.25.2)(@types/jest@27.4.1)(babel-jest@27.5.1(@babel/core@7.25.2))(jest@27.5.1(ts-node@10.9.2(@types/node@20.14.15)(typescript@4.6.4)))(typescript@4.6.4)
-      typescript:
-        specifier: ~4.6.2
-        version: 4.6.4
-
   ../../plugins/browser-plugin-debugger:
     dependencies:
       '@snowplow/browser-tracker-core':
@@ -581,82 +435,6 @@ importers:
       jest-standard-reporter:
         specifier: ~2.0.0
         version: 2.0.0
-      rollup:
-        specifier: ~2.70.1
-        version: 2.70.2
-      rollup-plugin-cleanup:
-        specifier: ~3.2.1
-        version: 3.2.1(rollup@2.70.2)
-      rollup-plugin-license:
-        specifier: ~2.6.1
-        version: 2.6.1(rollup@2.70.2)
-      rollup-plugin-terser:
-        specifier: ~7.0.2
-        version: 7.0.2(rollup@2.70.2)
-      rollup-plugin-ts:
-        specifier: ~2.0.5
-        version: 2.0.7(@babel/core@7.25.2)(@babel/runtime@7.25.0)(rollup@2.70.2)(typescript@4.6.4)
-      ts-jest:
-        specifier: ~27.1.3
-        version: 27.1.5(@babel/core@7.25.2)(@types/jest@27.4.1)(babel-jest@27.5.1(@babel/core@7.25.2))(jest@27.5.1(ts-node@10.9.2(@types/node@20.14.15)(typescript@4.6.4)))(typescript@4.6.4)
-      typescript:
-        specifier: ~4.6.2
-        version: 4.6.4
-
-  ../../plugins/browser-plugin-ecommerce:
-    dependencies:
-      '@snowplow/browser-tracker-core':
-        specifier: workspace:*
-        version: link:../../libraries/browser-tracker-core
-      '@snowplow/tracker-core':
-        specifier: workspace:*
-        version: link:../../libraries/tracker-core
-      tslib:
-        specifier: ^2.3.1
-        version: 2.6.3
-    devDependencies:
-      '@ampproject/rollup-plugin-closure-compiler':
-        specifier: ~0.27.0
-        version: 0.27.0(rollup@2.70.2)
-      '@rollup/plugin-commonjs':
-        specifier: ~21.0.2
-        version: 21.0.3(rollup@2.70.2)
-      '@rollup/plugin-node-resolve':
-        specifier: ~13.1.3
-        version: 13.1.3(rollup@2.70.2)
-      '@types/jest':
-        specifier: ~27.4.1
-        version: 27.4.1
-      '@types/jsdom':
-        specifier: ~16.2.14
-        version: 16.2.15
-      '@types/lodash':
-        specifier: ~4.14.180
-        version: 4.14.202
-      '@typescript-eslint/eslint-plugin':
-        specifier: ~5.15.0
-        version: 5.15.0(@typescript-eslint/parser@5.15.0(eslint@8.11.0)(typescript@4.6.4))(eslint@8.11.0)(typescript@4.6.4)
-      '@typescript-eslint/parser':
-        specifier: ~5.15.0
-        version: 5.15.0(eslint@8.11.0)(typescript@4.6.4)
-      eslint:
-        specifier: ~8.11.0
-        version: 8.11.0
-      jest:
-        specifier: ~27.5.1
-        version: 27.5.1(ts-node@10.9.2(@types/node@20.14.15)(typescript@4.6.4))
-      jest-environment-jsdom:
-        specifier: ~27.5.1
-        version: 27.5.1
-      jest-environment-jsdom-global:
-        specifier: ~3.0.0
-        version: 3.0.0(jest-environment-jsdom@27.5.1)
-      jest-standard-reporter:
-        specifier: ~2.0.0
-        version: 2.0.0
-      lodash:
-        specifier: ~4.17.21
-        version: 4.17.21
       rollup:
         specifier: ~2.70.1
         version: 2.70.2
@@ -1410,76 +1188,6 @@ importers:
         version: 4.6.4
 
   ../../plugins/browser-plugin-media-tracking:
-    dependencies:
-      '@snowplow/browser-tracker-core':
-        specifier: workspace:*
-        version: link:../../libraries/browser-tracker-core
-      '@snowplow/tracker-core':
-        specifier: workspace:*
-        version: link:../../libraries/tracker-core
-      tslib:
-        specifier: ^2.3.1
-        version: 2.6.3
-    devDependencies:
-      '@ampproject/rollup-plugin-closure-compiler':
-        specifier: ~0.27.0
-        version: 0.27.0(rollup@2.70.2)
-      '@rollup/plugin-commonjs':
-        specifier: ~21.0.2
-        version: 21.0.3(rollup@2.70.2)
-      '@rollup/plugin-node-resolve':
-        specifier: ~13.1.3
-        version: 13.1.3(rollup@2.70.2)
-      '@types/jest':
-        specifier: ~27.4.1
-        version: 27.4.1
-      '@types/jsdom':
-        specifier: ~16.2.14
-        version: 16.2.15
-      '@typescript-eslint/eslint-plugin':
-        specifier: ~5.15.0
-        version: 5.15.0(@typescript-eslint/parser@5.15.0(eslint@8.11.0)(typescript@4.6.4))(eslint@8.11.0)(typescript@4.6.4)
-      '@typescript-eslint/parser':
-        specifier: ~5.15.0
-        version: 5.15.0(eslint@8.11.0)(typescript@4.6.4)
-      eslint:
-        specifier: ~8.11.0
-        version: 8.11.0
-      jest:
-        specifier: ~27.5.1
-        version: 27.5.1(ts-node@10.9.2(@types/node@20.14.15)(typescript@4.6.4))
-      jest-environment-jsdom:
-        specifier: ~27.5.1
-        version: 27.5.1
-      jest-environment-jsdom-global:
-        specifier: ~3.0.0
-        version: 3.0.0(jest-environment-jsdom@27.5.1)
-      jest-standard-reporter:
-        specifier: ~2.0.0
-        version: 2.0.0
-      rollup:
-        specifier: ~2.70.1
-        version: 2.70.2
-      rollup-plugin-cleanup:
-        specifier: ~3.2.1
-        version: 3.2.1(rollup@2.70.2)
-      rollup-plugin-license:
-        specifier: ~2.6.1
-        version: 2.6.1(rollup@2.70.2)
-      rollup-plugin-terser:
-        specifier: ~7.0.2
-        version: 7.0.2(rollup@2.70.2)
-      rollup-plugin-ts:
-        specifier: ~2.0.5
-        version: 2.0.7(@babel/core@7.25.2)(@babel/runtime@7.25.0)(rollup@2.70.2)(typescript@4.6.4)
-      ts-jest:
-        specifier: ~27.1.3
-        version: 27.1.5(@babel/core@7.25.2)(@types/jest@27.4.1)(babel-jest@27.5.1(@babel/core@7.25.2))(jest@27.5.1(ts-node@10.9.2(@types/node@20.14.15)(typescript@4.6.4)))(typescript@4.6.4)
-      typescript:
-        specifier: ~4.6.2
-        version: 4.6.4
-
-  ../../plugins/browser-plugin-optimizely:
     dependencies:
       '@snowplow/browser-tracker-core':
         specifier: workspace:*
@@ -2369,21 +2077,12 @@ importers:
       '@snowplow/browser-plugin-ad-tracking':
         specifier: workspace:*
         version: link:../../plugins/browser-plugin-ad-tracking
-      '@snowplow/browser-plugin-browser-features':
-        specifier: workspace:*
-        version: link:../../plugins/browser-plugin-browser-features
       '@snowplow/browser-plugin-button-click-tracking':
         specifier: workspace:*
         version: link:../../plugins/browser-plugin-button-click-tracking
       '@snowplow/browser-plugin-client-hints':
         specifier: workspace:*
         version: link:../../plugins/browser-plugin-client-hints
-      '@snowplow/browser-plugin-consent':
-        specifier: workspace:*
-        version: link:../../plugins/browser-plugin-consent
-      '@snowplow/browser-plugin-ecommerce':
-        specifier: workspace:*
-        version: link:../../plugins/browser-plugin-ecommerce
       '@snowplow/browser-plugin-enhanced-consent':
         specifier: workspace:*
         version: link:../../plugins/browser-plugin-enhanced-consent
@@ -2414,12 +2113,12 @@ importers:
       '@snowplow/browser-plugin-media-tracking':
         specifier: workspace:*
         version: link:../../plugins/browser-plugin-media-tracking
-      '@snowplow/browser-plugin-optimizely':
-        specifier: workspace:*
-        version: link:../../plugins/browser-plugin-optimizely
       '@snowplow/browser-plugin-optimizely-x':
         specifier: workspace:*
         version: link:../../plugins/browser-plugin-optimizely-x
+      '@snowplow/browser-plugin-performance-navigation-timing':
+        specifier: workspace:*
+        version: link:../../plugins/browser-plugin-performance-navigation-timing
       '@snowplow/browser-plugin-performance-timing':
         specifier: workspace:*
         version: link:../../plugins/browser-plugin-performance-timing
@@ -2438,6 +2137,9 @@ importers:
       '@snowplow/browser-plugin-vimeo-tracking':
         specifier: workspace:*
         version: link:../../plugins/browser-plugin-vimeo-tracking
+      '@snowplow/browser-plugin-web-vitals':
+        specifier: workspace:*
+        version: link:../../plugins/browser-plugin-web-vitals
       '@snowplow/browser-plugin-youtube-tracking':
         specifier: workspace:*
         version: link:../../plugins/browser-plugin-youtube-tracking
@@ -2524,8 +2226,8 @@ importers:
         specifier: 4.1.2
         version: 4.1.2
       chromedriver:
-        specifier: ~126.0.4
-        version: 126.0.5
+        specifier: ~129.0.0
+        version: 129.0.0
       dockerode:
         specifier: ~3.3.1
         version: 3.3.5
@@ -2585,7 +2287,7 @@ importers:
         version: 4.6.4
       wdio-chromedriver-service:
         specifier: ~8.1.1
-        version: 8.1.1(@wdio/types@8.39.0)(chromedriver@126.0.5)(webdriverio@8.39.1(encoding@0.1.13)(typescript@4.6.4))
+        version: 8.1.1(@wdio/types@8.39.0)(chromedriver@129.0.0)(webdriverio@8.39.1(encoding@0.1.13)(typescript@4.6.4))
       wdio-edgedriver-service:
         specifier: ~3.0.3
         version: 3.0.3(@wdio/types@8.39.0)
@@ -3889,8 +3591,8 @@ packages:
     resolution: {integrity: sha512-bIomtDF5KGpdogkLd9VspvFzk9KfpyyGlS8YFVZl7TGPBHL5snIOnxeshwVgPteQ9b4Eydl+pVbIyE1DcvCWgQ==}
     engines: {node: '>=10'}
 
-  chromedriver@126.0.5:
-    resolution: {integrity: sha512-xXVxwxd8CJ6yg2KEvFqLQi7V0RvF78xFnLB+xo9g9MoJNHMQccD7b4OWaxtKDy5RXrMgQ6Jb6vUN3SjTYXHLEQ==}
+  chromedriver@129.0.0:
+    resolution: {integrity: sha512-B1ccqD6hDjNrw94FeqdynIotn1ZV/TnFrkRz2Rync2kzSnq6D6IrSkN1w5Pnuvnc98QhN2xujxDXxkqEqy/PWg==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -9465,7 +9167,7 @@ snapshots:
 
   chownr@2.0.0: {}
 
-  chromedriver@126.0.5:
+  chromedriver@129.0.0:
     dependencies:
       '@testim/chrome-version': 1.1.4
       axios: 1.7.4
@@ -13645,7 +13347,7 @@ snapshots:
     dependencies:
       defaults: 1.0.4
 
-  wdio-chromedriver-service@8.1.1(@wdio/types@8.39.0)(chromedriver@126.0.5)(webdriverio@8.39.1(encoding@0.1.13)(typescript@4.6.4)):
+  wdio-chromedriver-service@8.1.1(@wdio/types@8.39.0)(chromedriver@129.0.0)(webdriverio@8.39.1(encoding@0.1.13)(typescript@4.6.4)):
     dependencies:
       '@wdio/logger': 8.38.0
       fs-extra: 11.2.0
@@ -13654,7 +13356,7 @@ snapshots:
       webdriverio: 8.39.1(encoding@0.1.13)(typescript@4.6.4)
     optionalDependencies:
       '@wdio/types': 8.39.0
-      chromedriver: 126.0.5
+      chromedriver: 129.0.0
     transitivePeerDependencies:
       - supports-color
 
