@@ -10,14 +10,36 @@ type VideoLocation = YT.Player | HTMLIFrameElement | string;
 /**
  * YouTubeTrackingPlugin configuration values.
  *
- * Similar to the base Media Tracking plugin configuration, but with backwards compatibility for older versions of this YouTubeTrackingPlugin.
+ * Similar to the base Media Tracking plugin configuration, but with handling for a custom `label` and specifying the player to track.
  */
-export type YouTubeMediaTrackingConfiguration = {
+export type YouTubeMediaTrackingConfiguration = Omit<MediaTrackingConfiguration, 'captureEvents' | 'player'> & {
   /**
    * The DOM ID for the element that hosts the YouTube video player to bind to.
    * You can also pass the DOM element or `YT.Player` instance directly.
    */
-  id?: VideoLocation;
+  video: VideoLocation;
+  /**
+   * List of events or event groups to include tracking for if possible.
+   * Not all MediaEventType values are supported by the Player API and will be ignored.
+   */
+  captureEvents?: `${CapturableEvents[number]}`[];
+  /**
+   * This plugin generates the `player` data automatically; use this to specify a `label` for inclusion in that entity.
+   */
+  label?: string;
+};
+
+/**
+ * YouTubeTrackingPlugin configuration values.
+ *
+ * v3 API compatible definition to ease migration.
+ */
+export type LegacyYouTubeMediaTrackingConfiguration = {
+  /**
+   * The DOM ID for the element that hosts the YouTube video player to bind to.
+   * You can also pass the DOM element or `YT.Player` instance directly.
+   */
+  id: VideoLocation;
   /**
    * Media Tracking options configuration; most of these options will be passed to the base Media Tracking plugin.
    */
@@ -37,7 +59,7 @@ export type YouTubeMediaTrackingConfiguration = {
 export interface TrackingOptions<T extends YT.Player | HTMLIFrameElement | string = VideoLocation> {
   sessionId: string;
   video: T;
-  config: Omit<YouTubeMediaTrackingConfiguration['options'], 'video'>;
+  config: Omit<YouTubeMediaTrackingConfiguration, 'video'>;
   player?: YT.Player;
   urlParameters?: UrlParameters;
   captureEvents: MediaEventType[];

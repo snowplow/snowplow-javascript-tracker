@@ -1,6 +1,5 @@
 import { type Logger } from '@snowplow/tracker-core';
 import { MediaEventType } from '@snowplow/browser-plugin-media';
-import { v4 as uuid } from 'uuid';
 
 import { TrackingOptions, YouTubeMediaTrackingConfiguration } from './types';
 
@@ -60,7 +59,7 @@ const CaptureEventToYouTubeEvent: Partial<Record<MediaEventType | YTState, keyof
 };
 
 export function trackingOptionsParser(
-  { id: video, options }: YouTubeMediaTrackingConfiguration,
+  { video, ...options }: YouTubeMediaTrackingConfiguration,
   LOG?: Logger
 ): TrackingOptions {
   if (!video) throw Error('Property `id` is undefined');
@@ -106,7 +105,7 @@ export function trackingOptionsParser(
   }
 
   return {
-    sessionId: uuid(),
+    sessionId: config.id,
     config,
     video,
     captureEvents: parsedEvents.filter((e, i, a) => a.indexOf(e) === i),

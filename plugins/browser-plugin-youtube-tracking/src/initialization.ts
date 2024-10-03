@@ -19,17 +19,24 @@ import {
   trackMediaVolumeChange,
   updateMediaTracking,
 } from '@snowplow/browser-plugin-media';
-import { type Logger } from '@snowplow/tracker-core';
+import type { Logger } from '@snowplow/tracker-core';
+import { v4 as uuid } from 'uuid';
 
 import { buildPlayerEntity, buildYouTubeEntity } from './entities';
 import { addUrlParam, parseUrlParams } from './helperFunctions';
 import { trackingOptionsParser } from './options';
-import type { TrackedPlayer, TrackingOptions, YouTubeMediaTrackingConfiguration } from './types';
+import type {
+  LegacyYouTubeMediaTrackingConfiguration,
+  TrackedPlayer,
+  TrackingOptions,
+  YouTubeMediaTrackingConfiguration,
+} from './types';
 
 const YouTubeIFrameAPIURL = 'https://www.youtube.com/iframe_api';
 
 const trackedPlayers: Record<string, TrackedPlayer> = {};
 const trackingQueue: Array<TrackingOptions> = [];
+const legacyApiSessions: string[] = [];
 
 let LOG: Logger | undefined = undefined;
 
@@ -50,8 +57,9 @@ export function YouTubeTrackingPlugin(): BrowserPlugin {
  * Start media tracking for the given player and configuration.
  * @param args Tracking configuration
  * @returns The media session ID for the player
+ * @since 4.0.0
  */
-export function enableYouTubeTracking(args: YouTubeMediaTrackingConfiguration): string | void {
+export function startYouTubeTracking(args: YouTubeMediaTrackingConfiguration): string | void {
   try {
     const conf = trackingOptionsParser(args);
     addPlayer(conf);
@@ -74,12 +82,59 @@ export function enableYouTubeTracking(args: YouTubeMediaTrackingConfiguration): 
 /**
  * Disable tracking for a previously enabled player's media session.
  * @param id The media session ID to disable tracking for
+ * @since 4.0.0
  */
-export function disableYouTubeTracking(id: string): void {
+export function endYouTubeTracking(id: string): void {
   endMediaTracking({ id });
   const intervalId = trackedPlayers[id].pollTracking.interval;
   if (intervalId !== null) clearInterval(intervalId);
   delete trackedPlayers[id];
+}
+
+/**
+ * Start media tracking for the given player and configuration.
+ * This is a legacy v3 API that wraps the newer `startYouTubeTracking` API.
+ * @param args Tracking configuration
+ * @returns The media session ID for the player
+ * @deprecated since v4.0.0; use {@link startYouTubeTracking}
+ */
+export function enableYouTubeTracking(args: LegacyYouTubeMediaTrackingConfiguration): string | void {
+  const { id, options, ...rest } = args;
+
+  const migrated: YouTubeMediaTrackingConfiguration = {
+    id: uuid(),
+    ...rest,
+    ...options,
+    video: id,
+  };
+
+  const sessionId = startYouTubeTracking(migrated);
+
+  if (sessionId) {
+    legacyApiSessions.push(sessionId);
+    return sessionId;
+  }
+}
+
+/**
+ * Disable tracking for a previously enabled player's media session.
+ * This is a legacy v3 API that wraps the newer `endYouTubeTracking` API.
+ * @param id The media session ID to disable tracking for, or the oldest known session ID if not provided
+ * @since 4.0.0
+ * @deprecated since v4.0.0; use {@link endYouTubeTracking}
+ */
+export function disableYouTubeTracking(id?: string): void {
+  if (id && legacyApiSessions.indexOf(id) !== -1) {
+    // id provided, remove from active list
+    legacyApiSessions.splice(legacyApiSessions.indexOf(id), 1);
+  } else {
+    // id was not provided; presume we're ending the earliest session we know of
+    id = id ?? legacyApiSessions.shift();
+  }
+
+  if (id) {
+    endYouTubeTracking(id);
+  }
 }
 
 /**
