@@ -1,4 +1,5 @@
 import type { updateMediaTracking } from '@snowplow/browser-plugin-media';
+import type { SelfDescribingJson } from '@snowplow/tracker-core';
 import { MediaType } from '@snowplow/browser-plugin-media/src/types';
 
 import { TrackingOptions, YouTubeEntity } from './types';
@@ -30,7 +31,7 @@ export function buildPlayerEntity(conf: TrackingOptions): PlayerStatus | undefin
   };
 }
 
-export function buildYouTubeEntity(conf: TrackingOptions) {
+export function buildYouTubeEntity(conf: TrackingOptions): SelfDescribingJson<YouTubeEntity> | null {
   const { player, urlParameters = {} } = conf;
 
   if (!player) return null;
