@@ -13,6 +13,7 @@ export const config: Omit<Options.Testrunner, 'capabilities'> = {
     getFullPath('test/functional/*.test.ts'),
     getFullPath('test/integration/*.test.ts'),
     getFullPath('test/media/media.test.ts'),
+    getFullPath('test/performance/*.test.ts'),
     // YouTube and Vimeo tests are disabled since they block SauceLabs on CI
   ]],
   logLevel: 'warn',

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Track performance test page</title>
+</head>
+
+<body style="width: 2000px; height: 2000px; position: relative">
+  <p id="title">Page for sending requests to Snowplow Micro</p>
+  <div id="init"></div>
+
+  <script>
+    document.body.className += ' loaded';
+  </script>
+
+  <script>
+    (function (p, l, o, w, i, n, g) {
+      if (!p[i]) {
+        p.GlobalSnowplowNamespace = p.GlobalSnowplowNamespace || [];
+        p.GlobalSnowplowNamespace.push(i);
+        p[i] = function () {
+          (p[i].q = p[i].q || []).push(arguments);
+        };
+        p[i].q = p[i].q || [];
+        n = l.createElement(o);
+        g = l.getElementsByTagName(o)[0];
+        n.async = 1;
+        n.src = w;
+        g.parentNode.insertBefore(n, g);
+      }
+    })(window, document, 'script', './snowplow.js', 'snowplow');
+
+    function testWithStorageStrategy(storageStrategy, synchronousCookieWrite) {
+      return new Promise((resolve) => {
+        window.snowplow('newTracker', `sp-${storageStrategy}`, 'http://localhost:9090', {
+          appId: 'sp-perf',
+          cookieName: `sp-perf-${storageStrategy}`,
+          stateStorageStrategy: storageStrategy,
+          synchronousCookieWrite: synchronousCookieWrite,
+          customFetch: function (request) {
+            return new Response(null, {
+              status: 200,
+              statusText: 'OK',
+            });
+          },
+        });
+
+        let eventsTracked = 0;
+        const countPlugin = {
+          CountPlugin: function () {
+            return {
+              afterTrack: () => {
+                eventsTracked++;
+                if (eventsTracked === 100) {
+                  performance.mark('end');
+                  resolve();
+                }
+              }
+            };
+          }
+        };
+        window.snowplow('addPlugin', countPlugin, 'CountPlugin');
+
+        window.snowplow(function () {
+          setTimeout(() => {
+            performance.mark('start');
+            for (var i = 0; i < 100; i++) {
+              window.snowplow(
+                'trackPageView',
+                {
+                  title: `My Title ${i}`,
+                  context: [
+                    {
+                      schema: 'iglu:org.schema/WebPage/jsonschema/1-0-0',
+                      data: {
+                        keywords: ['tester'],
+                      },
+                    },
+                  ],
+                }
+              );
+            }
+          }, 100);
+        });
+      });
+    }
+
+    const url = new URL(window.location.href);
+    const stateStorageStrategy = url.searchParams.get('stateStorageStrategy');
+    const synchronousCookieWrite = url.searchParams.get('synchronousCookieWrite') === 'true';
+    testWithStorageStrategy(stateStorageStrategy, synchronousCookieWrite).then(() => {
+      console.log('done ' + stateStorageStrategy);
+      document.getElementById('init').innerText = 'true';
+    });
+  </script>
+</body>
+
+</html>
