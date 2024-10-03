@@ -22,7 +22,7 @@ export function buildPlayerEntity(conf: TrackingOptions): PlayerStatus | undefin
     loop: undefined,
     mediaType: MediaType.Video,
     muted: player.isMuted(),
-    paused: player.getPlayerState() === YT.PlayerState.PAUSED,
+    paused: player.getPlayerState() !== YT.PlayerState.PLAYING,
     pictureInPicture: undefined,
     playbackRate: player.getPlaybackRate(),
     playerType: PLAYER_TYPE,
