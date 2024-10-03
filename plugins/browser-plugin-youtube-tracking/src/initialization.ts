@@ -360,11 +360,8 @@ function installPollingListeners(conf: TrackingOptions, flags: Partial<Record<Me
 
   const enableSeek = flags[MediaEventType.SeekStart] || flags[MediaEventType.SeekEnd];
   const enableVolume = flags[MediaEventType.VolumeChange];
-  const enableProgress = flags[MediaEventType.PercentProgress];
 
-  const needToPoll = enableSeek || enableVolume || enableProgress;
-
-  if (needToPoll && !pollState.interval && player) {
+  if (!pollState.interval && player) {
     pollState.interval = setInterval(() => {
       updateMediaTracking({ id, player: buildPlayerEntity(conf) });
 
