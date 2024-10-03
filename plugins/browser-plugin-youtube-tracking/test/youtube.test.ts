@@ -32,6 +32,8 @@ import { addUrlParam, parseUrlParams } from '../src/helperFunctions';
 import type { TrackingOptions } from '../src/types';
 import { AllEvents, DefaultEvents, trackingOptionsParser } from '../src/options';
 
+const nilUUID = '00000000-0000-0000-0000-000000000000';
+
 describe('config parser', () => {
   const default_output: TrackingOptions = {
     sessionId: expect.any(String),
@@ -45,20 +47,20 @@ describe('config parser', () => {
   };
 
   it('assigns defaults', () => {
-    const test = trackingOptionsParser({ id: 'element_id', options: {} });
+    const test = trackingOptionsParser({ video: 'element_id', id: nilUUID });
     expect(test).toEqual(default_output);
   });
 
   it('parses boundaries', () => {
     const expectedOutput = [1, 4, 7, 9, 99];
-    expect(trackingOptionsParser({ id: 'element_id', options: { boundaries: [1, 4, 7, 9, 99] } }).boundaries).toEqual(
-      expectedOutput
-    );
+    expect(
+      trackingOptionsParser({ id: nilUUID, video: 'element_id', boundaries: [1, 4, 7, 9, 99] }).boundaries
+    ).toEqual(expectedOutput);
   });
 
   it('parses label', () => {
     const expectedOutput = 'test-label';
-    expect(trackingOptionsParser({ id: 'element_id', options: { label: expectedOutput } }).config.label).toEqual(
+    expect(trackingOptionsParser({ id: nilUUID, video: 'element_id', label: expectedOutput }).config.label).toEqual(
       expectedOutput
     );
   });
@@ -66,7 +68,7 @@ describe('config parser', () => {
   it('parses capture events', () => {
     const expectedOutput = ['play', 'pause'];
     expect(
-      trackingOptionsParser({ id: 'element_id', options: { captureEvents: ['play', 'pause'] } }).captureEvents
+      trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: ['play', 'pause'] }).captureEvents
     ).toEqual(expectedOutput);
   });
 
@@ -74,30 +76,30 @@ describe('config parser', () => {
     const expectedOutput = ['onStateChange', 'onError', 'onPlaybackRateChange', 'onPlaybackQualityChange'];
     expect(
       trackingOptionsParser({
-        id: 'element_id',
-        options: {
-          captureEvents: ['play', 'error', 'playbackratechange', 'playbackqualitychange'],
-        },
+        id: nilUUID,
+        video: 'element_id',
+        captureEvents: ['play', 'error', 'playbackratechange', 'playbackqualitychange'],
       }).youtubeEvents
     ).toEqual(expectedOutput);
   });
 
   it('parses capture event groups', () => {
     expect(
-      trackingOptionsParser({ id: 'element_id', options: { captureEvents: ['AllEvents'] } }).captureEvents
+      trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: ['AllEvents'] }).captureEvents
     ).toEqual(AllEvents);
   });
 
   it('parses capture events and groups in same array', () => {
     expect(
-      trackingOptionsParser({ id: 'element_id', options: { captureEvents: ['DefaultEvents', 'ready'] } }).captureEvents
+      trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: ['DefaultEvents', 'ready'] })
+        .captureEvents
     ).toEqual(DefaultEvents);
   });
 
   it("doesn't return youtube events not in capture events", () => {
     const expectedOutput = ['onStateChange'];
     expect(
-      trackingOptionsParser({ id: 'element_id', options: { captureEvents: ['play', 'pause'] } }).youtubeEvents
+      trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: ['play', 'pause'] }).youtubeEvents
     ).toEqual(expectedOutput);
   });
 
@@ -105,12 +107,12 @@ describe('config parser', () => {
     const expectedOutput = ['onError'];
     for (const event of AllEvents) {
       if (event === 'error') {
-        expect(trackingOptionsParser({ id: 'element_id', options: { captureEvents: [event] } }).youtubeEvents).toEqual(
-          expectedOutput
-        );
+        expect(
+          trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: [event] }).youtubeEvents
+        ).toEqual(expectedOutput);
       } else {
         expect(
-          trackingOptionsParser({ id: 'element_id', options: { captureEvents: [event] } }).youtubeEvents
+          trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: [event] }).youtubeEvents
         ).not.toEqual(expectedOutput);
       }
     }
@@ -132,12 +134,12 @@ describe('config parser', () => {
     ];
     for (const event of AllEvents) {
       if (eventsUsingStateChange.indexOf(event) !== -1) {
-        expect(trackingOptionsParser({ id: 'element_id', options: { captureEvents: [event] } }).youtubeEvents).toEqual(
-          expectedOutput
-        );
+        expect(
+          trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: [event] }).youtubeEvents
+        ).toEqual(expectedOutput);
       } else {
         expect(
-          trackingOptionsParser({ id: 'element_id', options: { captureEvents: [event] } }).youtubeEvents
+          trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: [event] }).youtubeEvents
         ).not.toEqual(expectedOutput);
       }
     }
@@ -147,12 +149,12 @@ describe('config parser', () => {
     let expectedOutput = ['onPlaybackRateChange'];
     for (const event of AllEvents) {
       if (event === 'playback_rate_change') {
-        expect(trackingOptionsParser({ id: 'element_id', options: { captureEvents: [event] } }).youtubeEvents).toEqual(
-          expectedOutput
-        );
+        expect(
+          trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: [event] }).youtubeEvents
+        ).toEqual(expectedOutput);
       } else {
         expect(
-          trackingOptionsParser({ id: 'element_id', options: { captureEvents: [event] } }).youtubeEvents
+          trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: [event] }).youtubeEvents
         ).not.toEqual(expectedOutput);
       }
     }
@@ -162,12 +164,12 @@ describe('config parser', () => {
     const expectedOutput = ['onPlaybackQualityChange'];
     for (const event of AllEvents) {
       if (event === 'quality_change') {
-        expect(trackingOptionsParser({ id: 'element_id', options: { captureEvents: [event] } }).youtubeEvents).toEqual(
-          expectedOutput
-        );
+        expect(
+          trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: [event] }).youtubeEvents
+        ).toEqual(expectedOutput);
       } else {
         expect(
-          trackingOptionsParser({ id: 'element_id', options: { captureEvents: [event] } }).youtubeEvents
+          trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: [event] }).youtubeEvents
         ).not.toEqual(expectedOutput);
       }
     }
@@ -177,12 +179,12 @@ describe('config parser', () => {
     const expectedOutput = ['onApiChange'];
     for (const event of AllEvents) {
       if ((event as string) === 'apichange') {
-        expect(trackingOptionsParser({ id: 'element_id', options: { captureEvents: [event] } }).youtubeEvents).toEqual(
-          expectedOutput
-        );
+        expect(
+          trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: [event] }).youtubeEvents
+        ).toEqual(expectedOutput);
       } else {
         expect(
-          trackingOptionsParser({ id: 'element_id', options: { captureEvents: [event] } }).youtubeEvents
+          trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: [event] }).youtubeEvents
         ).not.toEqual(expectedOutput);
       }
     }
