@@ -190,6 +190,15 @@ export type TrackerConfiguration = {
    * Defaults to `false`.
    */
   preservePageViewIdForUrl?: PreservePageViewIdForUrl;
+
+  /**
+   * Whether to write the cookies synchronously.
+   * This can be useful for testing purposes to ensure that the cookies are written before the test continues.
+   * It also has the benefit of making sure that the cookie is correctly set before session information is used in events.
+   * The downside is that it is slower and blocks the main thread.
+   * @defaultValue false
+   */
+  synchronousCookieWrite?: boolean;
 } & EmitterConfigurationBase &
   LocalStorageEventStoreConfigurationBase;
 

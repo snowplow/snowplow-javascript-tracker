@@ -77,5 +77,6 @@ export function createTestSessionIdCookie(params?: CreateTestSessionIdCookie) {
 
 export function createTracker(configuration?: TrackerConfiguration, sharedState?: SharedState) {
   let id = 'sp-' + Math.random();
+  configuration = { ...configuration, synchronousCookieWrite: true };
   return addTracker(id, id, '', '', sharedState ?? new SharedState(), configuration);
 }
