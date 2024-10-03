@@ -254,10 +254,10 @@ export function findRootDomain(sameSite: string, secure: boolean) {
     cookie(cookieName, cookieValue, 0, '/', currentDomain, sameSite, secure);
     if (cookie(cookieName) === cookieValue) {
       // Clean up created cookie(s)
-      deleteCookie(cookieName, currentDomain, sameSite, secure);
+      deleteCookie(cookieName, '/', currentDomain, sameSite, secure);
       const cookieNames = getCookiesWithPrefix(cookiePrefix);
       for (let i = 0; i < cookieNames.length; i++) {
-        deleteCookie(cookieNames[i], currentDomain, sameSite, secure);
+        deleteCookie(cookieNames[i], '/', currentDomain, sameSite, secure);
       }
 
       return currentDomain;
@@ -290,8 +290,8 @@ export function isValueInArray<T>(val: T, array: T[]) {
  * @param cookieName - The name of the cookie to delete
  * @param domainName - The domain the cookie is in
  */
-export function deleteCookie(cookieName: string, domainName?: string, sameSite?: string, secure?: boolean) {
-  cookie(cookieName, '', -1, '/', domainName, sameSite, secure);
+export function deleteCookie(cookieName: string, path?: string, domainName?: string, sameSite?: string, secure?: boolean) {
+  cookie(cookieName, '', -1, path, domainName, sameSite, secure);
 }
 
 /**

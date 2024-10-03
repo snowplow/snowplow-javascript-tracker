@@ -16,11 +16,9 @@ import {
   getReferrer,
   addEventListener,
   getHostName,
-  cookie,
   attemptGetLocalStorage,
   attemptWriteLocalStorage,
   attemptDeleteLocalStorage,
-  deleteCookie,
   fixupTitle,
   fromQuerystring,
   isInteger,
@@ -69,6 +67,7 @@ import {
 } from './id_cookie';
 import { CLIENT_SESSION_SCHEMA, WEB_PAGE_SCHEMA, BROWSER_CONTEXT_SCHEMA } from './schemata';
 import { getBrowserProperties } from '../helpers/browser_props';
+import { asyncCookieStorage, syncCookieStorage } from './cookie_storage';
 
 declare global {
   interface Navigator {
@@ -171,6 +170,9 @@ export function Tracker(
           collectCrossDomainAttributes: crossDomainTrackingConfig,
         };
       };
+
+    // Create a new cookie storage instance with synchronous cookie write if configured
+    const cookieStorage = trackerConfiguration.synchronousCookieWrite ? syncCookieStorage : asyncCookieStorage;
 
     // Get all injected plugins
     browserPlugins.push(getBrowserDataPlugin());
@@ -479,7 +481,7 @@ export function Tracker(
       if (configStateStorageStrategy == 'localStorage') {
         return attemptGetLocalStorage(fullName);
       } else if (configStateStorageStrategy == 'cookie' || configStateStorageStrategy == 'cookieAndLocalStorage') {
-        return cookie(fullName);
+        return cookieStorage.getCookie(fullName);
       }
       return undefined;
     }
@@ -606,8 +608,7 @@ export function Tracker(
       if (configStateStorageStrategy == 'localStorage') {
         return attemptWriteLocalStorage(name, value, timeout);
       } else if (configStateStorageStrategy == 'cookie' || configStateStorageStrategy == 'cookieAndLocalStorage') {
-        cookie(name, value, timeout, configCookiePath, configCookieDomain, configCookieSameSite, configCookieSecure);
-        return document.cookie.indexOf(`${name}=`) !== -1 ? true : false;
+        return cookieStorage.setCookie(name, value, timeout, configCookiePath, configCookieDomain, configCookieSameSite, configCookieSecure);
       }
       return false;
     }
@@ -620,8 +621,8 @@ export function Tracker(
       const sesname = getSnowplowCookieName('ses');
       attemptDeleteLocalStorage(idname);
       attemptDeleteLocalStorage(sesname);
-      deleteCookie(idname, configCookieDomain, configCookieSameSite, configCookieSecure);
-      deleteCookie(sesname, configCookieDomain, configCookieSameSite, configCookieSecure);
+      cookieStorage.deleteCookie(idname, configCookiePath, configCookieDomain, configCookieSameSite, configCookieSecure);
+      cookieStorage.deleteCookie(sesname, configCookiePath, configCookieDomain, configCookieSameSite, configCookieSecure);
       if (!configuration?.preserveSession) {
         memorizedSessionId = uuid();
         memorizedVisitCount = 1;
@@ -832,7 +833,7 @@ export function Tracker(
           const isFirstEventInSession = eventIndexFromIdCookie(idCookie) === 0;
 
           if (configOptOutCookie) {
-            toOptoutByCookie = !!cookie(configOptOutCookie);
+            toOptoutByCookie = !!cookieStorage.getCookie(configOptOutCookie);
           } else {
             toOptoutByCookie = false;
           }
@@ -1299,7 +1300,7 @@ export function Tracker(
       },
 
       setUserIdFromCookie: function (cookieName: string) {
-        businessUserId = cookie(cookieName);
+        businessUserId = cookieStorage.getCookie(cookieName);
       },
 
       setCollectorUrl: function (collectorUrl: string) {
