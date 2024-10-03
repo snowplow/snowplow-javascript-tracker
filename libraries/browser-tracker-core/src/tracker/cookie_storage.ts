@@ -71,7 +71,7 @@ function newCookie(name: string): Cookie {
   let cacheExpireAt: Date | undefined;
   let flushed = true;
   const flushTimeout = 10; // milliseconds
-  const maxCacheTtl = 0.1; // seconds
+  const maxCacheTtl = 0.05; // seconds
 
   function getValue(): string {
     // Note: we can't cache the cookie value as we don't know the expiration date
