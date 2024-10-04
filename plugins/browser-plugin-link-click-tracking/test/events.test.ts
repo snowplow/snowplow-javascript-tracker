@@ -234,6 +234,40 @@ describe('LinkClickTrackingPlugin', () => {
       });
     });
 
+    it('tracks clicks on links in custom components', async () => {
+      enableLinkClickTracking();
+
+      window.customElements.define(
+        'shadow-link',
+        class extends HTMLElement {
+          connectedCallback() {
+            const a = document.createElement('a');
+            a.textContent = 'Shadow';
+            a.href = 'https://www.example.com/shadow';
+
+            const shadowRoot = this.attachShadow({ mode: 'open' });
+            shadowRoot.appendChild(a);
+          }
+        }
+      );
+
+      const shadow = document.createElement('shadow-link');
+      document.body.appendChild(shadow);
+
+      shadow.shadowRoot!.querySelector('a')!.click();
+
+      expect(
+        extractUeEvent('iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1').from(
+          await eventStore.getAllPayloads()
+        )
+      ).toMatchObject({
+        schema: 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1',
+        data: {
+          targetUrl: 'https://www.example.com/shadow',
+        },
+      });
+    });
+
     it('doesnt double track clicks', async () => {
       enableLinkClickTracking({ pseudoClicks: true });
       enableLinkClickTracking({ pseudoClicks: false });
