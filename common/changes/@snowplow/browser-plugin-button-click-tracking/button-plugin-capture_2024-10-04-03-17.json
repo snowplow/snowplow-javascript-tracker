@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-button-click-tracking",
+      "comment": "Use capture-phase event listeners",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-button-click-tracking"
+}
