@@ -98,7 +98,7 @@ export function buildRemoveFromCart(event: RemoveFromCartEvent): PayloadBuilder;
 export function buildScreenView(event: ScreenViewEvent): PayloadBuilder;
 
 // @public
-export function buildSelfDescribingEvent(event: SelfDescribingEvent): PayloadBuilder;
+export function buildSelfDescribingEvent<T = Record<string, unknown>>(event: SelfDescribingEvent<T>): PayloadBuilder;
 
 // @public
 export function buildSiteSearch(event: SiteSearchEvent): PayloadBuilder;
@@ -459,16 +459,14 @@ export interface ScreenViewEvent {
 }
 
 // @public
-export interface SelfDescribingEvent {
-    event: SelfDescribingJson;
+export interface SelfDescribingEvent<T = Record<string, unknown>> {
+    event: SelfDescribingJson<T>;
 }
 
 // @public
-export type SelfDescribingJson<T extends {
-    [_: string]: unknown;
-} = Record<string, unknown>> = {
+export type SelfDescribingJson<T = Record<string, unknown>> = {
     schema: string;
-    data: T;
+    data: T extends any[] ? never : T extends {} ? T : never;
 };
 
 // @public

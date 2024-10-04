@@ -246,7 +246,9 @@ export interface PluginContexts {
   /**
    * Returns list of contexts from all active plugins
    */
-  addPluginContexts: (additionalContexts?: SelfDescribingJson[] | null) => SelfDescribingJson[];
+  addPluginContexts: <T = Record<string, unknown>>(
+    additionalContexts?: SelfDescribingJson<T>[] | null
+  ) => SelfDescribingJson[];
 }
 
 export function pluginContexts(plugins: Array<CorePlugin>): PluginContexts {
@@ -257,8 +259,10 @@ export function pluginContexts(plugins: Array<CorePlugin>): PluginContexts {
    * @returns userContexts combined with commonContexts
    */
   return {
-    addPluginContexts: (additionalContexts?: SelfDescribingJson[] | null): SelfDescribingJson[] => {
-      const combinedContexts: SelfDescribingJson[] = additionalContexts ? [...additionalContexts] : [];
+    addPluginContexts: <T = Record<string, unknown>>(additionalContexts?: SelfDescribingJson<T>[] | null) => {
+      const combinedContexts: SelfDescribingJson<T | Record<string, unknown>>[] = additionalContexts
+        ? [...additionalContexts]
+        : [];
 
       plugins.forEach((plugin) => {
         try {
@@ -270,7 +274,7 @@ export function pluginContexts(plugins: Array<CorePlugin>): PluginContexts {
         }
       });
 
-      return combinedContexts;
+      return combinedContexts as SelfDescribingJson[];
     },
   };
 }
