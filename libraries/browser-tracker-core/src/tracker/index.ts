@@ -224,7 +224,7 @@ export function Tracker(
       // First-party cookie domain
       // User agent defaults to origin hostname
       configCookieDomain = trackerConfiguration.cookieDomain ?? undefined,
-      discoverRootDomain = trackerConfiguration.discoverRootDomain || true,
+      discoverRootDomain = trackerConfiguration.discoverRootDomain ?? configCookieDomain === undefined,
       // First-party cookie path
       // Default is user agent defined.
       configCookiePath = '/',
@@ -608,7 +608,15 @@ export function Tracker(
       if (configStateStorageStrategy == 'localStorage') {
         return attemptWriteLocalStorage(name, value, timeout);
       } else if (configStateStorageStrategy == 'cookie' || configStateStorageStrategy == 'cookieAndLocalStorage') {
-        return cookieStorage.setCookie(name, value, timeout, configCookiePath, configCookieDomain, configCookieSameSite, configCookieSecure);
+        return cookieStorage.setCookie(
+          name,
+          value,
+          timeout,
+          configCookiePath,
+          configCookieDomain,
+          configCookieSameSite,
+          configCookieSecure
+        );
       }
       return false;
     }
@@ -621,8 +629,20 @@ export function Tracker(
       const sesname = getSnowplowCookieName('ses');
       attemptDeleteLocalStorage(idname);
       attemptDeleteLocalStorage(sesname);
-      cookieStorage.deleteCookie(idname, configCookiePath, configCookieDomain, configCookieSameSite, configCookieSecure);
-      cookieStorage.deleteCookie(sesname, configCookiePath, configCookieDomain, configCookieSameSite, configCookieSecure);
+      cookieStorage.deleteCookie(
+        idname,
+        configCookiePath,
+        configCookieDomain,
+        configCookieSameSite,
+        configCookieSecure
+      );
+      cookieStorage.deleteCookie(
+        sesname,
+        configCookiePath,
+        configCookieDomain,
+        configCookieSameSite,
+        configCookieSecure
+      );
       if (!configuration?.preserveSession) {
         memorizedSessionId = uuid();
         memorizedVisitCount = 1;
