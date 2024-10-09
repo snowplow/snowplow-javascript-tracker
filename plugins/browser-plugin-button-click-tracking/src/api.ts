@@ -62,7 +62,7 @@ export function enableButtonClickTracking(
     };
 
     const addClickListener = () => {
-      document.addEventListener('click', _listeners[trackerId]);
+      document.addEventListener('click', _listeners[trackerId], true);
     };
 
     if (_trackers[trackerId]?.sharedState.hasLoaded) {
@@ -83,7 +83,7 @@ export function enableButtonClickTracking(
 export function disableButtonClickTracking() {
   for (const trackerId in _trackers) {
     if (_listeners[trackerId]) {
-      document.removeEventListener('click', _listeners[trackerId]);
+      document.removeEventListener('click', _listeners[trackerId], true);
     }
   }
 }
