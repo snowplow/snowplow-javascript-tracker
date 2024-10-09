@@ -79,7 +79,32 @@
       iframeDocument.open();
       iframeDocument.write(formHtml);
       iframeDocument.close();
+
+      window.customElements.define(
+        'shadow-form',
+        class extends HTMLElement {
+          connectedCallback() {
+            const form = Object.assign(document.createElement('form'), { id: 'shadow-form', className: 'shadow-form' });
+
+            form.addEventListener(
+              'submit',
+              function (e) {
+                e.preventDefault();
+              },
+              false
+            );
+
+            const input = document.createElement('input');
+            form.appendChild(input);
+
+            const shadowRoot = this.attachShadow({ mode: 'open' });
+            shadowRoot.appendChild(form);
+          }
+        }
+      );
     </script>
+
+    <shadow-form></shadow-form>
 
     <script>
       (function (p, l, o, w, i, n, g) {
@@ -148,6 +173,9 @@
         case 'iframeForm':
           var forms = iframe.contentWindow.document.getElementsByTagName('form');
           snowplow('enableFormTracking', { options: { forms: forms } });
+          break;
+        case 'shadow':
+          snowplow('enableFormTracking', { options: { forms: { allowlist: ['shadow-form'] } } });
           break;
         default:
           snowplow('enableFormTracking', {

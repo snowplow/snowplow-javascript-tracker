@@ -139,6 +139,77 @@ describe('FormTrackingPlugin', () => {
       });
     });
 
+    it('tracks from forms in shadowdom', async () => {
+      window.customElements.define(
+        'shadow-form',
+        class extends HTMLElement {
+          connectedCallback() {
+            const form = Object.assign(document.createElement('form'), { id: 'shadow-form' });
+
+            form.addEventListener(
+              'submit',
+              function (e) {
+                e.preventDefault();
+              },
+              false
+            );
+
+            const input = document.createElement('input');
+            form.appendChild(input);
+
+            const shadowRoot = this.attachShadow({ mode: 'open' });
+            shadowRoot.appendChild(form);
+          }
+        }
+      );
+
+      const shadow = document.createElement('shadow-form');
+      document.body.appendChild(shadow);
+
+      enableFormTracking();
+
+      const target = shadow.shadowRoot!.querySelector('input')!;
+
+      target.focus();
+
+      target.value = 'changed';
+      target.dispatchEvent(new Event('change'));
+
+      target.form!.submit();
+
+      expect(
+        extractUeEvent('iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0').from(
+          await eventStore.getAllPayloads()
+        )
+      ).toMatchObject({
+        schema: 'iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0',
+        data: {
+          formId: 'shadow-form',
+        },
+      });
+      expect(
+        extractUeEvent('iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0').from(
+          await eventStore.getAllPayloads()
+        )
+      ).toMatchObject({
+        schema: 'iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0',
+        data: {
+          formId: 'shadow-form',
+          value: 'changed',
+        },
+      });
+      expect(
+        extractUeEvent('iglu:com.snowplowanalytics.snowplow/submit_form/jsonschema/1-0-0').from(
+          await eventStore.getAllPayloads()
+        )
+      ).toMatchObject({
+        schema: 'iglu:com.snowplowanalytics.snowplow/submit_form/jsonschema/1-0-0',
+        data: {
+          formId: 'shadow-form',
+        },
+      });
+    });
+
     it('associates non-nested forms correctly', async () => {
       enableFormTracking();
 

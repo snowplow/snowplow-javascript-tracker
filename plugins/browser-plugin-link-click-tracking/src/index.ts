@@ -259,7 +259,9 @@ function clickHandler(tracker: string, evt: MouseEvent | undefined): void {
   const event = evt || (window.event as MouseEvent);
 
   const button = event.which || event.button;
-  const target = findNearestEligibleElement(event.target || event.srcElement);
+
+  const clicked = event.composed ? event.composedPath()[0] : event.target || event.srcElement;
+  const target = findNearestEligibleElement(clicked);
 
   if (!target || target.href == null) return;
   if (filter && !filter(target)) return;

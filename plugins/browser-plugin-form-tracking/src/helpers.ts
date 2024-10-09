@@ -356,7 +356,20 @@ function getFormChangeListener(
   event_type: Exclude<FormTrackingEvent, FormTrackingEvent.SUBMIT_FORM>,
   context?: DynamicContext | null
 ) {
-  return function ({ target }: Event) {
+  return function (e: Event) {
+    const target = e.composed ? e.composedPath()[0] : e.target;
+
+    // `change` and `submit` are not composed and are thus invisible to us
+    // bind late to the forms/field directly on field focus in this case
+    if (target !== e.target && e.composed && isTrackableElement(target)) {
+      if (target.form) {
+        if (_changeListeners[tracker.id]) addEventListener(target.form, 'change', _changeListeners[tracker.id], true);
+        if (_submitListeners[tracker.id]) addEventListener(target.form, 'submit', _submitListeners[tracker.id], true);
+      } else {
+        if (_changeListeners[tracker.id]) addEventListener(target, 'change', _changeListeners[tracker.id], true);
+      }
+    }
+
     if (isTrackableElement(target) && config.fieldFilter(target)) {
       let value: string | null = null;
       let type: string | null = null;
