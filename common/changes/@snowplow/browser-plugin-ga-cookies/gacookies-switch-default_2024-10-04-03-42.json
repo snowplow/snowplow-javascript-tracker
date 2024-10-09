@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-ga-cookies",
+      "comment": "Change default from UA to GA4",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-ga-cookies"
+}
