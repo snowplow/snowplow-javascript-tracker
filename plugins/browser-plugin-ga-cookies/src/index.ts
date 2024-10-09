@@ -11,8 +11,8 @@ interface GACookiesPluginOptions {
 }
 
 const defaultPluginOptions: GACookiesPluginOptions = {
-  ua: true,
-  ga4: false,
+  ua: false,
+  ga4: true,
   ga4MeasurementId: '',
   cookiePrefix: [],
 };
