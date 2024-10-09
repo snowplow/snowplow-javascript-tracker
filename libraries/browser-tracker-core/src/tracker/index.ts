@@ -187,7 +187,7 @@ export function Tracker(
 
     let // Tracker core
       core = trackerCore({
-        base64: trackerConfiguration.encodeBase64,
+        base64: trackerConfiguration.encodeBase64 ?? trackerConfiguration.eventMethod !== 'post',
         corePlugins: browserPlugins,
         callback: sendRequest,
       }),
