@@ -70,6 +70,10 @@ describe('Snowplow Micro integration', () => {
       await (await $('#button-child')).click();
       await browser.pause(500);
 
+      // ShadowDOM
+      await (await $('#shadow')).shadow$('button').click();
+      await browser.pause(500);
+
       // Disable/enable
 
       await (await $('#disable')).click();
@@ -138,6 +142,11 @@ describe('Snowplow Micro integration', () => {
 
     it('should get button when click was on a child element', async () => {
       const ev = makeEvent({ label: 'TestChildren' }, method);
+      logContainsButtonClick(ev);
+    });
+
+    it('should get button when click was in a shadow dom', async () => {
+      const ev = makeEvent({ label: 'Shadow' }, method);
       logContainsButtonClick(ev);
     });
 

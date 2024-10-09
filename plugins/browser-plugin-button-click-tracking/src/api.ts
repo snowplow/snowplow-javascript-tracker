@@ -97,7 +97,7 @@ export function disableButtonClickTracking() {
  * @param context - The dynamic context which will be evaluated for each button click event
  */
 function eventHandler(event: MouseEvent, trackerId: string, filter: FilterFunction, context?: DynamicContext) {
-  let elem = event.target as HTMLElement | null;
+  let elem = (event.composed ? event.composedPath()[0] : event.target) as HTMLElement | null;
   while (elem) {
     if (elem instanceof HTMLButtonElement || (elem instanceof HTMLInputElement && elem.type === 'button')) {
       if (filter(elem)) {

@@ -36,6 +36,25 @@
     <!-- Ensure button tracked when children are clicked -->
     <button><span id="button-child">TestChildren</span></button>
 
+    <!-- Ensure button tracked when exists in ShadowDOM -->
+    <script>
+      window.customElements.define(
+        'shadow-btn',
+        class extends HTMLElement {
+          connectedCallback() {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.textContent = 'Shadow';
+
+            const shadowRoot = this.attachShadow({ mode: 'open' });
+            shadowRoot.appendChild(b);
+          }
+        }
+      );
+    </script>
+
+    <shadow-btn id="shadow"></shadow-btn>
+
     <!-- Enable/disable testing -->
     <button id="disable" onclick="snowplow('disableButtonClickTracking')">Disable</button>
     <button id="disabled-click">DisabledClick</button>
