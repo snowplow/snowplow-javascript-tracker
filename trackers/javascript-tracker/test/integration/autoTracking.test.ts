@@ -1,6 +1,7 @@
 import F from 'lodash/fp';
 import { fetchResults } from '../micro';
 import { pageSetup } from './helpers';
+import { Key } from 'webdriverio';
 
 const isMatchWithCallback = F.isMatchWith((lt, rt) => (F.isFunction(rt) ? rt(lt) : undefined));
 
@@ -303,6 +304,12 @@ describe('Auto tracking', () => {
     let frame = await $('#form_iframe');
     await browser.switchToFrame(frame);
     await $('#fname').click();
+
+    await loadUrlAndWait('/form-tracking.html?filter=shadow');
+    const input = await (await $('shadow-form')).shadow$('input');
+    await input.click();
+    await input.setValue('test');
+    await browser.keys(Key.Enter); // submit
 
     // time for activity to register and request to arrive
     await browser.pause(2500);
@@ -807,6 +814,57 @@ describe('Auto tracking', () => {
           unstruct_event: {
             data: {
               schema: 'iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0',
+            },
+          },
+        },
+      })
+    ).toBe(true);
+  });
+
+  it('should track events from form in a shadowdom', () => {
+    expect(
+      logContains({
+        event: {
+          event: 'unstruct',
+          app_id: 'autotracking-form-' + testIdentifier,
+          page_url: 'http://snowplow-js-tracker.local:8080/form-tracking.html?filter=shadow',
+          unstruct_event: {
+            data: {
+              schema: 'iglu:com.snowplowanalytics.snowplow/focus_form/jsonschema/1-0-0',
+            },
+          },
+        },
+      })
+    ).toBe(true);
+
+    expect(
+      logContains({
+        event: {
+          event: 'unstruct',
+          app_id: 'autotracking-form-' + testIdentifier,
+          page_url: 'http://snowplow-js-tracker.local:8080/form-tracking.html?filter=shadow',
+          unstruct_event: {
+            data: {
+              schema: 'iglu:com.snowplowanalytics.snowplow/change_form/jsonschema/1-0-0',
+            },
+          },
+        },
+      })
+    ).toBe(true);
+
+    expect(
+      logContains({
+        event: {
+          event: 'unstruct',
+          app_id: 'autotracking-form-' + testIdentifier,
+          page_url: 'http://snowplow-js-tracker.local:8080/form-tracking.html?filter=shadow',
+          unstruct_event: {
+            data: {
+              schema: 'iglu:com.snowplowanalytics.snowplow/submit_form/jsonschema/1-0-0',
+              data: {
+                formId: 'shadow-form',
+                formClasses: ['shadow-form'],
+              },
             },
           },
         },

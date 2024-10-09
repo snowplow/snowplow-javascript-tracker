@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-link-click-tracking",
+      "comment": "Detect link clicks within ShadowRoots",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-link-click-tracking"
+}
