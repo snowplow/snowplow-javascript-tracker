@@ -81,7 +81,7 @@ export interface LocalStorageEventStoreConfigurationBase extends EventStoreConfi
 export type TrackerConfiguration = {
   /**
    * Should event properties be base64 encoded where supported
-   * @defaultValue true
+   * @defaultValue false unless {@link EmitterConfigurationBase.eventMethod | eventMethod} is `get`
    */
   encodeBase64?: boolean;
   /**
