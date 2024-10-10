@@ -1931,6 +1931,9 @@ importers:
 
   ../../plugins/browser-plugin-youtube-tracking:
     dependencies:
+      '@snowplow/browser-plugin-media':
+        specifier: workspace:*
+        version: link:../browser-plugin-media
       '@snowplow/browser-tracker-core':
         specifier: workspace:*
         version: link:../../libraries/browser-tracker-core
@@ -1940,6 +1943,9 @@ importers:
       tslib:
         specifier: ^2.3.1
         version: 2.6.3
+      uuid:
+        specifier: ^8.3.2
+        version: 8.3.2
     devDependencies:
       '@ampproject/rollup-plugin-closure-compiler':
         specifier: ~0.27.0
@@ -1956,6 +1962,9 @@ importers:
       '@types/jsdom':
         specifier: ~16.2.14
         version: 16.2.15
+      '@types/uuid':
+        specifier: ^8.3.2
+        version: 8.3.4
       '@types/youtube':
         specifier: ~0.0.46
         version: 0.0.50

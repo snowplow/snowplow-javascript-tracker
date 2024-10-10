@@ -28,168 +28,164 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import { AllEvents, DefaultEvents } from '../src/eventGroups';
 import { addUrlParam, parseUrlParams } from '../src/helperFunctions';
-import { MediaTrackingOptions, TrackingOptions } from '../src/types';
-import { YTPlayerEvent } from '../src/constants';
-import { trackingOptionsParser } from '../src';
+import type { TrackingOptions } from '../src/types';
+import { AllEvents, DefaultEvents, trackingOptionsParser } from '../src/options';
+
+const nilUUID = '00000000-0000-0000-0000-000000000000';
 
 describe('config parser', () => {
-  const id = 'youtube';
   const default_output: TrackingOptions = {
-    mediaId: 'youtube',
+    sessionId: expect.any(String),
+    config: expect.anything(),
     player: undefined,
+    video: 'element_id',
     captureEvents: DefaultEvents,
-    youtubeEvents: [
-      YTPlayerEvent.ONSTATECHANGE,
-      YTPlayerEvent.ONPLAYBACKQUALITYCHANGE,
-      YTPlayerEvent.ONPLAYBACKRATECHANGE,
-    ],
+    youtubeEvents: ['onStateChange', 'onPlaybackQualityChange', 'onPlaybackRateChange'],
     updateRate: 500,
-    progress: {
-      boundaries: [10, 25, 50, 75],
-      boundaryTimeoutIds: [],
-    },
+    boundaries: [10, 25, 50, 75],
   };
 
   it('assigns defaults', () => {
-    let test = trackingOptionsParser(id);
+    const test = trackingOptionsParser({ video: 'element_id', id: nilUUID });
     expect(test).toEqual(default_output);
   });
 
   it('parses boundaries', () => {
-    let trackingOptions: MediaTrackingOptions = {
-      captureEvents: DefaultEvents,
-      boundaries: [1, 4, 7, 9, 99],
-    };
-    let expectedOutput = [1, 4, 7, 9, 99];
-    expect(trackingOptionsParser(id, trackingOptions).progress?.boundaries).toEqual(expectedOutput);
+    const expectedOutput = [1, 4, 7, 9, 99];
+    expect(
+      trackingOptionsParser({ id: nilUUID, video: 'element_id', boundaries: [1, 4, 7, 9, 99] }).boundaries
+    ).toEqual(expectedOutput);
   });
 
   it('parses label', () => {
-    let trackingOptions: MediaTrackingOptions = {
-      label: 'test-label',
-    };
-    let expectedOutput = 'test-label';
-    expect(trackingOptionsParser(id, trackingOptions).label).toEqual(expectedOutput);
+    const expectedOutput = 'test-label';
+    expect(trackingOptionsParser({ id: nilUUID, video: 'element_id', label: expectedOutput }).config.label).toEqual(
+      expectedOutput
+    );
   });
 
   it('parses capture events', () => {
-    let trackingOptions: MediaTrackingOptions = {
-      captureEvents: ['play', 'pause'],
-    };
-
-    let expectedOutput = ['play', 'pause'];
-    expect(trackingOptionsParser(id, trackingOptions).captureEvents).toEqual(expectedOutput);
+    const expectedOutput = ['play', 'pause'];
+    expect(
+      trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: ['play', 'pause'] }).captureEvents
+    ).toEqual(expectedOutput);
   });
 
   it('parses youtube events', () => {
-    let trackingOptions: MediaTrackingOptions = {
-      captureEvents: ['play', 'error', 'playbackratechange', 'playbackqualitychange', 'apichange'],
-    };
-
-    let expectedOutput = ['onStateChange', 'onError', 'onPlaybackRateChange', 'onPlaybackQualityChange', 'onApiChange'];
-    expect(trackingOptionsParser(id, trackingOptions).youtubeEvents).toEqual(expectedOutput);
+    const expectedOutput = ['onStateChange', 'onError', 'onPlaybackRateChange', 'onPlaybackQualityChange'];
+    expect(
+      trackingOptionsParser({
+        id: nilUUID,
+        video: 'element_id',
+        captureEvents: ['play', 'error', 'playbackratechange', 'playbackqualitychange'],
+      }).youtubeEvents
+    ).toEqual(expectedOutput);
   });
 
   it('parses capture event groups', () => {
-    let trackingOptions: MediaTrackingOptions = {
-      captureEvents: ['AllEvents'],
-    };
-    let expectedOutput = AllEvents;
-    expect(trackingOptionsParser(id, trackingOptions).captureEvents).toEqual(expectedOutput);
+    expect(
+      trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: ['AllEvents'] }).captureEvents
+    ).toEqual(AllEvents);
   });
 
   it('parses capture events and groups in same array', () => {
-    let trackingOptions: MediaTrackingOptions = {
-      captureEvents: ['DefaultEvents', 'ready'],
-    };
-
-    let expectedOutput = DefaultEvents.concat(['ready']);
-    expect(trackingOptionsParser(id, trackingOptions).captureEvents).toEqual(expectedOutput);
+    expect(
+      trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: ['DefaultEvents', 'ready'] })
+        .captureEvents
+    ).toEqual(DefaultEvents);
   });
 
   it("doesn't return youtube events not in capture events", () => {
-    let trackingOptions: MediaTrackingOptions = {
-      captureEvents: ['play', 'pause'],
-    };
-
-    let expectedOutput = ['onStateChange'];
-    expect(trackingOptionsParser(id, trackingOptions).youtubeEvents).toEqual(expectedOutput);
+    const expectedOutput = ['onStateChange'];
+    expect(
+      trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: ['play', 'pause'] }).youtubeEvents
+    ).toEqual(expectedOutput);
   });
 
   it("Only includes YTPlayerEvent.ONERROR with 'error' event ", () => {
-    let expectedOutput = ['onError'];
-    for (let event of AllEvents) {
-      let trackingOptions: MediaTrackingOptions = {
-        captureEvents: [event],
-      };
-
+    const expectedOutput = ['onError'];
+    for (const event of AllEvents) {
       if (event === 'error') {
-        expect(trackingOptionsParser(id, trackingOptions).youtubeEvents).toEqual(expectedOutput);
+        expect(
+          trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: [event] }).youtubeEvents
+        ).toEqual(expectedOutput);
       } else {
-        expect(trackingOptionsParser(id, trackingOptions).youtubeEvents).not.toEqual(expectedOutput);
+        expect(
+          trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: [event] }).youtubeEvents
+        ).not.toEqual(expectedOutput);
       }
     }
   });
 
-  it('Only includes YTPlayerEvent.ONSTATECHANGE with required events', () => {
-    let expectedOutput = ['onStateChange'];
-    const eventsUsingStateChange = ['unstarted', 'play', 'pause', 'buffering', 'cued', 'ended', 'percentprogress'];
-    for (let event of AllEvents) {
-      let trackingOptions: MediaTrackingOptions = {
-        captureEvents: [event],
-      };
-
+  it('Only includes YT.Events.onStateChange with required events (%p)', () => {
+    const expectedOutput = ['onStateChange'];
+    const eventsUsingStateChange = [
+      'unstarted',
+      'play',
+      'playing',
+      'pause',
+      'paused',
+      'buffering',
+      'cued',
+      'end',
+      'ended',
+      'percent_progress',
+    ];
+    for (const event of AllEvents) {
       if (eventsUsingStateChange.indexOf(event) !== -1) {
-        expect(trackingOptionsParser(id, trackingOptions).youtubeEvents).toEqual(expectedOutput);
+        expect(
+          trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: [event] }).youtubeEvents
+        ).toEqual(expectedOutput);
       } else {
-        expect(trackingOptionsParser(id, trackingOptions).youtubeEvents).not.toEqual(expectedOutput);
+        expect(
+          trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: [event] }).youtubeEvents
+        ).not.toEqual(expectedOutput);
       }
     }
   });
 
-  it("Only includes YTPlayerEvent.ONPLAYBACKRATECHANGE with 'playbackratechange' event", () => {
+  it("Only includes YT.Events.onPlaybackRateChange with 'playback_rate_change' event", () => {
     let expectedOutput = ['onPlaybackRateChange'];
-    for (let event of AllEvents) {
-      let trackingOptions: MediaTrackingOptions = {
-        captureEvents: [event],
-      };
-
-      if (event === 'playbackratechange') {
-        expect(trackingOptionsParser(id, trackingOptions).youtubeEvents).toEqual(expectedOutput);
+    for (const event of AllEvents) {
+      if (event === 'playback_rate_change') {
+        expect(
+          trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: [event] }).youtubeEvents
+        ).toEqual(expectedOutput);
       } else {
-        expect(trackingOptionsParser(id, trackingOptions).youtubeEvents).not.toEqual(expectedOutput);
+        expect(
+          trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: [event] }).youtubeEvents
+        ).not.toEqual(expectedOutput);
       }
     }
   });
 
-  it("Only includes YTPlayerEvent.ONPLAYBACKQUALITYCHANGE only with 'playbackqualitychange' event", () => {
-    let expectedOutput = ['onPlaybackQualityChange'];
-    for (let event of AllEvents) {
-      let trackingOptions: MediaTrackingOptions = {
-        captureEvents: [event],
-      };
-
-      if (event === 'playbackqualitychange') {
-        expect(trackingOptionsParser(id, trackingOptions).youtubeEvents).toEqual(expectedOutput);
+  it("Only includes YT.Events.onPlaybackQualityChange only with 'quality_change' event", () => {
+    const expectedOutput = ['onPlaybackQualityChange'];
+    for (const event of AllEvents) {
+      if (event === 'quality_change') {
+        expect(
+          trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: [event] }).youtubeEvents
+        ).toEqual(expectedOutput);
       } else {
-        expect(trackingOptionsParser(id, trackingOptions).youtubeEvents).not.toEqual(expectedOutput);
+        expect(
+          trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: [event] }).youtubeEvents
+        ).not.toEqual(expectedOutput);
       }
     }
   });
 
-  it('Only includes YTPlayerEvent.ONAPICHANGE only with "apichange" event', () => {
-    let expectedOutput = ['onApiChange'];
-    for (let event of AllEvents) {
-      let trackingOptions: MediaTrackingOptions = {
-        captureEvents: [event],
-      };
-
-      if (event === 'apichange') {
-        expect(trackingOptionsParser(id, trackingOptions).youtubeEvents).toEqual(expectedOutput);
+  it('Only includes YT.Events.onApiChange only with "apichange" event', () => {
+    const expectedOutput = ['onApiChange'];
+    for (const event of AllEvents) {
+      if ((event as string) === 'apichange') {
+        expect(
+          trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: [event] }).youtubeEvents
+        ).toEqual(expectedOutput);
       } else {
-        expect(trackingOptionsParser(id, trackingOptions).youtubeEvents).not.toEqual(expectedOutput);
+        expect(
+          trackingOptionsParser({ id: nilUUID, video: 'element_id', captureEvents: [event] }).youtubeEvents
+        ).not.toEqual(expectedOutput);
       }
     }
   });

@@ -6,11 +6,35 @@ declare var player: YT.Player;
 
 const makeExpectedEvent = (
   eventType: string,
-  values?: { mediaPlayer?: any; mediaElement?: any; youtube?: any },
+  values?: { mediaPlayer?: any; mediaElement?: any; youtube?: any; session?: any },
   playerId = 'youtube'
 ) => {
   return {
     context: [
+      {
+        schema: 'iglu:com.snowplowanalytics.snowplow/media_player/jsonschema/2-0-0',
+        data: {
+          currentTime: jasmine.any(Number),
+          duration: jasmine.any(Number),
+          ended: false,
+          mediaType: 'video',
+          muted: false,
+          paused: jasmine.any(Boolean),
+          playbackRate: jasmine.any(Number),
+          playerType: 'com.youtube-youtube',
+          quality: jasmine.any(String),
+          volume: jasmine.any(Number),
+          ...values?.mediaPlayer,
+        },
+      },
+      {
+        schema: 'iglu:com.snowplowanalytics.snowplow.media/session/jsonschema/1-0-0',
+        data: {
+          mediaSessionId: jasmine.any(String),
+          startedAt: jasmine.any(String),
+          ...values?.session,
+        },
+      },
       {
         schema: 'iglu:com.youtube/youtube/jsonschema/1-0-0',
         data: {
@@ -26,26 +50,14 @@ const makeExpectedEvent = (
           ...values?.youtube,
         },
       },
-      {
-        schema: 'iglu:com.snowplowanalytics.snowplow/media_player/jsonschema/1-0-0',
-        data: {
-          currentTime: jasmine.any(Number),
-          duration: jasmine.any(Number),
-          ended: false,
-          loop: false,
-          muted: false,
-          paused: false,
-          playbackRate: jasmine.any(Number),
-          volume: jasmine.any(Number),
-          ...values?.mediaPlayer,
-        },
-      },
     ],
     unstruct_event: {
       schema: 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0',
       data: {
-        schema: 'iglu:com.snowplowanalytics.snowplow/media_player_event/jsonschema/1-0-0',
-        data: { type: eventType, label: 'test-label' },
+        schema: `iglu:com.snowplowanalytics.snowplow.media/${eventType}_event/jsonschema/1-0-0`,
+        data: {
+          ...values?.mediaElement,
+        },
       },
     },
   };
@@ -57,12 +69,18 @@ const compare = (expected: any, received: any) => {
     return;
   }
   for (let i = 0; i < expected.context.length; i++) {
-    expect(expected.context[i].schema).toEqual(received.event.contexts.data[i].schema);
+    const received_context = received.event.contexts.data.find(
+      (c: { schema: string }) => c.schema === expected.context[i].schema
+    );
+    expect(received_context).toBeDefined();
+    if (!received_context) continue;
+
+    expect(received_context.schema).toEqual(expected.context[i].schema);
     Object.keys(expected.context[i].data).forEach((key) => {
-      expect(expected.context[i].data[key]).toEqual(received.event.contexts.data[i].data[key]);
+      expect(received_context.data[key]).toEqual(expected.context[i].data[key]);
     });
   }
-  expect(expected.unstruct_event).toEqual(received.event.unstruct_event);
+  expect(received.event.unstruct_event).toEqual(expected.unstruct_event);
 };
 
 let log: Array<unknown> = [];
@@ -72,7 +90,7 @@ function shouldSkipBrowser(browser: any): boolean {
   return (
     capabilities.browserName === 'internet explorer' ||
     // Unknown command: {"name":"sendKeysToActiveElement","parameters":{"value":["k"]}}, Safari 12 keeps crashing
-    (capabilities.browserName === 'safari' && parseInt(capabilities.browserVersion ?? "") < 14) ||
+    (capabilities.browserName === 'safari' && parseInt(capabilities.browserVersion ?? '') < 14) ||
     // Element is obscured (WARNING: The server did not provide any stacktrace information)
     (capabilities.browserName === 'MicrosoftEdge' && capabilities.browserVersion === '13.10586') ||
     // Driver info: driver.version: unknown
@@ -121,7 +139,8 @@ describe('Youtube tracking', () => {
     const getFirstEventOfEventType = (eventType: string): any => {
       let results = log.filter(
         (l: any) =>
-          l.event?.unstruct_event?.data.data.type === eventType && l.event?.app_id === 'yt-tracking-' + testIdentifier
+          l.event?.unstruct_event?.data.schema.split('/').includes(eventType) &&
+          l.event?.app_id === 'yt-tracking-' + testIdentifier
       );
       return results[results.length - 1];
     };
@@ -179,14 +198,27 @@ describe('Youtube tracking', () => {
 
     const expected = {
       ready: { youtube: { cued: true } },
-      percentprogress: {},
-      playbackqualitychange: {},
+      percent_progress: { mediaElement: { percentProgress: jasmine.any(Number) } },
+      quality_change: {
+        mediaElement: {
+          previousQuality: jasmine.any(String),
+          newQuality: jasmine.any(String),
+        },
+      },
       play: {},
-      playbackratechange: {},
-      seek: { mediaPlayer: { paused: jasmine.any(Boolean) } },
-      volumechange: { mediaPlayer: { paused: jasmine.any(Boolean) } },
+      playback_rate_change: {
+        mediaElement: {
+          previousRate: jasmine.any(Number),
+          newRate: jasmine.any(Number),
+        },
+      },
+      seek_start: { mediaPlayer: { paused: jasmine.any(Boolean) } },
+      volume_change: {
+        mediaElement: { previousVolume: jasmine.any(Number), newVolume: jasmine.any(Number) },
+        mediaPlayer: { paused: jasmine.any(Boolean) },
+      },
       pause: { mediaPlayer: { paused: true } },
-      ended: { mediaPlayer: { ended: true } },
+      end: { mediaPlayer: { ended: true } },
     };
 
     Object.entries(expected).forEach(([name, properties]) => {
@@ -203,7 +235,7 @@ describe('Youtube tracking', () => {
       }
       it('tracks ' + name, () => {
         const expected = makeExpectedEvent(name, properties, 'player');
-        const received = getFirstEventOfEventType(name);
+        const received = getFirstEventOfEventType(name + '_event');
         compare(expected, received);
       });
     });
@@ -218,11 +250,11 @@ describe('Youtube tracking', () => {
     const getFirstEventOfEventTypeWithId = (eventType: string, id: string) => {
       const results = log.filter(
         (l: any) =>
-          l.event?.unstruct_event?.data.data.type === eventType &&
-          l.event.contexts.data[0].data.playerId === id &&
-          l.event?.app_id === 'yt-2-videos-' + testIdentifier
+          l.event?.unstruct_event?.data.schema.split('/').includes(eventType) &&
+          l.event?.app_id === 'yt-2-videos-' + testIdentifier &&
+          l.event?.contexts.data.find((c: any) => /youtube/.test(c.schema)).data.playerId === id
       );
-      return results[results.length - 1];
+      return results.pop();
     };
 
     it('Tracks 2 YouTube players with a single tracker', async () => {
@@ -242,12 +274,18 @@ describe('Youtube tracking', () => {
       await browser.pause(3000);
 
       log = await browser.call(async () => await fetchResults());
-      const expectedOne = makeExpectedEvent('playbackqualitychange');
-      const receivedOne = getFirstEventOfEventTypeWithId('playbackqualitychange', 'youtube');
+      const expectedOne = makeExpectedEvent('quality_change', {
+        mediaElement: { previousQuality: jasmine.any(String), newQuality: jasmine.any(String) },
+      });
+      const receivedOne = getFirstEventOfEventTypeWithId('quality_change_event', 'youtube');
       compare(expectedOne, receivedOne);
 
-      const expectedTwo = makeExpectedEvent('playbackqualitychange', {}, 'youtube-2');
-      const receivedTwo = getFirstEventOfEventTypeWithId('playbackqualitychange', 'youtube-2');
+      const expectedTwo = makeExpectedEvent(
+        'quality_change',
+        { mediaElement: { previousQuality: jasmine.any(String), newQuality: jasmine.any(String) } },
+        'youtube-2'
+      );
+      const receivedTwo = getFirstEventOfEventTypeWithId('quality_change_event', 'youtube-2');
       compare(expectedTwo, receivedTwo);
     });
   });
@@ -261,9 +299,10 @@ describe('Youtube tracking', () => {
     const getTwoEventsOfEventType = (eventType: string): Array<any> => {
       const results = log.filter(
         (l: any) =>
-          l.event?.unstruct_event?.data.data.type === eventType && l.event?.app_id === 'yt-2-trackers-' + testIdentifier
+          l.event?.unstruct_event?.data.schema.split('/').includes(eventType) &&
+          l.event?.app_id === 'yt-2-trackers-' + testIdentifier
       );
-      return results.slice(results.length - 2);
+      return results.slice(-2);
     };
 
     it('Tracks 1 YouTube player with two trackers', async () => {
@@ -279,10 +318,11 @@ describe('Youtube tracking', () => {
 
       log = await browser.call(async () => await fetchResults());
 
-      const expected = makeExpectedEvent('playbackqualitychange', {
+      const expected = makeExpectedEvent('quality_change', {
         mediaPlayer: { paused: jasmine.any(Boolean) },
+        mediaElement: { previousQuality: jasmine.any(String), newQuality: jasmine.any(String) },
       });
-      const result = getTwoEventsOfEventType('playbackqualitychange');
+      const result = getTwoEventsOfEventType('quality_change_event');
       compare(expected, result[0]);
       compare(expected, result[1]);
       const tracker_names = result.map((r: any) => r.event.name_tracker);
