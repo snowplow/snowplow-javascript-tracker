@@ -157,14 +157,15 @@ Array [
 ]
 `;
 
-exports[`GA Cookies plugin Returns values for Universal Analytics cookies by default 1`] = `
+exports[`GA Cookies plugin Returns values for GA4 cookies by default 1`] = `
 Array [
   Object {
     "data": Object {
-      "__utma": "567",
       "_ga": "1234",
+      "cookie_prefix": undefined,
+      "session_cookies": undefined,
     },
-    "schema": "iglu:com.google.analytics/cookies/jsonschema/1-0-0",
+    "schema": "iglu:com.google.ga4/cookies/jsonschema/1-0-0",
   },
 ]
 `;
