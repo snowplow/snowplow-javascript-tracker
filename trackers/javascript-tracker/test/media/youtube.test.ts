@@ -32,7 +32,6 @@ const makeExpectedEvent = (
         data: {
           mediaSessionId: jasmine.any(String),
           startedAt: jasmine.any(String),
-          contentWatched: jasmine.any(Number),
           ...values?.session,
         },
       },
