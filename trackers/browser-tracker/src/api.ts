@@ -400,7 +400,10 @@ export function trackStructEvent(event: StructuredEvent & CommonEventProperties,
  * @param event - The event information
  * @param trackers - The tracker identifiers which the event will be sent to
  */
-export function trackSelfDescribingEvent(event: SelfDescribingEvent & CommonEventProperties, trackers?: Array<string>) {
+export function trackSelfDescribingEvent<T = Record<string, unknown>>(
+  event: SelfDescribingEvent<T> & CommonEventProperties,
+  trackers?: Array<string>
+) {
   dispatchToTrackers(trackers, (t) => {
     t.core.track(buildSelfDescribingEvent({ event: event.event }), event.context, event.timestamp);
   });

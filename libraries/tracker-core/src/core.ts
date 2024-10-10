@@ -45,7 +45,7 @@ import { LOG } from './logger';
  * Export interface for any Self-Describing JSON such as context or Self Describing events
  * @typeParam T - The type of the data object within a SelfDescribingJson
  */
-export type SelfDescribingJson<T extends { [_: string]: unknown } = Record<string, unknown>> = {
+export type SelfDescribingJson<T = Record<string, unknown>> = {
   /**
    * The schema string
    * @example 'iglu:com.snowplowanalytics.snowplow/web_page/jsonschema/1-0-0'
@@ -54,14 +54,14 @@ export type SelfDescribingJson<T extends { [_: string]: unknown } = Record<strin
   /**
    * The data object which should conform to the supplied schema
    */
-  data: T;
+  data: T extends any[] ? never : T extends {} ? T : never;
 };
 
 /**
  * Export interface for any Self-Describing JSON which has the data attribute as an array
  * @typeParam T - The type of the data object within the SelfDescribingJson data array
  */
-export type SelfDescribingJsonArray<T extends { [_: string]: unknown } = Record<string, unknown>> = {
+export type SelfDescribingJsonArray<T = Record<string, unknown>> = {
   /**
    * The schema string
    * @example 'iglu:com.snowplowanalytics.snowplow/contexts/jsonschema/1-0-1'
@@ -119,7 +119,7 @@ function getTimestamp(timestamp?: Timestamp | null): TimestampPayload {
 }
 
 /** Additional data points to set when tracking an event */
-export interface CommonEventProperties<T extends { [_: string]: unknown } = Record<string, unknown>> {
+export interface CommonEventProperties<T = Record<string, unknown>> {
   /** Add context to an event by setting an Array of Self Describing JSON */
   context?: Array<SelfDescribingJson<T>> | null;
   /** Set the true timestamp or overwrite the device sent timestamp on an event */
@@ -382,9 +382,9 @@ export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore 
      * @param timestamp - Timestamp of the event
      * @returns Payload after the callback is applied or undefined if the event is skipped
      */
-    function track(
+    function track<C = Record<string, unknown>>(
       pb: PayloadBuilder,
-      context?: Array<SelfDescribingJson> | null,
+      context?: Array<SelfDescribingJson<C>> | null,
       timestamp?: Timestamp | null
     ): Payload | undefined {
       pb.withJsonProcessor(payloadJsonProcessor(encodeBase64));
@@ -565,9 +565,9 @@ export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore 
  * A custom event type, allowing for an event to be tracked using your own custom schema
  * and a data object which conforms to the supplied schema
  */
-export interface SelfDescribingEvent {
+export interface SelfDescribingEvent<T = Record<string, unknown>> {
   /** The Self Describing JSON which describes the event */
-  event: SelfDescribingJson;
+  event: SelfDescribingJson<T>;
 }
 
 /**
@@ -578,7 +578,7 @@ export interface SelfDescribingEvent {
  * @param event - Contains the properties and schema location for the event
  * @returns PayloadBuilder to be sent to {@link @snowplow/tracker-core#TrackerCore.track}
  */
-export function buildSelfDescribingEvent(event: SelfDescribingEvent): PayloadBuilder {
+export function buildSelfDescribingEvent<T = Record<string, unknown>>(event: SelfDescribingEvent<T>): PayloadBuilder {
   const {
       event: { schema, data },
     } = event,

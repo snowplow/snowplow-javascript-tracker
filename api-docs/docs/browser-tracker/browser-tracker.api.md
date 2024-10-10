@@ -137,9 +137,7 @@ export interface ClientSession extends Record<string, unknown> {
 }
 
 // @public
-export interface CommonEventProperties<T extends {
-    [_: string]: unknown;
-} = Record<string, unknown>> {
+export interface CommonEventProperties<T = Record<string, unknown>> {
     context?: Array<SelfDescribingJson<T>> | null;
     timestamp?: Timestamp | null;
 }
@@ -433,16 +431,14 @@ Array<ContextPrimitive> | ContextPrimitive
 ];
 
 // @public
-export interface SelfDescribingEvent {
-    event: SelfDescribingJson;
+export interface SelfDescribingEvent<T = Record<string, unknown>> {
+    event: SelfDescribingJson<T>;
 }
 
 // @public
-export type SelfDescribingJson<T extends {
-    [_: string]: unknown;
-} = Record<string, unknown>> = {
+export type SelfDescribingJson<T = Record<string, unknown>> = {
     schema: string;
-    data: T;
+    data: T extends any[] ? never : T extends {} ? T : never;
 };
 
 // @public
@@ -574,7 +570,7 @@ export interface TrackerCore {
 export function trackPageView(event?: PageViewEvent & CommonEventProperties, trackers?: Array<string>): void;
 
 // @public
-export function trackSelfDescribingEvent(event: SelfDescribingEvent & CommonEventProperties, trackers?: Array<string>): void;
+export function trackSelfDescribingEvent<T = Record<string, unknown>>(event: SelfDescribingEvent<T> & CommonEventProperties, trackers?: Array<string>): void;
 
 // @public
 export function trackStructEvent(event: StructuredEvent & CommonEventProperties, trackers?: Array<string>): void;
