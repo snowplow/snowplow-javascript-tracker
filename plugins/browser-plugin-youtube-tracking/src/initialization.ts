@@ -369,8 +369,8 @@ function installPollingListeners(conf: TrackingOptions, flags: Partial<Record<Me
       if (enableSeek) {
         const playerTime = player.getCurrentTime();
         if (Math.abs(playerTime - (pollState.prevTime + conf.updateRate / 1000)) > 1) {
-          trackMediaSeekStart({ id });
-          trackMediaSeekEnd({ id });
+          trackMediaSeekStart({ id, player: { currentTime: pollState.prevTime } });
+          trackMediaSeekEnd({ id, player: { currentTime: playerTime } });
         }
         pollState.prevTime = playerTime;
       }
