@@ -21,7 +21,7 @@ describe('GA Cookies plugin', () => {
     jest.clearAllMocks();
   });
 
-  it('Returns values for Universal Analytics cookies by default', (done) => {
+  it('Returns values for GA4 cookies by default', (done) => {
     const containerId = '1234';
     document.cookie = `_ga=1234; __utma=567; _ga_${containerId}=567;`;
     const core = trackerCore({
@@ -42,7 +42,7 @@ describe('GA Cookies plugin', () => {
     const measurementId = `G-${containerId}`;
     document.cookie = ``;
     const core = trackerCore({
-      corePlugins: [GaCookiesPlugin({ ga4: true, ga4MeasurementId: measurementId })],
+      corePlugins: [GaCookiesPlugin({ ua: true, ga4MeasurementId: measurementId })],
       callback: (payloadBuilder) => {
         const { data } = payloadBuilder.getJson()[1].json;
         expect(data).toMatchSnapshot();
@@ -58,7 +58,7 @@ describe('GA Cookies plugin', () => {
     const measurementId = `G-${containerId}`;
     document.cookie = `_ga=1234; __utma=567; _ga_${containerId}=567;`;
     const core = trackerCore({
-      corePlugins: [GaCookiesPlugin({ ga4: true, ga4MeasurementId: measurementId })],
+      corePlugins: [GaCookiesPlugin({ ua: true, ga4MeasurementId: measurementId })],
       callback: (payloadBuilder) => {
         const { data } = payloadBuilder.getJson()[1].json;
         expect(data).toMatchSnapshot();
