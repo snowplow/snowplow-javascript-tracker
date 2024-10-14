@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/tracker-core",
+      "comment": "Fix regression in SelfDescribingJson type from #1330",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/tracker-core"
+}
