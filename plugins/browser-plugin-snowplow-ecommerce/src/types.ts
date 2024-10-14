@@ -1,4 +1,4 @@
-import { CommonEventProperties, SelfDescribingJson } from '@snowplow/tracker-core';
+import { CommonEventProperties } from '@snowplow/tracker-core';
 
 /**
  * Type/Schema for an ecommerce Action
@@ -317,10 +317,9 @@ export interface User {
   email?: string;
 }
 
-export interface CommonEcommerceEventProperties<T extends { [_: string]: unknown } = Record<string, unknown>>
-  extends CommonEventProperties<T> {
+export interface CommonEcommerceEventProperties<T = Record<string, unknown>> extends CommonEventProperties<T> {
   /** Add context to an event by setting an Array of Self Describing JSON */
-  context?: Array<SelfDescribingJson<T>>;
+  context?: Exclude<CommonEventProperties<T>['context'], null>;
 }
 
 export type ListViewEvent = { name: string; products: Product[] };
