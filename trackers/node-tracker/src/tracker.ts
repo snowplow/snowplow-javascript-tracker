@@ -74,7 +74,7 @@ export interface TrackerConfiguration {
   /* The application ID */
   appId: string;
   /* Whether unstructured events and custom contexts should be base64 encoded. */
-  encodeBase64: boolean;
+  encodeBase64?: boolean;
 }
 
 export type CustomEmitter = {

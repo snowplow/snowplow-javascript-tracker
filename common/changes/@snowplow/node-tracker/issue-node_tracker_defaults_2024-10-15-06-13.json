@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/node-tracker",
+      "comment": "Make base64 encoding an optional parameter in Node newTracker call",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/node-tracker"
+}
