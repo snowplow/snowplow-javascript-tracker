@@ -1,5 +1,5 @@
 import test from 'ava';
-test('pass if this snowtype-generated file passes typechecks', () => {});
+test('pass if this snowtype-generated file passes typechecks', (t) => t.pass());
 // generated with Snowtype v0.8.4, package import on below line needs to be updated to '../src'
 
 import { buildSelfDescribingEvent, SelfDescribingJson, Timestamp, Tracker } from '../src';
