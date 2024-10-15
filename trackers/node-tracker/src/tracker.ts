@@ -73,7 +73,10 @@ export interface TrackerConfiguration {
   namespace: string;
   /* The application ID */
   appId: string;
-  /* Whether unstructured events and custom contexts should be base64 encoded. */
+  /**
+   * Whether unstructured events and custom contexts should be base64 encoded.
+   * @default true
+   **/
   encodeBase64?: boolean;
 }
 

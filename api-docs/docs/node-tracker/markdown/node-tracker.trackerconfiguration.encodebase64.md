@@ -7,5 +7,5 @@
 <b>Signature:</b>
 
 ```typescript
-encodeBase64: boolean;
+encodeBase64?: boolean;
 ```
