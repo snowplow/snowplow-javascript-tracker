@@ -9,12 +9,12 @@ A Self Describing Event A custom event type, allowing for an event to be tracked
 <b>Signature:</b>
 
 ```typescript
-interface SelfDescribingEvent 
+interface SelfDescribingEvent<T = Record<string, unknown>> 
 ```
 
 ## Properties
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [event](./node-tracker.selfdescribingevent.event.md) | SelfDescribingJson | The Self Describing JSON which describes the event |
+|  [event](./node-tracker.selfdescribingevent.event.md) | SelfDescribingJson&lt;T&gt; | The Self Describing JSON which describes the event |
 

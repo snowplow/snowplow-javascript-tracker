@@ -72,6 +72,12 @@ function checkPayload(payloadDict: Payload, expected: Payload, t: ExecutionConte
 
 const customFetch = () => Promise.resolve(new Response(null, { status: 200 }));
 
+test('newTracker called with default values', (t) => {
+  const tracker = newTracker({ namespace: 'cf', appId: 'cfe35' }, { endpoint });
+  t.truthy(tracker);
+  t.true(tracker.getBase64Encoding());
+});
+
 for (const eventMethod of testMethods) {
   test(eventMethod + ' method: track API should return eid in the payload', (t) => {
     const track = newTracker(

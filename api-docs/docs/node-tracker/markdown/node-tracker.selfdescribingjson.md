@@ -9,8 +9,8 @@ Export interface for any Self-Describing JSON such as context or Self Describing
 <b>Signature:</b>
 
 ```typescript
-type SelfDescribingJson<T extends Record<keyof T, unknown> = Record<string, unknown>> = {
+type SelfDescribingJson<T = Record<string, unknown>> = {
     schema: string;
-    data: T;
+    data: T extends any[] ? never : T extends {} ? T : never;
 };
 ```
