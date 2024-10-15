@@ -22,6 +22,7 @@ export const DefaultEvents: MediaEventType[] = [
   MediaEventType.Ready,
   MediaEventType.Pause,
   MediaEventType.Play,
+  MediaEventType.Ping,
   MediaEventType.End,
   MediaEventType.SeekStart,
   MediaEventType.SeekEnd,

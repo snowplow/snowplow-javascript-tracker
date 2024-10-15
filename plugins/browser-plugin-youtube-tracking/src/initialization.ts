@@ -68,6 +68,7 @@ export function startYouTubeTracking(args: YouTubeMediaTrackingConfiguration): s
       id: conf.sessionId,
       captureEvents: conf.captureEvents,
       boundaries: conf.boundaries,
+      pings: conf.config.pings ?? conf.captureEvents.indexOf(MediaEventType.Ping) !== -1,
       context: (args.context ?? []).concat([() => buildYouTubeEntity(conf)]),
       timestamp: args.timestamp,
     });
