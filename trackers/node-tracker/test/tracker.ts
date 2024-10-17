@@ -244,11 +244,13 @@ for (const eventMethod of testMethods) {
             eventMethod,
             bufferSize: 0,
             onRequestSuccess: (batch) => {
-              const expected = batch[0]['e'] === 'tr' ? expectedTransaction : expectedItem;
+              batch.forEach((payload) => {
+                const expected = payload['e'] === 'tr' ? expectedTransaction : expectedItem;
 
-              checkPayload(batch[0], expected, t);
+                checkPayload(payload, expected, t);
 
-              requestCount--;
+                requestCount--;
+              });
               if (requestCount === 0) {
                 resolve(batch);
               }
@@ -472,11 +474,13 @@ for (const eventMethod of testMethods) {
         endpoint,
         eventMethod,
         bufferSize: 0,
-        onRequestSuccess: ([pl]) => {
-          checkPayload(pl, expected, t);
-          count--;
+        onRequestSuccess: (batch) => {
+          batch.forEach((pl) => {
+            checkPayload(pl, expected, t);
+            count--;
+          });
           if (count === 0) {
-            resolve(pl);
+            resolve(batch);
           }
         },
         onRequestFailure: reject,
