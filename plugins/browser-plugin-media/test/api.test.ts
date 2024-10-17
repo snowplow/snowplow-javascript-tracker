@@ -57,6 +57,7 @@ describe('Media Tracking API', () => {
         },
       ],
       contexts: { webPage: false },
+      customFetch: async () => new Response(null, { status: 200 }),
     });
     id = `media-${idx}`;
   });

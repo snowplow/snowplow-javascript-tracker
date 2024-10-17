@@ -6,7 +6,7 @@ import { newEventStorePayload } from '../../src/event_store_payload';
 
 const newEmitterEventFromPayload = (payload: Record<string, unknown>) => {
   return newEmitterEvent(newEventStorePayload({ payload }));
-}
+};
 
 // MARK: - addEvent
 
@@ -89,34 +89,31 @@ test('countEvents returns the correct event count', (t) => {
 
 // MARK: - isFull
 
-test('isFull returns false when not reached buffer size', (t) => {
+test('isFull returns false when not reached max post bytes', (t) => {
   const request = newEmitterRequest({
     endpoint: 'https://example.com',
     maxPostBytes: 1000,
-    bufferSize: 2,
   });
 
   t.true(request.addEvent(newEmitterEventFromPayload({ e: 'pv', p: 'web' })));
   t.false(request.isFull());
 });
 
-test('isFull returns true when reached buffer size', (t) => {
+test('isFull returns false when reached buffer size and not max post bytes', (t) => {
   const request = newEmitterRequest({
     endpoint: 'https://example.com',
     maxPostBytes: 1000,
-    bufferSize: 2,
   });
 
   t.true(request.addEvent(newEmitterEventFromPayload({ e: 'pv', p: 'web' })));
   t.true(request.addEvent(newEmitterEventFromPayload({ e: 'pv', p: 'mob' })));
-  t.true(request.isFull());
+  t.false(request.isFull());
 });
 
 test('isFull returns true when reached max post bytes', (t) => {
   const request = newEmitterRequest({
     endpoint: 'https://example.com',
     maxPostBytes: 10,
-    bufferSize: 2,
   });
 
   t.true(request.addEvent(newEmitterEventFromPayload({ e: 'pv', p: 'web' })));

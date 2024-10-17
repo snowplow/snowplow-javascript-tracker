@@ -47,6 +47,7 @@ export interface EmitterConfigurationBase {
   bufferSize?: number;
   /**
    * The max size a POST request can be before the tracker will force send it
+   * Also dictates the max size of a POST request before a batch of events is split into multiple requests
    * @defaultValue 40000
    */
   maxPostBytes?: number;
@@ -312,7 +313,6 @@ export function newEmitter({
       customHeaders,
       connectionTimeout,
       keepalive,
-      bufferSize,
       maxPostBytes,
       useStm,
       credentials,

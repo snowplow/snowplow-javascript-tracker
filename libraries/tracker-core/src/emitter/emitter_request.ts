@@ -48,7 +48,6 @@ export interface EmitterRequestConfiguration {
   keepalive?: boolean;
   postPath?: string;
   useStm?: boolean;
-  bufferSize?: number;
   maxPostBytes?: number,
   credentials?: 'omit' | 'same-origin' | 'include';
 }
@@ -89,7 +88,6 @@ export function newEmitterRequest({
   keepalive = true,
   postPath = '/com.snowplowanalytics.snowplow/tp2',
   useStm = true,
-  bufferSize,
   maxPostBytes = 40000,
   credentials = 'include',
 }: EmitterRequestConfiguration): EmitterRequest {
@@ -128,9 +126,6 @@ export function newEmitterRequest({
 
   function isFull(): boolean {
     if (usePost) {
-      if (bufferSize !== undefined && countEvents() >= Math.max(1, bufferSize)) {
-        return true;
-      }
       return countBytes() >= maxPostBytes;
     } else {
       return events.length >= 1;
