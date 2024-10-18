@@ -4,7 +4,7 @@
 
 ## EmitterConfigurationBase.maxPostBytes property
 
-The max size a POST request can be before the tracker will force send it
+The max size a POST request can be before the tracker will force send it Also dictates the max size of a POST request before a batch of events is split into multiple requests
 
 <b>Signature:</b>
 
