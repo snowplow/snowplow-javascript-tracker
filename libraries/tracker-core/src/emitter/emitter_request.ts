@@ -33,9 +33,12 @@ export interface EmitterRequest {
    */
   countEvents: () => number;
   /**
-   * Cancel the timeout timer, should be called when the request is sent
+   * Cancel timeout timer if it is still pending.
+   * If not successful, the request will be aborted.
+   * @param successful - Whether the request was successful
+   * @param reason - Reason for aborting the request
    */
-  cancelTimeoutTimer: () => void;
+  closeRequest: (successful: boolean, reason?: string) => void;
 }
 
 export interface EmitterRequestConfiguration {
@@ -94,6 +97,7 @@ export function newEmitterRequest({
   let events: EmitterEvent[] = [];
   let usePost = eventMethod.toLowerCase() === 'post';
   let timer: ReturnType<typeof setTimeout> | undefined;
+  let abortController: AbortController | undefined;
 
   function countBytes(): number {
     return events.reduce(
@@ -109,7 +113,6 @@ export function newEmitterRequest({
   function getServerAnonymizationOfExistingEvents(): boolean | undefined {
     return events.length > 0 ? events[0].getServerAnonymization() : undefined;
   }
-
 
   function addEvent(event: EmitterEvent) {
     if (events.length > 0 && getServerAnonymizationOfExistingEvents() !== event.getServerAnonymization()) {
@@ -162,15 +165,19 @@ export function newEmitterRequest({
   }
 
   function makeRequest(url: string, options: RequestInit): Request {
-    const controller = new AbortController();
+    closeRequest(false);
+
+    abortController = new AbortController();
     timer = setTimeout(() => {
-      console.error('Request timed out');
-      controller.abort()
+      const reason = 'Request timed out';
+      console.error(reason);
+      timer = undefined;
+      closeRequest(false, reason);
     }, connectionTimeout ?? 5000);
 
     const requestOptions: RequestInit = {
       headers: createHeaders(),
-      signal: controller.signal,
+      signal: abortController.signal,
       keepalive,
       credentials,
       ...options,
@@ -213,10 +220,18 @@ export function newEmitterRequest({
     }
   }
 
-  function cancelTimeoutTimer() {
-    if (timer) {
+  function closeRequest(successful: boolean, reason?: string) {
+    if (timer !== undefined) {
       clearTimeout(timer);
       timer = undefined;
+    }
+
+    if (abortController !== undefined) {
+      const controller = abortController;
+      abortController = undefined;
+      if (!successful) {
+        controller.abort(reason);
+      }
     }
   }
 
@@ -227,6 +242,6 @@ export function newEmitterRequest({
     countBytes,
     countEvents,
     isFull,
-    cancelTimeoutTimer,
+    closeRequest,
   };
 }

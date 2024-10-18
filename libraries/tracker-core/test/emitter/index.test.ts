@@ -311,8 +311,9 @@ test('adds a timeout to the request', async (t) => {
 
     return new Promise((resolve, reject) => {
       let timer = setTimeout(() => {
+        t.fail('Request should have timed out');
         resolve(new Response(null, { status: 200 }));
-      }, 1000);
+      }, 500);
 
       input.signal?.addEventListener('abort', () => {
         clearTimeout(timer);

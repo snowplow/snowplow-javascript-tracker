@@ -275,7 +275,7 @@ export function newEmitter({
     try {
       const response = await customFetch(fetchRequest);
 
-      request.cancelTimeoutTimer();
+      request.closeRequest(true);
 
       if (response.ok) {
         callOnRequestSuccess(payloads, response);
@@ -294,6 +294,8 @@ export function newEmitter({
         return { success: false, retry: willRetry, status: response.status };
       }
     } catch (e) {
+      request.closeRequest(false);
+
       const message = typeof e === 'string' ? e : e ? (e as Error).message : 'Unknown error';
       callOnRequestFailure({
         events: payloads,
