@@ -326,7 +326,7 @@ export function newEmitter({
       LOG.warn('Event (' + bytes + 'B) too big, max is ' + maxBytes);
 
     if (usePost) {
-      const bytes = emitterEvent.getPOSTRequestBytesCount();
+      const bytes = emitterEvent.getPOSTRequestBytesCount() + 88; // 88 bytes for the payload_data envelope
       const tooBig = bytes > maxPostBytes;
       if (tooBig) {
         eventTooBigWarning(bytes, maxPostBytes);

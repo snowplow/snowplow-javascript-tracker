@@ -71,7 +71,7 @@ test('countBytes returns the correct byte count', (t) => {
 
   t.true(request.addEvent(newEmitterEventFromPayload({ e: 'pv', p: 'web' })));
   t.true(request.addEvent(newEmitterEventFromPayload({ e: 'pv', p: 'mob' })));
-  t.is(request.countBytes(), 40);
+  t.is(request.countBytes(), 40 + 88); // 40 bytes for each event, 88 bytes for the payload_data envelope
 });
 
 // MARK: - countEvents

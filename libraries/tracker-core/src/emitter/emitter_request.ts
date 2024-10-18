@@ -100,10 +100,14 @@ export function newEmitterRequest({
   let abortController: AbortController | undefined;
 
   function countBytes(): number {
-    return events.reduce(
+    let count = events.reduce(
       (acc, event) => acc + (usePost ? event.getPOSTRequestBytesCount() : event.getGETRequestBytesCount()),
       0
     );
+    if (usePost) {
+      count += 88; // 88 bytes for the payload_data envelope
+    }
+    return count;
   }
 
   function countEvents(): number {
