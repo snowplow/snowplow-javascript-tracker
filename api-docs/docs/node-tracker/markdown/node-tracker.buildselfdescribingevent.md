@@ -9,14 +9,14 @@ Build a self-describing event A custom event type, allowing for an event to be t
 <b>Signature:</b>
 
 ```typescript
-declare function buildSelfDescribingEvent(event: SelfDescribingEvent): PayloadBuilder;
+declare function buildSelfDescribingEvent<T = Record<string, unknown>>(event: SelfDescribingEvent<T>): PayloadBuilder;
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  event | SelfDescribingEvent | Contains the properties and schema location for the event |
+|  event | SelfDescribingEvent&lt;T&gt; | Contains the properties and schema location for the event |
 
 <b>Returns:</b>
 

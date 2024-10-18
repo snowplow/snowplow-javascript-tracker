@@ -15,6 +15,6 @@ interface TrackerConfiguration
 |  Property | Type | Description |
 |  --- | --- | --- |
 |  [appId](./node-tracker.trackerconfiguration.appid.md) | string |  |
-|  [encodeBase64](./node-tracker.trackerconfiguration.encodebase64.md) | boolean |  |
+|  [encodeBase64?](./node-tracker.trackerconfiguration.encodebase64.md) | boolean | <i>(Optional)</i> Whether unstructured events and custom contexts should be base64 encoded. |
 |  [namespace](./node-tracker.trackerconfiguration.namespace.md) | string |  |
 
