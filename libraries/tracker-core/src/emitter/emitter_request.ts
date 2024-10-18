@@ -33,9 +33,12 @@ export interface EmitterRequest {
    */
   countEvents: () => number;
   /**
-   * Cancel the timeout timer, should be called when the request is sent
+   * Cancel timeout timer if it is still pending.
+   * If not successful, the request will be aborted.
+   * @param successful - Whether the request was successful
+   * @param reason - Reason for aborting the request
    */
-  cancelTimeoutTimer: () => void;
+  closeRequest: (successful: boolean, reason?: string) => void;
 }
 
 export interface EmitterRequestConfiguration {
@@ -48,7 +51,6 @@ export interface EmitterRequestConfiguration {
   keepalive?: boolean;
   postPath?: string;
   useStm?: boolean;
-  bufferSize?: number;
   maxPostBytes?: number,
   credentials?: 'omit' | 'same-origin' | 'include';
 }
@@ -89,19 +91,23 @@ export function newEmitterRequest({
   keepalive = true,
   postPath = '/com.snowplowanalytics.snowplow/tp2',
   useStm = true,
-  bufferSize,
   maxPostBytes = 40000,
   credentials = 'include',
 }: EmitterRequestConfiguration): EmitterRequest {
   let events: EmitterEvent[] = [];
   let usePost = eventMethod.toLowerCase() === 'post';
   let timer: ReturnType<typeof setTimeout> | undefined;
+  let abortController: AbortController | undefined;
 
   function countBytes(): number {
-    return events.reduce(
+    let count = events.reduce(
       (acc, event) => acc + (usePost ? event.getPOSTRequestBytesCount() : event.getGETRequestBytesCount()),
       0
     );
+    if (usePost) {
+      count += 88; // 88 bytes for the payload_data envelope
+    }
+    return count;
   }
 
   function countEvents(): number {
@@ -111,7 +117,6 @@ export function newEmitterRequest({
   function getServerAnonymizationOfExistingEvents(): boolean | undefined {
     return events.length > 0 ? events[0].getServerAnonymization() : undefined;
   }
-
 
   function addEvent(event: EmitterEvent) {
     if (events.length > 0 && getServerAnonymizationOfExistingEvents() !== event.getServerAnonymization()) {
@@ -128,9 +133,6 @@ export function newEmitterRequest({
 
   function isFull(): boolean {
     if (usePost) {
-      if (bufferSize !== undefined && countEvents() >= Math.max(1, bufferSize)) {
-        return true;
-      }
       return countBytes() >= maxPostBytes;
     } else {
       return events.length >= 1;
@@ -167,15 +169,19 @@ export function newEmitterRequest({
   }
 
   function makeRequest(url: string, options: RequestInit): Request {
-    const controller = new AbortController();
+    closeRequest(false);
+
+    abortController = new AbortController();
     timer = setTimeout(() => {
-      console.error('Request timed out');
-      controller.abort()
+      const reason = 'Request timed out';
+      console.error(reason);
+      timer = undefined;
+      closeRequest(false, reason);
     }, connectionTimeout ?? 5000);
 
     const requestOptions: RequestInit = {
       headers: createHeaders(),
-      signal: controller.signal,
+      signal: abortController.signal,
       keepalive,
       credentials,
       ...options,
@@ -218,10 +224,18 @@ export function newEmitterRequest({
     }
   }
 
-  function cancelTimeoutTimer() {
-    if (timer) {
+  function closeRequest(successful: boolean, reason?: string) {
+    if (timer !== undefined) {
       clearTimeout(timer);
       timer = undefined;
+    }
+
+    if (abortController !== undefined) {
+      const controller = abortController;
+      abortController = undefined;
+      if (!successful) {
+        controller.abort(reason);
+      }
     }
   }
 
@@ -232,6 +246,6 @@ export function newEmitterRequest({
     countBytes,
     countEvents,
     isFull,
-    cancelTimeoutTimer,
+    closeRequest,
   };
 }
