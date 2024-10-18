@@ -9,5 +9,5 @@ The Self Describing JSON which describes the event
 <b>Signature:</b>
 
 ```typescript
-event: SelfDescribingJson;
+event: SelfDescribingJson<T>;
 ```
