@@ -47,6 +47,7 @@ export interface EmitterConfigurationBase {
   bufferSize?: number;
   /**
    * The max size a POST request can be before the tracker will force send it
+   * Also dictates the max size of a POST request before a batch of events is split into multiple requests
    * @defaultValue 40000
    */
   maxPostBytes?: number;
@@ -274,7 +275,7 @@ export function newEmitter({
     try {
       const response = await customFetch(fetchRequest);
 
-      request.cancelTimeoutTimer();
+      request.closeRequest(true);
 
       if (response.ok) {
         callOnRequestSuccess(payloads, response);
@@ -293,6 +294,8 @@ export function newEmitter({
         return { success: false, retry: willRetry, status: response.status };
       }
     } catch (e) {
+      request.closeRequest(false);
+
       const message = typeof e === 'string' ? e : e ? (e as Error).message : 'Unknown error';
       callOnRequestFailure({
         events: payloads,
@@ -312,7 +315,6 @@ export function newEmitter({
       customHeaders,
       connectionTimeout,
       keepalive,
-      bufferSize,
       maxPostBytes,
       useStm,
       credentials,
@@ -324,7 +326,7 @@ export function newEmitter({
       LOG.warn('Event (' + bytes + 'B) too big, max is ' + maxBytes);
 
     if (usePost) {
-      const bytes = emitterEvent.getPOSTRequestBytesCount();
+      const bytes = emitterEvent.getPOSTRequestBytesCount() + 88; // 88 bytes for the payload_data envelope
       const tooBig = bytes > maxPostBytes;
       if (tooBig) {
         eventTooBigWarning(bytes, maxPostBytes);
