@@ -4,8 +4,10 @@
 
 ## TrackerConfiguration.encodeBase64 property
 
+Whether unstructured events and custom contexts should be base64 encoded.
+
 <b>Signature:</b>
 
 ```typescript
-encodeBase64: boolean;
+encodeBase64?: boolean;
 ```

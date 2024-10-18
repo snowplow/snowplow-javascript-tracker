@@ -9,14 +9,14 @@ Track a self-describing event happening on this page. A custom event type, allow
 <b>Signature:</b>
 
 ```typescript
-declare function trackSelfDescribingEvent(event: SelfDescribingEvent & CommonEventProperties, trackers?: Array<string>): void;
+declare function trackSelfDescribingEvent<T = Record<string, unknown>>(event: SelfDescribingEvent<T> & CommonEventProperties, trackers?: Array<string>): void;
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  event | SelfDescribingEvent &amp; CommonEventProperties | The event information |
+|  event | SelfDescribingEvent&lt;T&gt; &amp; CommonEventProperties | The event information |
 |  trackers | Array&lt;string&gt; | The tracker identifiers which the event will be sent to |
 
 <b>Returns:</b>

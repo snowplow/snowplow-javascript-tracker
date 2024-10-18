@@ -516,8 +516,7 @@ export interface TrackerConfiguration {
     // (undocumented)
     appId: string;
     /* The application ID */
-    // (undocumented)
-    encodeBase64: boolean;
+    encodeBase64?: boolean;
     /* The application ID */
     // (undocumented)
     namespace: string;
