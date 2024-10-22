@@ -274,6 +274,7 @@ export function newEmitter({
     const payloads = request.getEvents().map((event) => event.getPayload());
     try {
       const response = await customFetch(fetchRequest);
+      await response.text(); // wait for the response to be fully read
 
       request.closeRequest(true);
 
