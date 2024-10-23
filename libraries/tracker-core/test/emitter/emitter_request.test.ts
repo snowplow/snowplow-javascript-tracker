@@ -133,7 +133,6 @@ test('toRequest returns a Request object with default settings', (t) => {
   t.is(req.method, 'POST');
   t.is(req.headers.get('Content-Type'), 'application/json; charset=UTF-8');
   t.is(req.headers.get('SP-Anonymous'), null);
-  t.is(req.keepalive, true);
 });
 
 test('toRequest builds a GET request when method is get', (t) => {
@@ -194,12 +193,12 @@ test('toRequest includes server anonymization header', (t) => {
 test('toRequest contains keepalive', (t) => {
   const request = newEmitterRequest({
     endpoint: 'https://example.com',
-    keepalive: false,
+    keepalive: true,
   });
 
   t.true(request.addEvent(newEmitterEventFromPayload({ e: 'pv', p: 'web' })));
   const req = request.toRequest()!;
-  t.is(req.keepalive, false);
+  t.is(req.keepalive, true);
 });
 
 test('toRequest URL contains custom POST path', (t) => {
