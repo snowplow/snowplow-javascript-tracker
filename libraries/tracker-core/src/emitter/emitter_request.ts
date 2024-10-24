@@ -88,7 +88,7 @@ export function newEmitterRequest({
   eventMethod = 'post',
   customHeaders,
   connectionTimeout,
-  keepalive = true,
+  keepalive = false,
   postPath = '/com.snowplowanalytics.snowplow/tp2',
   useStm = true,
   maxPostBytes = 40000,
