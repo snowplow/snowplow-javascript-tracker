@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Test Page For Element Tracking Plugin</title>
+    <script>
+      (function (p, l, o, w, i, n, g) {
+        if (!p[i]) {
+          p.GlobalSnowplowNamespace = p.GlobalSnowplowNamespace || [];
+          p.GlobalSnowplowNamespace.push(i);
+          p[i] = function () {
+            (p[i].q = p[i].q || []).push(arguments);
+          };
+          p[i].q = p[i].q || [];
+          n = l.createElement(o);
+          g = l.getElementsByTagName(o)[0];
+          n.async = 1;
+          n.src = w;
+          g.parentNode.insertBefore(n, g);
+        }
+      })(
+        window,
+        document,
+        'script',
+        'https://cdn.jsdelivr.net/npm/@snowplow/javascript-tracker@3/dist/sp.js',
+        'snowplow'
+      );
+    </script>
+    <style></style>
+
+    <body>
+      <div class="oncreate" data-example="from dataset">Some text content</div>
+      <a href="/">A link</a>
+
+      <div class="recommendations">
+        <ul>
+          <li>Item A<img alt="A" src="" /></li>
+          <li>Item B<img alt="B" src="" /></li>
+          <li>Item C<img alt="C" src="" /></li>
+          <li>Item D<img alt="D" src="" /></li>
+        </ul>
+      </div>
+
+      <div class="recommendations second-set">
+        <ul>
+          <li>Item E</li>
+          <li>Item F</li>
+          <li>Item G</li>
+          <li>Item H</li>
+        </ul>
+      </div>
+
+      <script>
+        snowplow('newTracker', 'sp', 'http://localhost:9090', {});
+        snowplow('addPlugin', 'dist/index.umd.js', ['snowplowElementTracking', 'SnowplowElementTrackingPlugin']);
+      </script>
+      <script>
+        snowplow('startElementTracking', {
+          elements: [
+            // can be one or array of configurations; additive, can be called multiple times but doesn't dedupe
+            {
+              selector: '.oncreate', // required: selector for element, relative to document scope
+              name: 'created div', // logical name: can be shared across multiple configs; defaults to `selector` if not specified
+              create: true, // track an event when the element is added to the DOM (or when plugin loads if already on page) (default: false)
+              destroy: true, // track an event when the element is removed from the DOM (or when plugin loads if already on page) (default: false)
+              expose: true, // track an event when the element intersects with the viewport (default: true)
+              obscure: true, // track an event when the element scrolls out of the viewport (default: false)
+              details: [
+                // details can be extracted from the element and included in the entity
+                function (element) {
+                  return { example: 'from a function' };
+                }, // use a function that returns an object
+                { attributes: ['class'], selector: true }, // or declarative options; either as a single object or array elements if you want config re-use
+                { attributes: ['class'] }, // attributes: get the static/default attributes originally defined on the element
+                { properties: ['className'] }, // properties: get the dynamic/current attributes defined on the element
+                { dataset: ['example'] }, // dataset: extract values from dataset attributes
+                { selector: true }, // selector: attach the matching CSS selector as an attribute; useful if you're using logical names but want to differentiate
+                { content: { textType: /text (\S+)/ } }, //content (map of regex patterns to match text against, first capture group used if detected)
+              ],
+            },
+            { selector: 'body', expose: false, component: true }, // expose is true by default; component means the name/selector is attached to the component_parents entity list for other events
+            {
+              name: 'recommendations',
+              selector: '.recommendations',
+              expose: true,
+              obscure: true,
+              component: true,
+              details: { attributes: ['class'] },
+              contents: [
+                // content information can be extracted
+                {
+                  name: 'recommendation-item', // contents can be named too
+                  selector: 'li', // selectors are relative to the parent element
+                  details: { content: { item_name: /.+/ } }, // content item details can be captured too
+                  contents: { name: 'recommendation_image', selector: 'img', details: { attributes: ['alt'] } },
+                },
+              ],
+            },
+          ],
+        });
+
+        snowplow('getComponentListGenerator', function (componentGenerator) {
+          // access a context generator aware of the startElementTracking configuration "components"
+          snowplow('enableLinkClickTracking', { context: [componentGenerator] });
+          snowplow('enableFormTracking', { context: [componentGenerator] });
+        });
+        snowplow('trackPageView');
+      </script>
+    </body>
+  </head>
+</html>
