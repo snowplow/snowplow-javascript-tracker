@@ -207,6 +207,26 @@ describe('LinkClickTrackingPlugin', () => {
       });
     });
 
+    it('tracks clicks on links without href', async () => {
+      enableLinkClickTracking();
+
+      const target = document.createElement('a');
+      document.body.appendChild(target);
+
+      target.click();
+
+      expect(
+        extractUeEvent('iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1').from(
+          await eventStore.getAllPayloads()
+        )
+      ).toMatchObject({
+        schema: 'iglu:com.snowplowanalytics.snowplow/link_click/jsonschema/1-0-1',
+        data: {
+          targetUrl: 'about:invalid',
+        },
+      });
+    });
+
     it('tracks clicks on child elements of links and contents', async () => {
       enableLinkClickTracking({ trackContent: true });
 
