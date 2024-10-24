@@ -116,7 +116,8 @@ export interface EmitterConfigurationBase {
   /**
    * Indicates that the request should be allowed to outlive the webpage that initiated it.
    * Enables collector requests to complete even if the page is closed or navigated away from.
-   * @defaultValue true (not supported in Node.js)
+   * Note: Browsers put a limit on keepalive requests of 64KB. In case of multiple keepalive requests in parallel (may happen in case of multiple trackers), the limit is shared.
+   * @defaultValue false
    */
   keepalive?: boolean;
   /**
