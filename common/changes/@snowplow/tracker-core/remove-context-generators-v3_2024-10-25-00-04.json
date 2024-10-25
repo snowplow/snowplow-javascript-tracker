@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/tracker-core",
+      "comment": "Fix removal of global context generators",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/tracker-core"
+}
