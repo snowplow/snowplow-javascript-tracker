@@ -237,6 +237,21 @@ test('Remove one of two global context primitives', (t) => {
   t.deepEqual(globalContexts.getGlobalPrimitives(), [webPageContext]);
 });
 
+test('Remove one of two global context generators', (t) => {
+  function a(): undefined {
+    return;
+  }
+  function b(): undefined {
+    return;
+  }
+
+  const globalContexts = contexts.globalContexts();
+  globalContexts.addGlobalContexts([a, b]);
+  t.deepEqual(globalContexts.getGlobalPrimitives(), [a, b]);
+  globalContexts.removeGlobalContexts([a]);
+  t.deepEqual(globalContexts.getGlobalPrimitives(), [b]);
+});
+
 test('Remove one of two global context conditional providers', (t) => {
   const geolocationContext = {
     schema: 'iglu:com.snowplowanalytics.snowplow/geolocation_context/jsonschema/1-1-0',
