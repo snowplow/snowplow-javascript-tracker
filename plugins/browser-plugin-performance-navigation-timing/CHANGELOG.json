@@ -2,6 +2,12 @@
   "name": "@snowplow/browser-plugin-performance-navigation-timing",
   "entries": [
     {
+      "version": "3.24.5",
+      "tag": "@snowplow/browser-plugin-performance-navigation-timing_v3.24.5",
+      "date": "Fri, 25 Oct 2024 08:53:04 GMT",
+      "comments": {}
+    },
+    {
       "version": "3.24.4",
       "tag": "@snowplow/browser-plugin-performance-navigation-timing_v3.24.4",
       "date": "Thu, 26 Sep 2024 06:10:22 GMT",

@@ -1,6 +1,11 @@
 # Change Log - @snowplow/browser-plugin-focalmeter
 
-This log was last generated on Thu, 26 Sep 2024 06:10:22 GMT and should not be manually modified.
+This log was last generated on Fri, 25 Oct 2024 08:53:04 GMT and should not be manually modified.
+
+## 3.24.5
+Fri, 25 Oct 2024 08:53:04 GMT
+
+_Version update only_
 
 ## 3.24.4
 Thu, 26 Sep 2024 06:10:22 GMT

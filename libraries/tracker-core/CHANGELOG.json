@@ -2,6 +2,18 @@
   "name": "@snowplow/tracker-core",
   "entries": [
     {
+      "version": "3.24.5",
+      "tag": "@snowplow/tracker-core_v3.24.5",
+      "date": "Fri, 25 Oct 2024 08:53:04 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fix removal of global context generators"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.24.4",
       "tag": "@snowplow/tracker-core_v3.24.4",
       "date": "Thu, 26 Sep 2024 06:10:22 GMT",
