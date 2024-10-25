@@ -190,6 +190,8 @@ export function trackLinkClick(
 
 /**
  * Process a clicked element into a link_click event payload.
+ * 
+ * In case the href of the element is empty, "about:invalid" is used as the target URL.
  *
  * @param sourceElement The trackable element to be used to build the payload
  * @param includeContent Whether to include the element's contents in the payload
@@ -210,9 +212,13 @@ function processClick(sourceElement: TrackableElement, includeContent: boolean =
     elementTarget = anchorElement.target;
     elementContent = includeContent ? anchorElement.innerHTML : undefined;
 
+    if (!targetUrl) {
+      _logger?.warn('Link click target URL empty', anchorElement);
+    }
+
     // decodeUrl %xx
     return buildLinkClick({
-      targetUrl,
+      targetUrl: targetUrl || 'about:invalid',
       elementId,
       elementClasses,
       elementTarget,
