@@ -213,7 +213,7 @@ function processClick(sourceElement: TrackableElement, includeContent: boolean =
     elementContent = includeContent ? anchorElement.innerHTML : undefined;
 
     if (!targetUrl) {
-      console.warn('Link click target URL empty', anchorElement);
+      _logger?.warn('Link click target URL empty', anchorElement);
     }
 
     // decodeUrl %xx
