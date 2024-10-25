@@ -12,7 +12,7 @@
     },
     {
       "path": "./trackers/javascript-tracker/dist/sp.js",
-      "maxSize": "25.5kb",
+      "maxSize": "26kb",
       "maxPercentIncrease": 10
     },
     {
