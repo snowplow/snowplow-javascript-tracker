@@ -192,11 +192,9 @@ export function globalContexts(): GlobalContexts {
     removeGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive>): void {
       for (const context of contexts) {
         if (isConditionalContextProvider(context)) {
-          conditionalProviders = conditionalProviders.filter(
-            (item) => JSON.stringify(item) !== JSON.stringify(context)
-          );
+          conditionalProviders = conditionalProviders.filter((item) => !compareProvider(context, item));
         } else if (isContextPrimitive(context)) {
-          globalPrimitives = globalPrimitives.filter((item) => JSON.stringify(item) !== JSON.stringify(context));
+          globalPrimitives = globalPrimitives.filter((item) => !compareProvider(context, item));
         }
       }
     },
@@ -674,6 +672,40 @@ function evaluateProvider(
     }
   }
   return [];
+}
+
+function compareProviderPart(
+  a: ContextFilter | RuleSet | ContextPrimitive,
+  b: ContextFilter | RuleSet | ContextPrimitive
+): boolean {
+  if (typeof a === 'function') return a === b;
+  return JSON.stringify(a) === JSON.stringify(b);
+}
+
+function compareProvider(
+  a: ConditionalContextProvider | ContextPrimitive,
+  b: ConditionalContextProvider | ContextPrimitive
+): boolean {
+  if (isConditionalContextProvider(a)) {
+    if (!isConditionalContextProvider(b)) return false;
+    const [ruleA, primitivesA] = a;
+    const [ruleB, primitivesB] = b;
+
+    if (!compareProviderPart(ruleA, ruleB)) return false;
+    if (Array.isArray(primitivesA)) {
+      if (!Array.isArray(primitivesB)) return false;
+      if (primitivesA.length !== primitivesB.length) return false;
+      return primitivesA.reduce<boolean>((matches, a, i) => matches && compareProviderPart(a, primitivesB[i]), true);
+    } else {
+      if (Array.isArray(primitivesB)) return false;
+      return compareProviderPart(primitivesA, primitivesB);
+    }
+  } else if (isContextPrimitive(a)) {
+    if (!isContextPrimitive(b)) return false;
+    return compareProviderPart(a, b);
+  }
+
+  return false;
 }
 
 function generateConditionals(
