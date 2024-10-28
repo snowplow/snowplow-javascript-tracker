@@ -4,7 +4,7 @@
 
 ## EmitterConfigurationBase.keepalive property
 
-Indicates that the request should be allowed to outlive the webpage that initiated it. Enables collector requests to complete even if the page is closed or navigated away from.
+Indicates that the request should be allowed to outlive the webpage that initiated it. Enables collector requests to complete even if the page is closed or navigated away from. Note: Browsers put a limit on keepalive requests of 64KB. In case of multiple keepalive requests in parallel (may happen in case of multiple trackers), the limit is shared.
 
 <b>Signature:</b>
 
