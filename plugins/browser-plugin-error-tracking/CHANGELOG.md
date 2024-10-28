@@ -1,6 +1,11 @@
 # Change Log - @snowplow/browser-plugin-error-tracking
 
-This log was last generated on Fri, 25 Oct 2024 08:53:04 GMT and should not be manually modified.
+This log was last generated on Mon, 28 Oct 2024 10:23:28 GMT and should not be manually modified.
+
+## 3.24.6
+Mon, 28 Oct 2024 10:23:28 GMT
+
+_Version update only_
 
 ## 3.24.5
 Fri, 25 Oct 2024 08:53:04 GMT
