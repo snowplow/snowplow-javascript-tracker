@@ -1,6 +1,19 @@
 # Change Log - @snowplow/browser-tracker-core
 
-This log was last generated on Mon, 28 Oct 2024 10:23:28 GMT and should not be manually modified.
+This log was last generated on Mon, 28 Oct 2024 11:48:53 GMT and should not be manually modified.
+
+## 4.0.0
+Mon, 28 Oct 2024 11:48:53 GMT
+
+### Updates
+
+- Re-allow unspecified cookies domains
+- Upgrade UUID to 8.3.2 (close #1138)
+- Change default tracker initialization params (discoverRootDomain, cookieSameSite)
+- Make cookie writes async by default to improve tracker performance (#1340)
+- Add an emitter and event store interface in the tracker core to be used both by the browser and node trackers and use fetch for making requests
+- Add a filter function to plugins to filter out events so that they are not tracked (#1326)
+- Add browser-tracker-core default for os_timezone
 
 ## 3.24.6
 Mon, 28 Oct 2024 10:23:28 GMT

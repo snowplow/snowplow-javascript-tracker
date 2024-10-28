@@ -2,6 +2,36 @@
   "name": "@snowplow/tracker-core",
   "entries": [
     {
+      "version": "4.0.0",
+      "tag": "@snowplow/tracker-core_v4.0.0",
+      "date": "Mon, 28 Oct 2024 11:48:53 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fix SelfDescribingJson type to allow optional keys in type parameter"
+          },
+          {
+            "comment": "Add support for named global context"
+          },
+          {
+            "comment": "Upgrade UUID to 8.3.2 (close #1138)"
+          },
+          {
+            "comment": "Upgrade ava to @5"
+          },
+          {
+            "comment": "Fix regression in SelfDescribingJson type from #1330"
+          },
+          {
+            "comment": "Add an emitter and event store interface in the tracker core to be used both by the browser and node trackers and use fetch for making requests"
+          },
+          {
+            "comment": "Add a filter function to plugins to filter out events so that they are not tracked (#1326)"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.24.6",
       "tag": "@snowplow/tracker-core_v3.24.6",
       "date": "Mon, 28 Oct 2024 10:23:28 GMT",

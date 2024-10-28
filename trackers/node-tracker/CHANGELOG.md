@@ -1,6 +1,17 @@
 # Change Log - @snowplow/node-tracker
 
-This log was last generated on Mon, 28 Oct 2024 10:23:28 GMT and should not be manually modified.
+This log was last generated on Mon, 28 Oct 2024 11:48:53 GMT and should not be manually modified.
+
+## 4.0.0
+Mon, 28 Oct 2024 11:48:53 GMT
+
+### Updates
+
+- Update Node.js to v14 (closes #1129)
+- Revise Node.js initialization API & upgrade got to @12
+- Add an emitter and event store interface in the tracker core to be used both by the browser and node trackers and use fetch for making requests
+- Make base64 encoding an optional parameter in Node newTracker call
+- Add a filter function to plugins to filter out events so that they are not tracked (#1326)
 
 ## 3.24.6
 Mon, 28 Oct 2024 10:23:28 GMT

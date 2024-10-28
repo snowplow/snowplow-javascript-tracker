@@ -1,6 +1,14 @@
 # Change Log - @snowplow/browser-plugin-link-click-tracking
 
-This log was last generated on Mon, 28 Oct 2024 10:23:28 GMT and should not be manually modified.
+This log was last generated on Mon, 28 Oct 2024 11:48:53 GMT and should not be manually modified.
+
+## 4.0.0
+Mon, 28 Oct 2024 11:48:53 GMT
+
+### Updates
+
+- Update plugin to use global rather than per-element event listeners
+- Detect link clicks within ShadowRoots
 
 ## 3.24.6
 Mon, 28 Oct 2024 10:23:28 GMT

@@ -2,6 +2,33 @@
   "name": "@snowplow/browser-tracker",
   "entries": [
     {
+      "version": "4.0.0",
+      "tag": "@snowplow/browser-tracker_v4.0.0",
+      "date": "Mon, 28 Oct 2024 11:48:53 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add support for named global context"
+          },
+          {
+            "comment": "Fix newTracker typing to accurately return null or undefined (fix #1167)"
+          },
+          {
+            "comment": "Fix newTracker typing for better understanding of arguments"
+          },
+          {
+            "comment": "Make cookie writes async by default to improve tracker performance (#1340)"
+          },
+          {
+            "comment": "Add an emitter and event store interface in the tracker core to be used both by the browser and node trackers and use fetch for making requests"
+          },
+          {
+            "comment": "Add a filter function to plugins to filter out events so that they are not tracked (#1326)"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.24.6",
       "tag": "@snowplow/browser-tracker_v3.24.6",
       "date": "Mon, 28 Oct 2024 10:23:28 GMT",

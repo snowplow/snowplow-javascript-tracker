@@ -2,6 +2,21 @@
   "name": "@snowplow/browser-plugin-media",
   "entries": [
     {
+      "version": "4.0.0",
+      "tag": "@snowplow/browser-plugin-media_v4.0.0",
+      "date": "Mon, 28 Oct 2024 11:48:53 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Upgrade UUID to 8.3.2 (close #1138)"
+          },
+          {
+            "comment": "Add support for context generator functions"
+          }
+        ]
+      }
+    },
+    {
       "version": "3.24.6",
       "tag": "@snowplow/browser-plugin-media_v3.24.6",
       "date": "Mon, 28 Oct 2024 10:23:28 GMT",
