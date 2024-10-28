@@ -1,11 +1,28 @@
 import { EventStorePayload } from './event_store_payload';
 import { Payload } from './payload';
 
+/**
+ * Result of the next operation on an EventStoreIterator.
+ */
+export interface EventStoreIteratorNextResult {
+  /**
+   * The next event in the store, or undefined if there are no more events.
+   */
+  value: EventStorePayload | undefined;
+  /**
+   * True if there are no more events in the store.
+   */
+  done: boolean;
+}
+
+/**
+ * EventStoreIterator allows iterating over all events in the store.
+ */
 export interface EventStoreIterator {
   /**
    * Retrieve the next event in the store
    */
-  next: () => Promise<{ value: EventStorePayload | undefined; done: boolean }>;
+  next: () => Promise<EventStoreIteratorNextResult>;
 }
 
 /**
