@@ -103,11 +103,7 @@ function detectViewport() {
     height = e['clientHeight'];
   }
 
-  if (width >= 0 && height >= 0) {
-    return width + DIMENSION_SEPARATOR + height;
-  } else {
-    return null;
-  }
+  return Math.max(0, width) + DIMENSION_SEPARATOR + Math.max(0, height);
 }
 
 /**
