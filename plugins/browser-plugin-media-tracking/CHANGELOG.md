@@ -1,6 +1,13 @@
 # Change Log - @snowplow/browser-plugin-media-tracking
 
-This log was last generated on Mon, 28 Oct 2024 11:48:53 GMT and should not be manually modified.
+This log was last generated on Fri, 01 Nov 2024 10:35:07 GMT and should not be manually modified.
+
+## 4.0.1
+Fri, 01 Nov 2024 10:35:07 GMT
+
+### Updates
+
+- Fix initialization of the HTML5 media tracking plugin so that it initializes the parent media plugin (#1369)
 
 ## 4.0.0
 Mon, 28 Oct 2024 11:48:53 GMT
