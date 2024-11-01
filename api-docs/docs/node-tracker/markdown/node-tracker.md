@@ -58,7 +58,7 @@
 |  [EventPayloadAndContext](./node-tracker.eventpayloadandcontext.md) | Interface for returning a built event (PayloadBuilder) and context (Array of SelfDescribingJson). |
 |  [EventStore](./node-tracker.eventstore.md) | EventStore allows storing and retrieving events before they are sent to the collector |
 |  [EventStoreConfiguration](./node-tracker.eventstoreconfiguration.md) |  |
-|  [EventStoreIterator](./node-tracker.eventstoreiterator.md) |  |
+|  [EventStoreIterator](./node-tracker.eventstoreiterator.md) | EventStoreIterator allows iterating over all events in the store. |
 |  [EventStorePayload](./node-tracker.eventstorepayload.md) |  |
 |  [FormFocusOrChangeEvent](./node-tracker.formfocusorchangeevent.md) | Represents either a Form Focus or Form Change event When a user focuses on a form element or when a user makes a change to a form element. |
 |  [FormSubmissionEvent](./node-tracker.formsubmissionevent.md) | A Form Submission Event Used to track when a user submits a form |

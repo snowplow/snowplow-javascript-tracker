@@ -287,12 +287,10 @@ export interface EventStoreConfiguration {
     maxSize?: number;
 }
 
-// @public (undocumented)
+// @public
 export interface EventStoreIterator {
-    next: () => Promise<{
-        value: EventStorePayload | undefined;
-        done: boolean;
-    }>;
+    // Warning: (ae-forgotten-export) The symbol "EventStoreIteratorNextResult" needs to be exported by the entry point index.module.d.ts
+    next: () => Promise<EventStoreIteratorNextResult>;
 }
 
 // @public (undocumented)
