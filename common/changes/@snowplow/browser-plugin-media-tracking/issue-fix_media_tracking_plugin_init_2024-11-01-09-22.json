@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-media-tracking",
+      "comment": "Fix initialization of the HTML5 media tracking plugin so that it initializes the parent media plugin (#1369)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-media-tracking"
+}

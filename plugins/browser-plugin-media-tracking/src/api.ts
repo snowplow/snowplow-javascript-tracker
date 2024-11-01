@@ -1,5 +1,5 @@
 import { Logger } from '@snowplow/tracker-core';
-import { BrowserPlugin, BrowserTracker } from '@snowplow/browser-tracker-core';
+import { BrowserPlugin } from '@snowplow/browser-tracker-core';
 import { waitForElement } from './findElem';
 import { Config, isElementConfig, isStringConfig } from './config';
 import { setUpListeners } from './player';
@@ -14,16 +14,13 @@ import { HTML5MediaEventTypes } from './config';
 // @ts-ignore: TS6133
 import { FilterOutRepeatedEvents } from '@snowplow/browser-plugin-media/src/types';
 
-import { endMediaTracking } from '@snowplow/browser-plugin-media';
+import { endMediaTracking, SnowplowMediaPlugin } from '@snowplow/browser-plugin-media';
 
 let LOG: Logger;
-const _trackers: Record<string, BrowserTracker> = {};
 
 export function MediaTrackingPlugin(): BrowserPlugin {
   return {
-    activateBrowserPlugin: (tracker: BrowserTracker) => {
-      _trackers[tracker.id] = tracker;
-    },
+    ...SnowplowMediaPlugin(),
     logger: (logger) => {
       LOG = logger;
     },
