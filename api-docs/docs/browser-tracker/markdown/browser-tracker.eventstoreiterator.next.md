@@ -9,8 +9,5 @@ Retrieve the next event in the store
 <b>Signature:</b>
 
 ```typescript
-next: () => Promise<{
-        value: EventStorePayload | undefined;
-        done: boolean;
-    }>;
+next: () => Promise<EventStoreIteratorNextResult>;
 ```

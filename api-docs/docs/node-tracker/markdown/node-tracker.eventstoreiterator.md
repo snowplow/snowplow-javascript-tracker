@@ -4,6 +4,8 @@
 
 ## EventStoreIterator interface
 
+EventStoreIterator allows iterating over all events in the store.
+
 <b>Signature:</b>
 
 ```typescript
@@ -14,5 +16,5 @@ interface EventStoreIterator
 
 |  Property | Type | Description |
 |  --- | --- | --- |
-|  [next](./node-tracker.eventstoreiterator.next.md) | () =&gt; Promise&lt;{ value: EventStorePayload \| undefined; done: boolean; }&gt; | Retrieve the next event in the store |
+|  [next](./node-tracker.eventstoreiterator.next.md) | () =&gt; Promise&lt;EventStoreIteratorNextResult&gt; | Retrieve the next event in the store |
 

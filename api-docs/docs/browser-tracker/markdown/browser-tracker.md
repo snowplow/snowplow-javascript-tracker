@@ -71,7 +71,7 @@
 |  [EventPayloadAndContext](./browser-tracker.eventpayloadandcontext.md) | Interface for returning a built event (PayloadBuilder) and context (Array of SelfDescribingJson). |
 |  [EventStore](./browser-tracker.eventstore.md) | EventStore allows storing and retrieving events before they are sent to the collector |
 |  [EventStoreConfiguration](./browser-tracker.eventstoreconfiguration.md) |  |
-|  [EventStoreIterator](./browser-tracker.eventstoreiterator.md) |  |
+|  [EventStoreIterator](./browser-tracker.eventstoreiterator.md) | EventStoreIterator allows iterating over all events in the store. |
 |  [EventStorePayload](./browser-tracker.eventstorepayload.md) |  |
 |  [FlushBufferConfiguration](./browser-tracker.flushbufferconfiguration.md) | The configuration that can be changed when flushing the buffer |
 |  [LocalStorageEventStoreConfigurationBase](./browser-tracker.localstorageeventstoreconfigurationbase.md) |  |
