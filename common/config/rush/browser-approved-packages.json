@@ -7,6 +7,18 @@
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
+      "name": "@react-native-async-storage/async-storage",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@react-native/babel-preset",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@react-native/eslint-config",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "@rollup/plugin-alias",
       "allowedCategories": [ "trackers" ]
     },
@@ -187,6 +199,10 @@
       "allowedCategories": [ "plugins" ]
     },
     {
+      "name": "@types/react",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "@types/sha1",
       "allowedCategories": [ "libraries" ]
     },
@@ -283,6 +299,18 @@
       "allowedCategories": [ "trackers" ]
     },
     {
+      "name": "expo-crypto",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "expo-modules-core",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "expo-standard-web-crypto",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "got",
       "allowedCategories": [ "trackers" ]
     },
@@ -291,12 +319,28 @@
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
+      "name": "jest-config",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "jest-environment-jsdom",
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "jest-environment-jsdom-global",
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
+    },
+    {
+      "name": "jest-environment-node",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "jest-expo",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "jest-react-native",
+      "allowedCategories": [ "trackers" ]
     },
     {
       "name": "jest-standard-reporter",
@@ -329,6 +373,18 @@
     {
       "name": "randomcolor",
       "allowedCategories": [ "plugins" ]
+    },
+    {
+      "name": "react",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "react-native",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "react-native-builder-bob",
+      "allowedCategories": [ "trackers" ]
     },
     {
       "name": "rollup",
