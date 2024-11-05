@@ -6,19 +6,24 @@ import { newTrackEventFunctions } from './events';
 import { newSubject } from './subject';
 
 import {
-  ReactNativeEventStoreConfigurationBase,
+  EventStoreConfiguration,
   ReactNativeTracker,
   SessionConfiguration,
   SubjectConfiguration,
   TrackerConfiguration,
 } from './types';
 
+/**
+ * Creates a new tracker instance with the given configuration
+ * @param configuration Configuration for the tracker
+ * @returns Tracker instance
+ */
 export async function newTracker(
   configuration: TrackerConfiguration &
     EmitterConfiguration &
     SessionConfiguration &
     SubjectConfiguration &
-    ReactNativeEventStoreConfigurationBase
+    EventStoreConfiguration
 ): Promise<ReactNativeTracker> {
   const { namespace, appId, encodeBase64 = false } = configuration;
   if (configuration.eventStore === undefined) {

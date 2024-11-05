@@ -55,6 +55,7 @@
     "ts-jest": "~29.2.5",
     "@types/react": "^18.2.44",
     "react-native": "0.74.5",
-    "@react-native/babel-preset": "~0.76.1"
+    "@react-native/babel-preset": "~0.76.1",
+    "node-fetch": "~3.3.2"
   }
 }

@@ -1,6 +1,16 @@
-import { ConditionalContextProvider, ContextPrimitive, CorePluginConfiguration, EmitterConfiguration, EventStoreConfiguration, PageViewEvent, SelfDescribingJson, StructuredEvent } from '@snowplow/tracker-core';
+import {
+  ConditionalContextProvider,
+  ContextPrimitive,
+  CorePluginConfiguration,
+  PageViewEvent,
+  SelfDescribingJson,
+  StructuredEvent,
+} from '@snowplow/tracker-core';
 
-export interface ReactNativeEventStoreConfigurationBase extends EventStoreConfiguration {
+/**
+ * Configuration for the event store
+ */
+export interface EventStoreConfiguration {
   /**
    * The maximum amount of events that will be buffered in the event store
    *
@@ -10,57 +20,58 @@ export interface ReactNativeEventStoreConfigurationBase extends EventStoreConfig
   maxEventStoreSize?: number;
 
   /**
-   * Whether to use AsyncStorage as the persistent event store
-   * Default is true
+   * Whether to use the AsyncStorage library as the persistent event store for the event store
+   * @defaultValue true
    */
-  useAsyncStorage?: boolean;
+  useAsyncStorageForEventStore?: boolean;
 }
 
 /**
- * SessionConfiguration
+ * Configuration for session tracking
  */
 export interface SessionConfiguration {
   /**
    * The amount of time in seconds before the session id is updated while the app is in the foreground
    * @defaultValue 1800
    */
-  foregroundTimeout?: number;
+  foregroundSessionTimeout?: number;
   /**
    * The amount of time in seconds before the session id is updated while the app is in the background
    * @defaultValue 1800
    */
-  backgroundTimeout?: number;
+  backgroundSessionTimeout?: number;
 }
 
 /**
  * The configuration object for initialising the tracker
  */
 export interface TrackerConfiguration {
-  /* The namespace of the tracker */
+  /** The namespace of the tracker */
   namespace: string;
-  /* The application ID */
+  /** The application ID */
   appId?: string;
   /**
    * Whether unstructured events and custom contexts should be base64 encoded.
    * @defaultValue false
    **/
   encodeBase64?: boolean;
-};
+}
 
 /**
- * SubjectConfiguration
+ * Configuration of subject properties tracked with events
  */
 export interface SubjectConfiguration {
   /**
-   * user id
+   * Business-defined user ID for this user
    */
   userId?: string;
   /**
-   * network user id (UUIDv4)
+   * Override the network user id (UUIDv4) that is assigned by the collector and stored in cookies
    */
   networkUserId?: string;
   /**
-   * domain user id
+   * The domain user id (DUID) is a generated identifier that is stored in a first party cookie on Web.
+   * The React Native tracker does not assign it automatically.
    */
   domainUserId?: string;
   /**
@@ -68,7 +79,7 @@ export interface SubjectConfiguration {
    */
   useragent?: string;
   /**
-   * IP address
+   * Override the IP address of the device
    */
   ipAddress?: string;
   /**
@@ -88,25 +99,20 @@ export interface SubjectConfiguration {
    */
   screenViewport?: ScreenSize;
   /**
-   * color depth (integer)
+   * Color depth (integer)
    */
   colorDepth?: number;
 }
 
 /**
- * ScreenSize
+ * Screen size in pixels
  */
 export type ScreenSize = [number, number];
 
 /**
  * Trigger for MessageNotification event
  */
-export type Trigger =
-  | 'push'
-  | 'location'
-  | 'calendar'
-  | 'timeInterval'
-  | 'other';
+export type Trigger = 'push' | 'location' | 'calendar' | 'timeInterval' | 'other';
 
 /**
  * Attachment object that identify an attachment in the MessageNotification.
@@ -409,10 +415,7 @@ export type ReactNativeTracker = {
    * @param argmap - The message notification event properties
    * @param contexts - The array of event contexts
    */
-  readonly trackMessageNotificationEvent: (
-    argmap: MessageNotificationProps,
-    contexts?: EventContext[]
-  ) => void;
+  readonly trackMessageNotificationEvent: (argmap: MessageNotificationProps, contexts?: EventContext[]) => void;
 
   /**
    * Adds contexts globally, contexts added here will be attached to all applicable events
@@ -462,35 +465,36 @@ export type ReactNativeTracker = {
   readonly setPlatform: (value: string) => void;
 
   /**
-   * Sets the userId of the tracker subject
+   * Sets the business-defined user ID for this user
    *
    * @param newUid - The new userId
    */
   readonly setUserId: (newUid: string) => void;
 
   /**
-   * Sets the networkUserId of the tracker subject
+   * Override the network user id (UUIDv4) that is assigned by the collector and stored in cookies
    *
    * @param newNuid - The new networkUserId
    */
   readonly setNetworkUserId: (newNuid: string | undefined) => void;
 
   /**
-   * Sets the domainUserId of the tracker subject
+   * The domain user id (DUID) is a generated identifier that is stored in a first party cookie on Web.
+   * The React Native tracker does not assign it automatically.
    *
    * @param newDuid - The new domainUserId
    */
   readonly setDomainUserId: (newDuid: string | undefined) => void;
 
   /**
-   * Sets the ipAddress of the tracker subject
+   * Override the IP address of the device
    *
    * @param newIp - The new ipAddress
    */
   readonly setIpAddress: (newIp: string) => void;
 
   /**
-   * Sets the useragent of the tracker subject
+   * The custom user-agent. It overrides the user-agent used by default.
    *
    * @param newUagent - The new useragent
    */
@@ -602,7 +606,6 @@ export {
   ContextFilter,
   EventPayloadAndContext,
   EventStore,
-  EventStoreConfiguration,
   EventStoreIterator,
   EventStorePayload,
   TrackerCore,

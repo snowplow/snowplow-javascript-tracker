@@ -1,22 +1,15 @@
 import { EventStore, newInMemoryEventStore, EventStorePayload } from '@snowplow/tracker-core';
-import { ReactNativeEventStoreConfigurationBase } from './types';
+import { EventStoreConfiguration, TrackerConfiguration } from './types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-export interface ReactNativeEventStoreConfiguration extends ReactNativeEventStoreConfigurationBase {
-  /**
-   * The unique identifier for the event store
-   */
-  namespace: string;
-}
 
 export async function newReactNativeEventStore({
   namespace,
   maxEventStoreSize = 1000,
-  useAsyncStorage = true,
-}: ReactNativeEventStoreConfiguration): Promise<EventStore> {
+  useAsyncStorageForEventStore: useAsyncStorage = true,
+}: EventStoreConfiguration & TrackerConfiguration): Promise<EventStore> {
   const queueName = `snowplow_${namespace}`;
 
-  async function newInMemoryEventStoreFromReactNative() {
+  async function newInMemoryEventStoreForReactNative() {
     if (useAsyncStorage) {
       const data = await AsyncStorage.getItem(queueName);
       const events: EventStorePayload[] = data ? JSON.parse(data) : [];
@@ -26,7 +19,7 @@ export async function newReactNativeEventStore({
     }
   }
 
-  const eventStore = await newInMemoryEventStoreFromReactNative();
+  const eventStore = await newInMemoryEventStoreForReactNative();
 
   const { getAll, getAllPayloads, add, count, iterator, removeHead } = eventStore;
 

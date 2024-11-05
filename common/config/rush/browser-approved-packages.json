@@ -299,18 +299,6 @@
       "allowedCategories": [ "trackers" ]
     },
     {
-      "name": "expo-crypto",
-      "allowedCategories": [ "trackers" ]
-    },
-    {
-      "name": "expo-modules-core",
-      "allowedCategories": [ "trackers" ]
-    },
-    {
-      "name": "expo-standard-web-crypto",
-      "allowedCategories": [ "trackers" ]
-    },
-    {
       "name": "got",
       "allowedCategories": [ "trackers" ]
     },
