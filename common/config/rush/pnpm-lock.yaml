@@ -41,8 +41,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@types/sha1':
         specifier: ~1.1.3
         version: 1.1.5
@@ -184,8 +184,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@types/lodash':
         specifier: ~4.14.180
         version: 4.14.202
@@ -260,8 +260,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@types/lodash':
         specifier: ~4.14.180
         version: 4.14.202
@@ -336,8 +336,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@typescript-eslint/eslint-plugin':
         specifier: ~5.15.0
         version: 5.15.0(@typescript-eslint/parser@5.15.0(eslint@8.11.0)(typescript@4.6.4))(eslint@8.11.0)(typescript@4.6.4)
@@ -409,8 +409,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@types/randomcolor':
         specifier: ~0.5.5
         version: 0.5.9
@@ -482,8 +482,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@types/lodash':
         specifier: ~4.14.180
         version: 4.14.202
@@ -558,8 +558,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@types/lodash':
         specifier: ~4.14.180
         version: 4.14.202
@@ -634,8 +634,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@types/lodash':
         specifier: ~4.14.180
         version: 4.14.202
@@ -710,8 +710,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@typescript-eslint/eslint-plugin':
         specifier: ~5.15.0
         version: 5.15.0(@typescript-eslint/parser@5.15.0(eslint@8.11.0)(typescript@4.6.4))(eslint@8.11.0)(typescript@4.6.4)
@@ -780,8 +780,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@typescript-eslint/eslint-plugin':
         specifier: ~5.15.0
         version: 5.15.0(@typescript-eslint/parser@5.15.0(eslint@8.11.0)(typescript@4.6.4))(eslint@8.11.0)(typescript@4.6.4)
@@ -850,8 +850,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@typescript-eslint/eslint-plugin':
         specifier: ~5.15.0
         version: 5.15.0(@typescript-eslint/parser@5.15.0(eslint@8.11.0)(typescript@4.6.4))(eslint@8.11.0)(typescript@4.6.4)
@@ -920,8 +920,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@typescript-eslint/eslint-plugin':
         specifier: ~5.15.0
         version: 5.15.0(@typescript-eslint/parser@5.15.0(eslint@8.11.0)(typescript@4.6.4))(eslint@8.11.0)(typescript@4.6.4)
@@ -990,8 +990,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@typescript-eslint/eslint-plugin':
         specifier: ~5.15.0
         version: 5.15.0(@typescript-eslint/parser@5.15.0(eslint@8.11.0)(typescript@4.6.4))(eslint@8.11.0)(typescript@4.6.4)
@@ -1060,8 +1060,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@types/lodash':
         specifier: ~4.14.180
         version: 4.14.202
@@ -1139,8 +1139,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@types/uuid':
         specifier: ^10.0.0
         version: 10.0.0
@@ -1218,8 +1218,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@types/uuid':
         specifier: ^10.0.0
         version: 10.0.0
@@ -1291,8 +1291,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@typescript-eslint/eslint-plugin':
         specifier: ~5.15.0
         version: 5.15.0(@typescript-eslint/parser@5.15.0(eslint@8.11.0)(typescript@4.6.4))(eslint@8.11.0)(typescript@4.6.4)
@@ -1361,8 +1361,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@typescript-eslint/eslint-plugin':
         specifier: ~5.15.0
         version: 5.15.0(@typescript-eslint/parser@5.15.0(eslint@8.11.0)(typescript@4.6.4))(eslint@8.11.0)(typescript@4.6.4)
@@ -1431,8 +1431,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@typescript-eslint/eslint-plugin':
         specifier: ~5.15.0
         version: 5.15.0(@typescript-eslint/parser@5.15.0(eslint@8.11.0)(typescript@4.6.4))(eslint@8.11.0)(typescript@4.6.4)
@@ -1501,8 +1501,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@typescript-eslint/eslint-plugin':
         specifier: ~5.15.0
         version: 5.15.0(@typescript-eslint/parser@5.15.0(eslint@8.11.0)(typescript@4.6.4))(eslint@8.11.0)(typescript@4.6.4)
@@ -1571,8 +1571,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@types/lodash':
         specifier: ~4.14.180
         version: 4.14.202
@@ -1647,8 +1647,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@types/lodash':
         specifier: ~4.14.180
         version: 4.14.202
@@ -1726,8 +1726,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@types/jstimezonedetect':
         specifier: ~1.0.3
         version: 1.0.6
@@ -1808,8 +1808,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@types/vimeo__player':
         specifier: ~2.16.3
         version: 2.16.3
@@ -1884,8 +1884,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@typescript-eslint/eslint-plugin':
         specifier: ~5.15.0
         version: 5.15.0(@typescript-eslint/parser@5.15.0(eslint@8.11.0)(typescript@4.6.4))(eslint@8.11.0)(typescript@4.6.4)
@@ -1960,8 +1960,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@types/uuid':
         specifier: ^10.0.0
         version: 10.0.0
@@ -2036,8 +2036,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@types/lodash':
         specifier: ~4.14.180
         version: 4.14.202
@@ -2199,8 +2199,8 @@ importers:
         specifier: ~28.1.1
         version: 28.1.8
       '@types/jsdom':
-        specifier: ~21.1.7
-        version: 21.1.7
+        specifier: ~16.2.14
+        version: 16.2.15
       '@types/lodash':
         specifier: ~4.14.180
         version: 4.14.202
@@ -3567,9 +3567,6 @@ packages:
 
   '@types/jsdom@16.2.15':
     resolution: {integrity: sha512-nwF87yjBKuX/roqGYerZZM0Nv1pZDMAT5YhOHYeM/72Fic+VEqJh4nyoqoapzJnW3pUlfxPY5FhgsJtM+dRnQQ==}
-
-  '@types/jsdom@21.1.7':
-    resolution: {integrity: sha512-yOriVnggzrnQ3a9OKOCxaVuSug3w3/SbOj5i7VwXWZEyUNl3bLF9V3MfxGbZKuwqJOQyRfqXyROBB1CoZLFWzA==}
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
@@ -4990,10 +4987,6 @@ packages:
   enhance-visitors@1.0.0:
     resolution: {integrity: sha512-+29eJLiUixTEDRaZ35Vu8jP3gPLNcQQkQkOQjLp2X+6cZGGPDD/uasbFzvLsJKnGZnvmyZ0srxudwOtskHeIDA==}
     engines: {node: '>=4.0.0'}
-
-  entities@4.5.0:
-    resolution: {integrity: sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw==}
-    engines: {node: '>=0.12'}
 
   env-paths@2.2.1:
     resolution: {integrity: sha512-+h1lkLKhZMTYjog1VEpJNG7NZJWcuc2DDk/qsqSTRRCOXiLjeQ1d1/udrUGhqMxUgAlwKNZ0cf2uqan5GLuS2A==}
@@ -7253,9 +7246,6 @@ packages:
 
   parse5@6.0.1:
     resolution: {integrity: sha512-Ofn/CTFzRGTTxwpNEs9PP93gXShHcTq255nzRYSKe8AkVpZY7e1fpmTfOyoIvjP5HG7Z2ZM7VS9PPhQGW2pOpw==}
-
-  parse5@7.2.1:
-    resolution: {integrity: sha512-BuBYQYlv1ckiPdQi/ohiivi9Sagc9JG+Ozs0r7b/0iK3sKmrb0b9FdWdBbOdx6hBCM/F9Ir82ofnBhtZOjCRPQ==}
 
   parseurl@1.3.3:
     resolution: {integrity: sha512-CiyeOxFT/JZyN5m0z9PfXw4SCBJ6Sygz1Dpl0wqjlhDEGGBP1GnsUVEL0p63hoG1fcj3fHynXi9NYO4nWOL+qQ==}
@@ -10624,12 +10614,6 @@ snapshots:
       '@types/parse5': 6.0.3
       '@types/tough-cookie': 4.0.5
 
-  '@types/jsdom@21.1.7':
-    dependencies:
-      '@types/node': 14.6.4
-      '@types/tough-cookie': 4.0.5
-      parse5: 7.2.1
-
   '@types/json-schema@7.0.15': {}
 
   '@types/jstimezonedetect@1.0.6': {}
@@ -12407,8 +12391,6 @@ snapshots:
   enhance-visitors@1.0.0:
     dependencies:
       lodash: 4.17.21
-
-  entities@4.5.0: {}
 
   env-paths@2.2.1: {}
 
@@ -15348,10 +15330,6 @@ snapshots:
   parse-ms@3.0.0: {}
 
   parse5@6.0.1: {}
-
-  parse5@7.2.1:
-    dependencies:
-      entities: 4.5.0
 
   parseurl@1.3.3: {}
 
