@@ -75,10 +75,17 @@ jobs:
           api-extractor run
           api-documenter markdown --input-folder temp --output-folder ../../api-docs/docs/node-tracker/markdown
 
+      - name: Create API documentation for @snowplow/react-native-tracker
+        working-directory: ./trackers/react-native-tracker
+        run: |
+          api-extractor run
+          api-documenter markdown --input-folder temp --output-folder ../../api-docs/docs/node-tracker/markdown
+
       - name: Apply API documentation updates
         run: |
           git add api-docs/docs/browser-tracker
           git add api-docs/docs/node-tracker
+          git add api-docs/docs/react-native-tracker
           git commit --no-verify --allow-empty -m "Applying documentation updates."
           git push
 
