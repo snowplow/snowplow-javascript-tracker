@@ -15,7 +15,7 @@ import {
 
 /**
  * Creates a new tracker instance with the given configuration
- * @param configuration Configuration for the tracker
+ * @param configuration - Configuration for the tracker
  * @returns Tracker instance
  */
 export async function newTracker(
