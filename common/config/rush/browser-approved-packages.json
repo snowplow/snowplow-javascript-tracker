@@ -375,6 +375,10 @@
       "allowedCategories": [ "trackers" ]
     },
     {
+      "name": "react-native-get-random-values",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "rollup",
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },

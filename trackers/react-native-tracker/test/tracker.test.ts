@@ -1,4 +1,4 @@
-import { newTracker } from '../src';
+import { newTracker, ReactNativeTracker } from '../src';
 
 function createMockFetch(status: number, requests: Request[]) {
   return async (input: Request) => {
