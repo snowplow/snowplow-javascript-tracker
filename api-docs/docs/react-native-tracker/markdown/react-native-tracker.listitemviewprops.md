@@ -11,7 +11,7 @@ Schema: `iglu:com.snowplowanalytics.mobile/list_item_view/jsonschema/1-0-0`
 <b>Signature:</b>
 
 ```typescript
-type ListItemViewProps = {
+export declare type ListItemViewProps = {
     index: number;
     itemsCount?: number;
 };

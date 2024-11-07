@@ -9,7 +9,7 @@ Configuration of subject properties tracked with events
 <b>Signature:</b>
 
 ```typescript
-interface SubjectConfiguration 
+export interface SubjectConfiguration 
 ```
 
 ## Properties
@@ -21,8 +21,8 @@ interface SubjectConfiguration
 |  [ipAddress?](./react-native-tracker.subjectconfiguration.ipaddress.md) | string | <i>(Optional)</i> Override the IP address of the device |
 |  [language?](./react-native-tracker.subjectconfiguration.language.md) | string | <i>(Optional)</i> The language set in the device |
 |  [networkUserId?](./react-native-tracker.subjectconfiguration.networkuserid.md) | string | <i>(Optional)</i> Override the network user id (UUIDv4) that is assigned by the collector and stored in cookies |
-|  [screenResolution?](./react-native-tracker.subjectconfiguration.screenresolution.md) | ScreenSize | <i>(Optional)</i> The screen resolution |
-|  [screenViewport?](./react-native-tracker.subjectconfiguration.screenviewport.md) | ScreenSize | <i>(Optional)</i> The screen viewport size |
+|  [screenResolution?](./react-native-tracker.subjectconfiguration.screenresolution.md) | [ScreenSize](./react-native-tracker.screensize.md) | <i>(Optional)</i> The screen resolution |
+|  [screenViewport?](./react-native-tracker.subjectconfiguration.screenviewport.md) | [ScreenSize](./react-native-tracker.screensize.md) | <i>(Optional)</i> The screen viewport size |
 |  [timezone?](./react-native-tracker.subjectconfiguration.timezone.md) | string | <i>(Optional)</i> The timezone label |
 |  [useragent?](./react-native-tracker.subjectconfiguration.useragent.md) | string | <i>(Optional)</i> The custom user-agent. It overrides the user-agent used by default. |
 |  [userId?](./react-native-tracker.subjectconfiguration.userid.md) | string | <i>(Optional)</i> Business-defined user ID for this user |

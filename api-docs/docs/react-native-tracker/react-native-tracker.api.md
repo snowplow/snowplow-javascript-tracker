@@ -7,7 +7,7 @@
 // @public
 export type ConditionalContextProvider = FilterProvider | RuleSetProvider;
 
-// Warning: (ae-forgotten-export) The symbol "ContextEvent" needs to be exported by the entry point index.module.d.ts
+// Warning: (ae-forgotten-export) The symbol "ContextEvent" needs to be exported by the entry point index.d.ts
 //
 // @public
 export type ContextFilter = (args?: ContextEvent) => boolean;
@@ -152,7 +152,7 @@ export interface EventStoreConfiguration {
 
 // @public
 export interface EventStoreIterator {
-    // Warning: (ae-forgotten-export) The symbol "EventStoreIteratorNextResult" needs to be exported by the entry point index.module.d.ts
+    // Warning: (ae-forgotten-export) The symbol "EventStoreIteratorNextResult" needs to be exported by the entry point index.d.ts
     next: () => Promise<EventStoreIteratorNextResult>;
 }
 
@@ -226,14 +226,8 @@ export type MessageNotificationAttachmentProps = {
 // @public
 export type MessageNotificationProps = {
     action?: string;
-    /*
-    * Attachments added to the notification (they can be part of the data object).
-    */
     attachments?: MessageNotificationAttachmentProps[];
     body: string;
-    /*
-    * Variable string values to be used in place of the format specifiers in bodyLocArgs to use to localize the body text to the user's current localization.
-    */
     bodyLocArgs?: string[];
     bodyLocKey?: string;
     category?: string;
@@ -280,41 +274,9 @@ export interface PayloadBuilder {
 // @public
 export type ReactNativeTracker = {
     readonly trackSelfDescribingEvent: <T extends Record<string, unknown> = Record<string, unknown>>(argmap: SelfDescribingJson<T>, contexts?: EventContext[]) => void;
-    // TODO:
-    // /**
-    //  * Tracks a screen-view event
-    //  *
-    //  * @param argmap - The screen-view event's properties
-    //  * @param contexts - The array of event contexts
-    //  */
-    // readonly trackScreenViewEvent: (argmap: ScreenViewProps, contexts?: EventContext[]) => string | undefined;
-    // TODO:
-    // /**
-    //  * Tracks a scroll changed event
-    //  *
-    //  * @param argmap - The scroll changed event's properties
-    //  * @param contexts - The array of event contexts
-    //  */
-    // readonly trackScrollChangedEvent: (argmap: ScrollChangedProps, contexts?: EventContext[]) => string | undefined;
-    // TODO:
-    // /**
-    //  * Tracks a list item view event
-    //  *
-    //  * @param argmap - The list item view event's properties
-    //  * @param contexts - The array of event contexts
-    //  */
-    // readonly trackListItemViewEvent: (argmap: ListItemViewProps, contexts?: EventContext[]) => string | undefined;
     readonly trackStructuredEvent: (argmap: StructuredEvent, contexts?: EventContext[]) => void;
     readonly trackPageViewEvent: (argmap: PageViewEvent, contexts?: EventContext[]) => void;
     readonly trackTimingEvent: (argmap: TimingProps, contexts?: EventContext[]) => void;
-    // TODO:
-    // /**
-    //  * Tracks a deep link received event
-    //  *
-    //  * @param argmap - The deep link received event properties
-    //  * @param contexts - The array of event contexts
-    //  */
-    // readonly trackDeepLinkReceivedEvent: (argmap: DeepLinkReceivedProps, contexts?: EventContext[]) => void;
     readonly trackMessageNotificationEvent: (argmap: MessageNotificationProps, contexts?: EventContext[]) => void;
     addGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive> | Record<string, ConditionalContextProvider | ContextPrimitive>): void;
     clearGlobalContexts(): void;
@@ -359,10 +321,7 @@ Array<ContextPrimitive> | ContextPrimitive
 ];
 
 // @public
-export type ScreenSize = [
-number,
-number
-];
+export type ScreenSize = [number, number];
 
 // @public
 export type ScreenViewProps = {
@@ -470,7 +429,7 @@ export interface TrackerCore {
 }
 
 // @public
-export type Trigger = "push" | "location" | "calendar" | "timeInterval" | "other";
+export type Trigger = 'push' | 'location' | 'calendar' | 'timeInterval' | 'other';
 
 // @public
 export interface TrueTimestamp {

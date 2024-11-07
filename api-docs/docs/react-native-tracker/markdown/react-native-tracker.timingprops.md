@@ -9,7 +9,7 @@ Timing event properties
 <b>Signature:</b>
 
 ```typescript
-type TimingProps = {
+export declare type TimingProps = {
     category: string;
     variable: string;
     timing: number;

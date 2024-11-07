@@ -9,7 +9,7 @@ Configuration for the event store
 <b>Signature:</b>
 
 ```typescript
-interface EventStoreConfiguration 
+export interface EventStoreConfiguration 
 ```
 
 ## Properties

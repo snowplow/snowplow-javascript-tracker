@@ -9,7 +9,7 @@ ScreenView event properties schema: iglu:com.snowplowanalytics.mobile/screen\_vi
 <b>Signature:</b>
 
 ```typescript
-type ScreenViewProps = {
+export declare type ScreenViewProps = {
     name: string;
     id?: string;
     type?: string;

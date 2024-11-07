@@ -9,7 +9,7 @@ The configuration object for initialising the tracker
 <b>Signature:</b>
 
 ```typescript
-interface TrackerConfiguration 
+export interface TrackerConfiguration 
 ```
 
 ## Properties

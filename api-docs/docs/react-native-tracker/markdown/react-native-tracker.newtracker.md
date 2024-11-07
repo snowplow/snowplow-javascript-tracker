@@ -9,18 +9,18 @@ Creates a new tracker instance with the given configuration
 <b>Signature:</b>
 
 ```typescript
-declare function newTracker(configuration: TrackerConfiguration & EmitterConfiguration & SessionConfiguration & SubjectConfiguration & EventStoreConfiguration): Promise<ReactNativeTracker>;
+export declare function newTracker(configuration: TrackerConfiguration & EmitterConfiguration & SessionConfiguration & SubjectConfiguration & EventStoreConfiguration): Promise<ReactNativeTracker>;
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  configuration | TrackerConfiguration &amp; EmitterConfiguration &amp; SessionConfiguration &amp; SubjectConfiguration &amp; EventStoreConfiguration | Configuration for the tracker |
+|  configuration | [TrackerConfiguration](./react-native-tracker.trackerconfiguration.md) &amp; EmitterConfiguration &amp; [SessionConfiguration](./react-native-tracker.sessionconfiguration.md) &amp; [SubjectConfiguration](./react-native-tracker.subjectconfiguration.md) &amp; [EventStoreConfiguration](./react-native-tracker.eventstoreconfiguration.md) | Configuration for the tracker |
 
 <b>Returns:</b>
 
-Promise&lt;ReactNativeTracker&gt;
+Promise&lt;[ReactNativeTracker](./react-native-tracker.reactnativetracker.md)<!-- -->&gt;
 
 Tracker instance
 

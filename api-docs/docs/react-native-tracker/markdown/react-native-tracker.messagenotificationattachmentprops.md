@@ -9,7 +9,7 @@ Attachment object that identify an attachment in the MessageNotification.
 <b>Signature:</b>
 
 ```typescript
-type MessageNotificationAttachmentProps = {
+export declare type MessageNotificationAttachmentProps = {
     identifier: string;
     type: string;
     url: string;

@@ -9,8 +9,5 @@ Screen size in pixels
 <b>Signature:</b>
 
 ```typescript
-type ScreenSize = [
-    number,
-    number
-];
+export declare type ScreenSize = [number, number];
 ```

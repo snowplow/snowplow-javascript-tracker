@@ -9,7 +9,7 @@ Configuration for session tracking
 <b>Signature:</b>
 
 ```typescript
-interface SessionConfiguration 
+export interface SessionConfiguration 
 ```
 
 ## Properties

@@ -9,5 +9,5 @@ EventContext type
 <b>Signature:</b>
 
 ```typescript
-type EventContext = SelfDescribingJson;
+export declare type EventContext = SelfDescribingJson;
 ```

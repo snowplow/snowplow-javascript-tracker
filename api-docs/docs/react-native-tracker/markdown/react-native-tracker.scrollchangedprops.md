@@ -11,7 +11,7 @@ Schema: `iglu:com.snowplowanalytics.mobile/scroll_changed/jsonschema/1-0-0`
 <b>Signature:</b>
 
 ```typescript
-type ScrollChangedProps = {
+export declare type ScrollChangedProps = {
     yOffset?: number;
     xOffset?: number;
     viewHeight?: number;

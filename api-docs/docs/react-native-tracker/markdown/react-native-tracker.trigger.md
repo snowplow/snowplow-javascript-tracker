@@ -9,5 +9,5 @@ Trigger for MessageNotification event
 <b>Signature:</b>
 
 ```typescript
-type Trigger = "push" | "location" | "calendar" | "timeInterval" | "other";
+export declare type Trigger = 'push' | 'location' | 'calendar' | 'timeInterval' | 'other';
 ```

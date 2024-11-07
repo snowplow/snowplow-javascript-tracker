@@ -9,7 +9,7 @@ DeepLinkReceived event properties schema: iglu:com.snowplowanalytics.mobile/deep
 <b>Signature:</b>
 
 ```typescript
-type DeepLinkReceivedProps = {
+export declare type DeepLinkReceivedProps = {
     url: string;
     referrer?: string;
 };

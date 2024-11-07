@@ -9,16 +9,10 @@ MessageNotification event properties schema: iglu:com.snowplowanalytics.mobile/m
 <b>Signature:</b>
 
 ```typescript
-type MessageNotificationProps = {
+export declare type MessageNotificationProps = {
     action?: string;
-    /*
-    * Attachments added to the notification (they can be part of the data object).
-    */
     attachments?: MessageNotificationAttachmentProps[];
     body: string;
-    /*
-    * Variable string values to be used in place of the format specifiers in bodyLocArgs to use to localize the body text to the user's current localization.
-    */
     bodyLocArgs?: string[];
     bodyLocKey?: string;
     category?: string;
@@ -37,3 +31,5 @@ type MessageNotificationProps = {
     trigger: Trigger;
 };
 ```
+<b>References:</b> [MessageNotificationAttachmentProps](./react-native-tracker.messagenotificationattachmentprops.md)<!-- -->, [Trigger](./react-native-tracker.trigger.md)
+

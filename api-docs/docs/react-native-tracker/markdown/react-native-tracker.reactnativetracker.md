@@ -9,43 +9,11 @@ The ReactNativeTracker type
 <b>Signature:</b>
 
 ```typescript
-type ReactNativeTracker = {
+export declare type ReactNativeTracker = {
     readonly trackSelfDescribingEvent: <T extends Record<string, unknown> = Record<string, unknown>>(argmap: SelfDescribingJson<T>, contexts?: EventContext[]) => void;
-    // TODO:
-    // /**
-    //  * Tracks a screen-view event
-    //  *
-    //  * @param argmap - The screen-view event's properties
-    //  * @param contexts - The array of event contexts
-    //  */
-    // readonly trackScreenViewEvent: (argmap: ScreenViewProps, contexts?: EventContext[]) => string | undefined;
-    // TODO:
-    // /**
-    //  * Tracks a scroll changed event
-    //  *
-    //  * @param argmap - The scroll changed event's properties
-    //  * @param contexts - The array of event contexts
-    //  */
-    // readonly trackScrollChangedEvent: (argmap: ScrollChangedProps, contexts?: EventContext[]) => string | undefined;
-    // TODO:
-    // /**
-    //  * Tracks a list item view event
-    //  *
-    //  * @param argmap - The list item view event's properties
-    //  * @param contexts - The array of event contexts
-    //  */
-    // readonly trackListItemViewEvent: (argmap: ListItemViewProps, contexts?: EventContext[]) => string | undefined;
     readonly trackStructuredEvent: (argmap: StructuredEvent, contexts?: EventContext[]) => void;
     readonly trackPageViewEvent: (argmap: PageViewEvent, contexts?: EventContext[]) => void;
     readonly trackTimingEvent: (argmap: TimingProps, contexts?: EventContext[]) => void;
-    // TODO:
-    // /**
-    //  * Tracks a deep link received event
-    //  *
-    //  * @param argmap - The deep link received event properties
-    //  * @param contexts - The array of event contexts
-    //  */
-    // readonly trackDeepLinkReceivedEvent: (argmap: DeepLinkReceivedProps, contexts?: EventContext[]) => void;
     readonly trackMessageNotificationEvent: (argmap: MessageNotificationProps, contexts?: EventContext[]) => void;
     addGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive> | Record<string, ConditionalContextProvider | ContextPrimitive>): void;
     clearGlobalContexts(): void;
@@ -67,3 +35,5 @@ type ReactNativeTracker = {
     readonly setSubjectData: (config: SubjectConfiguration) => void;
 };
 ```
+<b>References:</b> [EventContext](./react-native-tracker.eventcontext.md)<!-- -->, [TimingProps](./react-native-tracker.timingprops.md)<!-- -->, [MessageNotificationProps](./react-native-tracker.messagenotificationprops.md)<!-- -->, [ScreenSize](./react-native-tracker.screensize.md)<!-- -->, [SubjectConfiguration](./react-native-tracker.subjectconfiguration.md)
+
