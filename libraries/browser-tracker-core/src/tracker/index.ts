@@ -65,7 +65,7 @@ import {
   emptyIdCookie,
   eventIndexFromIdCookie,
 } from './id_cookie';
-import { CLIENT_SESSION_SCHEMA, WEB_PAGE_SCHEMA, BROWSER_CONTEXT_SCHEMA } from './schemata';
+import { CLIENT_SESSION_SCHEMA, WEB_PAGE_SCHEMA, BROWSER_CONTEXT_SCHEMA, APPLICATION_CONTEXT_SCHEMA } from './schemata';
 import { getBrowserProperties } from '../helpers/browser_props';
 import { asyncCookieStorage, syncCookieStorage } from './cookie_storage';
 
@@ -149,13 +149,13 @@ export function Tracker(
         if (typeof config.anonymousTracking === 'boolean') {
           return false;
         }
-        return config.anonymousTracking?.withSessionTracking === true ?? false;
+        return config.anonymousTracking?.withSessionTracking === true;
       },
       getAnonymousServerTracking = (config: TrackerConfiguration) => {
         if (typeof config.anonymousTracking === 'boolean') {
           return false;
         }
-        return config.anonymousTracking?.withServerAnonymisation === true ?? false;
+        return config.anonymousTracking?.withServerAnonymisation === true;
       },
       getAnonymousTracking = (config: TrackerConfiguration) => !!config.anonymousTracking,
       isBrowserContextAvailable = trackerConfiguration?.contexts?.browser ?? false,
@@ -203,6 +203,8 @@ export function Tracker(
       configPlatform = trackerConfiguration.platform ?? 'web',
       // Site ID
       configTrackerSiteId = trackerConfiguration.appId ?? '',
+      // Application version
+      configAppVersion = trackerConfiguration.appVersion,
       // Document URL
       configCustomUrl: string,
       // Document title
@@ -322,6 +324,20 @@ export function Tracker(
     core.addPayloadPair('res', resolution);
     core.addPayloadPair('cd', colorDepth);
     if (timeZone) core.addPayloadPair('tz', timeZone);
+
+    // Add the application version context entity
+    if (configAppVersion) {
+      core.addPlugin({
+        plugin: {
+          contexts: () => [
+            {
+              schema: APPLICATION_CONTEXT_SCHEMA,
+              data: { version: configAppVersion },
+            },
+          ],
+        },
+      });
+    }
 
     /*
      * Initialize tracker
