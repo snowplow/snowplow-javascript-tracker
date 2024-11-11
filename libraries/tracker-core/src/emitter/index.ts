@@ -198,6 +198,7 @@ interface RequestResult {
 export function newEmitter({
   endpoint,
   eventMethod = 'post',
+  postPath,
   protocol,
   port,
   maxPostBytes = 40000,
@@ -320,6 +321,7 @@ export function newEmitter({
       maxPostBytes,
       useStm,
       credentials,
+      postPath,
     });
   }
 
