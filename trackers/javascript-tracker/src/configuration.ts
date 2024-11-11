@@ -39,5 +39,6 @@ export interface JavaScriptTrackerConfiguration extends TrackerConfiguration {
     geolocation: boolean;
     clientHints: boolean | { includeHighEntropy: boolean };
     webVitals: boolean | { loadWebVitalsScript?: boolean; webVitalsSource?: string };
+    performanceNavigationTiming: boolean;
   };
 }
