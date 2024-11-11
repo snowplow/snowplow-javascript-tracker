@@ -59,12 +59,15 @@ function htmlContext(el: HTMLMediaElement): (() => SelfDescribingJson)[] {
 }
 
 export function setUpListeners(config: ElementConfig) {
-  const { id, video } = config;
+  const { id, video, label } = config;
 
   startMediaTracking({
     ...config,
     id,
-    player: updatePlayer(video),
+    player: {
+      label,
+      ...updatePlayer(video)
+    },
     context: (config.context ?? []).concat(htmlContext(video)),
   });
 

@@ -312,4 +312,20 @@ describe('MediaTrackingPlugin', () => {
 
     expect(eventQueue.length).toBe(0);
   });
+
+  it("adds label to tracked event", async () => {
+    const video = document.createElement('video');
+    video.id = id;
+    document.body.appendChild(video);
+
+    startHtml5MediaTracking({ id: 'id', label: 'foo', video, captureEvents: [MediaEventType.Play] });
+
+    video.play();
+
+    let playerContext = eventQueue[0].context.find(
+      (c) => c.schema === 'iglu:com.snowplowanalytics.snowplow/media_player/jsonschema/2-0-0'
+    )?.data;
+
+    expect(playerContext?.label).toEqual('foo');
+  });
 });
