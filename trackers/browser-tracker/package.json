@@ -1,6 +1,6 @@
 {
   "name": "@snowplow/browser-tracker",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Browser tracker for Snowplow",
   "keywords": [
     "tracking",

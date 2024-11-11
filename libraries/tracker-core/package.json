@@ -1,6 +1,6 @@
 {
   "name": "@snowplow/tracker-core",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Core functionality for Snowplow JavaScript trackers",
   "keywords": [
     "tracking",

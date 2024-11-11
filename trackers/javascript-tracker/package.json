@@ -1,6 +1,6 @@
 {
   "name": "@snowplow/javascript-tracker",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Web analytics for Snowplow",
   "keywords": [
     "tracking",
