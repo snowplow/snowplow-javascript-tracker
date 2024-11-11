@@ -30,13 +30,8 @@ import * as WebVitals from '@snowplow/browser-plugin-web-vitals';
  * @param configuration - The tracker configuration object
  */
 export function Plugins(configuration: JavaScriptTrackerConfiguration) {
-  const {
-    performanceTiming,
-    gaCookies,
-    geolocation,
-    clientHints,
-    webVitals
-  } = configuration?.contexts ?? {};
+  const { performanceTiming, gaCookies, geolocation, clientHints, webVitals, performanceNavigationTiming } =
+    configuration?.contexts ?? {};
   const activatedPlugins: Array<[BrowserPlugin, {} | Record<string, Function>]> = [];
 
   if (plugins.performanceTiming && performanceTiming) {
@@ -148,7 +143,7 @@ export function Plugins(configuration: JavaScriptTrackerConfiguration) {
     activatedPlugins.push([EventSpecificationsPlugin(), apiMethods]);
   }
 
-  if (plugins.performanceNavigationTiming) {
+  if (plugins.performanceNavigationTiming && performanceNavigationTiming) {
     const { PerformanceNavigationTimingPlugin, ...apiMethods } = PerformanceNavigationTiming;
     activatedPlugins.push([PerformanceNavigationTimingPlugin(), apiMethods]);
   }
