@@ -26,9 +26,9 @@ describe('Events', () => {
 
     expect(payloads.length).toBe(1);
     const [payload] = payloads;
-    expect(payload.e).toBe('pv');
-    expect(payload.url).toBe('http://localhost:9090');
-    expect(payload.page).toBe('Home');
+    expect(payload?.e).toBe('pv');
+    expect(payload?.url).toBe('http://localhost:9090');
+    expect(payload?.page).toBe('Home');
   });
 
   it('tracks a structured event', () => {
@@ -42,12 +42,12 @@ describe('Events', () => {
 
     expect(payloads.length).toBe(1);
     const [payload] = payloads;
-    expect(payload.e).toBe('se');
-    expect(payload.se_ca).toBe('category');
-    expect(payload.se_ac).toBe('action');
-    expect(payload.se_la).toBe('label');
-    expect(payload.se_pr).toBe('property');
-    expect(payload.se_va).toBe('1');
+    expect(payload?.e).toBe('se');
+    expect(payload?.se_ca).toBe('category');
+    expect(payload?.se_ac).toBe('action');
+    expect(payload?.se_la).toBe('label');
+    expect(payload?.se_pr).toBe('property');
+    expect(payload?.se_va).toBe('1');
   });
 
   it('tracks a timing event', () => {
@@ -60,8 +60,8 @@ describe('Events', () => {
 
     expect(payloads.length).toBe(1);
     const [payload] = payloads;
-    expect(payload.e).toBe('ue');
-    const { ue_pr } = payload;
+    expect(payload?.e).toBe('ue');
+    const { ue_pr } = payload!;
     const event = JSON.parse(ue_pr as string);
     const { schema, data } = event.data;
     expect(schema).toContain('timing');
@@ -82,8 +82,8 @@ describe('Events', () => {
 
     expect(payloads.length).toBe(1);
     const [payload] = payloads;
-    expect(payload.e).toBe('ue');
-    const { ue_pr } = payload;
+    expect(payload?.e).toBe('ue');
+    const { ue_pr } = payload!;
     const event = JSON.parse(ue_pr as string);
     const { schema, data } = event.data;
     expect(schema).toContain('message_notification');
@@ -104,8 +104,8 @@ describe('Events', () => {
 
     expect(payloads.length).toBe(1);
     const [payload] = payloads;
-    expect(payload.e).toBe('ue');
-    const { ue_pr } = payload;
+    expect(payload?.e).toBe('ue');
+    const { ue_pr } = payload!;
     const event = JSON.parse(ue_pr as string);
     const { schema, data } = event.data;
     expect(schema).toBe('iglu:com.acme/event/jsonschema/1-0-0');
@@ -129,8 +129,8 @@ describe('Events', () => {
 
     expect(payloads.length).toBe(1);
     const [payload] = payloads;
-    expect(payload.co).toBeDefined();
-    const { co } = payload;
+    expect(payload?.co).toBeDefined();
+    const { co } = payload!;
     const context = JSON.parse(co as string);
     const [{ schema, data }] = context.data;
     expect(schema).toBe('iglu:com.acme/page/jsonschema/1-0-0');

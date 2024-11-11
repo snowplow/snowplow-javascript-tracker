@@ -544,7 +544,7 @@ export type ReactNativeTracker = {
 
   // TODO:
   // /**
-  //  * Gets the dentifier for the user of the session
+  //  * Gets the identifier for the user of the session
   //  *
   //  * @returns {Promise<string | undefined>}
   //  */

@@ -41,16 +41,16 @@ describe('Subject', () => {
 
       expect(payloads.length).toBe(1);
       const [payload] = payloads;
-      expect(payload.uid).toBe('user-id');
-      expect(payload.nuid).toBe('network-user-id');
-      expect(payload.duid).toBe('domain-user-id');
-      expect(payload.ua).toBe('user-agent');
-      expect(payload.ip).toBe('ip-address');
-      expect(payload.tz).toBe('timezone');
-      expect(payload.lang).toBe('sk');
-      expect(payload.res).toBe('1920x1080');
-      expect(payload.cd).toBe('24');
-      expect(payload.vp).toBe('1200x800');
+      expect(payload?.uid).toBe('user-id');
+      expect(payload?.nuid).toBe('network-user-id');
+      expect(payload?.duid).toBe('domain-user-id');
+      expect(payload?.ua).toBe('user-agent');
+      expect(payload?.ip).toBe('ip-address');
+      expect(payload?.tz).toBe('timezone');
+      expect(payload?.lang).toBe('sk');
+      expect(payload?.res).toBe('1920x1080');
+      expect(payload?.cd).toBe('24');
+      expect(payload?.vp).toBe('1200x800');
     });
   });
 
@@ -66,7 +66,7 @@ describe('Subject', () => {
 
       expect(payloads.length).toBe(1);
       const [payload] = payloads;
-      expect(payload.uid).toBe('user-id');
+      expect(payload?.uid).toBe('user-id');
     });
 
     it('sets the network user id', () => {
@@ -75,7 +75,7 @@ describe('Subject', () => {
 
       expect(payloads.length).toBe(1);
       const [payload] = payloads;
-      expect(payload.nuid).toBe('network-user-id');
+      expect(payload?.nuid).toBe('network-user-id');
     });
 
     it('sets the domain user id', () => {
@@ -84,7 +84,7 @@ describe('Subject', () => {
 
       expect(payloads.length).toBe(1);
       const [payload] = payloads;
-      expect(payload.duid).toBe('domain-user-id');
+      expect(payload?.duid).toBe('domain-user-id');
     });
 
     it('sets the screen resolution', () => {
@@ -93,7 +93,7 @@ describe('Subject', () => {
 
       expect(payloads.length).toBe(1);
       const [payload] = payloads;
-      expect(payload.res).toBe('1920x1080');
+      expect(payload?.res).toBe('1920x1080');
     });
 
     it('sets the color depth', () => {
@@ -102,7 +102,7 @@ describe('Subject', () => {
 
       expect(payloads.length).toBe(1);
       const [payload] = payloads;
-      expect(payload.cd).toBe('24');
+      expect(payload?.cd).toBe('24');
     });
 
     it('sets the screen viewport', () => {
@@ -111,7 +111,7 @@ describe('Subject', () => {
 
       expect(payloads.length).toBe(1);
       const [payload] = payloads;
-      expect(payload.vp).toBe('1200x800');
+      expect(payload?.vp).toBe('1200x800');
     });
 
     it('sets the subject data', () => {
@@ -127,12 +127,12 @@ describe('Subject', () => {
 
       expect(payloads.length).toBe(1);
       const [payload] = payloads;
-      expect(payload.nuid).toBe('network-user-id');
-      expect(payload.duid).toBe('domain-user-id');
-      expect(payload.uid).toBe('user-id');
-      expect(payload.ua).toBe('user-agent');
-      expect(payload.ip).toBe('ip-address');
-      expect(payload.tz).toBe('timezone');
+      expect(payload?.nuid).toBe('network-user-id');
+      expect(payload?.duid).toBe('domain-user-id');
+      expect(payload?.uid).toBe('user-id');
+      expect(payload?.ua).toBe('user-agent');
+      expect(payload?.ip).toBe('ip-address');
+      expect(payload?.tz).toBe('timezone');
     });
   });
 });

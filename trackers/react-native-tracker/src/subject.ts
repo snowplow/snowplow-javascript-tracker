@@ -5,7 +5,7 @@ export function newSubject(core: TrackerCore, configuration?: SubjectConfigurati
   let domainUserId: string | undefined;
   let networkUserId: string | undefined;
 
-  const addSubjectToPayload = (payload: PayloadBuilder): void => {
+  const addSubjectToPayload = (payload: PayloadBuilder) => {
     payload.add('duid', domainUserId);
     payload.add('nuid', networkUserId);
   };
@@ -13,23 +13,23 @@ export function newSubject(core: TrackerCore, configuration?: SubjectConfigurati
   const setScreenResolution = (screenSize: ScreenSize) =>
     core.setScreenResolution(String(screenSize[0]), String(screenSize[1]));
 
-  const setNetworkUserId = function (userId: string | undefined) {
+  const setNetworkUserId = (userId: string | undefined) => {
     networkUserId = userId;
   };
 
-  const setDomainUserId = function (userId: string | undefined) {
+  const setDomainUserId = (userId: string | undefined) => {
     domainUserId = userId;
   };
 
-  const setColorDepth = function (colorDepth: number) {
+  const setColorDepth = (colorDepth: number) => {
     core.setColorDepth(String(colorDepth));
   };
 
-  const setScreenViewport = function (screenSize: ScreenSize) {
+  const setScreenViewport = (screenSize: ScreenSize) => {
     core.setViewport(String(screenSize[0]), String(screenSize[1]));
   };
 
-  const setSubjectData = function (data: SubjectConfiguration) {
+  const setSubjectData = (data: SubjectConfiguration) => {
     setNetworkUserId(data.networkUserId);
     setDomainUserId(data.domainUserId);
     if (data.userId) {

@@ -1,4 +1,4 @@
-import { newTracker, ReactNativeTracker } from '../src';
+import { newTracker } from '../src';
 
 function createMockFetch(status: number, requests: Request[]) {
   return async (input: Request) => {
@@ -36,7 +36,7 @@ describe('Tracker', () => {
     expect(requests.length).toBe(1);
 
     const [request] = requests;
-    const payload = await request.json();
+    const payload = await request?.json();
     expect(payload.data.length).toBe(1);
 
     const [event] = payload.data;
@@ -96,7 +96,7 @@ describe('Tracker', () => {
       await tracker.flush();
 
       const [request] = requests;
-      const payload = await request.json();
+      const payload = await request?.json();
       expect(payload.data.length).toBe(1);
 
       const [event] = payload.data;
@@ -133,7 +133,7 @@ describe('Tracker', () => {
       await tracker.flush();
 
       const [request] = requests;
-      const payload = await request.json();
+      const payload = await request?.json();
       expect(payload.data.length).toBe(1);
 
       const [event] = payload.data;
