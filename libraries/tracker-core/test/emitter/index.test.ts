@@ -333,3 +333,21 @@ test('adds a timeout to the request', async (t) => {
   t.is(requests.length, 1);
   t.is(await eventStore.count(), 1);
 });
+
+test('uses custom POST path configured in the emitter', async (t) => {
+  const requests: Request[] = [];
+  const mockFetch = createMockFetch(200, requests);
+  const eventStore = newInMemoryEventStore({});
+  const emitter: Emitter = newEmitter({
+    endpoint: 'https://example.com',
+    customFetch: mockFetch,
+    postPath: '/custom',
+    eventStore,
+  });
+
+  await emitter.input({ e: 'pv' });
+  await emitter.flush();
+
+  t.is(requests.length, 1);
+  t.is(requests[0].url, 'https://example.com/custom');
+});
