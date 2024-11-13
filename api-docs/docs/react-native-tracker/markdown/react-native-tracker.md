@@ -14,7 +14,10 @@
 
 |  Function | Description |
 |  --- | --- |
+|  [getTracker(trackerNamespace)](./react-native-tracker.gettracker.md) | Retrieves an initialized tracker given its namespace |
 |  [newTracker(configuration)](./react-native-tracker.newtracker.md) | Creates a new tracker instance with the given configuration |
+|  [removeAllTrackers()](./react-native-tracker.removealltrackers.md) | Removes all initialized trackers |
+|  [removeTracker(trackerNamespace)](./react-native-tracker.removetracker.md) | Removes a tracker given its namespace |
 
 ## Interfaces
 

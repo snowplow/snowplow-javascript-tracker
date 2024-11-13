@@ -37,6 +37,7 @@ export interface CorePlugin {
     afterTrack?: (payload: Payload) => void;
     beforeTrack?: (payloadBuilder: PayloadBuilder) => void;
     contexts?: () => SelfDescribingJson[];
+    deactivatePlugin?: (core: TrackerCore) => void;
     filter?: (payload: Payload) => boolean;
     logger?: (logger: Logger) => void;
 }
@@ -180,6 +181,9 @@ export interface FormFocusOrChangeEvent {
 }
 
 // @public
+export function getTracker(trackerNamespace: string): ReactNativeTracker | undefined;
+
+// @public
 export type JsonProcessor = (payloadBuilder: PayloadBuilder, jsonForProcessing: EventJson, contextEntitiesForProcessing: SelfDescribingJson[]) => void;
 
 // @public
@@ -299,6 +303,12 @@ export type ReactNativeTracker = {
 };
 
 // @public
+export function removeAllTrackers(): void;
+
+// @public
+export function removeTracker(trackerNamespace: string): void;
+
+// @public
 export type RequestFailure = {
     events: EventBatch;
     status?: number;
@@ -409,6 +419,7 @@ export interface TrackerCore {
     addPayloadPair: (key: string, value: unknown) => void;
     addPlugin(configuration: CorePluginConfiguration): void;
     clearGlobalContexts(): void;
+    deactivate(): void;
     getBase64Encoding(): boolean;
     removeGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive | string>): void;
     resetPayloadPairs(dict: Payload): void;

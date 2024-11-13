@@ -27,6 +27,7 @@ interface TrackerCore
 |  [addPayloadDict(dict)](./react-native-tracker.trackercore.addpayloaddict.md) | Merges a dictionary into payloadPairs |
 |  [addPlugin(configuration)](./react-native-tracker.trackercore.addplugin.md) | Add a plugin into the plugin collection after Core has already been initialised |
 |  [clearGlobalContexts()](./react-native-tracker.trackercore.clearglobalcontexts.md) | Removes all global contexts |
+|  [deactivate()](./react-native-tracker.trackercore.deactivate.md) | Deactivate tracker core including all plugins. This is useful for cleaning up resources or listeners that have been created. Once deactivated, the tracker won't be able to track any events. |
 |  [getBase64Encoding()](./react-native-tracker.trackercore.getbase64encoding.md) | Get current base64 encoding state |
 |  [removeGlobalContexts(contexts)](./react-native-tracker.trackercore.removeglobalcontexts.md) | Removes previously added global context, performs a deep comparison of the contexts or conditional contexts |
 |  [resetPayloadPairs(dict)](./react-native-tracker.trackercore.resetpayloadpairs.md) | Replace payloadPairs with a new dictionary |

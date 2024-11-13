@@ -64,7 +64,7 @@ export async function newTracker(
 
 /**
  * Retrieves an initialized tracker given its namespace
- * @param trackerNamespace Tracker namespace
+ * @param trackerNamespace - Tracker namespace
  * @returns Tracker instance if exists
  */
 export function getTracker(trackerNamespace: string): ReactNativeTracker | undefined {
@@ -74,7 +74,7 @@ export function getTracker(trackerNamespace: string): ReactNativeTracker | undef
 /**
  * Removes a tracker given its namespace
  *
- * @param trackerNamespace {string}
+ * @param trackerNamespace - Tracker namespace
  */
 export function removeTracker(trackerNamespace: string): void {
   if (initializedTrackers[trackerNamespace]) {
