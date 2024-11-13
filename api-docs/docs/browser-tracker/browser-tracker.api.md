@@ -170,6 +170,7 @@ export interface CorePlugin {
     afterTrack?: (payload: Payload) => void;
     beforeTrack?: (payloadBuilder: PayloadBuilder) => void;
     contexts?: () => SelfDescribingJson[];
+    deactivatePlugin?: (core: TrackerCore) => void;
     filter?: (payload: Payload) => boolean;
     logger?: (logger: Logger) => void;
 }
@@ -545,6 +546,7 @@ export interface TrackerCore {
     addPayloadPair: (key: string, value: unknown) => void;
     addPlugin(configuration: CorePluginConfiguration): void;
     clearGlobalContexts(): void;
+    deactivate(): void;
     getBase64Encoding(): boolean;
     removeGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive | string>): void;
     resetPayloadPairs(dict: Payload): void;
