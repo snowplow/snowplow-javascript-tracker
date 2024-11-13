@@ -1,4 +1,4 @@
-import { newTracker } from '../src';
+import { getTracker, newTracker, removeAllTrackers, removeTracker } from '../src';
 
 function createMockFetch(status: number, requests: Request[]) {
   return async (input: Request) => {
@@ -19,6 +19,26 @@ describe('Tracker', () => {
 
   it('creates a tracker with minimal config', async () => {
     expect(await newTracker({ namespace: 'test', endpoint: 'http://localhost:9090' })).toBeDefined();
+  });
+
+  it('retrieves an existing tracker', async () => {
+    const tracker = await newTracker({ namespace: 'test', endpoint: 'http://localhost:9090' });
+    expect(getTracker('test')).toBe(tracker);
+    expect(getTracker('non-existent')).toBeUndefined();
+  });
+
+  it('removes a tracker', async () => {
+    await newTracker({ namespace: 'test', endpoint: 'http://localhost:9090' });
+    expect(getTracker('test')).toBeDefined();
+    removeTracker('test');
+    expect(getTracker('test')).toBeUndefined();
+  });
+
+  it('removes all trackers', async () => {
+    await newTracker({ namespace: 'test', endpoint: 'http://localhost:9090' });
+    expect(getTracker('test')).toBeDefined();
+    removeAllTrackers();
+    expect(getTracker('test')).toBeUndefined();
   });
 
   it('tracks a page view event with tracker properties', async () => {

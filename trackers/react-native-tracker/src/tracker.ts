@@ -1,4 +1,4 @@
-import { trackerCore, PayloadBuilder, version, EmitterConfiguration } from '@snowplow/tracker-core';
+import { trackerCore, PayloadBuilder, version, EmitterConfiguration, TrackerCore } from '@snowplow/tracker-core';
 
 import { newEmitter } from '@snowplow/tracker-core';
 import { newReactNativeEventStore } from './event_store';
@@ -12,6 +12,8 @@ import {
   SubjectConfiguration,
   TrackerConfiguration,
 } from './types';
+
+const initializedTrackers: Record<string, { tracker: ReactNativeTracker; core: TrackerCore }> = {};
 
 /**
  * Creates a new tracker instance with the given configuration
@@ -45,7 +47,7 @@ export async function newTracker(
     core.setAppId(appId);
   }
 
-  return {
+  const tracker = {
     ...newTrackEventFunctions(core),
     ...subject.properties,
     setAppId: core.setAppId,
@@ -56,4 +58,36 @@ export async function newTracker(
     clearGlobalContexts: core.clearGlobalContexts,
     addPlugin: core.addPlugin,
   };
+  initializedTrackers[namespace] = { tracker, core };
+  return tracker;
+}
+
+/**
+ * Retrieves an initialized tracker given its namespace
+ * @param trackerNamespace Tracker namespace
+ * @returns Tracker instance if exists
+ */
+export function getTracker(trackerNamespace: string): ReactNativeTracker | undefined {
+  return initializedTrackers[trackerNamespace]?.tracker;
+}
+
+/**
+ * Removes a tracker given its namespace
+ *
+ * @param trackerNamespace {string}
+ */
+export function removeTracker(trackerNamespace: string): void {
+  if (initializedTrackers[trackerNamespace]) {
+    initializedTrackers[trackerNamespace]?.core.deactivate();
+    delete initializedTrackers[trackerNamespace];
+  }
+}
+
+/**
+ * Removes all initialized trackers
+ *
+ * @returns - A boolean promise
+ */
+export function removeAllTrackers(): void {
+  Object.keys(initializedTrackers).forEach(removeTracker);
 }
