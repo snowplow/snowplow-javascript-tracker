@@ -3,14 +3,25 @@ import {
   type BrowserTracker,
   dispatchToTrackersInCollection,
 } from '@snowplow/browser-tracker-core';
-import { type Logger, buildSelfDescribingEvent } from '@snowplow/tracker-core';
+import { type Logger, SelfDescribingJson, buildSelfDescribingEvent } from '@snowplow/tracker-core';
 
-import { checkConfig, type Configuration, ConfigurationState, type ElementConfiguration } from './configuration';
-import { extractSelectorDetails } from './data';
-import { ComponentsEntity, ElementContentEntity, Entities, Entity, Events, Event } from './schemata';
+import { baseComponentGenerator } from './components';
+import {
+  checkConfig,
+  type Configuration,
+  ConfigurationState,
+  type ContextProvider,
+  type ElementConfiguration,
+  Frequency,
+} from './configuration';
+import { buildContentTree, evaluateDataSelector, getElementDetails } from './data';
+import { ElementStatus, elementsState, patchState } from './elementsState';
+import { ComponentsEntity, ElementDetailsEntity, Entity, Events, Event } from './schemata';
 import type { OneOrMany } from './types';
+import { defineBoundaries, nodeIsElement } from './util';
 
 type ElementTrackingConfiguration = {
+  context?: ContextProvider;
   elements: OneOrMany<ElementConfiguration>;
 };
 
@@ -24,14 +35,43 @@ const trackers: Record<string, BrowserTracker> = {};
 const configurations: Configuration[] = [];
 const configurationsById: Record<string, Configuration> = {};
 
+const WeakestSet = typeof WeakSet === 'undefined' ? Set : WeakSet;
+
+const trackedThisPage: Record<Events, Set<Element | 'initial'>> = {
+  [Events.ELEMENT_CREATE]: new Set(),
+  [Events.ELEMENT_DESTROY]: new Set(),
+  [Events.ELEMENT_EXPOSE]: new Set(),
+  [Events.ELEMENT_OBSCURE]: new Set(),
+};
+
+const trackedElements: Record<Events, WeakSet<Element>> = {
+  [Events.ELEMENT_CREATE]: new WeakestSet(),
+  [Events.ELEMENT_DESTROY]: new WeakestSet(),
+  [Events.ELEMENT_EXPOSE]: new WeakestSet(),
+  [Events.ELEMENT_OBSCURE]: new WeakestSet(),
+};
+
+const trackedConfigs: Record<Events, WeakSet<Configuration>> = {
+  [Events.ELEMENT_CREATE]: new WeakestSet(),
+  [Events.ELEMENT_DESTROY]: new WeakestSet(),
+  [Events.ELEMENT_EXPOSE]: new WeakestSet(),
+  [Events.ELEMENT_OBSCURE]: new WeakestSet(),
+};
+
 let LOG: Logger | undefined = undefined;
 let mutationObserver: MutationObserver | false = false;
 let intersectionObserver: IntersectionObserver | false = false;
 
 /**
- * Element Tracking plugin to track the (dis)appearance and visiblity of DOM elements.
+ * Element Tracking plugin to track the (dis)appearance and visibility of DOM elements.
  */
-export function SnowplowElementTrackingPlugin(): BrowserPlugin {
+export function SnowplowElementTrackingPlugin({ ignoreNextPageView = true } = {}): BrowserPlugin {
+  if (ignoreNextPageView) {
+    Object.values(trackedThisPage).forEach((trackedThisPage) => {
+      trackedThisPage.add('initial');
+    });
+  }
+
   return {
     activateBrowserPlugin(tracker) {
       trackers[tracker.id] = tracker;
@@ -49,6 +89,17 @@ export function SnowplowElementTrackingPlugin(): BrowserPlugin {
         intersectionObserver ||
         (typeof IntersectionObserver === 'function' && new IntersectionObserver(intersectionCallback));
     },
+    afterTrack(payload) {
+      if (payload['e'] === 'pv') {
+        Object.values(trackedThisPage).forEach((trackedThisPage) => {
+          if (trackedThisPage.has('initial')) {
+            trackedThisPage.delete('initial');
+          } else {
+            trackedThisPage.clear();
+          }
+        });
+      }
+    },
     logger(logger) {
       LOG = logger;
     },
@@ -63,7 +114,10 @@ export function SnowplowElementTrackingPlugin(): BrowserPlugin {
  * @param config Configuration for setting up media tracking
  * @param trackers The tracker identifiers which ping events will be sent to
  */
-export function startElementTracking({ elements = [] }: ElementTrackingConfiguration, trackers?: Array<string>): void {
+export function startElementTracking(
+  { elements = [], context }: ElementTrackingConfiguration,
+  trackers?: Array<string>
+): void {
   if (!mutationObserver || !intersectionObserver) {
     LOG?.error('ElementTracking plugin requires both MutationObserver and IntersectionObserver APIs');
     if (mutationObserver) mutationObserver.disconnect();
@@ -76,7 +130,23 @@ export function startElementTracking({ elements = [] }: ElementTrackingConfigura
 
   configs.forEach((config) => {
     try {
-      const valid = checkConfig(config, trackers);
+      const contextMerger: ContextProvider = (element, config) => {
+        const result: SelfDescribingJson[] = [];
+
+        for (const contextSrc of [context, config.context]) {
+          if (contextSrc) {
+            if (typeof contextSrc === 'function') {
+              if (contextSrc !== contextMerger) result.push(...contextSrc(element, config));
+            } else {
+              result.push(...contextSrc);
+            }
+          }
+        }
+
+        return result;
+      };
+
+      const valid = checkConfig(config, contextMerger, trackers);
       configurations.push(valid);
       if (valid.id) configurationsById[valid.id] = valid;
     } catch (e) {
@@ -85,23 +155,27 @@ export function startElementTracking({ elements = [] }: ElementTrackingConfigura
   });
 
   configurations.forEach((config) => {
-    const { create, expose, obscure, selector, state } = config;
+    const { expose, obscure, selector, state } = config;
     if (state === ConfigurationState.INITIAL) {
       config.state = ConfigurationState.CONFIGURED;
 
-      const elements = Array.from(document.querySelectorAll(selector));
+      const elements = document.querySelectorAll(selector);
 
-      if (create && elements.length) {
-        // elements exist, that's a create
-        elements.forEach((element, i) =>
-          trackEvent(Events.ELEMENT_CREATE, config, { element, position: i + 1, matches: elements.length })
+      Array.from(elements, (element, i) => {
+        elementsState.set(
+          element,
+          patchState({
+            lastPosition: i,
+          })
         );
-        config.state = ConfigurationState.CREATED;
-      }
+        elementsState.get(element)?.matches.add(config);
 
-      if (intersectionObserver && (expose || obscure)) {
-        elements.forEach((e) => intersectionObserver && intersectionObserver.observe(e));
-      }
+        trackEvent(Events.ELEMENT_CREATE, config, element, { position: i + 1, matches: elements.length });
+
+        if (intersectionObserver && (expose || obscure)) {
+          intersectionObserver.observe(element);
+        }
+      });
     }
   });
 }
@@ -145,179 +219,255 @@ export function endElementTracking(remove?: ElementTrackingDisable, trackers?: A
   }
 }
 
-const componentGenerator = (...params: any[]): ComponentsEntity | null => {
-  const elementParams = params.filter((arg) => arg instanceof Node && nodeIsElement(arg));
+const componentGenerator = baseComponentGenerator.bind(null, false, configurations) as (
+  ...args: any[]
+) => ComponentsEntity | null;
+const detailedComponentGenerator = baseComponentGenerator.bind(null, true, configurations) as (
+  ...args: any[]
+) => [ComponentsEntity, ...ElementDetailsEntity[]] | null;
 
-  if (!elementParams.length) return null;
+export function getComponentListGenerator(
+  cb?: (basic: typeof componentGenerator, detailed: typeof detailedComponentGenerator) => void
+): [typeof componentGenerator, typeof detailedComponentGenerator] {
+  if (cb) cb(componentGenerator, detailedComponentGenerator);
+  return [componentGenerator, detailedComponentGenerator];
+}
 
-  const components: string[] = [];
+function shouldTrackExpose(config: Configuration, entry: IntersectionObserverEntry): boolean {
+  if (config.expose.when === Frequency.NEVER) return false;
+  if (!entry.isIntersecting) return false;
 
-  elementParams.forEach((elem) => {
-    configurations.forEach((config) => {
-      if (!config.component) return;
+  const { boundaryPixels, minPercentage, minSize } = config.expose;
 
-      const ancestor = elem.closest(config.selector);
-      if (ancestor !== null) components.push(config.name);
-    });
-  });
+  const { boundTop, boundRight, boundBottom, boundLeft } = defineBoundaries(boundaryPixels);
 
-  return components.length
-    ? {
-        schema: Entities.COMPONENT_PARENTS,
-        data: {
-          component_list: components,
-        },
-      }
-    : null;
-};
+  const { intersectionRatio, boundingClientRect } = entry;
+  if (boundingClientRect.height * boundingClientRect.width < minSize) return false;
+  if (!(boundTop + boundRight + boundBottom + boundLeft)) {
+    if (minPercentage > intersectionRatio) return false;
+  } else {
+    const intersectionArea = entry.intersectionRect.height * entry.intersectionRect.width;
+    const boundingHeight = entry.boundingClientRect.height + boundTop + boundBottom;
+    const boundingWidth = entry.boundingClientRect.width + boundLeft + boundRight;
+    const boundingArea = boundingHeight * boundingWidth;
+    if (boundingArea && minPercentage > intersectionArea / boundingArea) return false;
+  }
 
-export function getComponentListGenerator(fn?: (generator: typeof componentGenerator) => void) {
-  if (fn) fn(componentGenerator);
-  return componentGenerator;
+  return true;
 }
 
 function trackEvent<T extends Events>(
   schema: T,
   config: Configuration,
+  element: Element | HTMLElement,
   options?: Partial<{
-    element: Element | HTMLElement;
     boundingRect: DOMRect;
     position: number;
     matches: number;
   }>
 ): void {
-  const { element, boundingRect, position, matches } = options ?? {};
+  const { boundingRect, position, matches } = options ?? {};
 
-  dispatchToTrackersInCollection(config.trackers, trackers, (tracker) => {
-    const payload: Event<T> = {
-      schema,
-      data: {
-        element_name: config.name,
-      },
-    };
-    const event = buildSelfDescribingEvent({ event: payload });
-    const context: Entity[] = [];
+  // core payload
+  const payload: Event<T> = {
+    schema,
+    data: {
+      element_name: config.name,
+    },
+  };
+  const event = buildSelfDescribingEvent({ event: payload });
 
-    if (element) {
-      if (config.details) {
-        const rect = boundingRect ?? element.getBoundingClientRect();
-        context.push({
-          schema: Entities.ELEMENT_DETAILS,
-          data: {
-            element_name: config.name,
-            width: rect.width,
-            height: rect.height,
-            position_x: rect.x,
-            position_y: rect.y,
-            position,
-            matches,
-            attributes: extractSelectorDetails(element, config.selector, config.details),
-          },
-        });
-      }
+  // check custom conditions
+  const conditions = {
+    [Events.ELEMENT_CREATE]: config.create.condition,
+    [Events.ELEMENT_DESTROY]: config.destroy.condition,
+    [Events.ELEMENT_EXPOSE]: config.expose.condition,
+    [Events.ELEMENT_OBSCURE]: config.obscure.condition,
+  };
 
-      if (config.contents.length) {
-        context.push(...buildContentTree(config, element, position));
-      }
+  if (conditions[schema]) {
+    if (!evaluateDataSelector(element, config.selector, conditions[schema]!).length) return;
+  }
 
-      const components = componentGenerator(element);
-      if (components) context.push(components);
-    }
+  // check frequency caps
+  const frequencies = {
+    [Events.ELEMENT_CREATE]: config.create.when,
+    [Events.ELEMENT_DESTROY]: config.destroy.when,
+    [Events.ELEMENT_EXPOSE]: config.expose.when,
+    [Events.ELEMENT_OBSCURE]: config.obscure.when,
+  };
 
-    if (config.aggregateStats) {
-    }
+  switch (frequencies[schema]) {
+    case Frequency.NEVER:
+      return; // abort
+    case Frequency.ALWAYS:
+      break; // continue
+    case Frequency.ONCE:
+      if (trackedConfigs[schema].has(config)) return; // once / once per config
+      trackedConfigs[schema].add(config);
+      break;
+    case Frequency.ELEMENT:
+      if (trackedElements[schema].has(element)) return; // once per element
+      trackedElements[schema].add(element);
+      break;
+    case Frequency.PAGEVIEW:
+      if (trackedThisPage[schema].has(element)) return; // once per pageview
+      trackedThisPage[schema].add(element);
+      break;
+  }
 
-    tracker.core.track(event, context);
-  });
+  // build entities
+  const context: Entity[] = [];
+
+  context.push(...(config.context(element, config) as Entity[]));
+
+  if (config.details) {
+    context.push(getElementDetails(config, element, boundingRect, position, matches));
+  }
+
+  if (config.contents.length) {
+    context.push(...buildContentTree(config, element, position));
+  }
+
+  const components = detailedComponentGenerator(config.name, element);
+  if (components) context.push(...components);
+
+  // track the event
+  setTimeout(dispatchToTrackersInCollection, 0, config.trackers, trackers, (tracker: BrowserTracker) =>
+    tracker.core.track(event, context)
+  );
+}
+
+function handleCreate(nowTs: number, config: Configuration, node: Node | Element) {
+  if (nodeIsElement(node) && node.matches(config.selector)) {
+    elementsState.set(
+      node,
+      patchState({
+        state: ElementStatus.CREATED,
+        createdTs: nowTs,
+      })
+    );
+    elementsState.get(node)?.matches.add(config);
+    trackEvent(Events.ELEMENT_CREATE, config, node);
+    if (config.expose.when !== Frequency.NEVER && intersectionObserver) intersectionObserver.observe(node);
+  }
 }
 
 function mutationCallback(mutations: MutationRecord[]): void {
+  const nowTs = performance.now() - performance.timeOrigin;
   mutations.forEach((record) => {
-    if (record.type === 'attributes') {
-      // TODO: what if existing node now matches selector?
-    } else if (record.type === 'childList') {
-      configurations.forEach((config) => {
-        record.addedNodes.forEach((node) => {
-          if (nodeIsElement(node) && node.matches(config.selector)) {
-            if (config.create) trackEvent(Events.ELEMENT_CREATE, config, { element: node });
+    configurations.forEach((config) => {
+      const createFn = handleCreate.bind(null, nowTs, config);
 
-            config.state = ConfigurationState.CREATED;
-            if (config.expose && intersectionObserver) intersectionObserver.observe(node);
+      if (record.type === 'attributes') {
+        if (nodeIsElement(record.target)) {
+          const element = record.target;
+          const prevState = elementsState.get(element);
+
+          if (prevState) {
+            if (!element.matches(config.selector)) {
+              if (prevState.matches.has(config)) {
+                if (prevState.state === ElementStatus.EXPOSED) trackEvent(Events.ELEMENT_OBSCURE, config, element);
+                trackEvent(Events.ELEMENT_DESTROY, config, element);
+                prevState.matches.delete(config);
+                if (intersectionObserver) intersectionObserver.unobserve(element);
+                elementsState.set(element, patchState({ state: ElementStatus.DESTROYED }, prevState));
+              }
+            } else {
+              if (!prevState.matches.has(config)) {
+                createFn(element);
+              }
+            }
+          } else {
+            createFn(element);
           }
-        });
+        }
+      } else if (record.type === 'childList') {
+        record.addedNodes.forEach(createFn);
         record.removedNodes.forEach((node) => {
           if (nodeIsElement(node) && node.matches(config.selector)) {
-            if (config.obscure && config.state === ConfigurationState.EXPOSED)
-              trackEvent(Events.ELEMENT_OBSCURE, config, { element: node });
-            if (config.destroy) trackEvent(Events.ELEMENT_DESTROY, config, { element: node });
-            config.state = ConfigurationState.DESTROYED;
+            const state = elementsState.get(node) ?? patchState({});
+            if (state.state === ElementStatus.EXPOSED) trackEvent(Events.ELEMENT_OBSCURE, config, node);
+            trackEvent(Events.ELEMENT_DESTROY, config, node);
+            if (intersectionObserver) intersectionObserver.unobserve(node);
+            elementsState.set(node, patchState({ state: ElementStatus.DESTROYED }, state));
           }
         });
-      });
-    }
+      }
+    });
   });
 }
 
-function intersectionCallback(entries: IntersectionObserverEntry[]): void {
+function intersectionCallback(entries: IntersectionObserverEntry[], observer: IntersectionObserver): void {
   entries.forEach((entry) => {
+    const state = elementsState.get(entry.target) ?? patchState({});
     configurations.forEach((config) => {
       if (entry.target.matches(config.selector)) {
         const siblings = Array.from(document.querySelectorAll(config.selector));
         const position = siblings.findIndex((el) => el.isSameNode(entry.target)) + 1;
-
         if (entry.isIntersecting) {
-          if (config.expose) {
-            trackEvent(Events.ELEMENT_EXPOSE, config, {
-              element: entry.target,
-              boundingRect: entry.boundingClientRect,
-              position,
-              matches: siblings.length,
-            });
+          const elapsedVisibleMs = [ElementStatus.PENDING, ElementStatus.EXPOSED].includes(state.state)
+            ? state.elapsedVisibleMs + (entry.time - state.lastObservationTs)
+            : state.elapsedVisibleMs;
+          elementsState.set(
+            entry.target,
+            patchState(
+              {
+                state: ElementStatus.PENDING,
+                lastObservationTs: entry.time,
+                elapsedVisibleMs,
+              },
+              state
+            )
+          );
+
+          if (shouldTrackExpose(config, entry)) {
+            if (config.expose.minTimeMillis <= state.elapsedVisibleMs) {
+              elementsState.set(
+                entry.target,
+                patchState(
+                  {
+                    state: ElementStatus.EXPOSED,
+                    lastObservationTs: entry.time,
+                    elapsedVisibleMs,
+                  },
+                  state
+                )
+              );
+              trackEvent(Events.ELEMENT_EXPOSE, config, entry.target, {
+                boundingRect: entry.boundingClientRect,
+                position,
+                matches: siblings.length,
+              });
+            } else {
+              requestAnimationFrame(() => {
+                // check visibility time next frame
+                observer.unobserve(entry.target); // observe is no-op for already observed elements
+                observer.observe(entry.target);
+              });
+            }
           }
-          config.state = ConfigurationState.EXPOSED;
-        } else if (config.state !== ConfigurationState.DESTROYED) {
-          if (config.obscure) {
-            trackEvent(Events.ELEMENT_OBSCURE, config, {
-              element: entry.target,
+        } else if (state.state !== ElementStatus.DESTROYED) {
+          if (state.state === ElementStatus.EXPOSED) {
+            trackEvent(Events.ELEMENT_OBSCURE, config, entry.target, {
               boundingRect: entry.boundingClientRect,
               position,
               matches: siblings.length,
             });
           }
 
-          config.state = ConfigurationState.OBSCURED;
+          elementsState.set(
+            entry.target,
+            patchState(
+              {
+                state: ElementStatus.OBSCURED,
+                lastObservationTs: entry.time,
+              },
+              state
+            )
+          );
         }
       }
     });
   });
-}
-
-function buildContentTree(config: Configuration, element: Element, parentPosition: number = 1): ElementContentEntity[] {
-  const context: ElementContentEntity[] = [];
-  if (element && config.contents.length) {
-    config.contents.forEach((contentConfig) => {
-      const contents = Array.from(element.querySelectorAll(contentConfig.selector));
-
-      contents.forEach((contentElement, i) => {
-        context.push({
-          schema: Entities.ELEMENT_CONTENT,
-          data: {
-            name: contentConfig.name,
-            parent_name: config.name,
-            parent_position: parentPosition,
-            position: i + 1,
-            attributes: extractSelectorDetails(contentElement, contentConfig.selector, contentConfig.details),
-          },
-        });
-
-        context.push(...buildContentTree(contentConfig, contentElement, i + 1));
-      });
-    });
-  }
-
-  return context;
-}
-
-function nodeIsElement(node: Node): node is Element {
-  return node.nodeType === Node.ELEMENT_NODE;
 }
