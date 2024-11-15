@@ -38,6 +38,7 @@
       <div class="oncreate" data-example="from dataset"><span>This is: </span>Some text content</div>
       <a href="/">A link</a>
       <div class="mutatetest">This div will change</div>
+      <shadow-host></shadow-host>
 
       <div class="recommendations">
         <h2>Recommended for You</h2>
@@ -58,6 +59,23 @@
           <li>Item H</li>
         </ul>
       </div>
+
+      <script>
+        window.customElements.define(
+          'shadow-host',
+          class extends HTMLElement {
+            connectedCallback() {
+              const b = document.createElement('button');
+              b.type = 'button';
+              b.className = 'shadow';
+              b.textContent = 'Shadow';
+
+              const shadowRoot = this.attachShadow({ mode: 'open' });
+              shadowRoot.appendChild(b);
+            }
+          }
+        );
+      </script>
 
       <script>
         snowplow('newTracker', 'sp', 'http://localhost:9090', {});
@@ -119,6 +137,12 @@
                   contents: { name: 'recommendation_image', selector: 'img', details: { attributes: ['alt'] } },
                 },
               ],
+            },
+            {
+              name: 'shadow',
+              selector: 'button.shadow',
+              shadowSelector: 'shadow-host', // elements within custom components or shadow hosts require their hosts to be specified
+              shadowOnly: true, // if the selector could erroneously catch elements outside your shadow hosts, you can restrict it to only match in shadows; by default it will match elements in and out of shadow hosts if they match the selector
             },
           ],
         });

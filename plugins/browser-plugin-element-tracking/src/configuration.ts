@@ -35,6 +35,8 @@ type ExposeOptions = BaseOptions & {
 export type ElementConfiguration = {
   name?: string;
   selector: string;
+  shadowSelector?: string;
+  shadowOnly?: boolean;
   create?: boolean | BaseOptions;
   destroy?: boolean | BaseOptions;
   expose?: boolean | ExposeOptions;
@@ -47,7 +49,7 @@ export type ElementConfiguration = {
 };
 
 export type Configuration = Omit<
-  RequiredExcept<ElementConfiguration, 'id'>,
+  RequiredExcept<ElementConfiguration, 'id' | 'shadowSelector'>,
   'create' | 'destroy' | 'expose' | 'obscure' | 'details' | 'contents'
 > & {
   trackers?: string[];
@@ -70,7 +72,7 @@ export function checkConfig(
   contextProvider: ContextProvider,
   trackers?: string[]
 ): Configuration {
-  const { selector, name = selector, id, component = false } = config;
+  const { selector, name = selector, shadowSelector, shadowOnly = false, id, component = false } = config;
 
   if (typeof name !== 'string' || !name) throw new Error(`Invalid element name value: ${name}`);
   if (typeof selector !== 'string' || !selector) throw new Error(`Invalid element selector value: ${selector}`);
@@ -158,6 +160,8 @@ export function checkConfig(
     name,
     selector,
     id,
+    shadowSelector,
+    shadowOnly,
     create: validCreate,
     destroy: validDestroy,
     expose: validExpose,

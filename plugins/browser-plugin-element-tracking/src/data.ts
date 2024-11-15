@@ -1,6 +1,7 @@
 import type { Configuration } from './configuration';
 import { ElementContentEntity, ElementDetailsEntity, Entities } from './schemata';
 import { AttributeList } from './types';
+import { getMatchingElements } from './util';
 
 export type DataSelector =
   | ((element: Element) => Record<string, any>)
@@ -114,7 +115,7 @@ export function evaluateDataSelector(
   if (source in selector && typeof selector[source] === 'object' && selector[source]) {
     Object.entries(selector[source]).forEach(([attribute, selector]) => {
       try {
-        const child = element.querySelector(selector);
+        const child = element.querySelector(selector) || element.shadowRoot?.querySelector(selector);
         if (child && child.textContent) result.push({ source, attribute, value: child.textContent });
       } catch (e) {}
     });
@@ -130,9 +131,10 @@ export function evaluateDataSelector(
           return;
         }
 
-      if (element.textContent) {
+      const innerText = element.textContent || element.shadowRoot?.textContent;
+      if (innerText) {
         try {
-          const match = pattern.exec(element.textContent);
+          const match = pattern.exec(innerText);
           if (match) {
             result.push({ source, attribute, value: match.length > 1 ? match[1] : match[0] });
           }
@@ -168,7 +170,7 @@ export function buildContentTree(
   const context: ElementContentEntity[] = [];
   if (element && config.contents.length) {
     config.contents.forEach((contentConfig) => {
-      const contents = Array.from(element.querySelectorAll(contentConfig.selector));
+      const contents = getMatchingElements(contentConfig, element);
 
       contents.forEach((contentElement, i) => {
         context.push({

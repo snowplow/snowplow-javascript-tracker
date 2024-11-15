@@ -1,6 +1,4 @@
-export function nodeIsElement(node: Node): node is Element {
-  return node.nodeType === Node.ELEMENT_NODE;
-}
+import { Configuration } from './configuration';
 
 export function defineBoundaries(boundaryPixels: number | [number, number] | [number, number, number, number]) {
   let boundTop: number, boundRight: number, boundBottom: number, boundLeft: number;
@@ -20,4 +18,23 @@ export function defineBoundaries(boundaryPixels: number | [number, number] | [nu
   }
 
   return { boundTop, boundRight, boundBottom, boundLeft };
+}
+
+export function getMatchingElements(
+  { selector, shadowOnly, shadowSelector }: Configuration,
+  target: ParentNode = document
+) {
+  const elements: Element[] = shadowOnly ? [] : Array.from(target.querySelectorAll(selector));
+
+  if (shadowSelector) {
+    Array.from(target.querySelectorAll(shadowSelector), (host) => {
+      if (host.shadowRoot) elements.push(...Array.from(host.shadowRoot.querySelectorAll(selector)));
+    });
+  }
+
+  return elements;
+}
+
+export function nodeIsElement(node: Node): node is Element {
+  return node.nodeType === Node.ELEMENT_NODE;
 }
