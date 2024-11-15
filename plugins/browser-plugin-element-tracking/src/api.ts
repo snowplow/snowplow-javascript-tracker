@@ -18,7 +18,7 @@ import { buildContentTree, evaluateDataSelector, getElementDetails } from './dat
 import { ElementStatus, elementsState, patchState } from './elementsState';
 import { ComponentsEntity, ElementDetailsEntity, Entity, Events, Event } from './schemata';
 import type { OneOrMany } from './types';
-import { defineBoundaries, nodeIsElement } from './util';
+import { defineBoundaries, getMatchingElements, nodeIsElement } from './util';
 
 type ElementTrackingConfiguration = {
   context?: ContextProvider;
@@ -155,13 +155,13 @@ export function startElementTracking(
   });
 
   configurations.forEach((config) => {
-    const { expose, obscure, selector, state } = config;
+    const { expose, obscure, state } = config;
     if (state === ConfigurationState.INITIAL) {
       config.state = ConfigurationState.CONFIGURED;
 
-      const elements = document.querySelectorAll(selector);
+      const elements = getMatchingElements(config);
 
-      Array.from(elements, (element, i) => {
+      elements.forEach((element, i) => {
         elementsState.set(
           element,
           patchState({
@@ -403,7 +403,7 @@ function intersectionCallback(entries: IntersectionObserverEntry[], observer: In
     const state = elementsState.get(entry.target) ?? patchState({});
     configurations.forEach((config) => {
       if (entry.target.matches(config.selector)) {
-        const siblings = Array.from(document.querySelectorAll(config.selector));
+        const siblings = getMatchingElements(config);
         const position = siblings.findIndex((el) => el.isSameNode(entry.target)) + 1;
         if (entry.isIntersecting) {
           const elapsedVisibleMs = [ElementStatus.PENDING, ElementStatus.EXPOSED].includes(state.state)
