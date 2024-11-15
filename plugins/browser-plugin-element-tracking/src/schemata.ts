@@ -56,8 +56,9 @@ export type ElementContentEntity = SDJ<
   {
     parent_name: string;
     parent_position: number;
-    name: string;
+    element_name: string;
     position: number;
+    // TODO(jethron): matching_children?
     attributes?: AttributeList;
   }
 >;
@@ -72,13 +73,14 @@ export type ElementDetailsEntity = SDJ<
     position_y: number;
     position?: number;
     matches?: number;
-    attributes: AttributeList;
+    attributes?: AttributeList;
   }
 >;
 
 export type ComponentsEntity = SDJ<
   Entities.COMPONENT_PARENTS,
   {
+    element_name?: string;
     component_list: string[];
   }
 >;

@@ -25,13 +25,22 @@
         'snowplow'
       );
     </script>
-    <style></style>
+    <style>
+      body {
+        min-height: 200vh;
+        display: flex;
+        flex-flow: column nowrap;
+        justify-content: space-between;
+      }
+    </style>
 
     <body>
-      <div class="oncreate" data-example="from dataset">Some text content</div>
+      <div class="oncreate" data-example="from dataset"><span>This is: </span>Some text content</div>
       <a href="/">A link</a>
+      <div class="mutatetest">This div will change</div>
 
       <div class="recommendations">
+        <h2>Recommended for You</h2>
         <ul>
           <li>Item A<img alt="A" src="" /></li>
           <li>Item B<img alt="B" src="" /></li>
@@ -41,6 +50,7 @@
       </div>
 
       <div class="recommendations second-set">
+        <h2>Others also liked:</h2>
         <ul>
           <li>Item E</li>
           <li>Item F</li>
@@ -73,18 +83,33 @@
                 { attributes: ['class'] }, // attributes: get the static/default attributes originally defined on the element
                 { properties: ['className'] }, // properties: get the dynamic/current attributes defined on the element
                 { dataset: ['example'] }, // dataset: extract values from dataset attributes
+                { child_text: { heading: 'h2' } }, // child_text: for each given name:selector pair, extract the textContent of the first child matching selector, if it has text content use that value with the given name
                 { selector: true }, // selector: attach the matching CSS selector as an attribute; useful if you're using logical names but want to differentiate
                 { content: { textType: /text (\S+)/ } }, //content (map of regex patterns to match text against, first capture group used if detected)
               ],
+            },
+            {
+              selector: '.mutatetest.toggled',
+              name: 'mutated div',
+              create: true,
+              destroy: true,
+              expose: false,
+              obscure: false,
             },
             { selector: 'body', expose: false, component: true }, // expose is true by default; component means the name/selector is attached to the component_parents entity list for other events
             {
               name: 'recommendations',
               selector: '.recommendations',
-              expose: true,
+              expose: {
+                // expose has more options than the other events:
+                minTimeMillis: 5000, // cumulative time in milliseconds that each matching element should be visible for before considered exposed
+                minPercentage: 0, // the minimum percentage of the element's area that should be visible before considering exposed; range 0.0 - 1.0
+                minSize: 0, // the minimum size the element should be before being considered expose; this can be used to ignore elements with 0 size
+                boundaryPixels: 0, // arbitrary margins to apply to the element when calculating minPercentage; can be a number to apply to all sides, 2-element array to specify vertical and horizontal, or 4-element array to specify margins for each size individually
+              },
               obscure: true,
               component: true,
-              details: { attributes: ['class'] },
+              details: { child_text: ['h2'] },
               contents: [
                 // content information can be extracted
                 {
@@ -98,10 +123,12 @@
           ],
         });
 
-        snowplow('getComponentListGenerator', function (componentGenerator) {
+        snowplow('getComponentListGenerator', function (componentGenerator, componentGeneratorWithDetail) {
           // access a context generator aware of the startElementTracking configuration "components"
           snowplow('enableLinkClickTracking', { context: [componentGenerator] });
           snowplow('enableFormTracking', { context: [componentGenerator] });
+
+          // componentGeneratorWithDetail will also populate element_detail entities for each component, but may not be directly compatible with the above APIs
         });
         snowplow('trackPageView');
       </script>

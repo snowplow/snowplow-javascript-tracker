@@ -1,3 +1,5 @@
+import type { Configuration } from './configuration';
+import { ElementContentEntity, ElementDetailsEntity, Entities } from './schemata';
 import { AttributeList } from './types';
 
 export type DataSelector =
@@ -7,6 +9,7 @@ export type DataSelector =
   | { dataset: string[] }
   | { selector: boolean }
   | { content: Record<string, string | RegExp> }
+  | { child_text: Record<string, string> }
   | { match: Record<string, string> };
 
 /**
@@ -23,7 +26,7 @@ export function isDataSelector(val: unknown): val is DataSelector {
       : Exclude<T[number], K>
     : Exclude<K, T[number]>;
 
-  const knownKeys = ['match', 'content', 'selector', 'dataset', 'attributes', 'properties'] as const;
+  const knownKeys = ['match', 'content', 'selector', 'dataset', 'attributes', 'properties', 'child_text'] as const;
   const selectorKeys: AllOf<KeysOf<DataSelector>, typeof knownKeys> = knownKeys; // type error if we add a new selector without updating knownKeys
 
   if (typeof val === 'object') return selectorKeys.some((key) => key in val);
@@ -42,7 +45,11 @@ export function extractSelectorDetails(element: Element, path: string, selectors
   }, []);
 }
 
-function evaluateDataSelector(element: HTMLElement | Element, path: string, selector: DataSelector): AttributeList {
+export function evaluateDataSelector(
+  element: HTMLElement | Element,
+  path: string,
+  selector: DataSelector
+): AttributeList {
   const result: AttributeList = [];
 
   type DataSelectorType<T = DataSelector> = (T extends T ? keyof T : never) | 'callback';
@@ -103,6 +110,16 @@ function evaluateDataSelector(element: HTMLElement | Element, path: string, sele
     });
   }
 
+  source = 'child_text';
+  if (source in selector && typeof selector[source] === 'object' && selector[source]) {
+    Object.entries(selector[source]).forEach(([attribute, selector]) => {
+      try {
+        const child = element.querySelector(selector);
+        if (child && child.textContent) result.push({ source, attribute, value: child.textContent });
+      } catch (e) {}
+    });
+  }
+
   source = 'content';
   if (source in selector && typeof selector[source] === 'object' && selector[source]) {
     Object.entries(selector[source]).forEach(([attribute, pattern]) => {
@@ -131,5 +148,66 @@ function evaluateDataSelector(element: HTMLElement | Element, path: string, sele
     result.push({ source, attribute: source, value: path });
   }
 
+  source = 'match';
+  if (source in selector && selector[source]) {
+    const condition = selector[source];
+
+    for (const [attribute, value] of Object.entries(condition)) {
+      if (!result.some((r) => r.attribute === attribute && r.value === value)) return [];
+    }
+  }
+
   return result;
+}
+
+export function buildContentTree(
+  config: Configuration,
+  element: Element,
+  parentPosition: number = 1
+): ElementContentEntity[] {
+  const context: ElementContentEntity[] = [];
+  if (element && config.contents.length) {
+    config.contents.forEach((contentConfig) => {
+      const contents = Array.from(element.querySelectorAll(contentConfig.selector));
+
+      contents.forEach((contentElement, i) => {
+        context.push({
+          schema: Entities.ELEMENT_CONTENT,
+          data: {
+            element_name: contentConfig.name,
+            parent_name: config.name,
+            parent_position: parentPosition,
+            position: i + 1,
+            attributes: extractSelectorDetails(contentElement, contentConfig.selector, contentConfig.details),
+          },
+        });
+
+        context.push(...buildContentTree(contentConfig, contentElement, i + 1));
+      });
+    });
+  }
+
+  return context;
+}
+
+export function getElementDetails(
+  config: Configuration,
+  element: Element,
+  rect: DOMRect = element.getBoundingClientRect(),
+  position?: number,
+  matches?: number
+): ElementDetailsEntity {
+  return {
+    schema: Entities.ELEMENT_DETAILS,
+    data: {
+      element_name: config.name,
+      width: rect.width,
+      height: rect.height,
+      position_x: rect.x,
+      position_y: rect.y,
+      position,
+      matches,
+      attributes: extractSelectorDetails(element, config.selector, config.details),
+    },
+  };
 }
