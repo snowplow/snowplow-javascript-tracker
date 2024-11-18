@@ -57,6 +57,15 @@ describe('Tracker API: ', () => {
     jest.clearAllMocks();
   });
 
+  it('Writes cookies synchronously on session change', () => {
+    const tracker = createTracker(undefined, undefined, false); // async cookie writes enabled
+
+    expect(cookieJar).toContain('_sp_ses');
+
+    tracker?.newSession();
+    expect(cookieJar).toContain(tracker?.getDomainUserInfo().slice(1).join('.'));
+  });
+
   it('Sets initial domain session index on first session', () => {
     const tracker = createTracker();
 

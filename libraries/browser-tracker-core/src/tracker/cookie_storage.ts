@@ -44,6 +44,11 @@ export interface CookieStorage {
    * @param secure - Boolean to specify if cookie should be secure
    */
   deleteCookie(name: string, path?: string, domainName?: string, sameSite?: string, secure?: boolean): void;
+
+  /**
+   * Write all pending cookies.
+   */
+  flush(): void;
 }
 
 export interface AsyncCookieStorage extends CookieStorage {
@@ -51,11 +56,6 @@ export interface AsyncCookieStorage extends CookieStorage {
    * Clear the cookie storage cache (does not delete any cookies)
    */
   clearCache(): void;
-
-  /**
-   * Write all pending cookies.
-   */
-  flush(): void;
 }
 
 interface Cookie {
@@ -203,5 +203,6 @@ export const syncCookieStorage: CookieStorage = {
     cookie(name, value, ttl, path, domain, samesite, secure);
     return document.cookie.indexOf(`${name}=`) !== -1;
   },
-  deleteCookie
+  deleteCookie,
+  flush: () => {},
 };
