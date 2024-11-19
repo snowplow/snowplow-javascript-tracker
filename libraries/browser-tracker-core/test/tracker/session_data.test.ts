@@ -35,7 +35,7 @@ jest.spyOn(uuid, 'v4').mockReturnValue(MOCK_UUID);
 
 import { createTestIdCookie, createTestSessionIdCookie, createTracker } from '../helpers';
 
-jest.useFakeTimers('modern');
+jest.useFakeTimers();
 
 describe('Tracker API: ', () => {
   let cookieJar: string;

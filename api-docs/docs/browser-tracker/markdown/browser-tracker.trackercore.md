@@ -27,6 +27,7 @@ interface TrackerCore
 |  [addPayloadDict(dict)](./browser-tracker.trackercore.addpayloaddict.md) | Merges a dictionary into payloadPairs |
 |  [addPlugin(configuration)](./browser-tracker.trackercore.addplugin.md) | Add a plugin into the plugin collection after Core has already been initialised |
 |  [clearGlobalContexts()](./browser-tracker.trackercore.clearglobalcontexts.md) | Removes all global contexts |
+|  [deactivate()](./browser-tracker.trackercore.deactivate.md) | Deactivate tracker core including all plugins. This is useful for cleaning up resources or listeners that have been created. Once deactivated, the tracker won't be able to track any events. |
 |  [getBase64Encoding()](./browser-tracker.trackercore.getbase64encoding.md) | Get current base64 encoding state |
 |  [removeGlobalContexts(contexts)](./browser-tracker.trackercore.removeglobalcontexts.md) | Removes previously added global context, performs a deep comparison of the contexts or conditional contexts |
 |  [resetPayloadPairs(dict)](./browser-tracker.trackercore.resetpayloadpairs.md) | Replace payloadPairs with a new dictionary |

@@ -371,6 +371,12 @@
       "reviewCategory": "trackers",
       "versionPolicyName": "tracker"
     },
+    {
+      "packageName": "@snowplow/react-native-tracker",
+      "projectFolder": "trackers/react-native-tracker",
+      "reviewCategory": "trackers",
+      "versionPolicyName": "tracker"
+    },
 
     {
       "packageName": "@snowplow/tracker-core",
