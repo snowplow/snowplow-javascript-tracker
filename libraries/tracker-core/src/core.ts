@@ -158,6 +158,13 @@ export interface TrackerCore {
   addPayloadPair: (key: string, value: unknown) => void;
 
   /**
+   * Deactivate tracker core including all plugins.
+   * This is useful for cleaning up resources or listeners that have been created.
+   * Once deactivated, the tracker won't be able to track any events.
+   */
+  deactivate(): void;
+
+  /**
    * Get current base64 encoding state
    */
   getBase64Encoding(): boolean;
@@ -387,6 +394,11 @@ export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore 
       context?: Array<SelfDescribingJson<C>> | null,
       timestamp?: Timestamp | null
     ): Payload | undefined {
+      if (!active) {
+        LOG.error('Track called on deactivated tracker');
+        return undefined;
+      }
+
       pb.withJsonProcessor(payloadJsonProcessor(encodeBase64));
       pb.add('eid', uuid());
       pb.addDict(payloadPairs);
@@ -539,6 +551,7 @@ export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore 
     return core;
   }
 
+  let active = true;
   const { base64, corePlugins, callback } = configuration,
     plugins = corePlugins ?? [],
     partialCore = newCore(base64 ?? true, plugins, callback),
@@ -550,6 +563,13 @@ export function trackerCore(configuration: CoreConfiguration = {}): TrackerCore 
         plugin.logger?.(LOG);
         plugin.activateCorePlugin?.(core);
       },
+      deactivate: () => {
+        plugins.forEach((plugin) => {
+          plugin.deactivatePlugin?.(core);
+        });
+        plugins.length = 0;
+        active = false;
+      }
     };
 
   plugins?.forEach((plugin) => {
