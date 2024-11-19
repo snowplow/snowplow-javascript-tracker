@@ -75,6 +75,12 @@ jobs:
           api-extractor run
           api-documenter markdown --input-folder temp --output-folder docs/markdown
 
+      - name: Create API documentation for @snowplow/react-native-tracker
+        working-directory: ./trackers/react-native-tracker
+        run: |
+          api-extractor run
+          api-documenter markdown --input-folder temp --output-folder docs/markdown
+
       - name: Rush Publish
         run: node common/scripts/install-run-rush.js publish --apply --include-all --publish --tag next --set-access-level public --ignore-git-hooks
 

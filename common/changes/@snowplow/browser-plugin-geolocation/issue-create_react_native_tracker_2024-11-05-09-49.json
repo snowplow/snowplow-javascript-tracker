@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-geolocation",
+      "comment": "",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-geolocation"
+}

@@ -22,7 +22,7 @@ describe('Cross-domain linking: ', () => {
   const standardDate = new Date(2023, 1, 1);
 
   beforeAll(() => {
-    jest.useFakeTimers('modern');
+    jest.useFakeTimers();
     jest.setSystemTime(standardDate);
   });
 

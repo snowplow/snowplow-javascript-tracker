@@ -70,6 +70,10 @@ function compare(result: Payload, expected: Payload, t: ExecutionContext) {
   t.deepEqual(result, expected);
 }
 
+test.before(() => {
+  console.error = () => {}; // Silence console.error globally
+});
+
 test('tracker.track API should return the eid attribute', (t) => {
   const pageUrl = 'http://www.example.com';
   const pageTitle = 'title page';
@@ -1033,4 +1037,48 @@ test('filter is passed full payload including dynamic context', (t) => {
   );
 
   t.assert(countTracked === 1);
+});
+
+test('doesnt track any events on deactivated tracker', (t) => {
+  let countTracked = 0;
+  const tracker = trackerCore({
+    corePlugins: [
+      {
+        afterTrack: () => {
+          countTracked += 1;
+        },
+      },
+    ],
+  });
+
+  tracker.deactivate();
+
+  t.falsy(
+    tracker.track(
+      buildPageView({
+        pageUrl: 'http://www.example.com',
+        pageTitle: 'title page',
+        referrer: 'https://www.google.com',
+      })
+    )
+  );
+
+  t.assert(countTracked === 0);
+});
+
+test('deactivates plugins on deactivated tracker', (t) => {
+  let pluginDeactivated = false;
+  const tracker = trackerCore({
+    corePlugins: [
+      {
+        deactivatePlugin: () => {
+          pluginDeactivated = true;
+        }
+      },
+    ],
+  });
+
+  tracker.deactivate();
+
+  t.assert(pluginDeactivated);
 });

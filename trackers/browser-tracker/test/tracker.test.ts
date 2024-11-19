@@ -32,7 +32,7 @@ import { SharedState, addTracker, EventStore, Payload } from '@snowplow/browser-
 import F from 'lodash/fp';
 import { newInMemoryEventStore } from '@snowplow/tracker-core';
 
-jest.useFakeTimers('modern');
+jest.useFakeTimers();
 
 const getPPEvents: (events: readonly Payload[]) => Payload[] = (events) => {
   return events.filter((payload) => payload.e === 'pp');

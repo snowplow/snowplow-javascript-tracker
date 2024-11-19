@@ -50,6 +50,10 @@ jobs:
         working-directory: ./trackers/node-tracker
         run: api-extractor run
 
+      - name: Check for API changes to @snowplow/react-native-tracker
+        working-directory: ./trackers/react-native-tracker
+        run: api-extractor run
+
       - name: Check bundle size using bundlemon
         run: npx bundlemon@1.4.0
         env:

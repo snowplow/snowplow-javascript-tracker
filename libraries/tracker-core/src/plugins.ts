@@ -44,6 +44,11 @@ export interface CorePlugin {
    */
   activateCorePlugin?: (core: TrackerCore) => void;
   /**
+   * Called when the tracker is being destroyed.
+   * Should be used to clean up any resources or listeners that the plugin has created.
+   */
+  deactivatePlugin?: (core: TrackerCore) => void;
+  /**
    * Called before the `filter` method is called and before the trackerCore callback fires (if the filter passes)
    * @param payloadBuilder - The payloadBuilder which will be sent to the callback, can be modified
    */

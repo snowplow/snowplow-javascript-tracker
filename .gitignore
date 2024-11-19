@@ -67,6 +67,7 @@ common/autoinstallers/*/.npmrc
 # API Extractor
 trackers/browser-tracker/temp/
 trackers/node-tracker/temp/
+trackers/react-native-tracker/temp/
 
 # Distribution files
 dist

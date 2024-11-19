@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-link-click-tracking",
+      "comment": "",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-link-click-tracking"
+}
