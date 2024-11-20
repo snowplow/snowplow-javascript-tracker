@@ -1,6 +1,13 @@
 # Change Log - @snowplow/javascript-tracker
 
-This log was last generated on Mon, 11 Nov 2024 15:46:34 GMT and should not be manually modified.
+This log was last generated on Wed, 20 Nov 2024 09:30:31 GMT and should not be manually modified.
+
+## 4.0.3
+Wed, 20 Nov 2024 09:30:31 GMT
+
+### Updates
+
+- Serialize new session cookie synchronously to avoid overlapping sessions (#1381)
 
 ## 4.0.2
 Mon, 11 Nov 2024 15:46:34 GMT

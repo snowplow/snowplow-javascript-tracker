@@ -2,6 +2,12 @@
   "name": "@snowplow/browser-plugin-enhanced-ecommerce",
   "entries": [
     {
+      "version": "4.0.3",
+      "tag": "@snowplow/browser-plugin-enhanced-ecommerce_v4.0.3",
+      "date": "Wed, 20 Nov 2024 09:30:31 GMT",
+      "comments": {}
+    },
+    {
       "version": "4.0.2",
       "tag": "@snowplow/browser-plugin-enhanced-ecommerce_v4.0.2",
       "date": "Mon, 11 Nov 2024 15:46:33 GMT",

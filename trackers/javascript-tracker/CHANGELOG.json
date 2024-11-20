@@ -2,6 +2,18 @@
   "name": "@snowplow/javascript-tracker",
   "entries": [
     {
+      "version": "4.0.3",
+      "tag": "@snowplow/javascript-tracker_v4.0.3",
+      "date": "Wed, 20 Nov 2024 09:30:31 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Serialize new session cookie synchronously to avoid overlapping sessions (#1381)"
+          }
+        ]
+      }
+    },
+    {
       "version": "4.0.2",
       "tag": "@snowplow/javascript-tracker_v4.0.2",
       "date": "Mon, 11 Nov 2024 15:46:34 GMT",
