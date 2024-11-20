@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Cookies iframe test page</title>
+  </head>
+  <body>
+    <div id="init"></div>
+    <div id="cookies"></div>
+    <script>
+      (function (p, l, o, w, i, n, g) {
+        if (!p[i]) {
+          p.GlobalSnowplowNamespace = p.GlobalSnowplowNamespace || [];
+          p.GlobalSnowplowNamespace.push(i);
+          p[i] = function () {
+            (p[i].q = p[i].q || []).push(arguments);
+          };
+          p[i].q = p[i].q || [];
+          n = l.createElement(o);
+          g = l.getElementsByTagName(o)[0];
+          n.async = 1;
+          n.src = w;
+          g.parentNode.insertBefore(n, g);
+        }
+      })(window, document, 'script', '../snowplow.js', 'snowplow');
+
+      var testIdentifier = document.cookie.split('testIdentifier=')[1].split(';')[0].trim();
+      var collector_endpoint = document.cookie.split('container=')[1].split(';')[0];
+
+      snowplow('newTracker', 'sp0', collector_endpoint, {
+        appId: 'cookies-iframe-' + testIdentifier,
+        cookieName: testIdentifier,
+        cookieSecure: false,
+      });
+      snowplow('trackPageView');
+
+      snowplow(function () {
+        document.getElementById('init').innerText = 'true';
+      });
+
+      setTimeout(function () {
+        document.getElementById('cookies').innerText = document.cookie;
+      }, 3000); // Wait 3 seconds so sp3 cookies expires
+    </script>
+  </body>
+</html>

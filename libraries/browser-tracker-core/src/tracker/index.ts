@@ -701,6 +701,11 @@ export function Tracker(
         // Update currentVisitTs
         updateNowTsInIdCookie(idCookie);
         setDomainUserIdCookie(idCookie);
+
+        if (!eventIndexFromIdCookie(idCookie)) {
+          // Synchronously update the cookies to persist the new session ASAP
+          cookieStorage.flush();
+        }
       }
     }
 
@@ -920,6 +925,9 @@ export function Tracker(
               onSessionUpdateCallback &&
               !manualSessionUpdateCalled
             ) {
+              // Synchronously update the cookies to persist the new session ASAP
+              cookieStorage.flush();
+
               onSessionUpdateCallback(clientSession);
               manualSessionUpdateCalled = false;
             }
@@ -969,6 +977,10 @@ export function Tracker(
         const clientSession = clientSessionFromIdCookie(idCookie, configStateStorageStrategy, configAnonymousTracking);
         setDomainUserIdCookie(idCookie);
         const sessionIdentifierPersisted = setSessionCookie();
+
+        // Synchronously update the cookies to persist the new session ASAP
+        cookieStorage.flush();
+
         if (sessionIdentifierPersisted && onSessionUpdateCallback) {
           manualSessionUpdateCalled = true;
           onSessionUpdateCallback(clientSession);

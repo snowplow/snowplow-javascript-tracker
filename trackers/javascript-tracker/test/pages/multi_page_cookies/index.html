@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Cookies test page</title>
+</head>
+
+<body>
+  <script>
+    for (let i = 0; i < 15; i++) {
+      const iframe = document.createElement('iframe');
+      iframe.src = `/multi_page_cookies/iframe.html`;
+      iframe.width = "600";
+      iframe.height = "400";
+      iframe.style.margin = "10px";
+      document.body.appendChild(iframe);
+    }
+  </script>
+</body>
+
+</html>
