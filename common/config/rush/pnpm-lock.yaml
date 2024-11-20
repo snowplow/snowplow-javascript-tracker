@@ -2241,8 +2241,8 @@ importers:
         specifier: 4.1.2
         version: 4.1.2
       chromedriver:
-        specifier: ~129.0.0
-        version: 129.0.4
+        specifier: ~131.0.0
+        version: 131.0.0
       dockerode:
         specifier: ~3.3.1
         version: 3.3.5
@@ -2299,7 +2299,7 @@ importers:
         version: 4.6.4
       wdio-chromedriver-service:
         specifier: ~8.1.1
-        version: 8.1.1(@wdio/types@8.39.0)(chromedriver@129.0.4)(webdriverio@8.39.1(encoding@0.1.13)(typescript@4.6.4))
+        version: 8.1.1(@wdio/types@8.39.0)(chromedriver@131.0.0)(webdriverio@8.39.1(encoding@0.1.13)(typescript@4.6.4))
       wdio-edgedriver-service:
         specifier: ~3.0.3
         version: 3.0.3(@wdio/types@8.39.0)
@@ -3604,8 +3604,8 @@ packages:
     resolution: {integrity: sha512-bIomtDF5KGpdogkLd9VspvFzk9KfpyyGlS8YFVZl7TGPBHL5snIOnxeshwVgPteQ9b4Eydl+pVbIyE1DcvCWgQ==}
     engines: {node: '>=10'}
 
-  chromedriver@129.0.4:
-    resolution: {integrity: sha512-j5I55cQwodFJUaYa1tWUmj2ss9KcPRBWmUa5Qonq3X8kqv2ASPyTboFYb4YB/YLztkYTUUw2E43txXw0wYzT/A==}
+  chromedriver@131.0.0:
+    resolution: {integrity: sha512-ukYmdCox2eRsjpCYUB4AOLV1fSfWQ1ZPfcUc0PIUWZKoyjyXKEl8i4DJ14bcNzNbEvaVx2Z2pnx/nLK2CM+ruQ==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -9185,7 +9185,7 @@ snapshots:
 
   chownr@2.0.0: {}
 
-  chromedriver@129.0.4:
+  chromedriver@131.0.0:
     dependencies:
       '@testim/chrome-version': 1.1.4
       axios: 1.7.7
@@ -13367,7 +13367,7 @@ snapshots:
     dependencies:
       defaults: 1.0.4
 
-  wdio-chromedriver-service@8.1.1(@wdio/types@8.39.0)(chromedriver@129.0.4)(webdriverio@8.39.1(encoding@0.1.13)(typescript@4.6.4)):
+  wdio-chromedriver-service@8.1.1(@wdio/types@8.39.0)(chromedriver@131.0.0)(webdriverio@8.39.1(encoding@0.1.13)(typescript@4.6.4)):
     dependencies:
       '@wdio/logger': 8.38.0
       fs-extra: 11.2.0
@@ -13376,7 +13376,7 @@ snapshots:
       webdriverio: 8.39.1(encoding@0.1.13)(typescript@4.6.4)
     optionalDependencies:
       '@wdio/types': 8.39.0
-      chromedriver: 129.0.4
+      chromedriver: 131.0.0
     transitivePeerDependencies:
       - supports-color
 
