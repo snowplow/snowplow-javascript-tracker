@@ -12,6 +12,7 @@ import {
   SubjectConfiguration,
   TrackerConfiguration,
 } from './types';
+import { newSessionPlugin } from './plugins/session';
 
 const initializedTrackers: Record<string, { tracker: ReactNativeTracker; core: TrackerCore }> = {};
 
@@ -40,6 +41,9 @@ export async function newTracker(
   const subject = newSubject(core, configuration);
   core.addPlugin(subject.subjectPlugin);
 
+  const sessionPlugin = await newSessionPlugin(configuration);
+  core.addPlugin(sessionPlugin);
+
   core.setPlatform('mob'); // default platform
   core.setTrackerVersion('rn-' + version);
   core.setTrackerNamespace(namespace);
@@ -47,7 +51,7 @@ export async function newTracker(
     core.setAppId(appId);
   }
 
-  const tracker = {
+  const tracker: ReactNativeTracker = {
     ...newTrackEventFunctions(core),
     ...subject.properties,
     setAppId: core.setAppId,
@@ -57,6 +61,10 @@ export async function newTracker(
     removeGlobalContexts: core.removeGlobalContexts,
     clearGlobalContexts: core.clearGlobalContexts,
     addPlugin: core.addPlugin,
+    getSessionId: sessionPlugin.getSessionId,
+    getSessionIndex: sessionPlugin.getSessionIndex,
+    getSessionUserId: sessionPlugin.getSessionUserId,
+    getSessionState: sessionPlugin.getSessionState,
   };
   initializedTrackers[namespace] = { tracker, core };
   return tracker;

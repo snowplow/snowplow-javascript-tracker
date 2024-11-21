@@ -334,6 +334,44 @@ export type DeepLinkReceivedProps = {
 };
 
 /**
+ * Current session state that is tracked in events.
+ */
+export interface SessionState {
+  /**
+   * An identifier for the user of the session
+   */
+  userId: string;
+  /**
+   * An identifier for the session
+   */
+  sessionId: string;
+  /**
+   * The index of the current session for this user
+   */
+  sessionIndex: number;
+  /**
+   * Optional index of the current event in the session
+   */
+  eventIndex?: number;
+  /**
+   * The previous session identifier for this user
+   */
+  previousSessionId?: string;
+  /**
+   * The mechanism that the session information has been stored on the device
+   */
+  storageMechanism: string;
+  /**
+   * The optional identifier of the first event for this session
+   */
+  firstEventId?: string;
+  /**
+   * Optional date-time timestamp of when the first event in the session was tracked
+   */
+  firstEventTimestamp?: string;
+}
+
+/**
  * The ReactNativeTracker type
  */
 export type ReactNativeTracker = {
@@ -542,29 +580,33 @@ export type ReactNativeTracker = {
    */
   readonly setSubjectData: (config: SubjectConfiguration) => void;
 
-  // TODO:
-  // /**
-  //  * Gets the identifier for the user of the session
-  //  *
-  //  * @returns {Promise<string | undefined>}
-  //  */
-  // readonly getSessionUserId: () => Promise<string | undefined>;
+  /**
+   * Gets the identifier for the user of the session
+   *
+   * @returns {Promise<string | undefined>}
+   */
+  readonly getSessionUserId: () => Promise<string | undefined>;
 
-  // TODO:
-  // /**
-  //  * Gets the identifier for the session
-  //  *
-  //  * @returns {Promise<string | undefined>}
-  //  */
-  // readonly getSessionId: () => Promise<string | undefined>;
+  /**
+   * Gets the identifier for the session
+   *
+   * @returns {Promise<string | undefined>}
+   */
+  readonly getSessionId: () => Promise<string | undefined>;
 
-  // TODO:
-  // /**
-  //  * Gets the index of the current session for this user
-  //  *
-  //  * @returns {Promise<number | undefined>}
-  //  */
-  // readonly getSessionIndex: () => Promise<number | undefined>;
+  /**
+   * Gets the index of the current session for this user
+   *
+   * @returns {Promise<number | undefined>}
+   */
+  readonly getSessionIndex: () => Promise<number | undefined>;
+
+  /**
+   * Gets the current session state
+   *
+   * @returns {Promise<SessionState | undefined>}
+   */
+  readonly getSessionState: () => Promise<SessionState | undefined>;
 
   // TODO:
   // /**
