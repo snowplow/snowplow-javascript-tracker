@@ -342,6 +342,26 @@ describe('LinkClickTrackingPlugin', () => {
 
       expect(await eventStore.getAllPayloads()).toHaveLength(1);
     });
+
+    it('tracks a single link click with each tracker', async () => {
+      addTracker('sp2', 'sp2', 'js-3.0.0', '', new SharedState(), {
+        stateStorageStrategy: 'cookie',
+        encodeBase64: false,
+        plugins: [LinkClickTrackingPlugin()],
+        eventStore,
+        customFetch: async () => new Response(null, { status: 500 }),
+      });
+
+      enableLinkClickTracking();
+
+      const target = document.createElement('a');
+      target.href = 'https://www.example.com/exists';
+      document.body.appendChild(target);
+
+      target.click();
+
+      expect(await eventStore.getAllPayloads()).toHaveLength(2);
+    });
   });
 
   describe('disableLinkClickTracking', () => {
@@ -351,7 +371,7 @@ describe('LinkClickTrackingPlugin', () => {
 
       const addCalls = $addEventListener.mock.calls;
 
-      expect(addCalls).toHaveLength(1);
+      expect(addCalls).toHaveLength(2);
       expect($removeEventListener.mock.calls).toContainEqual(addCalls[0]);
     });
   });
