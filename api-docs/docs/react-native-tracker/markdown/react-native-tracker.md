@@ -41,6 +41,7 @@
 |  [PayloadBuilder](./react-native-tracker.payloadbuilder.md) | Interface for mutable object encapsulating tracker payload |
 |  [RuleSet](./react-native-tracker.ruleset.md) | A ruleset has accept or reject properties that contain rules for matching Iglu schema URIs |
 |  [SessionConfiguration](./react-native-tracker.sessionconfiguration.md) | Configuration for session tracking |
+|  [SessionState](./react-native-tracker.sessionstate.md) | Current session state that is tracked in events. |
 |  [StructuredEvent](./react-native-tracker.structuredevent.md) | A Structured Event A classic style of event tracking, allows for easier movement between analytics systems. A loosely typed event, creating a Self Describing event is preferred, but useful for interoperability. |
 |  [SubjectConfiguration](./react-native-tracker.subjectconfiguration.md) | Configuration of subject properties tracked with events |
 |  [TrackerConfiguration](./react-native-tracker.trackerconfiguration.md) | The configuration object for initialising the tracker |

@@ -582,22 +582,16 @@ export type ReactNativeTracker = {
 
   /**
    * Gets the identifier for the user of the session
-   *
-   * @returns {Promise<string | undefined>}
    */
   readonly getSessionUserId: () => Promise<string | undefined>;
 
   /**
    * Gets the identifier for the session
-   *
-   * @returns {Promise<string | undefined>}
    */
   readonly getSessionId: () => Promise<string | undefined>;
 
   /**
    * Gets the index of the current session for this user
-   *
-   * @returns {Promise<number | undefined>}
    */
   readonly getSessionIndex: () => Promise<number | undefined>;
 

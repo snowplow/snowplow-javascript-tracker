@@ -33,7 +33,11 @@ export declare type ReactNativeTracker = {
     readonly setScreenViewport: (newView: ScreenSize) => void;
     readonly setColorDepth: (newLang: number) => void;
     readonly setSubjectData: (config: SubjectConfiguration) => void;
+    readonly getSessionUserId: () => Promise<string | undefined>;
+    readonly getSessionId: () => Promise<string | undefined>;
+    readonly getSessionIndex: () => Promise<number | undefined>;
+    readonly getSessionState: () => Promise<SessionState | undefined>;
 };
 ```
-<b>References:</b> [EventContext](./react-native-tracker.eventcontext.md)<!-- -->, [TimingProps](./react-native-tracker.timingprops.md)<!-- -->, [MessageNotificationProps](./react-native-tracker.messagenotificationprops.md)<!-- -->, [ScreenSize](./react-native-tracker.screensize.md)<!-- -->, [SubjectConfiguration](./react-native-tracker.subjectconfiguration.md)
+<b>References:</b> [EventContext](./react-native-tracker.eventcontext.md)<!-- -->, [TimingProps](./react-native-tracker.timingprops.md)<!-- -->, [MessageNotificationProps](./react-native-tracker.messagenotificationprops.md)<!-- -->, [ScreenSize](./react-native-tracker.screensize.md)<!-- -->, [SubjectConfiguration](./react-native-tracker.subjectconfiguration.md)<!-- -->, [SessionState](./react-native-tracker.sessionstate.md)
 
