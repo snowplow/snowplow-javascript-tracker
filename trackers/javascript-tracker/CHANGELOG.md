@@ -1,6 +1,11 @@
 # Change Log - @snowplow/javascript-tracker
 
-This log was last generated on Wed, 20 Nov 2024 09:30:31 GMT and should not be manually modified.
+This log was last generated on Thu, 21 Nov 2024 09:06:36 GMT and should not be manually modified.
+
+## 4.0.4
+Thu, 21 Nov 2024 09:06:36 GMT
+
+_Version update only_
 
 ## 4.0.3
 Wed, 20 Nov 2024 09:30:31 GMT

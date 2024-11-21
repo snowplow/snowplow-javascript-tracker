@@ -2,6 +2,18 @@
   "name": "@snowplow/browser-plugin-link-click-tracking",
   "entries": [
     {
+      "version": "4.0.4",
+      "tag": "@snowplow/browser-plugin-link-click-tracking_v4.0.4",
+      "date": "Thu, 21 Nov 2024 09:06:36 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fix multiple link click events tracked for a single tracker in case multiple trackers are initialized on the page (#1384)"
+          }
+        ]
+      }
+    },
+    {
       "version": "4.0.3",
       "tag": "@snowplow/browser-plugin-link-click-tracking_v4.0.3",
       "date": "Wed, 20 Nov 2024 09:30:31 GMT",

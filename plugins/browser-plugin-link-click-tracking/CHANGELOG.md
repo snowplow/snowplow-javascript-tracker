@@ -1,6 +1,13 @@
 # Change Log - @snowplow/browser-plugin-link-click-tracking
 
-This log was last generated on Wed, 20 Nov 2024 09:30:31 GMT and should not be manually modified.
+This log was last generated on Thu, 21 Nov 2024 09:06:36 GMT and should not be manually modified.
+
+## 4.0.4
+Thu, 21 Nov 2024 09:06:36 GMT
+
+### Updates
+
+- Fix multiple link click events tracked for a single tracker in case multiple trackers are initialized on the page (#1384)
 
 ## 4.0.3
 Wed, 20 Nov 2024 09:30:31 GMT
