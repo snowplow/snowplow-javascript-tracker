@@ -597,8 +597,6 @@ export type ReactNativeTracker = {
 
   /**
    * Gets the current session state
-   *
-   * @returns {Promise<SessionState | undefined>}
    */
   readonly getSessionState: () => Promise<SessionState | undefined>;
 
