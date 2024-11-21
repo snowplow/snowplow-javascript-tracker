@@ -45,6 +45,13 @@ async function resumeStoredSession(namespace: string): Promise<SessionState> {
   }
 }
 
+/**
+ * Creates a new session plugin for tracking the session information.
+ * The plugin will add the session context to all events and start a new session if the current one has timed out.
+ * 
+ * The session state is stored in AsyncStorage.
+ * Each restart of the app or creation of a new tracker instance will trigger a new session with reference to the previous session.
+ */
 export async function newSessionPlugin({
   namespace,
   foregroundSessionTimeout,
