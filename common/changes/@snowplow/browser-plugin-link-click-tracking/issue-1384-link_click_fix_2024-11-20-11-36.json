@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-link-click-tracking",
+      "comment": "Fix multiple link click events tracked for a single tracker in case multiple trackers are initialized on the page (#1384)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-link-click-tracking"
+}
