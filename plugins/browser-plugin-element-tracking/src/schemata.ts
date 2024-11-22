@@ -58,7 +58,6 @@ export type ElementContentEntity = SDJ<
     parent_position: number;
     element_name: string;
     position: number;
-    // TODO(jethron): matching_children?
     attributes?: AttributeList;
   }
 >;
