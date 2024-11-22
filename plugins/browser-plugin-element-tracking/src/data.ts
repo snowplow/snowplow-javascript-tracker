@@ -1,8 +1,24 @@
+import { SelfDescribingJson } from '@snowplow/tracker-core';
 import type { Configuration } from './configuration';
 import { ElementContentEntity, ElementDetailsEntity, Entities } from './schemata';
 import { AttributeList } from './types';
 import { getMatchingElements } from './util';
 
+/**
+ * A DataSelector defines information to extract from an element.
+ *
+ * It can be a custom function returning arbitrary key/values as an object. Non-string values will be cast to string or cast to JSON strings. If exceptions are thrown, the error information is captured.
+ * Alternatively there are several declarative options that can be specified as object properties.
+ *
+ * The properties allowed are:
+ * - attributes: Return the values of a list of attributes of the element
+ * - properties: Return the values of a list of property names of the element's DOM node; this is similar to attributes in some cases but different in others. E.g. `class` as an attribute needs to be `className` as a property; some attributes will reflect their initial value rather than what has been updated via JavaScript
+ * - dataset: Return the values of a list of data-* attributes; uses the camelCase name rather than the kebab-case name of the attribute
+ * - selector: Specify `true` to attach the CSS selector used to match the element; can be used to differentiate elements with the same `name`
+ * - content: Provide an object mapping names to RegExp patterns to run on the element's text content. If it matches it is included. The first group in the pattern will be prioritized if specified.
+ * - child_text: Provide an object mapping names to CSS selectors; the selectors are evaluated against the element and the first matching element's text content is the value.
+ * - match: Logical operator for use when used as a condition; always evaluated last. Look at existing matches so far, comparing each key/value to the provided object. Alternatively supply a predicate function that determines if this matches or not. If there are no matches, discard any matches found to this point.
+ */
 export type DataSelector =
   | ((element: Element) => Record<string, any>)
   | { attributes: string[] }
@@ -11,7 +27,7 @@ export type DataSelector =
   | { selector: boolean }
   | { content: Record<string, string | RegExp> }
   | { child_text: Record<string, string> }
-  | { match: Record<string, string> };
+  | { match: Record<string, string | ((val: string) => boolean)> };
 
 /**
  * Type guard to determine if `val` is a valid `DataSelector` function or descriptor
@@ -34,18 +50,32 @@ export function isDataSelector(val: unknown): val is DataSelector {
   return false;
 }
 
+/**
+ * Combine the results of an array of DataSelectors
+ * @param element Element to select data from
+ * @param path The CSS path used to select `element`, which may be requested by the `selector`
+ * @param selectors The list of DataSelectors to evaluate
+ * @returns
+ */
 export function extractSelectorDetails(element: Element, path: string, selectors: DataSelector[]): AttributeList {
   return selectors.reduce((attributes: AttributeList, selector) => {
     const result = evaluateDataSelector(element, path, selector);
 
     if (result.length) {
       return attributes.concat(result);
-    }
+    } else if ('match' in selector) return [];
 
     return attributes;
   }, []);
 }
 
+/**
+ * Combine the results of an array of DataSelectors
+ * @param element Element to select data from
+ * @param path The CSS path used to select `element`, which may be requested by the `selector` DataSelector type
+ * @param selector The single DataSelector to evaluate
+ * @returns Selector results; list of key/value/source triplets that were extracted from the element
+ */
 export function evaluateDataSelector(
   element: HTMLElement | Element,
   path: string,
@@ -155,19 +185,32 @@ export function evaluateDataSelector(
     const condition = selector[source];
 
     for (const [attribute, value] of Object.entries(condition)) {
-      if (!result.some((r) => r.attribute === attribute && r.value === value)) return [];
+      if (
+        !result.some(
+          (r) => r.attribute === attribute && (typeof value === 'function' ? value(r.value) : r.value === value)
+        )
+      )
+        return [];
     }
   }
 
   return result;
 }
 
+/**
+ * Builds a flat list of `element_content` entities describing the matched element and any child configuration matches.
+ * @param config A root/branch element configuration with nested `contents` configurations.
+ * @param element The element that matched `config` that will be (and have its children) described.
+ * @param parentPosition The position of this element amongst its matching sibling elements. Used to de-flatten the tree at analysis time.
+ * @returns A list of `element_content` entities describing the elements and its content, and the same of its children.
+ */
 export function buildContentTree(
   config: Configuration,
   element: Element,
   parentPosition: number = 1
-): ElementContentEntity[] {
-  const context: ElementContentEntity[] = [];
+): (ElementContentEntity | SelfDescribingJson)[] {
+  const context: (ElementContentEntity | SelfDescribingJson)[] = [];
+
   if (element && config.contents.length) {
     config.contents.forEach((contentConfig) => {
       const contents = getMatchingElements(contentConfig, element);
@@ -184,6 +227,7 @@ export function buildContentTree(
           },
         });
 
+        context.push(...contentConfig.context(contentElement, contentConfig));
         context.push(...buildContentTree(contentConfig, contentElement, i + 1));
       });
     });
@@ -192,6 +236,15 @@ export function buildContentTree(
   return context;
 }
 
+/**
+ * Builds an `element` entity.
+ * @param config
+ * @param element
+ * @param rect
+ * @param position
+ * @param matches
+ * @returns
+ */
 export function getElementDetails(
   config: Configuration,
   element: Element,

@@ -20,15 +20,18 @@ export function defineBoundaries(boundaryPixels: number | [number, number] | [nu
   return { boundTop, boundRight, boundBottom, boundLeft };
 }
 
-export function getMatchingElements(
-  { selector, shadowOnly, shadowSelector }: Configuration,
-  target: ParentNode = document
-) {
+export function getMatchingElements(config: Configuration, target: ParentNode = document) {
+  const { selector, shadowOnly, shadowSelector } = config;
   const elements: Element[] = shadowOnly ? [] : Array.from(target.querySelectorAll(selector));
 
   if (shadowSelector) {
     Array.from(target.querySelectorAll(shadowSelector), (host) => {
-      if (host.shadowRoot) elements.push(...Array.from(host.shadowRoot.querySelectorAll(selector)));
+      if (host.shadowRoot) {
+        // these will have been skipped in the above check but should be included if we're recursing
+        if (shadowOnly) elements.push(...Array.from(host.shadowRoot.querySelectorAll(selector)));
+        // look for nested shadow elements
+        elements.push(...getMatchingElements(config, host.shadowRoot));
+      }
     });
   }
 
