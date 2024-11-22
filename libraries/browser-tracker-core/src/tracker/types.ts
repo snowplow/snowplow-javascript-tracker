@@ -118,6 +118,12 @@ export type TrackerConfiguration = {
   /** The app id to send with each event */
   appId?: string;
   /**
+   * Version of the application tracked as a context entity with all events.
+   * Can be a semver-like structure (e.g 1.1.0) or a Git commit SHA hash.
+   * Entity schema: iglu:com.snowplowanalytics.snowplow/application/jsonschema/1-0-0
+   */
+  appVersion?: string;
+  /**
    * The platform the event is being sent from
    * @defaultValue web
    */

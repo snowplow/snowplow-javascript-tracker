@@ -523,6 +523,7 @@ export type TrackerConfiguration = {
     cookieLifetime?: number;
     sessionCookieTimeout?: number;
     appId?: string;
+    appVersion?: string;
     platform?: Platform;
     respectDoNotTrack?: boolean;
     crossDomainLinker?: (elt: HTMLAnchorElement | HTMLAreaElement) => boolean;
