@@ -127,6 +127,10 @@
       "allowedCategories": [ "trackers" ]
     },
     {
+      "name": "@snowplow/browser-plugin-screen-tracking",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "@snowplow/browser-plugin-site-tracking",
       "allowedCategories": [ "trackers" ]
     },

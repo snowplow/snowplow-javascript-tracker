@@ -10,7 +10,11 @@ The ReactNativeTracker type
 
 ```typescript
 export declare type ReactNativeTracker = {
+    namespace: string;
     readonly trackSelfDescribingEvent: <T extends Record<string, unknown> = Record<string, unknown>>(argmap: SelfDescribingJson<T>, contexts?: EventContext[]) => void;
+    readonly trackScreenViewEvent: (argmap: ScreenViewProps, contexts?: EventContext[]) => void;
+    readonly trackScrollChangedEvent: (argmap: ScrollChangedProps, contexts?: EventContext[]) => void;
+    readonly trackListItemViewEvent: (argmap: ListItemViewProps, contexts?: EventContext[]) => void;
     readonly trackStructuredEvent: (argmap: StructuredEvent, contexts?: EventContext[]) => void;
     readonly trackPageViewEvent: (argmap: PageViewEvent, contexts?: EventContext[]) => void;
     readonly trackTimingEvent: (argmap: TimingProps, contexts?: EventContext[]) => void;
@@ -18,7 +22,7 @@ export declare type ReactNativeTracker = {
     addGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive> | Record<string, ConditionalContextProvider | ContextPrimitive>): void;
     clearGlobalContexts(): void;
     removeGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive | string>): void;
-    addPlugin(configuration: CorePluginConfiguration): void;
+    addPlugin(configuration: BrowserPluginConfiguration): void;
     flush: () => Promise<void>;
     readonly setAppId: (appId: string) => void;
     readonly setPlatform: (value: string) => void;
@@ -39,5 +43,5 @@ export declare type ReactNativeTracker = {
     readonly getSessionState: () => Promise<SessionState | undefined>;
 };
 ```
-<b>References:</b> [EventContext](./react-native-tracker.eventcontext.md)<!-- -->, [TimingProps](./react-native-tracker.timingprops.md)<!-- -->, [MessageNotificationProps](./react-native-tracker.messagenotificationprops.md)<!-- -->, [ScreenSize](./react-native-tracker.screensize.md)<!-- -->, [SubjectConfiguration](./react-native-tracker.subjectconfiguration.md)<!-- -->, [SessionState](./react-native-tracker.sessionstate.md)
+<b>References:</b> [EventContext](./react-native-tracker.eventcontext.md)<!-- -->, [ScreenViewProps](./react-native-tracker.screenviewprops.md)<!-- -->, [ScrollChangedProps](./react-native-tracker.scrollchangedprops.md)<!-- -->, [ListItemViewProps](./react-native-tracker.listitemviewprops.md)<!-- -->, [TimingProps](./react-native-tracker.timingprops.md)<!-- -->, [MessageNotificationProps](./react-native-tracker.messagenotificationprops.md)<!-- -->, [ScreenSize](./react-native-tracker.screensize.md)<!-- -->, [SubjectConfiguration](./react-native-tracker.subjectconfiguration.md)<!-- -->, [SessionState](./react-native-tracker.sessionstate.md)
 

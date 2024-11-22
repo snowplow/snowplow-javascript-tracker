@@ -4,15 +4,21 @@ import { newEmitter } from '@snowplow/tracker-core';
 import { newReactNativeEventStore } from './event_store';
 import { newTrackEventFunctions } from './events';
 import { newSubject } from './subject';
+import { ScreenTrackingConfiguration, ScreenTrackingPlugin, trackListItemView, trackScreenView, trackScrollChanged } from '@snowplow/browser-plugin-screen-tracking';
 
 import {
+  EventContext,
   EventStoreConfiguration,
+  ListItemViewProps,
   ReactNativeTracker,
+  ScreenViewProps,
+  ScrollChangedProps,
   SessionConfiguration,
   SubjectConfiguration,
   TrackerConfiguration,
 } from './types';
 import { newSessionPlugin } from './plugins/session';
+import { newPlugins } from './plugins';
 
 const initializedTrackers: Record<string, { tracker: ReactNativeTracker; core: TrackerCore }> = {};
 
@@ -26,7 +32,8 @@ export async function newTracker(
     EmitterConfiguration &
     SessionConfiguration &
     SubjectConfiguration &
-    EventStoreConfiguration
+    EventStoreConfiguration &
+    ScreenTrackingConfiguration
 ): Promise<ReactNativeTracker> {
   const { namespace, appId, encodeBase64 = false } = configuration;
   if (configuration.eventStore === undefined) {
@@ -37,13 +44,8 @@ export async function newTracker(
   const callback = (payload: PayloadBuilder): void => {
     emitter.input(payload.build());
   };
+
   const core = trackerCore({ base64: encodeBase64, callback });
-  const subject = newSubject(core, configuration);
-  core.addPlugin(subject.subjectPlugin);
-
-  const sessionPlugin = await newSessionPlugin(configuration);
-  core.addPlugin(sessionPlugin);
-
   core.setPlatform('mob'); // default platform
   core.setTrackerVersion('rn-' + version);
   core.setTrackerNamespace(namespace);
@@ -51,22 +53,61 @@ export async function newTracker(
     core.setAppId(appId);
   }
 
+  const { addPlugin } = newPlugins(namespace, core);
+
+  const sessionPlugin = await newSessionPlugin(configuration);
+  addPlugin(sessionPlugin);
+
+  const subject = newSubject(core, configuration);
+  addPlugin(subject.subjectPlugin);
+
+  const screenPlugin = ScreenTrackingPlugin(configuration);
+  addPlugin({ plugin: screenPlugin });
+
+  (configuration.plugins ?? []).forEach((plugin) => addPlugin({ plugin }));
+
   const tracker: ReactNativeTracker = {
     ...newTrackEventFunctions(core),
     ...subject.properties,
+    namespace,
     setAppId: core.setAppId,
     setPlatform: core.setPlatform,
     flush: emitter.flush,
     addGlobalContexts: core.addGlobalContexts,
     removeGlobalContexts: core.removeGlobalContexts,
     clearGlobalContexts: core.clearGlobalContexts,
-    addPlugin: core.addPlugin,
     getSessionId: sessionPlugin.getSessionId,
     getSessionIndex: sessionPlugin.getSessionIndex,
     getSessionUserId: sessionPlugin.getSessionUserId,
     getSessionState: sessionPlugin.getSessionState,
+    addPlugin,
+    trackScreenViewEvent: (argmap: ScreenViewProps, context?: EventContext[]) =>
+      trackScreenView(
+        {
+          ...argmap,
+          context,
+        },
+        [namespace]
+      ),
+    trackScrollChangedEvent: (argmap: ScrollChangedProps, context?: EventContext[]) =>
+      trackScrollChanged(
+        {
+          ...argmap,
+          context,
+        },
+        [namespace]
+      ),
+    trackListItemViewEvent: (argmap: ListItemViewProps, context?: EventContext[]) =>
+      trackListItemView(
+        {
+          ...argmap,
+          context,
+        },
+        [namespace]
+      ),
   };
   initializedTrackers[namespace] = { tracker, core };
+
   return tracker;
 }
 
