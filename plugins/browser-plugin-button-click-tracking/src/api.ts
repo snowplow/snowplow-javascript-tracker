@@ -102,7 +102,7 @@ function eventHandler(event: MouseEvent, trackerId: string, filter: FilterFuncti
     if (elem instanceof HTMLButtonElement || (elem instanceof HTMLInputElement && elem.type === 'button')) {
       if (filter(elem)) {
         const buttonClickEvent = createEventFromButton(elem);
-        buttonClickEvent.context = resolveDynamicContext(context, buttonClickEvent);
+        buttonClickEvent.context = resolveDynamicContext(context, buttonClickEvent, elem);
         trackButtonClick(buttonClickEvent, [trackerId]);
       }
       // presume nested buttons aren't a thing
