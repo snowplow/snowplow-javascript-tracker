@@ -285,7 +285,7 @@ const detailedComponentGenerator = baseComponentGenerator.bind(null, true, confi
  *
  * If a `cb` function is provided, it is called with the above generators as parameters that it can use in asynchronous situations (such as the JavaScript tracker).
  *
- * @param cb
+ * @param cb Callback function to receive the generator callbacks described above asynchronously.
  * @returns Array of callbacks described above.
  */
 export function getComponentListGenerator(
