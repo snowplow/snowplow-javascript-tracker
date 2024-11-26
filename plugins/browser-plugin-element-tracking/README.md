@@ -30,15 +30,21 @@ npm install @snowplow/browser-plugin-element-tracking
 
 ## Usage
 
-Initialize your tracker with the SnowplowMediaPlugin:
+Initialize your tracker with the SnowplowElementTrackingPlugin and then call `startElementTracking`:
 
 ```js
 import { newTracker } from '@snowplow/browser-tracker';
-import { SnowplowElementTrackingPlugin } from '@snowplow/browser-plugin-element-tracking';
+import { SnowplowElementTrackingPlugin, startElementTracking } from '@snowplow/browser-plugin-element-tracking';
 
 newTracker('sp1', '{{collector_url}}', {
    appId: 'my-app-id',
    plugins: [ SnowplowElementTrackingPlugin() ],
+});
+
+startElementTracking({
+   elements: [
+      {selector: '.newsletter-signup'}
+   ]
 });
 ```
 

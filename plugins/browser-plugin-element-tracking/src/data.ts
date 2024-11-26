@@ -55,7 +55,7 @@ export function isDataSelector(val: unknown): val is DataSelector {
  * @param element Element to select data from
  * @param path The CSS path used to select `element`, which may be requested by the `selector`
  * @param selectors The list of DataSelectors to evaluate
- * @returns
+ * @returns Flattened list of results found processing the element.
  */
 export function extractSelectorDetails(element: Element, path: string, selectors: DataSelector[]): AttributeList {
   return selectors.reduce((attributes: AttributeList, selector) => {
@@ -238,12 +238,12 @@ export function buildContentTree(
 
 /**
  * Builds an `element` entity.
- * @param config
- * @param element
- * @param rect
- * @param position
- * @param matches
- * @returns
+ * @param config Configuration describing any additional data that should be included in the entity.
+ * @param element The elment this entity will describe.
+ * @param rect The position/dimension information of the element.
+ * @param position Which match this element is amongst those that match the Configuration's selector.
+ * @param matches The total number, including this one, of elements that matched the Configuration selector.
+ * @returns The Element entity SDJ.
  */
 export function getElementDetails(
   config: Configuration,
