@@ -149,11 +149,11 @@ const emptyProvider: ContextProvider = () => [];
  * @param context An existing ContextProvider to merge with future unknown context.
  * @returns New ContextProvider function that will produce the results of merging its own context with the provided `context`.
  */
-export function createContextMerger(context?: ContextProvider): ContextProvider {
+export function createContextMerger(batchContext?: ContextProvider, configContext?: ContextProvider): ContextProvider {
   return function contextMerger(element, config) {
     const result: SelfDescribingJson[] = [];
 
-    for (const contextSrc of [context, config.context]) {
+    for (const contextSrc of [batchContext, configContext]) {
       if (contextSrc) {
         if (typeof contextSrc === 'function') {
           if (contextSrc !== contextMerger) result.push(...contextSrc(element, config));
@@ -177,6 +177,9 @@ export function createContextMerger(context?: ContextProvider): ContextProvider 
 export function checkConfig(
   config: ElementConfiguration,
   contextProvider: ContextProvider,
+  intersectionPossible: boolean,
+  mutationPossible: boolean,
+  logger?: Logger,
   trackers?: string[]
 ): Configuration {
   const { selector, name = selector, shadowSelector, shadowOnly = false, id, component = false } = config;
@@ -209,6 +212,9 @@ export function checkConfig(
     }
     return DEFAULT_FREQUENCY_OPTIONS;
   });
+
+  if ((validCreate.when !== Frequency.NEVER || validDestroy.when !== Frequency.NEVER) && !mutationPossible)
+    logger?.warn('MutationObserver API unavailable but required for events in configuration:', config);
 
   let validExpose: RequiredExcept<ExposeOptions, 'condition'> | null = null;
 
@@ -262,6 +268,9 @@ export function checkConfig(
     };
   }
 
+  if ((validExpose.when !== Frequency.NEVER || validObscure.when !== Frequency.NEVER) && !intersectionPossible)
+    logger?.warn('IntersectionObserver API unavailable but required for events in configuration:', config);
+
   // normalize to arrays (scalars allowed in input for convenience)
   let { details = [], contents = [] } = config;
 
@@ -283,7 +292,9 @@ export function checkConfig(
     obscure: validObscure,
     component: !!component,
     details,
-    contents: contents.map((inner) => checkConfig(inner, inner.context ?? emptyProvider, trackers)),
+    contents: contents.map((inner) =>
+      checkConfig(inner, inner.context ?? emptyProvider, intersectionPossible, mutationPossible, logger, trackers)
+    ),
     context: typeof contextProvider === 'function' ? contextProvider : () => contextProvider,
     trackers,
     state: ConfigurationState.INITIAL,

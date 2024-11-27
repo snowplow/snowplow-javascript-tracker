@@ -66,7 +66,7 @@ describe('configuration parsing', () => {
       input: { selector: 'unnamed', contents: { selector: 'inner' } },
     },
   ])('accepts valid config: $note', ({ input, expected }) => {
-    const result = checkConfig(input, emptyMerger);
+    const result = checkConfig(input, emptyMerger, true, true);
     expect(result).toBeDefined();
     if (expected) expect(result).toMatchObject(expected);
   });
@@ -120,7 +120,7 @@ describe('configuration parsing', () => {
   ])('rejects invalid config: $note', ({ input }) => {
     expect.hasAssertions();
     try {
-      checkConfig(input, emptyMerger);
+      checkConfig(input, emptyMerger, true, true);
     } catch (e) {
       expect(e).toBeDefined();
     }
