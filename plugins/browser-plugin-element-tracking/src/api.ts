@@ -522,7 +522,7 @@ function intersectionCallback(entries: IntersectionObserverEntry[], observer: In
               // check visibility time next frame
               requestAnimationFrame(() => {
                 observer.unobserve(entry.target); // observe is no-op for already observed elements
-                observer.observe(entry.target);
+                observer.observe(entry.target); // for non-observed elements, it immediately generates an entry of current state
               });
             }
           }
