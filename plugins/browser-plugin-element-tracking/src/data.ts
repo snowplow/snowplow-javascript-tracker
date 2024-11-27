@@ -1,33 +1,9 @@
 import { SelfDescribingJson } from '@snowplow/tracker-core';
 import type { Configuration } from './configuration';
 import { ElementContentEntity, ElementDetailsEntity, Entities } from './schemata';
-import { AttributeList } from './types';
+import { AttributeList, type DataSelector } from './types';
 import { getMatchingElements } from './util';
 
-/**
- * A DataSelector defines information to extract from an element.
- *
- * It can be a custom function returning arbitrary key/values as an object. Non-string values will be cast to string or cast to JSON strings. If exceptions are thrown, the error information is captured.
- * Alternatively there are several declarative options that can be specified as object properties.
- *
- * The properties allowed are:
- * - attributes: Return the values of a list of attributes of the element
- * - properties: Return the values of a list of property names of the element's DOM node; this is similar to attributes in some cases but different in others. E.g. `class` as an attribute needs to be `className` as a property; some attributes will reflect their initial value rather than what has been updated via JavaScript
- * - dataset: Return the values of a list of data-* attributes; uses the camelCase name rather than the kebab-case name of the attribute
- * - selector: Specify `true` to attach the CSS selector used to match the element; can be used to differentiate elements with the same `name`
- * - content: Provide an object mapping names to RegExp patterns to run on the element's text content. If it matches it is included. The first group in the pattern will be prioritized if specified.
- * - child_text: Provide an object mapping names to CSS selectors; the selectors are evaluated against the element and the first matching element's text content is the value.
- * - match: Logical operator for use when used as a condition; always evaluated last. Look at existing matches so far, comparing each key/value to the provided object. Alternatively supply a predicate function that determines if this matches or not. If there are no matches, discard any matches found to this point.
- */
-export type DataSelector =
-  | ((element: Element) => Record<string, any>)
-  | { attributes: string[] }
-  | { properties: string[] }
-  | { dataset: string[] }
-  | { selector: boolean }
-  | { content: Record<string, string | RegExp> }
-  | { child_text: Record<string, string> }
-  | { match: Record<string, string | ((val: string) => boolean)> };
 
 /**
  * Type guard to determine if `val` is a valid `DataSelector` function or descriptor
