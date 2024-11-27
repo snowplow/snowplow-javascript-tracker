@@ -188,7 +188,9 @@ export function checkConfig(
   if (typeof name !== 'string' || !name) throw new Error(`Invalid element name value: ${name}`);
   if (typeof selector !== 'string' || !selector) throw new Error(`Invalid element selector value: ${selector}`);
 
-  document.querySelector(config.selector); // this will throw if selector invalid
+  // these will throw if selectors invalid
+  document.querySelector(selector);
+  if (shadowSelector) document.querySelector(shadowSelector);
 
   // event type frequencies & options
   const { create = false, destroy = false, expose = true, obscure = false } = config;
