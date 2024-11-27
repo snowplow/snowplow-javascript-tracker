@@ -4,7 +4,6 @@ import { ElementContentEntity, ElementDetailsEntity, Entities } from './schemata
 import { AttributeList, type DataSelector } from './types';
 import { getMatchingElements } from './util';
 
-
 /**
  * Type guard to determine if `val` is a valid `DataSelector` function or descriptor
  */

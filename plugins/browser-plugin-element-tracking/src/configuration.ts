@@ -18,7 +18,6 @@ export type ContextProvider =
   | SelfDescribingJson[]
   | ((element: Element | HTMLElement | undefined, match: Configuration) => SelfDescribingJson[]);
 
-
 /**
  * Options controlling when this type of event should occur.
  */
