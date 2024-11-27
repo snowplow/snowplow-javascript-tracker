@@ -161,14 +161,14 @@ export function startElementTracking(
   trackers?: Array<string>
 ): void {
   const elementConfigs = Array.isArray(elements) ? elements : [elements];
-  const merger = createContextMerger(context);
 
   // may have stopped observers via `endElementTracking`
   if (elementConfigs.length) setupObservers();
 
   elementConfigs.forEach((config) => {
     try {
-      const valid = checkConfig(config, merger, trackers);
+      const batchContext = createContextMerger(context, config.context);
+      const valid = checkConfig(config, batchContext, !!intersectionObserver, !!mutationObserver, LOG, trackers);
 
       // upsert by id if provided
       if (valid.id) {
