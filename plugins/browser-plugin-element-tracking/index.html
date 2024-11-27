@@ -80,9 +80,16 @@
 
       <script>
         snowplow('newTracker', 'sp', 'http://localhost:9090', {});
-        snowplow('addPlugin', 'dist/index.umd.js', ['snowplowElementTracking', 'SnowplowElementTrackingPlugin'], {
-          ignoreNextPageview: true,
-        }); // we assume the plugin is instantiated before the first pageview is tracked; set ignoreNextPageview to false if not the case. this only matters if you use `when: pageview` shown later; the pageview event that is seen will reset the pageview state so you might accidentally double-track
+        snowplow(
+          'addPlugin',
+          'dist/index.umd.js',
+          ['snowplowElementTracking', 'SnowplowElementTrackingPlugin'],
+          [
+            {
+              ignoreNextPageview: true,
+            },
+          ]
+        ); // we assume the plugin is instantiated before the first pageview is tracked; set ignoreNextPageview to false if not the case. this only matters if you use `when: pageview` shown later; the pageview event that is seen will reset the pageview state so you might accidentally double-track
       </script>
       <script>
         snowplow('startElementTracking', {
