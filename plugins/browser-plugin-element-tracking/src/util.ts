@@ -1,4 +1,5 @@
 import { Configuration } from './configuration';
+import { Frequency } from './types';
 
 /**
  * Parses custom boundaries config.
@@ -57,4 +58,28 @@ export function getMatchingElements(config: Configuration, target: ParentNode = 
  */
 export function nodeIsElement(node: Node): node is Element {
   return node.nodeType === Node.ELEMENT_NODE;
+}
+
+/**
+ * Evaluates whether the current intersection is eligible for firing an EXPOSE event against the given configuration.
+ * Mostly this handles "disabled" config (when: never), minimum size/intersection checks and custom boundaries.
+ */
+export function shouldTrackExpose(config: Configuration, entry: IntersectionObserverEntry): boolean {
+  if (config.expose.when === Frequency.NEVER) return false;
+  if (!entry.isIntersecting) return false;
+
+  const { boundaryPixels, minPercentage, minSize } = config.expose;
+
+  const { boundTop, boundRight, boundBottom, boundLeft } = defineBoundaries(boundaryPixels);
+
+  const { boundingClientRect } = entry;
+  if (boundingClientRect.height * boundingClientRect.width < minSize) return false;
+
+  const intersectionArea = entry.intersectionRect.height * entry.intersectionRect.width;
+  const boundingHeight = entry.boundingClientRect.height + boundTop + boundBottom;
+  const boundingWidth = entry.boundingClientRect.width + boundLeft + boundRight;
+  const boundingArea = boundingHeight * boundingWidth;
+  if (minPercentage > intersectionArea / boundingArea) return false;
+
+  return true;
 }

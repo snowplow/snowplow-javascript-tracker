@@ -8,7 +8,6 @@ import { type Logger, SelfDescribingJson, buildSelfDescribingEvent } from '@snow
 import { baseComponentGenerator } from './components';
 import {
   ConfigurationState,
-  Frequency,
   checkConfig,
   createContextMerger,
   type Configuration,
@@ -18,8 +17,8 @@ import {
 import { buildContentTree, evaluateDataSelector, getElementDetails } from './data';
 import { ElementStatus, elementsState, patchState } from './elementsState';
 import { ComponentsEntity, ElementDetailsEntity, Entity, Events, Event } from './schemata';
-import type { OneOrMany } from './types';
-import { defineBoundaries, getMatchingElements, nodeIsElement } from './util';
+import { Frequency, type OneOrMany } from './types';
+import { getMatchingElements, nodeIsElement, shouldTrackExpose } from './util';
 
 /**
  * Parameters for startElementTracking.
@@ -291,33 +290,6 @@ export function getComponentListGenerator(
 ): [typeof componentGenerator, typeof detailedComponentGenerator] {
   if (cb) cb(componentGenerator, detailedComponentGenerator);
   return [componentGenerator, detailedComponentGenerator];
-}
-
-/**
- * Evaluates whether the current intersection is eligible for firing an EXPOSE event against the given configuration.
- * Mostly this handles "disabled" config (when: never), minimum size/intersection checks and custom boundaries.
- */
-function shouldTrackExpose(config: Configuration, entry: IntersectionObserverEntry): boolean {
-  if (config.expose.when === Frequency.NEVER) return false;
-  if (!entry.isIntersecting) return false;
-
-  const { boundaryPixels, minPercentage, minSize } = config.expose;
-
-  const { boundTop, boundRight, boundBottom, boundLeft } = defineBoundaries(boundaryPixels);
-
-  const { intersectionRatio, boundingClientRect } = entry;
-  if (boundingClientRect.height * boundingClientRect.width < minSize) return false;
-  if (!(boundTop + boundRight + boundBottom + boundLeft)) {
-    if (minPercentage > intersectionRatio) return false;
-  } else {
-    const intersectionArea = entry.intersectionRect.height * entry.intersectionRect.width;
-    const boundingHeight = entry.boundingClientRect.height + boundTop + boundBottom;
-    const boundingWidth = entry.boundingClientRect.width + boundLeft + boundRight;
-    const boundingArea = boundingHeight * boundingWidth;
-    if (boundingArea && minPercentage > intersectionArea / boundingArea) return false;
-  }
-
-  return true;
 }
 
 /**

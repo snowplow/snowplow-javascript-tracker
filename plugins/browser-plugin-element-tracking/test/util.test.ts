@@ -1,5 +1,5 @@
-import { defineBoundaries, getMatchingElements, nodeIsElement } from '../src/util';
-import { Configuration } from '../src/configuration';
+import { defineBoundaries, getMatchingElements, nodeIsElement, shouldTrackExpose } from '../src/util';
+import type { Configuration } from '../src/configuration';
 
 const TEMPLATE_CONFIG: Configuration = {
   name: 'template',

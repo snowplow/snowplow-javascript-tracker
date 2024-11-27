@@ -1,4 +1,5 @@
-import { DataSelector, evaluateDataSelector, extractSelectorDetails, isDataSelector } from '../src/data';
+import { evaluateDataSelector, extractSelectorDetails, isDataSelector } from '../src/data';
+import type { DataSelector } from '../src/types';
 
 describe('DataSelector behavior', () => {
   const fake_selector = 'css_path_val';

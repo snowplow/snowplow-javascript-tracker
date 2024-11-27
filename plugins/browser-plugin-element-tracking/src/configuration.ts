@@ -1,7 +1,7 @@
-import type { SelfDescribingJson } from '@snowplow/tracker-core';
+import type { Logger, SelfDescribingJson } from '@snowplow/tracker-core';
 
-import { type DataSelector, isDataSelector } from './data';
-import type { OneOrMany, RequiredExcept } from './types';
+import { isDataSelector } from './data';
+import { type DataSelector, Frequency, type OneOrMany, type RequiredExcept } from './types';
 
 export enum ConfigurationState {
   INITIAL,
@@ -18,31 +18,6 @@ export type ContextProvider =
   | SelfDescribingJson[]
   | ((element: Element | HTMLElement | undefined, match: Configuration) => SelfDescribingJson[]);
 
-/**
- * When this type of event should actually be tracked after it has been detected.
- */
-export enum Frequency {
-  /**
-   * Track this event every time it occurs; e.g. EXPOSE every time it scrolls into/out of view.
-   */
-  ALWAYS = 'always',
-  /**
-   * Track this event at most once per element that matches the selector for the lifetime of the plugin.
-   */
-  ELEMENT = 'element',
-  /**
-   * Only track the event the first time it occurs per configuration. Even if other elements would trigger the event, ignore them after the first time it occurs.
-   */
-  ONCE = 'once',
-  /**
-   * Never track this event, effectively disabling a configuration.
-   */
-  NEVER = 'never',
-  /**
-   * Track each event only once per element until the next pageview is seen, allowing it to be tracked again. Mostly useful for Single Page Applications.
-   */
-  PAGEVIEW = 'pageview',
-}
 
 /**
  * Options controlling when this type of event should occur.
