@@ -109,19 +109,7 @@ export function SnowplowElementTrackingPlugin({ ignoreNextPageView = true } = {}
   return {
     activateBrowserPlugin(tracker) {
       trackers[tracker.id] = tracker;
-
-      if (!mutationObserver) {
-        mutationObserver = typeof MutationObserver === 'function' && new MutationObserver(mutationCallback);
-        if (mutationObserver)
-          mutationObserver.observe(document.documentElement, {
-            attributes: true,
-            childList: true,
-            subtree: true,
-          });
-      }
-      intersectionObserver =
-        intersectionObserver ||
-        (typeof IntersectionObserver === 'function' && new IntersectionObserver(intersectionCallback));
+      setupObservers();
     },
     afterTrack(payload) {
       if (payload['e'] === 'pv') {
@@ -142,6 +130,21 @@ export function SnowplowElementTrackingPlugin({ ignoreNextPageView = true } = {}
   };
 }
 
+function setupObservers() {
+  if (!mutationObserver) {
+    mutationObserver = typeof MutationObserver === 'function' && new MutationObserver(mutationCallback);
+    if (mutationObserver)
+      mutationObserver.observe(document.documentElement, {
+        attributes: true,
+        childList: true,
+        subtree: true,
+      });
+  }
+  intersectionObserver =
+    intersectionObserver ||
+    (typeof IntersectionObserver === 'function' && new IntersectionObserver(intersectionCallback));
+}
+
 /**
  * Start Element tracking for elements that match the given configuration(s).
  *
@@ -158,16 +161,11 @@ export function startElementTracking(
   { elements = [], context }: ElementTrackingConfiguration,
   trackers?: Array<string>
 ): void {
-  if (!mutationObserver || !intersectionObserver) {
-    LOG?.error('ElementTracking plugin requires both MutationObserver and IntersectionObserver APIs');
-    if (mutationObserver) mutationObserver.disconnect();
-    if (intersectionObserver) intersectionObserver.disconnect();
-    mutationObserver = intersectionObserver = false;
-    return;
-  }
-
   const elementConfigs = Array.isArray(elements) ? elements : [elements];
   const merger = createContextMerger(context);
+
+  // may have stopped observers via `endElementTracking`
+  if (elementConfigs.length) setupObservers();
 
   elementConfigs.forEach((config) => {
     try {
