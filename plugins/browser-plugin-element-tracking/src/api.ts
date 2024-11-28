@@ -327,7 +327,6 @@ function trackEvent<T extends Events>(
       element_name: config.name,
     },
   };
-  const event = buildSelfDescribingEvent({ event: payload });
 
   // check custom conditions
   const conditions = {
@@ -385,9 +384,10 @@ function trackEvent<T extends Events>(
   if (components) context.push(...components);
 
   // track the event
-  setTimeout(dispatchToTrackersInCollection, 0, config.trackers, trackers, (tracker: BrowserTracker) =>
-    tracker.core.track(event, context)
-  );
+  setTimeout(dispatchToTrackersInCollection, 0, config.trackers, trackers, (tracker: BrowserTracker) => {
+    const event = buildSelfDescribingEvent({ event: payload });
+    tracker.core.track(event, context);
+  });
 }
 
 /**
