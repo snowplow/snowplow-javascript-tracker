@@ -1,6 +1,11 @@
 # Change Log - @snowplow/browser-plugin-privacy-sandbox
 
-This log was last generated on Thu, 21 Nov 2024 09:06:36 GMT and should not be manually modified.
+This log was last generated on Thu, 28 Nov 2024 10:57:30 GMT and should not be manually modified.
+
+## 4.1.0
+Thu, 28 Nov 2024 10:57:30 GMT
+
+_Version update only_
 
 ## 4.0.4
 Thu, 21 Nov 2024 09:06:36 GMT
