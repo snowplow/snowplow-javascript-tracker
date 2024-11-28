@@ -8,8 +8,6 @@ import { AttributeList } from '../src/types';
  * Note: jsdom does not support IntersectionObserver so unit tests can only cover create/destroy events.
  *
  * https://github.com/jsdom/jsdom/issues/2032
- *
- * See integration tests in `trackers/javascript-tracker` for expose/obscure tests.
  */
 
 /**
@@ -56,6 +54,7 @@ const FAKE_CONTEXT_SCHEMA = 'iglu:com.example/custom_entity/jsonschema/1-0-0';
 
 describe('Element Tracking Plugin API', () => {
   let eventQueue: { evt: Record<string, string> }[];
+  let secondEventQueue: { evt: Record<string, string> }[];
   let warnLog: jest.SpyInstance<void, Parameters<Logger['warn']>>;
   let tracker: BrowserTracker;
 
@@ -75,8 +74,15 @@ describe('Element Tracking Plugin API', () => {
     expect(activateBrowserPlugin).toHaveBeenCalled();
     expect(logger).toHaveBeenCalledTimes(1);
 
+    addTracker('test2', 'test2', 'js-test', '', state, {
+      stateStorageStrategy: 'cookie',
+      encodeBase64: false,
+      plugins: [plugin],
+    });
+
     warnLog = jest.spyOn(logger.mock.calls[0][0], 'warn');
     eventQueue = state.outQueues[0] as any;
+    secondEventQueue = state.outQueues[1] as any;
   });
 
   afterEach(() => {
@@ -84,6 +90,7 @@ describe('Element Tracking Plugin API', () => {
     document.body.replaceChildren();
     warnLog.mockReset();
     eventQueue.length = 0;
+    secondEventQueue.length = 0;
   });
 
   describe('startElementTracking', () => {
@@ -111,7 +118,7 @@ describe('Element Tracking Plugin API', () => {
     });
 
     it('tracks element creation', () => {
-      startElementTracking({ elements: { selector: '.newelement', expose: false, create: true, destroy: true } });
+      startElementTracking({ elements: { selector: '.newelement', expose: false, create: true } });
 
       const div = document.createElement('div');
       div.classList.add('newelement');
@@ -393,6 +400,40 @@ describe('Element Tracking Plugin API', () => {
 
       return inNewTask(() => {
         expect(eventQueue).toHaveLength(1);
+      });
+    });
+  });
+
+  describe('multiple tracker', () => {
+    it('works with multiple trackers', () => {
+      startElementTracking({ elements: { selector: '.newelement', expose: false, create: true } });
+
+      const div = document.createElement('div');
+      div.classList.add('newelement');
+      document.body.appendChild(div);
+
+      return inNewTask(() => {
+        expect(eventQueue).toHaveLength(1);
+        expect(secondEventQueue).toHaveLength(1);
+        expect(unstructOf(eventQueue[0], 'create_element')).toBeDefined();
+        expect(unstructOf(secondEventQueue[0], 'create_element')).toBeDefined();
+        expect(entityOf(eventQueue[0], 'element')).toHaveLength(1);
+        expect(entityOf(secondEventQueue[0], 'element')).toHaveLength(1);
+      });
+    });
+
+    it('works with selective trackers', () => {
+      startElementTracking({ elements: { selector: '.newelement', expose: false, create: true } }, ['test']);
+
+      const div = document.createElement('div');
+      div.classList.add('newelement');
+      document.body.appendChild(div);
+
+      return inNewTask(() => {
+        expect(eventQueue).toHaveLength(1);
+        expect(secondEventQueue).toHaveLength(0);
+        expect(unstructOf(eventQueue[0], 'create_element')).toBeDefined();
+        expect(entityOf(eventQueue[0], 'element')).toHaveLength(1);
       });
     });
   });
