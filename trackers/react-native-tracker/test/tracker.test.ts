@@ -68,6 +68,30 @@ describe('Tracker', () => {
     expect(event.aid).toBe('my-app');
   });
 
+  it('tracks session along with events', async () => {
+    const tracker = await newTracker({
+      namespace: 'test',
+      appId: 'my-app',
+      endpoint: 'http://localhost:9090',
+      customFetch: mockFetch,
+    });
+    tracker.trackPageViewEvent({
+      pageUrl: 'http://localhost:9090',
+      pageTitle: 'Home',
+    });
+    await tracker.flush();
+    expect(requests.length).toBe(1);
+
+    const [request] = requests;
+    const payload = await request?.json();
+    expect(payload.data.length).toBe(1);
+    expect(payload.data[0].co).toContain('/client_session/');
+    expect(payload.data[0].co).toContain(await tracker.getSessionId());
+    expect(payload.data[0].co).toContain(await tracker.getSessionUserId());
+    expect(await tracker.getSessionId()).toBeDefined();
+    expect(await tracker.getSessionUserId()).toBeDefined();
+  });
+
   it('adds a tracker plugin', async () => {
     const tracker = await newTracker({
       namespace: 'test',
@@ -122,10 +146,9 @@ describe('Tracker', () => {
       const [event] = payload.data;
       expect(event.co).toBeDefined();
       const context = JSON.parse(event.co as string);
-      expect(context.data.length).toBe(1);
-      const [{ schema, data }] = context.data;
+      expect(context.data.length).toBeGreaterThanOrEqual(1);
+      const { data } = context.data.find((c: any) => c.schema === 'iglu:com.acme/user/jsonschema/1-0-0');
 
-      expect(schema).toBe('iglu:com.acme/user/jsonschema/1-0-0');
       expect(data.userType).toBe('tester');
     });
 
@@ -157,7 +180,7 @@ describe('Tracker', () => {
       expect(payload.data.length).toBe(1);
 
       const [event] = payload.data;
-      expect(event.co).toBeUndefined();
+      expect(event.co).not.toContain(context.schema);
     });
   });
 });
