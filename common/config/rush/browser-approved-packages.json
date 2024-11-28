@@ -212,7 +212,7 @@
     },
     {
       "name": "@types/uuid",
-      "allowedCategories": [ "libraries", "plugins" ]
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "@types/vimeo__player",
@@ -440,7 +440,7 @@
     },
     {
       "name": "uuid",
-      "allowedCategories": [ "libraries", "plugins" ]
+      "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
       "name": "wdio-chromedriver-service",

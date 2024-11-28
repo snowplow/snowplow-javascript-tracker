@@ -300,6 +300,10 @@ export type ReactNativeTracker = {
     readonly setScreenViewport: (newView: ScreenSize) => void;
     readonly setColorDepth: (newLang: number) => void;
     readonly setSubjectData: (config: SubjectConfiguration) => void;
+    readonly getSessionUserId: () => Promise<string | undefined>;
+    readonly getSessionId: () => Promise<string | undefined>;
+    readonly getSessionIndex: () => Promise<number | undefined>;
+    readonly getSessionState: () => Promise<SessionState | undefined>;
 };
 
 // @public
@@ -364,6 +368,18 @@ export type SelfDescribingJson<T = Record<string, unknown>> = {
 export interface SessionConfiguration {
     backgroundSessionTimeout?: number;
     foregroundSessionTimeout?: number;
+}
+
+// @public
+export interface SessionState {
+    eventIndex?: number;
+    firstEventId?: string;
+    firstEventTimestamp?: string;
+    previousSessionId?: string;
+    sessionId: string;
+    sessionIndex: number;
+    storageMechanism: string;
+    userId: string;
 }
 
 // @public
