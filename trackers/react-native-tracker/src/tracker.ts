@@ -4,12 +4,19 @@ import { newEmitter } from '@snowplow/tracker-core';
 import { newReactNativeEventStore } from './event_store';
 import { newTrackEventFunctions } from './events';
 import { newSubject } from './subject';
-import { ScreenTrackingConfiguration, ScreenTrackingPlugin, trackListItemView, trackScreenView, trackScrollChanged } from '@snowplow/browser-plugin-screen-tracking';
+import {
+  ScreenTrackingConfiguration,
+  ScreenTrackingPlugin,
+  trackListItemView,
+  trackScreenView,
+  trackScrollChanged,
+} from '@snowplow/browser-plugin-screen-tracking';
 
 import {
   EventContext,
   EventStoreConfiguration,
   ListItemViewProps,
+  PlatformContextConfiguration,
   ReactNativeTracker,
   ScreenViewProps,
   ScrollChangedProps,
@@ -19,6 +26,7 @@ import {
 } from './types';
 import { newSessionPlugin } from './plugins/session';
 import { newPlugins } from './plugins';
+import { newPlatformContextPlugin } from './plugins/platform_context';
 
 const initializedTrackers: Record<string, { tracker: ReactNativeTracker; core: TrackerCore }> = {};
 
@@ -33,7 +41,8 @@ export async function newTracker(
     SessionConfiguration &
     SubjectConfiguration &
     EventStoreConfiguration &
-    ScreenTrackingConfiguration
+    ScreenTrackingConfiguration &
+    PlatformContextConfiguration
 ): Promise<ReactNativeTracker> {
   const { namespace, appId, encodeBase64 = false } = configuration;
   if (configuration.eventStore === undefined) {
@@ -46,6 +55,7 @@ export async function newTracker(
   };
 
   const core = trackerCore({ base64: encodeBase64, callback });
+
   core.setPlatform('mob'); // default platform
   core.setTrackerVersion('rn-' + version);
   core.setTrackerNamespace(namespace);
@@ -64,6 +74,9 @@ export async function newTracker(
   const screenPlugin = ScreenTrackingPlugin(configuration);
   addPlugin({ plugin: screenPlugin });
 
+  const platformContextPlugin = await newPlatformContextPlugin(configuration);
+  addPlugin(platformContextPlugin);
+
   (configuration.plugins ?? []).forEach((plugin) => addPlugin({ plugin }));
 
   const tracker: ReactNativeTracker = {
@@ -76,6 +89,9 @@ export async function newTracker(
     addGlobalContexts: core.addGlobalContexts,
     removeGlobalContexts: core.removeGlobalContexts,
     clearGlobalContexts: core.clearGlobalContexts,
+    enablePlatformContext: platformContextPlugin.enablePlatformContext,
+    disablePlatformContext: platformContextPlugin.disablePlatformContext,
+    refreshPlatformContext: platformContextPlugin.refreshPlatformContext,
     getSessionId: sessionPlugin.getSessionId,
     getSessionIndex: sessionPlugin.getSessionIndex,
     getSessionUserId: sessionPlugin.getSessionUserId,

@@ -9,6 +9,7 @@
 |  Enumeration | Description |
 |  --- | --- |
 |  [LOG\_LEVEL](./react-native-tracker.log_level.md) |  |
+|  [PlatformContextProperty](./react-native-tracker.platformcontextproperty.md) |  |
 
 ## Functions
 
@@ -39,6 +40,8 @@
 |  [Logger](./react-native-tracker.logger.md) |  |
 |  [PageViewEvent](./react-native-tracker.pageviewevent.md) | A Page View Event Represents a Page View, which is typically fired as soon as possible when a web page is loaded within the users browser. Often also fired on "virtual page views" within Single Page Applications (SPA). |
 |  [PayloadBuilder](./react-native-tracker.payloadbuilder.md) | Interface for mutable object encapsulating tracker payload |
+|  [PlatformContextConfiguration](./react-native-tracker.platformcontextconfiguration.md) |  |
+|  [PlatformContextRetriever](./react-native-tracker.platformcontextretriever.md) | Overrides for the values for properties of the platform context. |
 |  [RuleSet](./react-native-tracker.ruleset.md) | A ruleset has accept or reject properties that contain rules for matching Iglu schema URIs |
 |  [SessionConfiguration](./react-native-tracker.sessionconfiguration.md) | Configuration for session tracking |
 |  [SessionState](./react-native-tracker.sessionstate.md) | Current session state that is tracked in events. |
