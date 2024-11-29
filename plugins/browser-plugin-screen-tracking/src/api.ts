@@ -101,7 +101,6 @@ export function ScreenTrackingPlugin({
           screenSummary.items_count ?? listItemView.itemsCount
         );
       }
-      listItemView.index;
     }
   };
 
