@@ -92,6 +92,82 @@ describe('Tracker', () => {
     expect(await tracker.getSessionUserId()).toBeDefined();
   });
 
+  it('tracks screen engagement events', async () => {
+    const tracker = await newTracker({
+      namespace: 'test',
+      endpoint: 'http://localhost:9090',
+      customFetch: mockFetch,
+    });
+
+    tracker.trackScreenViewEvent({
+      name: 'Home',
+    });
+    await tracker.flush();
+    expect(requests.length).toBe(1);
+
+    const [request] = requests;
+    const payload = await request?.json();
+    expect(payload.data.length).toBe(1);
+    expect(payload.data[0].ue_pr).toBeDefined();
+    expect(payload.data[0].ue_pr).toContain('/screen_view/');
+    expect(payload.data[0].co).toContain('/screen/');
+
+    tracker.trackScrollChangedEvent({
+      xOffset: 101,
+    });
+    tracker.trackListItemViewEvent({
+      index: 1,
+      itemsCount: 909,
+    });
+    tracker.trackScreenViewEvent({ name: 'About' });
+    await tracker.flush();
+
+    expect(requests.length).toBe(2);
+    const [, secondRequest] = requests;
+    const secondPayload = await secondRequest?.json();
+    expect(secondPayload.data.length).toBe(2);
+    const [screenEndEvent] = secondPayload.data;
+    expect(screenEndEvent.ue_pr).toBeDefined();
+    expect(screenEndEvent.ue_pr).toContain('screen_end');
+    expect(screenEndEvent.co).toBeDefined();
+    expect(screenEndEvent.co).toContain('screen_summary');
+    expect(screenEndEvent.co).toContain('101');
+    expect(screenEndEvent.co).toContain('909');
+  });
+
+  it('doesnt track screen engagement events if disabled', async () => {
+    const tracker = await newTracker({
+      namespace: 'test',
+      endpoint: 'http://localhost:9090',
+      customFetch: mockFetch,
+      screenContext: false,
+      screenEngagementAutotracking: false,
+    });
+
+    tracker.trackScreenViewEvent({
+      name: 'Home',
+    });
+    tracker.trackScreenViewEvent({
+      name: 'About',
+    });
+    await tracker.flush();
+    expect(requests.length).toBe(1);
+
+    const [request] = requests;
+
+    const payload = await request?.json();
+    expect(payload.data.length).toBe(2);
+
+    const [screen1, screen2] = payload.data;
+    expect(screen1.ue_pr).toBeDefined();
+    expect(screen1.ue_pr).toContain('/screen_view/');
+    expect(screen1.co ?? '').not.toContain('/screen/');
+
+    expect(screen2.ue_pr).toBeDefined();
+    expect(screen2.ue_pr).toContain('/screen_view/');
+    expect(screen2.co ?? '').not.toContain('/screen/');
+  });
+
   it('adds a tracker plugin', async () => {
     const tracker = await newTracker({
       namespace: 'test',

@@ -4,6 +4,10 @@
 
 ```ts
 
+import { BrowserPlugin } from '@snowplow/browser-tracker-core';
+import { BrowserPluginConfiguration } from '@snowplow/browser-tracker-core';
+import { ScreenTrackingConfiguration } from '@snowplow/browser-plugin-screen-tracking';
+
 // @public
 export type ConditionalContextProvider = FilterProvider | RuleSetProvider;
 
@@ -251,7 +255,7 @@ export type MessageNotificationProps = {
 };
 
 // @public
-export function newTracker(configuration: TrackerConfiguration & EmitterConfiguration & SessionConfiguration & SubjectConfiguration & EventStoreConfiguration): Promise<ReactNativeTracker>;
+export function newTracker(configuration: TrackerConfiguration & EmitterConfiguration & SessionConfiguration & SubjectConfiguration & EventStoreConfiguration & ScreenTrackingConfiguration): Promise<ReactNativeTracker>;
 
 // @public
 export interface PageViewEvent {
@@ -277,7 +281,11 @@ export interface PayloadBuilder {
 
 // @public
 export type ReactNativeTracker = {
+    namespace: string;
     readonly trackSelfDescribingEvent: <T extends Record<string, unknown> = Record<string, unknown>>(argmap: SelfDescribingJson<T>, contexts?: EventContext[]) => void;
+    readonly trackScreenViewEvent: (argmap: ScreenViewProps, contexts?: EventContext[]) => void;
+    readonly trackScrollChangedEvent: (argmap: ScrollChangedProps, contexts?: EventContext[]) => void;
+    readonly trackListItemViewEvent: (argmap: ListItemViewProps, contexts?: EventContext[]) => void;
     readonly trackStructuredEvent: (argmap: StructuredEvent, contexts?: EventContext[]) => void;
     readonly trackPageViewEvent: (argmap: PageViewEvent, contexts?: EventContext[]) => void;
     readonly trackTimingEvent: (argmap: TimingProps, contexts?: EventContext[]) => void;
@@ -285,7 +293,7 @@ export type ReactNativeTracker = {
     addGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive> | Record<string, ConditionalContextProvider | ContextPrimitive>): void;
     clearGlobalContexts(): void;
     removeGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive | string>): void;
-    addPlugin(configuration: CorePluginConfiguration): void;
+    addPlugin(configuration: BrowserPluginConfiguration): void;
     flush: () => Promise<void>;
     readonly setAppId: (appId: string) => void;
     readonly setPlatform: (value: string) => void;
@@ -426,6 +434,7 @@ export interface TrackerConfiguration {
     appId?: string;
     encodeBase64?: boolean;
     namespace: string;
+    plugins?: BrowserPlugin[];
 }
 
 // @public

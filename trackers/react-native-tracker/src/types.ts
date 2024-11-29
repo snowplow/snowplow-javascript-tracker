@@ -1,7 +1,7 @@
+import { BrowserPlugin, BrowserPluginConfiguration } from '@snowplow/browser-tracker-core';
 import {
   ConditionalContextProvider,
   ContextPrimitive,
-  CorePluginConfiguration,
   PageViewEvent,
   SelfDescribingJson,
   StructuredEvent,
@@ -55,6 +55,11 @@ export interface TrackerConfiguration {
    * @defaultValue false
    **/
   encodeBase64?: boolean;
+  /**
+   * Inject plugins which will be evaluated for each event
+   * @defaultValue []
+   */
+  plugins?: BrowserPlugin[];
 }
 
 /**
@@ -376,6 +381,10 @@ export interface SessionState {
  */
 export type ReactNativeTracker = {
   /**
+   * The namespace of the tracker
+   */
+  namespace: string;
+  /**
    * Tracks a self-describing event
    *
    * @param argmap - The self-describing event properties
@@ -387,32 +396,29 @@ export type ReactNativeTracker = {
     contexts?: EventContext[]
   ) => void;
 
-  // TODO:
-  // /**
-  //  * Tracks a screen-view event
-  //  *
-  //  * @param argmap - The screen-view event's properties
-  //  * @param contexts - The array of event contexts
-  //  */
-  // readonly trackScreenViewEvent: (argmap: ScreenViewProps, contexts?: EventContext[]) => string | undefined;
+  /**
+   * Tracks a screen-view event
+   *
+   * @param argmap - The screen-view event's properties
+   * @param contexts - The array of event contexts
+   */
+  readonly trackScreenViewEvent: (argmap: ScreenViewProps, contexts?: EventContext[]) => void;
 
-  // TODO:
-  // /**
-  //  * Tracks a scroll changed event
-  //  *
-  //  * @param argmap - The scroll changed event's properties
-  //  * @param contexts - The array of event contexts
-  //  */
-  // readonly trackScrollChangedEvent: (argmap: ScrollChangedProps, contexts?: EventContext[]) => string | undefined;
+  /**
+   * Tracks a scroll changed event
+   *
+   * @param argmap - The scroll changed event's properties
+   * @param contexts - The array of event contexts
+   */
+  readonly trackScrollChangedEvent: (argmap: ScrollChangedProps, contexts?: EventContext[]) => void;
 
-  // TODO:
-  // /**
-  //  * Tracks a list item view event
-  //  *
-  //  * @param argmap - The list item view event's properties
-  //  * @param contexts - The array of event contexts
-  //  */
-  // readonly trackListItemViewEvent: (argmap: ListItemViewProps, contexts?: EventContext[]) => string | undefined;
+  /**
+   * Tracks a list item view event
+   *
+   * @param argmap - The list item view event's properties
+   * @param contexts - The array of event contexts
+   */
+  readonly trackListItemViewEvent: (argmap: ListItemViewProps, contexts?: EventContext[]) => void;
 
   /**
    * Tracks a structured event
@@ -480,7 +486,7 @@ export type ReactNativeTracker = {
    * Add a plugin into the plugin collection after Core has already been initialised
    * @param configuration - The plugin to add
    */
-  addPlugin(configuration: CorePluginConfiguration): void;
+  addPlugin(configuration: BrowserPluginConfiguration): void;
 
   /**
    * Calls flush on all emitters in order to send all queued events to the collector
