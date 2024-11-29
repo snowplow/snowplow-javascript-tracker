@@ -9,14 +9,14 @@ Creates a new tracker instance with the given configuration
 <b>Signature:</b>
 
 ```typescript
-export declare function newTracker(configuration: TrackerConfiguration & EmitterConfiguration & SessionConfiguration & SubjectConfiguration & EventStoreConfiguration): Promise<ReactNativeTracker>;
+export declare function newTracker(configuration: TrackerConfiguration & EmitterConfiguration & SessionConfiguration & SubjectConfiguration & EventStoreConfiguration & ScreenTrackingConfiguration): Promise<ReactNativeTracker>;
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
-|  configuration | [TrackerConfiguration](./react-native-tracker.trackerconfiguration.md) &amp; EmitterConfiguration &amp; [SessionConfiguration](./react-native-tracker.sessionconfiguration.md) &amp; [SubjectConfiguration](./react-native-tracker.subjectconfiguration.md) &amp; [EventStoreConfiguration](./react-native-tracker.eventstoreconfiguration.md) | Configuration for the tracker |
+|  configuration | [TrackerConfiguration](./react-native-tracker.trackerconfiguration.md) &amp; EmitterConfiguration &amp; [SessionConfiguration](./react-native-tracker.sessionconfiguration.md) &amp; [SubjectConfiguration](./react-native-tracker.subjectconfiguration.md) &amp; [EventStoreConfiguration](./react-native-tracker.eventstoreconfiguration.md) &amp; ScreenTrackingConfiguration | Configuration for the tracker |
 
 <b>Returns:</b>
 

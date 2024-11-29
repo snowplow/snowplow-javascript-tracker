@@ -540,6 +540,12 @@
       "projectFolder": "plugins/browser-plugin-event-specifications",
       "reviewCategory": "plugins",
       "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-plugin-screen-tracking",
+      "projectFolder": "plugins/browser-plugin-screen-tracking",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
     }
   ]
 }
