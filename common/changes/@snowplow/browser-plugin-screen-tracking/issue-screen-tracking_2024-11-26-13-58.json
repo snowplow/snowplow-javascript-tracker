@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-screen-tracking",
+      "comment": "Add screen tracking plugin and add support for browser plugins (#1394)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-screen-tracking"
+}
