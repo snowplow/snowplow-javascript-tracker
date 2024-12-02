@@ -41,6 +41,9 @@ export declare type ReactNativeTracker = {
     readonly getSessionId: () => Promise<string | undefined>;
     readonly getSessionIndex: () => Promise<number | undefined>;
     readonly getSessionState: () => Promise<SessionState | undefined>;
+    readonly getIsInBackground: () => boolean | undefined;
+    readonly getBackgroundIndex: () => number | undefined;
+    readonly getForegroundIndex: () => number | undefined;
 };
 ```
 <b>References:</b> [EventContext](./react-native-tracker.eventcontext.md)<!-- -->, [ScreenViewProps](./react-native-tracker.screenviewprops.md)<!-- -->, [ScrollChangedProps](./react-native-tracker.scrollchangedprops.md)<!-- -->, [ListItemViewProps](./react-native-tracker.listitemviewprops.md)<!-- -->, [TimingProps](./react-native-tracker.timingprops.md)<!-- -->, [MessageNotificationProps](./react-native-tracker.messagenotificationprops.md)<!-- -->, [ScreenSize](./react-native-tracker.screensize.md)<!-- -->, [SubjectConfiguration](./react-native-tracker.subjectconfiguration.md)<!-- -->, [SessionState](./react-native-tracker.sessionstate.md)

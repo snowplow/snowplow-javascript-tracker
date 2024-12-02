@@ -7,6 +7,7 @@ import { newSubject } from './subject';
 import { ScreenTrackingConfiguration, ScreenTrackingPlugin, trackListItemView, trackScreenView, trackScrollChanged } from '@snowplow/browser-plugin-screen-tracking';
 
 import {
+  AppLifecycleConfiguration,
   EventContext,
   EventStoreConfiguration,
   ListItemViewProps,
@@ -18,7 +19,10 @@ import {
   TrackerConfiguration,
 } from './types';
 import { newSessionPlugin } from './plugins/session';
+import { newAppLifecyclePlugin } from './plugins/app_lifecycle';
 import { newPlugins } from './plugins';
+import { newAppInstallPlugin } from './plugins/app_install';
+import { newAppContextPlugin } from './plugins/app_context';
 
 const initializedTrackers: Record<string, { tracker: ReactNativeTracker; core: TrackerCore }> = {};
 
@@ -33,7 +37,8 @@ export async function newTracker(
     SessionConfiguration &
     SubjectConfiguration &
     EventStoreConfiguration &
-    ScreenTrackingConfiguration
+    ScreenTrackingConfiguration &
+    AppLifecycleConfiguration
 ): Promise<ReactNativeTracker> {
   const { namespace, appId, encodeBase64 = false } = configuration;
   if (configuration.eventStore === undefined) {
@@ -63,6 +68,15 @@ export async function newTracker(
 
   const screenPlugin = ScreenTrackingPlugin(configuration);
   addPlugin({ plugin: screenPlugin });
+
+  const lifecyclePlugin = await newAppLifecyclePlugin(configuration, core);
+  addPlugin(lifecyclePlugin);
+
+  const installPlugin = newAppInstallPlugin(configuration, core);
+  addPlugin(installPlugin);
+
+  const appContextPlugin = newAppContextPlugin(configuration);
+  addPlugin(appContextPlugin);
 
   (configuration.plugins ?? []).forEach((plugin) => addPlugin({ plugin }));
 
@@ -105,6 +119,9 @@ export async function newTracker(
         },
         [namespace]
       ),
+    getIsInBackground: lifecyclePlugin.getIsInBackground,
+    getBackgroundIndex: lifecyclePlugin.getBackgroundIndex,
+    getForegroundIndex: lifecyclePlugin.getForegroundIndex,
   };
   initializedTrackers[namespace] = { tracker, core };
 

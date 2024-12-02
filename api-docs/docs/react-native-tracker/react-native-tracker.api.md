@@ -9,6 +9,14 @@ import { BrowserPluginConfiguration } from '@snowplow/browser-tracker-core';
 import { ScreenTrackingConfiguration } from '@snowplow/browser-plugin-screen-tracking';
 
 // @public
+export interface AppLifecycleConfiguration {
+    appBuild?: string;
+    appVersion?: string;
+    installAutotracking?: boolean;
+    lifecycleAutotracking?: boolean;
+}
+
+// @public
 export type ConditionalContextProvider = FilterProvider | RuleSetProvider;
 
 // Warning: (ae-forgotten-export) The symbol "ContextEvent" needs to be exported by the entry point index.d.ts
@@ -255,7 +263,7 @@ export type MessageNotificationProps = {
 };
 
 // @public
-export function newTracker(configuration: TrackerConfiguration & EmitterConfiguration & SessionConfiguration & SubjectConfiguration & EventStoreConfiguration & ScreenTrackingConfiguration): Promise<ReactNativeTracker>;
+export function newTracker(configuration: TrackerConfiguration & EmitterConfiguration & SessionConfiguration & SubjectConfiguration & EventStoreConfiguration & ScreenTrackingConfiguration & AppLifecycleConfiguration): Promise<ReactNativeTracker>;
 
 // @public
 export interface PageViewEvent {
@@ -312,6 +320,9 @@ export type ReactNativeTracker = {
     readonly getSessionId: () => Promise<string | undefined>;
     readonly getSessionIndex: () => Promise<number | undefined>;
     readonly getSessionState: () => Promise<SessionState | undefined>;
+    readonly getIsInBackground: () => boolean | undefined;
+    readonly getBackgroundIndex: () => number | undefined;
+    readonly getForegroundIndex: () => number | undefined;
 };
 
 // @public
