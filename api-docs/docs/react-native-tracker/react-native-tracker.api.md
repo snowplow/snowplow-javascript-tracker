@@ -54,6 +54,11 @@ export interface CorePluginConfiguration {
 }
 
 // @public
+export interface DeepLinkConfiguration {
+    deepLinkContext?: boolean;
+}
+
+// @public
 export type DeepLinkReceivedProps = {
     url: string;
     referrer?: string;
@@ -255,7 +260,7 @@ export type MessageNotificationProps = {
 };
 
 // @public
-export function newTracker(configuration: TrackerConfiguration & EmitterConfiguration & SessionConfiguration & SubjectConfiguration & EventStoreConfiguration & ScreenTrackingConfiguration): Promise<ReactNativeTracker>;
+export function newTracker(configuration: TrackerConfiguration & EmitterConfiguration & SessionConfiguration & SubjectConfiguration & EventStoreConfiguration & ScreenTrackingConfiguration & DeepLinkConfiguration): Promise<ReactNativeTracker>;
 
 // @public
 export interface PageViewEvent {
@@ -289,6 +294,7 @@ export type ReactNativeTracker = {
     readonly trackStructuredEvent: (argmap: StructuredEvent, contexts?: EventContext[]) => void;
     readonly trackPageViewEvent: (argmap: PageViewEvent, contexts?: EventContext[]) => void;
     readonly trackTimingEvent: (argmap: TimingProps, contexts?: EventContext[]) => void;
+    readonly trackDeepLinkReceivedEvent: (argmap: DeepLinkReceivedProps, contexts?: EventContext[]) => void;
     readonly trackMessageNotificationEvent: (argmap: MessageNotificationProps, contexts?: EventContext[]) => void;
     addGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive> | Record<string, ConditionalContextProvider | ContextPrimitive>): void;
     clearGlobalContexts(): void;
