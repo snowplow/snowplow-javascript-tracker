@@ -7,6 +7,7 @@ import { newSubject } from './subject';
 import { ScreenTrackingConfiguration, ScreenTrackingPlugin, trackListItemView, trackScreenView, trackScrollChanged } from '@snowplow/browser-plugin-screen-tracking';
 
 import {
+  DeepLinkConfiguration,
   EventContext,
   EventStoreConfiguration,
   ListItemViewProps,
@@ -18,6 +19,7 @@ import {
   TrackerConfiguration,
 } from './types';
 import { newSessionPlugin } from './plugins/session';
+import { newDeepLinksPlugin } from './plugins/deep_links';
 import { newPlugins } from './plugins';
 
 const initializedTrackers: Record<string, { tracker: ReactNativeTracker; core: TrackerCore }> = {};
@@ -33,7 +35,8 @@ export async function newTracker(
     SessionConfiguration &
     SubjectConfiguration &
     EventStoreConfiguration &
-    ScreenTrackingConfiguration
+    ScreenTrackingConfiguration &
+    DeepLinkConfiguration
 ): Promise<ReactNativeTracker> {
   const { namespace, appId, encodeBase64 = false } = configuration;
   if (configuration.eventStore === undefined) {
@@ -57,6 +60,9 @@ export async function newTracker(
 
   const sessionPlugin = await newSessionPlugin(configuration);
   addPlugin(sessionPlugin);
+
+  const deepLinksPlugin = await newDeepLinksPlugin(configuration, core);
+  addPlugin(deepLinksPlugin);
 
   const subject = newSubject(core, configuration);
   addPlugin(subject.subjectPlugin);
@@ -105,6 +111,7 @@ export async function newTracker(
         },
         [namespace]
       ),
+    trackDeepLinkReceivedEvent: deepLinksPlugin.trackDeepLinkReceivedEvent,
   };
   initializedTrackers[namespace] = { tracker, core };
 
