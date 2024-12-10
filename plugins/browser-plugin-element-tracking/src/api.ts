@@ -15,7 +15,7 @@ import {
   type ElementConfiguration,
 } from './configuration';
 import { buildContentTree, evaluateDataSelector, getElementDetails } from './data';
-import { ElementStatus, elementsState, patchState } from './elementsState';
+import { ElementStatus, aggregateStats, getState } from './elementsState';
 import { ComponentsEntity, ElementDetailsEntity, Entity, Events, Event } from './schemata';
 import { Frequency, type OneOrMany } from './types';
 import { getMatchingElements, nodeIsElement, shouldTrackExpose } from './util';
@@ -190,13 +190,10 @@ export function startElementTracking(
       const elements = getMatchingElements(config);
 
       elements.forEach((element, i) => {
-        elementsState.set(
-          element,
-          patchState({
-            lastPosition: i,
-          })
-        );
-        elementsState.get(element)?.matches.add(config);
+        const state = getState(element);
+
+        state.lastPosition = i;
+        state.matches.add(config);
 
         trackEvent(Events.ELEMENT_CREATE, config, element, { position: i + 1, matches: elements.length });
 
@@ -396,14 +393,10 @@ function trackEvent<T extends Events>(
  */
 function handleCreate(nowTs: number, config: Configuration, node: Node | Element) {
   if (nodeIsElement(node) && node.matches(config.selector)) {
-    elementsState.set(
-      node,
-      patchState({
-        state: ElementStatus.CREATED,
-        createdTs: nowTs,
-      })
-    );
-    elementsState.get(node)?.matches.add(config);
+    const state = getState(node);
+    state.state = ElementStatus.CREATED;
+    state.createdTs = nowTs;
+    state.matches.add(config);
     trackEvent(Events.ELEMENT_CREATE, config, node);
     if (config.expose.when !== Frequency.NEVER && intersectionObserver) intersectionObserver.observe(node);
   }
@@ -428,16 +421,16 @@ function mutationCallback(mutations: MutationRecord[]): void {
       if (record.type === 'attributes') {
         if (nodeIsElement(record.target)) {
           const element = record.target;
-          const prevState = elementsState.get(element);
+          const prevState = getState(element);
 
-          if (prevState) {
+          if (prevState.state !== ElementStatus.INITIAL) {
             if (!element.matches(config.selector)) {
               if (prevState.matches.has(config)) {
                 if (prevState.state === ElementStatus.EXPOSED) trackEvent(Events.ELEMENT_OBSCURE, config, element);
                 trackEvent(Events.ELEMENT_DESTROY, config, element);
                 prevState.matches.delete(config);
                 if (intersectionObserver) intersectionObserver.unobserve(element);
-                elementsState.set(element, patchState({ state: ElementStatus.DESTROYED }, prevState));
+                prevState.state = ElementStatus.DESTROYED;
               }
             } else {
               if (!prevState.matches.has(config)) {
@@ -452,11 +445,11 @@ function mutationCallback(mutations: MutationRecord[]): void {
         record.addedNodes.forEach(createFn);
         record.removedNodes.forEach((node) => {
           if (nodeIsElement(node) && node.matches(config.selector)) {
-            const state = elementsState.get(node) ?? patchState({});
+            const state = getState(node);
             if (state.state === ElementStatus.EXPOSED) trackEvent(Events.ELEMENT_OBSCURE, config, node);
             trackEvent(Events.ELEMENT_DESTROY, config, node);
             if (intersectionObserver) intersectionObserver.unobserve(node);
-            elementsState.set(node, patchState({ state: ElementStatus.DESTROYED }, state));
+            state.state = ElementStatus.DESTROYED;
           }
         });
       }
@@ -477,7 +470,7 @@ function mutationCallback(mutations: MutationRecord[]): void {
  */
 function intersectionCallback(entries: IntersectionObserverEntry[], observer: IntersectionObserver): void {
   entries.forEach((entry) => {
-    const state = elementsState.get(entry.target) ?? patchState({});
+    const state = getState(entry.target, { lastObservationTs: entry.time });
     configurations.forEach((config) => {
       if (entry.target.matches(config.selector)) {
         const siblings = getMatchingElements(config);
@@ -486,33 +479,17 @@ function intersectionCallback(entries: IntersectionObserverEntry[], observer: In
           const elapsedVisibleMs = [ElementStatus.PENDING, ElementStatus.EXPOSED].includes(state.state)
             ? state.elapsedVisibleMs + (entry.time - state.lastObservationTs)
             : state.elapsedVisibleMs;
-          elementsState.set(
-            entry.target,
-            patchState(
-              {
-                state: ElementStatus.PENDING,
-                lastObservationTs: entry.time,
-                elapsedVisibleMs,
-              },
-              state
-            )
-          );
+          Object.assign(state, {
+            state: ElementStatus.PENDING,
+            lastObservationTs: entry.time,
+            elapsedVisibleMs,
+          });
 
           // check configured criteria, if any
           if (shouldTrackExpose(config, entry)) {
             // check time criteria
             if (config.expose.minTimeMillis <= state.elapsedVisibleMs) {
-              elementsState.set(
-                entry.target,
-                patchState(
-                  {
-                    state: ElementStatus.EXPOSED,
-                    lastObservationTs: entry.time,
-                    elapsedVisibleMs,
-                  },
-                  state
-                )
-              );
+              state.state = ElementStatus.EXPOSED;
               trackEvent(Events.ELEMENT_EXPOSE, config, entry.target, {
                 boundingRect: entry.boundingClientRect,
                 position,
@@ -526,7 +503,7 @@ function intersectionCallback(entries: IntersectionObserverEntry[], observer: In
               });
             }
           }
-        } else if (state.state !== ElementStatus.DESTROYED) {
+        } else {
           if (state.state === ElementStatus.EXPOSED) {
             trackEvent(Events.ELEMENT_OBSCURE, config, entry.target, {
               boundingRect: entry.boundingClientRect,
@@ -535,16 +512,10 @@ function intersectionCallback(entries: IntersectionObserverEntry[], observer: In
             });
           }
 
-          elementsState.set(
-            entry.target,
-            patchState(
-              {
-                state: ElementStatus.OBSCURED,
-                lastObservationTs: entry.time,
-              },
-              state
-            )
-          );
+          Object.assign(state, {
+            state: state.state === ElementStatus.DESTROYED ? ElementStatus.DESTROYED : ElementStatus.OBSCURED,
+            lastObservationTs: entry.time,
+          });
         }
       }
     });
