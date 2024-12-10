@@ -42,25 +42,32 @@ type ElementState = {
 /**
  * Bank of per-element state that needs to be stored.
  */
-export const elementsState =
+const elementsState =
   typeof WeakMap !== 'undefined' ? new WeakMap<Element, ElementState>() : new Map<Element, ElementState>();
 
 /**
- * Create new element state to be stored later in `elementState` with sane defaults for unspecified state.
- * @param updates Custom state to include in the updated state.
- * @param basis The previous version of the state we want to be updating, rather than blank defaults.
- * @returns New updated state accounding for default, basis, and requested updates.
+ * Obtain element state from `elementState`, creating with sane defaults if element is unknown.
+ * @param target Element to obtain state for.
+ * @param initial Initial state to include in the state if created.
+ * @returns State for the target element.
  */
-export function patchState(updates: Partial<ElementState>, basis?: ElementState): ElementState {
-  const nowTs = performance.now();
-  return {
-    state: ElementStatus.INITIAL,
-    matches: new Set(),
-    createdTs: nowTs + performance.timeOrigin,
-    lastPosition: -1,
-    lastObservationTs: nowTs,
-    elapsedVisibleMs: 0,
-    ...basis,
-    ...(updates || {}),
-  };
+export function getState(target: Element, initial: Partial<ElementState> = {}): ElementState {
+  if (elementsState.has(target)) {
+    return elementsState.get(target)!;
+  } else {
+    const nowTs = performance.now();
+    const state: ElementState = {
+      state: ElementStatus.INITIAL,
+      matches: new Set(),
+      createdTs: nowTs + performance.timeOrigin,
+      lastPosition: -1,
+      lastObservationTs: nowTs,
+      elapsedVisibleMs: 0,
+      views: 0,
+      ...initial,
+    };
+    elementsState.set(target, state);
+    return state;
+  }
 }
+
