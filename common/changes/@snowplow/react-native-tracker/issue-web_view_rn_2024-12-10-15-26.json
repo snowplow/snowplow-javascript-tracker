@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/react-native-tracker",
+      "comment": "Add WebView tracker integration to the React Native tracker (#1399)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/react-native-tracker"
+}
