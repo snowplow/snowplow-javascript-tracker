@@ -255,7 +255,7 @@ export type MessageNotificationProps = {
 };
 
 // @public
-export function newTracker(configuration: TrackerConfiguration & EmitterConfiguration & SessionConfiguration & SubjectConfiguration & EventStoreConfiguration & ScreenTrackingConfiguration): Promise<ReactNativeTracker>;
+export function newTracker(configuration: TrackerConfiguration & EmitterConfiguration & SessionConfiguration & SubjectConfiguration & EventStoreConfiguration & ScreenTrackingConfiguration & PlatformContextConfiguration): Promise<ReactNativeTracker>;
 
 // @public
 export interface PageViewEvent {
@@ -277,6 +277,65 @@ export interface PayloadBuilder {
     getJson: () => EventJson;
     getPayload: () => Payload;
     withJsonProcessor: (jsonProcessor: JsonProcessor) => void;
+}
+
+// @public (undocumented)
+export interface PlatformContextConfiguration {
+    platformContext?: boolean;
+    platformContextProperties?: PlatformContextProperty[];
+    platformContextRetriever?: PlatformContextRetriever;
+}
+
+// @public (undocumented)
+export enum PlatformContextProperty {
+    AndroidIdfa = "androidIdfa",
+    AppAvailableMemory = "appAvailableMemory",
+    AppleIdfa = "appleIdfa",
+    AppleIdfv = "appleIdfv",
+    AppSetId = "appSetId",
+    AppSetIdScope = "appSetIdScope",
+    AvailableStorage = "availableStorage",
+    BatteryLevel = "batteryLevel",
+    BatteryState = "batteryState",
+    Carrier = "carrier",
+    IsPortrait = "isPortrait",
+    Language = "language",
+    LowPowerMode = "lowPowerMode",
+    NetworkTechnology = "networkTechnology",
+    NetworkType = "networkType",
+    PhysicalMemory = "physicalMemory",
+    Resolution = "resolution",
+    Scale = "scale",
+    SystemAvailableMemory = "systemAvailableMemory",
+    TotalStorage = "totalStorage"
+}
+
+// @public
+export interface PlatformContextRetriever {
+    getAndroidIdfa?: () => Promise<string | undefined>;
+    getAppAvailableMemory?: () => Promise<number | undefined>;
+    getAppleIdfa?: () => Promise<string | undefined>;
+    getAppleIdfv?: () => Promise<string | undefined>;
+    getAppSetId?: () => Promise<string | undefined>;
+    getAppSetIdScope?: () => Promise<string | undefined>;
+    getAvailableStorage?: () => Promise<number | undefined>;
+    getBatteryLevel?: () => Promise<number | undefined>;
+    getBatteryState?: () => Promise<'unplugged' | 'charging' | 'full' | undefined>;
+    getCarrier?: () => Promise<string | undefined>;
+    getDeviceManufacturer?: () => Promise<string>;
+    getDeviceModel?: () => Promise<string>;
+    getLanguage?: () => Promise<string | undefined>;
+    getLowPowerMode?: () => Promise<boolean | undefined>;
+    getNetworkTechnology?: () => Promise<string | undefined>;
+    getNetworkType?: () => Promise<'mobile' | 'wifi' | 'offline' | undefined>;
+    getOsType?: () => Promise<string>;
+    getOsVersion?: () => Promise<string>;
+    getPhysicalMemory?: () => Promise<number | undefined>;
+    getResolution?: () => Promise<string | undefined>;
+    getScale?: () => Promise<number | undefined>;
+    getSystemAvailableMemory?: () => Promise<number | undefined>;
+    getTotalStorage?: () => Promise<number | undefined>;
+    isPortrait?: () => Promise<boolean | undefined>;
 }
 
 // @public
@@ -312,6 +371,9 @@ export type ReactNativeTracker = {
     readonly getSessionId: () => Promise<string | undefined>;
     readonly getSessionIndex: () => Promise<number | undefined>;
     readonly getSessionState: () => Promise<SessionState | undefined>;
+    readonly enablePlatformContext: () => Promise<void>;
+    readonly disablePlatformContext: () => void;
+    readonly refreshPlatformContext: () => Promise<void>;
 };
 
 // @public

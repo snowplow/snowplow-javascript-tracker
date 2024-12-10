@@ -1,4 +1,5 @@
 import { getTracker, newTracker, removeAllTrackers, removeTracker } from '../src';
+import { MOBILE_CONTEXT_SCHEMA } from '../src/constants';
 
 function createMockFetch(status: number, requests: Request[]) {
   return async (input: Request) => {
@@ -192,6 +193,52 @@ describe('Tracker', () => {
     expect(pluginCalled).toBe(true);
   });
 
+  it('tracks a platform context entity along with events unless disabled', async () => {
+    jest.mock('react-native/Libraries/Utilities/Platform', () => ({
+      OS: 'ios',
+      Version: '18.0',
+      constants: {
+        osVersion: '18.0',
+        systemName: 'iOS',
+      },
+      select: () => null,
+    }));
+
+    const tracker = await newTracker({
+      namespace: 'test',
+      endpoint: 'http://localhost:9090',
+      customFetch: mockFetch,
+    });
+
+    tracker.trackPageViewEvent({
+      pageUrl: 'http://localhost:9090',
+      pageTitle: 'Home',
+    });
+
+    await tracker.flush();
+    const [request] = requests;
+    const payload = await request?.json();
+    expect(payload.data.length).toBe(1);
+
+    const [event] = payload.data;
+    expect(event.co).toBeDefined();
+    expect(event.co).toContain(MOBILE_CONTEXT_SCHEMA);
+
+    tracker.disablePlatformContext();
+    tracker.trackPageViewEvent({
+      pageUrl: 'http://localhost:9090',
+      pageTitle: 'Home',
+    });
+
+    await tracker.flush();
+    const [, request2] = requests;
+    const payload2 = await request2?.json();
+    expect(payload2.data.length).toBe(1);
+
+    const [event2] = payload2.data;
+    expect(event2.co ?? '').not.toContain(MOBILE_CONTEXT_SCHEMA);
+  });
+
   describe('Global contexts', () => {
     it('adds a global context', async () => {
       const tracker = await newTracker({
@@ -256,7 +303,7 @@ describe('Tracker', () => {
       expect(payload.data.length).toBe(1);
 
       const [event] = payload.data;
-      expect(event.co).not.toContain(context.schema);
+      expect(event.co ?? '').not.toContain(context.schema);
     });
   });
 });
