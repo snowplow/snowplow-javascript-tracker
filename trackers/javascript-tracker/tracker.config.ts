@@ -22,6 +22,7 @@ export const privacySandbox = false;
 export const eventSpecifications = false;
 export const geolocation = false;
 export const timezone = false;
+export const elementTracking = false;
 
 /* Deprecated */
 export const enhancedEcommerce = false;
