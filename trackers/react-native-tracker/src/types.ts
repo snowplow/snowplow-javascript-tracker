@@ -62,6 +62,203 @@ export interface TrackerConfiguration {
   plugins?: BrowserPlugin[];
 }
 
+export enum PlatformContextProperty {
+  /**
+   * The carrier of the SIM inserted in the device.
+   * Note: this property is not automatically assigned but can be assigned using the PlatformContextRetriever.
+   */
+  Carrier = 'carrier',
+  /**
+   * Type of network the device is connected to.
+   * Note: this property is not automatically assigned but can be assigned using the PlatformContextRetriever.
+   */
+  NetworkType = 'networkType',
+  /**
+   * Radio access technology that the device is using.
+   * Note: this property is not automatically assigned but can be assigned using the PlatformContextRetriever.
+   */
+  NetworkTechnology = 'networkTechnology',
+  /**
+   * Advertising identifier on iOS.
+   * Note: this property is not automatically assigned but can be assigned using the PlatformContextRetriever.
+   */
+  AppleIdfa = 'appleIdfa',
+  /**
+   * UUID identifier for vendors on iOS.
+   * Note: this property is not automatically assigned but can be assigned using the PlatformContextRetriever.
+   */
+  AppleIdfv = 'appleIdfv',
+  /**
+   * Total physical system memory in bytes.
+   * Note: this property is not automatically assigned but can be assigned using the PlatformContextRetriever.
+   */
+  PhysicalMemory = 'physicalMemory',
+  /**
+   * Amount of memory in bytes available to the current app.
+   * The property is not tracked in the current version of the tracker due to the tracker not being able to access the API, see the issue here: https://github.com/snowplow/snowplow-ios-tracker/issues/772
+   * Note: this property is not automatically assigned but can be assigned using the PlatformContextRetriever.
+   */
+  AppAvailableMemory = 'appAvailableMemory',
+  /**
+   * Remaining battery level as an integer percentage of total battery capacity.
+   * Note: this property is not automatically assigned but can be assigned using the PlatformContextRetriever.
+   */
+  BatteryLevel = 'batteryLevel',
+  /**
+   * Battery state for the device.
+   * Note: this property is not automatically assigned but can be assigned using the PlatformContextRetriever.
+   */
+  BatteryState = 'batteryState',
+  /** A Boolean indicating whether Low Power Mode is enabled. */
+  LowPowerMode = 'lowPowerMode',
+  /**
+   * Bytes of storage remaining.
+   * Note: This is not automatically assigned by the tracker as it may be considered as fingerprinting. You can assign it using the PlatformContextRetriever.
+   */
+  AvailableStorage = 'availableStorage',
+  /**
+   * Total size of storage in bytes.
+   * Note: This is not automatically assigned by the tracker as it may be considered as fingerprinting. You can assign it using the PlatformContextRetriever.
+   */
+  TotalStorage = 'totalStorage',
+  /**
+   * A Boolean indicating whether the device orientation is portrait (either upright or upside down).
+   * Note: This is not automatically assigned by the tracker as it may be considered as fingerprinting. You can assign it using the PlatformContextRetriever.
+   */
+  IsPortrait = 'isPortrait',
+  /**
+   * Screen resolution in pixels. Arrives in the form of WIDTHxHEIGHT (e.g., 1200x900). Doesn't change when device orientation changes.
+   * Note: This is not automatically assigned by the tracker as it may be considered as fingerprinting. You can assign it using the PlatformContextRetriever.
+   */
+  Resolution = 'resolution',
+  /**
+   * Scale factor used to convert logical coordinates to device coordinates of the screen (uses UIScreen.scale on iOS).
+   */
+  Scale = 'scale',
+  /**
+   * System language currently used on the device (ISO 639).
+   */
+  Language = 'language',
+  /**
+   * Advertising identifier on Android.
+   * Note: This is not automatically assigned by the tracker as it may be considered as fingerprinting. You can assign it using the PlatformContextRetriever.
+   */
+  AndroidIdfa = 'androidIdfa',
+  /**
+   * Available memory on the system in bytes (Android only).
+   * Note: This is not automatically assigned by the tracker as it may be considered as fingerprinting. You can assign it using the PlatformContextRetriever.
+   */
+  SystemAvailableMemory = 'systemAvailableMemory',
+  /**
+   * Android vendor ID scoped to the set of apps published under the same Google Play developer account (see https://developer.android.com/training/articles/app-set-id).
+   * Note: This is not automatically assigned by the tracker as it may be considered as fingerprinting. You can assign it using the PlatformContextRetriever.
+   */
+  AppSetId = 'appSetId',
+  /**
+   * Scope of the `appSetId`. Can be scoped to the app or to a developer account on an app store (all apps from the same developer on the same device will have the same ID).
+   * Note: This is not automatically assigned by the tracker as it may be considered as fingerprinting. You can assign it using the PlatformContextRetriever.
+   */
+  AppSetIdScope = 'appSetIdScope',
+}
+
+/**
+ * Overrides for the values for properties of the platform context.
+ */
+export interface PlatformContextRetriever {
+  /** Operating system type (e.g., ios, tvos, watchos, osx, android) */
+  getOsType?: () => Promise<string>;
+
+  /** The current version of the operating system */
+  getOsVersion?: () => Promise<string>;
+
+  /** The end-user-visible name for the end product */
+  getDeviceModel?: () => Promise<string>;
+
+  /** The manufacturer of the product/hardware */
+  getDeviceManufacturer?: () => Promise<string>;
+
+  /** The carrier of the SIM inserted in the device */
+  getCarrier?: () => Promise<string | undefined>;
+
+  /** Type of network the device is connected to */
+  getNetworkType?: () => Promise<'mobile' | 'wifi' | 'offline' | undefined>;
+
+  /** Radio access technology that the device is using */
+  getNetworkTechnology?: () => Promise<string | undefined>;
+
+  /** Advertising identifier on iOS (UUID formatted string) */
+  getAppleIdfa?: () => Promise<string | undefined>;
+
+  /** UUID identifier for vendors on iOS */
+  getAppleIdfv?: () => Promise<string | undefined>;
+
+  /** Bytes of storage remaining */
+  getAvailableStorage?: () => Promise<number | undefined>;
+
+  /** Total size of storage in bytes */
+  getTotalStorage?: () => Promise<number | undefined>;
+
+  /** Total physical system memory in bytes */
+  getPhysicalMemory?: () => Promise<number | undefined>;
+
+  /** Amount of memory in bytes available to the current app */
+  getAppAvailableMemory?: () => Promise<number | undefined>;
+
+  /** Remaining battery level as an integer percentage of total battery capacity */
+  getBatteryLevel?: () => Promise<number | undefined>;
+
+  /** Battery state for the device */
+  getBatteryState?: () => Promise<'unplugged' | 'charging' | 'full' | undefined>;
+
+  /** A Boolean indicating whether Low Power Mode is enabled */
+  getLowPowerMode?: () => Promise<boolean | undefined>;
+
+  /** A Boolean indicating whether the device orientation is portrait (either upright or upside down) */
+  isPortrait?: () => Promise<boolean | undefined>;
+
+  /** Screen resolution in pixels. Arrives in the form of WIDTHxHEIGHT (e.g., 1200x900). Doesn't change when device orientation changes */
+  getResolution?: () => Promise<string | undefined>;
+
+  /** Scale factor used to convert logical coordinates to device coordinates of the screen (uses UIScreen.scale on iOS) */
+  getScale?: () => Promise<number | undefined>;
+
+  /** System language currently used on the device (ISO 639) */
+  getLanguage?: () => Promise<string | undefined>;
+
+  /** Advertising identifier on Android. */
+  getAndroidIdfa?: () => Promise<string | undefined>;
+
+  /** Available memory on the system in bytes (Android only). */
+  getSystemAvailableMemory?: () => Promise<number | undefined>;
+
+  /** Android vendor ID scoped to the set of apps published under the same Google Play developer account (see https://developer.android.com/training/articles/app-set-id). */
+  getAppSetId?: () => Promise<string | undefined>;
+
+  /** Scope of the `appSetId`. Can be scoped to the app or to a developer account on an app store (all apps from the same developer on the same device will have the same ID). */
+  getAppSetIdScope?: () => Promise<string | undefined>;
+}
+
+export interface PlatformContextConfiguration {
+  /**
+   * Whether to track the mobile context with information about the device.
+   * Note: Only some properties (osType, osVersion, deviceManufacturer, deviceModel, resolution, language, scale) will be tracked by default. Other properties can be assigned using the PlatformContextRetriever.
+   * @defaultValue true
+   */
+  platformContext?: boolean;
+
+  /**
+   * List of properties of the platform context to track. If not passed and `platformContext` is enabled, all available properties will be tracked.
+   * The required `osType`, `osVersion`, `deviceManufacturer`, and `deviceModel` properties will be tracked in the entity regardless of this setting.
+   */
+  platformContextProperties?: PlatformContextProperty[];
+
+  /**
+   * Set of callbacks to be used to retrieve properties of the platform context.
+   * Overrides the tracker implementation for setting the properties.
+   */
+  platformContextRetriever?: PlatformContextRetriever;
+}
+
 /**
  * Configuration of subject properties tracked with events
  */
@@ -629,6 +826,22 @@ export type ReactNativeTracker = {
   //  * @returns {Promise<number | undefined>}
   //  */
   // readonly getForegroundIndex: () => Promise<number | undefined>;
+
+  /**
+   * Enables tracking the platform context with information about the device.
+   * Note: Only some properties (osType, osVersion, deviceManufacturer, deviceModel, resolution, language, scale) will be tracked by default. Other properties can be assigned using the PlatformContextRetriever.
+   */
+  readonly enablePlatformContext: () => Promise<void>;
+
+  /**
+   * Disables tracking the platform context with information about the device.
+   */
+  readonly disablePlatformContext: () => void;
+
+  /**
+   * Refreshes the platform context with the latest values.
+   */
+  readonly refreshPlatformContext: () => Promise<void>;
 };
 
 export {
