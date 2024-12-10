@@ -227,7 +227,6 @@ export function getElementDetails(
   position?: number,
   matches?: number
 ): ElementDetailsEntity {
-
   return {
     schema: Entities.ELEMENT_DETAILS,
     data: {
@@ -236,8 +235,10 @@ export function getElementDetails(
       height: rect.height,
       position_x: rect.x,
       position_y: rect.y,
-      position,
-      matches,
+      doc_position_x: rect.x + window.scrollX,
+      doc_position_y: rect.y + window.scrollY,
+      element_index: position,
+      element_matches: matches,
       attributes: extractSelectorDetails(element, config.selector, config.details),
     },
   };
