@@ -6,7 +6,7 @@ import {
 import { newDeepLinksPlugin } from '../../src/plugins/deep_links';
 import { buildSelfDescribingEvent, Payload, trackerCore } from '@snowplow/tracker-core';
 
-describe('Session plugin', () => {
+describe('Deep Link plugin', () => {
   it('adds the url and refr properties on the deep link event', () => {
     const payloads: Payload[] = [];
     const tracker = trackerCore({
