@@ -585,6 +585,20 @@ export interface SessionState {
 }
 
 /**
+ * A Structured Event
+ * A classic style of event tracking, allows for easier movement between analytics
+ * systems. A loosely typed event, creating a Self Describing event is preferred, but
+ * useful for interoperability.
+ */
+export type StructuredProps = StructuredEvent;
+
+/**
+ * Interface for any self-describing JSON such as context entities or self-describing events
+ * @typeParam T - The type of the data object within a SelfDescribingJson
+ */
+export type SelfDescribing<T = Record<string, unknown>> = SelfDescribingJson<T>;
+
+/**
  * The ReactNativeTracker type
  */
 export type ReactNativeTracker = {
@@ -600,7 +614,7 @@ export type ReactNativeTracker = {
    * @typeParam TData - The type of the data object within the SelfDescribing object
    */
   readonly trackSelfDescribingEvent: <T extends Record<string, unknown> = Record<string, unknown>>(
-    argmap: SelfDescribingJson<T>,
+    argmap: SelfDescribing<T>,
     contexts?: EventContext[]
   ) => void;
 
@@ -634,7 +648,7 @@ export type ReactNativeTracker = {
    * @param argmap - The structured event properties
    * @param contexts - The array of event contexts
    */
-  readonly trackStructuredEvent: (argmap: StructuredEvent, contexts?: EventContext[]) => void;
+  readonly trackStructuredEvent: (argmap: StructuredProps, contexts?: EventContext[]) => void;
 
   /**
    * Tracks a page-view event
@@ -857,9 +871,7 @@ export type ReactNativeTracker = {
 export {
   version,
   PageViewEvent,
-  StructuredEvent,
   FormFocusOrChangeEvent,
-  SelfDescribingJson,
   Timestamp,
   PayloadBuilder,
   Payload,

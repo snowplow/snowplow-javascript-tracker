@@ -2,4 +2,5 @@
 import 'react-native-get-random-values';
 
 export * from './types';
-export * from './tracker';
+export { newTracker, getTracker, getAllTrackers, removeTracker, removeAllTrackers } from './tracker';
+export * from './web_view_interface';
