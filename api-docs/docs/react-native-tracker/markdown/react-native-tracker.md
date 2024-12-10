@@ -15,7 +15,9 @@
 
 |  Function | Description |
 |  --- | --- |
+|  [getAllTrackers()](./react-native-tracker.getalltrackers.md) | Retrieves all initialized trackers |
 |  [getTracker(trackerNamespace)](./react-native-tracker.gettracker.md) | Retrieves an initialized tracker given its namespace |
+|  [getWebViewCallback()](./react-native-tracker.getwebviewcallback.md) | Enables tracking events from apps rendered in react-native-webview components. The apps need to use the Snowplow WebView tracker to track the events.<!-- -->To subscribe for the events, set the <code>onMessage</code> attribute: <code>&lt;WebView onMessage={getWebViewCallback()} ... /&gt;</code> |
 |  [newTracker(configuration)](./react-native-tracker.newtracker.md) | Creates a new tracker instance with the given configuration |
 |  [removeAllTrackers()](./react-native-tracker.removealltrackers.md) | Removes all initialized trackers |
 |  [removeTracker(trackerNamespace)](./react-native-tracker.removetracker.md) | Removes a tracker given its namespace |
@@ -47,7 +49,6 @@
 |  [RuleSet](./react-native-tracker.ruleset.md) | A ruleset has accept or reject properties that contain rules for matching Iglu schema URIs |
 |  [SessionConfiguration](./react-native-tracker.sessionconfiguration.md) | Configuration for session tracking |
 |  [SessionState](./react-native-tracker.sessionstate.md) | Current session state that is tracked in events. |
-|  [StructuredEvent](./react-native-tracker.structuredevent.md) | A Structured Event A classic style of event tracking, allows for easier movement between analytics systems. A loosely typed event, creating a Self Describing event is preferred, but useful for interoperability. |
 |  [SubjectConfiguration](./react-native-tracker.subjectconfiguration.md) | Configuration of subject properties tracked with events |
 |  [TrackerConfiguration](./react-native-tracker.trackerconfiguration.md) | The configuration object for initialising the tracker |
 |  [TrackerCore](./react-native-tracker.trackercore.md) | Export interface containing all Core functions |
@@ -85,7 +86,8 @@
 |  [ScreenSize](./react-native-tracker.screensize.md) | Screen size in pixels |
 |  [ScreenViewProps](./react-native-tracker.screenviewprops.md) | ScreenView event properties schema: iglu:com.snowplowanalytics.mobile/screen\_view/jsonschema/1-0-0 |
 |  [ScrollChangedProps](./react-native-tracker.scrollchangedprops.md) | Event tracked when a scroll view's scroll position changes. If screen engagement tracking is enabled, the scroll changed events will be aggregated into a <code>screen_summary</code> entity.<!-- -->Schema: <code>iglu:com.snowplowanalytics.mobile/scroll_changed/jsonschema/1-0-0</code> |
-|  [SelfDescribingJson](./react-native-tracker.selfdescribingjson.md) | Export interface for any Self-Describing JSON such as context or Self Describing events |
+|  [SelfDescribing](./react-native-tracker.selfdescribing.md) | Interface for any self-describing JSON such as context entities or self-describing events |
+|  [StructuredProps](./react-native-tracker.structuredprops.md) | A Structured Event A classic style of event tracking, allows for easier movement between analytics systems. A loosely typed event, creating a Self Describing event is preferred, but useful for interoperability. |
 |  [Timestamp](./react-native-tracker.timestamp.md) | Algebraic datatype representing possible timestamp type choice |
 |  [TimingProps](./react-native-tracker.timingprops.md) | Timing event properties |
 |  [Trigger](./react-native-tracker.trigger.md) | Trigger for MessageNotification event |
