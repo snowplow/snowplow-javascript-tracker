@@ -55,9 +55,9 @@ export type ElementContentEntity = SDJ<
   Entities.ELEMENT_CONTENT,
   {
     parent_name: string;
-    parent_position: number;
+    parent_index: number;
     element_name: string;
-    position: number;
+    element_index: number;
     attributes?: AttributeList;
   }
 >;
@@ -70,8 +70,10 @@ export type ElementDetailsEntity = SDJ<
     width: number;
     position_x: number;
     position_y: number;
-    position?: number;
-    matches?: number;
+    doc_position_x: number;
+    doc_position_y: number;
+    element_index?: number;
+    element_matches?: number;
     attributes?: AttributeList;
   }
 >;
