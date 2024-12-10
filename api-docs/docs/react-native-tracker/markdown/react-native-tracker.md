@@ -27,6 +27,7 @@
 |  [CoreConfiguration](./react-native-tracker.coreconfiguration.md) | The configuration object for the tracker core library |
 |  [CorePlugin](./react-native-tracker.coreplugin.md) | Interface which defines Core Plugins |
 |  [CorePluginConfiguration](./react-native-tracker.corepluginconfiguration.md) | The configuration of the plugin to add |
+|  [DeepLinkConfiguration](./react-native-tracker.deeplinkconfiguration.md) | Configuration for deep link tracking |
 |  [DeviceTimestamp](./react-native-tracker.devicetimestamp.md) | A representation of a Device Timestamp (dtm) |
 |  [Emitter](./react-native-tracker.emitter.md) | Emitter is responsible for sending events to the collector. It manages the event queue and sends events in batches depending on configuration. |
 |  [EmitterConfiguration](./react-native-tracker.emitterconfiguration.md) |  |

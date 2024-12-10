@@ -18,6 +18,7 @@ export declare type ReactNativeTracker = {
     readonly trackStructuredEvent: (argmap: StructuredEvent, contexts?: EventContext[]) => void;
     readonly trackPageViewEvent: (argmap: PageViewEvent, contexts?: EventContext[]) => void;
     readonly trackTimingEvent: (argmap: TimingProps, contexts?: EventContext[]) => void;
+    readonly trackDeepLinkReceivedEvent: (argmap: DeepLinkReceivedProps, contexts?: EventContext[]) => void;
     readonly trackMessageNotificationEvent: (argmap: MessageNotificationProps, contexts?: EventContext[]) => void;
     addGlobalContexts(contexts: Array<ConditionalContextProvider | ContextPrimitive> | Record<string, ConditionalContextProvider | ContextPrimitive>): void;
     clearGlobalContexts(): void;
@@ -46,5 +47,5 @@ export declare type ReactNativeTracker = {
     readonly refreshPlatformContext: () => Promise<void>;
 };
 ```
-<b>References:</b> [EventContext](./react-native-tracker.eventcontext.md)<!-- -->, [ScreenViewProps](./react-native-tracker.screenviewprops.md)<!-- -->, [ScrollChangedProps](./react-native-tracker.scrollchangedprops.md)<!-- -->, [ListItemViewProps](./react-native-tracker.listitemviewprops.md)<!-- -->, [TimingProps](./react-native-tracker.timingprops.md)<!-- -->, [MessageNotificationProps](./react-native-tracker.messagenotificationprops.md)<!-- -->, [ScreenSize](./react-native-tracker.screensize.md)<!-- -->, [SubjectConfiguration](./react-native-tracker.subjectconfiguration.md)<!-- -->, [SessionState](./react-native-tracker.sessionstate.md)
+<b>References:</b> [EventContext](./react-native-tracker.eventcontext.md)<!-- -->, [ScreenViewProps](./react-native-tracker.screenviewprops.md)<!-- -->, [ScrollChangedProps](./react-native-tracker.scrollchangedprops.md)<!-- -->, [ListItemViewProps](./react-native-tracker.listitemviewprops.md)<!-- -->, [TimingProps](./react-native-tracker.timingprops.md)<!-- -->, [DeepLinkReceivedProps](./react-native-tracker.deeplinkreceivedprops.md)<!-- -->, [MessageNotificationProps](./react-native-tracker.messagenotificationprops.md)<!-- -->, [ScreenSize](./react-native-tracker.screensize.md)<!-- -->, [SubjectConfiguration](./react-native-tracker.subjectconfiguration.md)<!-- -->, [SessionState](./react-native-tracker.sessionstate.md)
 
