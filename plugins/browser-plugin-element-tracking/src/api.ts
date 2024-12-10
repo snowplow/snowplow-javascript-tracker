@@ -123,6 +123,33 @@ export function SnowplowElementTrackingPlugin({ ignoreNextPageView = true } = {}
         });
       }
     },
+    beforeTrack(payload) {
+      const e = payload.getPayload()['e'];
+      let eventName: string;
+
+      if (e === 'pv') eventName = 'page_view';
+      else if (e === 'pp') eventName = 'page_ping';
+      else if (e === 'se') eventName = 'event';
+      else if (e === 'tr') eventName = 'transaction';
+      else if (e === 'ti') eventName = 'transaction_item';
+      else if (e === 'ue') {
+        const sdjData = payload.getJson();
+        for (const sdjWithKey of sdjData) {
+          if (sdjWithKey.keyIfEncoded === 'ue_px') {
+            const schema = (sdjWithKey.json.data as SelfDescribingJson).schema;
+            eventName = schema.split('/')[1];
+          }
+        }
+      } else return;
+
+      configurations.forEach((config) => {
+        if (!config.includeStats.includes(eventName) && !config.includeStats.includes('*')) return;
+        const elements = getMatchingElements(config);
+        elements.forEach((elem, i, a) => {
+          payload.addContextEntity(aggregateStats(config.name, elem, i + 1, a.length));
+        });
+      });
+    },
     logger(logger) {
       LOG = logger;
     },
@@ -470,34 +497,47 @@ function mutationCallback(mutations: MutationRecord[]): void {
  */
 function intersectionCallback(entries: IntersectionObserverEntry[], observer: IntersectionObserver): void {
   entries.forEach((entry) => {
+    let frameRequest: number | undefined = undefined;
     const state = getState(entry.target, { lastObservationTs: entry.time });
     configurations.forEach((config) => {
       if (entry.target.matches(config.selector)) {
         const siblings = getMatchingElements(config);
         const position = siblings.findIndex((el) => el.isSameNode(entry.target)) + 1;
-        if (entry.isIntersecting) {
-          const elapsedVisibleMs = [ElementStatus.PENDING, ElementStatus.EXPOSED].includes(state.state)
-            ? state.elapsedVisibleMs + (entry.time - state.lastObservationTs)
-            : state.elapsedVisibleMs;
-          Object.assign(state, {
-            state: ElementStatus.PENDING,
-            lastObservationTs: entry.time,
-            elapsedVisibleMs,
-          });
 
-          // check configured criteria, if any
-          if (shouldTrackExpose(config, entry)) {
-            // check time criteria
-            if (config.expose.minTimeMillis <= state.elapsedVisibleMs) {
-              state.state = ElementStatus.EXPOSED;
-              trackEvent(Events.ELEMENT_EXPOSE, config, entry.target, {
-                boundingRect: entry.boundingClientRect,
-                position,
-                matches: siblings.length,
-              });
-            } else {
-              // check visibility time next frame
-              requestAnimationFrame(() => {
+        if (entry.isIntersecting) {
+          if (state.state !== ElementStatus.EXPOSED && state.state !== ElementStatus.PENDING) {
+            Object.assign(state, {
+              state: ElementStatus.PENDING,
+              lastObservationTs: entry.time,
+              views: state.views + 1,
+            });
+          }
+
+          if (state.state === ElementStatus.PENDING) {
+            // check configured criteria, if any
+            if (shouldTrackExpose(config, entry)) {
+              // check time criteria
+              if (config.expose.minTimeMillis <= state.elapsedVisibleMs) {
+                state.state = ElementStatus.EXPOSED;
+                trackEvent(Events.ELEMENT_EXPOSE, config, entry.target, {
+                  boundingRect: entry.boundingClientRect,
+                  position,
+                  matches: siblings.length,
+                });
+              }
+            }
+          }
+
+          if (state.state === ElementStatus.PENDING || state.state === ElementStatus.EXPOSED) {
+            const elapsedVisibleMs = state.elapsedVisibleMs + (entry.time - state.lastObservationTs);
+            Object.assign(state, {
+              lastObservationTs: entry.time,
+              elapsedVisibleMs,
+            });
+
+            // check visibility time next frame
+            if (!frameRequest) {
+              frameRequest = requestAnimationFrame(() => {
                 observer.unobserve(entry.target); // observe is no-op for already observed elements
                 observer.observe(entry.target); // for non-observed elements, it immediately generates an entry of current state
               });

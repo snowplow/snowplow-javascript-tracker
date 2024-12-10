@@ -88,5 +88,17 @@ export type ElementStatisticsEntity = SDJ<
   Entities.ELEMENT_STATISTICS,
   {
     element_name: string;
+    element_index: number;
+    element_matches: number;
+    current_state: string;
+    min_size: string;
+    current_size: string;
+    max_size: string;
+    y_depth_percentage: number | null;
+    max_y_depth_percentage: number | null;
+    max_y_depth: string;
+    element_age_ms: number;
+    times_in_view: number;
+    total_time_visible_ms: number;
   }
 >;
