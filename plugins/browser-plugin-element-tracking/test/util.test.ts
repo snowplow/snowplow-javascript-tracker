@@ -15,6 +15,7 @@ const TEMPLATE_CONFIG: Configuration = {
   state: 0,
   details: [],
   contents: [],
+  includeStats: [],
 };
 
 const TEMPLATE_DOMRECT: DOMRectReadOnly = {

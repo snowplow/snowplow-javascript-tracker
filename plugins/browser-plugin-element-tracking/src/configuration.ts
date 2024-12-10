@@ -109,6 +109,10 @@ export type ElementConfiguration = {
    */
   contents?: OneOrMany<ElementConfiguration>;
   /**
+   * Types of events that statistics for the element should be included on, if any. Should be the `event_name` value for events that should have the entity attached. E.g. `page_view`, `page_ping`, `expose_element`, `my_custom_event`.
+   */
+  includeStats?: OneOrMany<string>;
+  /**
    * Provide custom context entities for events generated from this configuration.
    */
   context?: ContextProvider;
@@ -126,7 +130,7 @@ export type ElementConfiguration = {
  */
 export type Configuration = Omit<
   RequiredExcept<ElementConfiguration, 'id' | 'shadowSelector'>,
-  'create' | 'destroy' | 'expose' | 'obscure' | 'details' | 'contents'
+  'create' | 'destroy' | 'expose' | 'obscure' | 'details' | 'includeStats' | 'contents'
 > & {
   trackers?: string[];
   create: BaseOptions;
@@ -135,6 +139,7 @@ export type Configuration = Omit<
   obscure: BaseOptions;
   state: ConfigurationState;
   details: DataSelector[];
+  includeStats: string[];
   contents: Configuration[];
   context: Extract<ContextProvider, Function>;
 };
@@ -273,10 +278,11 @@ export function checkConfig(
     logger?.warn('IntersectionObserver API unavailable but required for events in configuration:', config);
 
   // normalize to arrays (scalars allowed in input for convenience)
-  let { details = [], contents = [] } = config;
+  let { details = [], contents = [], includeStats = [] } = config;
 
   if (!Array.isArray(details)) details = details == null ? [] : [details];
   if (!Array.isArray(contents)) contents = contents == null ? [] : [contents];
+  if (!Array.isArray(includeStats)) includeStats = includeStats == null ? [] : [includeStats];
 
   if (details.length !== details.filter(isDataSelector).length)
     throw new Error('Invalid DataSelector given for details');
@@ -293,6 +299,7 @@ export function checkConfig(
     obscure: validObscure,
     component: !!component,
     details,
+    includeStats,
     contents: contents.map((inner) =>
       checkConfig(inner, inner.context ?? emptyProvider, intersectionPossible, mutationPossible, logger, trackers)
     ),

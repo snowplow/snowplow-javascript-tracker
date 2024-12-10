@@ -18,6 +18,7 @@ describe('component detection', () => {
     state: 0,
     details: [],
     contents: [],
+    includeStats: [],
   };
 
   beforeAll(() => {

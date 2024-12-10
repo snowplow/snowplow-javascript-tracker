@@ -227,6 +227,7 @@ export function getElementDetails(
   position?: number,
   matches?: number
 ): ElementDetailsEntity {
+
   return {
     schema: Entities.ELEMENT_DETAILS,
     data: {
