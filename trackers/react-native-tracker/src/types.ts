@@ -260,6 +260,17 @@ export interface PlatformContextConfiguration {
 }
 
 /**
+ * Configuration for deep link tracking
+ */
+export interface DeepLinkConfiguration {
+  /**
+   * Whether to track the deep link context entity with information from the deep link received event on the first screen view event.
+   * @defaultValue true
+   */
+  deepLinkContext?: boolean;
+}
+
+/**
  * Configuration of subject properties tracked with events
  */
 export interface SubjectConfiguration {
@@ -641,14 +652,13 @@ export type ReactNativeTracker = {
    */
   readonly trackTimingEvent: (argmap: TimingProps, contexts?: EventContext[]) => void;
 
-  // TODO:
-  // /**
-  //  * Tracks a deep link received event
-  //  *
-  //  * @param argmap - The deep link received event properties
-  //  * @param contexts - The array of event contexts
-  //  */
-  // readonly trackDeepLinkReceivedEvent: (argmap: DeepLinkReceivedProps, contexts?: EventContext[]) => void;
+  /**
+   * Tracks a deep link received event
+   *
+   * @param argmap - The deep link received event properties
+   * @param contexts - The array of event contexts
+   */
+  readonly trackDeepLinkReceivedEvent: (argmap: DeepLinkReceivedProps, contexts?: EventContext[]) => void;
 
   /**
    * Tracks a message notification event
