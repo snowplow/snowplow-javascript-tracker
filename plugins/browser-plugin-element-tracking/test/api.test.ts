@@ -402,6 +402,30 @@ describe('Element Tracking Plugin API', () => {
         expect(eventQueue).toHaveLength(1);
       });
     });
+
+    it('adds element stats', () => {
+      startElementTracking({
+        elements: { selector: '.newelement', expose: false, create: false, includeStats: 'page_view' },
+      });
+
+      const div = document.createElement('div');
+      div.classList.add('newelement');
+      document.body.appendChild(div);
+
+      tracker.trackPageView();
+      tracker.trackPageView();
+
+      return inNewTask(() => {
+        expect(eventQueue).toHaveLength(2);
+        expect(entityOf(eventQueue[0], 'element_statistics')).toHaveLength(1);
+        expect(entityOf(eventQueue[1], 'element_statistics')).toHaveLength(1);
+
+        const statEntities = entityOf(eventQueue[1], 'element_statistics');
+        if (Array.isArray(statEntities)) {
+          expect(statEntities[0]).toEqual({});
+        }
+      });
+    });
   });
 
   describe('multiple tracker', () => {
