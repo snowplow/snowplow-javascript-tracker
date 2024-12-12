@@ -24,6 +24,7 @@
 
 |  Interface | Description |
 |  --- | --- |
+|  [AppLifecycleConfiguration](./react-native-tracker.applifecycleconfiguration.md) | Configuration for app lifecycle tracking |
 |  [CoreConfiguration](./react-native-tracker.coreconfiguration.md) | The configuration object for the tracker core library |
 |  [CorePlugin](./react-native-tracker.coreplugin.md) | Interface which defines Core Plugins |
 |  [CorePluginConfiguration](./react-native-tracker.corepluginconfiguration.md) | The configuration of the plugin to add |

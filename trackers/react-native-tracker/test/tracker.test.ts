@@ -93,6 +93,28 @@ describe('Tracker', () => {
     expect(await tracker.getSessionUserId()).toBeDefined();
   });
 
+  it('attaches application context to events', async () => {
+    const tracker = await newTracker({
+      namespace: 'test',
+      appId: 'my-app',
+      appVersion: '1.0.1',
+      endpoint: 'http://localhost:9090',
+      customFetch: mockFetch,
+    });
+    tracker.trackPageViewEvent({
+      pageUrl: 'http://localhost:9090',
+      pageTitle: 'Home',
+    });
+    await tracker.flush();
+    expect(requests.length).toBe(1);
+
+    const [request] = requests;
+    const payload = await request?.json();
+    expect(payload.data.length).toBe(1);
+    expect(payload.data[0].co).toContain('/application/');
+    expect(payload.data[0].co).toContain('1.0.1');
+  });
+
   it('tracks screen engagement events', async () => {
     const tracker = await newTracker({
       namespace: 'test',
