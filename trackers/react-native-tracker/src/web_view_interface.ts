@@ -135,8 +135,8 @@ export function getWebViewCallback() {
         forEachTracker(data.trackers, (tracker) => {
           const event = data.event as WebViewPageViewEvent;
           tracker.trackPageViewEvent({
-            pageTitle: event.title ?? '',
-            pageUrl: event.url ?? '',
+            pageTitle: event.title,
+            pageUrl: event.url,
             referrer: event.referrer,
           });
         });
