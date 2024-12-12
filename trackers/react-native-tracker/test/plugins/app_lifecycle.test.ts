@@ -16,13 +16,7 @@ describe('Application lifecycle plugin', () => {
       callback: (pb) => payloads.push(pb.build()),
       base64: false,
     });
-    const appLifecyclePlugin = await newAppLifecyclePlugin(
-      {
-        appBuild: '19',
-        appVersion: '1.0.1',
-      },
-      tracker
-    );
+    const appLifecyclePlugin = await newAppLifecyclePlugin({}, tracker);
     tracker.addPlugin(appLifecyclePlugin);
 
     appStateSpy.mock.calls?.[0]?.[1]('background');
@@ -39,13 +33,7 @@ describe('Application lifecycle plugin', () => {
       callback: (pb) => payloads.push(pb.build()),
       base64: false,
     });
-    const appLifecyclePlugin = await newAppLifecyclePlugin(
-      {
-        appBuild: '19',
-        appVersion: '1.0.1',
-      },
-      tracker
-    );
+    const appLifecyclePlugin = await newAppLifecyclePlugin({}, tracker);
     tracker.addPlugin(appLifecyclePlugin);
 
     tracker.track(buildPageView({ pageUrl: 'http://localhost' }));
@@ -99,13 +87,7 @@ describe('Application lifecycle plugin', () => {
       callback: () => {},
       base64: false,
     });
-    const appLifecyclePlugin = await newAppLifecyclePlugin(
-      {
-        appBuild: '19',
-        appVersion: '1.0.1',
-      },
-      tracker
-    );
+    const appLifecyclePlugin = await newAppLifecyclePlugin({}, tracker);
     tracker.addPlugin(appLifecyclePlugin);
 
     expect(appStateSpy).toHaveBeenCalledTimes(1);
