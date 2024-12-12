@@ -623,10 +623,9 @@ export interface SessionState {
 }
 
 /**
- * A Structured Event
- * A classic style of event tracking, allows for easier movement between analytics
- * systems. A loosely typed event, creating a Self Describing event is preferred, but
- * useful for interoperability.
+ * Properties for a structured event.
+ * A classic style of event tracking, allows for easier movement between analytics systems.
+ * Self-describing events are preferred for their schema validation.
  */
 export type StructuredProps = StructuredEvent;
 

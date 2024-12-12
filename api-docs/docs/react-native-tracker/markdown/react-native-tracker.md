@@ -87,7 +87,7 @@
 |  [ScreenViewProps](./react-native-tracker.screenviewprops.md) | ScreenView event properties schema: iglu:com.snowplowanalytics.mobile/screen\_view/jsonschema/1-0-0 |
 |  [ScrollChangedProps](./react-native-tracker.scrollchangedprops.md) | Event tracked when a scroll view's scroll position changes. If screen engagement tracking is enabled, the scroll changed events will be aggregated into a <code>screen_summary</code> entity.<!-- -->Schema: <code>iglu:com.snowplowanalytics.mobile/scroll_changed/jsonschema/1-0-0</code> |
 |  [SelfDescribing](./react-native-tracker.selfdescribing.md) | Interface for any self-describing JSON such as context entities or self-describing events |
-|  [StructuredProps](./react-native-tracker.structuredprops.md) | A Structured Event A classic style of event tracking, allows for easier movement between analytics systems. A loosely typed event, creating a Self Describing event is preferred, but useful for interoperability. |
+|  [StructuredProps](./react-native-tracker.structuredprops.md) | Properties for a structured event. A classic style of event tracking, allows for easier movement between analytics systems. Self-describing events are preferred for their schema validation. |
 |  [Timestamp](./react-native-tracker.timestamp.md) | Algebraic datatype representing possible timestamp type choice |
 |  [TimingProps](./react-native-tracker.timingprops.md) | Timing event properties |
 |  [Trigger](./react-native-tracker.trigger.md) | Trigger for MessageNotification event |
