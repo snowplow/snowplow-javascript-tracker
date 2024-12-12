@@ -14,6 +14,7 @@ import {
 
 import {
   DeepLinkConfiguration,
+  AppLifecycleConfiguration,
   EventContext,
   EventStoreConfiguration,
   ListItemViewProps,
@@ -29,6 +30,9 @@ import { newSessionPlugin } from './plugins/session';
 import { newDeepLinksPlugin } from './plugins/deep_links';
 import { newPlugins } from './plugins';
 import { newPlatformContextPlugin } from './plugins/platform_context';
+import { newAppLifecyclePlugin } from './plugins/app_lifecycle';
+import { newAppInstallPlugin } from './plugins/app_install';
+import { newAppContextPlugin } from './plugins/app_context';
 
 const initializedTrackers: Record<string, { tracker: ReactNativeTracker; core: TrackerCore }> = {};
 
@@ -45,7 +49,8 @@ export async function newTracker(
     EventStoreConfiguration &
     ScreenTrackingConfiguration &
     PlatformContextConfiguration &
-    DeepLinkConfiguration
+    DeepLinkConfiguration &
+    AppLifecycleConfiguration
 ): Promise<ReactNativeTracker> {
   const { namespace, appId, encodeBase64 = false } = configuration;
   if (configuration.eventStore === undefined) {
@@ -82,6 +87,15 @@ export async function newTracker(
 
   const platformContextPlugin = await newPlatformContextPlugin(configuration);
   addPlugin(platformContextPlugin);
+
+  const lifecyclePlugin = await newAppLifecyclePlugin(configuration, core);
+  addPlugin(lifecyclePlugin);
+
+  const installPlugin = newAppInstallPlugin(configuration, core);
+  addPlugin(installPlugin);
+
+  const appContextPlugin = newAppContextPlugin(configuration);
+  addPlugin(appContextPlugin);
 
   (configuration.plugins ?? []).forEach((plugin) => addPlugin({ plugin }));
 
@@ -128,6 +142,9 @@ export async function newTracker(
         [namespace]
       ),
     trackDeepLinkReceivedEvent: deepLinksPlugin.trackDeepLinkReceivedEvent,
+    getIsInBackground: lifecyclePlugin.getIsInBackground,
+    getBackgroundIndex: lifecyclePlugin.getBackgroundIndex,
+    getForegroundIndex: lifecyclePlugin.getForegroundIndex,
   };
   initializedTrackers[namespace] = { tracker, core };
 
