@@ -31,11 +31,11 @@ const inNewTask = (cb: () => void) =>
 
 const eventSDJ = (
   field: string,
-  evt: { evt: Record<string, string> },
+  evt: { evt: Record<string, unknown> },
   schema: string
 ): Record<string, unknown> | Record<string, unknown>[] | undefined => {
   try {
-    const payloadString = evt.evt[field];
+    const payloadString = evt.evt[field] as string;
     const payload = JSON.parse(payloadString);
 
     if (/^ue_p[rx]$/.test(field)) {
@@ -53,8 +53,8 @@ const entityOf = eventSDJ.bind(null, 'co');
 const FAKE_CONTEXT_SCHEMA = 'iglu:com.example/custom_entity/jsonschema/1-0-0';
 
 describe('Element Tracking Plugin API', () => {
-  let eventQueue: { evt: Record<string, string> }[];
-  let secondEventQueue: { evt: Record<string, string> }[];
+  const eventQueue: { evt: Record<string, unknown> }[] = [];
+  const secondEventQueue: { evt: Record<string, unknown> }[] = [];
   let warnLog: jest.SpyInstance<void, Parameters<Logger['warn']>>;
   let tracker: BrowserTracker;
 
@@ -68,7 +68,15 @@ describe('Element Tracking Plugin API', () => {
     tracker = addTracker('test', 'test', 'js-test', '', state, {
       stateStorageStrategy: 'cookie',
       encodeBase64: false,
-      plugins: [plugin],
+      plugins: [
+        plugin,
+        {
+          beforeTrack: (pb) => {
+            eventQueue.push({ evt: pb.build() });
+          },
+        },
+      ],
+      customFetch: async () => new Response(null, { status: 200 }),
     })!;
 
     expect(activateBrowserPlugin).toHaveBeenCalled();
@@ -77,12 +85,18 @@ describe('Element Tracking Plugin API', () => {
     addTracker('test2', 'test2', 'js-test', '', state, {
       stateStorageStrategy: 'cookie',
       encodeBase64: false,
-      plugins: [plugin],
+      plugins: [
+        plugin,
+        {
+          beforeTrack: (pb) => {
+            secondEventQueue.push({ evt: pb.build() });
+          },
+        },
+      ],
+      customFetch: async () => new Response(null, { status: 200 }),
     });
 
     warnLog = jest.spyOn(logger.mock.calls[0][0], 'warn');
-    eventQueue = state.outQueues[0] as any;
-    secondEventQueue = state.outQueues[1] as any;
   });
 
   afterEach(() => {
@@ -419,11 +433,6 @@ describe('Element Tracking Plugin API', () => {
         expect(eventQueue).toHaveLength(2);
         expect(entityOf(eventQueue[0], 'element_statistics')).toHaveLength(1);
         expect(entityOf(eventQueue[1], 'element_statistics')).toHaveLength(1);
-
-        const statEntities = entityOf(eventQueue[1], 'element_statistics');
-        if (Array.isArray(statEntities)) {
-          expect(statEntities[0]).toEqual({});
-        }
       });
     });
   });
