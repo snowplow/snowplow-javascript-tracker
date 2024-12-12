@@ -43,6 +43,44 @@ export interface SessionConfiguration {
 }
 
 /**
+ * Configuration for app lifecycle tracking
+ */
+export interface AppLifecycleConfiguration {
+  /**
+   * Whether to automatically track app lifecycle events (app foreground and background events).
+   * Also adds a lifecycle context entity to all events.
+   *
+   * Foreground event schema: `iglu:com.snowplowanalytics.snowplow/application_foreground/jsonschema/1-0-0`
+   * Background event schema: `iglu:com.snowplowanalytics.snowplow/application_background/jsonschema/1-0-0`
+   * Context entity schema: `iglu:com.snowplowanalytics.mobile/application_lifecycle/jsonschema/1-0-0`
+   * 
+   * @defaultValue true
+   */
+  lifecycleAutotracking?: boolean;
+  /**
+   * Whether to automatically track app install event on first run.
+   *
+   * Schema: `iglu:com.snowplowanalytics.mobile/application_install/jsonschema/1-0-0`
+   * 
+   * @defaultValue false
+   */
+  installAutotracking?: boolean;
+  /**
+   * Version number of the application e.g 1.1.0 (semver or git commit hash).
+   *
+   * Entity schema if `appBuild` property is set: `iglu:com.snowplowanalytics.mobile/application/jsonschema/1-0-0`
+   * Entity schema if `appBuild` property is not set: `iglu:com.snowplowanalytics.snowplow/application/jsonschema/1-0-0`
+   */
+  appVersion?: string;
+  /**
+   * Build name of the application e.g s9f2k2d or 1.1.0 beta
+   *
+   * Entity schema: `iglu:com.snowplowanalytics.mobile/application/jsonschema/1-0-0`
+   */
+  appBuild?: string;
+}
+
+/**
  * The configuration object for initialising the tracker
  */
 export interface TrackerConfiguration {
@@ -813,29 +851,20 @@ export type ReactNativeTracker = {
    */
   readonly getSessionState: () => Promise<SessionState | undefined>;
 
-  // TODO:
-  // /**
-  //  * Gets whether the app is currently in background state
-  //  *
-  //  * @returns {Promise<boolean | undefined>}
-  //  */
-  // readonly getIsInBackground: () => Promise<boolean | undefined>;
+  /**
+   * Gets whether the app is currently in background state
+   */
+  readonly getIsInBackground: () => boolean | undefined;
 
-  // TODO:
-  // /**
-  //  * Gets the number of background transitions in the current session
-  //  *
-  //  * @returns {Promise<number | undefined>}
-  //  */
-  // readonly getBackgroundIndex: () => Promise<number | undefined>;
+  /**
+   * Gets the number of background transitions in the current session
+   */
+  readonly getBackgroundIndex: () => number | undefined;
 
-  // TODO:
-  // /**
-  //  * Gets the number of foreground transitions in the current session.
-  //  *
-  //  * @returns {Promise<number | undefined>}
-  //  */
-  // readonly getForegroundIndex: () => Promise<number | undefined>;
+  /**
+   * Gets the number of foreground transitions in the current session.
+   */
+  readonly getForegroundIndex: () => number | undefined;
 
   /**
    * Enables tracking the platform context with information about the device.
