@@ -224,7 +224,7 @@ export function startElementTracking(
 
         trackEvent(Events.ELEMENT_CREATE, config, element, { position: i + 1, matches: elements.length });
 
-        if (intersectionObserver && (expose || obscure)) {
+        if (intersectionObserver && (expose.when !== Frequency.NEVER || obscure.when !== Frequency.NEVER)) {
           intersectionObserver.observe(element);
         }
       });
@@ -469,14 +469,21 @@ function mutationCallback(mutations: MutationRecord[]): void {
           }
         }
       } else if (record.type === 'childList') {
-        record.addedNodes.forEach(createFn);
+        const matches = getMatchingElements(config);
+        record.addedNodes.forEach((node) => {
+          matches.filter((m) => node.contains(m)).forEach(createFn);
+        });
         record.removedNodes.forEach((node) => {
-          if (nodeIsElement(node) && node.matches(config.selector)) {
-            const state = getState(node);
-            if (state.state === ElementStatus.EXPOSED) trackEvent(Events.ELEMENT_OBSCURE, config, node);
-            trackEvent(Events.ELEMENT_DESTROY, config, node);
-            if (intersectionObserver) intersectionObserver.unobserve(node);
-            state.state = ElementStatus.DESTROYED;
+          if (nodeIsElement(node)) {
+            const removals = node.matches(config.selector) ? [node] : [];
+            removals.push(...getMatchingElements(config, node));
+            removals.forEach((node) => {
+              const state = getState(node);
+              if (state.state === ElementStatus.EXPOSED) trackEvent(Events.ELEMENT_OBSCURE, config, node);
+              trackEvent(Events.ELEMENT_DESTROY, config, node);
+              if (intersectionObserver) intersectionObserver.unobserve(node);
+              state.state = ElementStatus.DESTROYED;
+            });
           }
         });
       }
