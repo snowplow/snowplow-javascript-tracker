@@ -24,6 +24,8 @@ export type ConditionalContextProvider = FilterProvider | RuleSetProvider;
 // @public
 export type ContextFilter = (args?: ContextEvent) => boolean;
 
+// Warning: (ae-forgotten-export) The symbol "SelfDescribingJson" needs to be exported by the entry point index.d.ts
+//
 // @public
 export type ContextGenerator = (args?: ContextEvent) => SelfDescribingJson | SelfDescribingJson[] | undefined;
 
@@ -198,7 +200,17 @@ export interface FormFocusOrChangeEvent {
 }
 
 // @public
+export function getAllTrackers(): ReactNativeTracker[];
+
+// @public
 export function getTracker(trackerNamespace: string): ReactNativeTracker | undefined;
+
+// @public
+export function getWebViewCallback(): (message: {
+    nativeEvent: {
+        data: string;
+    };
+}) => void;
 
 // @public
 export type JsonProcessor = (payloadBuilder: PayloadBuilder, jsonForProcessing: EventJson, contextEntitiesForProcessing: SelfDescribingJson[]) => void;
@@ -354,11 +366,11 @@ export interface PlatformContextRetriever {
 // @public
 export type ReactNativeTracker = {
     namespace: string;
-    readonly trackSelfDescribingEvent: <T extends Record<string, unknown> = Record<string, unknown>>(argmap: SelfDescribingJson<T>, contexts?: EventContext[]) => void;
+    readonly trackSelfDescribingEvent: <T extends Record<string, unknown> = Record<string, unknown>>(argmap: SelfDescribing<T>, contexts?: EventContext[]) => void;
     readonly trackScreenViewEvent: (argmap: ScreenViewProps, contexts?: EventContext[]) => void;
     readonly trackScrollChangedEvent: (argmap: ScrollChangedProps, contexts?: EventContext[]) => void;
     readonly trackListItemViewEvent: (argmap: ListItemViewProps, contexts?: EventContext[]) => void;
-    readonly trackStructuredEvent: (argmap: StructuredEvent, contexts?: EventContext[]) => void;
+    readonly trackStructuredEvent: (argmap: StructuredProps, contexts?: EventContext[]) => void;
     readonly trackPageViewEvent: (argmap: PageViewEvent, contexts?: EventContext[]) => void;
     readonly trackTimingEvent: (argmap: TimingProps, contexts?: EventContext[]) => void;
     readonly trackDeepLinkReceivedEvent: (argmap: DeepLinkReceivedProps, contexts?: EventContext[]) => void;
@@ -446,10 +458,7 @@ export type ScrollChangedProps = {
 };
 
 // @public
-export type SelfDescribingJson<T = Record<string, unknown>> = {
-    schema: string;
-    data: T extends any[] ? never : T extends {} ? T : never;
-};
+export type SelfDescribing<T = Record<string, unknown>> = SelfDescribingJson<T>;
 
 // @public
 export interface SessionConfiguration {
@@ -469,19 +478,10 @@ export interface SessionState {
     userId: string;
 }
 
+// Warning: (ae-forgotten-export) The symbol "StructuredEvent" needs to be exported by the entry point index.d.ts
+//
 // @public
-export interface StructuredEvent {
-    // (undocumented)
-    action: string;
-    // (undocumented)
-    category: string;
-    // (undocumented)
-    label?: string;
-    // (undocumented)
-    property?: string;
-    // (undocumented)
-    value?: number;
-}
+export type StructuredProps = StructuredEvent;
 
 // @public
 export interface SubjectConfiguration {
