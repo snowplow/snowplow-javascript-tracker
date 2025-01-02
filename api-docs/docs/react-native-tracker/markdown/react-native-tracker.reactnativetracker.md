@@ -11,11 +11,11 @@ The ReactNativeTracker type
 ```typescript
 export declare type ReactNativeTracker = {
     namespace: string;
-    readonly trackSelfDescribingEvent: <T extends Record<string, unknown> = Record<string, unknown>>(argmap: SelfDescribingJson<T>, contexts?: EventContext[]) => void;
+    readonly trackSelfDescribingEvent: <T extends Record<string, unknown> = Record<string, unknown>>(argmap: SelfDescribing<T>, contexts?: EventContext[]) => void;
     readonly trackScreenViewEvent: (argmap: ScreenViewProps, contexts?: EventContext[]) => void;
     readonly trackScrollChangedEvent: (argmap: ScrollChangedProps, contexts?: EventContext[]) => void;
     readonly trackListItemViewEvent: (argmap: ListItemViewProps, contexts?: EventContext[]) => void;
-    readonly trackStructuredEvent: (argmap: StructuredEvent, contexts?: EventContext[]) => void;
+    readonly trackStructuredEvent: (argmap: StructuredProps, contexts?: EventContext[]) => void;
     readonly trackPageViewEvent: (argmap: PageViewEvent, contexts?: EventContext[]) => void;
     readonly trackTimingEvent: (argmap: TimingProps, contexts?: EventContext[]) => void;
     readonly trackDeepLinkReceivedEvent: (argmap: DeepLinkReceivedProps, contexts?: EventContext[]) => void;
@@ -50,5 +50,5 @@ export declare type ReactNativeTracker = {
     readonly refreshPlatformContext: () => Promise<void>;
 };
 ```
-<b>References:</b> [EventContext](./react-native-tracker.eventcontext.md)<!-- -->, [ScreenViewProps](./react-native-tracker.screenviewprops.md)<!-- -->, [ScrollChangedProps](./react-native-tracker.scrollchangedprops.md)<!-- -->, [ListItemViewProps](./react-native-tracker.listitemviewprops.md)<!-- -->, [TimingProps](./react-native-tracker.timingprops.md)<!-- -->, [DeepLinkReceivedProps](./react-native-tracker.deeplinkreceivedprops.md)<!-- -->, [MessageNotificationProps](./react-native-tracker.messagenotificationprops.md)<!-- -->, [ScreenSize](./react-native-tracker.screensize.md)<!-- -->, [SubjectConfiguration](./react-native-tracker.subjectconfiguration.md)<!-- -->, [SessionState](./react-native-tracker.sessionstate.md)
+<b>References:</b> [SelfDescribing](./react-native-tracker.selfdescribing.md)<!-- -->, [EventContext](./react-native-tracker.eventcontext.md)<!-- -->, [ScreenViewProps](./react-native-tracker.screenviewprops.md)<!-- -->, [ScrollChangedProps](./react-native-tracker.scrollchangedprops.md)<!-- -->, [ListItemViewProps](./react-native-tracker.listitemviewprops.md)<!-- -->, [StructuredProps](./react-native-tracker.structuredprops.md)<!-- -->, [TimingProps](./react-native-tracker.timingprops.md)<!-- -->, [DeepLinkReceivedProps](./react-native-tracker.deeplinkreceivedprops.md)<!-- -->, [MessageNotificationProps](./react-native-tracker.messagenotificationprops.md)<!-- -->, [ScreenSize](./react-native-tracker.screensize.md)<!-- -->, [SubjectConfiguration](./react-native-tracker.subjectconfiguration.md)<!-- -->, [SessionState](./react-native-tracker.sessionstate.md)
 
