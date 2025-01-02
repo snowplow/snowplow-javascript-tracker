@@ -1,4 +1,4 @@
-import { BrowserPlugin, BrowserPluginConfiguration } from '@snowplow/browser-tracker-core';
+import { BrowserPlugin, BrowserPluginConfiguration, Platform } from '@snowplow/browser-tracker-core';
 import {
   ConditionalContextProvider,
   ContextPrimitive,
@@ -40,6 +40,11 @@ export interface SessionConfiguration {
    * @defaultValue 1800
    */
   backgroundSessionTimeout?: number;
+  /**
+   * Whether session context is attached to tracked events.
+   * @defaultValue true
+   */
+  sessionContext?: boolean;
 }
 
 /**
@@ -53,7 +58,7 @@ export interface AppLifecycleConfiguration {
    * Foreground event schema: `iglu:com.snowplowanalytics.snowplow/application_foreground/jsonschema/1-0-0`
    * Background event schema: `iglu:com.snowplowanalytics.snowplow/application_background/jsonschema/1-0-0`
    * Context entity schema: `iglu:com.snowplowanalytics.mobile/application_lifecycle/jsonschema/1-0-0`
-   * 
+   *
    * @defaultValue true
    */
   lifecycleAutotracking?: boolean;
@@ -61,7 +66,7 @@ export interface AppLifecycleConfiguration {
    * Whether to automatically track app install event on first run.
    *
    * Schema: `iglu:com.snowplowanalytics.mobile/application_install/jsonschema/1-0-0`
-   * 
+   *
    * @defaultValue false
    */
   installAutotracking?: boolean;
@@ -98,6 +103,11 @@ export interface TrackerConfiguration {
    * @defaultValue []
    */
   plugins?: BrowserPlugin[];
+  /**
+   * The device platform the tracker runs on.
+   * @defaultValue 'mob'
+   */
+  devicePlatform?: Platform;
 }
 
 export enum PlatformContextProperty {
