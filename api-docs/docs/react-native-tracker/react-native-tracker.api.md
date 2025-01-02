@@ -6,6 +6,7 @@
 
 import { BrowserPlugin } from '@snowplow/browser-tracker-core';
 import { BrowserPluginConfiguration } from '@snowplow/browser-tracker-core';
+import { Platform } from '@snowplow/browser-tracker-core';
 import { ScreenTrackingConfiguration } from '@snowplow/browser-plugin-screen-tracking';
 
 // @public
@@ -455,6 +456,7 @@ export type SelfDescribingJson<T = Record<string, unknown>> = {
 export interface SessionConfiguration {
     backgroundSessionTimeout?: number;
     foregroundSessionTimeout?: number;
+    sessionContext?: boolean;
 }
 
 // @public
@@ -511,6 +513,7 @@ export type TimingProps = {
 // @public
 export interface TrackerConfiguration {
     appId?: string;
+    devicePlatform?: Platform;
     encodeBase64?: boolean;
     namespace: string;
     plugins?: BrowserPlugin[];
