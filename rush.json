@@ -546,6 +546,12 @@
       "projectFolder": "plugins/browser-plugin-screen-tracking",
       "reviewCategory": "plugins",
       "versionPolicyName": "tracker"
+    },
+    {
+      "packageName": "@snowplow/browser-plugin-webview",
+      "projectFolder": "plugins/browser-plugin-webview",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
     }
   ]
 }
