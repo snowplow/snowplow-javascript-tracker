@@ -4,10 +4,9 @@ import {
   buildStructEvent,
   PageViewEvent,
   SelfDescribingJson,
-  StructuredEvent,
   TrackerCore,
 } from '@snowplow/tracker-core';
-import { EventContext, MessageNotificationProps, TimingProps } from './types';
+import { EventContext, MessageNotificationProps, StructuredProps, TimingProps } from './types';
 
 export function newTrackEventFunctions(core: TrackerCore) {
   const trackSelfDescribingEvent = <T extends Record<string, unknown> = Record<string, unknown>>(
@@ -17,7 +16,7 @@ export function newTrackEventFunctions(core: TrackerCore) {
     core.track(buildSelfDescribingEvent({ event: argmap }), contexts);
   };
 
-  const trackStructuredEvent = (argmap: StructuredEvent, contexts?: EventContext[]) => {
+  const trackStructuredEvent = (argmap: StructuredProps, contexts?: EventContext[]) => {
     return core.track(buildStructEvent(argmap), contexts)?.eid;
   };
 

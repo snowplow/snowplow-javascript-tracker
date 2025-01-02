@@ -161,6 +161,31 @@ export function getTracker(trackerNamespace: string): ReactNativeTracker | undef
 }
 
 /**
+ * Retrieves all initialized trackers
+ * @returns All initialized trackers
+ */
+export function getAllTrackers(): ReactNativeTracker[] {
+  return Object.values(initializedTrackers).map(({ tracker }) => tracker);
+}
+
+/**
+ * Internal function to retrieve the tracker core given its namespace
+ * @param trackerNamespace - Tracker namespace
+ * @returns Tracker core if exists
+ */
+export function getTrackerCore(trackerNamespace: string): TrackerCore | undefined {
+  return initializedTrackers[trackerNamespace]?.core;
+}
+
+/**
+ * Internal function to retrieve all initialized tracker cores
+ * @returns All initialized tracker cores
+ */
+export function getAllTrackerCores(): TrackerCore[] {
+  return Object.values(initializedTrackers).map(({ core }) => core);
+}
+
+/**
  * Removes a tracker given its namespace
  *
  * @param trackerNamespace - Tracker namespace
