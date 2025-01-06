@@ -54,6 +54,7 @@ async function resumeStoredSession(namespace: string): Promise<SessionState> {
  */
 export async function newSessionPlugin({
   namespace,
+  sessionContext = true,
   foregroundSessionTimeout,
   backgroundSessionTimeout,
 }: TrackerConfiguration & SessionConfiguration): Promise<SessionPlugin> {
@@ -105,10 +106,12 @@ export async function newSessionPlugin({
     }
 
     // add session context to the payload
-    payloadBuilder.addContextEntity({
-      schema: CLIENT_SESSION_ENTITY_SCHEMA,
-      data: { ...sessionState },
-    });
+    if (sessionContext) {
+      payloadBuilder.addContextEntity({
+        schema: CLIENT_SESSION_ENTITY_SCHEMA,
+        data: { ...sessionState },
+      });
+    }
   };
 
   return {

@@ -17,6 +17,7 @@ export interface TrackerConfiguration
 |  Property | Type | Description |
 |  --- | --- | --- |
 |  [appId?](./react-native-tracker.trackerconfiguration.appid.md) | string | <i>(Optional)</i> The application ID |
+|  [devicePlatform?](./react-native-tracker.trackerconfiguration.deviceplatform.md) | Platform | <i>(Optional)</i> The device platform the tracker runs on. |
 |  [encodeBase64?](./react-native-tracker.trackerconfiguration.encodebase64.md) | boolean | <i>(Optional)</i> Whether unstructured events and custom contexts should be base64 encoded. |
 |  [namespace](./react-native-tracker.trackerconfiguration.namespace.md) | string | The namespace of the tracker |
 |  [plugins?](./react-native-tracker.trackerconfiguration.plugins.md) | BrowserPlugin\[\] | <i>(Optional)</i> Inject plugins which will be evaluated for each event |
