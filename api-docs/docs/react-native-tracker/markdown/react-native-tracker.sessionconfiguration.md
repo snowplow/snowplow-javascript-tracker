@@ -18,4 +18,5 @@ export interface SessionConfiguration
 |  --- | --- | --- |
 |  [backgroundSessionTimeout?](./react-native-tracker.sessionconfiguration.backgroundsessiontimeout.md) | number | <i>(Optional)</i> The amount of time in seconds before the session id is updated while the app is in the background |
 |  [foregroundSessionTimeout?](./react-native-tracker.sessionconfiguration.foregroundsessiontimeout.md) | number | <i>(Optional)</i> The amount of time in seconds before the session id is updated while the app is in the foreground |
+|  [sessionContext?](./react-native-tracker.sessionconfiguration.sessioncontext.md) | boolean | <i>(Optional)</i> Whether session context is attached to tracked events. |
 

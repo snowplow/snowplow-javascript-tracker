@@ -64,7 +64,7 @@ export async function newTracker(
 
   const core = trackerCore({ base64: encodeBase64, callback });
 
-  core.setPlatform('mob'); // default platform
+  core.setPlatform(configuration.devicePlatform ?? 'mob');
   core.setTrackerVersion('rn-' + version);
   core.setTrackerNamespace(namespace);
   if (appId) {
