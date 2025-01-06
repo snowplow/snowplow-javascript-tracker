@@ -1,5 +1,5 @@
 import { BrowserPlugin, BrowserTracker, Payload } from '@snowplow/browser-tracker-core';
-import { hasMobileInterface, trackWebViewEvent } from '../../../../../mirandawilson/snowplow-webview-tracker';
+import { hasMobileInterface, trackWebViewEvent } from '@snowplow/webview-tracker';
 import { Logger, SelfDescribingEvent, SelfDescribingJson } from '@snowplow/tracker-core';
 
 const _trackers: Record<string, BrowserTracker> = {};

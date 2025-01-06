@@ -25,7 +25,7 @@
     "@snowplow/browser-tracker-core": "workspace:*",
     "@snowplow/tracker-core": "workspace:*",
     "tslib": "^2.3.1",
-    "@snowplow/webview-tracker": "github:snowplow-incubator/snowplow-webview-tracker#a02ad4331c39f45a15bd1eb05039d795726ad70b"
+    "@snowplow/webview-tracker": "file:../../../snowplow-webview-tracker"
   },
   "devDependencies": {
     "@ampproject/rollup-plugin-closure-compiler": "~0.27.0",

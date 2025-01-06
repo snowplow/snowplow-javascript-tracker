@@ -1,9 +1,9 @@
 import { addTracker, SharedState, EventStore, BrowserTracker } from '@snowplow/browser-tracker-core';
 import { newInMemoryEventStore } from '@snowplow/tracker-core';
 import { WebViewPlugin } from '../src';
-import { hasMobileInterface } from '../../../../../mirandawilson/snowplow-webview-tracker';
+import { hasMobileInterface } from '@snowplow/webview-tracker';
 
-jest.mock('../../../../snowplow-webview-tracker');
+jest.mock('@snowplow/webview-tracker');
 
 describe('WebView plugin', () => {
   let idx = 1;

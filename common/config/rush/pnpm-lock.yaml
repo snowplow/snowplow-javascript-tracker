@@ -2020,8 +2020,8 @@ importers:
         specifier: workspace:*
         version: link:../../libraries/tracker-core
       '@snowplow/webview-tracker':
-        specifier: github:snowplow-incubator/snowplow-webview-tracker#a02ad4331c39f45a15bd1eb05039d795726ad70b
-        version: https://codeload.github.com/snowplow-incubator/snowplow-webview-tracker/tar.gz/a02ad4331c39f45a15bd1eb05039d795726ad70b
+        specifier: file:../../../snowplow-webview-tracker
+        version: file:../../../snowplow-webview-tracker
       tslib:
         specifier: ^2.3.1
         version: 2.8.1
@@ -3763,9 +3763,8 @@ packages:
   '@sinonjs/fake-timers@9.1.2':
     resolution: {integrity: sha512-BPS4ynJW/o92PUR4wgriz2Ud5gpST5vz6GQfMixEDK0Z8ZCUv2M7SkBLykH56T++Xs+8ln9zTGbOvNGIe02/jw==}
 
-  '@snowplow/webview-tracker@https://codeload.github.com/snowplow-incubator/snowplow-webview-tracker/tar.gz/a02ad4331c39f45a15bd1eb05039d795726ad70b':
-    resolution: {tarball: https://codeload.github.com/snowplow-incubator/snowplow-webview-tracker/tar.gz/a02ad4331c39f45a15bd1eb05039d795726ad70b}
-    version: 0.2.1
+  '@snowplow/webview-tracker@file:../../../snowplow-webview-tracker':
+    resolution: {directory: ../../../snowplow-webview-tracker, type: directory}
 
   '@szmarczak/http-timer@4.0.6':
     resolution: {integrity: sha512-4BAffykYOgO+5nzBWYwE3W90sBgLJoUPRWWcL8wlyiM8IB8ipJz3UMJ9KXQd1RKQXpKp8Tutn80HZtWsu2u76w==}
@@ -10852,7 +10851,7 @@ snapshots:
     dependencies:
       '@sinonjs/commons': 1.8.6
 
-  '@snowplow/webview-tracker@https://codeload.github.com/snowplow-incubator/snowplow-webview-tracker/tar.gz/a02ad4331c39f45a15bd1eb05039d795726ad70b': {}
+  '@snowplow/webview-tracker@file:../../../snowplow-webview-tracker': {}
 
   '@szmarczak/http-timer@4.0.6':
     dependencies:
