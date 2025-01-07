@@ -96,8 +96,8 @@ export type ElementStatisticsEntity = SDJ<
     min_size: string;
     current_size: string;
     max_size: string;
-    y_depth_percentage: number | null;
-    max_y_depth_percentage: number | null;
+    y_depth_ratio: number | null;
+    max_y_depth_ratio: number | null;
     max_y_depth: string;
     element_age_ms: number;
     times_in_view: number;

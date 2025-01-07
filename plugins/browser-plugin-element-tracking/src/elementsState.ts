@@ -143,12 +143,12 @@ export function aggregateStats(
       min_size: minSize.join('x'),
       current_size: curSize.join('x'),
       max_size: maxSize.join('x'),
-      y_depth_percentage: curDepth[1] === 0 ? null : curDepth[0] / curDepth[1],
-      max_y_depth_percentage: maxDepth[1] === 0 ? null : maxDepth[0] / maxDepth[1],
+      y_depth_ratio: curDepth[1] === 0 ? null : curDepth[0] / curDepth[1],
+      max_y_depth_ratio: maxDepth[1] === 0 ? null : maxDepth[0] / maxDepth[1],
       max_y_depth: maxDepth.join('/'),
-      element_age_ms: performance.now() - (state.createdTs - performance.timeOrigin),
+      element_age_ms: Math.floor(performance.now() - (state.createdTs - performance.timeOrigin)),
       times_in_view: state.views,
-      total_time_visible_ms: state.elapsedVisibleMs,
+      total_time_visible_ms: Math.floor(state.elapsedVisibleMs),
     },
   };
 }
