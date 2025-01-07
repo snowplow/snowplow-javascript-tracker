@@ -39,6 +39,10 @@ type ElementState = {
    */
   lastPosition: number;
   /**
+   * The last non-0 size information available for this element.
+   */
+  lastKnownSize?: DOMRect;
+  /**
    * The other matches for this element's selector we last saw, of which the element is/was at `lastPosition`-1 position.
    */
   matches: Set<Configuration>;

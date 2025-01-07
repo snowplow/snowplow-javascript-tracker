@@ -1,5 +1,6 @@
 import { SelfDescribingJson } from '@snowplow/tracker-core';
 import type { Configuration } from './configuration';
+import { getState } from './elementsState';
 import { ElementContentEntity, ElementDetailsEntity, Entities } from './schemata';
 import { AttributeList, type DataSelector } from './types';
 import { getMatchingElements } from './util';
@@ -214,10 +215,11 @@ export function buildContentTree(
 /**
  * Builds an `element` entity.
  * @param config Configuration describing any additional data that should be included in the entity.
- * @param element The elment this entity will describe.
+ * @param element The element this entity will describe.
  * @param rect The position/dimension information of the element.
  * @param position Which match this element is amongst those that match the Configuration's selector.
  * @param matches The total number, including this one, of elements that matched the Configuration selector.
+ * @param usePreviousForEmpty Whether to use the previously seen size instead of the current one. Useful if the node no longer exists (e.g. destroyed). Will only apply if the new size is 0.
  * @returns The Element entity SDJ.
  */
 export function getElementDetails(
@@ -225,8 +227,17 @@ export function getElementDetails(
   element: Element,
   rect: DOMRect = element.getBoundingClientRect(),
   position?: number,
-  matches?: number
+  matches?: number,
+  usePreviousForEmpty: boolean = false
 ): ElementDetailsEntity {
+  const state = getState(element);
+
+  if (usePreviousForEmpty && state.lastKnownSize && (rect.height === 0 || rect.width === 0)) {
+    rect = state.lastKnownSize;
+  }
+
+  state.lastKnownSize = rect;
+
   return {
     schema: Entities.ELEMENT_DETAILS,
     data: {

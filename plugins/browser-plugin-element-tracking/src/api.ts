@@ -405,7 +405,16 @@ function trackEvent<T extends Events>(
   context.push(...(config.context(element, config) as Entity[]));
 
   if (config.details) {
-    context.push(getElementDetails(config, element, boundingRect, position, matches));
+    context.push(
+      getElementDetails(
+        config,
+        element,
+        boundingRect,
+        position,
+        matches,
+        schema === Events.ELEMENT_DESTROY || schema === Events.ELEMENT_OBSCURE
+      )
+    );
   }
 
   if (config.contents.length) {
