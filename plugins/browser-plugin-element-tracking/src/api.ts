@@ -89,6 +89,7 @@ const trackedConfigs: Record<Events, WeakSet<Configuration>> = {
 let LOG: Logger | undefined = undefined;
 let mutationObserver: MutationObserver | false = false;
 let intersectionObserver: IntersectionObserver | false = false;
+let currentPageViewId: string = '';
 
 /**
  * Plugin for tracking the addition and removal of elements to a page and the visibility of those elements.
@@ -108,10 +109,17 @@ export function SnowplowElementTrackingPlugin({ ignoreNextPageView = true } = {}
   return {
     activateBrowserPlugin(tracker) {
       trackers[tracker.id] = tracker;
+      currentPageViewId = tracker.getPageViewId();
       setupObservers();
     },
     afterTrack(payload) {
       if (payload['e'] === 'pv') {
+        // update originating pageview id
+        const trackerName = payload['tna'];
+        if (typeof trackerName === 'string' && trackerName in trackers) {
+          currentPageViewId = trackers[trackerName].getPageViewId();
+        }
+
         // re-set state for `when: pageview` frequency caps
         Object.values(trackedThisPage).forEach((trackedThisPage) => {
           // handle book-keeping from above
@@ -217,7 +225,7 @@ export function startElementTracking(
       const elements = getMatchingElements(config);
 
       elements.forEach((element, i) => {
-        const state = getState(element);
+        const state = getState(element, { originalPageViewId: currentPageViewId });
 
         state.lastPosition = i;
         state.matches.add(config);
@@ -420,7 +428,7 @@ function trackEvent<T extends Events>(
  */
 function handleCreate(nowTs: number, config: Configuration, node: Node | Element) {
   if (nodeIsElement(node) && node.matches(config.selector)) {
-    const state = getState(node);
+    const state = getState(node, { originalPageViewId: currentPageViewId });
     state.state = ElementStatus.CREATED;
     state.createdTs = nowTs;
     state.matches.add(config);
@@ -448,7 +456,7 @@ function mutationCallback(mutations: MutationRecord[]): void {
       if (record.type === 'attributes') {
         if (nodeIsElement(record.target)) {
           const element = record.target;
-          const prevState = getState(element);
+          const prevState = getState(element, { originalPageViewId: currentPageViewId });
 
           if (prevState.state !== ElementStatus.INITIAL) {
             if (!element.matches(config.selector)) {
@@ -478,7 +486,7 @@ function mutationCallback(mutations: MutationRecord[]): void {
             const removals = node.matches(config.selector) ? [node] : [];
             removals.push(...getMatchingElements(config, node));
             removals.forEach((node) => {
-              const state = getState(node);
+              const state = getState(node, { originalPageViewId: currentPageViewId });
               if (state.state === ElementStatus.EXPOSED) trackEvent(Events.ELEMENT_OBSCURE, config, node);
               trackEvent(Events.ELEMENT_DESTROY, config, node);
               if (intersectionObserver) intersectionObserver.unobserve(node);
@@ -505,7 +513,7 @@ function mutationCallback(mutations: MutationRecord[]): void {
 function intersectionCallback(entries: IntersectionObserverEntry[], observer: IntersectionObserver): void {
   entries.forEach((entry) => {
     let frameRequest: number | undefined = undefined;
-    const state = getState(entry.target, { lastObservationTs: entry.time });
+    const state = getState(entry.target, { lastObservationTs: entry.time, originalPageViewId: currentPageViewId });
     configurations.forEach((config) => {
       if (entry.target.matches(config.selector)) {
         const siblings = getMatchingElements(config);

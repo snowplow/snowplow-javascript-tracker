@@ -31,6 +31,10 @@ type ElementState = {
    */
   elapsedVisibleMs: number;
   /**
+   * The pageview ID when we first observed this element.
+   */
+  originalPageViewId: string;
+  /**
    * The last position we saw of this element amongst the other matches we saw for this element.
    */
   lastPosition: number;
@@ -76,6 +80,7 @@ export function getState(target: Element, initial: Partial<ElementState> = {}): 
     const state: ElementState = {
       state: ElementStatus.INITIAL,
       matches: new Set(),
+      originalPageViewId: '',
       createdTs: nowTs + performance.timeOrigin,
       lastPosition: -1,
       lastObservationTs: nowTs,

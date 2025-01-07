@@ -239,6 +239,7 @@ export function getElementDetails(
       doc_position_y: rect.y + window.scrollY,
       element_index: position,
       element_matches: matches,
+      originating_page_view: state.originalPageViewId,
       attributes: extractSelectorDetails(element, config.selector, config.details),
     },
   };
