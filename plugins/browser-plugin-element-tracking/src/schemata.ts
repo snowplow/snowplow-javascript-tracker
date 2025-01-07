@@ -74,6 +74,7 @@ export type ElementDetailsEntity = SDJ<
     doc_position_y: number;
     element_index?: number;
     element_matches?: number;
+    originating_page_view: string;
     attributes?: AttributeList;
   }
 >;
