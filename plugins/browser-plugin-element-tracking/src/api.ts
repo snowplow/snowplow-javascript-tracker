@@ -132,6 +132,7 @@ export function SnowplowElementTrackingPlugin({ ignoreNextPageView = true } = {}
       }
     },
     beforeTrack(payload) {
+      // attach stat/component entities for configured events
       const e = payload.getPayload()['e'];
       let eventName: string;
 
@@ -457,7 +458,7 @@ function handleCreate(nowTs: number, config: Configuration, node: Node | Element
  * On the other hand, if a CREATE was determined, start observing intersections if that's requested in the configuration.
  */
 function mutationCallback(mutations: MutationRecord[]): void {
-  const nowTs = performance.now() - performance.timeOrigin;
+  const nowTs = performance.now() + performance.timeOrigin;
   mutations.forEach((record) => {
     configurations.forEach((config) => {
       const createFn = handleCreate.bind(null, nowTs, config);
