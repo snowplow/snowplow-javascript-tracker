@@ -1,9 +1,13 @@
 import { BrowserPlugin, BrowserTracker, Payload } from '@snowplow/browser-tracker-core';
 import { hasMobileInterface, trackWebViewEvent } from '@snowplow/webview-tracker';
 import { Logger, SelfDescribingEvent, SelfDescribingJson } from '@snowplow/tracker-core';
+import { base64urldecode } from './utils';
 
 const _trackers: Record<string, BrowserTracker> = {};
 
+/**
+ * Forwards events to Snowplow mobile trackers running in a WebView.
+ */
 export function WebViewPlugin(): BrowserPlugin {
   let LOG: Logger;
 
@@ -23,19 +27,19 @@ export function WebViewPlugin(): BrowserPlugin {
         let atomicProperties = {
           eventName: payload.e as string,
           trackerVersion: payload.tv as string,
-          useragent: payload.ua as string,
-          url: payload.url as string,
-          title: payload.page as string,
-          referrer: payload.refr as string,
-          category: payload.se_ca as string,
-          action: payload.se_ac as string,
-          label: payload.se_la as string,
-          property: payload.se_pr as string,
-          value: payload.se_va as number,
-          minXOffset: payload.pp_mix as number,
-          maxXOffset: payload.pp_max as number,
-          minYOffset: payload.pp_miy as number,
-          maxYOffset: payload.pp_may as number,
+          useragent: (payload.ua as string) ?? window.navigator.userAgent,
+          url: payload.url as string | undefined,
+          title: payload.page as string | undefined,
+          referrer: payload.refr as string | undefined,
+          category: payload.se_ca as string | undefined,
+          action: payload.se_ac as string | undefined,
+          label: payload.se_la as string | undefined,
+          property: payload.se_pr as string | undefined,
+          value: payload.se_va ? parseFloat(payload.se_va as string) : undefined,
+          minXOffset: payload.pp_mix ? parseInt(payload.pp_mix as string) : undefined,
+          maxXOffset: payload.pp_max ? parseInt(payload.pp_max as string) : undefined,
+          minYOffset: payload.pp_miy ? parseInt(payload.pp_miy as string) : undefined,
+          maxYOffset: payload.pp_may ? parseInt(payload.pp_may as string) : undefined,
         };
         let event = getSelfDescribingEventData(payload);
         let entities = getEntities(payload);
@@ -55,7 +59,8 @@ function getSelfDescribingEventData(payload: Payload): SelfDescribingEvent | und
   if (payload.ue_pr) {
     return JSON.parse(payload.ue_pr as string);
   } else if (payload.ue_px) {
-    return JSON.parse(payload.ue_px as string);
+    let decoded = base64urldecode(payload.ue_px as string);
+    return JSON.parse(decoded);
   }
   return undefined;
 }
@@ -64,7 +69,8 @@ function getEntities(payload: Payload): SelfDescribingJson[] {
   if (payload.co) {
     return JSON.parse(payload.co as string)['data'];
   } else if (payload.cx) {
-    return JSON.parse(payload.cx as string)['data'];
+    let decoded = base64urldecode(payload.cx as string);
+    return JSON.parse(decoded)['data'];
   }
   return [];
 }
