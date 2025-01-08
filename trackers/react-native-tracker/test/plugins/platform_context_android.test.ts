@@ -2,6 +2,7 @@ import { buildPageView, Payload, trackerCore } from '@snowplow/tracker-core';
 import { newPlatformContextPlugin } from '../../src/plugins/platform_context';
 import { MOBILE_CONTEXT_SCHEMA } from '../../src/constants';
 import { NativeModules } from 'react-native';
+import { Dimensions } from 'react-native';
 
 describe('PlatformContextPlugin on Android', () => {
   beforeAll(() => {
@@ -17,6 +18,12 @@ describe('PlatformContextPlugin on Android', () => {
       },
       select: () => null,
     }));
+    jest.spyOn(Dimensions, 'get').mockReturnValue({
+      width: 123.4567,
+      height: 89.1234,
+      scale: 0,
+      fontScale: 0,
+    });
     NativeModules.I18nManager = {
       localeIdentifier: 'en-GB',
     };
@@ -46,5 +53,6 @@ describe('PlatformContextPlugin on Android', () => {
     expect(payload?.co).toContain('"Google"');
     expect(payload?.co).toContain('"Google"');
     expect(payload?.co).toContain('"en-GB"');
+    expect(payload?.co).toContain('"123x89"');
   });
 });

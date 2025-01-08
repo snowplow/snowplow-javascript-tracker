@@ -230,7 +230,7 @@ export async function newPlatformContextPlugin({
       platformContextProperties?.includes(PlatformContextProperty.Resolution) ?? true
         ? platformContextRetriever?.getResolution
           ? await platformContextRetriever?.getResolution()
-          : Dimensions.get('window').width + 'x' + Dimensions.get('window').height
+          : Math.floor(Dimensions.get('window').width) + 'x' + Math.floor(Dimensions.get('window').height)
         : undefined;
     scale =
       platformContextProperties?.includes(PlatformContextProperty.Scale) ?? true

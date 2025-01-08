@@ -2,6 +2,7 @@ import { buildPageView, Payload, trackerCore } from '@snowplow/tracker-core';
 import { newPlatformContextPlugin } from '../../src/plugins/platform_context';
 import { NativeModules } from 'react-native';
 import { MOBILE_CONTEXT_SCHEMA } from '../../src/constants';
+import { Dimensions } from 'react-native';
 
 describe('PlatformContextPlugin on iOS', () => {
   beforeAll(() => {
@@ -22,6 +23,12 @@ describe('PlatformContextPlugin on iOS', () => {
       isVision: false,
       select: () => null,
     }));
+    jest.spyOn(Dimensions, 'get').mockReturnValue({
+      width: 123.4567,
+      height: 89.1234,
+      scale: 0,
+      fontScale: 0,
+    });
     NativeModules.SettingsManager = {
       settings: {
         AppleLanguages: ['en-GB'],
@@ -51,6 +58,7 @@ describe('PlatformContextPlugin on iOS', () => {
     expect(payload?.co).toContain('"iOS"');
     expect(payload?.co).toContain('"18.0"');
     expect(payload?.co).toContain('"en-GB"');
+    expect(payload?.co).toContain('"123x89"');
   });
 
   it('does not add platform context to events if disabled', async () => {
