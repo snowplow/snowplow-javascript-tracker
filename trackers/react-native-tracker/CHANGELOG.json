@@ -1,5 +1,38 @@
 {
   "name": "@snowplow/react-native-tracker",
   "entries": [
+    {
+      "version": "4.2.0",
+      "tag": "@snowplow/react-native-tracker_v4.2.0",
+      "date": "Mon, 13 Jan 2025 08:30:05 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add new tracker for React Native"
+          },
+          {
+            "comment": "Add app install, foreground and background event and application entity tracking (#1396)"
+          },
+          {
+            "comment": "Add a platform context plugin to the React Native tracker to track device information (#1395)"
+          },
+          {
+            "comment": "Add internal session plugin to the React Native tracker (#1388)"
+          },
+          {
+            "comment": "Add deep link tracking to the React Native tracker"
+          },
+          {
+            "comment": "Round resolution in mobile context to avoid validation failures on Android"
+          },
+          {
+            "comment": "Add screen tracking plugin and add support for browser plugins (#1394)"
+          },
+          {
+            "comment": "Add WebView tracker integration to the React Native tracker (#1399)"
+          }
+        ]
+      }
+    }
   ]
 }

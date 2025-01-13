@@ -1,5 +1,17 @@
 {
   "name": "@snowplow/browser-plugin-screen-tracking",
   "entries": [
+    {
+      "version": "4.2.0",
+      "tag": "@snowplow/browser-plugin-screen-tracking_v4.2.0",
+      "date": "Mon, 13 Jan 2025 08:30:05 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add screen tracking plugin and add support for browser plugins (#1394)"
+          }
+        ]
+      }
+    }
   ]
 }

@@ -1,6 +1,11 @@
 # Change Log - @snowplow/browser-plugin-media-tracking
 
-This log was last generated on Thu, 28 Nov 2024 10:57:30 GMT and should not be manually modified.
+This log was last generated on Mon, 13 Jan 2025 08:30:05 GMT and should not be manually modified.
+
+## 4.2.0
+Mon, 13 Jan 2025 08:30:05 GMT
+
+_Version update only_
 
 ## 4.1.0
 Thu, 28 Nov 2024 10:57:30 GMT

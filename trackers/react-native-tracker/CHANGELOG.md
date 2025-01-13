@@ -1,0 +1,18 @@
+# Change Log - @snowplow/react-native-tracker
+
+This log was last generated on Mon, 13 Jan 2025 08:30:05 GMT and should not be manually modified.
+
+## 4.2.0
+Mon, 13 Jan 2025 08:30:05 GMT
+
+### Updates
+
+- Add new tracker for React Native
+- Add app install, foreground and background event and application entity tracking (#1396)
+- Add a platform context plugin to the React Native tracker to track device information (#1395)
+- Add internal session plugin to the React Native tracker (#1388)
+- Add deep link tracking to the React Native tracker
+- Round resolution in mobile context to avoid validation failures on Android
+- Add screen tracking plugin and add support for browser plugins (#1394)
+- Add WebView tracker integration to the React Native tracker (#1399)
+

@@ -2,6 +2,12 @@
   "name": "@snowplow/browser-plugin-timezone",
   "entries": [
     {
+      "version": "4.2.0",
+      "tag": "@snowplow/browser-plugin-timezone_v4.2.0",
+      "date": "Mon, 13 Jan 2025 08:30:05 GMT",
+      "comments": {}
+    },
+    {
       "version": "4.1.0",
       "tag": "@snowplow/browser-plugin-timezone_v4.1.0",
       "date": "Thu, 28 Nov 2024 10:57:30 GMT",
