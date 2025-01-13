@@ -45,5 +45,6 @@ newTracker('sp1', 'collector.my-website.com', {
  plugins: [ PerformanceTimingPlugin(), AdTrackingPlugin() ],
  stateStorageStrategy: 'cookieAndLocalStorage'
 });
+
 ```
 
