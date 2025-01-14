@@ -35,11 +35,11 @@ export function WebViewPlugin(): BrowserPlugin {
           action: payload.se_ac as string | undefined,
           label: payload.se_la as string | undefined,
           property: payload.se_pr as string | undefined,
-          value: payload.se_va ? parseFloat(payload.se_va as string) : undefined,
-          minXOffset: payload.pp_mix ? parseInt(payload.pp_mix as string) : undefined,
-          maxXOffset: payload.pp_max ? parseInt(payload.pp_max as string) : undefined,
-          minYOffset: payload.pp_miy ? parseInt(payload.pp_miy as string) : undefined,
-          maxYOffset: payload.pp_may ? parseInt(payload.pp_may as string) : undefined,
+          value: payload.se_va !== undefined ? parseFloat(payload.se_va as string) : undefined,
+          minXOffset: payload.pp_mix !== undefined ? parseInt(payload.pp_mix as string) : undefined,
+          maxXOffset: payload.pp_max !== undefined ? parseInt(payload.pp_max as string) : undefined,
+          minYOffset: payload.pp_miy !== undefined ? parseInt(payload.pp_miy as string) : undefined,
+          maxYOffset: payload.pp_may !== undefined ? parseInt(payload.pp_may as string) : undefined,
         };
         let event = getSelfDescribingEventData(payload);
         let entities = getEntities(payload);
