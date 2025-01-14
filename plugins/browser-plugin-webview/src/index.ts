@@ -1,11 +1,7 @@
-import { BrowserPlugin, BrowserTracker, Payload } from '@snowplow/browser-tracker-core';
+import { BrowserPlugin, Payload } from '@snowplow/browser-tracker-core';
 import { hasMobileInterface, trackWebViewEvent } from '@snowplow/webview-tracker';
 import { Logger, SelfDescribingEvent, SelfDescribingJson } from '@snowplow/tracker-core';
 import { base64urldecode } from './utils';
-
-const _trackers: Record<string, BrowserTracker> = {};
-
-const defaultTrackerNamespaces: string[] = [];
 
 type WebViewPluginOptions = {
   trackerNamespaces?: string[];
@@ -19,10 +15,6 @@ export function WebViewPlugin(configuration?: WebViewPluginOptions): BrowserPlug
   let LOG: Logger;
 
   return {
-    activateBrowserPlugin: (tracker: BrowserTracker) => {
-      _trackers[tracker.id] = tracker;
-    },
-
     logger: (logger: Logger) => {
       LOG = logger;
     },
@@ -50,9 +42,7 @@ export function WebViewPlugin(configuration?: WebViewPluginOptions): BrowserPlug
         };
         let event = getSelfDescribingEventData(payload);
         let entities = getEntities(payload);
-        let trackers: Array<string> = configuration?.trackerNamespaces
-          ? configuration?.trackerNamespaces
-          : defaultTrackerNamespaces;
+        let trackers: Array<string> | undefined = configuration?.trackerNamespaces;
 
         trackWebViewEvent({ properties: atomicProperties, event: event, context: entities }, trackers);
 

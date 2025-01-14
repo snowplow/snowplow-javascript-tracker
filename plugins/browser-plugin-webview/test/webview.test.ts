@@ -70,9 +70,6 @@ describe('WebView plugin', () => {
     // tracked two events
     expect(calls).toHaveLength(2);
 
-    // no tracker namespaces provided
-    expect(calls[0][1]).toHaveLength(0);
-
     // page view event properties
     expect(calls[0][0]).toMatchObject({
       properties: {
@@ -126,6 +123,9 @@ describe('WebView plugin', () => {
         },
       ],
     });
+
+    // no tracker namespaces provided
+    expect(calls[0][1]).toBeUndefined();
   });
 
   it('Decodes base64-encoded payloads', async () => {
