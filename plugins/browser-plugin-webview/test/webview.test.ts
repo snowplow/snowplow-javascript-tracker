@@ -67,11 +67,11 @@ describe('WebView plugin', () => {
     expect(mockTrackWebViewEvent).toHaveBeenCalled();
 
     let calls = mockTrackWebViewEvent.mock.calls;
+    // tracked two events
     expect(calls).toHaveLength(2);
 
-    // two tracker namespaces because this is the second test
-    expect(calls[0][1]).toHaveLength(2);
-    expect(calls[0][1][0]).toMatch(/^sp\d$/);
+    // no tracker namespaces provided
+    expect(calls[0][1]).toHaveLength(0);
 
     // page view event properties
     expect(calls[0][0]).toMatchObject({
@@ -185,5 +185,24 @@ describe('WebView plugin', () => {
         },
       ],
     });
+  });
+
+  it('Passes a configured list of tracker namespaces', async () => {
+    mockHasMobileInterface.mockImplementation(() => {
+      return true;
+    });
+
+    eventStore = newInMemoryEventStore({});
+    const customFetch = async () => new Response(null, { status: 500 });
+    tracker = addTracker(`sp${idx++}`, `sp${idx++}`, 'js-4.0.0', '', new SharedState(), {
+      plugins: [WebViewPlugin({ trackerNamespaces: ['sp1', 'sp2'] })],
+      eventStore,
+      customFetch,
+    });
+
+    tracker?.trackPageView();
+    let calls = mockTrackWebViewEvent.mock.calls;
+    expect(calls).toHaveLength(1);
+    expect(calls[0][1]).toEqual(['sp1', 'sp2']);
   });
 });

@@ -5,10 +5,17 @@ import { base64urldecode } from './utils';
 
 const _trackers: Record<string, BrowserTracker> = {};
 
+const defaultTrackerNamespaces: string[] = [];
+
+type WebViewPluginOptions = {
+  trackerNamespaces?: string[];
+};
+
 /**
  * Forwards events to Snowplow mobile trackers running in a WebView.
+ * @param configuration - Configuration. Specify certain tracker namespaces to forward events to.
  */
-export function WebViewPlugin(): BrowserPlugin {
+export function WebViewPlugin(configuration?: WebViewPluginOptions): BrowserPlugin {
   let LOG: Logger;
 
   return {
@@ -43,7 +50,9 @@ export function WebViewPlugin(): BrowserPlugin {
         };
         let event = getSelfDescribingEventData(payload);
         let entities = getEntities(payload);
-        let trackers: Array<string> = Object.keys(_trackers);
+        let trackers: Array<string> = configuration?.trackerNamespaces
+          ? configuration?.trackerNamespaces
+          : defaultTrackerNamespaces;
 
         trackWebViewEvent({ properties: atomicProperties, event: event, context: entities }, trackers);
 
