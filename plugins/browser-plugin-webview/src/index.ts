@@ -4,6 +4,9 @@ import { Logger, SelfDescribingEvent, SelfDescribingJson } from '@snowplow/track
 import { base64urldecode } from './utils';
 
 type WebViewPluginOptions = {
+  /** Provide a list of tracker namespaces to forward events to.
+   * By default, the events will be forwarded to the default mobile tracker.
+   */
   trackerNamespaces?: string[];
 };
 
