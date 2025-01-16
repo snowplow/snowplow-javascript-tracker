@@ -108,11 +108,8 @@ describe('WebView plugin', () => {
         maxYOffset: undefined,
       },
       event: {
-        schema: 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0',
-        data: {
-          schema: 'iglu:com.snowplowanalytics.snowplow.media/play_event/jsonschema/1-0-0',
-          data: { a: 'b' },
-        },
+        schema: 'iglu:com.snowplowanalytics.snowplow.media/play_event/jsonschema/1-0-0',
+        data: { a: 'b' },
       },
       context: [
         {
@@ -170,11 +167,8 @@ describe('WebView plugin', () => {
         url: expect.any(String),
       },
       event: {
-        schema: 'iglu:com.snowplowanalytics.snowplow/unstruct_event/jsonschema/1-0-0',
-        data: {
-          schema: 'iglu:com.snowplowanalytics.snowplow/example/jsonschema/1-0-0',
-          data: { hello: 'world' },
-        },
+        schema: 'iglu:com.snowplowanalytics.snowplow/example/jsonschema/1-0-0',
+        data: { hello: 'world' },
       },
       context: [
         {

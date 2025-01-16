@@ -4,7 +4,8 @@ import { Logger, SelfDescribingEvent, SelfDescribingJson } from '@snowplow/track
 import { base64urldecode } from './utils';
 
 type WebViewPluginOptions = {
-  /** Provide a list of tracker namespaces to forward events to.
+  /**
+   * Provide a list of tracker namespaces to forward events to.
    * By default, the events will be forwarded to the default mobile tracker.
    */
   trackerNamespaces?: string[];
@@ -59,10 +60,10 @@ export function WebViewPlugin(configuration?: WebViewPluginOptions): BrowserPlug
 
 function getSelfDescribingEventData(payload: Payload): SelfDescribingEvent | undefined {
   if (payload.ue_pr) {
-    return JSON.parse(payload.ue_pr as string);
+    return JSON.parse(payload.ue_pr as string).data;
   } else if (payload.ue_px) {
     let decoded = base64urldecode(payload.ue_px as string);
-    return JSON.parse(decoded);
+    return JSON.parse(decoded).data;
   }
   return undefined;
 }
