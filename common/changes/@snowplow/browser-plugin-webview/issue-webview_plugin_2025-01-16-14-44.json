@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-webview",
+      "comment": "Add WebView plugin (#1402)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-webview"
+}

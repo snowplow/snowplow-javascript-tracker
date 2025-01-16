@@ -167,6 +167,10 @@
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
+      "name": "@snowplow/webview-tracker",
+      "allowedCategories": [ "plugins" ]
+    },
+    {
       "name": "@testing-library/dom",
       "allowedCategories": [ "libraries" ]
     },
