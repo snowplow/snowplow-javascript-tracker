@@ -2,6 +2,7 @@ import { BrowserPlugin, Payload } from '@snowplow/browser-tracker-core';
 import { hasMobileInterface, trackWebViewEvent } from '@snowplow/webview-tracker';
 import { Logger, SelfDescribingEvent, SelfDescribingJson } from '@snowplow/tracker-core';
 import { base64urldecode } from './utils';
+import { AtomicProperties } from '@snowplow/webview-tracker/dist/api';
 
 type WebViewPluginOptions = {
   /**
@@ -27,22 +28,22 @@ export function WebViewPlugin(configuration?: WebViewPluginOptions): BrowserPlug
       if (hasMobileInterface() === true) {
         LOG.debug(`Payload (event ID: ${payload.eid}) was filtered out and forwarded to WebView tracker.`);
 
-        let atomicProperties = {
+        let atomicProperties: AtomicProperties = {
           eventName: payload.e as string,
           trackerVersion: payload.tv as string,
           useragent: (payload.ua as string) ?? window.navigator.userAgent,
-          url: payload.url as string | undefined,
-          title: payload.page as string | undefined,
+          pageUrl: payload.url as string | undefined,
+          pageTitle: payload.page as string | undefined,
           referrer: payload.refr as string | undefined,
           category: payload.se_ca as string | undefined,
           action: payload.se_ac as string | undefined,
           label: payload.se_la as string | undefined,
           property: payload.se_pr as string | undefined,
           value: payload.se_va !== undefined ? parseFloat(payload.se_va as string) : undefined,
-          minXOffset: payload.pp_mix !== undefined ? parseInt(payload.pp_mix as string) : undefined,
-          maxXOffset: payload.pp_max !== undefined ? parseInt(payload.pp_max as string) : undefined,
-          minYOffset: payload.pp_miy !== undefined ? parseInt(payload.pp_miy as string) : undefined,
-          maxYOffset: payload.pp_may !== undefined ? parseInt(payload.pp_may as string) : undefined,
+          pingXOffsetMin: payload.pp_mix !== undefined ? parseInt(payload.pp_mix as string) : undefined,
+          pingXOffsetMax: payload.pp_max !== undefined ? parseInt(payload.pp_max as string) : undefined,
+          pingYOffsetMin: payload.pp_miy !== undefined ? parseInt(payload.pp_miy as string) : undefined,
+          pingYOffsetMax: payload.pp_may !== undefined ? parseInt(payload.pp_may as string) : undefined,
         };
         let event = getSelfDescribingEventData(payload);
         let entities = getEntities(payload);
