@@ -2020,8 +2020,8 @@ importers:
         specifier: workspace:*
         version: link:../../libraries/tracker-core
       '@snowplow/webview-tracker':
-        specifier: ^0.3.0
-        version: 0.3.0
+        specifier: ^0.3.1
+        version: 0.3.1
       tslib:
         specifier: ^2.3.1
         version: 2.8.1
@@ -3763,8 +3763,8 @@ packages:
   '@sinonjs/fake-timers@9.1.2':
     resolution: {integrity: sha512-BPS4ynJW/o92PUR4wgriz2Ud5gpST5vz6GQfMixEDK0Z8ZCUv2M7SkBLykH56T++Xs+8ln9zTGbOvNGIe02/jw==}
 
-  '@snowplow/webview-tracker@0.3.0':
-    resolution: {integrity: sha512-ueFg1nwV5OXzU97neDNQbW6nQEsW6zi3kaYkLF+xbw5cIy2cOIg0+3y4UL+Lmn48pmdp+4tNOaG8ks/OboxEcQ==}
+  '@snowplow/webview-tracker@0.3.1':
+    resolution: {integrity: sha512-jQnflWxPFYwE4DeQ/JYTkRXiCUxZLkPyHybO7BI/Yp6R6dcLGx7uIZuX8F1zAmv+FKKkSXtEG4r52WD0jnoQxg==}
 
   '@szmarczak/http-timer@4.0.6':
     resolution: {integrity: sha512-4BAffykYOgO+5nzBWYwE3W90sBgLJoUPRWWcL8wlyiM8IB8ipJz3UMJ9KXQd1RKQXpKp8Tutn80HZtWsu2u76w==}
@@ -10851,7 +10851,7 @@ snapshots:
     dependencies:
       '@sinonjs/commons': 1.8.6
 
-  '@snowplow/webview-tracker@0.3.0': {}
+  '@snowplow/webview-tracker@0.3.1': {}
 
   '@szmarczak/http-timer@4.0.6':
     dependencies:
