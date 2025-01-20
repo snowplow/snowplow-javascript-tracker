@@ -1,5 +1,17 @@
 {
   "name": "@snowplow/browser-plugin-webview",
   "entries": [
+    {
+      "version": "4.3.0",
+      "tag": "@snowplow/browser-plugin-webview_v4.3.0",
+      "date": "Mon, 20 Jan 2025 11:45:13 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add WebView plugin (#1402)"
+          }
+        ]
+      }
+    }
   ]
 }
