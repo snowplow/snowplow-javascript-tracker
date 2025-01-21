@@ -1,6 +1,11 @@
 # Change Log - @snowplow/browser-plugin-enhanced-ecommerce
 
-This log was last generated on Mon, 20 Jan 2025 11:45:13 GMT and should not be manually modified.
+This log was last generated on Tue, 21 Jan 2025 11:09:42 GMT and should not be manually modified.
+
+## 4.3.1
+Tue, 21 Jan 2025 11:09:42 GMT
+
+_Version update only_
 
 ## 4.3.0
 Mon, 20 Jan 2025 11:45:13 GMT
