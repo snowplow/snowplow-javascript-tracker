@@ -163,6 +163,34 @@ describe('InQueueManager', () => {
     asyncQueue.push(['updatePageActivity:firstTracker;secondTracker']);
     expect(output).toEqual(29);
   });
+});
+
+describe('Snowplow callback', () => {
+  const asyncQueue = InQueueManager('callback', []);
+  const mockTrackers: Record<string, any> = {};
+
+  let userId: string | null | undefined;
+
+  const newTracker = (trackerId: string): any => {
+    return {
+      id: trackerId,
+      setUserId: function (s?: string | null) {
+        userId = s;
+      },
+      getUserId: function () {
+        return userId;
+      },
+    };
+  };
+
+  beforeEach(() => {
+    const tracker = newTracker('sp1');
+    mockTrackers.sp1 = tracker;
+  });
+
+  afterEach(() => {
+    delete mockTrackers.sp1;
+  });
 
   it('Execute a user-defined custom callback', () => {
     let callbackExecuted = false;
@@ -182,5 +210,38 @@ describe('InQueueManager', () => {
         },
       ]);
     }).not.toThrow();
+  });
+
+  it('A custom callback with arguments provided will pass those arguments into the callback parameters', () => {
+    asyncQueue.push([
+      function (a: number, b: number) {
+        expect(a).toEqual(1);
+        expect(b).toEqual(2);
+      },
+      1,
+      2,
+    ]);
+  });
+
+  it('The callback will be passed the tracker dictionary as the argument if there is only one parameter', () => {
+    asyncQueue.push([
+      function (trackers: Record<string, any>) {
+        const tracker = trackers.sp1;
+        expect(tracker).toEqual(mockTrackers.callback_sp1);
+      },
+    ]);
+  });
+
+  it('The callback can access the tracker dictionary using both `this` and  the last argument, along with arguments', () => {
+    asyncQueue.push([
+      function (this: any, a: number, b: number, trackers: Record<string, any>) {
+        expect(this.sp1).toEqual(mockTrackers.callback_sp1);
+        expect(a).toEqual(1);
+        expect(b).toEqual(2);
+        expect(trackers.sp1).toEqual(mockTrackers.callback_sp1);
+      },
+      1,
+      2,
+    ]);
   });
 });
