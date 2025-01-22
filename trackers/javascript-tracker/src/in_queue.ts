@@ -265,7 +265,15 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
             // Strip GlobalSnowplowNamespace from ID
             fnTrackers[tracker.id.replace(`${functionName}_`, '')] = tracker;
           }
-          input.apply(fnTrackers, parameterArray);
+
+          // Create a new array from `parameterArray` to avoid mutating the original
+          const parameterArrayCopy = Array.prototype.slice.call(parameterArray);
+
+          // Add the `fnTrackers` object as the last element of the new array to allow it to be accessed in the callback
+          // as the final argument, useful in environments that don't support `this` (GTM)
+          const args = Array.prototype.concat.apply(parameterArrayCopy, [fnTrackers]);
+
+          input.apply(fnTrackers, args);
         } catch (ex) {
           LOG.error('Tracker callback failed', ex);
         } finally {
