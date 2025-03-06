@@ -4,7 +4,7 @@ import { WEB_VITALS_SCHEMA } from './schemata';
 import { attachWebVitalsPageListeners, createWebVitalsScript, webVitalsListener } from './utils';
 
 const _trackers: Record<string, BrowserTracker> = {};
-const WEB_VITALS_SOURCE = 'https://unpkg.com/web-vitals@3/dist/web-vitals.iife.js';
+const WEB_VITALS_SOURCE = 'https://unpkg.com/web-vitals@4/dist/web-vitals.iife.js';
 let listenersAttached = false;
 
 interface WebVitalsPluginOptions {
