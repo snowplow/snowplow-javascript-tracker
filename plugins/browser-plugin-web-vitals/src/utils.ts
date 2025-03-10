@@ -1,5 +1,5 @@
 import { LOG } from '@snowplow/tracker-core';
-import { ReportCallback, WebVitals } from './types';
+import { MetricType } from './types';
 
 /**
  * Attach page listeners to collect the Web Vitals values
@@ -51,22 +51,23 @@ export function createWebVitalsScript(webVitalsSource: string) {
  * @return {void}
  */
 export function webVitalsListener(webVitalsObject: Record<string, unknown>) {
-  function addWebVitalsMeasurement(metricSchemaName: string): ReportCallback {
+  function addWebVitalsMeasurement(metricSchemaName: string): (arg: MetricType) => void {
     return (arg) => {
       webVitalsObject[metricSchemaName] = arg.value;
       webVitalsObject.navigationType = arg.navigationType;
     };
   }
-  if (!window.webVitals) {
+
+  const webVitals = window.webVitals;
+  if (!webVitals) {
     LOG.warn('The window.webVitals API is currently unavailable. web_vitals events will not be collected.');
     return;
   }
 
-  const webVitals = window.webVitals as WebVitals;
-  webVitals.onCLS(addWebVitalsMeasurement('cls'));
-  webVitals.onFID(addWebVitalsMeasurement('fid'));
-  webVitals.onLCP(addWebVitalsMeasurement('lcp'));
-  webVitals.onFCP(addWebVitalsMeasurement('fcp'));
-  webVitals.onINP(addWebVitalsMeasurement('inp'));
-  webVitals.onTTFB(addWebVitalsMeasurement('ttfb'));
+  webVitals.onCLS?.(addWebVitalsMeasurement('cls'));
+  webVitals.onFID?.(addWebVitalsMeasurement('fid'));
+  webVitals.onLCP?.(addWebVitalsMeasurement('lcp'));
+  webVitals.onFCP?.(addWebVitalsMeasurement('fcp'));
+  webVitals.onINP?.(addWebVitalsMeasurement('inp'));
+  webVitals.onTTFB?.(addWebVitalsMeasurement('ttfb'));
 }

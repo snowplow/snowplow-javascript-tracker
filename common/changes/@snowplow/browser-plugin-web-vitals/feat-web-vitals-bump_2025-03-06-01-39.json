@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-web-vitals",
+      "comment": "Update default external library version to v4. Add compatibility for future v5, which deprecates the FID metric.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-web-vitals"
+}

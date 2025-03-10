@@ -5,7 +5,6 @@ import { BrowserTracker } from '@snowplow/browser-tracker-core';
 
 declare var jsdom: JSDOM;
 
-// @ts-expect-error
 jsdom.window.webVitals = {};
 
 describe('Web Vitals plugin', () => {
