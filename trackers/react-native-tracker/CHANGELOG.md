@@ -1,6 +1,13 @@
 # Change Log - @snowplow/react-native-tracker
 
-This log was last generated on Tue, 21 Jan 2025 11:09:42 GMT and should not be manually modified.
+This log was last generated on Thu, 20 Mar 2025 12:14:34 GMT and should not be manually modified.
+
+## 4.4.0
+Thu, 20 Mar 2025 12:14:34 GMT
+
+### Updates
+
+- Add react-native-get-random-values as a peer dependency in the React Native tracker (close #1409)
 
 ## 4.3.1
 Tue, 21 Jan 2025 11:09:42 GMT
