@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/react-native-tracker",
+      "comment": "Add react-native-get-random-values as a peer dependency in the React Native tracker (close #1409)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/react-native-tracker"
+}
