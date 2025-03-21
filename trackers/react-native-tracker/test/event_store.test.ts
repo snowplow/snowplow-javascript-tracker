@@ -1,6 +1,20 @@
+import { setAppStorage } from '../src/app_storage';
 import { newReactNativeEventStore } from '../src/event_store';
 
 describe('React Native event store', () => {
+  beforeEach(() => {
+    const storageState: Record<string, string> = {};
+
+    setAppStorage({
+      getItem: (key: string) => Promise.resolve(storageState[key] ?? null),
+      setItem: (key: string, value: string) => {
+        storageState[key] = value;
+
+        return Promise.resolve();
+      },
+    });
+  });
+
   it('keeps track of added events', async () => {
     const eventStore = await newReactNativeEventStore({
       namespace: 'test',
@@ -37,7 +51,7 @@ describe('React Native event store', () => {
     expect(await eventStore2.getAll()).toEqual([{ payload: { e: 'pv2' } }]);
   });
 
-  it('syncs with AsyncStorage', async () => {
+  it('syncs with the defined app storage', async () => {
     const eventStore1 = await newReactNativeEventStore({
       namespace: 'testA',
     });

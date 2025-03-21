@@ -1,11 +1,22 @@
 import { Payload, trackerCore } from '@snowplow/tracker-core';
-import { newAppInstallPlugin } from '../../src/plugins/app_install';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { setAppStorage } from '../../src/app_storage';
 import { APPLICATION_INSTALL_EVENT_SCHEMA } from '../../src/constants';
+import { newAppInstallPlugin } from '../../src/plugins/app_install';
 
 describe('Application install plugin', () => {
+  let storageState: Record<string, string> = {};
+
+  setAppStorage({
+    getItem: (key: string) => Promise.resolve(storageState[key] ?? null),
+    setItem: (key: string, value: string) => {
+      storageState[key] = value;
+
+      return Promise.resolve();
+    },
+  });
+
   beforeEach(async () => {
-    await AsyncStorage.clear();
+    storageState = {};
   });
 
   it('tracks an app install event on first tracker init', async () => {

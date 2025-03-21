@@ -6,6 +6,7 @@ import {
   SelfDescribingJson,
   StructuredEvent,
 } from '@snowplow/tracker-core';
+import { AppStorage } from './app_storage';
 
 /**
  * Configuration for the event store
@@ -18,12 +19,11 @@ export interface EventStoreConfiguration {
    * @defaultValue 1000
    */
   maxEventStoreSize?: number;
-
   /**
-   * Whether to use the AsyncStorage library as the persistent event store for the event store
+   * Whether to use the defined app storage as the persistent event store for the event store
    * @defaultValue true
    */
-  useAsyncStorageForEventStore?: boolean;
+  useAppStorageForEventStore?: boolean;
 }
 
 /**
@@ -108,6 +108,11 @@ export interface TrackerConfiguration {
    * @defaultValue 'mob'
    */
   devicePlatform?: Platform;
+}
+
+export interface AppStorageConfiguration {
+  /** The storage belonging to the app where Snowplow will store events among different sessions */
+  appStorage: AppStorage;
 }
 
 export enum PlatformContextProperty {
@@ -905,6 +910,7 @@ export type ReactNativeTracker = {
    */
   readonly refreshPlatformContext: () => Promise<void>;
 };
+
 
 export {
   version,
