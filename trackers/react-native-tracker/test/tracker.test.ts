@@ -9,6 +9,19 @@ function createMockFetch(status: number, requests: Request[]) {
   };
 }
 
+function createMockAppStorage() {
+  const storageState: Record<string, string> = {};
+
+  return {
+    getItem: (key: string) => Promise.resolve(storageState[key] ?? null),
+    setItem: (key: string, value: string) => {
+      storageState[key] = value;
+
+      return Promise.resolve();
+    },
+  };
+}
+
 describe('Tracker', () => {
   let requests: Request[];
   let mockFetch: ReturnType<typeof createMockFetch>;
@@ -19,24 +32,30 @@ describe('Tracker', () => {
   });
 
   it('creates a tracker with minimal config', async () => {
-    expect(await newTracker({ namespace: 'test', endpoint: 'http://localhost:9090' })).toBeDefined();
+    expect(
+      await newTracker({ appStorage: createMockAppStorage(), namespace: 'test', endpoint: 'http://localhost:9090' })
+    ).toBeDefined();
   });
 
   it('retrieves an existing tracker', async () => {
-    const tracker = await newTracker({ namespace: 'test', endpoint: 'http://localhost:9090' });
+    const tracker = await newTracker({
+      appStorage: createMockAppStorage(),
+      namespace: 'test',
+      endpoint: 'http://localhost:9090',
+    });
     expect(getTracker('test')).toBe(tracker);
     expect(getTracker('non-existent')).toBeUndefined();
   });
 
   it('removes a tracker', async () => {
-    await newTracker({ namespace: 'test', endpoint: 'http://localhost:9090' });
+    await newTracker({ appStorage: createMockAppStorage(), namespace: 'test', endpoint: 'http://localhost:9090' });
     expect(getTracker('test')).toBeDefined();
     removeTracker('test');
     expect(getTracker('test')).toBeUndefined();
   });
 
   it('removes all trackers', async () => {
-    await newTracker({ namespace: 'test', endpoint: 'http://localhost:9090' });
+    await newTracker({ appStorage: createMockAppStorage(), namespace: 'test', endpoint: 'http://localhost:9090' });
     expect(getTracker('test')).toBeDefined();
     removeAllTrackers();
     expect(getTracker('test')).toBeUndefined();
@@ -44,6 +63,7 @@ describe('Tracker', () => {
 
   it('tracks a page view event with tracker properties', async () => {
     const tracker = await newTracker({
+      appStorage: createMockAppStorage(),
       namespace: 'test',
       appId: 'my-app',
       endpoint: 'http://localhost:9090',
@@ -71,6 +91,7 @@ describe('Tracker', () => {
 
   it('tracks session along with events', async () => {
     const tracker = await newTracker({
+      appStorage: createMockAppStorage(),
       namespace: 'test',
       appId: 'my-app',
       endpoint: 'http://localhost:9090',
@@ -95,6 +116,7 @@ describe('Tracker', () => {
 
   it('attaches application context to events', async () => {
     const tracker = await newTracker({
+      appStorage: createMockAppStorage(),
       namespace: 'test',
       appId: 'my-app',
       appVersion: '1.0.1',
@@ -117,6 +139,7 @@ describe('Tracker', () => {
 
   it('tracks screen engagement events', async () => {
     const tracker = await newTracker({
+      appStorage: createMockAppStorage(),
       namespace: 'test',
       endpoint: 'http://localhost:9090',
       customFetch: mockFetch,
@@ -160,6 +183,7 @@ describe('Tracker', () => {
 
   it('doesnt track screen engagement events if disabled', async () => {
     const tracker = await newTracker({
+      appStorage: createMockAppStorage(),
       namespace: 'test',
       endpoint: 'http://localhost:9090',
       customFetch: mockFetch,
@@ -193,6 +217,7 @@ describe('Tracker', () => {
 
   it('adds a tracker plugin', async () => {
     const tracker = await newTracker({
+      appStorage: createMockAppStorage(),
       namespace: 'test',
       endpoint: 'http://localhost:9090',
       customFetch: mockFetch,
@@ -227,6 +252,7 @@ describe('Tracker', () => {
     }));
 
     const tracker = await newTracker({
+      appStorage: createMockAppStorage(),
       namespace: 'test',
       endpoint: 'http://localhost:9090',
       customFetch: mockFetch,
@@ -264,6 +290,7 @@ describe('Tracker', () => {
   describe('Global contexts', () => {
     it('adds a global context', async () => {
       const tracker = await newTracker({
+        appStorage: createMockAppStorage(),
         namespace: 'test',
         endpoint: 'http://localhost:9090',
         customFetch: mockFetch,
@@ -299,6 +326,7 @@ describe('Tracker', () => {
 
     it('removes a global context', async () => {
       const tracker = await newTracker({
+        appStorage: createMockAppStorage(),
         namespace: 'test',
         endpoint: 'http://localhost:9090',
         customFetch: mockFetch,

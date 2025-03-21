@@ -1,6 +1,5 @@
-import { trackerCore, PayloadBuilder, version, EmitterConfiguration, TrackerCore } from '@snowplow/tracker-core';
-
-import { newEmitter } from '@snowplow/tracker-core';
+import { trackerCore, PayloadBuilder, version, EmitterConfiguration, TrackerCore, newEmitter } from '@snowplow/tracker-core';
+import { setAppStorage } from './app_storage';
 import { newReactNativeEventStore } from './event_store';
 import { newTrackEventFunctions } from './events';
 import { newSubject } from './subject';
@@ -15,6 +14,7 @@ import {
 import {
   DeepLinkConfiguration,
   AppLifecycleConfiguration,
+  AppStorageConfiguration,
   EventContext,
   EventStoreConfiguration,
   ListItemViewProps,
@@ -50,9 +50,13 @@ export async function newTracker(
     ScreenTrackingConfiguration &
     PlatformContextConfiguration &
     DeepLinkConfiguration &
-    AppLifecycleConfiguration
+    AppLifecycleConfiguration &
+    AppStorageConfiguration
 ): Promise<ReactNativeTracker> {
   const { namespace, appId, encodeBase64 = false } = configuration;
+
+  setAppStorage(configuration.appStorage);
+
   if (configuration.eventStore === undefined) {
     configuration.eventStore = await newReactNativeEventStore(configuration);
   }

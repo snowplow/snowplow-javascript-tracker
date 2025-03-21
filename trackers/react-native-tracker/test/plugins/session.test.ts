@@ -1,14 +1,25 @@
-import { newSessionPlugin } from '../../src/plugins/session';
 import { buildPageView, buildSelfDescribingEvent, Payload, trackerCore } from '@snowplow/tracker-core';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { setAppStorage } from '../../src/app_storage';
+import { newSessionPlugin } from '../../src/plugins/session';
 
 describe('Session plugin', () => {
+  let storage: Record<string, string> = {};
+
+  setAppStorage({
+    getItem: (key: string) => Promise.resolve(storage[key] ?? null),
+    setItem: (key: string, value: string) => {
+      storage[key] = value;
+
+      return Promise.resolve();
+    },
+  });
+
   beforeAll(() => {
     jest.useFakeTimers();
   });
 
   beforeEach(async () => {
-    await AsyncStorage.clear();
+    storage = {};
   });
 
   afterAll(() => {
@@ -119,12 +130,14 @@ describe('Session plugin', () => {
     });
 
     const tracker = trackerCore({ corePlugins: [sessionPlugin.plugin] });
-    tracker.track(buildSelfDescribingEvent({
-      event: {
-        schema: 'iglu:com.snowplowanalytics.snowplow/application_background/jsonschema/1-0-0',
-        data: {},
-      }
-    }));
+    tracker.track(
+      buildSelfDescribingEvent({
+        event: {
+          schema: 'iglu:com.snowplowanalytics.snowplow/application_background/jsonschema/1-0-0',
+          data: {},
+        },
+      })
+    );
 
     let sessionState = await sessionPlugin.getSessionState();
     expect(sessionState.sessionIndex).toBe(1);

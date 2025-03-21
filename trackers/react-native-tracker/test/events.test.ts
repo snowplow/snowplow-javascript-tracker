@@ -6,8 +6,21 @@ describe('Events', () => {
   let payloads: Payload[];
 
   beforeEach(async () => {
+    const storageState: Record<string, string> = {};
+
     payloads = [];
-    tracker = await newTracker({ namespace: 'test', endpoint: 'http://localhost:9090' });
+    tracker = await newTracker({
+      appStorage: {
+        getItem: (key: string) => Promise.resolve(storageState[key] ?? null),
+        setItem: (key: string, value: string) => {
+          storageState[key] = value;
+
+          return Promise.resolve();
+        },
+      },
+      namespace: 'test',
+      endpoint: 'http://localhost:9090',
+    });
     tracker.addPlugin({
       plugin: {
         filter: (payload) => {

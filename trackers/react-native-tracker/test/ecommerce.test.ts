@@ -1,11 +1,28 @@
+import {
+  setEcommerceUser,
+  SnowplowEcommercePlugin,
+  trackProductView,
+} from '@snowplow/browser-plugin-snowplow-ecommerce';
 import { newTracker } from '../src';
-import { setEcommerceUser, SnowplowEcommercePlugin, trackProductView } from '@snowplow/browser-plugin-snowplow-ecommerce';
 
 function createMockFetch(status: number, requests: Request[]) {
   return async (input: Request) => {
     requests.push(input);
     let response = new Response(null, { status });
     return response;
+  };
+}
+
+function createMockAppStorage() {
+  const storage: Record<string, string> = {};
+
+  return {
+    getItem: (key: string) => Promise.resolve(storage[key] ?? null),
+    setItem: (key: string, value: string) => {
+      storage[key] = value;
+
+      return Promise.resolve();
+    },
   };
 }
 
@@ -20,6 +37,7 @@ describe('Tracking ecommerce events using the ecomerce plugin', () => {
 
   it('tracks ecommerce events', async () => {
     const tracker = await newTracker({
+      appStorage: createMockAppStorage(),
       namespace: 'test',
       endpoint: 'http://localhost:9090',
       customFetch: mockFetch,
@@ -37,7 +55,7 @@ describe('Tracking ecommerce events using the ecomerce plugin', () => {
       category: 'my-category',
       price: 100,
       currency: 'USD',
-    })
+    });
 
     await tracker.flush();
     expect(requests.length).toBe(1);

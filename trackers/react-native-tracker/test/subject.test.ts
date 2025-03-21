@@ -1,6 +1,19 @@
 import { CorePluginConfiguration, Payload } from '@snowplow/tracker-core';
 import { newTracker, ReactNativeTracker } from '../src';
 
+function createMockAppStorage() {
+  const storageState: Record<string, string> = {};
+
+  return {
+    getItem: (key: string) => Promise.resolve(storageState[key] ?? null),
+    setItem: (key: string, value: string) => {
+      storageState[key] = value;
+
+      return Promise.resolve();
+    },
+  };
+}
+
 describe('Subject', () => {
   let tracker: ReactNativeTracker;
   let payloads: Payload[];
@@ -20,6 +33,7 @@ describe('Subject', () => {
   describe('Subject configuration', () => {
     beforeEach(async () => {
       tracker = await newTracker({
+        appStorage: createMockAppStorage(),
         namespace: 'test',
         endpoint: 'http://localhost:9090',
         userId: 'user-id',
@@ -56,7 +70,11 @@ describe('Subject', () => {
 
   describe('Subject methods', () => {
     beforeEach(async () => {
-      tracker = await newTracker({ namespace: 'test', endpoint: 'http://localhost:9090' });
+      tracker = await newTracker({
+        appStorage: createMockAppStorage(),
+        namespace: 'test',
+        endpoint: 'http://localhost:9090',
+      });
       tracker.addPlugin(plugin);
     });
 
