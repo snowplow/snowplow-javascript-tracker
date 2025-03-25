@@ -1,7 +1,8 @@
-import { buildSelfDescribingEvent, CorePluginConfiguration, TrackerCore } from '@snowplow/tracker-core';
-import { AppLifecycleConfiguration, TrackerConfiguration } from '../../types';
+import type { CorePluginConfiguration, TrackerCore } from '@snowplow/tracker-core';
+import { buildSelfDescribingEvent } from '@snowplow/tracker-core';
 import { APPLICATION_INSTALL_EVENT_SCHEMA } from '../../constants';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import type { AppLifecycleConfiguration, AsyncStorage, TrackerConfiguration } from '../../types';
+import DefaultAsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
  * Tracks an application install event on the first run of the app.
@@ -10,14 +11,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
  * Event schema: `iglu:com.snowplowanalytics.mobile/application_install/jsonschema/1-0-0`
  */
 export function newAppInstallPlugin(
-  { namespace, installAutotracking = false }: TrackerConfiguration & AppLifecycleConfiguration,
+  {
+    asyncStorage = DefaultAsyncStorage,
+    namespace,
+    installAutotracking = false,
+  }: TrackerConfiguration & AppLifecycleConfiguration & { asyncStorage?: AsyncStorage },
   core: TrackerCore
 ): CorePluginConfiguration {
   if (installAutotracking) {
     // Track install event on first run
     const key = `snowplow_${namespace}_install`;
     setTimeout(async () => {
-      const installEvent = await AsyncStorage.getItem(key);
+      const installEvent = await asyncStorage.getItem(key);
       if (!installEvent) {
         core.track(
           buildSelfDescribingEvent({
@@ -27,7 +32,7 @@ export function newAppInstallPlugin(
             },
           })
         );
-        await AsyncStorage.setItem(key, new Date().toISOString());
+        await asyncStorage.setItem(key, new Date().toISOString());
       }
     }, 0);
   }

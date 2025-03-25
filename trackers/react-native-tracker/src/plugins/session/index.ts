@@ -1,9 +1,15 @@
 import { CorePluginConfiguration, PayloadBuilder } from '@snowplow/tracker-core';
-import { SessionConfiguration, SessionState, TrackerConfiguration } from '../../types';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { v4 as uuidv4 } from 'uuid';
 import { BACKGROUND_EVENT_SCHEMA, CLIENT_SESSION_ENTITY_SCHEMA, FOREGROUND_EVENT_SCHEMA } from '../../constants';
+import {
+  AsyncStorage,
+  EventStoreConfiguration,
+  SessionConfiguration,
+  SessionState,
+  TrackerConfiguration,
+} from '../../types';
 import { getUsefulSchema } from '../../utils';
+import DefaultAsyncStorage from '@react-native-async-storage/async-storage';
 
 interface StoredSessionState {
   userId: string;
@@ -19,13 +25,13 @@ interface SessionPlugin extends CorePluginConfiguration {
   startNewSession: () => Promise<void>;
 }
 
-async function storeSessionState(namespace: string, state: StoredSessionState) {
+async function storeSessionState(namespace: string, state: StoredSessionState, asyncStorage: AsyncStorage) {
   const { userId, sessionId, sessionIndex } = state;
-  await AsyncStorage.setItem(`snowplow_${namespace}_session`, JSON.stringify({ userId, sessionId, sessionIndex }));
+  await asyncStorage.setItem(`snowplow_${namespace}_session`, JSON.stringify({ userId, sessionId, sessionIndex }));
 }
 
-async function resumeStoredSession(namespace: string): Promise<SessionState> {
-  const storedState = await AsyncStorage.getItem(`snowplow_${namespace}_session`);
+async function resumeStoredSession(namespace: string, asyncStorage: AsyncStorage): Promise<SessionState> {
+  const storedState = await asyncStorage.getItem(`snowplow_${namespace}_session`);
   if (storedState) {
     const state = JSON.parse(storedState) as StoredSessionState;
     return {
@@ -48,18 +54,19 @@ async function resumeStoredSession(namespace: string): Promise<SessionState> {
 /**
  * Creates a new session plugin for tracking the session information.
  * The plugin will add the session context to all events and start a new session if the current one has timed out.
- * 
- * The session state is stored in AsyncStorage.
+ *
+ * The session state is stored in the defined application storage.
  * Each restart of the app or creation of a new tracker instance will trigger a new session with reference to the previous session.
  */
 export async function newSessionPlugin({
+  asyncStorage = DefaultAsyncStorage,
   namespace,
   sessionContext = true,
   foregroundSessionTimeout,
   backgroundSessionTimeout,
-}: TrackerConfiguration & SessionConfiguration): Promise<SessionPlugin> {
-  let sessionState = await resumeStoredSession(namespace);
-  await storeSessionState(namespace, sessionState);
+}: EventStoreConfiguration & TrackerConfiguration & SessionConfiguration): Promise<SessionPlugin> {
+  let sessionState = await resumeStoredSession(namespace, asyncStorage);
+  await storeSessionState(namespace, sessionState, asyncStorage);
 
   let inBackground = false;
   let lastUpdateTs = new Date().getTime();
@@ -84,7 +91,7 @@ export async function newSessionPlugin({
     const timeDiff = now.getTime() - lastUpdateTs;
     if (timeDiff > getTimeoutMs()) {
       startNewSession();
-      storeSessionState(namespace, sessionState);
+      storeSessionState(namespace, sessionState, asyncStorage);
     }
     lastUpdateTs = now.getTime();
 
