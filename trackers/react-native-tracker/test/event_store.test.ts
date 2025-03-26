@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { newReactNativeEventStore } from '../src/event_store';
 
-function createAppStorageMock() {
+function createAsyncStorageMock() {
   const storageState: Record<string, string> = {};
 
   return {
@@ -72,7 +72,7 @@ describe('React Native event store', () => {
   });
 
   it('syncs with the custom async storage implementation', async () => {
-    const asyncStorage = createAppStorageMock();
+    const asyncStorage = createAsyncStorageMock();
     const eventStore1 = await newReactNativeEventStore({
       asyncStorage,
       namespace: 'testA',

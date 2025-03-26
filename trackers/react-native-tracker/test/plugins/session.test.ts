@@ -2,7 +2,7 @@ import { buildPageView, buildSelfDescribingEvent, Payload, trackerCore } from '@
 import { newSessionPlugin } from '../../src/plugins/session';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-function createAppStorageMock() {
+function createAsyncStorageMock() {
   const storageState: Record<string, string> = {};
 
   return {
@@ -246,7 +246,7 @@ describe('Session plugin', () => {
   it('retrieves the correct information from the session plugin with a custom async storage', async () => {
     jest.setSystemTime(new Date('2022-04-17T00:00:00.000Z'));
     const sessionPlugin = await newSessionPlugin({
-      asyncStorage: createAppStorageMock(),
+      asyncStorage: createAsyncStorageMock(),
       namespace: 'test',
       foregroundSessionTimeout: 5,
       backgroundSessionTimeout: 5,
