@@ -1,15 +1,8 @@
 import { CorePluginConfiguration, PayloadBuilder } from '@snowplow/tracker-core';
 import { v4 as uuidv4 } from 'uuid';
 import { BACKGROUND_EVENT_SCHEMA, CLIENT_SESSION_ENTITY_SCHEMA, FOREGROUND_EVENT_SCHEMA } from '../../constants';
-import {
-  AsyncStorage,
-  EventStoreConfiguration,
-  SessionConfiguration,
-  SessionState,
-  TrackerConfiguration,
-} from '../../types';
+import { AsyncStorage, SessionConfiguration, SessionState, TrackerConfiguration } from '../../types';
 import { getUsefulSchema } from '../../utils';
-import DefaultAsyncStorage from '@react-native-async-storage/async-storage';
 
 interface StoredSessionState {
   userId: string;
@@ -59,12 +52,12 @@ async function resumeStoredSession(namespace: string, asyncStorage: AsyncStorage
  * Each restart of the app or creation of a new tracker instance will trigger a new session with reference to the previous session.
  */
 export async function newSessionPlugin({
-  asyncStorage = DefaultAsyncStorage,
+  asyncStorage,
   namespace,
   sessionContext = true,
   foregroundSessionTimeout,
   backgroundSessionTimeout,
-}: EventStoreConfiguration & TrackerConfiguration & SessionConfiguration): Promise<SessionPlugin> {
+}: TrackerConfiguration & SessionConfiguration & { asyncStorage: AsyncStorage }): Promise<SessionPlugin> {
   let sessionState = await resumeStoredSession(namespace, asyncStorage);
   await storeSessionState(namespace, sessionState, asyncStorage);
 

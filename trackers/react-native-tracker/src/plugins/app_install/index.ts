@@ -2,7 +2,6 @@ import type { CorePluginConfiguration, TrackerCore } from '@snowplow/tracker-cor
 import { buildSelfDescribingEvent } from '@snowplow/tracker-core';
 import { APPLICATION_INSTALL_EVENT_SCHEMA } from '../../constants';
 import type { AppLifecycleConfiguration, AsyncStorage, TrackerConfiguration } from '../../types';
-import DefaultAsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
  * Tracks an application install event on the first run of the app.
@@ -12,10 +11,10 @@ import DefaultAsyncStorage from '@react-native-async-storage/async-storage';
  */
 export function newAppInstallPlugin(
   {
-    asyncStorage = DefaultAsyncStorage,
+    asyncStorage,
     namespace,
     installAutotracking = false,
-  }: TrackerConfiguration & AppLifecycleConfiguration & { asyncStorage?: AsyncStorage },
+  }: TrackerConfiguration & AppLifecycleConfiguration & { asyncStorage: AsyncStorage },
   core: TrackerCore
 ): CorePluginConfiguration {
   if (installAutotracking) {

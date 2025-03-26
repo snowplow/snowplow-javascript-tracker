@@ -31,6 +31,7 @@ describe('Session plugin', () => {
   it('starts a new session when necessary', async () => {
     jest.setSystemTime(new Date('2022-04-17T00:00:00.000Z'));
     const sessionPlugin = await newSessionPlugin({
+      asyncStorage: AsyncStorage,
       namespace: 'test',
       foregroundSessionTimeout: 5,
       backgroundSessionTimeout: 5,
@@ -52,6 +53,7 @@ describe('Session plugin', () => {
   it('attaches session context to events with the correct properties', async () => {
     jest.setSystemTime(new Date('2022-04-17T00:00:00.000Z'));
     const sessionPlugin = await newSessionPlugin({
+      asyncStorage: AsyncStorage,
       namespace: 'test',
       foregroundSessionTimeout: 5,
       backgroundSessionTimeout: 5,
@@ -101,6 +103,7 @@ describe('Session plugin', () => {
   it('creates a new session when new tracker is created', async () => {
     jest.setSystemTime(new Date('2022-04-17T00:00:00.000Z'));
     const sessionPlugin = await newSessionPlugin({
+      asyncStorage: AsyncStorage,
       namespace: 'test',
       foregroundSessionTimeout: 5,
       backgroundSessionTimeout: 5,
@@ -113,6 +116,7 @@ describe('Session plugin', () => {
     expect(sessionState.sessionIndex).toBe(1);
 
     const sessionPlugin2 = await newSessionPlugin({
+      asyncStorage: AsyncStorage,
       namespace: 'test',
       foregroundSessionTimeout: 5,
       backgroundSessionTimeout: 5,
@@ -126,6 +130,7 @@ describe('Session plugin', () => {
   it('uses a background timeout when in background', async () => {
     jest.setSystemTime(new Date('2022-04-17T00:00:00.000Z'));
     const sessionPlugin = await newSessionPlugin({
+      asyncStorage: AsyncStorage,
       namespace: 'test',
       foregroundSessionTimeout: 1000,
       backgroundSessionTimeout: 5,
@@ -161,6 +166,7 @@ describe('Session plugin', () => {
   it('uses a foreground timeout when in foreground', async () => {
     jest.setSystemTime(new Date('2022-04-17T00:00:00.000Z'));
     const sessionPlugin = await newSessionPlugin({
+      asyncStorage: AsyncStorage,
       namespace: 'test',
       foregroundSessionTimeout: 5,
       backgroundSessionTimeout: 1,
@@ -186,12 +192,14 @@ describe('Session plugin', () => {
   it('has separate session state for different namespaces', async () => {
     jest.setSystemTime(new Date('2022-04-17T00:00:00.000Z'));
     const sessionPlugin1 = await newSessionPlugin({
+      asyncStorage: AsyncStorage,
       namespace: 'test1',
       foregroundSessionTimeout: 5,
       backgroundSessionTimeout: 5,
     });
 
     const sessionPlugin2 = await newSessionPlugin({
+      asyncStorage: AsyncStorage,
       namespace: 'test2',
       foregroundSessionTimeout: 5,
       backgroundSessionTimeout: 5,
@@ -213,6 +221,7 @@ describe('Session plugin', () => {
   it('retrieves the correct information from the session plugin', async () => {
     jest.setSystemTime(new Date('2022-04-17T00:00:00.000Z'));
     const sessionPlugin = await newSessionPlugin({
+      asyncStorage: AsyncStorage,
       namespace: 'test',
       foregroundSessionTimeout: 5,
       backgroundSessionTimeout: 5,

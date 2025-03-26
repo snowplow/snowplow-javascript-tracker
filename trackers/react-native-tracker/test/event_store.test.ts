@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { newReactNativeEventStore } from '../src/event_store';
 
 function createAppStorageMock() {
@@ -16,6 +17,7 @@ function createAppStorageMock() {
 describe('React Native event store', () => {
   it('keeps track of added events', async () => {
     const eventStore = await newReactNativeEventStore({
+      asyncStorage: AsyncStorage,
       namespace: 'test',
     });
 
@@ -34,9 +36,11 @@ describe('React Native event store', () => {
 
   it('separates event stores by namespace', async () => {
     const eventStore1 = await newReactNativeEventStore({
+      asyncStorage: AsyncStorage,
       namespace: 'test1',
     });
     const eventStore2 = await newReactNativeEventStore({
+      asyncStorage: AsyncStorage,
       namespace: 'test2',
     });
 
@@ -52,6 +56,7 @@ describe('React Native event store', () => {
 
   it('syncs with AsyncStorage', async () => {
     const eventStore1 = await newReactNativeEventStore({
+      asyncStorage: AsyncStorage,
       namespace: 'testA',
     });
 
@@ -59,6 +64,7 @@ describe('React Native event store', () => {
     await eventStore1.add({ payload: { e: 'pp' } });
 
     const eventStore2 = await newReactNativeEventStore({
+      asyncStorage: AsyncStorage,
       namespace: 'testA',
     });
 
