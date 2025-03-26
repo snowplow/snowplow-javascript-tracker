@@ -43,6 +43,7 @@
     "test": "jest"
   },
   "peerDependencies": {
+    "@react-native-async-storage/async-storage": "~2.0.0",
     "react": "*",
     "react-native": "*",
     "react-native-get-random-values": "^1.11.0"
@@ -51,11 +52,11 @@
     "@snowplow/tracker-core": "workspace:*",
     "@snowplow/browser-tracker-core": "workspace:*",
     "@snowplow/browser-plugin-screen-tracking": "workspace:*",
-    "@react-native-async-storage/async-storage": "~2.0.0",
     "tslib": "^2.3.1",
     "uuid": "^10.0.0"
   },
   "devDependencies": {
+    "@react-native-async-storage/async-storage": "~2.0.0",
     "@snowplow/browser-plugin-snowplow-ecommerce": "workspace:*",
     "@typescript-eslint/eslint-plugin": "~5.15.0",
     "@typescript-eslint/parser": "~5.15.0",
