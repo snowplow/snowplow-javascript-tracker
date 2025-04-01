@@ -28,7 +28,7 @@ export interface EventStoreConfiguration {
    * Whether to use the AsyncStorage library as the persistent event store for the event store
    * @defaultValue true
    */
-  useAsyncStorageForEventStore?: true;
+  useAsyncStorageForEventStore?: boolean;
 
   /**
    * The Async storage implementation.
