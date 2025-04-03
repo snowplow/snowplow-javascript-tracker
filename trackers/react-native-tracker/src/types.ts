@@ -35,7 +35,7 @@ export interface EventStoreConfiguration {
    * In environments where AsyncStorage is not available or where another kind of storage is used,
    * you can provide a custom implementation.
    *
-   * @defaultValue AsyncStorage from {@link https://react-native-async-storage.github.io/async-storage/ @react-native-async-storage/async-storage}
+   * @defaultValue AsyncStorage from `@react-native-async-storage/async-storage`
    * */
   asyncStorage?: AsyncStorage;
 }
