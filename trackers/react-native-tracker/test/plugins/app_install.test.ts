@@ -15,6 +15,7 @@ describe('Application install plugin', () => {
     });
     const appInstallPlugin = newAppInstallPlugin(
       {
+        asyncStorage: AsyncStorage,
         namespace: 'test',
         installAutotracking: true,
       },
@@ -39,6 +40,7 @@ describe('Application install plugin', () => {
     tracker1.addPlugin(
       newAppInstallPlugin(
         {
+          asyncStorage: AsyncStorage,
           namespace: 'test',
           installAutotracking: true,
         },
@@ -57,6 +59,7 @@ describe('Application install plugin', () => {
     tracker2.addPlugin(
       newAppInstallPlugin(
         {
+          asyncStorage: AsyncStorage,
           namespace: 'test',
           installAutotracking: true,
         },
@@ -75,6 +78,7 @@ describe('Application install plugin', () => {
     });
     const appInstallPlugin = newAppInstallPlugin(
       {
+        asyncStorage: AsyncStorage,
         namespace: 'test',
       },
       tracker
