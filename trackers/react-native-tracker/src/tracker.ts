@@ -33,38 +33,64 @@ import { newPlatformContextPlugin } from './plugins/platform_context';
 import { newAppLifecyclePlugin } from './plugins/app_lifecycle';
 import { newAppInstallPlugin } from './plugins/app_install';
 import { newAppContextPlugin } from './plugins/app_context';
+import DefaultAsyncStorage from '@react-native-async-storage/async-storage';
 
 const initializedTrackers: Record<string, { tracker: ReactNativeTracker; core: TrackerCore }> = {};
+
+type SetPropertiesAsNonNullable<Obj, Properties extends keyof Obj> = Omit<Obj, Properties> & {
+  [K in Properties]-?: NonNullable<Obj[K]>;
+};
+
+type Configuration = TrackerConfiguration &
+  EmitterConfiguration &
+  SessionConfiguration &
+  SubjectConfiguration &
+  EventStoreConfiguration &
+  ScreenTrackingConfiguration &
+  PlatformContextConfiguration &
+  DeepLinkConfiguration &
+  AppLifecycleConfiguration;
+
+type NormalizedConfiguration = SetPropertiesAsNonNullable<
+  Configuration,
+  'asyncStorage' | 'devicePlatform' | 'encodeBase64' | 'eventStore' | 'plugins'
+>;
+
+const normalizeTrackerConfiguration = async (configuration: Configuration): Promise<NormalizedConfiguration> => {
+  const eventStore = configuration.eventStore ?? (await newReactNativeEventStore(configuration));
+  const asyncStorage = configuration.asyncStorage ?? DefaultAsyncStorage;
+  const plugins = configuration.plugins ?? [];
+  const devicePlatform = configuration.devicePlatform ?? 'mob';
+  const encodeBase64 = configuration.encodeBase64 ?? false;
+
+  return {
+    ...configuration,
+    devicePlatform,
+    encodeBase64,
+    asyncStorage,
+    eventStore,
+    plugins,
+  };
+};
 
 /**
  * Creates a new tracker instance with the given configuration
  * @param configuration - Configuration for the tracker
  * @returns Tracker instance
  */
-export async function newTracker(
-  configuration: TrackerConfiguration &
-    EmitterConfiguration &
-    SessionConfiguration &
-    SubjectConfiguration &
-    EventStoreConfiguration &
-    ScreenTrackingConfiguration &
-    PlatformContextConfiguration &
-    DeepLinkConfiguration &
-    AppLifecycleConfiguration
-): Promise<ReactNativeTracker> {
-  const { namespace, appId, encodeBase64 = false } = configuration;
-  if (configuration.eventStore === undefined) {
-    configuration.eventStore = await newReactNativeEventStore(configuration);
-  }
+export async function newTracker(configuration: Configuration): Promise<ReactNativeTracker> {
+  const normalizedConfiguration = await normalizeTrackerConfiguration(configuration);
 
-  const emitter = newEmitter(configuration);
+  const { namespace, appId, encodeBase64 } = normalizedConfiguration;
+
+  const emitter = newEmitter(normalizedConfiguration);
   const callback = (payload: PayloadBuilder): void => {
     emitter.input(payload.build());
   };
 
   const core = trackerCore({ base64: encodeBase64, callback });
 
-  core.setPlatform(configuration.devicePlatform ?? 'mob');
+  core.setPlatform(normalizedConfiguration.devicePlatform);
   core.setTrackerVersion('rn-' + version);
   core.setTrackerNamespace(namespace);
   if (appId) {
@@ -73,31 +99,31 @@ export async function newTracker(
 
   const { addPlugin } = newPlugins(namespace, core);
 
-  const sessionPlugin = await newSessionPlugin(configuration);
+  const sessionPlugin = await newSessionPlugin(normalizedConfiguration);
   addPlugin(sessionPlugin);
 
-  const deepLinksPlugin = await newDeepLinksPlugin(configuration, core);
+  const deepLinksPlugin = newDeepLinksPlugin(normalizedConfiguration, core);
   addPlugin(deepLinksPlugin);
 
-  const subject = newSubject(core, configuration);
+  const subject = newSubject(core, normalizedConfiguration);
   addPlugin(subject.subjectPlugin);
 
-  const screenPlugin = ScreenTrackingPlugin(configuration);
+  const screenPlugin = ScreenTrackingPlugin(normalizedConfiguration);
   addPlugin({ plugin: screenPlugin });
 
-  const platformContextPlugin = await newPlatformContextPlugin(configuration);
+  const platformContextPlugin = await newPlatformContextPlugin(normalizedConfiguration);
   addPlugin(platformContextPlugin);
 
-  const lifecyclePlugin = await newAppLifecyclePlugin(configuration, core);
+  const lifecyclePlugin = await newAppLifecyclePlugin(normalizedConfiguration, core);
   addPlugin(lifecyclePlugin);
 
-  const installPlugin = newAppInstallPlugin(configuration, core);
+  const installPlugin = newAppInstallPlugin(normalizedConfiguration, core);
   addPlugin(installPlugin);
 
-  const appContextPlugin = newAppContextPlugin(configuration);
+  const appContextPlugin = newAppContextPlugin(normalizedConfiguration);
   addPlugin(appContextPlugin);
 
-  (configuration.plugins ?? []).forEach((plugin) => addPlugin({ plugin }));
+  normalizedConfiguration.plugins.forEach((plugin) => addPlugin({ plugin }));
 
   const tracker: ReactNativeTracker = {
     ...newTrackEventFunctions(core),

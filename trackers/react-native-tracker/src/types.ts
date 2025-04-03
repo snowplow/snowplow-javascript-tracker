@@ -7,6 +7,11 @@ import {
   StructuredEvent,
 } from '@snowplow/tracker-core';
 
+export interface AsyncStorage {
+  getItem: (key: string) => Promise<string | null>;
+  setItem: (key: string, value: string) => Promise<void>;
+}
+
 /**
  * Configuration for the event store
  */
@@ -24,6 +29,15 @@ export interface EventStoreConfiguration {
    * @defaultValue true
    */
   useAsyncStorageForEventStore?: boolean;
+
+  /**
+   * The Async storage implementation.
+   * In environments where AsyncStorage is not available or where another kind of storage is used,
+   * you can provide a custom implementation.
+   *
+   * @defaultValue AsyncStorage from {@link https://react-native-async-storage.github.io/async-storage/ @react-native-async-storage/async-storage}
+   * */
+  asyncStorage?: AsyncStorage;
 }
 
 /**
@@ -918,7 +932,6 @@ export {
   ContextGenerator,
   ContextFilter,
   EventPayloadAndContext,
-  EventStore,
   EventStoreIterator,
   EventStorePayload,
   TrackerCore,

@@ -1,6 +1,19 @@
-import { newSessionPlugin } from '../../src/plugins/session';
 import { buildPageView, buildSelfDescribingEvent, Payload, trackerCore } from '@snowplow/tracker-core';
+import { newSessionPlugin } from '../../src/plugins/session';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+function createAsyncStorageMock() {
+  const storageState: Record<string, string> = {};
+
+  return {
+    getItem: (key: string) => Promise.resolve(storageState[key] ?? null),
+    setItem: (key: string, value: string) => {
+      storageState[key] = value;
+
+      return Promise.resolve();
+    },
+  };
+}
 
 describe('Session plugin', () => {
   beforeAll(() => {
@@ -18,6 +31,7 @@ describe('Session plugin', () => {
   it('starts a new session when necessary', async () => {
     jest.setSystemTime(new Date('2022-04-17T00:00:00.000Z'));
     const sessionPlugin = await newSessionPlugin({
+      asyncStorage: AsyncStorage,
       namespace: 'test',
       foregroundSessionTimeout: 5,
       backgroundSessionTimeout: 5,
@@ -39,6 +53,7 @@ describe('Session plugin', () => {
   it('attaches session context to events with the correct properties', async () => {
     jest.setSystemTime(new Date('2022-04-17T00:00:00.000Z'));
     const sessionPlugin = await newSessionPlugin({
+      asyncStorage: AsyncStorage,
       namespace: 'test',
       foregroundSessionTimeout: 5,
       backgroundSessionTimeout: 5,
@@ -88,6 +103,7 @@ describe('Session plugin', () => {
   it('creates a new session when new tracker is created', async () => {
     jest.setSystemTime(new Date('2022-04-17T00:00:00.000Z'));
     const sessionPlugin = await newSessionPlugin({
+      asyncStorage: AsyncStorage,
       namespace: 'test',
       foregroundSessionTimeout: 5,
       backgroundSessionTimeout: 5,
@@ -100,6 +116,7 @@ describe('Session plugin', () => {
     expect(sessionState.sessionIndex).toBe(1);
 
     const sessionPlugin2 = await newSessionPlugin({
+      asyncStorage: AsyncStorage,
       namespace: 'test',
       foregroundSessionTimeout: 5,
       backgroundSessionTimeout: 5,
@@ -113,18 +130,21 @@ describe('Session plugin', () => {
   it('uses a background timeout when in background', async () => {
     jest.setSystemTime(new Date('2022-04-17T00:00:00.000Z'));
     const sessionPlugin = await newSessionPlugin({
+      asyncStorage: AsyncStorage,
       namespace: 'test',
       foregroundSessionTimeout: 1000,
       backgroundSessionTimeout: 5,
     });
 
     const tracker = trackerCore({ corePlugins: [sessionPlugin.plugin] });
-    tracker.track(buildSelfDescribingEvent({
-      event: {
-        schema: 'iglu:com.snowplowanalytics.snowplow/application_background/jsonschema/1-0-0',
-        data: {},
-      }
-    }));
+    tracker.track(
+      buildSelfDescribingEvent({
+        event: {
+          schema: 'iglu:com.snowplowanalytics.snowplow/application_background/jsonschema/1-0-0',
+          data: {},
+        },
+      })
+    );
 
     let sessionState = await sessionPlugin.getSessionState();
     expect(sessionState.sessionIndex).toBe(1);
@@ -146,6 +166,7 @@ describe('Session plugin', () => {
   it('uses a foreground timeout when in foreground', async () => {
     jest.setSystemTime(new Date('2022-04-17T00:00:00.000Z'));
     const sessionPlugin = await newSessionPlugin({
+      asyncStorage: AsyncStorage,
       namespace: 'test',
       foregroundSessionTimeout: 5,
       backgroundSessionTimeout: 1,
@@ -171,12 +192,14 @@ describe('Session plugin', () => {
   it('has separate session state for different namespaces', async () => {
     jest.setSystemTime(new Date('2022-04-17T00:00:00.000Z'));
     const sessionPlugin1 = await newSessionPlugin({
+      asyncStorage: AsyncStorage,
       namespace: 'test1',
       foregroundSessionTimeout: 5,
       backgroundSessionTimeout: 5,
     });
 
     const sessionPlugin2 = await newSessionPlugin({
+      asyncStorage: AsyncStorage,
       namespace: 'test2',
       foregroundSessionTimeout: 5,
       backgroundSessionTimeout: 5,
@@ -198,6 +221,32 @@ describe('Session plugin', () => {
   it('retrieves the correct information from the session plugin', async () => {
     jest.setSystemTime(new Date('2022-04-17T00:00:00.000Z'));
     const sessionPlugin = await newSessionPlugin({
+      asyncStorage: AsyncStorage,
+      namespace: 'test',
+      foregroundSessionTimeout: 5,
+      backgroundSessionTimeout: 5,
+    });
+
+    const tracker = trackerCore({ corePlugins: [sessionPlugin.plugin] });
+    tracker.track(buildPageView({ pageUrl: 'http://localhost' }));
+
+    const userId = await sessionPlugin.getSessionUserId();
+    const sessionId = await sessionPlugin.getSessionId();
+    const sessionIndex = await sessionPlugin.getSessionIndex();
+    const sessionState = await sessionPlugin.getSessionState();
+
+    expect(userId).toBeDefined();
+    expect(sessionId).toBeDefined();
+    expect(sessionIndex).toBe(1);
+    expect(sessionState.userId).toEqual(userId);
+    expect(sessionState.sessionId).toEqual(sessionId);
+    expect(sessionState.sessionIndex).toEqual(sessionIndex);
+  });
+
+  it('retrieves the correct information from the session plugin with a custom async storage', async () => {
+    jest.setSystemTime(new Date('2022-04-17T00:00:00.000Z'));
+    const sessionPlugin = await newSessionPlugin({
+      asyncStorage: createAsyncStorageMock(),
       namespace: 'test',
       foregroundSessionTimeout: 5,
       backgroundSessionTimeout: 5,
