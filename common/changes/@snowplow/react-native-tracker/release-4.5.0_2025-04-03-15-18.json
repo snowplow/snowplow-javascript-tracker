@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/react-native-tracker",
+      "comment": "Allow configuring a custom event store in React Native tracker (close #1413)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/react-native-tracker"
+}

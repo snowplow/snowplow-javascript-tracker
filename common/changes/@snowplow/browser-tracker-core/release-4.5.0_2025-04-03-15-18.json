@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-tracker-core",
+      "comment": "Avoid undelivered notifications error (#1335)",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker-core"
+}
