@@ -17,6 +17,14 @@ export interface AppLifecycleConfiguration {
     lifecycleAutotracking?: boolean;
 }
 
+// @public (undocumented)
+export interface AsyncStorage {
+    // (undocumented)
+    getItem: (key: string) => Promise<string | null>;
+    // (undocumented)
+    setItem: (key: string, value: string) => Promise<void>;
+}
+
 // @public
 export type ConditionalContextProvider = FilterProvider | RuleSetProvider;
 
@@ -117,6 +125,7 @@ export interface EmitterConfigurationBase {
     customHeaders?: Record<string, string>;
     dontRetryStatusCodes?: number[];
     eventMethod?: EventMethod;
+    // Warning: (ae-forgotten-export) The symbol "EventStore" needs to be exported by the entry point index.d.ts
     eventStore?: EventStore;
     idService?: string;
     keepalive?: boolean;
@@ -156,17 +165,8 @@ export interface EventPayloadAndContext {
 }
 
 // @public
-export interface EventStore {
-    add: (payload: EventStorePayload) => Promise<number>;
-    count: () => Promise<number>;
-    getAll: () => Promise<readonly EventStorePayload[]>;
-    getAllPayloads: () => Promise<readonly Payload[]>;
-    iterator: () => EventStoreIterator;
-    removeHead: (count: number) => Promise<void>;
-}
-
-// @public
 export interface EventStoreConfiguration {
+    asyncStorage?: AsyncStorage;
     maxEventStoreSize?: number;
     useAsyncStorageForEventStore?: boolean;
 }
@@ -280,8 +280,10 @@ export type MessageNotificationProps = {
     trigger: Trigger;
 };
 
+// Warning: (ae-forgotten-export) The symbol "Configuration" needs to be exported by the entry point index.d.ts
+//
 // @public
-export function newTracker(configuration: TrackerConfiguration & EmitterConfiguration & SessionConfiguration & SubjectConfiguration & EventStoreConfiguration & ScreenTrackingConfiguration & PlatformContextConfiguration & DeepLinkConfiguration & AppLifecycleConfiguration): Promise<ReactNativeTracker>;
+export function newTracker(configuration: Configuration): Promise<ReactNativeTracker>;
 
 // @public
 export interface PageViewEvent {
