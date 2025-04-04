@@ -42,14 +42,19 @@ export function filterFunctionFromFilter(filter?: Filter): FilterFunction {
  * @returns The button click event
  */
 export function createEventFromButton(
-  button: HTMLButtonElement | HTMLInputElement
+  button: HTMLButtonElement | HTMLInputElement,
+  defaultLabel?: string | ((element: HTMLElement) => string)
 ): ButtonClickEvent & CommonEventProperties {
   let ret = {} as ButtonClickEvent & CommonEventProperties;
 
   if (button.tagName === 'INPUT') {
     ret.label = button.dataset.spButtonLabel || button.value;
   } else {
-    ret.label = button.dataset.spButtonLabel || button.innerText;
+    ret.label =
+      button.dataset.spButtonLabel ||
+      button.innerText ||
+      (typeof defaultLabel === 'function' ? defaultLabel(button) : defaultLabel) ||
+      '(empty)';
   }
 
   button.id && (ret.id = button.id);

@@ -145,6 +145,31 @@ describe('Button Click Tracking Plugin', () => {
         expect(createEventFromButton(button)).toEqual(event);
       });
 
+      it('should use specified default label', () => {
+        const button = document.createElement('button');
+        button.innerText = '';
+        button.id = 'testId';
+        button.className = 'testClass testClass2';
+        button.name = 'testName';
+
+        const event1 = {
+          label: 'defaultLabel',
+          id: 'testId',
+          classes: ['testClass', 'testClass2'],
+          name: 'testName',
+        };
+
+        expect(createEventFromButton(button, 'defaultLabel')).toEqual(event1);
+
+        const event2 = {
+          label: 'testClass testClass2',
+          id: 'testId',
+          classes: ['testClass', 'testClass2'],
+          name: 'testName',
+        };
+        expect(createEventFromButton(button, (btn) => btn.className)).toEqual(event2);
+      });
+
       it('should prefer the data-sp-button-label attribute over the innerText', () => {
         const button = document.createElement('button');
         button.innerText = 'testLabel';

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-button-click-tracking",
+      "comment": "Allow per-tracker disabling",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-button-click-tracking"
+}

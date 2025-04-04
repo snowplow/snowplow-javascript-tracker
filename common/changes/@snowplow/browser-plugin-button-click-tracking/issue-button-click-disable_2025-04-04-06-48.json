@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-button-click-tracking",
+      "comment": "Add default label to avoid bad events",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-button-click-tracking"
+}
