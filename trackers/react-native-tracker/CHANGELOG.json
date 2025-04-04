@@ -2,6 +2,18 @@
   "name": "@snowplow/react-native-tracker",
   "entries": [
     {
+      "version": "4.5.0",
+      "tag": "@snowplow/react-native-tracker_v4.5.0",
+      "date": "Fri, 04 Apr 2025 09:21:23 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Allow configuring a custom event store in React Native tracker (close #1413)"
+          }
+        ]
+      }
+    },
+    {
       "version": "4.4.0",
       "tag": "@snowplow/react-native-tracker_v4.4.0",
       "date": "Thu, 20 Mar 2025 12:14:34 GMT",

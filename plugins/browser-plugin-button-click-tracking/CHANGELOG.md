@@ -1,6 +1,14 @@
 # Change Log - @snowplow/browser-plugin-button-click-tracking
 
-This log was last generated on Thu, 20 Mar 2025 12:14:34 GMT and should not be manually modified.
+This log was last generated on Fri, 04 Apr 2025 09:21:23 GMT and should not be manually modified.
+
+## 4.5.0
+Fri, 04 Apr 2025 09:21:23 GMT
+
+### Updates
+
+- Allow per-tracker disabling
+- Add default label to avoid bad events
 
 ## 4.4.0
 Thu, 20 Mar 2025 12:14:34 GMT

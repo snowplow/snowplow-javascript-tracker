@@ -1,6 +1,13 @@
 # Change Log - @snowplow/browser-tracker-core
 
-This log was last generated on Thu, 20 Mar 2025 12:14:34 GMT and should not be manually modified.
+This log was last generated on Fri, 04 Apr 2025 09:21:23 GMT and should not be manually modified.
+
+## 4.5.0
+Fri, 04 Apr 2025 09:21:23 GMT
+
+### Updates
+
+- Avoid undelivered notifications error (#1335)
 
 ## 4.4.0
 Thu, 20 Mar 2025 12:14:34 GMT
