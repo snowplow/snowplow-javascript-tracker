@@ -59,17 +59,20 @@
     <button id="disable" onclick="snowplow('disableButtonClickTracking')">Disable</button>
     <button id="disabled-click">DisabledClick</button>
 
+    <button id="selective" onclick="snowplow('enableButtonClickTracking:sp2')">Selective enable</button>
+    <button id="selective-click">SelectiveEnabledClick</button>
+
     <button id="enable" onclick="snowplow('enableButtonClickTracking')">Enable</button>
     <button id="enabled-click">EnabledClick</button>
 
     <!-- Ensuring the final config is used after multiple calls to `enableButtonClickTracking` -->
-    <button id="set-multiple-configs" onClick="setMultipleConfigs">Set Multiple Configs</button>
+    <button id="set-multiple-configs" onClick="setMultipleConfigs()">Set Multiple Configs</button>
     <button id="final-config" class="final-config">Final Config</button>
 
     <script>
       function setMultipleConfigs() {
-        enableButtonClickTracking({ denylist: ['final-config'] });
-        enableButtonClickTracking();
+        snowplow('enableButtonClickTracking', { filter: { denylist: ['final-config'] } });
+        snowplow('enableButtonClickTracking:sp');
       }
     </script>
 
@@ -110,6 +113,10 @@
 
       snowplow('newTracker', 'sp', collector_endpoint, {
         appId: 'button-click-tracking-' + testIdentifier,
+        method: parseQuery().eventMethod,
+      });
+      snowplow('newTracker', 'sp2', collector_endpoint, {
+        appId: 'button-click-tracking-' + testIdentifier + '-second',
         method: parseQuery().eventMethod,
       });
       snowplow(function () {

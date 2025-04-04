@@ -30,11 +30,11 @@ describe('Snowplow Micro integration', () => {
     name?: string;
   };
 
-  const makeEvent = (button: Button, method: string) => {
+  const makeEvent = (button: Button, method: string, suffix: string = '') => {
     return {
       event: {
         event: 'unstruct',
-        app_id: 'button-click-tracking-' + testIdentifier,
+        app_id: 'button-click-tracking-' + testIdentifier + suffix,
         page_url: `http://snowplow-js-tracker.local:8080/button-click-tracking.html?eventMethod=${method}`,
         unstruct_event: {
           data: {
@@ -79,6 +79,11 @@ describe('Snowplow Micro integration', () => {
       await (await $('#disable')).click();
       await browser.pause(500);
       await (await $('#disabled-click')).click();
+      await browser.pause(500);
+
+      await (await $('#selective')).click();
+      await browser.pause(500);
+      await (await $('#selective-click')).click();
       await browser.pause(500);
 
       await (await $('#enable')).click();
@@ -155,14 +160,29 @@ describe('Snowplow Micro integration', () => {
       expect(logContains(ev)).toBe(false);
     });
 
+    it('should get one selective-click', () => {
+      const ev1 = makeEvent({ id: 'selective-click', label: 'SelectiveEnabledClick' }, method);
+      expect(logContains(ev1)).toBe(false);
+
+      const ev2 = makeEvent({ id: 'selective-click', label: 'SelectiveEnabledClick' }, method, '-second');
+      logContainsButtonClick(ev2);
+    });
+
     it('should get enabled-click', () => {
       const ev = makeEvent({ id: 'enabled-click', label: 'EnabledClick' }, method);
       logContainsButtonClick(ev);
     });
 
     it('should get `final-config` as it is the last config set', () => {
-      const ev = makeEvent({ id: 'final-config', classes: ['final-config'], label: 'Final Config' }, method);
-      logContainsButtonClick(ev);
+      const ev1 = makeEvent({ id: 'final-config', classes: ['final-config'], label: 'Final Config' }, method);
+      logContainsButtonClick(ev1);
+
+      const ev2 = makeEvent(
+        { id: 'final-config', classes: ['final-config'], label: 'Final Config' },
+        method,
+        '-second'
+      );
+      expect(logContains(ev2)).toBe(false);
     });
   });
 });
