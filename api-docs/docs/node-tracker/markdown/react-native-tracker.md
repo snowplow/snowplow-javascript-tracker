@@ -27,6 +27,7 @@
 |  Interface | Description |
 |  --- | --- |
 |  [AppLifecycleConfiguration](./react-native-tracker.applifecycleconfiguration.md) | Configuration for app lifecycle tracking |
+|  [AsyncStorage](./react-native-tracker.asyncstorage.md) |  |
 |  [CoreConfiguration](./react-native-tracker.coreconfiguration.md) | The configuration object for the tracker core library |
 |  [CorePlugin](./react-native-tracker.coreplugin.md) | Interface which defines Core Plugins |
 |  [CorePluginConfiguration](./react-native-tracker.corepluginconfiguration.md) | The configuration of the plugin to add |
@@ -36,7 +37,6 @@
 |  [EmitterConfiguration](./react-native-tracker.emitterconfiguration.md) |  |
 |  [EmitterConfigurationBase](./react-native-tracker.emitterconfigurationbase.md) |  |
 |  [EventPayloadAndContext](./react-native-tracker.eventpayloadandcontext.md) | Interface for returning a built event (PayloadBuilder) and context (Array of SelfDescribingJson). |
-|  [EventStore](./react-native-tracker.eventstore.md) | EventStore allows storing and retrieving events before they are sent to the collector |
 |  [EventStoreConfiguration](./react-native-tracker.eventstoreconfiguration.md) | Configuration for the event store |
 |  [EventStoreIterator](./react-native-tracker.eventstoreiterator.md) | EventStoreIterator allows iterating over all events in the store. |
 |  [EventStorePayload](./react-native-tracker.eventstorepayload.md) |  |

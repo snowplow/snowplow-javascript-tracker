@@ -16,6 +16,7 @@ export interface EventStoreConfiguration
 
 |  Property | Type | Description |
 |  --- | --- | --- |
+|  [asyncStorage?](./react-native-tracker.eventstoreconfiguration.asyncstorage.md) | [AsyncStorage](./react-native-tracker.asyncstorage.md) | <i>(Optional)</i> The Async storage implementation. In environments where AsyncStorage is not available or where another kind of storage is used, you can provide a custom implementation. |
 |  [maxEventStoreSize?](./react-native-tracker.eventstoreconfiguration.maxeventstoresize.md) | number | <i>(Optional)</i> The maximum amount of events that will be buffered in the event store<!-- -->Will drop events once the limit is hit |
 |  [useAsyncStorageForEventStore?](./react-native-tracker.eventstoreconfiguration.useasyncstorageforeventstore.md) | boolean | <i>(Optional)</i> Whether to use the AsyncStorage library as the persistent event store for the event store |
 
