@@ -58,7 +58,13 @@ export function enableButtonClickTracking(
     // Store the configuration for this tracker, if it doesn't already exist
     // This allows us to enable click tracking for a tracker if it has been disabled
     _listeners[trackerId] = (event: MouseEvent) => {
-      eventHandler(event, trackerId, filterFunctionFromFilter(configuration.filter), configuration.context);
+      eventHandler(
+        event,
+        trackerId,
+        filterFunctionFromFilter(configuration.filter),
+        configuration.defaultLabel,
+        configuration.context
+      );
     };
 
     const addClickListener = () => {
@@ -96,12 +102,18 @@ export function disableButtonClickTracking(trackers: Array<string> = Object.keys
  * @param filter - The filter function to use for button click tracking
  * @param context - The dynamic context which will be evaluated for each button click event
  */
-function eventHandler(event: MouseEvent, trackerId: string, filter: FilterFunction, context?: DynamicContext) {
+function eventHandler(
+  event: MouseEvent,
+  trackerId: string,
+  filter: FilterFunction,
+  defaultLabel?: string | ((element: HTMLElement) => string),
+  context?: DynamicContext
+) {
   let elem = (event.composed ? event.composedPath()[0] : event.target) as HTMLElement | null;
   while (elem) {
     if (elem instanceof HTMLButtonElement || (elem instanceof HTMLInputElement && elem.type === 'button')) {
       if (filter(elem)) {
-        const buttonClickEvent = createEventFromButton(elem);
+        const buttonClickEvent = createEventFromButton(elem, defaultLabel);
         buttonClickEvent.context = resolveDynamicContext(context, buttonClickEvent, elem);
         trackButtonClick(buttonClickEvent, [trackerId]);
       }

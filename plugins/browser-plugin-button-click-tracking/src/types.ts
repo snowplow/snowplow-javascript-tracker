@@ -18,6 +18,8 @@ export interface ButtonClickTrackingConfiguration {
   filter?: Filter;
   /** The dynamic context which will be evaluated for each button click event */
   context?: DynamicContext;
+  /** A default label to use if one can not be determined by the content or data attributes */
+  defaultLabel?: string | ((element: HTMLElement) => string);
 }
 
 /**
