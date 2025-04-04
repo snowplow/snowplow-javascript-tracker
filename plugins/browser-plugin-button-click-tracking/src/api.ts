@@ -52,7 +52,7 @@ export function enableButtonClickTracking(
 ) {
   // Ensure that click tracking uses the latest configuration
   // In the case of `enableButtonClickTracking` being called multiple times in a row
-  disableButtonClickTracking();
+  disableButtonClickTracking(trackers);
 
   trackers.forEach((trackerId) => {
     // Store the configuration for this tracker, if it doesn't already exist
@@ -80,12 +80,12 @@ export function enableButtonClickTracking(
  *
  * Can be re-enabled with {@link enableButtonClickTracking}
  */
-export function disableButtonClickTracking() {
-  for (const trackerId in _trackers) {
+export function disableButtonClickTracking(trackers: Array<string> = Object.keys(_trackers)) {
+  trackers.forEach((trackerId) => {
     if (_listeners[trackerId]) {
       document.removeEventListener('click', _listeners[trackerId], true);
     }
-  }
+  });
 }
 
 /**
