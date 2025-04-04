@@ -1,6 +1,6 @@
 {
   "name": "@snowplow/browser-plugin-screen-tracking",
-  "version": "4.4.0",
+  "version": "4.5.0",
   "description": "Snowplow screen tracking",
   "homepage": "http://bit.ly/sp-js",
   "bugs": "https://github.com/snowplow/snowplow-javascript-tracker/issues",
@@ -52,6 +52,6 @@
     "typescript": "~4.6.2"
   },
   "peerDependencies": {
-    "@snowplow/browser-tracker": "~4.4.0"
+    "@snowplow/browser-tracker": "~4.5.0"
   }
 }
