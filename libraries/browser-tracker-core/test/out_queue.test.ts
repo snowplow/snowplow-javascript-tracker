@@ -193,8 +193,8 @@ describe('OutQueueManager', () => {
     });
   });
 
-  describe('idService requests', () => {
-    const idServiceEndpoint = 'http://example.com/id';
+  describe('cookieExtensionService requests', () => {
+    const cookieExtensionServiceEndpoint = 'http://example.com/id';
 
     const getQuerystring = (p: object) =>
       '?' +
@@ -203,33 +203,33 @@ describe('OutQueueManager', () => {
         .join('&');
 
     describe('GET requests', () => {
-      let createGetQueue = () => newOutQueue(
-        {
-          endpoint: 'http://example.com',
-          trackerId: 'sp',
-          eventMethod: 'get',
-          useStm: false,
-          maxLocalStorageQueueSize: maxQueueSize,
-          eventStore,
-          customFetch,
-          idService: idServiceEndpoint,
-        },
-        new SharedState()
-      );
-  
+      let createGetQueue = () =>
+        newOutQueue(
+          {
+            endpoint: 'http://example.com',
+            trackerId: 'sp',
+            eventMethod: 'get',
+            useStm: false,
+            maxLocalStorageQueueSize: maxQueueSize,
+            eventStore,
+            customFetch,
+            cookieExtensionService: cookieExtensionServiceEndpoint,
+          },
+          new SharedState()
+        );
 
-      it('should first execute the idService request and in the same `enqueueRequest` the tracking request', async () => {
+      it('should first execute the cookieExtensionService request and in the same `enqueueRequest` the tracking request', async () => {
         const request = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
         const getQueue = createGetQueue();
 
         await getQueue.enqueueRequest(request);
 
         expect(requests).toHaveLength(2);
-        expect(requests[0].url).toEqual(idServiceEndpoint);
+        expect(requests[0].url).toEqual(cookieExtensionServiceEndpoint);
         expect(requests[1].url).toEqual('http://example.com/i' + getQuerystring(request));
       });
 
-      it('should first execute the idService request and in the same `enqueueRequest` the tracking request irregardless of failure of the idService endpoint', async () => {
+      it('should first execute the cookieExtensionService request and in the same `enqueueRequest` the tracking request irregardless of failure of the cookieExtensionService endpoint', async () => {
         const request = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
         const getQueue = createGetQueue();
 
@@ -237,33 +237,34 @@ describe('OutQueueManager', () => {
         await getQueue.enqueueRequest(request);
 
         expect(requests).toHaveLength(2);
-        expect(requests[0].url).toEqual(idServiceEndpoint);
+        expect(requests[0].url).toEqual(cookieExtensionServiceEndpoint);
         expect(requests[1].url).toEqual('http://example.com/i' + getQuerystring(request));
         expect(await eventStore.count()).toEqual(1);
       });
     });
 
     describe('POST requests', () => {
-      let createPostQueue = () => newOutQueue(
-        {
-          endpoint: 'http://example.com',
-          trackerId: 'sp',
-          eventMethod: 'post',
-          eventStore,
-          customFetch,
-          idService: idServiceEndpoint,
-        },
-        new SharedState()
-      );
+      let createPostQueue = () =>
+        newOutQueue(
+          {
+            endpoint: 'http://example.com',
+            trackerId: 'sp',
+            eventMethod: 'post',
+            eventStore,
+            customFetch,
+            cookieExtensionService: cookieExtensionServiceEndpoint,
+          },
+          new SharedState()
+        );
 
-      it('should first execute the idService request and in the same `enqueueRequest` the tracking request irregardless of failure of the idService endpoint', async () => {
+      it('should first execute the cookieExtensionService request and in the same `enqueueRequest` the tracking request irregardless of failure of the cookieExtensionService endpoint', async () => {
         const request = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
         const postQueue = createPostQueue();
 
         await postQueue.enqueueRequest(request);
 
         expect(requests).toHaveLength(2);
-        expect(requests[0].url).toEqual(idServiceEndpoint);
+        expect(requests[0].url).toEqual(cookieExtensionServiceEndpoint);
         expect(requests[1].url).toEqual('http://example.com/com.snowplowanalytics.snowplow/tp2');
       });
     });
@@ -271,17 +272,18 @@ describe('OutQueueManager', () => {
 
   describe('retryFailures = true', () => {
     const request = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
-    let createOutQueue = () => newOutQueue(
-      {
-        endpoint: 'http://example.com',
-        trackerId: 'sp',
-        eventMethod: 'post',
-        retryFailedRequests: true,
-        eventStore,
-        customFetch,
-      },
-      new SharedState()
-    );
+    let createOutQueue = () =>
+      newOutQueue(
+        {
+          endpoint: 'http://example.com',
+          trackerId: 'sp',
+          eventMethod: 'post',
+          retryFailedRequests: true,
+          eventStore,
+          customFetch,
+        },
+        new SharedState()
+      );
 
     it('should remain in queue on failure', async () => {
       let outQueue = createOutQueue();
@@ -295,17 +297,18 @@ describe('OutQueueManager', () => {
 
   describe('retryFailures = false', () => {
     const request = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
-    let createOutQueue = () => newOutQueue(
-      {
-        endpoint: 'http://example.com',
-        trackerId: 'sp',
-        eventMethod: 'post',
-        retryFailedRequests: false,
-        eventStore,
-        customFetch,
-      },
-      new SharedState()
-    );
+    let createOutQueue = () =>
+      newOutQueue(
+        {
+          endpoint: 'http://example.com',
+          trackerId: 'sp',
+          eventMethod: 'post',
+          retryFailedRequests: false,
+          eventStore,
+          customFetch,
+        },
+        new SharedState()
+      );
 
     it('should remove from queue on failure', async () => {
       let outQueue = createOutQueue();
@@ -441,23 +444,23 @@ describe('OutQueueManager', () => {
   describe('onRequestFailure', () => {
     const request = { e: 'pv', eid: '65cb78de-470c-4764-8c10-02bd79477a3a' };
 
-  const createQueue = (args: createQueueArgs) =>
-    newOutQueue(
-      {
-        endpoint: 'http://example.com',
-        trackerId: 'sp',
-        eventMethod: args.method,
-        maxPostBytes: args.maxPostBytes,
-        maxGetBytes: args.maxGetBytes,
-        maxLocalStorageQueueSize: maxQueueSize,
-        onRequestSuccess: args.onSuccess,
-        onRequestFailure: args.onFailure,
-        dontRetryStatusCodes: [500],
-        customFetch,
-        eventStore,
-      },
-      new SharedState()
-    );
+    const createQueue = (args: createQueueArgs) =>
+      newOutQueue(
+        {
+          endpoint: 'http://example.com',
+          trackerId: 'sp',
+          eventMethod: args.method,
+          maxPostBytes: args.maxPostBytes,
+          maxGetBytes: args.maxGetBytes,
+          maxLocalStorageQueueSize: maxQueueSize,
+          onRequestSuccess: args.onSuccess,
+          onRequestFailure: args.onFailure,
+          dontRetryStatusCodes: [500],
+          customFetch,
+          eventStore,
+        },
+        new SharedState()
+      );
 
     describe('POST requests', () => {
       const method = 'post';

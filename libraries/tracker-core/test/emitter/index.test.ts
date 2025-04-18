@@ -1,7 +1,7 @@
 import test from 'ava';
 
 import { newEmitter, Emitter } from '../../src/emitter';
-import { newInMemoryEventStore } from "../../src/event_store";
+import { newInMemoryEventStore } from '../../src/event_store';
 
 function createMockFetch(status: number, requests: Request[]) {
   return async (input: Request) => {
@@ -15,7 +15,7 @@ test.before(() => {
   console.error = () => {}; // Silence console.error globally
 });
 
-test("input adds an event to the event store", async (t) => {
+test('input adds an event to the event store', async (t) => {
   const requests: Request[] = [];
   const mockFetch = createMockFetch(200, requests);
   const eventStore = newInMemoryEventStore({});
@@ -26,7 +26,7 @@ test("input adds an event to the event store", async (t) => {
     eventStore,
   });
 
-  await emitter.input({ e: "pv" });
+  await emitter.input({ e: 'pv' });
 
   t.is(await eventStore.count(), 1);
   t.is(requests.length, 0);
@@ -288,7 +288,7 @@ test('makes a request to the id service only once', async (t) => {
   const emitter: Emitter = newEmitter({
     endpoint: 'https://example.com',
     customFetch: mockFetch,
-    idService: 'https://id-example.com',
+    cookieExtensionService: 'https://id-example.com',
   });
 
   await emitter.input({ e: 'pv' });
@@ -325,7 +325,7 @@ test('adds a timeout to the request', async (t) => {
     endpoint: 'https://example.com',
     customFetch: mockFetch,
     connectionTimeout: 100,
-    eventStore
+    eventStore,
   });
 
   await emitter.input({ e: 'pv' });

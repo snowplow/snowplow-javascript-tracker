@@ -107,10 +107,14 @@ export interface EmitterConfigurationBase {
    */
   dontRetryStatusCodes?: number[];
   /**
-   * Id service full URL. This URL will be added to the queue and will be called using a GET method.
+   * Cookie extension service full URL. This URL will be added to the queue and will be called using a GET method.
    * This option is there to allow the service URL to be called in order to set any required identifiers e.g. extra cookies.
    *
    * The request respects the `anonymousTracking` option, including the SP-Anonymous header if needed, and any additional custom headers from the customHeaders option.
+   */
+  cookieExtensionService?: string;
+  /**
+   * @deprecated Use `cookieExtensionService` instead.
    */
   idService?: string;
   /**
@@ -208,6 +212,7 @@ export function newEmitter({
   serverAnonymization,
   connectionTimeout,
   keepalive,
+  cookieExtensionService,
   idService,
   dontRetryStatusCodes = [],
   retryStatusCodes = [],
@@ -219,7 +224,10 @@ export function newEmitter({
   eventStore = newInMemoryEventStore({}),
   credentials,
 }: EmitterConfiguration): Emitter {
-  let idServiceCalled = false;
+  /* `cookieExtensionService` gets priority until `idService` is completely removed. */
+  cookieExtensionService = cookieExtensionService || idService;
+
+  let cookieExtensionServiceCalled = false;
   let flushInProgress = false;
   const usePost = eventMethod.toLowerCase() === 'post';
   dontRetryStatusCodes = dontRetryStatusCodes.concat([400, 401, 403, 410, 422]);
@@ -349,10 +357,10 @@ export function newEmitter({
     }
   }
 
-  async function callIdService() {
-    if (idService && !idServiceCalled) {
-      idServiceCalled = true;
-      const request = new Request(idService, { method: 'GET' });
+  async function callCookieExtensionService() {
+    if (cookieExtensionService && !cookieExtensionServiceCalled) {
+      cookieExtensionServiceCalled = true;
+      const request = new Request(cookieExtensionService, { method: 'GET' });
       await customFetch(request);
     }
   }
@@ -372,7 +380,7 @@ export function newEmitter({
   }
 
   async function continueFlush() {
-    await callIdService();
+    await callCookieExtensionService();
 
     const request = newEmitterRequestWithConfig();
     const eventStoreIterator = eventStore.iterator();
