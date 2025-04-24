@@ -24,6 +24,7 @@ import * as ButtonClickTracking from '@snowplow/browser-plugin-button-click-trac
 import * as EventSpecifications from '@snowplow/browser-plugin-event-specifications';
 import * as PerformanceNavigationTiming from '@snowplow/browser-plugin-performance-navigation-timing';
 import * as WebVitals from '@snowplow/browser-plugin-web-vitals';
+import * as ElementTracking from '@snowplow/browser-plugin-element-tracking';
 
 /**
  * Calculates the required plugins to intialise per tracker
@@ -151,6 +152,11 @@ export function Plugins(configuration: JavaScriptTrackerConfiguration) {
   if (plugins.webVitals && webVitals) {
     const { WebVitalsPlugin, ...apiMethods } = WebVitals;
     activatedPlugins.push([WebVitalsPlugin(typeof webVitals === 'object' ? webVitals : undefined), apiMethods]);
+  }
+
+  if (plugins.elementTracking) {
+    const { SnowplowElementTrackingPlugin, ...apiMethods } = ElementTracking;
+    activatedPlugins.push([SnowplowElementTrackingPlugin(), apiMethods]);
   }
 
   return activatedPlugins;

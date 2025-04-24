@@ -428,6 +428,12 @@
       "versionPolicyName": "tracker"
     },
     {
+      "packageName": "@snowplow/browser-plugin-element-tracking",
+      "projectFolder": "plugins/browser-plugin-element-tracking",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
+    },
+    {
       "packageName": "@snowplow/browser-plugin-form-tracking",
       "projectFolder": "plugins/browser-plugin-form-tracking",
       "reviewCategory": "plugins",
