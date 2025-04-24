@@ -5,7 +5,7 @@
 
 Browser Plugin to be used with `@snowplow/browser-tracker`.
 
-This plugin is allows tracking the addition/removal and visibility of page elements.
+This plugin allows tracking the addition/removal and visibility of page elements.
 
 ## Maintainer quick start
 
