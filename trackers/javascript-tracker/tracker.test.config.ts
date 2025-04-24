@@ -21,3 +21,4 @@ export const privacySandbox = false;
 export const buttonClickTracking = true;
 export const eventSpecifications = false;
 export const webVitals = false;
+export const elementTracking = true;

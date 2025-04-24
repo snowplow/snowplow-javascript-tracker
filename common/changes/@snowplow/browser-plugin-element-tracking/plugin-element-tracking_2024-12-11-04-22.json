@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-element-tracking",
+      "comment": "Create element tracking plugin",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-element-tracking"
+}
