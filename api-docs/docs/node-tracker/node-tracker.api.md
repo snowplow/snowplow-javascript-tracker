@@ -244,12 +244,14 @@ export interface EmitterConfiguration extends EmitterConfigurationBase {
 export interface EmitterConfigurationBase {
     bufferSize?: number;
     connectionTimeout?: number;
+    cookieExtensionService?: string;
     credentials?: "omit" | "same-origin" | "include";
     customFetch?: (input: Request, options?: RequestInit) => Promise<Response>;
     customHeaders?: Record<string, string>;
     dontRetryStatusCodes?: number[];
     eventMethod?: EventMethod;
     eventStore?: EventStore;
+    // @deprecated (undocumented)
     idService?: string;
     keepalive?: boolean;
     maxGetBytes?: number;

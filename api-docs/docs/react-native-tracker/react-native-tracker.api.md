@@ -120,6 +120,7 @@ export interface EmitterConfiguration extends EmitterConfigurationBase {
 export interface EmitterConfigurationBase {
     bufferSize?: number;
     connectionTimeout?: number;
+    cookieExtensionService?: string;
     credentials?: "omit" | "same-origin" | "include";
     customFetch?: (input: Request, options?: RequestInit) => Promise<Response>;
     customHeaders?: Record<string, string>;
@@ -127,6 +128,7 @@ export interface EmitterConfigurationBase {
     eventMethod?: EventMethod;
     // Warning: (ae-forgotten-export) The symbol "EventStore" needs to be exported by the entry point index.d.ts
     eventStore?: EventStore;
+    // @deprecated (undocumented)
     idService?: string;
     keepalive?: boolean;
     maxGetBytes?: number;

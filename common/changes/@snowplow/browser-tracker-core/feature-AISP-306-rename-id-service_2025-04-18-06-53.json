@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-tracker-core",
+      "comment": "Add `cookieExtensionService` argument as replacement for `idService`, deprecated `idService`",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker-core"
+}
