@@ -1,6 +1,13 @@
 # Change Log - @snowplow/javascript-tracker
 
-This log was last generated on Fri, 04 Apr 2025 09:21:23 GMT and should not be manually modified.
+This log was last generated on Thu, 01 May 2025 09:58:59 GMT and should not be manually modified.
+
+## 4.6.0
+Thu, 01 May 2025 09:58:59 GMT
+
+### Updates
+
+- Add support for element tracking plugin
 
 ## 4.5.0
 Fri, 04 Apr 2025 09:21:23 GMT

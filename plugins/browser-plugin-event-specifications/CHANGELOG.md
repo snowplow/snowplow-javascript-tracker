@@ -1,6 +1,11 @@
 # Change Log - @snowplow/browser-plugin-event-specifications
 
-This log was last generated on Fri, 04 Apr 2025 09:21:23 GMT and should not be manually modified.
+This log was last generated on Thu, 01 May 2025 09:58:59 GMT and should not be manually modified.
+
+## 4.6.0
+Thu, 01 May 2025 09:58:59 GMT
+
+_Version update only_
 
 ## 4.5.0
 Fri, 04 Apr 2025 09:21:23 GMT

@@ -2,6 +2,12 @@
   "name": "@snowplow/browser-plugin-ad-tracking",
   "entries": [
     {
+      "version": "4.6.0",
+      "tag": "@snowplow/browser-plugin-ad-tracking_v4.6.0",
+      "date": "Thu, 01 May 2025 09:58:59 GMT",
+      "comments": {}
+    },
+    {
       "version": "4.5.0",
       "tag": "@snowplow/browser-plugin-ad-tracking_v4.5.0",
       "date": "Fri, 04 Apr 2025 09:21:23 GMT",
