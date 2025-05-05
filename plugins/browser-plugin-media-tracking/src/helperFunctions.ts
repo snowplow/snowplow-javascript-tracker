@@ -53,7 +53,7 @@ type TimeRange = { start: number; end: number };
 export function timeRangesToObjectArray(t: TimeRanges): TimeRange[] {
   const out: TimeRange[] = [];
   for (let i = 0; i < t.length; i++) {
-    out.push({ start: t.start(i), end: t.end(i) });
+    out.push({ start: t.start(i) || 0, end: t.end(i) || 0 });
   }
   return out;
 }
