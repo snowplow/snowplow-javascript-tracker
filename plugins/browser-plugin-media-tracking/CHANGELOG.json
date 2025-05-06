@@ -2,6 +2,18 @@
   "name": "@snowplow/browser-plugin-media-tracking",
   "entries": [
     {
+      "version": "4.6.1",
+      "tag": "@snowplow/browser-plugin-media-tracking_v4.6.1",
+      "date": "Tue, 06 May 2025 13:05:38 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add a default 0 value for start and end in the media_element entity time ranges"
+          }
+        ]
+      }
+    },
+    {
       "version": "4.6.0",
       "tag": "@snowplow/browser-plugin-media-tracking_v4.6.0",
       "date": "Thu, 01 May 2025 09:58:59 GMT",

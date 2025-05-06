@@ -1,6 +1,11 @@
 # Change Log - @snowplow/browser-plugin-link-click-tracking
 
-This log was last generated on Thu, 01 May 2025 09:58:59 GMT and should not be manually modified.
+This log was last generated on Tue, 06 May 2025 13:05:38 GMT and should not be manually modified.
+
+## 4.6.1
+Tue, 06 May 2025 13:05:38 GMT
+
+_Version update only_
 
 ## 4.6.0
 Thu, 01 May 2025 09:58:59 GMT
