@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-element-tracking",
+      "comment": "Fix element_content schema implementation.",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-element-tracking"
+}
