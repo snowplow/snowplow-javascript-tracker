@@ -192,17 +192,18 @@ export function buildContentTree(
       const contents = getMatchingElements(contentConfig, element);
 
       contents.forEach((contentElement, i) => {
-        context.push({
+        const entity: ElementContentEntity = {
           schema: Entities.ELEMENT_CONTENT,
           data: {
-            element_name: contentConfig.name,
             parent_name: config.name,
-            parent_position: parentPosition,
-            position: i + 1,
+            parent_index: parentPosition,
+            element_name: contentConfig.name,
+            element_index: i + 1,
             attributes: extractSelectorDetails(contentElement, contentConfig.selector, contentConfig.details),
           },
-        });
+        };
 
+        context.push(entity);
         context.push(...contentConfig.context(contentElement, contentConfig));
         context.push(...buildContentTree(contentConfig, contentElement, i + 1));
       });
