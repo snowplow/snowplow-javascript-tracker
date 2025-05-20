@@ -2,6 +2,12 @@
   "name": "@snowplow/browser-plugin-error-tracking",
   "entries": [
     {
+      "version": "4.6.2",
+      "tag": "@snowplow/browser-plugin-error-tracking_v4.6.2",
+      "date": "Tue, 20 May 2025 07:39:05 GMT",
+      "comments": {}
+    },
+    {
       "version": "4.6.1",
       "tag": "@snowplow/browser-plugin-error-tracking_v4.6.1",
       "date": "Tue, 06 May 2025 13:10:51 GMT",

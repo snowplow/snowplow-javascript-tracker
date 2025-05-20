@@ -1,6 +1,13 @@
 # Change Log - @snowplow/browser-plugin-element-tracking
 
-This log was last generated on Tue, 06 May 2025 13:10:51 GMT and should not be manually modified.
+This log was last generated on Tue, 20 May 2025 07:39:05 GMT and should not be manually modified.
+
+## 4.6.2
+Tue, 20 May 2025 07:39:05 GMT
+
+### Updates
+
+- Fix element_content schema implementation.
 
 ## 4.6.1
 Tue, 06 May 2025 13:10:51 GMT
