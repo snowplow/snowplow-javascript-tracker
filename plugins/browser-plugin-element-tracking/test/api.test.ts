@@ -241,10 +241,10 @@ describe('Element Tracking Plugin API', () => {
         ]);
         expect(entityOf(eventQueue[0], 'element_content')).toEqual([
           {
-            element_name: 'h1',
             parent_name: '.advanced',
-            parent_position: 1,
-            position: 1,
+            parent_index: 1,
+            element_name: 'h1',
+            element_index: 1,
             attributes: [
               {
                 source: 'content',
