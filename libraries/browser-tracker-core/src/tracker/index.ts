@@ -1379,9 +1379,22 @@ export function Tracker(
       },
 
       disableAnonymousTracking: function (configuration?: DisableAnonymousTrackingConfiguration) {
+        /*
+          Flag for if the state storage strategy has changed and we are currently storing session state (anonymously or not).
+          Because the strategy changes, the below call to initializeIdsAndCookies will fail to see that a session is currently in progress and start a new one.
+          Detect this state, and once we've updated settings, bump the session cookie with the new strategy to ensure it exists before loading the ID cookie, which will resume the session.
+        */
+        const shouldResumeSession =
+          configuration?.stateStorageStrategy && // a new strategy was defined (otherwise will already resume)
+          configuration.stateStorageStrategy !== configStateStorageStrategy && // new strategy is different to old one (otherwise will already resume)
+          (!configAnonymousTracking || configAnonymousSessionTracking) && // we were previously tracking session IDs (otherwise nothing to resume)
+          getSnowplowCookieValue('ses'); // and we currently have a session in progress (otherwise we want a new session anyway)
+
         trackerConfiguration.anonymousTracking = false;
 
         toggleAnonymousTracking(configuration);
+
+        if (shouldResumeSession) setSessionCookie(); // ensure session cookie exists with new strategy
 
         initializeIdsAndCookies();
 
