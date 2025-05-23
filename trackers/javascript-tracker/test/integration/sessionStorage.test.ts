@@ -181,7 +181,20 @@ describe('Sessions', () => {
           log
         )
       )
-    ).toBe(3);
+    ).toBe(4);
+    expect(
+      F.size(
+        F.uniqBy(
+          F.get('event.domain_sessionid'),
+          F.filter(
+            (e) =>
+              F.get('event.name_tracker', e) === 'anonymousSessionTracker' &&
+              F.get('event.app_id', e) === 'session-integration-' + testIdentifier,
+            log
+          )
+        )
+      )
+    ).toBe(2);
   });
 
   it('should only increment domain_sessionidx outside of session timeout (cookie storage)', () => {
