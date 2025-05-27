@@ -52,7 +52,7 @@
 
       window.snowplow('newTracker', 'anonymousSessionTracker', collector_endpoint, {
         appId: 'session-integration-' + testIdentifier,
-        cookieName: testIdentifier,
+        cookieName: testIdentifier + 'anon',
         sessionCookieTimeout: 1,
         stateStorageStrategy: 'localStorage',
         anonymousTracking: { withSessionTracking: true },
@@ -60,12 +60,16 @@
 
       const currentUrl = window.location.href;
       const url = new URL(currentUrl);
-      if (url.searchParams.has("delayed")) {
+      if (url.searchParams.has('delayed')) {
         setTimeout(function () {
           window.snowplow('trackPageView:cookieSessionTracker');
 
           window.snowplow('trackPageView:localStorageSessionTracker');
 
+          window.snowplow('trackPageView:anonymousSessionTracker');
+          window.snowplow('disableAnonymousTracking:anonymousSessionTracker', {
+            stateStorageStrategy: 'cookieAndLocalStorage',
+          });
           window.snowplow('trackPageView:anonymousSessionTracker');
         }, 0);
       } else {
@@ -81,7 +85,7 @@
         }, 0);
 
         setTimeout(function () {
-          url.searchParams.set("delayed", "1");
+          url.searchParams.set('delayed', '1');
           window.location.href = url.toString();
         }, 3000);
       }
