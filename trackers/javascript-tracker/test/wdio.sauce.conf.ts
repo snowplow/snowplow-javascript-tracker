@@ -64,14 +64,6 @@ export const config: Partial<Options.Testrunner> = {
         build: buildName,
       },
     },
-    {
-      browserName: 'safari',
-      browserVersion: '12.1',
-      platformName: 'macOS 10.13',
-      'sauce:options': {
-        build: buildName,
-      },
-    },
   ],
   services: [
     [
