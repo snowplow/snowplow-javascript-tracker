@@ -1,6 +1,13 @@
 # Change Log - @snowplow/browser-tracker-core
 
-This log was last generated on Tue, 20 May 2025 07:39:05 GMT and should not be manually modified.
+This log was last generated on Thu, 29 May 2025 19:52:07 GMT and should not be manually modified.
+
+## 4.6.3
+Thu, 29 May 2025 19:52:07 GMT
+
+### Updates
+
+- Resume sessions when disabling anonymous tracking that was already tracking session state
 
 ## 4.6.2
 Tue, 20 May 2025 07:39:05 GMT

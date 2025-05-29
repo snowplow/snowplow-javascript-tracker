@@ -1,6 +1,11 @@
 # Change Log - @snowplow/react-native-tracker
 
-This log was last generated on Tue, 20 May 2025 07:39:05 GMT and should not be manually modified.
+This log was last generated on Thu, 29 May 2025 19:52:07 GMT and should not be manually modified.
+
+## 4.6.3
+Thu, 29 May 2025 19:52:07 GMT
+
+_Version update only_
 
 ## 4.6.2
 Tue, 20 May 2025 07:39:05 GMT
