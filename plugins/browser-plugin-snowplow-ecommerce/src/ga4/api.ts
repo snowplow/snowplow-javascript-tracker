@@ -47,7 +47,7 @@ export function trackGA4RemoveFromCart(
   opts: Options & { finalCartValue: number }
 ) {
   const currency = (ecommerce.currency || opts.currency)!;
-  const finalCartValue = (ecommerce.finalCartValue || opts.finalCartValue)!;
+  const finalCartValue = ecommerce.finalCartValue ?? opts.finalCartValue;
   const products = transformG4ItemsToSPProducts(ecommerce, currency);
   trackRemoveFromCart({ products, total_value: finalCartValue, currency });
 }
