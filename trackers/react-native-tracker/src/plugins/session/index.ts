@@ -57,6 +57,7 @@ export async function newSessionPlugin({
   sessionContext = true,
   foregroundSessionTimeout,
   backgroundSessionTimeout,
+  onSessionChangeCallback,
 }: TrackerConfiguration & SessionConfiguration & { asyncStorage: AsyncStorage }): Promise<SessionPlugin> {
   let sessionState = await resumeStoredSession(namespace, asyncStorage);
   await storeSessionState(namespace, sessionState, asyncStorage);
@@ -82,7 +83,8 @@ export async function newSessionPlugin({
     // check if session has timed out and start a new one if necessary
     const now = new Date();
     const timeDiff = now.getTime() - lastUpdateTs;
-    if (timeDiff > getTimeoutMs()) {
+    const didPreviousSessionTimeout = timeDiff > getTimeoutMs();
+    if (didPreviousSessionTimeout) {
       startNewSession();
       storeSessionState(namespace, sessionState, asyncStorage);
     }
@@ -90,7 +92,8 @@ export async function newSessionPlugin({
 
     // update event properties
     sessionState.eventIndex = (sessionState.eventIndex ?? 0) + 1;
-    if (sessionState.eventIndex === 1) {
+    const isFirstEvent = sessionState.eventIndex === 1;
+    if (isFirstEvent) {
       sessionState.firstEventId = payloadBuilder.getPayload().eid as string;
       sessionState.firstEventTimestamp = now.toISOString();
     }
@@ -111,6 +114,10 @@ export async function newSessionPlugin({
         schema: CLIENT_SESSION_ENTITY_SCHEMA,
         data: { ...sessionState },
       });
+    }
+
+    if (didPreviousSessionTimeout || isFirstEvent) {
+      onSessionChangeCallback?.(sessionState);
     }
   };
 
