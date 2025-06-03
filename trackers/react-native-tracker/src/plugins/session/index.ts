@@ -57,7 +57,7 @@ export async function newSessionPlugin({
   sessionContext = true,
   foregroundSessionTimeout,
   backgroundSessionTimeout,
-  onSessionChangeCallback,
+  onSessionUpdateCallback,
 }: TrackerConfiguration & SessionConfiguration & { asyncStorage: AsyncStorage }): Promise<SessionPlugin> {
   let sessionState = await resumeStoredSession(namespace, asyncStorage);
   await storeSessionState(namespace, sessionState, asyncStorage);
@@ -117,7 +117,7 @@ export async function newSessionPlugin({
     }
 
     if (didPreviousSessionTimeout || isFirstEvent) {
-      onSessionChangeCallback?.(sessionState);
+      onSessionUpdateCallback?.(sessionState);
     }
   };
 

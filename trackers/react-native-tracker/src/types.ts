@@ -62,7 +62,7 @@ export interface SessionConfiguration {
   /**
    * A callback function that is called when the session changes
    */
-  onSessionChangeCallback?: (session: SessionState) => void;
+  onSessionUpdateCallback?: (session: SessionState) => void;
 }
 
 /**
