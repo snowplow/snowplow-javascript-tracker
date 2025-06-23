@@ -33,21 +33,23 @@ export function trackGA4SelectPromotion(ecommerce: GA4EcommerceObject & Promotio
 }
 
 export function trackGA4AddToCart(
-  ecommerce: GA4EcommerceObject & Currency,
+  ecommerce: GA4EcommerceObject & Currency & { finalCartValue?: number },
   opts: Options & { finalCartValue: number }
 ) {
   const currency = (ecommerce.currency || opts.currency)!;
+  const finalCartValue = ecommerce.finalCartValue ?? opts.finalCartValue;
   const products = transformG4ItemsToSPProducts(ecommerce, currency);
-  trackAddToCart({ products, total_value: opts.finalCartValue, currency });
+  trackAddToCart({ products, total_value: finalCartValue, currency });
 }
 
 export function trackGA4RemoveFromCart(
-  ecommerce: GA4EcommerceObject & Currency,
+  ecommerce: GA4EcommerceObject & Currency & { finalCartValue?: number },
   opts: Options & { finalCartValue: number }
 ) {
   const currency = (ecommerce.currency || opts.currency)!;
+  const finalCartValue = ecommerce.finalCartValue ?? opts.finalCartValue;
   const products = transformG4ItemsToSPProducts(ecommerce, currency);
-  trackRemoveFromCart({ products, total_value: opts.finalCartValue, currency });
+  trackRemoveFromCart({ products, total_value: finalCartValue, currency });
 }
 
 export function trackGA4ViewItem(ecommerce: GA4EcommerceObject, opts: Options = {}) {
