@@ -37,7 +37,7 @@ export function trackGA4AddToCart(
   opts: Options & { finalCartValue: number }
 ) {
   const currency = (ecommerce.currency || opts.currency)!;
-  const finalCartValue = (ecommerce.finalCartValue || opts.finalCartValue)!;
+  const finalCartValue = ecommerce.finalCartValue ?? opts.finalCartValue;
   const products = transformG4ItemsToSPProducts(ecommerce, currency);
   trackAddToCart({ products, total_value: finalCartValue, currency });
 }
