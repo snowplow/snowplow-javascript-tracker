@@ -55,4 +55,27 @@ describe('PlatformContextPlugin on Android', () => {
     expect(payload?.co).toContain('"en-GB"');
     expect(payload?.co).toContain('"123x89"');
   });
+
+  it('truncates language to 8 characters', async () => {
+    const sessionPlugin = await newPlatformContextPlugin({
+      platformContextRetriever: {
+        getLanguage: () => Promise.resolve('1234567890'),
+      },
+    });
+
+    const payloads: Payload[] = [];
+    const tracker = trackerCore({
+      corePlugins: [sessionPlugin.plugin],
+      callback: (pb) => payloads.push(pb.build()),
+      base64: false,
+    });
+    tracker.track(buildPageView({ pageUrl: 'http://localhost' }));
+
+    expect(payloads.length).toBe(1);
+    const [payload] = payloads;
+    expect(payload?.co).toBeDefined();
+    const entities = JSON.parse(payload?.co as string).data;
+    const mobileContext = entities.find((entity: any) => entity.schema === MOBILE_CONTEXT_SCHEMA);
+    expect(mobileContext?.data.language).toBe('12345678');
+  });
 });
