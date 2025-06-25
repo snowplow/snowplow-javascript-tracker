@@ -239,11 +239,11 @@ export async function newPlatformContextPlugin({
           : PixelRatio.get()
         : undefined;
     language =
-      platformContextProperties?.includes(PlatformContextProperty.Language) ?? true
+      (platformContextProperties?.includes(PlatformContextProperty.Language) ?? true
         ? platformContextRetriever?.getLanguage
           ? await platformContextRetriever?.getLanguage()
           : constants?.language
-        : undefined;
+        : undefined)?.substring(0, 8);
     appSetId =
       platformContextProperties?.includes(PlatformContextProperty.AppSetId) ?? true
         ? platformContextRetriever?.getAppSetId
