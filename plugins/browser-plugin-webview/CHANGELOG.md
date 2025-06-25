@@ -1,6 +1,11 @@
 # Change Log - @snowplow/browser-plugin-webview
 
-This log was last generated on Wed, 25 Jun 2025 12:08:50 GMT and should not be manually modified.
+This log was last generated on Wed, 25 Jun 2025 21:16:46 GMT and should not be manually modified.
+
+## 4.6.5
+Wed, 25 Jun 2025 21:16:46 GMT
+
+_Version update only_
 
 ## 4.6.4
 Wed, 25 Jun 2025 12:08:50 GMT

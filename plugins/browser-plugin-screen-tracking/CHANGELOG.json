@@ -2,6 +2,12 @@
   "name": "@snowplow/browser-plugin-screen-tracking",
   "entries": [
     {
+      "version": "4.6.5",
+      "tag": "@snowplow/browser-plugin-screen-tracking_v4.6.5",
+      "date": "Wed, 25 Jun 2025 21:16:46 GMT",
+      "comments": {}
+    },
+    {
       "version": "4.6.4",
       "tag": "@snowplow/browser-plugin-screen-tracking_v4.6.4",
       "date": "Wed, 25 Jun 2025 12:08:50 GMT",
