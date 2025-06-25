@@ -2,6 +2,18 @@
   "name": "@snowplow/browser-plugin-snowplow-ecommerce",
   "entries": [
     {
+      "version": "4.6.4",
+      "tag": "@snowplow/browser-plugin-snowplow-ecommerce_v4.6.4",
+      "date": "Wed, 25 Jun 2025 12:08:50 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Fixing GA4 Ecommerce functions to use finalCartValue within ecommerce object"
+          }
+        ]
+      }
+    },
+    {
       "version": "4.6.3",
       "tag": "@snowplow/browser-plugin-snowplow-ecommerce_v4.6.3",
       "date": "Thu, 29 May 2025 19:52:07 GMT",
