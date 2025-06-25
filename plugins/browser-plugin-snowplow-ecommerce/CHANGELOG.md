@@ -1,6 +1,13 @@
 # Change Log - @snowplow/browser-plugin-snowplow-ecommerce
 
-This log was last generated on Thu, 29 May 2025 19:52:07 GMT and should not be manually modified.
+This log was last generated on Wed, 25 Jun 2025 11:58:38 GMT and should not be manually modified.
+
+## 4.6.4
+Wed, 25 Jun 2025 11:58:38 GMT
+
+### Updates
+
+- Fixing GA4 Ecommerce functions to use finalCartValue within ecommerce object
 
 ## 4.6.3
 Thu, 29 May 2025 19:52:07 GMT

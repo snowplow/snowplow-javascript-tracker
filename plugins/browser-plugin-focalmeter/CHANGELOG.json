@@ -2,6 +2,12 @@
   "name": "@snowplow/browser-plugin-focalmeter",
   "entries": [
     {
+      "version": "4.6.4",
+      "tag": "@snowplow/browser-plugin-focalmeter_v4.6.4",
+      "date": "Wed, 25 Jun 2025 11:58:37 GMT",
+      "comments": {}
+    },
+    {
       "version": "4.6.3",
       "tag": "@snowplow/browser-plugin-focalmeter_v4.6.3",
       "date": "Thu, 29 May 2025 19:52:07 GMT",
