@@ -209,11 +209,7 @@ export function getAllTrackers(): ReactNativeTracker[];
 export function getTracker(trackerNamespace: string): ReactNativeTracker | undefined;
 
 // @public
-export function getWebViewCallback(): (message: {
-    nativeEvent: {
-        data: string;
-    };
-}) => void;
+export function getWebViewCallback(): WebViewMessageHandler;
 
 // @public
 export type JsonProcessor = (payloadBuilder: PayloadBuilder, jsonForProcessing: EventJson, contextEntitiesForProcessing: SelfDescribingJson[]) => void;
@@ -563,6 +559,13 @@ export interface TrueTimestamp {
 
 // @public (undocumented)
 export const version: string;
+
+// @public
+export type WebViewMessageHandler = (message: {
+    nativeEvent: {
+        data: string;
+    };
+}) => void;
 
 // (No @packageDocumentation comment for this package)
 

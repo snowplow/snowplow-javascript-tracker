@@ -8,5 +8,5 @@
 
 |  Package | Description |
 |  --- | --- |
-|  [@snowplow/react-native-tracker](./react-native-tracker.md) |  |
+|  [@snowplow/node-tracker](./node-tracker.md) |  |
 
