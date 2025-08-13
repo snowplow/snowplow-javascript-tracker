@@ -10,6 +10,7 @@ import type {
   TrackerCore,
   PayloadBuilder,
   Payload,
+  WebViewMessageHandler,
 } from './types';
 
 /**
@@ -115,8 +116,8 @@ function webViewPayloadBuilder(pb: PayloadBuilder): PayloadBuilder {
  *
  * @returns Callback to subscribe for events from Web views tracked using the Snowplow WebView tracker.
  */
-export function getWebViewCallback() {
-  return (message: { nativeEvent: { data: string } }): void => {
+export function getWebViewCallback(): WebViewMessageHandler {
+  return (message) => {
     const data = JSON.parse(message.nativeEvent.data) as WebViewMessage;
     switch (data.command) {
       case 'trackSelfDescribingEvent':
