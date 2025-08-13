@@ -79,7 +79,7 @@ jobs:
         working-directory: ./trackers/react-native-tracker
         run: |
           api-extractor run
-          api-documenter markdown --input-folder temp --output-folder ../../api-docs/docs/node-tracker/markdown
+          api-documenter markdown --input-folder temp --output-folder ../../api-docs/docs/react-native-tracker/markdown
 
       - name: Apply API documentation updates
         run: |

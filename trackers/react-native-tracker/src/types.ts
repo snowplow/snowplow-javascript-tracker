@@ -62,6 +62,11 @@ export interface SessionConfiguration {
 }
 
 /**
+ * A callback to be used for the `onMessage` prop of a `WebView` component.
+ */
+export type WebViewMessageHandler = (message: { nativeEvent: { data: string } }) => void;
+
+/**
  * Configuration for app lifecycle tracking
  */
 export interface AppLifecycleConfiguration {
