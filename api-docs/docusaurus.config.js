@@ -10,7 +10,7 @@ import { themes as prismThemes } from 'prism-react-renderer';
 const config = {
   title: 'Snowplow Javascript API Docs',
   favicon: 'img/favicon.ico',
-  url: 'http://snowplow.github.io/',
+  url: 'http://snowplow.github.io',
   baseUrl: '/snowplow-javascript-tracker/',
   organizationName: 'snowplow',
   projectName: 'snowplow-javascript-tracker',
@@ -62,7 +62,7 @@ const config = {
             items: [
               {
                 label: 'Snowplow JS Docs',
-                to: 'https://docs.snowplow.io/docs/collecting-data/collecting-from-own-applications/javascript-trackers/',
+                to: 'https://docs.snowplow.io/docs/sources/trackers/web-trackers/',
               },
             ],
           },
@@ -70,8 +70,8 @@ const config = {
             title: 'Community',
             items: [
               {
-                label: 'Discourse',
-                href: 'https://discourse.snowplow.io/',
+                label: 'Community',
+                href: 'https://community.snowplow.io/',
               },
               {
                 label: 'Website',
