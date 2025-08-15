@@ -43,9 +43,15 @@ export function waitForElement(config: StringConfig, callback: (element: Element
 }
 
 export function findMediaElement(id: string): SearchResult {
-  let el: HTMLElement | null = document.getElementById(id);
+  let el: HTMLElement | null = null;
 
-  if (!el) return { err: SEARCH_ERROR.NOT_FOUND };
+  try {
+    el = document.getElementById(id) ?? document.querySelector(id);
+  } catch (e) {}
+
+  if (!el) {
+    return { err: SEARCH_ERROR.NOT_FOUND };
+  }
   if (isHtmlAudioElement(el)) return { el };
 
   if (isHtmlVideoElement(el)) {
