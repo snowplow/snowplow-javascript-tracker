@@ -18,7 +18,7 @@ export function buildHTMLMediaElementEntity(el: HTMLAudioElement | HTMLVideoElem
     autoPlay: el.autoplay,
     buffered: timeRangesToObjectArray(el.buffered),
     controls: el.controls,
-    currentSrc: el.currentSrc,
+    currentSrc: el.currentSrc || el.src,
     defaultMuted: el.defaultMuted || false,
     defaultPlaybackRate: el.defaultPlaybackRate,
     error: el.error ? { code: el.error?.code, message: el.error?.message } : null,
