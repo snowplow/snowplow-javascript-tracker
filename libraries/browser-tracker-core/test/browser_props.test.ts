@@ -1,14 +1,18 @@
-import { floorDimensionFields, getBrowserProperties } from '../src/helpers/browser_props';
+import { makeDimension, getBrowserProperties } from '../src/helpers/browser_props';
 
 describe('Browser props', () => {
-  it('floorDimensionFields correctly floors dimension type values', () => {
+  it('makeDimension correctly floors dimension type values', () => {
     const testDimensions = '100x100';
-    expect(floorDimensionFields(testDimensions)).toEqual(testDimensions);
+    expect(makeDimension(100, 100)).toEqual(testDimensions);
   });
 
-  it('floorDimensionFields correctly floors dimension type values with fractional numbers', () => {
-    const testFractionalDimensions = '100.2x100.1';
-    expect(floorDimensionFields(testFractionalDimensions)).toEqual('100x100');
+  it('makeDimension correctly floors dimension type values with fractional numbers', () => {
+    expect(makeDimension(100.2, 100.1)).toEqual('100x100');
+  });
+
+  it('makeDimension correctly drops invalid values', () => {
+    expect(makeDimension(undefined as any, 100.1)).toEqual(null);
+    expect(makeDimension(NaN, 1)).toEqual(null);
   });
 
   describe('#getBrowserProperties', () => {
@@ -17,7 +21,7 @@ describe('Browser props', () => {
         // @ts-expect-error
         document = undefined;
       });
-  
+
       it('does not invoke the resize observer if the document is null', () => {
         const browserProperties = getBrowserProperties();
         expect(browserProperties).not.toEqual(null);

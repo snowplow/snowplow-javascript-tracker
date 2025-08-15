@@ -46,9 +46,6 @@ function initializeResizeObserver() {
 
 let cachedProperties: BrowserProperties;
 
-/* Separator used for dimension values e.g. widthxheight */
-const DIMENSION_SEPARATOR = 'x';
-
 /**
  * Gets various browser properties (that are expensive to read!)
  * - Will use a "ResizeObserver" approach in modern browsers to update cached properties only on change
@@ -75,9 +72,9 @@ export function getBrowserProperties() {
  */
 function readBrowserProperties(): BrowserProperties {
   return {
-    viewport: floorDimensionFields(detectViewport()),
-    documentSize: floorDimensionFields(detectDocumentSize()),
-    resolution: floorDimensionFields(detectScreenResolution()),
+    viewport: detectViewport(),
+    documentSize: detectDocumentSize(),
+    resolution: detectScreenResolution(),
     colorDepth: screen.colorDepth,
     devicePixelRatio: window.devicePixelRatio,
     cookiesEnabled: window.navigator.cookieEnabled,
@@ -109,7 +106,7 @@ function detectViewport() {
     height = e['clientHeight'];
   }
 
-  return Math.max(0, width) + DIMENSION_SEPARATOR + Math.max(0, height);
+  return makeDimension(Math.max(0, width), Math.max(0, height));
 }
 
 /**
@@ -124,21 +121,21 @@ function detectDocumentSize() {
     be = document.body,
     // document.body may not have rendered, so check whether be.offsetHeight is null
     bodyHeight = be ? Math.max(be.offsetHeight, be.scrollHeight) : 0;
-  var w = Math.max(de.clientWidth, de.offsetWidth, de.scrollWidth);
-  var h = Math.max(de.clientHeight, de.offsetHeight, de.scrollHeight, bodyHeight);
-  return isNaN(w) || isNaN(h) ? '' : w + DIMENSION_SEPARATOR + h;
+
+  return makeDimension(
+    Math.max(de.clientWidth, de.offsetWidth, de.scrollWidth),
+    Math.max(de.clientHeight, de.offsetHeight, de.scrollHeight, bodyHeight)
+  );
 }
 
 function detectScreenResolution() {
-  return screen.width + DIMENSION_SEPARATOR + screen.height;
+  return makeDimension(screen.width, screen.height);
 }
 
-export function floorDimensionFields(field?: string | null) {
-  return (
-    field &&
-    field
-      .split(DIMENSION_SEPARATOR)
-      .map((dimension) => Math.floor(Number(dimension)))
-      .join(DIMENSION_SEPARATOR)
-  );
+export function makeDimension(width: number, height: number): string | null {
+  if (isNaN(width) || isNaN(height)) {
+    return null;
+  }
+
+  return Math.floor(width) + 'x' + Math.floor(height);
 }
