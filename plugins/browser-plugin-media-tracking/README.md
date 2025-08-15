@@ -9,13 +9,13 @@ Adds HTML5 Video and Audio tracking events to your Snowplow tracking.
 
 ## Maintainer quick start
 
-Part of the Snowplow JavaScript Tracker monorepo.  
+Part of the Snowplow JavaScript Tracker monorepo.
 Build with [Node.js](https://nodejs.org/en/) (18 - 20) and [Rush](https://rushjs.io/).
 
 ### Setup repository
 
 ```bash
-npm install -g @microsoft/rush 
+npm install -g @microsoft/rush
 git clone https://github.com/snowplow/snowplow-javascript-tracker.git
 rush update
 ```
@@ -34,24 +34,23 @@ Initialize your tracker with the MediaTrackingPlugin:
 
 ```js
 import { newTracker } from '@snowplow/browser-tracker';
-import { MediaTrackingPlugin } from 'snowplow-browser-media-tracker';
+import { MediaTrackingPlugin, startHtml5MediaTracking, endHtml5MediaTracking } from '@snowplow/browser-plugin-media-tracking';
 
 newTracker('sp2', '{{collector}}', { plugins: [ MediaTrackingPlugin() ] }); // Also stores reference at module level
 ```
 
-Then, use the `enableMediaTracking` function described below to produce events from your HTML5 Video/Audio element(s).
+Then, use the `startHtml5MediaTracking` function described below to produce events from your HTML5 Video/Audio element(s).
 
 ```js
-enableMediaTracking({ id, options?: { label?, captureEvents?, boundaries?, volumeChangeTrackingInterval? } })
+startHtml5MediaTracking({ video, id })
 ```
 
-| Parameter                              | Type       | Default             | Description                                               | Required |
-| -------------------------------------- | ---------- | ------------------- | --------------------------------------------------------- | -------- |
-| `id`                                   | `string`   | -                   | The HTML id attribute of the media element                | Yes      |
-| `options.label`                        | `string`   | -                   | An identifiable custom label sent with the event          | No       |
-| `options.captureEvents`                | `string[]` | `['DefaultEvents']` | The name(s) of the events to capture                      | No       |
-| `options.boundaries`                   | `number[]` | `[10, 25, 50, 75]`  | The progress percentages to fire an event at (if enabled) | No       |
-| `options.volumeChangeTrackingInterval` | `number`   | `250`               | The rate at which volume events can be sent               | No       |
+| Parameter | Type                     | Description                                                                            | Required |
+| ----------| ------------------------ | -------------------------------------------------------------------------------------- | -------- |
+| `id`      | `string`                 | A UUID identifier to use as the media session ID                                       | Yes      |
+| `video`   | `string` / `HTMLElement` | The HTML id attribute, CSS selector, or actual media element to track media events for | Yes      |
+
+See the [full documentation](https://docs.snowplow.io/docs/sources/trackers/web-trackers/tracking-events/media/html5/#starthtml5mediatracking) for optional parameters.
 
 ## Example Usage
 
@@ -62,20 +61,23 @@ enableMediaTracking({ id, options?: { label?, captureEvents?, boundaries?, volum
 ```
 
 ```js
-import { enableMediaTracking } from '@snowplow/browser-plugin-media-tracking'
+import { startHtml5MediaTracking, endHtml5MediaTracking } from '@snowplow/browser-plugin-media-tracking';
 
-enableMediaTracking({
-  id: 'my-video',
-  options: {
-    label: "My Custom Video Label",
-    captureEvents: ["DefaultEvents"],
-    boundaries: [10, 25, 50, 75],
-    volumeChangeTrackingInterval: 250,
-  }
-})
+const sessionId = crypto.randomUUID();
+
+startHtml5MediaTracking({
+  id: sessionId,
+  video: 'my-video',
+  label: "My Custom Video Label",
+  boundaries: [10, 25, 50, 75],
+});
+
+/* ... */
+
+endHtml5MediaTracking(sessionId);
 ```
 
- For a full list of trackable events, head over to the [docs page](https://docs.snowplowanalytics.com/docs/collecting-data/collecting-from-own-applications/javascript-trackers/browser-tracker/browser-tracker-v3-reference/media-tracking/)
+ For a full list of parameters and trackable events, head over to the [docs page](https://docs.snowplow.io/docs/sources/trackers/web-trackers/tracking-events/media/html5/#events).
 
 ## Copyright and license
 
