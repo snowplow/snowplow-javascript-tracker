@@ -41,6 +41,12 @@ describe('element searcher', () => {
     const output = findMediaElement('parentElem');
     expect(output).toStrictEqual({ err: 'More than one media element in the provided node' });
   });
+
+  it('falls back to css selector if can not find by id', () => {
+    document.body.innerHTML = '<div id="parentElem"><video></video><video></video><video></video></div>';
+    const output = findMediaElement('#parentElem > video');
+    expect(output.el?.tagName).toBe('VIDEO');
+  });
 });
 
 describe('dataUrlHandler', () => {
