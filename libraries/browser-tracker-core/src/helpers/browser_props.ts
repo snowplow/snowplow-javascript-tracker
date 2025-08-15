@@ -86,7 +86,7 @@ function readBrowserProperties(): BrowserProperties {
     documentLanguage: document.documentElement.lang,
     webdriver: window.navigator.webdriver,
     deviceMemory: (window.navigator as any).deviceMemory,
-    hardwareConcurrency: (window.navigator as any).hardwareConcurrency,
+    hardwareConcurrency: Math.floor(window.navigator.hardwareConcurrency) || undefined,
   };
 }
 
