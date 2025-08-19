@@ -1,7 +1,14 @@
 import { CorePluginConfiguration } from '@snowplow/tracker-core';
 import { PlatformContextConfiguration, PlatformContextProperty } from '../../types';
 import { MOBILE_CONTEXT_SCHEMA } from '../../constants';
-import { Platform, PlatformIOSStatic, PlatformConstants, Dimensions, PixelRatio, NativeModules } from 'react-native';
+import {
+  Platform,
+  PlatformAndroidStatic,
+  PlatformIOSStatic,
+  Dimensions,
+  PixelRatio,
+  NativeModules,
+} from 'react-native';
 import { removeEmptyProperties } from '@snowplow/tracker-core';
 
 export interface PlatformContextPlugin extends CorePluginConfiguration {
@@ -9,7 +16,6 @@ export interface PlatformContextPlugin extends CorePluginConfiguration {
   disablePlatformContext: () => void;
   refreshPlatformContext: () => Promise<void>;
 }
-
 
 function getIOSConstants() {
   // Example Platform info on iOS:
@@ -38,24 +44,12 @@ function getIOSConstants() {
   //   "AppleLocale": "en_GB"
   // }
 
-  const constants = Platform.constants as PlatformConstants & {
-    osVersion: string;
-    systemName: string;
-    isMacCatalyst?: boolean | undefined;
-  };
+  const { isPad, isTV, isVision, isMacCatalyst, constants } = Platform as PlatformIOSStatic;
   return {
     osType: constants.systemName,
-    deviceManufacturer: 'Apple',
+    deviceManufacturer: 'Apple Inc.',
     osVersion: constants.osVersion,
-    deviceModel: (Platform as PlatformIOSStatic).isPad
-      ? 'iPad'
-      : Platform.isTV
-      ? 'Apple TV'
-      : (Platform as PlatformIOSStatic).isVision
-      ? 'Vision'
-      : (Platform as PlatformIOSStatic).isMacCatalyst
-      ? 'Mac'
-      : 'iPhone',
+    deviceModel: isPad ? 'iPad' : isTV ? 'Apple TV' : isVision ? 'Vision' : isMacCatalyst ? 'Mac' : 'iPhone',
     language:
       NativeModules.SettingsManager?.settings?.AppleLocale ||
       NativeModules.SettingsManager?.settings?.AppleLanguages[0], //iOS 13
@@ -78,15 +72,11 @@ function getAndroidConstants() {
 
   // Example NativeModules.I18nManager info on Android:
   // { "localeIdentifier": "en_US" }
-  const constants = Platform.constants as PlatformConstants & {
-    Version: number;
-    Model: string;
-    Manufacturer: string;
-  };
+  const constants = Platform.constants as PlatformAndroidStatic['constants'];
   return {
-    osType: 'Android',
+    osType: 'android',
     deviceManufacturer: constants.Manufacturer,
-    osVersion: String(constants.Version),
+    osVersion: constants.Release,
     deviceModel: constants.Model,
     language: NativeModules.I18nManager?.localeIdentifier,
   };
@@ -238,12 +228,13 @@ export async function newPlatformContextPlugin({
           ? await platformContextRetriever?.getScale()
           : PixelRatio.get()
         : undefined;
-    language =
-      (platformContextProperties?.includes(PlatformContextProperty.Language) ?? true
+    language = (
+      platformContextProperties?.includes(PlatformContextProperty.Language) ?? true
         ? platformContextRetriever?.getLanguage
           ? await platformContextRetriever?.getLanguage()
           : constants?.language
-        : undefined)?.substring(0, 8);
+        : undefined
+    )?.substring(0, 8);
     appSetId =
       platformContextProperties?.includes(PlatformContextProperty.AppSetId) ?? true
         ? platformContextRetriever?.getAppSetId
