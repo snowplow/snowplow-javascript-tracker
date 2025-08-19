@@ -48,7 +48,7 @@ describe('PlatformContextPlugin on Android', () => {
     const [payload] = payloads;
     expect(payload?.co).toBeDefined();
     expect(payload?.co).toContain(MOBILE_CONTEXT_SCHEMA);
-    expect(payload?.co).toContain('"33"');
+    expect(payload?.co).toContain('"13"');
     expect(payload?.co).toContain('"sdk_gphone64_arm64"');
     expect(payload?.co).toContain('"Google"');
     expect(payload?.co).toContain('"Google"');
