@@ -2,6 +2,21 @@
   "name": "@snowplow/browser-tracker-core",
   "entries": [
     {
+      "version": "4.6.6",
+      "tag": "@snowplow/browser-tracker-core_v4.6.6",
+      "date": "Tue, 26 Aug 2025 08:42:28 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Unify browser dimension checks to avoid including NaN values"
+          },
+          {
+            "comment": "Truncate browser context hardwareConcurrency value to prevent invalid events"
+          }
+        ]
+      }
+    },
+    {
       "version": "4.6.5",
       "tag": "@snowplow/browser-tracker-core_v4.6.5",
       "date": "Wed, 25 Jun 2025 21:16:46 GMT",

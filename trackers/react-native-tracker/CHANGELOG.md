@@ -1,6 +1,14 @@
 # Change Log - @snowplow/react-native-tracker
 
-This log was last generated on Wed, 25 Jun 2025 21:16:46 GMT and should not be manually modified.
+This log was last generated on Tue, 26 Aug 2025 08:42:28 GMT and should not be manually modified.
+
+## 4.6.6
+Tue, 26 Aug 2025 08:42:28 GMT
+
+### Updates
+
+- Make mobile_context values more consistent with v2 tracker
+- Extract WebViewMessageHandler type to fix API documentation
 
 ## 4.6.5
 Wed, 25 Jun 2025 21:16:46 GMT

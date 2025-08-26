@@ -1,6 +1,11 @@
 # Change Log - @snowplow/browser-plugin-site-tracking
 
-This log was last generated on Wed, 25 Jun 2025 21:16:46 GMT and should not be manually modified.
+This log was last generated on Tue, 26 Aug 2025 08:42:27 GMT and should not be manually modified.
+
+## 4.6.6
+Tue, 26 Aug 2025 08:42:27 GMT
+
+_Version update only_
 
 ## 4.6.5
 Wed, 25 Jun 2025 21:16:46 GMT

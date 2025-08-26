@@ -2,6 +2,18 @@
   "name": "@snowplow/browser-plugin-media-tracking",
   "entries": [
     {
+      "version": "4.6.6",
+      "tag": "@snowplow/browser-plugin-media-tracking_v4.6.6",
+      "date": "Tue, 26 Aug 2025 08:42:27 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Allow using a CSS selector to find media elements"
+          }
+        ]
+      }
+    },
+    {
       "version": "4.6.5",
       "tag": "@snowplow/browser-plugin-media-tracking_v4.6.5",
       "date": "Wed, 25 Jun 2025 21:16:46 GMT",
