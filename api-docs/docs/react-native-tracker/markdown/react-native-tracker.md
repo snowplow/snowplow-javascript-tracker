@@ -91,4 +91,5 @@
 |  [Timestamp](./react-native-tracker.timestamp.md) | Algebraic datatype representing possible timestamp type choice |
 |  [TimingProps](./react-native-tracker.timingprops.md) | Timing event properties |
 |  [Trigger](./react-native-tracker.trigger.md) | Trigger for MessageNotification event |
+|  [WebViewMessageHandler](./react-native-tracker.webviewmessagehandler.md) | A callback to be used for the <code>onMessage</code> prop of a <code>WebView</code> component. |
 

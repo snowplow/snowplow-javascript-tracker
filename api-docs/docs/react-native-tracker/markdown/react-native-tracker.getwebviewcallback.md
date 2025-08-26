@@ -11,15 +11,11 @@ To subscribe for the events, set the `onMessage` attribute: `<WebView onMessage=
 <b>Signature:</b>
 
 ```typescript
-export declare function getWebViewCallback(): (message: {
-    nativeEvent: {
-        data: string;
-    };
-}) => void;
+export declare function getWebViewCallback(): WebViewMessageHandler;
 ```
 <b>Returns:</b>
 
-(message: { nativeEvent: { data: string; }; }) =&gt; void
+[WebViewMessageHandler](./react-native-tracker.webviewmessagehandler.md)
 
 Callback to subscribe for events from Web views tracked using the Snowplow WebView tracker.
 
