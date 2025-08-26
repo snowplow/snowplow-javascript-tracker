@@ -1,6 +1,6 @@
 {
   "name": "@snowplow/browser-plugin-webview",
-  "version": "4.6.5",
+  "version": "4.6.6",
   "description": "Automatically forwards events to Snowplow mobile trackers running in a WebView.",
   "homepage": "https://github.com/snowplow/snowplow-javascript-tracker",
   "bugs": "https://github.com/snowplow/snowplow-javascript-tracker/issues",
@@ -49,6 +49,6 @@
     "typescript": "~4.6.2"
   },
   "peerDependencies": {
-    "@snowplow/browser-tracker": "~4.6.5"
+    "@snowplow/browser-tracker": "~4.6.6"
   }
 }
