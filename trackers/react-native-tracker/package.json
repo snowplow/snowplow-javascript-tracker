@@ -23,6 +23,7 @@
   "source": "./src/index.tsx",
   "main": "./dist/commonjs/index.js",
   "module": "./dist/module/index.js",
+  "types": "./dist/typescript/module/src/index.d.ts",
   "exports": {
     ".": {
       "import": {
