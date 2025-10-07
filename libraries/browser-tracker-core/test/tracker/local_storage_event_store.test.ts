@@ -61,12 +61,12 @@ describe('LocalStorageEventStore', () => {
       useLocalStorage: true,
     });
 
-    const event = { e: 'pv', eid: 'test-event-id' };
+    const event = { payload: { e: 'pv', eid: 'test-event-id' } };
     await eventStore.add(event);
 
     expect(await eventStore.count()).toBe(1);
     const events = await eventStore.getAllPayloads();
-    expect(events[0]).toMatchObject(event);
+    expect(events[0]).toMatchObject(event.payload);
   });
 
   it('should handle SecurityError when accessing localStorage.getItem', () => {
@@ -98,7 +98,7 @@ describe('LocalStorageEventStore', () => {
       useLocalStorage: true,
     });
 
-    const event = { e: 'pv', eid: 'test-event-id' };
+    const event = { payload: { e: 'pv', eid: 'test-event-id' } };
     
     // Should not throw an error, even though setItem fails
     await expect(eventStore.add(event)).resolves.toBeDefined();
@@ -125,13 +125,13 @@ describe('LocalStorageEventStore', () => {
       useLocalStorage: true,
     });
 
-    const event = { e: 'pv', eid: 'test-event-id' };
+    const event = { payload: { e: 'pv', eid: 'test-event-id' } };
     await eventStore.add(event);
 
     // Event should be in the in-memory store
     expect(await eventStore.count()).toBe(1);
     const events = await eventStore.getAllPayloads();
-    expect(events[0]).toMatchObject(event);
+    expect(events[0]).toMatchObject(event.payload);
 
     Storage.prototype.getItem = originalGetItem;
     Storage.prototype.setItem = originalSetItem;
@@ -143,7 +143,7 @@ describe('LocalStorageEventStore', () => {
       useLocalStorage: true,
     });
 
-    const event = { e: 'pv', eid: 'test-event-id' };
+    const event = { payload: { e: 'pv', eid: 'test-event-id' } };
     await eventStore.add(event);
 
     // Check that the event was persisted to localStorage
@@ -155,7 +155,7 @@ describe('LocalStorageEventStore', () => {
 
   it('should load events from localStorage on initialization', () => {
     const queueName = `snowplowOutQueue_${trackerId}`;
-    const events = [{ e: 'pv', eid: 'event-1' }, { e: 'pv', eid: 'event-2' }];
+    const events = [{ payload: { e: 'pv', eid: 'event-1' } }, { payload: { e: 'pv', eid: 'event-2' } }];
     localStorage.setItem(queueName, JSON.stringify(events));
 
     const eventStore = newLocalStorageEventStore({
@@ -168,7 +168,7 @@ describe('LocalStorageEventStore', () => {
 
   it('should not load from localStorage when useLocalStorage is false', () => {
     const queueName = `snowplowOutQueue_${trackerId}`;
-    const events = [{ e: 'pv', eid: 'event-1' }, { e: 'pv', eid: 'event-2' }];
+    const events = [{ payload: { e: 'pv', eid: 'event-1' } }, { payload: { e: 'pv', eid: 'event-2' } }];
     localStorage.setItem(queueName, JSON.stringify(events));
 
     const eventStore = newLocalStorageEventStore({
