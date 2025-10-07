@@ -26,6 +26,7 @@ export function newLocalStorageEventStore({
         const events: EventStorePayload[] = localStorageQueue ? JSON.parse(localStorageQueue) : [];
         return newInMemoryEventStore({ maxSize: maxLocalStorageQueueSize, events });
       } catch (e) {
+        console.error('Failed to access localStorage when initializing event store:', e);
         return newInMemoryEventStore({ maxSize: maxLocalStorageQueueSize });
       }
     } else {
@@ -41,7 +42,7 @@ export function newLocalStorageEventStore({
         try {
           window.localStorage.setItem(queueName, JSON.stringify(events));
         } catch (e) {
-          // Silently fail if localStorage is not accessible
+          console.error('Failed to persist events to localStorage:', e);
         }
       });
     } else {
