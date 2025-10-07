@@ -1,6 +1,11 @@
 # Change Log - @snowplow/browser-plugin-ad-tracking
 
-This log was last generated on Tue, 26 Aug 2025 08:42:27 GMT and should not be manually modified.
+This log was last generated on Tue, 07 Oct 2025 14:53:36 GMT and should not be manually modified.
+
+## 4.6.7
+Tue, 07 Oct 2025 14:53:36 GMT
+
+_Version update only_
 
 ## 4.6.6
 Tue, 26 Aug 2025 08:42:27 GMT

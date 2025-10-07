@@ -1,6 +1,13 @@
 # Change Log - @snowplow/react-native-tracker
 
-This log was last generated on Tue, 26 Aug 2025 08:42:28 GMT and should not be manually modified.
+This log was last generated on Tue, 07 Oct 2025 14:53:36 GMT and should not be manually modified.
+
+## 4.6.7
+Tue, 07 Oct 2025 14:53:36 GMT
+
+### Updates
+
+- Add TypeScript definitions to "package.json" for "react-native-tracker"
 
 ## 4.6.6
 Tue, 26 Aug 2025 08:42:28 GMT
