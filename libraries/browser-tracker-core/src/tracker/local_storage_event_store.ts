@@ -21,9 +21,13 @@ export function newLocalStorageEventStore({
 
   function newInMemoryEventStoreFromLocalStorage() {
     if (useLocalStorage) {
-      const localStorageQueue = window.localStorage.getItem(queueName);
-      const events: EventStorePayload[] = localStorageQueue ? JSON.parse(localStorageQueue) : [];
-      return newInMemoryEventStore({ maxSize: maxLocalStorageQueueSize, events });
+      try {
+        const localStorageQueue = window.localStorage.getItem(queueName);
+        const events: EventStorePayload[] = localStorageQueue ? JSON.parse(localStorageQueue) : [];
+        return newInMemoryEventStore({ maxSize: maxLocalStorageQueueSize, events });
+      } catch (e) {
+        return newInMemoryEventStore({ maxSize: maxLocalStorageQueueSize });
+      }
     } else {
       return newInMemoryEventStore({ maxSize: maxLocalStorageQueueSize });
     }
@@ -34,7 +38,11 @@ export function newLocalStorageEventStore({
   function sync(): Promise<void> {
     if (useLocalStorage) {
       return getAll().then((events) => {
-        window.localStorage.setItem(queueName, JSON.stringify(events));
+        try {
+          window.localStorage.setItem(queueName, JSON.stringify(events));
+        } catch (e) {
+          // Silently fail if localStorage is not accessible
+        }
       });
     } else {
       return Promise.resolve();
