@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/react-native-tracker",
+      "comment": "Add TypeScript definitions to \"package.json\" for \"react-native-tracker\"",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/react-native-tracker"
+}
