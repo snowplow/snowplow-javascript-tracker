@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/react-native-tracker",
+      "comment": "",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/react-native-tracker"
+}

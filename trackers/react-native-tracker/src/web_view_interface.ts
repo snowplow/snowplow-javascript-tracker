@@ -111,8 +111,7 @@ function webViewPayloadBuilder(pb: PayloadBuilder): PayloadBuilder {
  * Enables tracking events from apps rendered in react-native-webview components.
  * The apps need to use the Snowplow WebView tracker to track the events.
  *
- * To subscribe for the events, set the `onMessage` attribute:
- * `<WebView onMessage={getWebViewCallback()} ... />`
+ * To subscribe for the events, use as the `onMessage` prop for a `WebView` component.
  *
  * @returns Callback to subscribe for events from Web views tracked using the Snowplow WebView tracker.
  */
