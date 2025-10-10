@@ -17,7 +17,7 @@
 |  --- | --- |
 |  [getAllTrackers()](./react-native-tracker.getalltrackers.md) | Retrieves all initialized trackers |
 |  [getTracker(trackerNamespace)](./react-native-tracker.gettracker.md) | Retrieves an initialized tracker given its namespace |
-|  [getWebViewCallback()](./react-native-tracker.getwebviewcallback.md) | Enables tracking events from apps rendered in react-native-webview components. The apps need to use the Snowplow WebView tracker to track the events.<!-- -->To subscribe for the events, set the <code>onMessage</code> attribute: <code>&lt;WebView onMessage={getWebViewCallback()} ... /&gt;</code> |
+|  [getWebViewCallback()](./react-native-tracker.getwebviewcallback.md) | Enables tracking events from apps rendered in react-native-webview components. The apps need to use the Snowplow WebView tracker to track the events.<!-- -->To subscribe for the events, use as the <code>onMessage</code> prop for a <code>WebView</code> component. |
 |  [newTracker(configuration)](./react-native-tracker.newtracker.md) | Creates a new tracker instance with the given configuration |
 |  [removeAllTrackers()](./react-native-tracker.removealltrackers.md) | Removes all initialized trackers |
 |  [removeTracker(trackerNamespace)](./react-native-tracker.removetracker.md) | Removes a tracker given its namespace |
