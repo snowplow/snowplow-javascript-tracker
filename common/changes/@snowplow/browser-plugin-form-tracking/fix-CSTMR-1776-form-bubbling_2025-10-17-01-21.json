@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-form-tracking",
+      "comment": "Allow opt-in bubble-phase listeners for change/submit",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-form-tracking"
+}

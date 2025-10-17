@@ -40,6 +40,8 @@ const defaultFormTrackingEvents = [
 
 /** Form tracking plugin options to determine which events to fire and the elements to listen for */
 interface FormTrackingOptions {
+  /** Whether to handle events in the capture phase or the bubbling phase. Capture is usually more reliable, but may trigger early if you need changes from other submit handlers in your transforms, filters, or context generators. Defaults to true. */
+  useCapture?: boolean;
   /** List of `form` elements that are allowed to generate events, or criteria for deciding that when the event listener handles the event */
   forms?:
     | FilterCriterion<HTMLElement>
@@ -86,6 +88,7 @@ const _focusListeners: Record<string, EventListener> = {};
 const _changeListeners: Record<string, EventListener> = {};
 const _submitListeners: Record<string, EventListener> = {};
 const _targets: Record<string, EventTarget[]> = {};
+const _captures: Record<string, boolean> = {};
 
 /**
  * Add submission/focus/change event listeners to page for forms and elements according to `configuration`
@@ -99,19 +102,21 @@ export function addFormListeners(tracker: BrowserTracker, configuration: FormTra
 
   const events = options?.events ?? defaultFormTrackingEvents;
 
+  const useCapture = (_captures[tracker.id] = options?.useCapture ?? true);
+
   const targets = (_targets[tracker.id] = getTargetList(options?.targets, config.forms));
 
   if (events.indexOf(FormTrackingEvent.FOCUS_FORM) !== -1) {
     _focusListeners[tracker.id] = getFormChangeListener(tracker, config, FormTrackingEvent.FOCUS_FORM, context);
-    targets.forEach((target) => addEventListener(target, 'focus', _focusListeners[tracker.id], true));
+    targets.forEach((target) => addEventListener(target, 'focus', _focusListeners[tracker.id], true)); // focus does not bubble
   }
   if (events.indexOf(FormTrackingEvent.CHANGE_FORM) !== -1) {
     _changeListeners[tracker.id] = getFormChangeListener(tracker, config, FormTrackingEvent.CHANGE_FORM, context);
-    targets.forEach((target) => addEventListener(target, 'change', _changeListeners[tracker.id], true));
+    targets.forEach((target) => addEventListener(target, 'change', _changeListeners[tracker.id], useCapture));
   }
   if (events.indexOf(FormTrackingEvent.SUBMIT_FORM) !== -1) {
     _submitListeners[tracker.id] = getFormSubmissionListener(tracker, config, context);
-    targets.forEach((target) => addEventListener(target, 'submit', _submitListeners[tracker.id], true));
+    targets.forEach((target) => addEventListener(target, 'submit', _submitListeners[tracker.id], useCapture));
   }
 }
 
@@ -145,10 +150,11 @@ function getTargetList(configTargets: EventTarget[] | undefined, forms: FormConf
  */
 export function removeFormListeners(tracker: BrowserTracker) {
   const targets = _targets[tracker.id] ?? [document];
+  const useCapture = _captures[tracker.id] ?? true;
   targets.forEach((target) => {
-    if (_focusListeners[tracker.id]) target.removeEventListener('focus', _focusListeners[tracker.id], true);
-    if (_changeListeners[tracker.id]) target.removeEventListener('change', _changeListeners[tracker.id], true);
-    if (_submitListeners[tracker.id]) target.removeEventListener('submit', _submitListeners[tracker.id], true);
+    if (_focusListeners[tracker.id]) target.removeEventListener('focus', _focusListeners[tracker.id], true); // focus does not bubble
+    if (_changeListeners[tracker.id]) target.removeEventListener('change', _changeListeners[tracker.id], useCapture);
+    if (_submitListeners[tracker.id]) target.removeEventListener('submit', _submitListeners[tracker.id], useCapture);
   });
 }
 
@@ -363,10 +369,13 @@ function getFormChangeListener(
     // bind late to the forms/field directly on field focus in this case
     if (target !== e.target && e.composed && isTrackableElement(target)) {
       if (target.form) {
-        if (_changeListeners[tracker.id]) addEventListener(target.form, 'change', _changeListeners[tracker.id], true);
-        if (_submitListeners[tracker.id]) addEventListener(target.form, 'submit', _submitListeners[tracker.id], true);
+        if (_changeListeners[tracker.id])
+          addEventListener(target.form, 'change', _changeListeners[tracker.id], _captures[tracker.id]);
+        if (_submitListeners[tracker.id])
+          addEventListener(target.form, 'submit', _submitListeners[tracker.id], _captures[tracker.id]);
       } else {
-        if (_changeListeners[tracker.id]) addEventListener(target, 'change', _changeListeners[tracker.id], true);
+        if (_changeListeners[tracker.id])
+          addEventListener(target, 'change', _changeListeners[tracker.id], _captures[tracker.id]);
       }
     }
 
