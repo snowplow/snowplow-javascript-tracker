@@ -144,14 +144,15 @@
 
       switch (parseQuery().filter) {
         case 'exclude':
-          snowplow('enableFormTracking', { options: { fields: { denylist: ['fname'] } } });
+          snowplow('enableFormTracking', { options: { useCapture: true, fields: { denylist: ['fname'] } } });
           break;
         case 'include':
-          snowplow('enableFormTracking', { options: { fields: { allowlist: ['lname'] } } });
+          snowplow('enableFormTracking', { options: { useCapture: false, fields: { allowlist: ['lname'] } } });
           break;
         case 'filter':
           snowplow('enableFormTracking', {
             options: {
+              useCapture: undefined,
               forms: { allowlist: ['formy-mcformface'] },
               fields: { filter: formFilter },
             },
@@ -160,22 +161,23 @@
         case 'transform':
           snowplow('enableFormTracking', {
             options: {
+              useCapture: true,
               fields: { transform: redactPII },
             },
           });
           break;
         case 'excludedForm':
-          snowplow('enableFormTracking', { options: { forms: { denylist: ['excluded-form'] } } });
+          snowplow('enableFormTracking', { options: { useCapture: false, forms: { denylist: ['excluded-form'] } } });
           break;
         case 'onlyFocus':
-          snowplow('enableFormTracking', { options: { events: ['focus_form'] } });
+          snowplow('enableFormTracking', { options: { useCapture: undefined, events: ['focus_form'] } });
           break;
         case 'iframeForm':
           var forms = iframe.contentWindow.document.getElementsByTagName('form');
-          snowplow('enableFormTracking', { options: { forms: forms } });
+          snowplow('enableFormTracking', { options: { useCapture: true, forms: forms } });
           break;
         case 'shadow':
-          snowplow('enableFormTracking', { options: { forms: { allowlist: ['shadow-form'] } } });
+          snowplow('enableFormTracking', { options: { useCapture: false, forms: { allowlist: ['shadow-form'] } } });
           break;
         default:
           snowplow('enableFormTracking', {
