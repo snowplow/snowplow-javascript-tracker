@@ -2,6 +2,12 @@
   "name": "@snowplow/browser-plugin-media",
   "entries": [
     {
+      "version": "4.6.8",
+      "tag": "@snowplow/browser-plugin-media_v4.6.8",
+      "date": "Tue, 28 Oct 2025 09:46:42 GMT",
+      "comments": {}
+    },
+    {
       "version": "4.6.7",
       "tag": "@snowplow/browser-plugin-media_v4.6.7",
       "date": "Tue, 07 Oct 2025 14:53:36 GMT",
