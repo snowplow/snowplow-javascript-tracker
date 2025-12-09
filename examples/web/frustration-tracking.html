@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frustration Tracking Example - Rage, Dead, and Error Clicks</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #555;
+            margin-top: 30px;
+        }
+        
+        .test-area {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .test-button {
+            padding: 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .test-button.dead {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .test-button.error {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        .log-container {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        
+        .log-entry {
+            margin: 8px 0;
+            padding: 8px;
+            border-left: 3px solid #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+        
+        .log-entry.rage {
+            border-left-color: #f44336;
+            background: rgba(244, 67, 54, 0.1);
+        }
+        
+        .log-entry.dead {
+            border-left-color: #ff9800;
+            background: rgba(255, 152, 0, 0.1);
+        }
+        
+        .log-entry.error {
+            border-left-color: #e91e63;
+            background: rgba(233, 30, 99, 0.1);
+        }
+        
+        .description {
+            background: #f9f9f9;
+            padding: 15px;
+            border-left: 4px solid #2196F3;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .stat-box {
+            flex: 1;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        button.clear-log {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        button.clear-log:hover {
+            background: #da190b;
+        }
+        
+        input, textarea, select {
+            padding: 10px;
+            font-size: 14px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            margin: 5px 0;
+        }
+        
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        /* Modal styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal-overlay.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .modal-icon {
+            font-size: 48px;
+            animation: shake 0.5s ease;
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #f44336;
+            margin: 0;
+        }
+        
+        .modal-body {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 30px;
+        }
+        
+        .modal-close {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            width: 100%;
+            transition: background 0.3s ease;
+        }
+        
+        .modal-close:hover {
+            background: #da190b;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+    </style>
+
+    <script type="text/javascript" async=1>
+
+    // ==================== FRUSTRATION TRACKING PLUGIN ====================
+    // Inspired by DataDog's frustration detection:
+    // https://github.com/DataDog/browser-sdk/blob/main/packages/rum-core/src/domain/action/computeFrustration.ts
+    
+    const FrustrationTrackingPlugin = (function() {
+        const ONE_SECOND = 1000;
+        const MIN_CLICKS_PER_SECOND_TO_CONSIDER_RAGE = 3;
+        
+        // Predefined messages for rage click modal
+        const RAGE_CLICK_MESSAGES = [
+            {
+                title: "Rage Click Detected!",
+                body: "Try clicking slightly angrier. Computers love that."
+            },
+            {
+                title: "Easy There Tiger",
+                body: "Maybe if you click louder, I’ll finally understand your pain."
+            },
+            {
+                title: "Hold On!",
+                body: "Oh! Now click the same spot again. And again. You’re so good at this."
+            }
+        ];
+        
+        // Selectors that should not be considered for dead clicks
+        const DEAD_CLICK_EXCLUDE_SELECTOR = [
+            // Inputs that don't trigger meaningful events when clicked (except checkboxes, radios, buttons)
+            'input:not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="range"])',
+            'textarea',
+            'select',
+            // Contenteditable and their descendants
+            '[contenteditable]',
+            '[contenteditable] *',
+            // Canvas elements
+            'canvas',
+            // Interactive links and their descendants
+            'a[href]',
+            'a[href] *'
+        ].join(',');
+        
+        // Track clicks for frustration detection
+        let clickHistory = [];
+        let rageClickCount = 0;
+        let deadClickCount = 0;
+        let errorClickCount = 0;
+        
+        // Track page activity (DOM mutations, navigation)
+        let hasRecentPageActivity = false;
+        let pageActivityTimeout = null;
+        
+        // Track user input activity
+        let hasRecentInputActivity = false;
+        let inputActivityTimeout = null;
+        
+        // Track scroll activity
+        let hasRecentScrollActivity = false;
+        let scrollActivityTimeout = null;
+        
+        // Track selection changes
+        let hasRecentSelectionChange = false;
+        let selectionTimeout = null;
+        
+        // Track errors
+        let recentErrors = [];
+        
+        class ClickTracker {
+            constructor(event) {
+                this.event = event;
+                // Use performance.now() for consistent high-resolution timing
+                this.timestamp = performance.now();
+                this.target = event.target;
+                this.frustrations = new Set();
+                this.hasError = false;
+                
+                // Capture user activity state at click time
+                this.userActivity = {
+                    input: hasRecentInputActivity,
+                    scroll: hasRecentScrollActivity,
+                    selection: hasRecentSelectionChange
+                };
+                
+                this.hasPageActivity = hasRecentPageActivity;
+                
+                // Check if click is within error window
+                const errorWindow = 1000; // 1 second
+                this.hasError = recentErrors.some(errorTime => 
+                    Math.abs(this.timestamp - errorTime) < errorWindow
+                );
+            }
+            
+            addFrustration(type) {
+                this.frustrations.add(type);
+            }
+            
+            getUserActivity() {
+                return this.userActivity;
+            }
+        }
+        
+        function isRage(clicks) {
+            // Don't consider it rage if there was selection or scroll
+            if (clicks.some(click => 
+                click.getUserActivity().selection || 
+                click.getUserActivity().scroll
+            )) {
+                return false;
+            }
+            
+            // Need at least MIN_CLICKS_PER_SECOND_TO_CONSIDER_RAGE clicks
+            if (clicks.length < MIN_CLICKS_PER_SECOND_TO_CONSIDER_RAGE) {
+                return false;
+            }
+            
+            // Check if MIN_CLICKS_PER_SECOND_TO_CONSIDER_RAGE clicks occurred within ONE_SECOND
+            for (let i = 0; i < clicks.length - (MIN_CLICKS_PER_SECOND_TO_CONSIDER_RAGE - 1); i++) {
+                const startClick = clicks[i];
+                const endClick = clicks[i + MIN_CLICKS_PER_SECOND_TO_CONSIDER_RAGE - 1];
+                
+                const timeDiff = endClick.timestamp - startClick.timestamp;
+                console.log(`Checking rage: ${MIN_CLICKS_PER_SECOND_TO_CONSIDER_RAGE} clicks in ${timeDiff.toFixed(2)}ms (threshold: ${ONE_SECOND}ms)`);
+                
+                if (timeDiff <= ONE_SECOND) {
+                    console.log('🔥 RAGE DETECTED!');
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+        
+        function isDead(click) {
+            // Not dead if there was page activity, input, or scroll
+            if (click.hasPageActivity || 
+                click.getUserActivity().input || 
+                click.getUserActivity().scroll) {
+                console.log('Not dead - has activity:', {
+                    pageActivity: click.hasPageActivity,
+                    input: click.getUserActivity().input,
+                    scroll: click.getUserActivity().scroll
+                });
+                return false;
+            }
+            
+            let target = click.event.target;
+            
+            // Handle label clicks - check the associated input
+            if (target.tagName === 'LABEL' && target.hasAttribute('for')) {
+                target = document.getElementById(target.getAttribute('for'));
+            }
+            
+            // Check if target matches excluded selectors
+            const isExcluded = target && target.matches(DEAD_CLICK_EXCLUDE_SELECTOR);
+            console.log('Dead click check:', {
+                tagName: target?.tagName,
+                id: target?.id,
+                matchesExcluded: isExcluded,
+                isDead: !isExcluded
+            });
+            
+            return !target || !isExcluded;
+        }
+        
+        function computeFrustration(clicks, currentClick) {
+            const hasSelectionChanged = clicks.some(click => 
+                click.getUserActivity().selection
+            );
+            
+            // Check for rage clicks first
+            if (isRage(clicks)) {
+                console.log('🔥 Rage click detected!');
+                currentClick.addFrustration('RAGE_CLICK');
+                rageClickCount++;
+                
+                // Show the rage modal
+                showRageModal();
+                
+                // Rage clicks can also be dead clicks
+                if (isDead(currentClick) && !hasSelectionChanged) {
+                    currentClick.addFrustration('DEAD_CLICK');
+                    deadClickCount++;
+                }
+                
+                // Rage clicks can also be error clicks
+                if (currentClick.hasError) {
+                    currentClick.addFrustration('ERROR_CLICK');
+                    errorClickCount++;
+                }
+                
+                return { isRage: true, frustrations: Array.from(currentClick.frustrations) };
+            }
+            
+            // Not a rage click - check the current click for individual frustrations
+            const frustrations = [];
+            
+            // Check for error click
+            if (currentClick.hasError) {
+                currentClick.addFrustration('ERROR_CLICK');
+                errorClickCount++;
+                frustrations.push('ERROR_CLICK');
+            }
+            
+            // Check for dead click (avoid considering clicks part of double/triple-click selections as dead)
+            if (isDead(currentClick) && !hasSelectionChanged) {
+                currentClick.addFrustration('DEAD_CLICK');
+                deadClickCount++;
+                frustrations.push('DEAD_CLICK');
+            }
+            
+            return { isRage: false, frustrations };
+        }
+        
+        // Monitor DOM mutations for page activity
+        const observer = new MutationObserver((mutations) => {
+            // Filter out trivial mutations (like class changes for hover states, attributes)
+            const significantMutations = mutations.filter(mutation => {
+                // Only count childList changes (actual DOM nodes added/removed)
+                // Ignore attribute changes (like class, style for hover effects)
+                if (mutation.type === 'childList') {
+                    return mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0;
+                }
+                return false;
+            });
+            
+            if (significantMutations.length > 0) {
+                console.log('Significant page activity detected:', significantMutations);
+                hasRecentPageActivity = true;
+                clearTimeout(pageActivityTimeout);
+                pageActivityTimeout = setTimeout(() => {
+                    hasRecentPageActivity = false;
+                }, 100);
+            }
+        });
+        
+        // Start observing
+        if (document.body) {
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+                // Removed attributes and characterData to avoid detecting hover effects
+            });
+        }
+        
+        // Monitor input events
+        document.addEventListener('input', () => {
+            hasRecentInputActivity = true;
+            clearTimeout(inputActivityTimeout);
+            inputActivityTimeout = setTimeout(() => {
+                hasRecentInputActivity = false;
+            }, 100);
+        }, true);
+        
+        // Monitor scroll events
+        window.addEventListener('scroll', () => {
+            hasRecentScrollActivity = true;
+            clearTimeout(scrollActivityTimeout);
+            scrollActivityTimeout = setTimeout(() => {
+                hasRecentScrollActivity = false;
+            }, 300);
+        }, true);
+        
+        // Monitor selection changes
+        document.addEventListener('selectionchange', () => {
+            hasRecentSelectionChange = true;
+            clearTimeout(selectionTimeout);
+            selectionTimeout = setTimeout(() => {
+                hasRecentSelectionChange = false;
+            }, 100);
+        });
+        
+        // Monitor JavaScript errors
+        window.addEventListener('error', (event) => {
+            const errorTime = performance.now();
+            recentErrors.push(errorTime);
+            // Keep only recent errors (last 5 seconds)
+            const now = performance.now();
+            recentErrors = recentErrors.filter(time => 
+                now - time < 5000
+            );
+        }, true);
+        
+        // Click handler
+        function handleClick(event) {
+            const click = new ClickTracker(event);
+            clickHistory.push(click);
+            
+            // Keep only clicks from the last 2 seconds
+            const now = performance.now();
+            clickHistory = clickHistory.filter(c => 
+                now - c.timestamp < 2000
+            );
+            
+            console.log(`Click detected. History count: ${clickHistory.length}`, clickHistory.map(c => c.timestamp));
+            
+            // Compute frustrations
+            const result = computeFrustration(clickHistory, click);
+            
+            if (result.frustrations.length > 0) {
+                trackFrustration(click, result);
+            }
+        }
+        
+        function trackFrustration(click, result) {
+            const targetInfo = {
+                tagName: click.target.tagName,
+                id: click.target.id || '',
+                className: click.target.className || '',
+                textContent: click.target.textContent?.substring(0, 50) || ''
+            };
+            
+            // Log to console and UI
+            logFrustration(result.frustrations, targetInfo);
+            
+            // Track with Snowplow
+            if (typeof window.snowplow === 'function') {
+                window.snowplow('trackSelfDescribingEvent', {
+                    event: {
+                        schema: 'iglu:com.example/frustration_event/jsonschema/1-0-0',
+                        data: {
+                            frustration_types: result.frustrations,
+                            is_rage: result.isRage,
+                            target_element: targetInfo.tagName,
+                            target_id: targetInfo.id,
+                            target_class: targetInfo.className,
+                            target_text: targetInfo.textContent,
+                            click_count: clickHistory.length
+                        }
+                    }
+                });
+            }
+        }
+        
+        function logFrustration(frustrations, targetInfo) {
+            const logContainer = document.getElementById('frustration-log');
+            if (!logContainer) return;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            const frustrationTypes = frustrations.join(', ');
+            const primaryType = frustrations[0].toLowerCase().replace('_', '-');
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${primaryType.replace('-click', '')}`;
+            logEntry.innerHTML = `
+                <strong>[${timestamp}]</strong> 
+                <strong style="color: #ff6b6b;">${frustrationTypes}</strong> detected on 
+                &lt;${targetInfo.tagName.toLowerCase()}&gt;${targetInfo.id ? ' #' + targetInfo.id : ''}
+                ${targetInfo.textContent ? ' - "' + targetInfo.textContent + '"' : ''}
+            `;
+            
+            logContainer.insertBefore(logEntry, logContainer.firstChild);
+            
+            // Update stats
+            updateStats();
+        }
+        
+        function updateStats() {
+            const rageEl = document.getElementById('rage-count');
+            const deadEl = document.getElementById('dead-count');
+            const errorEl = document.getElementById('error-count');
+            
+            if (rageEl) rageEl.textContent = rageClickCount;
+            if (deadEl) deadEl.textContent = deadClickCount;
+            if (errorEl) errorEl.textContent = errorClickCount;
+        }
+        
+        function showRageModal() {
+            const modal = document.getElementById('rage-modal');
+            if (modal) {
+                // Pick a random message from the array
+                const randomMessage = RAGE_CLICK_MESSAGES[Math.floor(Math.random() * RAGE_CLICK_MESSAGES.length)];
+                
+                // Update modal content
+                const titleEl = modal.querySelector('.modal-title');
+                const bodyEl = modal.querySelector('.modal-body-text');
+                const detailsEl = modal.querySelector('.modal-body-details');
+                
+                if (titleEl) titleEl.textContent = randomMessage.title;
+                if (bodyEl) bodyEl.textContent = randomMessage.body;
+                if (detailsEl) detailsEl.textContent = randomMessage.details;
+                
+                modal.classList.add('show');
+            }
+        }
+        
+        function closeRageModal() {
+            const modal = document.getElementById('rage-modal');
+            if (modal) {
+                modal.classList.remove('show');
+            }
+        }
+        
+        function clearLog() {
+            const logContainer = document.getElementById('frustration-log');
+            if (logContainer) {
+                logContainer.innerHTML = '';
+            }
+            rageClickCount = 0;
+            deadClickCount = 0;
+            errorClickCount = 0;
+            updateStats();
+        }
+        
+        // Initialize
+        document.addEventListener('click', handleClick, true);
+        
+        // Expose for debugging
+        window.frustrationDebug = {
+            clickHistory: () => clickHistory,
+            stats: () => ({ rageClickCount, deadClickCount, errorClickCount }),
+            clear: clearLog,
+            showModal: showRageModal,
+            closeModal: closeRageModal,
+            messages: RAGE_CLICK_MESSAGES // Expose messages for customization
+        };
+        
+        return {
+            contexts: function() {
+                return [{
+                    schema: 'iglu:com.example/frustration_context/jsonschema/1-0-0',
+                    data: {
+                        total_rage_clicks: rageClickCount,
+                        total_dead_clicks: deadClickCount,
+                        total_error_clicks: errorClickCount,
+                        recent_click_count: clickHistory.length
+                    }
+                }];
+            }
+        };
+    })();
+
+    // ==================== SNOWPLOW TRACKER INITIALIZATION ====================
+    
+    ;(function(p,l,o,w,i,n,g){
+        if(!p[i]){p.GlobalSnowplowNamespace=p.GlobalSnowplowNamespace||[];
+        p.GlobalSnowplowNamespace.push(i);p[i]=function(){(p[i].q=p[i].q||[]).push(arguments)
+        };p[i].q=p[i].q||[];n=l.createElement(o);g=l.getElementsByTagName(o)[0];n.async=1;
+        n.src=w;g.parentNode.insertBefore(n,g)}
+    }(
+        window,
+        document,
+        "script",
+        "https://cdn.jsdelivr.net/npm/@snowplow/javascript-tracker@4.4.0/dist/sp.js",
+        "snowplow")
+    );
+
+    snowplow("newTracker", "sp", "https://snplow.net", {
+        appId: "frustration-tracking-demo",
+        platform: "web",
+        encodeBase64: true,
+        contexts: {
+            webPage: true,
+            performanceTiming: true
+        }
+    });
+
+    // Add the frustration tracking plugin
+    // The plugin needs to be wrapped in a plugin factory function
+    const FrustrationPlugin = {
+        activateBrowserPlugin: function() {
+            return FrustrationTrackingPlugin;
+        }
+    };
+    
+    snowplow('addPlugin', FrustrationPlugin, 'activateBrowserPlugin');
+
+    console.log('Frustration Tracking Plugin initialized');
+
+    snowplow('trackPageView');
+
+    // ==================== TEST FUNCTIONS ====================
+    
+    function triggerError() {
+        // Intentionally throw an error
+        setTimeout(() => {
+            throw new Error('Test error triggered!');
+        }, 10);
+    }
+    
+    function simulatePageChange() {
+        const container = document.getElementById('dynamic-content');
+        if (container) {
+            const newElement = document.createElement('p');
+            newElement.textContent = 'Dynamic content added at ' + new Date().toLocaleTimeString();
+            container.appendChild(newElement);
+        }
+    }
+    
+    </script>
+
+</head> 
+<body>
+    <div class="container">
+        <h1>Tracking your frustration programatically</h1>
+        
+        <div class="description">
+            <a href="https://github.com/DataDog/browser-sdk/blob/main/packages/rum-core/src/domain/action/computeFrustration.ts" target="_blank">DataDog's implementation</a>.
+            It tracks three types of frustration:
+            <ul>
+                <li><strong>Rage Clicks</strong>: 3 or more clicks within 1 second (without scrolling or text selection)</li>
+                <li><strong>Dead Clicks</strong>: Clicks that produce no page activity, input, or navigation</li>
+                <li><strong>Error Clicks</strong>: Clicks that occur within 1 second of a JavaScript error</li>
+            </ul>
+        </div>
+        
+        <h3>Test Rage Clicks</h3>
+        <div class="test-area">
+            <button class="test-button" id="rage-button">
+                Click me gently<br><small>(3+ times in 1 sec)</small>
+            </button>
+        </div>
+
+        <h3>Test Dead Clicks</h3>
+        <div class="test-area">
+            <button class="test-button dead" id="dead-button-1">
+                Non-Interactive Button
+            </button>
+            <div class="test-button dead" id="dead-div">
+                Non-Interactive Div
+            </div>
+        </div>
+
+        <h3>Test Error Clicks</h3>
+        <div class="test-area">
+            <button class="test-button error" id="error-button" onclick="triggerError()">
+                Trigger Error & Click Again
+            </button>
+        </div>
+
+        <h3>Test Interactive Elements (Should NOT trigger dead clicks)</h3>
+        <div class="description">
+            These elements should not be marked as dead clicks because they're expected to be interactive.
+        </div>
+        <div class="test-area">
+            <input type="text" placeholder="Type here..." style="width: 100%;">
+            <textarea placeholder="Enter text..." rows="3" style="width: 100%;"></textarea>
+            <a href="#test" style="display: block; padding: 20px; background: #4CAF50; color: white; text-decoration: none; border-radius: 6px; text-align: center;">
+                Interactive Link
+            </a>
+        </div>
+    </div>
+
+    <!-- Rage Click Modal -->
+    <div id="rage-modal" class="modal-overlay" onclick="if(event.target === this) window.frustrationDebug.closeModal()">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-icon">🔥</div>
+                <h2 class="modal-title">Rage Click Detected!</h2>
+            </div>
+            <div class="modal-body">
+                <p class="modal-body-text">Whoa there! We noticed you clicked rapidly multiple times.</p>
+                <p><strong>What happened:</strong> <span class="modal-body-details">You clicked 3 or more times within 1 second, which typically indicates user frustration.</span></p>
+            </div>
+            <button class="modal-close" onclick="window.frustrationDebug.closeModal()">
+                Got it, thanks!
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Additional initialization after DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Page loaded. Frustration tracking is active!');
+            console.log('Debug commands:');
+            console.log('  - window.frustrationDebug.stats() - View current stats');
+            console.log('  - window.frustrationDebug.clickHistory() - View recent clicks');
+            console.log('  - window.frustrationDebug.clear() - Clear log and stats');
+        });
+    </script>
+</body>
+</html>
