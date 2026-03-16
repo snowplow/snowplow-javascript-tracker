@@ -1,6 +1,13 @@
 # Change Log - @snowplow/browser-plugin-media
 
-This log was last generated on Tue, 28 Oct 2025 09:46:42 GMT and should not be manually modified.
+This log was last generated on Mon, 16 Mar 2026 13:21:14 GMT and should not be manually modified.
+
+## 4.6.9
+Mon, 16 Mar 2026 13:21:14 GMT
+
+### Updates
+
+- Fix crashes due to large content time jumps in updateDurationStats in media tracking
 
 ## 4.6.8
 Tue, 28 Oct 2025 09:46:42 GMT
