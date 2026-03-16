@@ -53,6 +53,7 @@ describe('ErrorTrackingPlugin', () => {
   const eventStore3 = newInMemoryEventStore({});
   const eventStore4 = newInMemoryEventStore({});
   const eventStore5 = newInMemoryEventStore({});
+  const eventStore6 = newInMemoryEventStore({});
 
   const state = new SharedState();
   addTracker('sp1', 'sp1', 'js-3.0.0', '', state, {
@@ -85,6 +86,12 @@ describe('ErrorTrackingPlugin', () => {
     eventStore: eventStore5,
     customFetch: async () => new Response(null, { status: 500 }),
   });
+  addTracker('sp6', 'sp6', 'js-3.0.0', '', state, {
+    encodeBase64: false,
+    plugins: [ErrorTrackingPlugin()],
+    eventStore: eventStore6,
+    customFetch: async () => new Response(null, { status: 500 }),
+  });
 
   const error = new Error('this is an error');
   error.stack = 'stacktrace-1';
@@ -92,6 +99,7 @@ describe('ErrorTrackingPlugin', () => {
   const oversizedError = new Error('this is a longer error');
   oversizedError.stack = 'x'.repeat(10000);
   const oversizedMessage = 'y'.repeat(10000);
+  const oversizedFilename = 'z'.repeat(2000);
 
   trackError(
     {
@@ -124,6 +132,14 @@ describe('ErrorTrackingPlugin', () => {
       error: oversizedError,
     },
     ['sp4']
+  );
+
+  trackError(
+    {
+      message: 'message-6',
+      filename: oversizedFilename,
+    },
+    ['sp6']
   );
 
   enableErrorTracking({}, ['sp5']);
@@ -182,6 +198,19 @@ describe('ErrorTrackingPlugin', () => {
       data: {
         message: 'y'.repeat(2048),
         stackTrace: 'x'.repeat(8192),
+      },
+    });
+  });
+
+  it('trackError truncates long fileName to 1024 characters', async () => {
+    expect(
+      extractUeEvent('iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1').from(
+        await eventStore6.getAllPayloads()
+      )
+    ).toMatchObject({
+      schema: 'iglu:com.snowplowanalytics.snowplow/application_error/jsonschema/1-0-1',
+      data: {
+        fileName: 'z'.repeat(1024),
       },
     });
   });

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-error-tracking",
+      "comment": "Truncate fileName property in application_error events to max 1024 characters to avoid validation errors",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-error-tracking"
+}
