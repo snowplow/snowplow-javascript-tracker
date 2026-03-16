@@ -188,6 +188,46 @@ describe('MediaSessionTrackingStats', () => {
     expect(entity.timePlayedMuted).toBe(30);
   });
 
+  it('does not crash when content time jump exceeds MAX_CONTENT_TIME_STEP', () => {
+    let session = new MediaSessionTrackingStats();
+
+    session.update(MediaEventType.Play, { ...mediaPlayerDefaults, currentTime: 0 });
+
+    jest.advanceTimersByTime(1000);
+    session.update(MediaEventType.SeekEnd, { ...mediaPlayerDefaults, currentTime: 7200 });
+
+    expect(() => session.toSessionContextEntity()).not.toThrow();
+    let entity = session.toSessionContextEntity();
+    // Loop is skipped; only the start second (0) and the landed second (7200) are recorded
+    expect(entity.contentWatched).toBeLessThanOrEqual(3);
+  });
+
+  it('does not crash when livestream currentTime is a large Unix-epoch offset', () => {
+    let session = new MediaSessionTrackingStats();
+
+    const epochBase = 1_700_000_000;
+
+    session.update(MediaEventType.Play, { ...mediaPlayerDefaults, livestream: true, currentTime: epochBase });
+
+    jest.advanceTimersByTime(1000);
+    // Jump larger than MAX_CONTENT_TIME_STEP — simulates stream discontinuity
+    session.update(MediaEventType.Ping, { ...mediaPlayerDefaults, livestream: true, currentTime: epochBase + 7200 });
+
+    expect(() => session.toSessionContextEntity()).not.toThrow();
+  });
+
+  it('still fills intermediate seconds for gaps within MAX_CONTENT_TIME_STEP', () => {
+    let session = new MediaSessionTrackingStats();
+
+    session.update(MediaEventType.Play, { ...mediaPlayerDefaults, currentTime: 0 });
+
+    jest.advanceTimersByTime(30 * 1000);
+    session.update(MediaEventType.End, { ...mediaPlayerDefaults, currentTime: 30 });
+
+    let entity = session.toSessionContextEntity();
+    expect(entity.contentWatched).toBe(31);
+  });
+
   it('calculates buffering time', () => {
     let session = new MediaSessionTrackingStats();
 

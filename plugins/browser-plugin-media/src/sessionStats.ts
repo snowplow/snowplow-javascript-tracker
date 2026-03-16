@@ -17,6 +17,12 @@ type Log = {
   linearAd: boolean;
 };
 
+/** Maximum content-time gap (seconds) for which intermediate seconds are filled into playedSeconds.
+ *  Beyond this threshold only the current second is recorded, preventing unbounded iteration
+ *  for live streams or large VOD seeks where currentTime can be a huge offset.
+ */
+const MAX_CONTENT_TIME_STEP = 3600;
+
 const adStartTypes = [MediaEventType.AdStart, MediaEventType.AdResume];
 const adProgressTypes = [
   MediaEventType.AdClick,
@@ -134,9 +140,13 @@ export class MediaSessionTrackingStats {
         }
 
         if (!log.paused) {
-          for (let i = Math.floor(this.lastLog.contentTime); i < log.contentTime; i++) {
-            this.playedSeconds.add(i);
+          const gap = log.contentTime - this.lastLog.contentTime;
+          if (gap <= MAX_CONTENT_TIME_STEP) {
+            for (let i = Math.floor(this.lastLog.contentTime); i < log.contentTime; i++) {
+              this.playedSeconds.add(i);
+            }
           }
+          // gap > MAX_CONTENT_TIME_STEP: skip loop, only current second is recorded below
         }
       }
     }
