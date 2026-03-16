@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-media",
+      "comment": "Fix crashes due to large content time jumps in updateDurationStats in media tracking",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-media"
+}
