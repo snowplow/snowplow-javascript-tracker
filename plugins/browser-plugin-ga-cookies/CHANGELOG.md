@@ -1,6 +1,11 @@
 # Change Log - @snowplow/browser-plugin-ga-cookies
 
-This log was last generated on Tue, 28 Oct 2025 09:46:42 GMT and should not be manually modified.
+This log was last generated on Mon, 16 Mar 2026 15:31:22 GMT and should not be manually modified.
+
+## 4.6.9
+Mon, 16 Mar 2026 15:31:22 GMT
+
+_Version update only_
 
 ## 4.6.8
 Tue, 28 Oct 2025 09:46:42 GMT
