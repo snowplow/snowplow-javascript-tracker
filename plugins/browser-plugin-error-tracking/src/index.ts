@@ -76,7 +76,8 @@ export function trackError(
 ) {
   const { message, filename, lineno, colno, error, context, timestamp } = event,
     stack = error && truncateString(error.stack, 8192),
-    truncatedMessage = message && truncateString(message, 2048);
+    truncatedMessage = message && truncateString(message, 2048),
+    truncatedFilename = truncateString(filename, 1024);
 
   dispatchToTrackersInCollection(trackers, _trackers, (t) => {
     t.core.track(
@@ -89,7 +90,7 @@ export function trackError(
             stackTrace: stack,
             lineNumber: lineno,
             lineColumn: colno,
-            fileName: filename,
+            fileName: truncatedFilename,
           },
         },
       }),
