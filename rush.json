@@ -464,6 +464,12 @@
       "versionPolicyName": "tracker"
     },
     {
+      "packageName": "@snowplow/browser-plugin-bot-detection",
+      "projectFolder": "plugins/browser-plugin-bot-detection",
+      "reviewCategory": "plugins",
+      "versionPolicyName": "tracker"
+    },
+    {
       "packageName": "@snowplow/browser-plugin-site-tracking",
       "projectFolder": "plugins/browser-plugin-site-tracking",
       "reviewCategory": "plugins",

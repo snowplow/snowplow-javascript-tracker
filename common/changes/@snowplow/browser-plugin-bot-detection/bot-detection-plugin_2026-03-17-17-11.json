@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Add browser-plugin-bot-detection plugin wrapping FingerprintJS BotD for client-side bot detection",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-bot-detection"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-bot-detection",
+  "email": "nick.stanch@snowplowanalytics.com"
+}
