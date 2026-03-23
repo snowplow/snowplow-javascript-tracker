@@ -16,9 +16,9 @@ jest.mock('@fingerprintjs/botd', () => ({
     return Promise.resolve({
       detect: () => {
         if (mockDetectReject) {
-          throw mockDetectReject;
+          return Promise.reject(mockDetectReject);
         }
-        return mockDetectResult;
+        return Promise.resolve(mockDetectResult);
       },
     });
   },

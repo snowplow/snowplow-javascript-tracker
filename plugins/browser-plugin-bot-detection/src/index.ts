@@ -19,7 +19,7 @@ export function BotDetectionPlugin(): BrowserPlugin {
           .then((result) => {
             contextData = result.bot ? { bot: true, kind: result.botKind } : { bot: false, kind: null };
           })
-          .catch((err) => LOG.error('BotDetectionPlugin', err));
+          .catch((err) => LOG.error('BotDetectionPlugin: BotD load/detect failed', err));
       }
     },
     contexts: () => {
