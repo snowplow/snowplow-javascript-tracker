@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Replace SHA1 buffer polyfill with lightweight implementation",
+      "type": "none",
+      "packageName": "@snowplow/browser-tracker-core"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker-core",
+  "email": "j.nicklas@me.com"
+}
