@@ -91,7 +91,8 @@ export function sha1(message: string): string {
   // Produce hex digest
   let hex = '';
   for (const h of [h0, h1, h2, h3, h4]) {
-    hex += (h >>> 0).toString(16).padStart(8, '0');
+    const part = (h >>> 0).toString(16);
+    hex += (part.length < 8 ? '00000000'.slice(part.length) : '') + part;
   }
   return hex;
 }
