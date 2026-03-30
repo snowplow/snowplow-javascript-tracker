@@ -223,10 +223,6 @@
       "allowedCategories": [ "trackers" ]
     },
     {
-      "name": "@types/sha1",
-      "allowedCategories": [ "libraries" ]
-    },
-    {
       "name": "@types/sinon",
       "allowedCategories": [ "trackers" ]
     },
@@ -429,10 +425,6 @@
     {
       "name": "saucelabs",
       "allowedCategories": [ "trackers" ]
-    },
-    {
-      "name": "sha1",
-      "allowedCategories": [ "libraries" ]
     },
     {
       "name": "sinon",

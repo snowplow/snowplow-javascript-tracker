@@ -7,7 +7,7 @@ import {
   SelfDescribingJson,
   LOG,
 } from '@snowplow/tracker-core';
-import hash from 'sha1';
+import { sha1 as hash } from '../helpers/sha1';
 import { v4 as uuid } from 'uuid';
 import {
   decorateQuerystring,
