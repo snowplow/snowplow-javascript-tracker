@@ -1,0 +1,17 @@
+{
+  "name": "@snowplow/browser-plugin-bot-detection",
+  "entries": [
+    {
+      "version": "4.7.0",
+      "tag": "@snowplow/browser-plugin-bot-detection_v4.7.0",
+      "date": "Wed, 01 Apr 2026 12:59:29 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Add browser-plugin-bot-detection plugin wrapping FingerprintJS BotD for client-side bot detection"
+          }
+        ]
+      }
+    }
+  ]
+}
