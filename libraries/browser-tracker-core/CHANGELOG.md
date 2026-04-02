@@ -1,6 +1,13 @@
 # Change Log - @snowplow/browser-tracker-core
 
-This log was last generated on Mon, 16 Mar 2026 15:43:06 GMT and should not be manually modified.
+This log was last generated on Wed, 01 Apr 2026 12:59:29 GMT and should not be manually modified.
+
+## 4.7.0
+Wed, 01 Apr 2026 12:59:29 GMT
+
+### Updates
+
+- Replace SHA1 buffer polyfill with lightweight implementation
 
 ## 4.6.9
 Mon, 16 Mar 2026 15:43:06 GMT

@@ -7,6 +7,10 @@
       "allowedCategories": [ "libraries", "plugins", "trackers" ]
     },
     {
+      "name": "@fingerprintjs/botd",
+      "allowedCategories": [ "plugins" ]
+    },
+    {
       "name": "@react-native-async-storage/async-storage",
       "allowedCategories": [ "trackers" ]
     },
@@ -40,6 +44,10 @@
     },
     {
       "name": "@snowplow/browser-plugin-ad-tracking",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
+      "name": "@snowplow/browser-plugin-bot-detection",
       "allowedCategories": [ "trackers" ]
     },
     {
@@ -213,10 +221,6 @@
     {
       "name": "@types/react",
       "allowedCategories": [ "trackers" ]
-    },
-    {
-      "name": "@types/sha1",
-      "allowedCategories": [ "libraries" ]
     },
     {
       "name": "@types/sinon",
@@ -421,10 +425,6 @@
     {
       "name": "saucelabs",
       "allowedCategories": [ "trackers" ]
-    },
-    {
-      "name": "sha1",
-      "allowedCategories": [ "libraries" ]
     },
     {
       "name": "sinon",
