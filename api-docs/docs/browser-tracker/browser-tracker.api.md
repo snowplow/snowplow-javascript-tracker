@@ -15,10 +15,21 @@ export type ActivityCallbackData = {
     minYOffset: number;
     maxXOffset: number;
     maxYOffset: number;
+    activityMetrics?: ActivityMetrics;
+};
+
+// @public
+export type ActivityMetrics = {
+    mouseDistance: number;
+    scrollDistance: number;
+    keyPresses: number;
+    clicks: number;
+    touches: number;
 };
 
 // @public
 export interface ActivityTrackingConfiguration {
+    extendedActivityTracking?: boolean;
     heartbeatDelay: number;
     minimumVisitLength: number;
 }
