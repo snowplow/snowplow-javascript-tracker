@@ -35,6 +35,7 @@ import {
   PageViewEvent,
   ActivityCallback,
   ActivityCallbackData,
+  ActivityMetrics,
   TrackerConfiguration,
   BrowserTracker,
   ActivityTrackingConfiguration,
@@ -65,7 +66,13 @@ import {
   emptyIdCookie,
   eventIndexFromIdCookie,
 } from './id_cookie';
-import { CLIENT_SESSION_SCHEMA, WEB_PAGE_SCHEMA, BROWSER_CONTEXT_SCHEMA, APPLICATION_CONTEXT_SCHEMA } from './schemata';
+import {
+  CLIENT_SESSION_SCHEMA,
+  WEB_PAGE_SCHEMA,
+  BROWSER_CONTEXT_SCHEMA,
+  APPLICATION_CONTEXT_SCHEMA,
+  ACTIVITY_METRICS_SCHEMA,
+} from './schemata';
 import { getBrowserProperties } from '../helpers/browser_props';
 import { asyncCookieStorage, syncCookieStorage } from './cookie_storage';
 
@@ -264,6 +271,13 @@ export function Tracker(
       maxXOffset: number,
       minYOffset: number,
       maxYOffset: number,
+      // Extended activity tracking
+      extendedActivityTrackingEnabled = false,
+      extMetrics: ActivityMetrics = { mouseDistance: 0, scrollDistance: 0, keyPresses: 0, clicks: 0, touches: 0 },
+      extLastMouseX: number | undefined = undefined,
+      extLastMouseY: number | undefined = undefined,
+      extLastScrollX: number | undefined = undefined,
+      extLastScrollY: number | undefined = undefined,
       // Domain hash value
       domainHash: string,
       // Domain unique user ID
@@ -514,17 +528,66 @@ export function Tracker(
      * Process all "activity" events.
      * For performance, this function must have low overhead.
      */
-    function activityHandler() {
+    function activityHandler(event?: Event) {
       const now = new Date();
       lastActivityTime = now.getTime();
+
+      if (extendedActivityTrackingEnabled && event) {
+        switch (event.type) {
+          case 'mousemove': {
+            const me = event as MouseEvent;
+            if (extLastMouseX !== undefined && extLastMouseY !== undefined) {
+              const dx = me.clientX - extLastMouseX;
+              const dy = me.clientY - extLastMouseY;
+              extMetrics.mouseDistance += Math.sqrt(dx * dx + dy * dy);
+            }
+            extLastMouseX = me.clientX;
+            extLastMouseY = me.clientY;
+            break;
+          }
+          case 'click':
+            extMetrics.clicks++;
+            break;
+          case 'keydown':
+            extMetrics.keyPresses++;
+            break;
+          case 'touchstart':
+            extMetrics.touches++;
+            break;
+          // scroll handled in scrollHandler
+        }
+      }
     }
 
     /*
      * Process all "scroll" events.
      */
     function scrollHandler() {
-      updateMaxScrolls();
       activityHandler();
+
+      const offsets = getPageOffsets();
+
+      const x = offsets[0];
+      if (x < minXOffset) {
+        minXOffset = x;
+      } else if (x > maxXOffset) {
+        maxXOffset = x;
+      }
+
+      const y = offsets[1];
+      if (y < minYOffset) {
+        minYOffset = y;
+      } else if (y > maxYOffset) {
+        maxYOffset = y;
+      }
+
+      if (extendedActivityTrackingEnabled) {
+        if (extLastScrollX !== undefined && extLastScrollY !== undefined) {
+          extMetrics.scrollDistance += Math.abs(x - extLastScrollX) + Math.abs(y - extLastScrollY);
+        }
+        extLastScrollX = x;
+        extLastScrollY = y;
+      }
     }
 
     /*
@@ -555,24 +618,31 @@ export function Tracker(
     }
 
     /*
-     * Check the max scroll levels, updating as necessary
+     * Reset extended activity metric accumulators
      */
-    function updateMaxScrolls() {
-      const offsets = getPageOffsets();
+    function resetExtendedActivityMetrics() {
+      extMetrics = { mouseDistance: 0, scrollDistance: 0, keyPresses: 0, clicks: 0, touches: 0 };
+    }
 
-      const x = offsets[0];
-      if (x < minXOffset) {
-        minXOffset = x;
-      } else if (x > maxXOffset) {
-        maxXOffset = x;
-      }
+    /*
+     * Reset extended activity position trackers (e.g. on new page view)
+     */
+    function resetExtendedActivityPositions() {
+      extLastMouseX = undefined;
+      extLastMouseY = undefined;
+      extLastScrollX = undefined;
+      extLastScrollY = undefined;
+    }
 
-      const y = offsets[1];
-      if (y < minYOffset) {
-        minYOffset = y;
-      } else if (y > maxYOffset) {
-        maxYOffset = y;
-      }
+    /*
+     * Return a snapshot of current activity metrics
+     */
+    function getActivityMetrics(): ActivityMetrics {
+      return {
+        ...extMetrics,
+        mouseDistance: Math.round(extMetrics.mouseDistance),
+        scrollDistance: Math.round(extMetrics.scrollDistance),
+      };
     }
 
     /*
@@ -1098,6 +1168,8 @@ export function Tracker(
 
         // Capture our initial scroll points
         resetMaxScrolls();
+        resetExtendedActivityMetrics();
+        resetExtendedActivityPositions();
 
         // Add event handlers; cross-browser compatibility here varies significantly
         // @see http://quirksmode.org/dom/events
@@ -1126,6 +1198,8 @@ export function Tracker(
       if (activityTrackingConfig.enabled && (resetActivityTrackingOnPageView || installingActivityTracking)) {
         // Periodic check for activity.
         lastActivityTime = now.getTime();
+        resetExtendedActivityMetrics();
+        resetExtendedActivityPositions();
 
         let key: keyof ActivityConfigurations;
         for (key in activityTrackingConfig.configurations) {
@@ -1147,8 +1221,16 @@ export function Tracker(
     ) {
       const executePagePing = (cb: ActivityCallback, context: Array<SelfDescribingJson>) => {
         refreshUrl();
-        cb({ context, pageViewId: getPageViewId(), minXOffset, minYOffset, maxXOffset, maxYOffset });
+        let activityMetrics: ActivityMetrics | undefined;
+        if (extendedActivityTrackingEnabled) {
+          activityMetrics = getActivityMetrics();
+          context = context.concat([{ schema: ACTIVITY_METRICS_SCHEMA, data: activityMetrics }]);
+        }
+        cb({ context, pageViewId: getPageViewId(), minXOffset, minYOffset, maxXOffset, maxYOffset, activityMetrics });
         resetMaxScrolls();
+        if (extendedActivityTrackingEnabled) {
+          resetExtendedActivityMetrics();
+        }
       };
 
       const timeout = () => {
@@ -1188,6 +1270,9 @@ export function Tracker(
     ): ActivityConfig | undefined {
       const { minimumVisitLength, heartbeatDelay, callback } = configuration;
       if (isInteger(minimumVisitLength) && isInteger(heartbeatDelay)) {
+        if (configuration.extendedActivityTracking) {
+          extendedActivityTrackingEnabled = true;
+        }
         return {
           configMinimumVisitLength: minimumVisitLength * 1000,
           configHeartBeatTimer: heartbeatDelay * 1000,
@@ -1232,6 +1317,12 @@ export function Tracker(
       }
 
       activityTrackingConfig.configurations[actionKey] = undefined;
+
+      if (!activityTrackingConfig.configurations.pagePing && !activityTrackingConfig.configurations.callback) {
+        extendedActivityTrackingEnabled = false;
+        resetExtendedActivityMetrics();
+        resetExtendedActivityPositions();
+      }
     }
 
     const apiMethods = {
