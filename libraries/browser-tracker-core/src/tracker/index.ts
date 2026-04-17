@@ -95,6 +95,8 @@ type ActivityConfig = {
   configHeartBeatTimer: number;
   /** The setInterval identifier */
   activityInterval?: number;
+  /** Whether activity metrics tracking is enabled for this configuration */
+  activityMetrics?: boolean;
 };
 
 /** The configurations for the two types of Activity Tracking */
@@ -271,13 +273,14 @@ export function Tracker(
       maxXOffset: number,
       minYOffset: number,
       maxYOffset: number,
-      // Extended activity tracking
-      extendedActivityTrackingEnabled = false,
-      extMetrics: ActivityMetrics = { mouseDistance: 0, scrollDistance: 0, keyPresses: 0, clicks: 0, touches: 0 },
-      extLastMouseX: number | undefined = undefined,
-      extLastMouseY: number | undefined = undefined,
-      extLastScrollX: number | undefined = undefined,
-      extLastScrollY: number | undefined = undefined,
+      // Activity metrics tracking state
+      activityMetricsState = {
+        metrics: { mouseDistance: 0, scrollDistance: 0, keyPresses: 0, clicks: 0, touches: 0 } as ActivityMetrics,
+        lastMouseX: undefined as number | undefined,
+        lastMouseY: undefined as number | undefined,
+        lastScrollX: undefined as number | undefined,
+        lastScrollY: undefined as number | undefined,
+      },
       // Domain hash value
       domainHash: string,
       // Domain unique user ID
@@ -532,27 +535,27 @@ export function Tracker(
       const now = new Date();
       lastActivityTime = now.getTime();
 
-      if (extendedActivityTrackingEnabled && event) {
+      if (isActivityMetricsEnabled() && event) {
         switch (event.type) {
           case 'mousemove': {
             const me = event as MouseEvent;
-            if (extLastMouseX !== undefined && extLastMouseY !== undefined) {
-              const dx = me.clientX - extLastMouseX;
-              const dy = me.clientY - extLastMouseY;
-              extMetrics.mouseDistance += Math.sqrt(dx * dx + dy * dy);
+            if (activityMetricsState.lastMouseX !== undefined && activityMetricsState.lastMouseY !== undefined) {
+              const dx = me.clientX - activityMetricsState.lastMouseX;
+              const dy = me.clientY - activityMetricsState.lastMouseY;
+              activityMetricsState.metrics.mouseDistance += Math.sqrt(dx * dx + dy * dy);
             }
-            extLastMouseX = me.clientX;
-            extLastMouseY = me.clientY;
+            activityMetricsState.lastMouseX = me.clientX;
+            activityMetricsState.lastMouseY = me.clientY;
             break;
           }
           case 'click':
-            extMetrics.clicks++;
+            activityMetricsState.metrics.clicks++;
             break;
           case 'keydown':
-            extMetrics.keyPresses++;
+            activityMetricsState.metrics.keyPresses++;
             break;
           case 'touchstart':
-            extMetrics.touches++;
+            activityMetricsState.metrics.touches++;
             break;
           // scroll handled in scrollHandler
         }
@@ -581,12 +584,12 @@ export function Tracker(
         maxYOffset = y;
       }
 
-      if (extendedActivityTrackingEnabled) {
-        if (extLastScrollX !== undefined && extLastScrollY !== undefined) {
-          extMetrics.scrollDistance += Math.abs(x - extLastScrollX) + Math.abs(y - extLastScrollY);
+      if (isActivityMetricsEnabled()) {
+        if (activityMetricsState.lastScrollX !== undefined && activityMetricsState.lastScrollY !== undefined) {
+          activityMetricsState.metrics.scrollDistance += Math.abs(x - activityMetricsState.lastScrollX) + Math.abs(y - activityMetricsState.lastScrollY);
         }
-        extLastScrollX = x;
-        extLastScrollY = y;
+        activityMetricsState.lastScrollX = x;
+        activityMetricsState.lastScrollY = y;
       }
     }
 
@@ -618,20 +621,24 @@ export function Tracker(
     }
 
     /*
-     * Reset extended activity metric accumulators
+     * Whether activity metrics tracking is enabled for any active configuration
      */
-    function resetExtendedActivityMetrics() {
-      extMetrics = { mouseDistance: 0, scrollDistance: 0, keyPresses: 0, clicks: 0, touches: 0 };
+    function isActivityMetricsEnabled(): boolean {
+      return !!(
+        activityTrackingConfig.configurations.pagePing?.activityMetrics ||
+        activityTrackingConfig.configurations.callback?.activityMetrics
+      );
     }
 
     /*
-     * Reset extended activity position trackers (e.g. on new page view)
+     * Reset activity metrics accumulators and position trackers
      */
-    function resetExtendedActivityPositions() {
-      extLastMouseX = undefined;
-      extLastMouseY = undefined;
-      extLastScrollX = undefined;
-      extLastScrollY = undefined;
+    function resetActivityMetricsState() {
+      activityMetricsState.metrics = { mouseDistance: 0, scrollDistance: 0, keyPresses: 0, clicks: 0, touches: 0 };
+      activityMetricsState.lastMouseX = undefined;
+      activityMetricsState.lastMouseY = undefined;
+      activityMetricsState.lastScrollX = undefined;
+      activityMetricsState.lastScrollY = undefined;
     }
 
     /*
@@ -639,9 +646,9 @@ export function Tracker(
      */
     function getActivityMetrics(): ActivityMetrics {
       return {
-        ...extMetrics,
-        mouseDistance: Math.round(extMetrics.mouseDistance),
-        scrollDistance: Math.round(extMetrics.scrollDistance),
+        ...activityMetricsState.metrics,
+        mouseDistance: Math.round(activityMetricsState.metrics.mouseDistance),
+        scrollDistance: Math.round(activityMetricsState.metrics.scrollDistance),
       };
     }
 
@@ -1168,8 +1175,7 @@ export function Tracker(
 
         // Capture our initial scroll points
         resetMaxScrolls();
-        resetExtendedActivityMetrics();
-        resetExtendedActivityPositions();
+        resetActivityMetricsState();
 
         // Add event handlers; cross-browser compatibility here varies significantly
         // @see http://quirksmode.org/dom/events
@@ -1198,8 +1204,7 @@ export function Tracker(
       if (activityTrackingConfig.enabled && (resetActivityTrackingOnPageView || installingActivityTracking)) {
         // Periodic check for activity.
         lastActivityTime = now.getTime();
-        resetExtendedActivityMetrics();
-        resetExtendedActivityPositions();
+        resetActivityMetricsState();
 
         let key: keyof ActivityConfigurations;
         for (key in activityTrackingConfig.configurations) {
@@ -1222,14 +1227,14 @@ export function Tracker(
       const executePagePing = (cb: ActivityCallback, context: Array<SelfDescribingJson>) => {
         refreshUrl();
         let activityMetrics: ActivityMetrics | undefined;
-        if (extendedActivityTrackingEnabled) {
+        if (isActivityMetricsEnabled()) {
           activityMetrics = getActivityMetrics();
           context = context.concat([{ schema: ACTIVITY_METRICS_SCHEMA, data: activityMetrics }]);
         }
         cb({ context, pageViewId: getPageViewId(), minXOffset, minYOffset, maxXOffset, maxYOffset, activityMetrics });
         resetMaxScrolls();
-        if (extendedActivityTrackingEnabled) {
-          resetExtendedActivityMetrics();
+        if (isActivityMetricsEnabled()) {
+          resetActivityMetricsState();
         }
       };
 
@@ -1270,13 +1275,11 @@ export function Tracker(
     ): ActivityConfig | undefined {
       const { minimumVisitLength, heartbeatDelay, callback } = configuration;
       if (isInteger(minimumVisitLength) && isInteger(heartbeatDelay)) {
-        if (configuration.extendedActivityTracking) {
-          extendedActivityTrackingEnabled = true;
-        }
         return {
           configMinimumVisitLength: minimumVisitLength * 1000,
           configHeartBeatTimer: heartbeatDelay * 1000,
           callback,
+          activityMetrics: configuration.activityMetrics,
         };
       }
 
@@ -1319,9 +1322,7 @@ export function Tracker(
       activityTrackingConfig.configurations[actionKey] = undefined;
 
       if (!activityTrackingConfig.configurations.pagePing && !activityTrackingConfig.configurations.callback) {
-        extendedActivityTrackingEnabled = false;
-        resetExtendedActivityMetrics();
-        resetExtendedActivityPositions();
+        resetActivityMetricsState();
       }
     }
 

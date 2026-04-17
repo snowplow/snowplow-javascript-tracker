@@ -29,7 +29,7 @@ export type ActivityMetrics = {
 
 // @public
 export interface ActivityTrackingConfiguration {
-    extendedActivityTracking?: boolean;
+    activityMetrics?: boolean;
     heartbeatDelay: number;
     minimumVisitLength: number;
 }

@@ -227,7 +227,7 @@ export type ActivityCallbackData = {
   maxXOffset: number;
   /** The maximum Y scroll position for the current page view */
   maxYOffset: number;
-  /** Extended activity metrics accumulated since the last ping (only when extendedActivityTracking is enabled) */
+  /** Activity metrics accumulated since the last ping (only when activityMetrics is enabled) */
   activityMetrics?: ActivityMetrics;
 };
 
@@ -236,7 +236,7 @@ export type ActivityCallback = (data: ActivityCallbackData) => void;
 
 /**
  * Quantitative activity metrics accumulated between page pings.
- * Attached as a context entity when extended activity tracking is enabled.
+ * Attached as a context entity when activityMetrics is enabled.
  */
 export type ActivityMetrics = {
   /** Cumulative Euclidean mouse distance in pixels from mousemove events */
@@ -259,8 +259,8 @@ export interface ActivityTrackingConfiguration {
   minimumVisitLength: number;
   /** The interval at which the callback will be fired */
   heartbeatDelay: number;
-  /** Enable extended activity tracking to attach an activity_metrics entity to each page ping */
-  extendedActivityTracking?: boolean;
+  /** Enable activity metrics to attach an activity_metrics entity to each page ping */
+  activityMetrics?: boolean;
 }
 
 /**

@@ -4,7 +4,7 @@ import { ActivityCallbackData } from '../../src';
 
 jest.useFakeTimers();
 
-describe('Extended activity tracking', () => {
+describe('Activity metrics', () => {
   const ACTIVITY_METRICS_SCHEMA = 'iglu:com.snowplowanalytics.snowplow/activity_metrics/jsonschema/1-0-0';
 
   beforeAll(() => {
@@ -59,7 +59,7 @@ describe('Extended activity tracking', () => {
     tracker.enableActivityTracking({
       minimumVisitLength: 0,
       heartbeatDelay: 10,
-      extendedActivityTracking: true,
+      activityMetrics: true,
     });
     tracker.trackPageView();
 
@@ -96,7 +96,7 @@ describe('Extended activity tracking', () => {
     tracker.enableActivityTracking({
       minimumVisitLength: 0,
       heartbeatDelay: 10,
-      extendedActivityTracking: true,
+      activityMetrics: true,
     });
     tracker.trackPageView();
 
@@ -122,7 +122,7 @@ describe('Extended activity tracking', () => {
     expect(data2.clicks).toBe(1);
   });
 
-  it('does not attach entity when extendedActivityTracking is not set', () => {
+  it('does not attach entity when activityMetrics is not set', () => {
     const { tracker, payloads } = getTrackedPayloads();
     tracker.enableActivityTracking({
       minimumVisitLength: 0,
@@ -145,7 +145,7 @@ describe('Extended activity tracking', () => {
     tracker.enableActivityTracking({
       minimumVisitLength: 0,
       heartbeatDelay: 10,
-      extendedActivityTracking: true,
+      activityMetrics: true,
     });
     tracker.trackPageView();
 
@@ -178,7 +178,7 @@ describe('Extended activity tracking', () => {
     tracker!.enableActivityTrackingCallback({
       minimumVisitLength: 0,
       heartbeatDelay: 10,
-      extendedActivityTracking: true,
+      activityMetrics: true,
       callback: (data) => {
         callbackData = data;
       },
@@ -197,7 +197,7 @@ describe('Extended activity tracking', () => {
     tracker.enableActivityTracking({
       minimumVisitLength: 0,
       heartbeatDelay: 10,
-      extendedActivityTracking: true,
+      activityMetrics: true,
     });
     tracker.trackPageView();
 
@@ -227,7 +227,7 @@ describe('Extended activity tracking', () => {
     tracker.enableActivityTracking({
       minimumVisitLength: 0,
       heartbeatDelay: 10,
-      extendedActivityTracking: true,
+      activityMetrics: true,
     });
     tracker.trackPageView();
 
@@ -249,7 +249,7 @@ describe('Extended activity tracking', () => {
     tracker.enableActivityTracking({
       minimumVisitLength: 0,
       heartbeatDelay: 10,
-      extendedActivityTracking: true,
+      activityMetrics: true,
     });
     tracker.trackPageView();
 
@@ -270,5 +270,66 @@ describe('Extended activity tracking', () => {
     expect(data.keyPresses).toBe(0);
     expect(data.touches).toBe(0);
     expect(data.scrollDistance).toBe(0);
+  });
+
+  it('attaches activity_metrics entity to callback context when using activityMetrics', () => {
+    let callbackData: ActivityCallbackData | undefined;
+    const tracker = createTracker({
+      plugins: [{ afterTrack: () => {} }],
+    });
+
+    tracker!.enableActivityTrackingCallback({
+      minimumVisitLength: 0,
+      heartbeatDelay: 10,
+      activityMetrics: true,
+      callback: (data) => {
+        callbackData = data;
+      },
+    });
+    tracker!.trackPageView();
+
+    jest.advanceTimersByTime(1000);
+    document.dispatchEvent(new MouseEvent('click'));
+    document.dispatchEvent(new MouseEvent('click'));
+    jest.advanceTimersByTime(9000);
+
+    expect(callbackData).toBeDefined();
+    const metricsEntity = callbackData!.context.find(
+      (e) => e.schema === ACTIVITY_METRICS_SCHEMA
+    );
+    expect(metricsEntity).toBeDefined();
+    expect((metricsEntity!.data as Record<string, number>).clicks).toBe(2);
+  });
+
+  it('does not overcount mouse distance across ping windows', () => {
+    let callbackData: ActivityCallbackData[] = [];
+    const tracker = createTracker({
+      plugins: [{ afterTrack: () => {} }],
+    });
+
+    tracker!.enableActivityTrackingCallback({
+      minimumVisitLength: 0,
+      heartbeatDelay: 10,
+      activityMetrics: true,
+      callback: (data) => {
+        callbackData.push(data);
+      },
+    });
+    tracker!.trackPageView();
+
+    // First window: move from 0 to 10
+    jest.advanceTimersByTime(1000);
+    document.dispatchEvent(new MouseEvent('mousemove', { clientX: 0, clientY: 0 }));
+    document.dispatchEvent(new MouseEvent('mousemove', { clientX: 10, clientY: 0 }));
+    jest.advanceTimersByTime(9000);
+
+    // Second window: single move to 20 — after position reset, this sets baseline only
+    jest.advanceTimersByTime(1000);
+    document.dispatchEvent(new MouseEvent('mousemove', { clientX: 20, clientY: 0 }));
+    jest.advanceTimersByTime(9000);
+
+    expect(callbackData.length).toBe(2);
+    expect(callbackData[0].activityMetrics!.mouseDistance).toBe(10);
+    expect(callbackData[1].activityMetrics!.mouseDistance).toBe(0);
   });
 });
