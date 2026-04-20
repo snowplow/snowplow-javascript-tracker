@@ -6,6 +6,11 @@ jobs:
   check:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+
     env:
       BROWSERSLIST_IGNORE_OLD_DATA: true
 
