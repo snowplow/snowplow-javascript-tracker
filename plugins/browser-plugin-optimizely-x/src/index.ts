@@ -48,7 +48,7 @@ declare global {
 }
 
 /**
- * Adds Opimizely X context to events
+ * Adds Optimizely X context to events
  */
 export function OptimizelyXPlugin(): BrowserPlugin {
   /**
@@ -66,24 +66,32 @@ export function OptimizelyXPlugin(): BrowserPlugin {
   }
 
   /**
-   * Get data for OptimizelyX contexts - active experiments on current page
+   * Get data for OptimizelyX contexts - active campaigns on current page.
+   * Uses getCampaignStates() instead of getActiveExperimentIds() to correctly
+   * capture campaignId (layerId) for both Web Experimentation and Personalization
+   * campaigns. For Personalization campaigns, experimentId will reflect the
+   * experience ID (the sub-unit within the campaign).
    *
-   * @returns Array content of lite optimizely lite context
+   * @returns Array content of optimizely summary context
    */
   function getOptimizelyXSummary(): OptimizelyxSummary[] {
     const state = getOptimizelyXData('state');
-    if (state == null) return [];
-    var experiment_ids = state.getActiveExperimentIds() || [];
-    var variationMap = state.getVariationMap();
-    var visitor = getOptimizelyXData('visitor');
+    if (state == null || typeof state.getCampaignStates !== 'function') return [];
 
-    return experiment_ids.map((activeExperiment: string) => {
-      var variation = variationMap[activeExperiment];
-      var variationName = (variation && variation.name && variation.name.toString()) || null;
-      var variationId = variation && variation.id;
-      var visitorId = (visitor && visitor.visitorId && visitor.visitorId.toString()) || null;
+    const campaignStates = state.getCampaignStates({ isActive: true }) || {};
+    const visitor = getOptimizelyXData('visitor');
+    const visitorId = (visitor && visitor.visitorId && visitor.visitorId.toString()) || null;
+
+    return Object.keys(campaignStates).map((campaignId: string) => {
+      const campaign = campaignStates[campaignId];
+      const experimentId = campaign.experiment && campaign.experiment.id;
+      const variationId = campaign.variation && campaign.variation.id;
+      const variationName =
+        (campaign.variation && campaign.variation.name && campaign.variation.name.toString()) || null;
+
       return {
-        experimentId: parseAndValidateInt(activeExperiment) || null,
+        campaignId: parseAndValidateInt(campaignId) || null,
+        experimentId: parseAndValidateInt(experimentId) || null,
         variationName: variationName,
         variation: parseAndValidateInt(variationId) || null,
         visitorId: visitorId,
@@ -100,7 +108,7 @@ export function OptimizelyXPlugin(): BrowserPlugin {
   function getOptimizelyXSummaryContexts() {
     return getOptimizelyXSummary().map(function (experiment) {
       return {
-        schema: 'iglu:com.optimizely.optimizelyx/summary/jsonschema/1-0-0',
+        schema: 'iglu:com.optimizely.optimizelyx/summary/jsonschema/1-1-0',
         data: experiment,
       };
     });
