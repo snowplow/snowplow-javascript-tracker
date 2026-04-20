@@ -76,7 +76,7 @@ export function OptimizelyXPlugin(): BrowserPlugin {
    */
   function getOptimizelyXSummary(): OptimizelyxSummary[] {
     const state = getOptimizelyXData('state');
-    if (state == null) return [];
+    if (state == null || typeof state.getCampaignStates !== 'function') return [];
 
     const campaignStates = state.getCampaignStates({ isActive: true }) || {};
     const visitor = getOptimizelyXData('visitor');
