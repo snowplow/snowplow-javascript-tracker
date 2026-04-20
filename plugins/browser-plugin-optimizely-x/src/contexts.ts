@@ -32,7 +32,7 @@
  * Schema for an Optimizely X summary context
  */
 export interface OptimizelyxSummary {
-  campaignId?: number | null;    // added: captures the Personalization campaign layerId
+  campaignId?: number | null;
   experimentId?: number | null;
   variationName?: string | null;
   variation?: number | null;
