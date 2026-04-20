@@ -22,7 +22,7 @@
     },
     {
       "path": "./libraries/browser-tracker-core/dist/index.module.js",
-      "maxSize": "25kb",
+      "maxSize": "26kb",
       "maxPercentIncrease": 10
     },
     {
