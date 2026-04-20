@@ -60,6 +60,7 @@ jobs:
         run: api-extractor run
 
       - name: Check bundle size using bundlemon
+        if: github.event.pull_request.head.repo.full_name == github.repository
         run: npx bundlemon@3
         env:
           BUNDLEMON_PROJECT_ID: 69e5e44cf67d5035af9fd1c0

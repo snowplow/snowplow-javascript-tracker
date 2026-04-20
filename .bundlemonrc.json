@@ -31,5 +31,5 @@
       "maxPercentIncrease": 10
     }
   ],
-  "reportOutput": ["github"]
+  "reportOutput": []
 }
