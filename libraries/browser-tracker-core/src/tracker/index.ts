@@ -35,6 +35,7 @@ import {
   PageViewEvent,
   ActivityCallback,
   ActivityCallbackData,
+  ActivityMetrics,
   TrackerConfiguration,
   BrowserTracker,
   ActivityTrackingConfiguration,
@@ -65,7 +66,13 @@ import {
   emptyIdCookie,
   eventIndexFromIdCookie,
 } from './id_cookie';
-import { CLIENT_SESSION_SCHEMA, WEB_PAGE_SCHEMA, BROWSER_CONTEXT_SCHEMA, APPLICATION_CONTEXT_SCHEMA } from './schemata';
+import {
+  CLIENT_SESSION_SCHEMA,
+  WEB_PAGE_SCHEMA,
+  BROWSER_CONTEXT_SCHEMA,
+  APPLICATION_CONTEXT_SCHEMA,
+  ACTIVITY_METRICS_SCHEMA,
+} from './schemata';
 import { getBrowserProperties } from '../helpers/browser_props';
 import { asyncCookieStorage, syncCookieStorage } from './cookie_storage';
 
@@ -88,6 +95,8 @@ type ActivityConfig = {
   configHeartBeatTimer: number;
   /** The setInterval identifier */
   activityInterval?: number;
+  /** Whether activity metrics tracking is enabled for this configuration */
+  activityMetrics?: boolean;
 };
 
 /** The configurations for the two types of Activity Tracking */
@@ -264,6 +273,14 @@ export function Tracker(
       maxXOffset: number,
       minYOffset: number,
       maxYOffset: number,
+      // Activity metrics tracking state
+      activityMetricsState = {
+        metrics: { mouseDistance: 0, scrollDistance: 0, keyPresses: 0, clicks: 0, touches: 0 } as ActivityMetrics,
+        lastMouseX: undefined as number | undefined,
+        lastMouseY: undefined as number | undefined,
+        lastScrollX: undefined as number | undefined,
+        lastScrollY: undefined as number | undefined,
+      },
       // Domain hash value
       domainHash: string,
       // Domain unique user ID
@@ -514,17 +531,66 @@ export function Tracker(
      * Process all "activity" events.
      * For performance, this function must have low overhead.
      */
-    function activityHandler() {
+    function activityHandler(event?: Event) {
       const now = new Date();
       lastActivityTime = now.getTime();
+
+      if (isActivityMetricsEnabled() && event) {
+        switch (event.type) {
+          case 'mousemove': {
+            const me = event as MouseEvent;
+            if (activityMetricsState.lastMouseX !== undefined && activityMetricsState.lastMouseY !== undefined) {
+              const dx = me.clientX - activityMetricsState.lastMouseX;
+              const dy = me.clientY - activityMetricsState.lastMouseY;
+              activityMetricsState.metrics.mouseDistance += Math.sqrt(dx * dx + dy * dy);
+            }
+            activityMetricsState.lastMouseX = me.clientX;
+            activityMetricsState.lastMouseY = me.clientY;
+            break;
+          }
+          case 'click':
+            activityMetricsState.metrics.clicks++;
+            break;
+          case 'keydown':
+            activityMetricsState.metrics.keyPresses++;
+            break;
+          case 'touchstart':
+            activityMetricsState.metrics.touches++;
+            break;
+          // scroll handled in scrollHandler
+        }
+      }
     }
 
     /*
      * Process all "scroll" events.
      */
     function scrollHandler() {
-      updateMaxScrolls();
       activityHandler();
+
+      const offsets = getPageOffsets();
+
+      const x = offsets[0];
+      if (x < minXOffset) {
+        minXOffset = x;
+      } else if (x > maxXOffset) {
+        maxXOffset = x;
+      }
+
+      const y = offsets[1];
+      if (y < minYOffset) {
+        minYOffset = y;
+      } else if (y > maxYOffset) {
+        maxYOffset = y;
+      }
+
+      if (isActivityMetricsEnabled()) {
+        if (activityMetricsState.lastScrollX !== undefined && activityMetricsState.lastScrollY !== undefined) {
+          activityMetricsState.metrics.scrollDistance += Math.abs(x - activityMetricsState.lastScrollX) + Math.abs(y - activityMetricsState.lastScrollY);
+        }
+        activityMetricsState.lastScrollX = x;
+        activityMetricsState.lastScrollY = y;
+      }
     }
 
     /*
@@ -555,24 +621,35 @@ export function Tracker(
     }
 
     /*
-     * Check the max scroll levels, updating as necessary
+     * Whether activity metrics tracking is enabled for any active configuration
      */
-    function updateMaxScrolls() {
-      const offsets = getPageOffsets();
+    function isActivityMetricsEnabled(): boolean {
+      return !!(
+        activityTrackingConfig.configurations.pagePing?.activityMetrics ||
+        activityTrackingConfig.configurations.callback?.activityMetrics
+      );
+    }
 
-      const x = offsets[0];
-      if (x < minXOffset) {
-        minXOffset = x;
-      } else if (x > maxXOffset) {
-        maxXOffset = x;
-      }
+    /*
+     * Reset activity metrics accumulators and position trackers
+     */
+    function resetActivityMetricsState() {
+      activityMetricsState.metrics = { mouseDistance: 0, scrollDistance: 0, keyPresses: 0, clicks: 0, touches: 0 };
+      activityMetricsState.lastMouseX = undefined;
+      activityMetricsState.lastMouseY = undefined;
+      activityMetricsState.lastScrollX = undefined;
+      activityMetricsState.lastScrollY = undefined;
+    }
 
-      const y = offsets[1];
-      if (y < minYOffset) {
-        minYOffset = y;
-      } else if (y > maxYOffset) {
-        maxYOffset = y;
-      }
+    /*
+     * Return a snapshot of current activity metrics
+     */
+    function getActivityMetrics(): ActivityMetrics {
+      return {
+        ...activityMetricsState.metrics,
+        mouseDistance: Math.round(activityMetricsState.metrics.mouseDistance),
+        scrollDistance: Math.round(activityMetricsState.metrics.scrollDistance),
+      };
     }
 
     /*
@@ -1098,6 +1175,7 @@ export function Tracker(
 
         // Capture our initial scroll points
         resetMaxScrolls();
+        resetActivityMetricsState();
 
         // Add event handlers; cross-browser compatibility here varies significantly
         // @see http://quirksmode.org/dom/events
@@ -1126,6 +1204,7 @@ export function Tracker(
       if (activityTrackingConfig.enabled && (resetActivityTrackingOnPageView || installingActivityTracking)) {
         // Periodic check for activity.
         lastActivityTime = now.getTime();
+        resetActivityMetricsState();
 
         let key: keyof ActivityConfigurations;
         for (key in activityTrackingConfig.configurations) {
@@ -1147,8 +1226,16 @@ export function Tracker(
     ) {
       const executePagePing = (cb: ActivityCallback, context: Array<SelfDescribingJson>) => {
         refreshUrl();
-        cb({ context, pageViewId: getPageViewId(), minXOffset, minYOffset, maxXOffset, maxYOffset });
+        let activityMetrics: ActivityMetrics | undefined;
+        if (isActivityMetricsEnabled()) {
+          activityMetrics = getActivityMetrics();
+          context = context.concat([{ schema: ACTIVITY_METRICS_SCHEMA, data: activityMetrics }]);
+        }
+        cb({ context, pageViewId: getPageViewId(), minXOffset, minYOffset, maxXOffset, maxYOffset, activityMetrics });
         resetMaxScrolls();
+        if (isActivityMetricsEnabled()) {
+          resetActivityMetricsState();
+        }
       };
 
       const timeout = () => {
@@ -1192,6 +1279,7 @@ export function Tracker(
           configMinimumVisitLength: minimumVisitLength * 1000,
           configHeartBeatTimer: heartbeatDelay * 1000,
           callback,
+          activityMetrics: configuration.activityMetrics,
         };
       }
 
@@ -1232,6 +1320,10 @@ export function Tracker(
       }
 
       activityTrackingConfig.configurations[actionKey] = undefined;
+
+      if (!activityTrackingConfig.configurations.pagePing && !activityTrackingConfig.configurations.callback) {
+        resetActivityMetricsState();
+      }
     }
 
     const apiMethods = {
