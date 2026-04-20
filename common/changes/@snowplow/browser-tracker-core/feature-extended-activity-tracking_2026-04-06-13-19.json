@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "comment": "Add opt-in activity metrics tracking with activity_metrics entity",
+      "type": "none",
+      "packageName": "@snowplow/browser-tracker-core"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker-core"
+}
