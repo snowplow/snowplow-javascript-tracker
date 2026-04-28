@@ -2,6 +2,18 @@
   "name": "@snowplow/browser-tracker-core",
   "entries": [
     {
+      "version": "4.8.0",
+      "tag": "@snowplow/browser-tracker-core_v4.8.0",
+      "date": "Tue, 28 Apr 2026 07:56:22 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add opt-in activity metrics tracking with activity_metrics entity"
+          }
+        ]
+      }
+    },
+    {
       "version": "4.7.0",
       "tag": "@snowplow/browser-tracker-core_v4.7.0",
       "date": "Wed, 01 Apr 2026 12:59:29 GMT",

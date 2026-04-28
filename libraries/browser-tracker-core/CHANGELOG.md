@@ -1,6 +1,13 @@
 # Change Log - @snowplow/browser-tracker-core
 
-This log was last generated on Wed, 01 Apr 2026 12:59:29 GMT and should not be manually modified.
+This log was last generated on Tue, 28 Apr 2026 07:56:22 GMT and should not be manually modified.
+
+## 4.8.0
+Tue, 28 Apr 2026 07:56:22 GMT
+
+### Updates
+
+- Add opt-in activity metrics tracking with activity_metrics entity
 
 ## 4.7.0
 Wed, 01 Apr 2026 12:59:29 GMT
