@@ -16,5 +16,6 @@ type ActivityCallbackData = {
     minYOffset: number;
     maxXOffset: number;
     maxYOffset: number;
+    activityMetrics?: ActivityMetrics;
 };
 ```

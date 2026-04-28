@@ -16,6 +16,7 @@ interface ActivityTrackingConfiguration
 
 |  Property | Type | Description |
 |  --- | --- | --- |
+|  [activityMetrics?](./browser-tracker.activitytrackingconfiguration.activitymetrics.md) | boolean | <i>(Optional)</i> Enable activity metrics to attach an activity\_metrics entity to each page ping |
 |  [heartbeatDelay](./browser-tracker.activitytrackingconfiguration.heartbeatdelay.md) | number | The interval at which the callback will be fired |
 |  [minimumVisitLength](./browser-tracker.activitytrackingconfiguration.minimumvisitlength.md) | number | The minimum time that must have elapsed before first heartbeat |
 
