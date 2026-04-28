@@ -2,6 +2,12 @@
   "name": "@snowplow/browser-plugin-geolocation",
   "entries": [
     {
+      "version": "4.8.0",
+      "tag": "@snowplow/browser-plugin-geolocation_v4.8.0",
+      "date": "Tue, 28 Apr 2026 07:54:04 GMT",
+      "comments": {}
+    },
+    {
       "version": "4.7.0",
       "tag": "@snowplow/browser-plugin-geolocation_v4.7.0",
       "date": "Wed, 01 Apr 2026 12:59:29 GMT",
