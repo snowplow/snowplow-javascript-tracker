@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/react-native-tracker",
+      "comment": "Widen @react-native-async-storage/async-storage peer dependency range to ^2.0.0 to support React Native 0.80",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@snowplow/react-native-tracker"
+}
