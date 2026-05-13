@@ -2,6 +2,12 @@
   "name": "@snowplow/browser-plugin-form-tracking",
   "entries": [
     {
+      "version": "4.8.1",
+      "tag": "@snowplow/browser-plugin-form-tracking_v4.8.1",
+      "date": "Wed, 13 May 2026 09:26:05 GMT",
+      "comments": {}
+    },
+    {
       "version": "4.8.0",
       "tag": "@snowplow/browser-plugin-form-tracking_v4.8.0",
       "date": "Tue, 28 Apr 2026 07:56:22 GMT",
