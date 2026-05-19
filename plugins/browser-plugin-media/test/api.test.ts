@@ -316,6 +316,38 @@ describe('Media Tracking API', () => {
       ]);
     });
 
+    it('strips empty string values from optional media player fields', () => {
+      startMediaTracking({
+        id,
+        session: false,
+        player: { label: '', playerType: '', quality: '' },
+      });
+
+      trackMediaPlay({ id });
+
+      const playerContext = eventQueue[0].context[0].data;
+      expect(playerContext).not.toHaveProperty('label');
+      expect(playerContext).not.toHaveProperty('playerType');
+      expect(playerContext).not.toHaveProperty('quality');
+    });
+
+    it('preserves non-empty string values for optional media player fields', () => {
+      startMediaTracking({
+        id,
+        session: false,
+        player: { label: 'My Video', playerType: 'html5', quality: '1080p' },
+      });
+
+      trackMediaPlay({ id });
+
+      const playerContext = eventQueue[0].context[0].data;
+      expect(playerContext).toMatchObject({
+        label: 'My Video',
+        playerType: 'html5',
+        quality: '1080p',
+      });
+    });
+
     it('tracks error event', () => {
       startMediaTracking({ id, session: false });
 

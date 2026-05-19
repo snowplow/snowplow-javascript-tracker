@@ -18,7 +18,7 @@ export function buildMediaPlayerEvent(event: MediaEvent): SelfDescribingJson {
 export function buildMediaPlayerEntity(mediaPlayer: MediaPlayer): SelfDescribingJson {
   return {
     schema: MEDIA_PLAYER_SCHEMA,
-    data: removeEmptyProperties(mediaPlayer),
+    data: removeEmptyProperties(mediaPlayer, { stripEmptyStrings: true }),
   };
 }
 
@@ -47,12 +47,16 @@ export function buildMediaAdBreakEntity(adBreak: MediaAdBreak): SelfDescribingJs
  * Returns a copy of a JSON with undefined and null properties removed
  *
  * @param event - Object to clean
+ * @param options - Optional settings; if stripEmptyStrings is true, empty string values are also removed
  * @returns A cleaned copy of eventJson
  */
-function removeEmptyProperties(event: Record<string, unknown>): Record<string, unknown> {
+function removeEmptyProperties(
+  event: Record<string, unknown>,
+  options?: { stripEmptyStrings?: boolean }
+): Record<string, unknown> {
   const ret: Record<string, unknown> = {};
   for (const k in event) {
-    if (event[k] != null) {
+    if (event[k] != null && (!options?.stripEmptyStrings || event[k] !== '')) {
       ret[k] = event[k];
     }
   }
