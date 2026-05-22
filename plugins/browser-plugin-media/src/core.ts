@@ -16,9 +16,14 @@ export function buildMediaPlayerEvent(event: MediaEvent): SelfDescribingJson {
 }
 
 export function buildMediaPlayerEntity(mediaPlayer: MediaPlayer): SelfDescribingJson {
+  const player = { ...mediaPlayer };
+  if (player.label === '') delete player.label;
+  if (player.playerType === '') delete player.playerType;
+  if (player.quality === '') delete player.quality;
+
   return {
     schema: MEDIA_PLAYER_SCHEMA,
-    data: removeEmptyProperties(mediaPlayer),
+    data: removeEmptyProperties(player),
   };
 }
 
