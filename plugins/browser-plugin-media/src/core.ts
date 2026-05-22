@@ -16,9 +16,14 @@ export function buildMediaPlayerEvent(event: MediaEvent): SelfDescribingJson {
 }
 
 export function buildMediaPlayerEntity(mediaPlayer: MediaPlayer): SelfDescribingJson {
+  const player = { ...mediaPlayer };
+  if (player.label === '') delete player.label;
+  if (player.playerType === '') delete player.playerType;
+  if (player.quality === '') delete player.quality;
+
   return {
     schema: MEDIA_PLAYER_SCHEMA,
-    data: removeEmptyProperties(mediaPlayer),
+    data: removeEmptyProperties(player),
   };
 }
 
@@ -44,7 +49,7 @@ export function buildMediaAdBreakEntity(adBreak: MediaAdBreak): SelfDescribingJs
 }
 
 /**
- * Returns a copy of a JSON with undefined, null, and empty string properties removed
+ * Returns a copy of a JSON with undefined and null properties removed
  *
  * @param event - Object to clean
  * @returns A cleaned copy of eventJson
@@ -52,7 +57,7 @@ export function buildMediaAdBreakEntity(adBreak: MediaAdBreak): SelfDescribingJs
 function removeEmptyProperties(event: Record<string, unknown>): Record<string, unknown> {
   const ret: Record<string, unknown> = {};
   for (const k in event) {
-    if (event[k] != null && event[k] !== '') {
+    if (event[k] != null) {
       ret[k] = event[k];
     }
   }
