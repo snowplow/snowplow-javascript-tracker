@@ -1,6 +1,11 @@
 # Change Log - @snowplow/browser-plugin-youtube-tracking
 
-This log was last generated on Wed, 13 May 2026 09:26:05 GMT and should not be manually modified.
+This log was last generated on Fri, 22 May 2026 12:32:18 GMT and should not be manually modified.
+
+## 4.8.2
+Fri, 22 May 2026 12:32:18 GMT
+
+_Version update only_
 
 ## 4.8.1
 Wed, 13 May 2026 09:26:05 GMT
