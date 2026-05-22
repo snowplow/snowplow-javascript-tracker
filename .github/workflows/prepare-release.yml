@@ -1,0 +1,201 @@
+name: Prepare release PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_branch:
+        description: 'Release branch (must already exist, format: release/X.Y.Z)'
+        required: true
+        type: string
+      dry_run:
+        description: 'Print the planned commit and PR body without pushing or opening a PR'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      BASE_BRANCH: master
+    steps:
+      - name: Validate inputs
+        id: validate
+        run: |
+          set -euo pipefail
+          branch="${{ inputs.release_branch }}"
+          if [[ ! "$branch" =~ ^release/([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+            echo "::error::release_branch must match 'release/X.Y.Z' (got: $branch)"
+            exit 1
+          fi
+          version="${BASH_REMATCH[1]}"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "release_date=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout release branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_branch }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Configure git
+        run: |
+          git config user.name  'snowplow-ci'
+          git config user.email 'ci@snowplowanalytics.com'
+
+      - name: Verify branch state
+        id: state
+        run: |
+          set -euo pipefail
+          version='${{ steps.validate.outputs.version }}'
+
+          git fetch origin "$BASE_BRANCH"
+
+          # Idempotent re-run: if HEAD is already "Prepare for X.Y.Z release",
+          # skip the bump+commit and only refresh the PR body.
+          head_subject="$(git log -1 --pretty=%s)"
+          if [[ "$head_subject" == "Prepare for $version release" ]]; then
+            echo "Branch HEAD is already the prepare-release commit; will skip bump+commit and only refresh the PR."
+            echo "already_prepared=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "already_prepared=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Collect commits since previous release
+        id: commits
+        run: |
+          set -euo pipefail
+          # Previous tag = highest semver tag reachable from BASE_BRANCH.
+          prev_tag="$(git tag --merged "origin/$BASE_BRANCH" | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1 || true)"
+          if [[ -z "$prev_tag" ]]; then
+            echo "::error::Could not determine previous release tag"
+            exit 1
+          fi
+          echo "prev_tag=$prev_tag" >> "$GITHUB_OUTPUT"
+
+          # Commits on the release branch since prev_tag.
+          # Filter out commits the JS publish pipeline creates automatically:
+          # - "Prepare for ..."           (prepare-release commit)
+          # - "Bump versions [skip ci]"   (rush version --bump)
+          # - "Update changelogs [skip ci]" (rush change --apply during publish)
+          # - "Applying documentation updates." (api-docs commit during publish)
+          git log --no-merges "$prev_tag..HEAD" --pretty='%h %s' \
+            | grep -v -E '^[0-9a-f]+ (Prepare for |Bump versions |Update changelogs |Applying documentation updates)' \
+            > commits-raw.txt || true
+          git log --merges "$prev_tag..HEAD" --pretty='%h %s' >> commits-raw.txt || true
+
+          # De-dup by short sha, preserve order
+          awk '!seen[$1]++' commits-raw.txt > commits.txt
+          echo "Commits since $prev_tag:"
+          cat commits.txt
+
+      - name: Annotate commits with author + external flag
+        run: |
+          set -euo pipefail
+          : > commits-annotated.txt
+          while read -r line; do
+            [[ -z "$line" ]] && continue
+            sha="$(echo "$line" | awk '{print $1}')"
+            subject="$(echo "$line" | cut -d' ' -f2-)"
+            pr_num="$(echo "$subject" | grep -oE '#[0-9]+' | head -1 | tr -d '#' || true)"
+            login=""
+            external="false"
+            if [[ -n "$pr_num" ]]; then
+              if json="$(gh api "repos/${{ github.repository }}/pulls/$pr_num" 2>/dev/null)"; then
+                login="$(echo "$json" | jq -r '.user.login // ""')"
+                assoc="$(echo "$json" | jq -r '.author_association // ""')"
+                case "$assoc" in
+                  MEMBER|OWNER|COLLABORATOR) external="false" ;;
+                  *) external="true" ;;
+                esac
+              fi
+            fi
+            echo "$sha $subject -- author=$login external=$external" >> commits-annotated.txt
+          done < commits.txt
+          echo "Annotated commits:"
+          cat commits-annotated.txt
+
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Set nextBump in version-policies.json
+        if: steps.state.outputs.already_prepared == 'false'
+        run: node .github/scripts/prepare-release.js '${{ steps.validate.outputs.version }}'
+
+      - name: Commit "Prepare for release"
+        if: steps.state.outputs.already_prepared == 'false' && inputs.dry_run == false
+        run: |
+          set -euo pipefail
+          git add common/config/rush/version-policies.json
+          # If the script was a no-op (nextBump already correct), skip the commit.
+          if git diff --cached --quiet; then
+            echo "No staged changes; nextBump was already set correctly. Skipping commit."
+          else
+            git commit -m 'Prepare for ${{ steps.validate.outputs.version }} release'
+            git push origin '${{ inputs.release_branch }}'
+          fi
+
+      - name: Show planned changes (dry run)
+        if: inputs.dry_run == true
+        run: |
+          echo "=== Diff that would be committed ==="
+          git --no-pager diff
+          echo "===================================="
+
+      - name: Generate PR body with Claude
+        run: |
+          set -euo pipefail
+          prev_pr_num="$(gh pr list --state merged --search 'Release in:title' --base "$BASE_BRANCH" --limit 1 --json number --jq '.[0].number' || true)"
+          if [[ -n "$prev_pr_num" ]]; then
+            gh pr view "$prev_pr_num" --json body --jq .body > previous-pr-body.txt
+          else
+            echo '(no previous release PR found)' > previous-pr-body.txt
+          fi
+
+          {
+            echo "VERSION: ${{ steps.validate.outputs.version }}"
+            echo ""
+            echo "COMMITS:"
+            cat commits-annotated.txt
+            echo ""
+            echo "PREVIOUS_PR_BODY:"
+            cat previous-pr-body.txt
+            echo ""
+            echo "---"
+            echo "Instructions:"
+            cat .github/scripts/prompts/pr-body.md
+          } > pr-body-prompt.txt
+
+          claude -p --output-format text < pr-body-prompt.txt > pr-body.md
+          echo "=== Generated PR body ==="
+          cat pr-body.md
+          echo "========================="
+
+      - name: Open or update release PR
+        if: inputs.dry_run == false
+        run: |
+          set -euo pipefail
+          version='${{ steps.validate.outputs.version }}'
+          existing="$(gh pr list --head '${{ inputs.release_branch }}' --base "$BASE_BRANCH" --state open --json number --jq '.[0].number' || true)"
+          if [[ -n "$existing" ]]; then
+            gh pr edit "$existing" --title "Release/$version" --body-file pr-body.md
+            echo "Updated existing PR #$existing"
+          else
+            gh pr create \
+              --base "$BASE_BRANCH" \
+              --head '${{ inputs.release_branch }}' \
+              --title "Release/$version" \
+              --body-file pr-body.md
+          fi
