@@ -64,4 +64,12 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           additional_permissions: |
             actions: read
+          # The `implement` label on this issue IS the trigger. Without
+          # this the action looks for `@claude` in the body, finds
+          # nothing, and exits silently.
+          label_trigger: implement
+          # The dispatching issue is authored by the snowplow-claude-review
+          # GitHub App. Without this opt-in the action filters bot-authored
+          # events to prevent recursion.
+          allowed_bots: '*'
           claude_args: '--allowedTools "Bash(gh pr create:*),Bash(gh pr edit:*),Bash(gh issue comment:*),Bash(rush:*),Bash(rushx:*),Bash(pnpm:*),Bash(npx:*)"'
