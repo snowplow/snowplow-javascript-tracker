@@ -8,13 +8,11 @@ name: Claude Code
 # pulls the PR context, makes the requested change on the same branch,
 # and replies inline.
 #
-# Mirrors the equivalent workflow in `signals-monorepo` (and the other
-# Snowplow agent-toolable repos), using the same `snowplow-claude-review`
-# GitHub App.
+# Auth: uses the default `GITHUB_TOKEN` because the
+# `snowplow-claude-review` GitHub App is only installed on
+# `snowplow-incubator`. See the comment in implement.yml for the
+# trade-off.
 #
-# Required secrets (org-inherited from snowplow):
-#   - CLAUDE_REVIEW_APP_ID
-#   - CLAUDE_REVIEW_APP_PRIVATE_KEY
 # Required secrets (repo):
 #   - ANTHROPIC_API_KEY
 
@@ -47,17 +45,9 @@ jobs:
       actions: read
 
     steps:
-      - name: Generate GitHub App token
-        id: app-token
-        uses: actions/create-github-app-token@v2
-        with:
-          app-id: ${{ secrets.CLAUDE_REVIEW_APP_ID }}
-          private-key: ${{ secrets.CLAUDE_REVIEW_APP_PRIVATE_KEY }}
-
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 1
 
       - name: Set up Node
@@ -75,7 +65,7 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          github_token: ${{ steps.app-token.outputs.token }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           additional_permissions: |
             actions: read
           claude_args: '--allowedTools "Bash(gh pr create:*),Bash(gh pr edit:*),Bash(gh issue comment:*),Bash(rush:*),Bash(rushx:*),Bash(pnpm:*),Bash(npx:*)"'

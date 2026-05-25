@@ -10,13 +10,17 @@ name: Implement
 #   - reads the issue title and body as the spec,
 #   - reads CLAUDE.md (including the "Implementing tickets" section),
 #   - implements the change with `rush` for build / lint / test,
-#   - opens a draft PR with `[AISP-XXX]` in the title and `Closes #NNN`
-#     in the body,
+#   - opens a draft PR with `Closes #NNN` in the body,
 #   - replies on the issue with the PR URL.
 #
-# Required secrets (org-inherited from snowplow):
-#   - CLAUDE_REVIEW_APP_ID
-#   - CLAUDE_REVIEW_APP_PRIVATE_KEY
+# Auth: uses the default `GITHUB_TOKEN` because the
+# `snowplow-claude-review` GitHub App is only installed on
+# `snowplow-incubator`. A side-effect: PRs Claude opens here won't
+# auto-trigger downstream CI workflows (GitHub filters bot-authored
+# events from the default token to prevent recursion). If we ever
+# install the App on this org we can swap back to an App-minted token
+# and downstream CI will fire automatically.
+#
 # Required secrets (repo):
 #   - ANTHROPIC_API_KEY
 
@@ -37,19 +41,9 @@ jobs:
       actions: read
 
     steps:
-      - name: Generate GitHub App token
-        id: app-token
-        uses: actions/create-github-app-token@v2
-        with:
-          app-id: ${{ secrets.CLAUDE_REVIEW_APP_ID }}
-          private-key: ${{ secrets.CLAUDE_REVIEW_APP_PRIVATE_KEY }}
-
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # Use the app token so branches/PRs Claude creates trigger downstream
-          # CI (the default GITHUB_TOKEN would suppress those workflows).
-          token: ${{ steps.app-token.outputs.token }}
           fetch-depth: 0
 
       - name: Set up Node
@@ -67,7 +61,7 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          github_token: ${{ steps.app-token.outputs.token }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           additional_permissions: |
             actions: read
           claude_args: '--allowedTools "Bash(gh pr create:*),Bash(gh pr edit:*),Bash(gh issue comment:*),Bash(rush:*),Bash(rushx:*),Bash(pnpm:*),Bash(npx:*)"'
