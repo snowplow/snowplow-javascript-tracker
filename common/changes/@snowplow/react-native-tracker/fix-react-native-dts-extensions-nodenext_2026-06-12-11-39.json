@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Emit .d.ts files with .js extensions for nodenext type resolution by upgrading react-native-builder-bob to 0.42.1",
+      "type": "none",
+      "packageName": "@snowplow/react-native-tracker"
+    }
+  ],
+  "packageName": "@snowplow/react-native-tracker",
+  "email": "matus@snowplowanalytics.com"
+}
