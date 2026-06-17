@@ -2,6 +2,12 @@
   "name": "@snowplow/browser-plugin-event-specifications",
   "entries": [
     {
+      "version": "4.8.2",
+      "tag": "@snowplow/browser-plugin-event-specifications_v4.8.2",
+      "date": "Wed, 17 Jun 2026 12:30:12 GMT",
+      "comments": {}
+    },
+    {
       "version": "4.8.1",
       "tag": "@snowplow/browser-plugin-event-specifications_v4.8.1",
       "date": "Wed, 13 May 2026 09:26:05 GMT",

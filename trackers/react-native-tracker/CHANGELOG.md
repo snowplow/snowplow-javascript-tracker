@@ -1,6 +1,13 @@
 # Change Log - @snowplow/react-native-tracker
 
-This log was last generated on Wed, 13 May 2026 09:26:05 GMT and should not be manually modified.
+This log was last generated on Wed, 17 Jun 2026 12:30:12 GMT and should not be manually modified.
+
+## 4.8.2
+Wed, 17 Jun 2026 12:30:12 GMT
+
+### Updates
+
+- Emit .d.ts files with .js extensions for nodenext type resolution by upgrading react-native-builder-bob to 0.42.1
 
 ## 4.8.1
 Wed, 13 May 2026 09:26:05 GMT

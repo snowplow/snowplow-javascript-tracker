@@ -1,6 +1,13 @@
 # Change Log - @snowplow/browser-plugin-media
 
-This log was last generated on Wed, 13 May 2026 09:26:05 GMT and should not be manually modified.
+This log was last generated on Wed, 17 Jun 2026 12:30:12 GMT and should not be manually modified.
+
+## 4.8.2
+Wed, 17 Jun 2026 12:30:12 GMT
+
+### Updates
+
+- Prevent empty values in media entity
 
 ## 4.8.1
 Wed, 13 May 2026 09:26:05 GMT
