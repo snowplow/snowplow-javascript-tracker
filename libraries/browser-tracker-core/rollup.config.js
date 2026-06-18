@@ -32,7 +32,6 @@ import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import ts from 'rollup-plugin-ts'; // Prefered over @rollup/plugin-typescript as it bundles .d.ts files
 import { banner } from '../../banner';
-import compiler from '@ampproject/rollup-plugin-closure-compiler';
 import { terser } from 'rollup-plugin-terser';
 import cleanup from 'rollup-plugin-cleanup';
 import pkg from './package.json';
@@ -50,7 +49,7 @@ export default [
   },
   {
     input: './src/index.ts',
-    plugins: [...umdPlugins, compiler(), terser(), cleanup({ comments: 'none' }), banner()],
+    plugins: [...umdPlugins, terser(), cleanup({ comments: 'none' }), banner()],
     output: [{ file: pkg.main.replace('.js', '.min.js'), format: 'umd', sourcemap: true, name: umdName }],
   },
   {
