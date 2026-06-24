@@ -31,7 +31,7 @@
 import * as uuid from 'uuid';
 jest.mock('uuid');
 const MOCK_UUID = '123456789';
-jest.spyOn(uuid, 'v4').mockReturnValue(MOCK_UUID);
+(jest.spyOn(uuid, 'v4') as jest.SpyInstance).mockReturnValue(MOCK_UUID);
 
 import { payloadBuilder } from '@snowplow/tracker-core';
 import {
@@ -173,7 +173,7 @@ describe('startNewIdCookieSession', () => {
 
     let before = sessionIdFromIdCookie(idCookie);
 
-    jest.spyOn(uuid, 'v4').mockReturnValueOnce('another_random_uuid');
+    (jest.spyOn(uuid, 'v4') as jest.SpyInstance).mockReturnValueOnce('another_random_uuid');
     startNewIdCookieSession(idCookie);
     let after = sessionIdFromIdCookie(idCookie);
 
