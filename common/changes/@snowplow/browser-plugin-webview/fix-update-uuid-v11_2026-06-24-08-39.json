@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Update uuid to v11 and remove closure-compiler from the build pipeline",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-webview"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-webview",
+  "email": "matus.tomlein@gmail.com"
+}
