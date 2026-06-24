@@ -6,6 +6,5 @@
       "packageName": "@snowplow/browser-plugin-web-vitals"
     }
   ],
-  "packageName": "@snowplow/browser-plugin-web-vitals",
-  "email": "matus.tomlein@gmail.com"
+  "packageName": "@snowplow/browser-plugin-web-vitals"
 }

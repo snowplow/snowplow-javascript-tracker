@@ -6,6 +6,5 @@
       "packageName": "@snowplow/browser-plugin-webview"
     }
   ],
-  "packageName": "@snowplow/browser-plugin-webview",
-  "email": "matus.tomlein@gmail.com"
+  "packageName": "@snowplow/browser-plugin-webview"
 }

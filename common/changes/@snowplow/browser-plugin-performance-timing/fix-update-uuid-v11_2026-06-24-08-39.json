@@ -6,6 +6,5 @@
       "packageName": "@snowplow/browser-plugin-performance-timing"
     }
   ],
-  "packageName": "@snowplow/browser-plugin-performance-timing",
-  "email": "matus.tomlein@gmail.com"
+  "packageName": "@snowplow/browser-plugin-performance-timing"
 }

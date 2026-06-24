@@ -6,6 +6,5 @@
       "packageName": "@snowplow/browser-plugin-snowplow-ecommerce"
     }
   ],
-  "packageName": "@snowplow/browser-plugin-snowplow-ecommerce",
-  "email": "matus.tomlein@gmail.com"
+  "packageName": "@snowplow/browser-plugin-snowplow-ecommerce"
 }

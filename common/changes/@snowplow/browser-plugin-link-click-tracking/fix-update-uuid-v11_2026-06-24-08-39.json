@@ -6,6 +6,5 @@
       "packageName": "@snowplow/browser-plugin-link-click-tracking"
     }
   ],
-  "packageName": "@snowplow/browser-plugin-link-click-tracking",
-  "email": "matus.tomlein@gmail.com"
+  "packageName": "@snowplow/browser-plugin-link-click-tracking"
 }

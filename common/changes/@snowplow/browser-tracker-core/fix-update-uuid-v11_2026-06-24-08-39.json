@@ -6,6 +6,5 @@
       "packageName": "@snowplow/browser-tracker-core"
     }
   ],
-  "packageName": "@snowplow/browser-tracker-core",
-  "email": "matus.tomlein@gmail.com"
+  "packageName": "@snowplow/browser-tracker-core"
 }

@@ -6,6 +6,5 @@
       "packageName": "@snowplow/browser-plugin-event-specifications"
     }
   ],
-  "packageName": "@snowplow/browser-plugin-event-specifications",
-  "email": "matus.tomlein@gmail.com"
+  "packageName": "@snowplow/browser-plugin-event-specifications"
 }

@@ -6,6 +6,5 @@
       "packageName": "@snowplow/browser-plugin-privacy-sandbox"
     }
   ],
-  "packageName": "@snowplow/browser-plugin-privacy-sandbox",
-  "email": "matus.tomlein@gmail.com"
+  "packageName": "@snowplow/browser-plugin-privacy-sandbox"
 }

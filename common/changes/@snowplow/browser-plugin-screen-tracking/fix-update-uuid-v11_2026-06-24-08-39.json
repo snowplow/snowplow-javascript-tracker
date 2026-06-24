@@ -6,6 +6,5 @@
       "packageName": "@snowplow/browser-plugin-screen-tracking"
     }
   ],
-  "packageName": "@snowplow/browser-plugin-screen-tracking",
-  "email": "matus.tomlein@gmail.com"
+  "packageName": "@snowplow/browser-plugin-screen-tracking"
 }

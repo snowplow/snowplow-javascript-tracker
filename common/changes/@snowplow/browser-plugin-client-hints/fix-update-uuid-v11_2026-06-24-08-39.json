@@ -6,6 +6,5 @@
       "packageName": "@snowplow/browser-plugin-client-hints"
     }
   ],
-  "packageName": "@snowplow/browser-plugin-client-hints",
-  "email": "matus.tomlein@gmail.com"
+  "packageName": "@snowplow/browser-plugin-client-hints"
 }

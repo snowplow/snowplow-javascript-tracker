@@ -6,6 +6,5 @@
       "packageName": "@snowplow/browser-plugin-timezone"
     }
   ],
-  "packageName": "@snowplow/browser-plugin-timezone",
-  "email": "matus.tomlein@gmail.com"
+  "packageName": "@snowplow/browser-plugin-timezone"
 }

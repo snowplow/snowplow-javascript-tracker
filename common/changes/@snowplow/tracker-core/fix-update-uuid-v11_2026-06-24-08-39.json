@@ -6,6 +6,5 @@
       "packageName": "@snowplow/tracker-core"
     }
   ],
-  "packageName": "@snowplow/tracker-core",
-  "email": "matus.tomlein@gmail.com"
+  "packageName": "@snowplow/tracker-core"
 }

@@ -6,6 +6,5 @@
       "packageName": "@snowplow/react-native-tracker"
     }
   ],
-  "packageName": "@snowplow/react-native-tracker",
-  "email": "matus.tomlein@gmail.com"
+  "packageName": "@snowplow/react-native-tracker"
 }

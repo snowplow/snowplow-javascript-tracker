@@ -6,6 +6,5 @@
       "packageName": "@snowplow/browser-plugin-bot-detection"
     }
   ],
-  "packageName": "@snowplow/browser-plugin-bot-detection",
-  "email": "matus.tomlein@gmail.com"
+  "packageName": "@snowplow/browser-plugin-bot-detection"
 }

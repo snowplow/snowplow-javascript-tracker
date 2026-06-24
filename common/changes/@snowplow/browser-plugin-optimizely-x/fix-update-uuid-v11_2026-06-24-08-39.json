@@ -6,6 +6,5 @@
       "packageName": "@snowplow/browser-plugin-optimizely-x"
     }
   ],
-  "packageName": "@snowplow/browser-plugin-optimizely-x",
-  "email": "matus.tomlein@gmail.com"
+  "packageName": "@snowplow/browser-plugin-optimizely-x"
 }

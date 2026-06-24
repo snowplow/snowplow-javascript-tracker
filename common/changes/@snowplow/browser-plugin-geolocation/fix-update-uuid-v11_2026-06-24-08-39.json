@@ -6,6 +6,5 @@
       "packageName": "@snowplow/browser-plugin-geolocation"
     }
   ],
-  "packageName": "@snowplow/browser-plugin-geolocation",
-  "email": "matus.tomlein@gmail.com"
+  "packageName": "@snowplow/browser-plugin-geolocation"
 }
