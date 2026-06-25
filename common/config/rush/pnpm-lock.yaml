@@ -19,7 +19,7 @@ importers:
         specifier: ^2.3.1
         version: 2.8.1
       uuid:
-        specifier: ^11.0.0
+        specifier: ^11.1.1
         version: 11.1.1
     devDependencies:
       '@rollup/plugin-commonjs':
@@ -89,7 +89,7 @@ importers:
         specifier: ^2.3.1
         version: 2.8.1
       uuid:
-        specifier: ^11.0.0
+        specifier: ^11.1.1
         version: 11.1.1
     devDependencies:
       '@rollup/plugin-commonjs':
@@ -1203,7 +1203,7 @@ importers:
         specifier: ^2.3.1
         version: 2.8.1
       uuid:
-        specifier: ^11.0.0
+        specifier: ^11.1.1
         version: 11.1.1
     devDependencies:
       '@rollup/plugin-commonjs':
@@ -1276,7 +1276,7 @@ importers:
         specifier: ^2.3.1
         version: 2.8.1
       uuid:
-        specifier: ^11.0.0
+        specifier: ^11.1.1
         version: 11.1.1
     devDependencies:
       '@rollup/plugin-commonjs':
@@ -1614,7 +1614,7 @@ importers:
         specifier: ^2.3.1
         version: 2.8.1
       uuid:
-        specifier: ^11.0.0
+        specifier: ^11.1.1
         version: 11.1.1
     devDependencies:
       '@rollup/plugin-commonjs':
@@ -2131,7 +2131,7 @@ importers:
         specifier: ^2.3.1
         version: 2.8.1
       uuid:
-        specifier: ^11.0.0
+        specifier: ^11.1.1
         version: 11.1.1
     devDependencies:
       '@rollup/plugin-commonjs':
@@ -2549,7 +2549,7 @@ importers:
         specifier: ^2.3.1
         version: 2.8.1
       uuid:
-        specifier: ^11.0.0
+        specifier: ^11.1.1
         version: 11.1.1
     devDependencies:
       '@react-native-async-storage/async-storage':

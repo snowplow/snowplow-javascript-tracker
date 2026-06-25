@@ -54,7 +54,7 @@
     "@snowplow/browser-tracker-core": "workspace:*",
     "@snowplow/browser-plugin-screen-tracking": "workspace:*",
     "tslib": "^2.3.1",
-    "uuid": "^11.0.0"
+    "uuid": "^11.1.1"
   },
   "devDependencies": {
     "@react-native-async-storage/async-storage": "^2.0.0",
