@@ -69,7 +69,6 @@
     "@snowplow/browser-plugin-event-specifications": "workspace:*"
   },
   "devDependencies": {
-    "@ampproject/rollup-plugin-closure-compiler": "~0.27.0",
     "@rollup/plugin-alias": "~3.1.9",
     "@rollup/plugin-commonjs": "~21.0.2",
     "@rollup/plugin-json": "~4.1.0",

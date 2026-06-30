@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "comment": "Update uuid to v11 and remove closure-compiler from the build pipeline",
+      "type": "none",
+      "packageName": "@snowplow/browser-plugin-media-tracking"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-media-tracking"
+}

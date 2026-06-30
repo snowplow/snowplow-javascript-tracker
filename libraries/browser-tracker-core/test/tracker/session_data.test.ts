@@ -31,7 +31,7 @@
 import * as uuid from 'uuid';
 jest.mock('uuid');
 const MOCK_UUID = '123456789';
-jest.spyOn(uuid, 'v4').mockReturnValue(MOCK_UUID);
+(jest.spyOn(uuid, 'v4') as jest.SpyInstance).mockReturnValue(MOCK_UUID);
 
 import { createTestIdCookie, createTestSessionIdCookie, createTracker } from '../helpers';
 
