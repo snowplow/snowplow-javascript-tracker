@@ -2,6 +2,18 @@
   "name": "@snowplow/browser-plugin-form-tracking",
   "entries": [
     {
+      "version": "4.8.3",
+      "tag": "@snowplow/browser-plugin-form-tracking_v4.8.3",
+      "date": "Tue, 30 Jun 2026 14:22:03 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Update uuid to v11 and remove closure-compiler from the build pipeline"
+          }
+        ]
+      }
+    },
+    {
       "version": "4.8.2",
       "tag": "@snowplow/browser-plugin-form-tracking_v4.8.2",
       "date": "Wed, 17 Jun 2026 12:30:12 GMT",

@@ -1,6 +1,11 @@
 # Change Log - @snowplow/node-tracker
 
-This log was last generated on Wed, 17 Jun 2026 12:30:12 GMT and should not be manually modified.
+This log was last generated on Tue, 30 Jun 2026 14:22:03 GMT and should not be manually modified.
+
+## 4.8.3
+Tue, 30 Jun 2026 14:22:03 GMT
+
+_Version update only_
 
 ## 4.8.2
 Wed, 17 Jun 2026 12:30:12 GMT
