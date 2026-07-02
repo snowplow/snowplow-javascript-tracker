@@ -1,6 +1,11 @@
 # Change Log - @snowplow/tracker-core
 
-This log was last generated on Tue, 30 Jun 2026 14:22:03 GMT and should not be manually modified.
+This log was last generated on Thu, 02 Jul 2026 10:07:52 GMT and should not be manually modified.
+
+## 4.8.4
+Thu, 02 Jul 2026 10:07:52 GMT
+
+_Version update only_
 
 ## 4.8.3
 Tue, 30 Jun 2026 14:22:03 GMT

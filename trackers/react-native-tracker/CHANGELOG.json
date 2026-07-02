@@ -2,6 +2,18 @@
   "name": "@snowplow/react-native-tracker",
   "entries": [
     {
+      "version": "4.8.4",
+      "tag": "@snowplow/react-native-tracker_v4.8.4",
+      "date": "Thu, 02 Jul 2026 10:07:52 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Widen react-native-get-random-values peer dependency range to allow v2.0.0 for React Native 0.81+ compatibility"
+          }
+        ]
+      }
+    },
+    {
       "version": "4.8.3",
       "tag": "@snowplow/react-native-tracker_v4.8.3",
       "date": "Tue, 30 Jun 2026 14:22:03 GMT",

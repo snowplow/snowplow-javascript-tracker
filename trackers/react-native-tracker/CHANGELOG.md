@@ -1,6 +1,13 @@
 # Change Log - @snowplow/react-native-tracker
 
-This log was last generated on Tue, 30 Jun 2026 14:22:03 GMT and should not be manually modified.
+This log was last generated on Thu, 02 Jul 2026 10:07:52 GMT and should not be manually modified.
+
+## 4.8.4
+Thu, 02 Jul 2026 10:07:52 GMT
+
+### Updates
+
+- Widen react-native-get-random-values peer dependency range to allow v2.0.0 for React Native 0.81+ compatibility
 
 ## 4.8.3
 Tue, 30 Jun 2026 14:22:03 GMT
