@@ -55,6 +55,24 @@ describe('Tracker API: page views', () => {
     expect(titles).toEqual(['Title override', 'Page title 1']);
   });
 
+  it('setCustomUrl keeps a URL whose scheme contains a hyphen (e.g. a browser extension)', () => {
+    let urls: string[] = [];
+    const tracker = createTracker({
+      plugins: [
+        {
+          afterTrack: (payload) => {
+            urls.push(payload.url as string);
+          },
+        },
+      ],
+    });
+
+    tracker?.setCustomUrl('safari-web-extension://abcdefg/index.html');
+    tracker?.trackPageView();
+
+    expect(urls[0]).toBe('safari-web-extension://abcdefg/index.html');
+  });
+
   it('Uses custom page title set using setDocumentTitle until overriden again', () => {
     let titles: string[] = [];
     const tracker = createTracker({

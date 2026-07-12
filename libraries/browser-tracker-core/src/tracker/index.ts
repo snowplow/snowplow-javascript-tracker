@@ -456,7 +456,10 @@ export function Tracker(
      * Extract scheme/protocol from URL
      */
     function getProtocolScheme(url: string) {
-      const e = new RegExp('^([a-z]+):'),
+      // RFC 3986: scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." ), case-insensitive.
+      // A stricter [a-z]+ pattern misclassifies schemes such as safari-web-extension as
+      // relative references, which then get appended to the base URL.
+      const e = new RegExp('^([a-z][a-z0-9+\\-.]*):', 'i'),
         matches = e.exec(url);
 
       return matches ? matches[1] : null;
