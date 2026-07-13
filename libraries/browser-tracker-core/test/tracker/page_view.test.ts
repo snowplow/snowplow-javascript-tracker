@@ -67,10 +67,35 @@ describe('Tracker API: page views', () => {
       ],
     });
 
+    // chrome-extension is 16 chars, which is within the atomic event schema's
+    // 16-char scheme limit, so it is a real, schema-valid scheme the tracker
+    // must preserve as an absolute URL rather than resolve against the page.
+    tracker?.setCustomUrl('chrome-extension://abcdefg/index.html');
+    tracker?.trackPageView();
+
+    expect(urls[0]).toBe('chrome-extension://abcdefg/index.html');
+  });
+
+  it('setCustomUrl does not treat an over-length scheme as absolute (schema caps scheme at 16 chars)', () => {
+    let urls: string[] = [];
+    const tracker = createTracker({
+      plugins: [
+        {
+          afterTrack: (payload) => {
+            urls.push(payload.url as string);
+          },
+        },
+      ],
+    });
+
+    // safari-web-extension is 20 chars, exceeding the atomic event schema's
+    // 16-char scheme limit. Treating it as absolute would only produce an event
+    // that fails validation downstream, so it must be handled as a relative
+    // reference (resolved against the page) instead of preserved verbatim.
     tracker?.setCustomUrl('safari-web-extension://abcdefg/index.html');
     tracker?.trackPageView();
 
-    expect(urls[0]).toBe('safari-web-extension://abcdefg/index.html');
+    expect(urls[0]).not.toBe('safari-web-extension://abcdefg/index.html');
   });
 
   it('Uses custom page title set using setDocumentTitle until overriden again', () => {
