@@ -586,7 +586,8 @@ export function Tracker(
 
       if (isActivityMetricsEnabled()) {
         if (activityMetricsState.lastScrollX !== undefined && activityMetricsState.lastScrollY !== undefined) {
-          activityMetricsState.metrics.scrollDistance += Math.abs(x - activityMetricsState.lastScrollX) + Math.abs(y - activityMetricsState.lastScrollY);
+          activityMetricsState.metrics.scrollDistance +=
+            Math.abs(x - activityMetricsState.lastScrollX) + Math.abs(y - activityMetricsState.lastScrollY);
         }
         activityMetricsState.lastScrollX = x;
         activityMetricsState.lastScrollY = y;
@@ -1351,6 +1352,10 @@ export function Tracker(
 
       getDomainUserInfo: function () {
         return loadDomainUserIdCookie();
+      },
+
+      getDomainSessionId: function () {
+        return sessionIdFromIdCookie(loadDomainUserIdCookie());
       },
 
       setReferrerUrl: function (url: string) {

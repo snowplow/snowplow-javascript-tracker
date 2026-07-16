@@ -30,6 +30,8 @@
 
 import {
   dispatchToTrackers,
+  getTracker,
+  allTrackerNames,
   ActivityTrackingConfiguration,
   ActivityTrackingConfigurationCallback,
   ActivityCallback,
@@ -106,6 +108,18 @@ export function newSession(trackers?: Array<string>) {
   dispatchToTrackers(trackers, (t) => {
     t.newSession();
   });
+}
+
+/**
+ * Get the domain session ID (from the first-party cookie) for a tracker.
+ *
+ * @param trackerId - The tracker identifier which the domain session ID will be retrieved from.
+ *                     Defaults to the first initialised tracker.
+ * @returns The domain session ID, or undefined if no matching tracker is found
+ */
+export function getDomainSessionId(trackerId?: string): string | undefined {
+  const tracker = getTracker(trackerId ?? allTrackerNames()[0]);
+  return tracker ? tracker.getDomainSessionId() : undefined;
 }
 
 /**
