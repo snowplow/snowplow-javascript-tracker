@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Avoid forced reflows when reading document size from ResizeObserver callbacks",
+      "type": "none",
+      "packageName": "@snowplow/browser-tracker-core"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker-core",
+  "email": "198982749+Copilot@users.noreply.github.com"
+}
