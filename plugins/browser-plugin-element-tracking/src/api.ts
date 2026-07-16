@@ -527,7 +527,13 @@ function intersectionCallback(entries: IntersectionObserverEntry[], observer: In
     configurations.forEach((config) => {
       if (entry.target.matches(config.selector)) {
         const siblings = getMatchingElements(config);
-        const position = siblings.findIndex((el) => el.isSameNode(entry.target)) + 1;
+        const foundIndex = siblings.findIndex((el) => el.isSameNode(entry.target));
+        const position = foundIndex !== -1 ? foundIndex + 1 : Math.max(state.lastPosition + 1, 1);
+        const matchCount = foundIndex !== -1 ? siblings.length : Math.max(siblings.length + 1, position);
+
+        if (foundIndex !== -1) {
+          state.lastPosition = foundIndex;
+        }
 
         if (entry.isIntersecting) {
           if (state.state !== ElementStatus.EXPOSED && state.state !== ElementStatus.PENDING) {
@@ -547,7 +553,7 @@ function intersectionCallback(entries: IntersectionObserverEntry[], observer: In
                 trackEvent(Events.ELEMENT_EXPOSE, config, entry.target, {
                   boundingRect: entry.boundingClientRect,
                   position,
-                  matches: siblings.length,
+                  matches: matchCount,
                 });
               }
             }
@@ -573,7 +579,7 @@ function intersectionCallback(entries: IntersectionObserverEntry[], observer: In
             trackEvent(Events.ELEMENT_OBSCURE, config, entry.target, {
               boundingRect: entry.boundingClientRect,
               position,
-              matches: siblings.length,
+              matches: matchCount,
             });
           }
 
