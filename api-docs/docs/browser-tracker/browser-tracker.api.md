@@ -79,6 +79,7 @@ export interface BrowserTracker {
     enableAnonymousTracking: (configuration?: EnableAnonymousTrackingConfiguration) => void;
     flushBuffer: (configuration?: FlushBufferConfiguration) => void;
     getCookieName: (basename: string) => string;
+    getDomainSessionId: () => string;
     getDomainSessionIndex: () => number;
     getDomainUserId: () => string;
     getDomainUserInfo: () => ParsedIdCookie;
@@ -340,6 +341,9 @@ export interface FlushBufferConfiguration {
     // (undocumented)
     newBufferSize?: number;
 }
+
+// @public
+export function getDomainSessionId(trackerId?: string): string | undefined;
 
 // @public
 export type JsonProcessor = (payloadBuilder: PayloadBuilder, jsonForProcessing: EventJson, contextEntitiesForProcessing: SelfDescribingJson[]) => void;
