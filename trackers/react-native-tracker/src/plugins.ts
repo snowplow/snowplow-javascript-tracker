@@ -26,6 +26,7 @@ function toBrowserTracker(namespace: string, core: TrackerCore): BrowserTracker 
     getUserId: () => undefined,
     getDomainUserId: () => '',
     getDomainUserInfo: (): ParsedIdCookie => ['', '', 0, 0, 0, undefined, '', '', '', undefined, 0],
+    getDomainSessionId: () => '',
     setReferrerUrl: () => notImplemented,
     setCustomUrl: () => notImplemented,
     setDocumentTitle: () => notImplemented,
