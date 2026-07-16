@@ -17,8 +17,23 @@ function useResizeObserver(): boolean {
   return 'ResizeObserver' in window;
 }
 
+type ObservedSize = { width: number; height: number };
+
 let resizeObserverInitialized = false;
 let readBrowserPropertiesTask: number | null = null;
+let observedBodySize: ObservedSize | null = null;
+let observedDocumentElementSize: ObservedSize | null = null;
+
+function getSizeFromEntry(entry: ResizeObserverEntry): ObservedSize {
+  if (entry.borderBoxSize?.[0]) {
+    return {
+      width: entry.borderBoxSize[0].inlineSize,
+      height: entry.borderBoxSize[0].blockSize,
+    };
+  }
+  return { width: entry.contentRect.width, height: entry.contentRect.height };
+}
+
 function initializeResizeObserver() {
   if (resizeObserverInitialized) {
     return;
@@ -28,7 +43,14 @@ function initializeResizeObserver() {
   }
   resizeObserverInitialized = true;
 
-  const resizeObserver = new ResizeObserver(() => {
+  const resizeObserver = new ResizeObserver((entries) => {
+    for (const entry of entries) {
+      if (entry.target === document.body) {
+        observedBodySize = getSizeFromEntry(entry);
+      } else if (entry.target === document.documentElement) {
+        observedDocumentElementSize = getSizeFromEntry(entry);
+      }
+    }
     if (!readBrowserPropertiesTask) {
       // The browser property lookup causes a forced synchronous layout when offsets/sizes are
       // queried. It's possible that the forced synchronous layout causes the ResizeObserver
@@ -117,6 +139,16 @@ function detectViewport() {
  * - http://andylangton.co.uk/articles/javascript/get-viewport-size-javascript/
  */
 function detectDocumentSize() {
+  // Use sizes from ResizeObserver entries when available to avoid forced reflow.
+  // The entries provide border-box dimensions which correspond to offsetWidth/offsetHeight.
+  if (observedBodySize && observedDocumentElementSize) {
+    return makeDimension(
+      Math.max(observedDocumentElementSize.width, observedBodySize.width),
+      Math.max(observedDocumentElementSize.height, observedBodySize.height)
+    );
+  }
+
+  // Fallback for initial read or browsers without ResizeObserver (may cause forced reflow).
   var de = document.documentElement, // Alias
     be = document.body,
     // document.body may not have rendered, so check whether be.offsetHeight is null
