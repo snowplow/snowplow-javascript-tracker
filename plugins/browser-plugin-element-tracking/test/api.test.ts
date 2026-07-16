@@ -599,7 +599,11 @@ describe('Element Tracking Plugin API', () => {
         time: performance.now(),
       } as IntersectionObserverEntry;
 
-      intersectionCallback([fakeEntry], {} as IntersectionObserver);
+      intersectionCallback([fakeEntry], {
+        unobserve() {},
+        observe() {},
+        disconnect() {},
+      } as unknown as IntersectionObserver);
 
       return inNewTask(() => {
         expect(eventQueue.length).toBeGreaterThanOrEqual(1);
