@@ -44,11 +44,18 @@ describe('Browser props', () => {
       } as DOMRectReadOnly;
     }
 
-    function makeEntry(target: Element, width: number, height: number): ResizeObserverEntry {
+    function makeEntry(
+      target: Element,
+      width: number,
+      height: number,
+      includeBorderBoxSize = true
+    ): ResizeObserverEntry {
       return {
         target,
         contentRect: makeContentRect(width, height),
-        borderBoxSize: [{ inlineSize: width, blockSize: height }] as unknown as ReadonlyArray<ResizeObserverSize>,
+        borderBoxSize: includeBorderBoxSize
+          ? ([{ inlineSize: width, blockSize: height }] as unknown as ReadonlyArray<ResizeObserverSize>)
+          : (undefined as any),
         contentBoxSize: [{ inlineSize: width, blockSize: height }] as unknown as ReadonlyArray<ResizeObserverSize>,
         devicePixelContentBoxSize: [] as unknown as ReadonlyArray<ResizeObserverSize>,
       };
@@ -110,17 +117,8 @@ describe('Browser props', () => {
 
         freshGetBrowserProperties();
 
-        // Entries without borderBoxSize - should fall back to contentRect
-        const entryWithoutBorderBox = (target: Element, width: number, height: number): ResizeObserverEntry => ({
-          target,
-          contentRect: makeContentRect(width, height),
-          borderBoxSize: undefined as any,
-          contentBoxSize: [] as unknown as ReadonlyArray<ResizeObserverSize>,
-          devicePixelContentBoxSize: [] as unknown as ReadonlyArray<ResizeObserverSize>,
-        });
-
         capturedCallback!(
-          [entryWithoutBorderBox(document.body, 600, 1500), entryWithoutBorderBox(document.documentElement, 1280, 800)],
+          [makeEntry(document.body, 600, 1500, false), makeEntry(document.documentElement, 1280, 800, false)],
           {} as ResizeObserver
         );
 
@@ -133,6 +131,81 @@ describe('Browser props', () => {
 
       (global as any).ResizeObserver = origRO;
       jest.useRealTimers();
+    });
+
+    it('does not read layout properties once ResizeObserver sizes are cached', () => {
+      let capturedCallback: ResizeObserverCallback | undefined;
+      const origRO = (global as any).ResizeObserver;
+      const docEl = document.documentElement;
+      const body = document.body;
+      const originalDescriptors = {
+        bodyOffsetHeight: Object.getOwnPropertyDescriptor(body, 'offsetHeight'),
+        bodyScrollHeight: Object.getOwnPropertyDescriptor(body, 'scrollHeight'),
+        docClientWidth: Object.getOwnPropertyDescriptor(docEl, 'clientWidth'),
+        docOffsetWidth: Object.getOwnPropertyDescriptor(docEl, 'offsetWidth'),
+        docScrollWidth: Object.getOwnPropertyDescriptor(docEl, 'scrollWidth'),
+        docClientHeight: Object.getOwnPropertyDescriptor(docEl, 'clientHeight'),
+        docOffsetHeight: Object.getOwnPropertyDescriptor(docEl, 'offsetHeight'),
+        docScrollHeight: Object.getOwnPropertyDescriptor(docEl, 'scrollHeight'),
+      };
+
+      const throwIfRead = () => {
+        throw new Error('layout property read');
+      };
+
+      const restoreDescriptor = (target: object, key: string, descriptor?: PropertyDescriptor) => {
+        if (descriptor) {
+          Object.defineProperty(target, key, descriptor);
+        } else {
+          delete (target as Record<string, unknown>)[key];
+        }
+      };
+
+      jest.useFakeTimers();
+      try {
+        jest.isolateModules(() => {
+          (global as any).ResizeObserver = class {
+            constructor(cb: ResizeObserverCallback) {
+              capturedCallback = cb;
+            }
+            observe = jest.fn();
+            disconnect = jest.fn();
+          };
+
+          const { getBrowserProperties: freshGetBrowserProperties } = require('../src/helpers/browser_props');
+
+          freshGetBrowserProperties();
+
+          capturedCallback!(
+            [makeEntry(document.body, 900, 2000), makeEntry(document.documentElement, 1440, 900)],
+            {} as ResizeObserver
+          );
+
+          jest.runAllTimers();
+
+          Object.defineProperty(body, 'offsetHeight', { configurable: true, get: throwIfRead });
+          Object.defineProperty(body, 'scrollHeight', { configurable: true, get: throwIfRead });
+          Object.defineProperty(docEl, 'clientWidth', { configurable: true, get: throwIfRead });
+          Object.defineProperty(docEl, 'offsetWidth', { configurable: true, get: throwIfRead });
+          Object.defineProperty(docEl, 'scrollWidth', { configurable: true, get: throwIfRead });
+          Object.defineProperty(docEl, 'clientHeight', { configurable: true, get: throwIfRead });
+          Object.defineProperty(docEl, 'offsetHeight', { configurable: true, get: throwIfRead });
+          Object.defineProperty(docEl, 'scrollHeight', { configurable: true, get: throwIfRead });
+
+          expect(() => freshGetBrowserProperties()).not.toThrow();
+        });
+      } finally {
+        restoreDescriptor(body, 'offsetHeight', originalDescriptors.bodyOffsetHeight);
+        restoreDescriptor(body, 'scrollHeight', originalDescriptors.bodyScrollHeight);
+        restoreDescriptor(docEl, 'clientWidth', originalDescriptors.docClientWidth);
+        restoreDescriptor(docEl, 'offsetWidth', originalDescriptors.docOffsetWidth);
+        restoreDescriptor(docEl, 'scrollWidth', originalDescriptors.docScrollWidth);
+        restoreDescriptor(docEl, 'clientHeight', originalDescriptors.docClientHeight);
+        restoreDescriptor(docEl, 'offsetHeight', originalDescriptors.docOffsetHeight);
+        restoreDescriptor(docEl, 'scrollHeight', originalDescriptors.docScrollHeight);
+        (global as any).ResizeObserver = origRO;
+        jest.useRealTimers();
+      }
     });
   });
 });
