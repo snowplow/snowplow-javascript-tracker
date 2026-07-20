@@ -145,6 +145,16 @@ describe('Tracker API: ', () => {
     expect(tracker?.getDomainSessionId()).toEqual(MOCK_UUID);
   });
 
+  it('Returns the updated domain session id after newSession()', () => {
+    const sessionId = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
+    document.cookie = createTestIdCookie({ sessionId }) + ' ' + createTestSessionIdCookie();
+    const tracker = createTracker();
+    expect(tracker?.getDomainSessionId()).toEqual(sessionId);
+
+    tracker?.newSession();
+    expect(tracker?.getDomainSessionId()).toEqual(MOCK_UUID);
+  });
+
   it('Adds the client session context entity when enabled', (done) => {
     const tracker = createTracker({
       contexts: { session: true },

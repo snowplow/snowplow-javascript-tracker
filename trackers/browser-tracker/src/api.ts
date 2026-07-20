@@ -118,7 +118,9 @@ export function newSession(trackers?: Array<string>) {
  * @returns The domain session ID, or undefined if no matching tracker is found
  */
 export function getDomainSessionId(trackerId?: string): string | undefined {
-  const tracker = getTracker(trackerId ?? allTrackerNames()[0]);
+  const resolvedTrackerId = trackerId ?? allTrackerNames()[0];
+  if (!resolvedTrackerId) return undefined;
+  const tracker = getTracker(resolvedTrackerId);
   return tracker ? tracker.getDomainSessionId() : undefined;
 }
 

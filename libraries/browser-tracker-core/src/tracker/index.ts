@@ -1355,7 +1355,7 @@ export function Tracker(
       },
 
       getDomainSessionId: function () {
-        return sessionIdFromIdCookie(loadDomainUserIdCookie());
+        return memorizedSessionId || sessionIdFromIdCookie(loadDomainUserIdCookie());
       },
 
       setReferrerUrl: function (url: string) {

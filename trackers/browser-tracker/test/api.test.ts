@@ -41,8 +41,12 @@ describe('Browser Tracker API: #getDomainSessionId', () => {
     jest.spyOn(document, 'cookie', 'get').mockImplementation(() => cookieJar);
   });
 
+  afterEach(() => {
+    cookieJar = '';
+  });
+
   afterAll(() => {
-    jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
 
   it('exposes the domain session id of a named tracker', () => {
