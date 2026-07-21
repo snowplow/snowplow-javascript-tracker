@@ -548,4 +548,77 @@ describe('Element Tracking Plugin API', () => {
       });
     });
   });
+
+  describe('intersectionCallback position fallback', () => {
+    let intersectionCallback: IntersectionObserverCallback;
+
+    beforeAll(() => {
+      // Mock IntersectionObserver to capture the callback
+      (globalThis as any).IntersectionObserver = class {
+        constructor(cb: IntersectionObserverCallback) {
+          intersectionCallback = cb;
+        }
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+      };
+    });
+
+    afterAll(() => {
+      delete (globalThis as any).IntersectionObserver;
+    });
+
+    it('uses last-known position when element is no longer in DOM during intersection callback', () => {
+      // Create two matching elements so position > 1 is testable
+      const div1 = document.createElement('div');
+      div1.classList.add('disappearing');
+      document.body.appendChild(div1);
+
+      const div2 = document.createElement('div');
+      div2.classList.add('disappearing');
+      document.body.appendChild(div2);
+
+      startElementTracking({
+        elements: {
+          selector: '.disappearing',
+          expose: true,
+        },
+      });
+
+      // Remove div2 from DOM before firing intersection
+      document.body.removeChild(div2);
+
+      // Simulate intersection callback for the now-removed div2
+      const fakeEntry = {
+        target: div2,
+        isIntersecting: true,
+        intersectionRatio: 1,
+        intersectionRect: { height: 100, width: 100 } as DOMRect,
+        boundingClientRect: { x: 0, y: 0, width: 100, height: 100 } as DOMRect,
+        rootBounds: null,
+        time: performance.now(),
+      } as IntersectionObserverEntry;
+
+      intersectionCallback([fakeEntry], {
+        unobserve() {},
+        observe() {},
+        disconnect() {},
+      } as unknown as IntersectionObserver);
+
+      return inNewTask(() => {
+        expect(eventQueue.length).toBeGreaterThanOrEqual(1);
+
+        const exposeEvent = eventQueue.find((e) => unstructOf(e, 'expose_element'));
+        expect(exposeEvent).toBeDefined();
+
+        const elementEntities = entityOf(exposeEvent!, 'element') as Record<string, unknown>[];
+        expect(elementEntities).toBeDefined();
+        expect(elementEntities.length).toBeGreaterThanOrEqual(1);
+
+        // element_index must be >= 1, never 0
+        const elementEntity = elementEntities[0];
+        expect(elementEntity.element_index).toBeGreaterThanOrEqual(1);
+      });
+    });
+  });
 });

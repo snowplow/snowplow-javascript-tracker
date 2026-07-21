@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-plugin-element-tracking",
+      "comment": "Fix element tracking plugin sending element_index of 0 on expose_element and obscure_element events",
+      "type": "none"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-element-tracking"
+}
