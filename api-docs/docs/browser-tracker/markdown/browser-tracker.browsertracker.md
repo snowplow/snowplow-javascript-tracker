@@ -30,6 +30,7 @@ interface BrowserTracker
 |  [enableAnonymousTracking](./browser-tracker.browsertracker.enableanonymoustracking.md) | (configuration?: EnableAnonymousTrackingConfiguration) =&gt; void | Enables anonymous tracking (ie. tracker initialized without <code>anonymousTracking</code>) |
 |  [flushBuffer](./browser-tracker.browsertracker.flushbuffer.md) | (configuration?: FlushBufferConfiguration) =&gt; void | Send all events in the outQueue Only need to use this when sending events with a bufferSize of at least 2 |
 |  [getCookieName](./browser-tracker.browsertracker.getcookiename.md) | (basename: string) =&gt; string | Get the cookie name as cookieNamePrefix + basename + . + domain. |
+|  [getDomainSessionId](./browser-tracker.browsertracker.getdomainsessionid.md) | () =&gt; string | Get the current domain session ID (from first party cookie) |
 |  [getDomainSessionIndex](./browser-tracker.browsertracker.getdomainsessionindex.md) | () =&gt; number | Get the domain session index also known as current memorized visit count. |
 |  [getDomainUserId](./browser-tracker.browsertracker.getdomainuserid.md) | () =&gt; string | Get visitor ID (from first party cookie) |
 |  [getDomainUserInfo](./browser-tracker.browsertracker.getdomainuserinfo.md) | () =&gt; ParsedIdCookie | Get the visitor information (from first party cookie) |
