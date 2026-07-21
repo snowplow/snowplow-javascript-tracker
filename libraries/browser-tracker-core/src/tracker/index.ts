@@ -456,10 +456,20 @@ export function Tracker(
      * Extract scheme/protocol from URL
      */
     function getProtocolScheme(url: string) {
-      const e = new RegExp('^([a-z]+):'),
+      // RFC 3986: scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." ), case-insensitive.
+      // A stricter [a-z]+ pattern misclassifies schemes such as chrome-extension as
+      // relative references, which then get appended to the base URL.
+      const e = new RegExp('^([a-z][a-z0-9+\\-.]*):', 'i'),
         matches = e.exec(url);
 
-      return matches ? matches[1] : null;
+      // The atomic event schema caps the url scheme at 16 characters
+      // (page_urlscheme / refr_urlscheme, maxLength 16). A longer scheme would only
+      // produce an event that fails validation downstream, so treat such URLs as
+      // relative references (the prior behaviour) rather than absolute URLs.
+      // Ref: com.snowplowanalytics.snowplow/atomic/jsonschema/1-0-0
+      const MAX_SCHEME_LENGTH = 16;
+
+      return matches && matches[1].length <= MAX_SCHEME_LENGTH ? matches[1] : null;
     }
 
     /*
@@ -586,7 +596,8 @@ export function Tracker(
 
       if (isActivityMetricsEnabled()) {
         if (activityMetricsState.lastScrollX !== undefined && activityMetricsState.lastScrollY !== undefined) {
-          activityMetricsState.metrics.scrollDistance += Math.abs(x - activityMetricsState.lastScrollX) + Math.abs(y - activityMetricsState.lastScrollY);
+          activityMetricsState.metrics.scrollDistance +=
+            Math.abs(x - activityMetricsState.lastScrollX) + Math.abs(y - activityMetricsState.lastScrollY);
         }
         activityMetricsState.lastScrollX = x;
         activityMetricsState.lastScrollY = y;
@@ -1351,6 +1362,10 @@ export function Tracker(
 
       getDomainUserInfo: function () {
         return loadDomainUserIdCookie();
+      },
+
+      getDomainSessionId: function () {
+        return memorizedSessionId || sessionIdFromIdCookie(loadDomainUserIdCookie());
       },
 
       setReferrerUrl: function (url: string) {

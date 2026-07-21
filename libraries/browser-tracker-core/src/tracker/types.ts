@@ -406,6 +406,13 @@ export interface BrowserTracker {
   getDomainUserInfo: () => ParsedIdCookie;
 
   /**
+   * Get the current domain session ID (from first party cookie)
+   *
+   * @returns Domain session ID
+   */
+  getDomainSessionId: () => string;
+
+  /**
    * Override referrer
    *
    * @param url - the custom referrer
