@@ -2,6 +2,18 @@
   "name": "@snowplow/browser-tracker",
   "entries": [
     {
+      "version": "4.9.0",
+      "tag": "@snowplow/browser-tracker_v4.9.0",
+      "date": "Tue, 21 Jul 2026 14:53:08 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add getDomainSessionId method"
+          }
+        ]
+      }
+    },
+    {
       "version": "4.8.4",
       "tag": "@snowplow/browser-tracker_v4.8.4",
       "date": "Thu, 02 Jul 2026 10:07:52 GMT",

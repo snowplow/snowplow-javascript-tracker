@@ -1,6 +1,13 @@
 # Change Log - @snowplow/browser-tracker-core
 
-This log was last generated on Thu, 02 Jul 2026 10:07:52 GMT and should not be manually modified.
+This log was last generated on Tue, 21 Jul 2026 14:53:08 GMT and should not be manually modified.
+
+## 4.9.0
+Tue, 21 Jul 2026 14:53:08 GMT
+
+### Patches
+
+- Support non-alphabetic characters in URL scheme detection and keep the detected scheme within the atomic schema length limit (close #1238)
 
 ## 4.8.4
 Thu, 02 Jul 2026 10:07:52 GMT
