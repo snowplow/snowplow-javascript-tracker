@@ -363,6 +363,10 @@ export function Tracker(
 
     initializeIdsAndCookies();
 
+    if (trackerConfiguration.preserveOriginalReferrer && configReferrerUrl) {
+      customReferrer = configReferrerUrl;
+    }
+
     if (trackerConfiguration.crossDomainLinker) {
       decorateLinks(trackerConfiguration.crossDomainLinker);
     }
