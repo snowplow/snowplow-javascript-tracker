@@ -28,6 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import * as browserProps from '../../src/helpers/browser_props';
 import { createTracker } from '../helpers';
 
 describe('Tracker API: page views', () => {
@@ -142,5 +143,32 @@ describe('Tracker API: page views', () => {
     tracker?.trackPageView();
 
     expect(titles).toEqual(['Explicit title', 'Page title 1']);
+  });
+
+  describe('getBrowserProperties deferred init', () => {
+    let getBrowserPropertiesSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      browserProps.resetBrowserPropertiesState();
+      getBrowserPropertiesSpy = jest.spyOn(browserProps, 'getBrowserProperties');
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+      browserProps.resetBrowserPropertiesState();
+    });
+
+    it('does not call getBrowserProperties during tracker construction', () => {
+      createTracker();
+      expect(getBrowserPropertiesSpy).not.toHaveBeenCalled();
+    });
+
+    it('calls getBrowserProperties exactly once on the first trackPageView (default config)', () => {
+      const tracker = createTracker();
+      getBrowserPropertiesSpy.mockClear();
+
+      tracker?.trackPageView();
+      expect(getBrowserPropertiesSpy).toHaveBeenCalledTimes(1);
+    });
   });
 });

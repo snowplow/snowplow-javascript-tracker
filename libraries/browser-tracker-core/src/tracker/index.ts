@@ -73,7 +73,7 @@ import {
   APPLICATION_CONTEXT_SCHEMA,
   ACTIVITY_METRICS_SCHEMA,
 } from './schemata';
-import { getBrowserProperties } from '../helpers/browser_props';
+import { getBrowserProperties, makeDimension } from '../helpers/browser_props';
 import { asyncCookieStorage, syncCookieStorage } from './cookie_storage';
 
 declare global {
@@ -327,7 +327,10 @@ export function Tracker(
       configCookieDomain = findRootDomain(configCookieSameSite, configCookieSecure);
     }
 
-    const { browserLanguage, resolution, colorDepth, cookiesEnabled } = getBrowserProperties();
+    const cookiesEnabled = window.navigator.cookieEnabled;
+    const colorDepth = screen.colorDepth;
+    const browserLanguage = window.navigator.language || (window.navigator as any).userLanguage;
+    const resolution = makeDimension(screen.width, screen.height);
     const timeZone = getTimeZone();
 
     // Set up unchanging name-value pairs

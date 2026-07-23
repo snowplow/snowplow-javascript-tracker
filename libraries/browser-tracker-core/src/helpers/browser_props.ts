@@ -47,6 +47,16 @@ function initializeResizeObserver() {
 let cachedProperties: BrowserProperties;
 
 /**
+ * Resets module-level browser property state. Used in tests to prevent state bleed between test cases.
+ * @internal
+ */
+export function resetBrowserPropertiesState() {
+  cachedProperties = undefined as any;
+  resizeObserverInitialized = false;
+  readBrowserPropertiesTask = null;
+}
+
+/**
  * Gets various browser properties (that are expensive to read!)
  * - Will use a "ResizeObserver" approach in modern browsers to update cached properties only on change
  * - Will fallback to a direct read approach without cache in old browsers
@@ -55,6 +65,9 @@ let cachedProperties: BrowserProperties;
  */
 export function getBrowserProperties() {
   if (!useResizeObserver()) {
+    // TODO: per-event forced reflow — each call re-reads layout geometry (offsetWidth, scrollHeight,
+    // etc.) for browsers without ResizeObserver. ResizeObserver has been in all major browsers since
+    // 2020 so this is an edge-case path. File a separate ticket to address if needed.
     return readBrowserProperties();
   }
 
