@@ -1,5 +1,6 @@
 import { getTracker, newTracker, removeAllTrackers, removeTracker } from '../src';
 import { MOBILE_CONTEXT_SCHEMA } from '../src/constants';
+import { Platform } from 'react-native';
 
 function createMockFetch(status: number, requests: Request[]) {
   return async (input: Request) => {
@@ -326,6 +327,81 @@ describe('Tracker', () => {
 
       const [event] = payload.data;
       expect(event.co ?? '').not.toContain(context.schema);
+    });
+  });
+
+  describe('Screen tracking on web platform (Platform.OS = web)', () => {
+    let originalPlatformOS: string;
+
+    beforeAll(() => {
+      originalPlatformOS = Platform.OS;
+      (Platform as any).OS = 'web';
+    });
+
+    afterAll(() => {
+      (Platform as any).OS = originalPlatformOS;
+    });
+
+    it('attaches screen entity to screen_view event when Platform.OS is web', async () => {
+      const tracker = await newTracker({
+        namespace: 'test',
+        endpoint: 'http://localhost:9090',
+        customFetch: mockFetch,
+      });
+
+      tracker.trackScreenViewEvent({ name: 'Home' });
+      await tracker.flush();
+      expect(requests.length).toBe(1);
+
+      const [request] = requests;
+      const payload = await request?.json();
+      expect(payload.data.length).toBe(1);
+      expect(payload.data[0].ue_pr).toContain('/screen_view/');
+      expect(payload.data[0].co).toContain('/screen/');
+    });
+
+    it('fires screen_end with screen_summary before second screen_view when Platform.OS is web', async () => {
+      const tracker = await newTracker({
+        namespace: 'test',
+        endpoint: 'http://localhost:9090',
+        customFetch: mockFetch,
+      });
+
+      tracker.trackScreenViewEvent({ name: 'Home' });
+      await tracker.flush();
+      expect(requests.length).toBe(1);
+
+      tracker.trackScrollChangedEvent({ xOffset: 101 });
+      tracker.trackListItemViewEvent({ index: 1, itemsCount: 909 });
+      tracker.trackScreenViewEvent({ name: 'About' });
+      await tracker.flush();
+
+      expect(requests.length).toBe(2);
+      const [, secondRequest] = requests;
+      const secondPayload = await secondRequest?.json();
+      expect(secondPayload.data.length).toBe(2);
+      const [screenEndEvent] = secondPayload.data;
+      expect(screenEndEvent.ue_pr).toContain('screen_end');
+      expect(screenEndEvent.co).toContain('screen_summary');
+      expect(screenEndEvent.co).toContain('101');
+      expect(screenEndEvent.co).toContain('909');
+    });
+
+    it('does not attach platform context when Platform.OS is web', async () => {
+      const tracker = await newTracker({
+        namespace: 'test',
+        endpoint: 'http://localhost:9090',
+        customFetch: mockFetch,
+      });
+
+      tracker.trackPageViewEvent({ pageUrl: 'http://localhost', pageTitle: 'Home' });
+      await tracker.flush();
+      expect(requests.length).toBe(1);
+
+      const [request] = requests;
+      const payload = await request?.json();
+      expect(payload.data.length).toBe(1);
+      expect(payload.data[0].co ?? '').not.toContain(MOBILE_CONTEXT_SCHEMA);
     });
   });
 });
