@@ -22,3 +22,4 @@ export const buttonClickTracking = false;
 export const eventSpecifications = false;
 export const webVitals = false;
 export const elementTracking = false;
+export const webView = false;

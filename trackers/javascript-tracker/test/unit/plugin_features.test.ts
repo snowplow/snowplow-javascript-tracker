@@ -59,3 +59,31 @@ describe('Performance Navigation Timing', () => {
     expect(hasPerformanceNavigationTimingContext(plugins)).toBe(false);
   });
 });
+
+describe('WebView plugin', () => {
+  it('WebViewPlugin is not activated when webView flag is false', () => {
+    jest.isolateModules(() => {
+      const mockWebViewPlugin = jest.fn(() => ({}));
+      jest.mock('@snowplow/browser-plugin-webview', () => ({
+        WebViewPlugin: mockWebViewPlugin,
+      }));
+      jest.mock('../../tracker.config', () => ({ webView: false }));
+      const { Plugins: PluginsFresh } = require('../../src/features');
+      PluginsFresh({});
+      expect(mockWebViewPlugin).not.toHaveBeenCalled();
+    });
+  });
+
+  it('WebViewPlugin is activated when webView flag is true', () => {
+    jest.isolateModules(() => {
+      const mockWebViewPlugin = jest.fn(() => ({}));
+      jest.mock('@snowplow/browser-plugin-webview', () => ({
+        WebViewPlugin: mockWebViewPlugin,
+      }));
+      jest.mock('../../tracker.config', () => ({ webView: true }));
+      const { Plugins: PluginsFresh } = require('../../src/features');
+      PluginsFresh({});
+      expect(mockWebViewPlugin).toHaveBeenCalled();
+    });
+  });
+});
