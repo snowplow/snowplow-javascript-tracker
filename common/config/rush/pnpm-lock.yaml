@@ -2339,6 +2339,9 @@ importers:
       '@snowplow/browser-plugin-web-vitals':
         specifier: workspace:*
         version: link:../../plugins/browser-plugin-web-vitals
+      '@snowplow/browser-plugin-webview':
+        specifier: workspace:*
+        version: link:../../plugins/browser-plugin-webview
       '@snowplow/browser-plugin-youtube-tracking':
         specifier: workspace:*
         version: link:../../plugins/browser-plugin-youtube-tracking

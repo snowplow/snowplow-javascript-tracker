@@ -163,6 +163,10 @@
       "allowedCategories": [ "trackers" ]
     },
     {
+      "name": "@snowplow/browser-plugin-webview",
+      "allowedCategories": [ "trackers" ]
+    },
+    {
       "name": "@snowplow/browser-plugin-youtube-tracking",
       "allowedCategories": [ "trackers" ]
     },
