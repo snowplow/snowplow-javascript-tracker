@@ -4,5 +4,4 @@ module.exports = {
   transformIgnorePatterns: [],
   setupFilesAfterEnv: ['../../setupTestGlobals.ts'],
   modulePathIgnorePatterns: ['<rootDir>/dist/'],
-  forceExit: true,
 };
