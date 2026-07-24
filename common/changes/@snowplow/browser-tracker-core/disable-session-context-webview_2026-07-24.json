@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-tracker-core",
+      "comment": "Add disableSessionContextWithinWebView option to suppress client_session entity in hybrid native+WebView deployments",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker-core"
+}

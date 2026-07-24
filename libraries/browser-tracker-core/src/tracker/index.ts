@@ -316,6 +316,7 @@ export function Tracker(
         configurations: {},
       },
       configSessionContext = trackerConfiguration.contexts?.session ?? false,
+      configDisableSessionInWebView = trackerConfiguration.disableSessionContextWithinWebView ?? false,
       toOptoutByCookie: string | boolean,
       onSessionUpdateCallback = trackerConfiguration.onSessionUpdateCallback,
       manualSessionUpdateCalled = false,
@@ -1015,7 +1016,11 @@ export function Tracker(
             configStateStorageStrategy,
             configAnonymousTracking
           );
-          if (configSessionContext && (!configAnonymousTracking || configAnonymousSessionTracking)) {
+          if (
+            configSessionContext &&
+            (!configAnonymousTracking || configAnonymousSessionTracking) &&
+            !(configDisableSessionInWebView && isInWebView())
+          ) {
             addSessionContextToPayload(payloadBuilder, clientSession);
           }
 
@@ -1040,6 +1045,21 @@ export function Tracker(
           lastEventTime = new Date().getTime();
         },
       };
+    }
+
+    /**
+     * Returns true when the page is running inside a Snowplow V2 WebView interface.
+     * Mirrors the three-interface check in @snowplow/webview-tracker without introducing
+     * a package dependency on browser-tracker-core.
+     */
+    function isInWebView(): boolean {
+      return !!(
+        (window as any).SnowplowWebInterfaceV2 ||
+        ((window as any).webkit &&
+          (window as any).webkit.messageHandlers &&
+          (window as any).webkit.messageHandlers.snowplowV2) ||
+        (window as any).ReactNativeWebView
+      );
     }
 
     function addSessionContextToPayload(payloadBuilder: PayloadBuilder, clientSession: ClientSession) {
