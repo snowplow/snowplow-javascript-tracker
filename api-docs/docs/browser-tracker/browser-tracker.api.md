@@ -555,6 +555,7 @@ export type TrackerConfiguration = {
     onSessionUpdateCallback?: (updatedSession: ClientSession) => void;
     preservePageViewIdForUrl?: PreservePageViewIdForUrl;
     synchronousCookieWrite?: boolean;
+    disableSessionContextWithinWebView?: boolean;
 } & EmitterConfigurationBase & LocalStorageEventStoreConfigurationBase;
 
 // @public
