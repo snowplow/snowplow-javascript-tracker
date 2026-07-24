@@ -198,6 +198,26 @@ export type TrackerConfiguration = {
   preservePageViewIdForUrl?: PreservePageViewIdForUrl;
 
   /**
+   * When enabled, the original external referrer captured at tracker initialisation is frozen and
+   * used as the referrer for all subsequent page view events in the same session, including
+   * client-side navigations in single-page applications (SPAs).
+   *
+   * Without this option, each SPA navigation sets the referrer to the previous internal route,
+   * making it difficult to determine how the user originally arrived at the site across their
+   * session. Enable this option to preserve the original external referrer (e.g. google.com)
+   * across all `trackPageView` calls.
+   *
+   * If `document.referrer` is empty at initialisation (e.g. direct navigation), this option
+   * has no effect and the default per-navigation referrer chain behaviour applies.
+   *
+   * Setting `setReferrerUrl` after initialisation will override this value, as `customReferrer`
+   * always takes precedence.
+   *
+   * @defaultValue false
+   */
+  preserveOriginalReferrer?: boolean;
+
+  /**
    * Whether to write the cookies synchronously.
    * This can be useful for testing purposes to ensure that the cookies are written before the test continues.
    * It also has the benefit of making sure that the cookie is correctly set before session information is used in events.
