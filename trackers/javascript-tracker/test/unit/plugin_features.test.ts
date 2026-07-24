@@ -68,6 +68,10 @@ describe('WebView plugin', () => {
         WebViewPlugin: mockWebViewPlugin,
       }));
       jest.mock('../../tracker.config', () => ({ webView: false }));
+      // Vimeo player crashes on fresh module load in jsdom; mock it to prevent that
+      jest.mock('@snowplow/browser-plugin-vimeo-tracking', () => ({
+        VimeoTrackingPlugin: jest.fn(() => ({})),
+      }));
       const { Plugins: PluginsFresh } = require('../../src/features');
       PluginsFresh({});
       expect(mockWebViewPlugin).not.toHaveBeenCalled();
@@ -81,6 +85,10 @@ describe('WebView plugin', () => {
         WebViewPlugin: mockWebViewPlugin,
       }));
       jest.mock('../../tracker.config', () => ({ webView: true }));
+      // Vimeo player crashes on fresh module load in jsdom; mock it to prevent that
+      jest.mock('@snowplow/browser-plugin-vimeo-tracking', () => ({
+        VimeoTrackingPlugin: jest.fn(() => ({})),
+      }));
       const { Plugins: PluginsFresh } = require('../../src/features');
       PluginsFresh({});
       expect(mockWebViewPlugin).toHaveBeenCalled();

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/javascript-tracker",
+      "comment": "Add WebView plugin as opt-in build-time feature flag (webView, default false)",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@snowplow/javascript-tracker"
+}
