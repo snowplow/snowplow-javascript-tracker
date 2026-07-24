@@ -66,7 +66,8 @@
     "@snowplow/browser-plugin-enhanced-consent": "workspace:*",
     "@snowplow/browser-plugin-privacy-sandbox": "workspace:*",
     "@snowplow/browser-plugin-button-click-tracking": "workspace:*",
-    "@snowplow/browser-plugin-event-specifications": "workspace:*"
+    "@snowplow/browser-plugin-event-specifications": "workspace:*",
+    "@snowplow/browser-plugin-webview": "workspace:*"
   },
   "devDependencies": {
     "@rollup/plugin-alias": "~3.1.9",

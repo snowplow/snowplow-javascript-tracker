@@ -23,6 +23,7 @@ export const eventSpecifications = false;
 export const geolocation = false;
 export const timezone = false;
 export const elementTracking = false;
+export const webView = false;
 
 /* Deprecated */
 export const enhancedEcommerce = false;
