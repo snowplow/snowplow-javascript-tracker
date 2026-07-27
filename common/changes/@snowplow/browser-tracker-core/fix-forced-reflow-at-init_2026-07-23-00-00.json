@@ -1,0 +1,9 @@
+{
+  "changes": [
+    {
+      "packageName": "@snowplow/browser-tracker-core",
+      "comment": "Remove forced layout read from tracker initialization: replace init-time getBrowserProperties() call with direct non-layout reads; defer the first readBrowserProperties() to first event build time.",
+      "type": "patch"
+    }
+  ]
+}
