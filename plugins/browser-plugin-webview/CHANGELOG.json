@@ -2,6 +2,18 @@
   "name": "@snowplow/browser-plugin-webview",
   "entries": [
     {
+      "version": "4.10.0",
+      "tag": "@snowplow/browser-plugin-webview_v4.10.0",
+      "date": "Mon, 27 Jul 2026 13:52:14 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Add test coverage for disableSessionContextWithinWebView option suppressing client_session entity in hybrid native+WebView deployments"
+          }
+        ]
+      }
+    },
+    {
       "version": "4.9.0",
       "tag": "@snowplow/browser-plugin-webview_v4.9.0",
       "date": "Tue, 21 Jul 2026 14:53:08 GMT",

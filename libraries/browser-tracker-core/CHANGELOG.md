@@ -1,6 +1,21 @@
 # Change Log - @snowplow/browser-tracker-core
 
-This log was last generated on Tue, 21 Jul 2026 14:53:08 GMT and should not be manually modified.
+This log was last generated on Mon, 27 Jul 2026 13:52:14 GMT and should not be manually modified.
+
+## 4.10.0
+Mon, 27 Jul 2026 13:52:14 GMT
+
+### Minor changes
+
+- Add disableSessionContextWithinWebView option to suppress client_session entity in hybrid native+WebView deployments
+
+### Patches
+
+- Remove forced layout read from tracker initialization: replace init-time getBrowserProperties() call with direct non-layout reads; defer the first readBrowserProperties() to first event build time.
+
+### Updates
+
+- Add preserveOriginalReferrer tracker configuration option for SPA referrer tracking
 
 ## 4.9.0
 Tue, 21 Jul 2026 14:53:08 GMT

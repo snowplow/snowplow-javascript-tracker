@@ -1,6 +1,13 @@
 # Change Log - @snowplow/browser-plugin-webview
 
-This log was last generated on Tue, 21 Jul 2026 14:53:08 GMT and should not be manually modified.
+This log was last generated on Mon, 27 Jul 2026 13:52:14 GMT and should not be manually modified.
+
+## 4.10.0
+Mon, 27 Jul 2026 13:52:14 GMT
+
+### Updates
+
+- Add test coverage for disableSessionContextWithinWebView option suppressing client_session entity in hybrid native+WebView deployments
 
 ## 4.9.0
 Tue, 21 Jul 2026 14:53:08 GMT
