@@ -31,7 +31,9 @@ type TrackerConfiguration = {
     plugins?: Array<BrowserPlugin>;
     onSessionUpdateCallback?: (updatedSession: ClientSession) => void;
     preservePageViewIdForUrl?: PreservePageViewIdForUrl;
+    preserveOriginalReferrer?: boolean;
     synchronousCookieWrite?: boolean;
+    disableSessionContextWithinWebView?: boolean;
 } & EmitterConfigurationBase & LocalStorageEventStoreConfigurationBase;
 ```
 
