@@ -181,6 +181,33 @@ describe('WebView plugin', () => {
     });
   });
 
+  it('Does not forward client_session entity when disableSessionContextWithinWebView is true', async () => {
+    mockHasMobileInterface.mockImplementation(() => true);
+    (window as any).ReactNativeWebView = { postMessage: () => {} };
+
+    eventStore = newInMemoryEventStore({});
+    const customFetch = async () => new Response(null, { status: 500 });
+    tracker = addTracker(`sp${idx++}`, `sp${idx++}`, 'js-4.0.0', '', new SharedState(), {
+      plugins: [WebViewPlugin()],
+      eventStore,
+      customFetch,
+      contexts: { session: true },
+      stateStorageStrategy: 'cookieAndLocalStorage',
+      encodeBase64: false,
+      disableSessionContextWithinWebView: true,
+    });
+
+    tracker?.trackPageView();
+
+    let calls = mockTrackWebViewEvent.mock.calls;
+    expect(calls).toHaveLength(1);
+    const forwardedContext: Array<{ schema: string }> = calls[0][0].context;
+    const hasClientSession = forwardedContext.some((entity) => entity.schema.includes('client_session'));
+    expect(hasClientSession).toBe(false);
+
+    delete (window as any).ReactNativeWebView;
+  });
+
   it('Passes a configured list of tracker namespaces', async () => {
     mockHasMobileInterface.mockImplementation(() => {
       return true;
