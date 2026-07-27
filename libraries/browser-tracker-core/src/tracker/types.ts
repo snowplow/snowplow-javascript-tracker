@@ -225,6 +225,22 @@ export type TrackerConfiguration = {
    * @defaultValue false
    */
   synchronousCookieWrite?: boolean;
+  /**
+   * When set to `true`, the tracker will not attach the `client_session` context entity to events
+   * when running inside a mobile WebView (i.e. when a Snowplow V2 WebView interface is detected).
+   *
+   * In hybrid native+WebView deployments the mobile SDK already contributes its own `client_session`
+   * entity. Allowing a second one from the JavaScript tracker causes duplicate-session problems in
+   * downstream modelling (e.g. dbt-snowplow-unified). Setting this option suppresses the JavaScript
+   * tracker's copy while the `contexts.session` flag can remain `true`.
+   *
+   * Detection uses the same three V2 interface checks as `@snowplow/webview-tracker`:
+   * `window.SnowplowWebInterfaceV2`, `window.webkit?.messageHandlers?.snowplowV2`, and
+   * `window.ReactNativeWebView`.
+   *
+   * @defaultValue false
+   */
+  disableSessionContextWithinWebView?: boolean;
 } & EmitterConfigurationBase &
   LocalStorageEventStoreConfigurationBase;
 

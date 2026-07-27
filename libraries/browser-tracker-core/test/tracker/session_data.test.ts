@@ -213,6 +213,71 @@ describe('Tracker API: ', () => {
     tracker?.trackPageView();
   });
 
+  describe('disableSessionContextWithinWebView', () => {
+    afterEach(() => {
+      delete (window as any).ReactNativeWebView;
+    });
+
+    it('Suppresses client_session entity when in WebView and option is enabled', (done) => {
+      (window as any).ReactNativeWebView = { postMessage: () => {} };
+      const tracker = createTracker({
+        contexts: { session: true },
+        encodeBase64: false,
+        disableSessionContextWithinWebView: true,
+        plugins: [
+          {
+            afterTrack: (payload) => {
+              let context = payload.co as string;
+              expect(context).not.toContain('client_session');
+              done();
+            },
+          },
+        ],
+      });
+
+      tracker?.trackPageView();
+    });
+
+    it('Includes client_session entity when in WebView but option is explicitly false', (done) => {
+      (window as any).ReactNativeWebView = { postMessage: () => {} };
+      const tracker = createTracker({
+        contexts: { session: true },
+        encodeBase64: false,
+        disableSessionContextWithinWebView: false,
+        plugins: [
+          {
+            afterTrack: (payload) => {
+              let context = payload.co as string;
+              expect(context).toContain('client_session');
+              done();
+            },
+          },
+        ],
+      });
+
+      tracker?.trackPageView();
+    });
+
+    it('Includes client_session entity when in WebView but option is absent (backward compat)', (done) => {
+      (window as any).ReactNativeWebView = { postMessage: () => {} };
+      const tracker = createTracker({
+        contexts: { session: true },
+        encodeBase64: false,
+        plugins: [
+          {
+            afterTrack: (payload) => {
+              let context = payload.co as string;
+              expect(context).toContain('client_session');
+              done();
+            },
+          },
+        ],
+      });
+
+      tracker?.trackPageView();
+    });
+  });
+
   describe('onSessionUpdateCallback functionality', () => {
     beforeEach(() => {
       const standardDate = new Date('2023-01-01T00:00:00Z');

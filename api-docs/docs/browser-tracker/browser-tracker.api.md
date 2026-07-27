@@ -556,6 +556,7 @@ export type TrackerConfiguration = {
     preservePageViewIdForUrl?: PreservePageViewIdForUrl;
     preserveOriginalReferrer?: boolean;
     synchronousCookieWrite?: boolean;
+    disableSessionContextWithinWebView?: boolean;
 } & EmitterConfigurationBase & LocalStorageEventStoreConfigurationBase;
 
 // @public
