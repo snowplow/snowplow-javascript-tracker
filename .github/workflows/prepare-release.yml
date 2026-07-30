@@ -21,17 +21,21 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     env:
-      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       BASE_BRANCH: master
+      # Workflow inputs are exposed as environment variables and referenced as
+      # "$RELEASE_BRANCH" in run: blocks, never interpolated as ${{ }} into an
+      # inline script. Direct interpolation splices the raw value into the shell
+      # before it runs, which is a script-injection sink (see ST-482).
+      RELEASE_BRANCH: ${{ inputs.release_branch }}
+      DRY_RUN: ${{ inputs.dry_run }}
     steps:
       - name: Validate inputs
         id: validate
         run: |
           set -euo pipefail
-          branch="${{ inputs.release_branch }}"
-          if [[ ! "$branch" =~ ^release/([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
-            echo "::error::release_branch must match 'release/X.Y.Z' (got: $branch)"
+          if [[ ! "$RELEASE_BRANCH" =~ ^release/([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+            echo "::error::release_branch must match 'release/X.Y.Z' (got: $RELEASE_BRANCH)"
             exit 1
           fi
           version="${BASH_REMATCH[1]}"
@@ -45,7 +49,7 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Use Node.js 18
+      - name: Use Node.js 22
         uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -57,16 +61,16 @@ jobs:
 
       - name: Verify branch state
         id: state
+        env:
+          VERSION: ${{ steps.validate.outputs.version }}
         run: |
           set -euo pipefail
-          version='${{ steps.validate.outputs.version }}'
-
           git fetch origin "$BASE_BRANCH"
 
           # Idempotent re-run: if HEAD is already "Prepare for X.Y.Z release",
           # skip the bump+commit and only refresh the PR body.
           head_subject="$(git log -1 --pretty=%s)"
-          if [[ "$head_subject" == "Prepare for $version release" ]]; then
+          if [[ "$head_subject" == "Prepare for $VERSION release" ]]; then
             echo "Branch HEAD is already the prepare-release commit; will skip bump+commit and only refresh the PR."
             echo "already_prepared=true" >> "$GITHUB_OUTPUT"
           else
@@ -85,15 +89,11 @@ jobs:
           fi
           echo "prev_tag=$prev_tag" >> "$GITHUB_OUTPUT"
 
-          # Commits on the release branch since prev_tag.
-          # Filter out commits the JS publish pipeline creates automatically:
-          # - "Prepare for ..."           (prepare-release commit)
-          # - "Bump versions [skip ci]"   (rush version --bump)
-          # - "Update changelogs [skip ci]" (rush change --apply during publish)
-          # - "Applying documentation updates." (api-docs commit during publish)
-          git log --no-merges "$prev_tag..HEAD" --pretty='%h %s' \
-            | grep -v -E '^[0-9a-f]+ (Prepare for |Bump versions |Update changelogs |Applying documentation updates)' \
-            > commits-raw.txt || true
+          # Commits on the release branch since prev_tag. classify-commits.sh
+          # drops the commits the JS publish pipeline creates automatically
+          # ("Bump versions [skip ci]", "Update changelogs [skip ci]",
+          # "Applying documentation updates.") along with other chores.
+          git log --no-merges "$prev_tag..HEAD" --pretty='%h %s' > commits-raw.txt || true
           git log --merges "$prev_tag..HEAD" --pretty='%h %s' >> commits-raw.txt || true
 
           # De-dup by short sha, preserve order
@@ -102,6 +102,8 @@ jobs:
           cat commits.txt
 
       - name: Annotate commits with author + external flag
+        env:
+          REPOSITORY: ${{ github.repository }}
         run: |
           set -euo pipefail
           : > commits-annotated.txt
@@ -113,7 +115,7 @@ jobs:
             login=""
             external="false"
             if [[ -n "$pr_num" ]]; then
-              if json="$(gh api "repos/${{ github.repository }}/pulls/$pr_num" 2>/dev/null)"; then
+              if json="$(gh api "repos/$REPOSITORY/pulls/$pr_num" 2>/dev/null)"; then
                 login="$(echo "$json" | jq -r '.user.login // ""')"
                 assoc="$(echo "$json" | jq -r '.author_association // ""')"
                 case "$assoc" in
@@ -127,15 +129,16 @@ jobs:
           echo "Annotated commits:"
           cat commits-annotated.txt
 
-      - name: Install Claude Code CLI
-        run: npm install -g @anthropic-ai/claude-code
-
       - name: Set nextBump in version-policies.json
         if: steps.state.outputs.already_prepared == 'false'
-        run: node .github/scripts/prepare-release.js '${{ steps.validate.outputs.version }}'
+        env:
+          VERSION: ${{ steps.validate.outputs.version }}
+        run: node .github/scripts/prepare-release.js "$VERSION"
 
       - name: Commit "Prepare for release"
         if: steps.state.outputs.already_prepared == 'false' && inputs.dry_run == false
+        env:
+          VERSION: ${{ steps.validate.outputs.version }}
         run: |
           set -euo pipefail
           git add common/config/rush/version-policies.json
@@ -143,8 +146,8 @@ jobs:
           if git diff --cached --quiet; then
             echo "No staged changes; nextBump was already set correctly. Skipping commit."
           else
-            git commit -m 'Prepare for ${{ steps.validate.outputs.version }} release'
-            git push origin '${{ inputs.release_branch }}'
+            git commit -m "Prepare for $VERSION release"
+            git push origin "$RELEASE_BRANCH"
           fi
 
       - name: Show planned changes (dry run)
@@ -154,48 +157,30 @@ jobs:
           git --no-pager diff
           echo "===================================="
 
-      - name: Generate PR body with Claude
+      - name: Generate PR body
         run: |
           set -euo pipefail
-          prev_pr_num="$(gh pr list --state merged --search 'Release in:title' --base "$BASE_BRANCH" --limit 1 --json number --jq '.[0].number' || true)"
-          if [[ -n "$prev_pr_num" ]]; then
-            gh pr view "$prev_pr_num" --json body --jq .body > previous-pr-body.txt
-          else
-            echo '(no previous release PR found)' > previous-pr-body.txt
-          fi
+          ./.github/scripts/classify-commits.sh < commits-annotated.txt > classified.tsv
+          ./.github/scripts/format-pr-body.sh < classified.tsv > pr-body.md
 
-          {
-            echo "VERSION: ${{ steps.validate.outputs.version }}"
-            echo ""
-            echo "COMMITS:"
-            cat commits-annotated.txt
-            echo ""
-            echo "PREVIOUS_PR_BODY:"
-            cat previous-pr-body.txt
-            echo ""
-            echo "---"
-            echo "Instructions:"
-            cat .github/scripts/prompts/pr-body.md
-          } > pr-body-prompt.txt
-
-          claude -p --output-format text < pr-body-prompt.txt > pr-body.md
           echo "=== Generated PR body ==="
           cat pr-body.md
           echo "========================="
 
       - name: Open or update release PR
         if: inputs.dry_run == false
+        env:
+          VERSION: ${{ steps.validate.outputs.version }}
         run: |
           set -euo pipefail
-          version='${{ steps.validate.outputs.version }}'
-          existing="$(gh pr list --head '${{ inputs.release_branch }}' --base "$BASE_BRANCH" --state open --json number --jq '.[0].number' || true)"
+          existing="$(gh pr list --head "$RELEASE_BRANCH" --base "$BASE_BRANCH" --state open --json number --jq '.[0].number' || true)"
           if [[ -n "$existing" ]]; then
-            gh pr edit "$existing" --title "Release/$version" --body-file pr-body.md
+            gh pr edit "$existing" --title "Release/$VERSION" --body-file pr-body.md
             echo "Updated existing PR #$existing"
           else
             gh pr create \
               --base "$BASE_BRANCH" \
-              --head '${{ inputs.release_branch }}' \
-              --title "Release/$version" \
+              --head "$RELEASE_BRANCH" \
+              --title "Release/$VERSION" \
               --body-file pr-body.md
           fi
