@@ -1,7 +1,8 @@
 import { BrowserPlugin } from '@snowplow/browser-tracker-core';
 import { LOG } from '@snowplow/tracker-core';
-import { load } from '@fingerprintjs/botd';
+import { collect, detect, sources } from '@fingerprintjs/botd';
 import { CLIENT_SIDE_BOT_DETECTION_SCHEMA } from './schemata';
+import { activeDetectors } from './detectors';
 import { BotDetectionContextData } from './types';
 
 export { BotDetectionContextData, BotKind } from './types';
@@ -14,12 +15,14 @@ export function BotDetectionPlugin(): BrowserPlugin {
     activateBrowserPlugin: () => {
       if (!detectionStarted) {
         detectionStarted = true;
-        load()
-          .then((detector) => detector.detect())
+        // Equivalent to BotD's `load().then((d) => d.detect())`,
+        // but with our own detector set (see `./detectors`)
+        collect(sources)
+          .then((components) => detect(components, activeDetectors)[1])
           .then((result) => {
             contextData = result.bot ? { bot: true, kind: result.botKind } : { bot: false, kind: null };
           })
-          .catch((err) => LOG.error('BotDetectionPlugin: BotD load/detect failed', err));
+          .catch((err) => LOG.error('BotDetectionPlugin: BotD collect/detect failed', err));
       }
     },
     contexts: () => {
