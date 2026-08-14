@@ -5,22 +5,22 @@ import { setImmediate } from 'timers';
 const flushPromises = () => new Promise(setImmediate);
 
 let mockDetectResult: any = { bot: false };
-let mockLoadReject: Error | null = null;
-let mockDetectReject: Error | null = null;
+let mockCollectReject: Error | null = null;
+let mockDetectThrow: Error | null = null;
 
 jest.mock('@fingerprintjs/botd', () => ({
-  load: () => {
-    if (mockLoadReject) {
-      return Promise.reject(mockLoadReject);
+  ...jest.requireActual('@fingerprintjs/botd'),
+  collect: () => {
+    if (mockCollectReject) {
+      return Promise.reject(mockCollectReject);
     }
-    return Promise.resolve({
-      detect: () => {
-        if (mockDetectReject) {
-          return Promise.reject(mockDetectReject);
-        }
-        return Promise.resolve(mockDetectResult);
-      },
-    });
+    return Promise.resolve({});
+  },
+  detect: () => {
+    if (mockDetectThrow) {
+      throw mockDetectThrow;
+    }
+    return [{}, mockDetectResult];
   },
 }));
 
@@ -28,8 +28,8 @@ describe('BotDetectionPlugin', () => {
   beforeEach(() => {
     jest.resetModules();
     mockDetectResult = { bot: false };
-    mockLoadReject = null;
-    mockDetectReject = null;
+    mockCollectReject = null;
+    mockDetectThrow = null;
   });
 
   it('attaches bot context when a bot is detected', async () => {
@@ -107,8 +107,8 @@ describe('BotDetectionPlugin', () => {
     core.track(buildLinkClick({ targetUrl: 'https://example.com' }));
   });
 
-  it('returns empty contexts when load() fails', async () => {
-    mockLoadReject = new Error('load failed');
+  it('returns empty contexts when collect() fails', async () => {
+    mockCollectReject = new Error('collect failed');
 
     const { BotDetectionPlugin } = require('../src');
     const plugin = BotDetectionPlugin();
@@ -128,7 +128,7 @@ describe('BotDetectionPlugin', () => {
   });
 
   it('returns empty contexts when detect() fails', async () => {
-    mockDetectReject = new Error('detect failed');
+    mockDetectThrow = new Error('detect failed');
 
     const { BotDetectionPlugin } = require('../src');
     const plugin = BotDetectionPlugin();
