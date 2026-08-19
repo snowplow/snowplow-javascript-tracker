@@ -9,13 +9,15 @@ function getFullPath(path: string): string {
 type CustomTestRunnerConfig = Options.Testrunner & { dockerInstance?: DockerWrapper };
 
 export const config: Omit<Options.Testrunner, 'capabilities'> = {
-  specs: [[
-    getFullPath('test/functional/*.test.ts'),
-    getFullPath('test/integration/*.test.ts'),
-    getFullPath('test/media/media.test.ts'),
-    getFullPath('test/performance/*.test.ts'),
-    // YouTube and Vimeo tests are disabled since they block SauceLabs on CI
-  ]],
+  specs: [
+    [
+      getFullPath('test/functional/*.test.ts'),
+      getFullPath('test/integration/*.test.ts'),
+      getFullPath('test/media/media.test.ts'),
+      getFullPath('test/performance/*.test.ts'),
+      // YouTube and Vimeo tests are disabled since they block SauceLabs on CI
+    ],
+  ],
   logLevel: 'warn',
   baseUrl: 'http://snowplow-js-tracker.local:8080',
   waitforTimeout: 30000,
@@ -31,7 +33,11 @@ export const config: Omit<Options.Testrunner, 'capabilities'> = {
     defaultTimeoutInterval: 120000,
   },
   async onPrepare(config: CustomTestRunnerConfig) {
-    const isSauce = config.services?.some((service) => Array.isArray(service) && service[0] === 'sauce');
+    // Tolerate both the `'sauce'` and `['sauce', opts]` service forms, since Micro must be
+    // advertised under the tunnel hostname rather than loopback whenever tests run on Sauce.
+    const isSauce = config.services?.some((service) =>
+      Array.isArray(service) ? service[0] === 'sauce' : service === 'sauce'
+    );
     config.dockerInstance = await start(isSauce);
     await setValue('dockerInstanceUrl', config.dockerInstance.url);
     return;
