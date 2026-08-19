@@ -12,6 +12,7 @@ jobs:
     env:
       SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
       SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+      SAUCE_TUNNEL_NAME: sp-js-tracker-${{ github.run_id }}-${{ github.run_attempt }}
       BROWSERSLIST_IGNORE_OLD_DATA: true
 
     steps:
@@ -52,8 +53,18 @@ jobs:
         if: ${{ env.SAUCE_ACCESS_KEY != '' }}
         run: echo "127.0.0.1 snowplow-js-tracker.local" | sudo tee -a /etc/hosts
 
+      - name: Start Saucelabs Tunnel
+        if: ${{ env.SAUCE_ACCESS_KEY != '' }}
+        uses: saucelabs/sauce-connect-action@v3
+        with:
+          username: ${{ secrets.SAUCE_USERNAME }}
+          accessKey: ${{ secrets.SAUCE_ACCESS_KEY }}
+          region: us
+          tunnelName: ${{ env.SAUCE_TUNNEL_NAME }}
+
       - name: Run End to End Tests
         if: ${{ env.SAUCE_ACCESS_KEY != '' }}
+        timeout-minutes: 60
         working-directory: ./trackers/javascript-tracker
         run: node ../../common/scripts/install-run-rushx.js test:e2e:sauce
 
