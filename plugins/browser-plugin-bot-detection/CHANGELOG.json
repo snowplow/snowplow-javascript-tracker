@@ -2,6 +2,18 @@
   "name": "@snowplow/browser-plugin-bot-detection",
   "entries": [
     {
+      "version": "4.10.1",
+      "tag": "@snowplow/browser-plugin-bot-detection_v4.10.1",
+      "date": "Wed, 19 Aug 2026 14:26:05 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Exclude BotD's spurious plugins-length headless Chrome detector"
+          }
+        ]
+      }
+    },
+    {
       "version": "4.10.0",
       "tag": "@snowplow/browser-plugin-bot-detection_v4.10.0",
       "date": "Mon, 27 Jul 2026 13:52:14 GMT",

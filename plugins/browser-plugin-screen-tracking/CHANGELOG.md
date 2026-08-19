@@ -1,6 +1,11 @@
 # Change Log - @snowplow/browser-plugin-screen-tracking
 
-This log was last generated on Mon, 27 Jul 2026 13:52:14 GMT and should not be manually modified.
+This log was last generated on Wed, 19 Aug 2026 14:26:05 GMT and should not be manually modified.
+
+## 4.10.1
+Wed, 19 Aug 2026 14:26:05 GMT
+
+_Version update only_
 
 ## 4.10.0
 Mon, 27 Jul 2026 13:52:14 GMT
