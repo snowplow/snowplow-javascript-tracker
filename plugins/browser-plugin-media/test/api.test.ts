@@ -348,6 +348,20 @@ describe('Media Tracking API', () => {
       });
     });
 
+    it('strips empty string label from media player entity when updated mid-session via updateMediaTracking', () => {
+      startMediaTracking({
+        id,
+        session: false,
+        player: { label: 'My Video' },
+      });
+
+      updateMediaTracking({ id, player: { label: '' } });
+      trackMediaPlay({ id });
+
+      const playerContext = eventQueue[0].context[0].data;
+      expect(playerContext).not.toHaveProperty('label');
+    });
+
     it('tracks error event', () => {
       startMediaTracking({ id, session: false });
 
