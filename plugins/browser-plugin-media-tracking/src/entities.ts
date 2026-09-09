@@ -13,7 +13,8 @@ export function buildHTMLMediaElementEntity(el: HTMLAudioElement | HTMLVideoElem
   // currentSrc is required by the schema and constrained to `format: uri`, which
   // an empty string does not satisfy. Both currentSrc and src are empty while no
   // source is attached (networkState NETWORK_EMPTY) — for example between element
-  // creation and MediaSource attachment in MSE players such as hls.js or dash.js.
+  // creation and MediaSource attachment in Media Source Extensions (MSE) players
+  // such as hls.js or dash.js, which assign a blob: URL only once they attach.
   // There is nothing to describe in that state, so omit the entity rather than
   // emitting one the pipeline would reject as a schema violation.
   const source = el.currentSrc || el.src;
