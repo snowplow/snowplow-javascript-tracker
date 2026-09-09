@@ -48,8 +48,10 @@ function updatePlayer(el: HTMLMediaElement): MediaPlayerUpdate {
   return { ...common, ...video };
 }
 
-function htmlContext(el: HTMLMediaElement): (() => SelfDescribingJson)[] {
-  const context = [() => buildHTMLMediaElementEntity(el)];
+function htmlContext(el: HTMLMediaElement): (() => SelfDescribingJson | null)[] {
+  // Evaluated per event, so a media_element entity is attached as soon as a source
+  // attaches and omitted again if the element returns to having no source.
+  const context: (() => SelfDescribingJson | null)[] = [() => buildHTMLMediaElementEntity(el)];
 
   if (el instanceof HTMLVideoElement) {
     context.push(() => buildHTMLVideoElementEntity(el));
@@ -66,7 +68,7 @@ export function setUpListeners(config: ElementConfig) {
     id,
     player: {
       label,
-      ...updatePlayer(video)
+      ...updatePlayer(video),
     },
     context: (config.context ?? []).concat(htmlContext(video)),
   });

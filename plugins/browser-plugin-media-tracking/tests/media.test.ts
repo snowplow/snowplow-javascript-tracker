@@ -1,5 +1,6 @@
 import { findMediaElement } from '../src/findElem';
 import { dataUrlHandler, getDuration, getUriFileExtension } from '../src/helperFunctions';
+import { buildHTMLMediaElementEntity } from '../src/entities';
 
 describe('element searcher', () => {
   it('finds a video with id', () => {
@@ -56,10 +57,12 @@ describe('dataUrlHandler', () => {
     expect(output).toBe(test_url);
   });
 
-  it('returns "DATA_URL" in event of data uri', () => {
+  // The placeholder replaces a potentially very large data URI, but has to stay a
+  // valid URI itself: the schema constrains this field with `format: uri`.
+  it('returns a valid uri placeholder in event of data uri', () => {
     const test_url = 'data:image/png;base64,iVBORw0KGgoAA5ErkJggg==';
     const output = dataUrlHandler(test_url);
-    expect(output).toBe('DATA_URL');
+    expect(output).toBe('data:');
   });
 });
 
@@ -168,5 +171,64 @@ describe('getDuration of a ', () => {
       const output = getDuration(audio);
       expect(output).toBe(null);
     });
+  });
+});
+
+describe('buildHTMLMediaElementEntity', () => {
+  const setSource = (el: HTMLMediaElement, { currentSrc = '', src = '' }) => {
+    // currentSrc is read-only in the DOM, so define it directly. src is set via the
+    // property so JSDOM resolves it the same way a browser would.
+    Object.defineProperty(el, 'currentSrc', { value: currentSrc, configurable: true });
+    if (src) el.src = src;
+  };
+
+  it('omits the entity while no source is attached', () => {
+    // Both currentSrc and src are empty between element creation and MediaSource
+    // attachment in MSE players. currentSrc is required and constrained to
+    // `format: uri`, which an empty string does not satisfy.
+    const video = document.createElement('video');
+    setSource(video, { currentSrc: '', src: '' });
+
+    expect(buildHTMLMediaElementEntity(video)).toBeNull();
+  });
+
+  it('builds the entity once a source attaches', () => {
+    const video = document.createElement('video');
+    setSource(video, { currentSrc: 'https://example.com/video.m3u8' });
+
+    const entity = buildHTMLMediaElementEntity(video);
+
+    expect(entity).not.toBeNull();
+    expect(entity!.schema).toBe('iglu:org.whatwg/media_element/jsonschema/1-0-0');
+    expect(entity!.data).toMatchObject({ currentSrc: 'https://example.com/video.m3u8' });
+  });
+
+  it('builds the entity for a blob: source', () => {
+    // blob: URLs are what MSE players attach, and are valid absolute URIs.
+    const video = document.createElement('video');
+    setSource(video, { currentSrc: 'blob:https://example.com/9d7f-4c1a' });
+
+    const entity = buildHTMLMediaElementEntity(video);
+
+    expect(entity!.data).toMatchObject({ currentSrc: 'blob:https://example.com/9d7f-4c1a' });
+  });
+
+  it('falls back to src when currentSrc is empty', () => {
+    const video = document.createElement('video');
+    setSource(video, { currentSrc: '', src: 'https://example.com/fallback.mp4' });
+
+    const entity = buildHTMLMediaElementEntity(video);
+
+    expect(entity!.data).toMatchObject({ currentSrc: 'https://example.com/fallback.mp4' });
+  });
+
+  it('never serializes src as an empty string', () => {
+    // src has no attribute set, so it falls back to currentSrc rather than ''.
+    const video = document.createElement('video');
+    setSource(video, { currentSrc: 'blob:https://example.com/9d7f-4c1a' });
+
+    const entity = buildHTMLMediaElementEntity(video);
+
+    expect(entity!.data).toMatchObject({ src: 'blob:https://example.com/9d7f-4c1a' });
   });
 });

@@ -41,10 +41,14 @@ export function getDuration(el: HTMLAudioElement | HTMLVideoElement): number | n
   return duration;
 }
 
-// Checks if a url is a data_url, so we don't send a (potentially large) payload
+// Checks if a url is a data_url, so we don't send a (potentially large) payload.
+// The placeholder has to remain a valid URI: the schema constrains this field with
+// `format: uri`, which a bare string such as 'DATA_URL' does not satisfy.
+export const DATA_URL_PLACEHOLDER = 'data:';
+
 export function dataUrlHandler(url: string): string {
   if (url.indexOf('data:') !== -1) {
-    return 'DATA_URL';
+    return DATA_URL_PLACEHOLDER;
   }
   return url;
 }

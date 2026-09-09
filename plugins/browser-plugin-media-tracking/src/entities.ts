@@ -9,7 +9,22 @@ import {
 } from './helperFunctions';
 import { SelfDescribingJson } from '@snowplow/tracker-core';
 
-export function buildHTMLMediaElementEntity(el: HTMLAudioElement | HTMLVideoElement): SelfDescribingJson {
+export function buildHTMLMediaElementEntity(el: HTMLAudioElement | HTMLVideoElement): SelfDescribingJson | null {
+  // currentSrc is required by the schema and constrained to `format: uri`, which
+  // an empty string does not satisfy. Both currentSrc and src are empty while no
+  // source is attached (networkState NETWORK_EMPTY) — for example between element
+  // creation and MediaSource attachment in MSE players such as hls.js or dash.js.
+  // There is nothing to describe in that state, so omit the entity rather than
+  // emitting one the pipeline would reject as a schema violation.
+  const source = el.currentSrc || el.src;
+  if (!source) {
+    return null;
+  }
+
+  // Both fields are optional-but-uri-formatted, so having passed the guard above,
+  // fall back to the other rather than letting either serialize as an empty string.
+  const src = el.src || el.currentSrc;
+
   const data: MediaElement = {
     // htmlId is a required property in the schema, but may not be present if
     // the user provided the element themselves
@@ -18,7 +33,7 @@ export function buildHTMLMediaElementEntity(el: HTMLAudioElement | HTMLVideoElem
     autoPlay: el.autoplay,
     buffered: timeRangesToObjectArray(el.buffered),
     controls: el.controls,
-    currentSrc: el.currentSrc || el.src,
+    currentSrc: source,
     defaultMuted: el.defaultMuted || false,
     defaultPlaybackRate: el.defaultPlaybackRate,
     error: el.error ? { code: el.error?.code, message: el.error?.message } : null,
@@ -27,9 +42,9 @@ export function buildHTMLMediaElementEntity(el: HTMLAudioElement | HTMLVideoElem
     readyState: READY_STATE[el.readyState] as MediaElement['readyState'],
     seekable: timeRangesToObjectArray(el.seekable),
     seeking: el.seeking,
-    src: dataUrlHandler(el.src || el.currentSrc),
+    src: dataUrlHandler(src),
     textTracks: textTrackListToJson(el.textTracks),
-    fileExtension: getUriFileExtension(el.currentSrc),
+    fileExtension: getUriFileExtension(source),
     fullscreen: isFullScreen(el),
     pictureInPicture: document.pictureInPictureElement === el,
   };
