@@ -2,6 +2,18 @@
   "name": "@snowplow/browser-plugin-media-tracking",
   "entries": [
     {
+      "version": "4.10.2",
+      "tag": "@snowplow/browser-plugin-media-tracking_v4.10.2",
+      "date": "Wed, 09 Sep 2026 11:40:39 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Omit the media_element entity while the element has no source, instead of emitting an empty currentSrc that fails schema validation"
+          }
+        ]
+      }
+    },
+    {
       "version": "4.10.1",
       "tag": "@snowplow/browser-plugin-media-tracking_v4.10.1",
       "date": "Wed, 19 Aug 2026 14:26:05 GMT",

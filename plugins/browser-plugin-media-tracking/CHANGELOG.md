@@ -1,6 +1,13 @@
 # Change Log - @snowplow/browser-plugin-media-tracking
 
-This log was last generated on Wed, 19 Aug 2026 14:26:05 GMT and should not be manually modified.
+This log was last generated on Wed, 09 Sep 2026 11:40:39 GMT and should not be manually modified.
+
+## 4.10.2
+Wed, 09 Sep 2026 11:40:39 GMT
+
+### Patches
+
+- Omit the media_element entity while the element has no source, instead of emitting an empty currentSrc that fails schema validation
 
 ## 4.10.1
 Wed, 19 Aug 2026 14:26:05 GMT
