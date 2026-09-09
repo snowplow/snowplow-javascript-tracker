@@ -41,10 +41,18 @@ export function getDuration(el: HTMLAudioElement | HTMLVideoElement): number | n
   return duration;
 }
 
-// Checks if a url is a data_url, so we don't send a (potentially large) payload
+// Checks if a url is a data_url, so we don't send a (potentially large) payload.
+// The placeholder has to remain a valid URI: the schema constrains this field with
+// `format: uri`, which a bare string such as 'DATA_URL' does not satisfy.
+export const DATA_URL_PLACEHOLDER = 'data:';
+
 export function dataUrlHandler(url: string): string {
-  if (url.indexOf('data:') !== -1) {
-    return 'DATA_URL';
+  // Match the `data:` scheme only at the start of the string, case-insensitively as
+  // RFC 3986 specifies. A substring check would both replace valid URLs that merely
+  // contain 'data:' (e.g. a path segment 'metadata:9') and miss an uppercase 'DATA:'
+  // scheme, shipping the large payload this is meant to avoid.
+  if (/^data:/i.test(url)) {
+    return DATA_URL_PLACEHOLDER;
   }
   return url;
 }

@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Omit the media_element entity while the element has no source, instead of emitting an empty currentSrc that fails schema validation",
+      "type": "patch",
+      "packageName": "@snowplow/browser-plugin-media-tracking"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-media-tracking",
+  "email": "matus@snowplowanalytics.com"
+}
