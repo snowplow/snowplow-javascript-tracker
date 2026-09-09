@@ -47,7 +47,11 @@ export function getDuration(el: HTMLAudioElement | HTMLVideoElement): number | n
 export const DATA_URL_PLACEHOLDER = 'data:';
 
 export function dataUrlHandler(url: string): string {
-  if (url.indexOf('data:') !== -1) {
+  // Match the `data:` scheme only at the start of the string, case-insensitively as
+  // RFC 3986 specifies. A substring check would both replace valid URLs that merely
+  // contain 'data:' (e.g. a path segment 'metadata:9') and miss an uppercase 'DATA:'
+  // scheme, shipping the large payload this is meant to avoid.
+  if (/^data:/i.test(url)) {
     return DATA_URL_PLACEHOLDER;
   }
   return url;

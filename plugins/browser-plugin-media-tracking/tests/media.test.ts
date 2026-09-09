@@ -64,6 +64,26 @@ describe('dataUrlHandler', () => {
     const output = dataUrlHandler(test_url);
     expect(output).toBe('data:');
   });
+
+  it('matches the data: scheme case-insensitively', () => {
+    // URI schemes are case-insensitive per RFC 3986, so this is a real data URI and
+    // its payload must not be sent.
+    const test_url = 'DATA:image/png;base64,iVBORw0KGgoAA5ErkJggg==';
+    const output = dataUrlHandler(test_url);
+    expect(output).toBe('data:');
+  });
+
+  it('keeps urls that merely contain data: outside the scheme', () => {
+    // 'data:' has to be matched as a scheme, not as a substring, or valid URLs get
+    // replaced by the placeholder.
+    for (const test_url of [
+      'https://example.com/metadata:9/video.mp4',
+      'https://example.com/data:foo/video.mp4',
+      'https://example.com/video.mp4?ref=data:x',
+    ]) {
+      expect(dataUrlHandler(test_url)).toBe(test_url);
+    }
+  });
 });
 
 describe('getUriFileExtension', () => {
