@@ -59,6 +59,10 @@ export interface SessionConfiguration {
    * @defaultValue true
    */
   sessionContext?: boolean;
+  /**
+   * A callback function that is called when the session changes
+   */
+  onSessionUpdateCallback?: (session: SessionState) => void;
 }
 
 /**
