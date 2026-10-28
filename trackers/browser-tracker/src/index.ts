@@ -48,6 +48,7 @@ import {
   EventStorePayload,
   EventStoreConfiguration,
   LocalStorageEventStoreConfigurationBase,
+  CookieStorage,
 } from '@snowplow/browser-tracker-core';
 import {
   version,
@@ -99,6 +100,7 @@ export {
   EventStorePayload,
   EmitterConfigurationBase,
   LocalStorageEventStoreConfigurationBase,
+  CookieStorage,
   CorePlugin,
   CorePluginConfiguration,
   TrackerCore,

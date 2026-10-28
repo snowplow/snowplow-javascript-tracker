@@ -37,6 +37,7 @@
 
 export * from './snowplow';
 export * from './tracker/types';
+export * from './tracker/cookie_storage';
 export * from './helpers';
 export * from './detectors';
 export * from './proxies';

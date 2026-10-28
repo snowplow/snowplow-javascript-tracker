@@ -6,6 +6,7 @@ import {
   CorePluginConfiguration,
 } from '@snowplow/tracker-core';
 import { SharedState } from '../state';
+import { CookieStorage } from './cookie_storage';
 import { EmitterConfigurationBase, EventStoreConfiguration } from '@snowplow/tracker-core';
 
 type RequireAtLeastOne<T> = { [K in keyof T]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<keyof T, K>>> }[keyof T];
@@ -225,6 +226,13 @@ export type TrackerConfiguration = {
    * @defaultValue false
    */
   synchronousCookieWrite?: boolean;
+  /**
+   * Custom storage the tracker uses to read, write and delete its cookies.
+   * Wrap `syncCookieStorage` or `asyncCookieStorage` to e.g. rename or mirror cookies.
+   * Takes precedence over `synchronousCookieWrite`, and `flushPendingCookies` does not flush it.
+   * @defaultValue `asyncCookieStorage`, or `syncCookieStorage` when `synchronousCookieWrite` is set
+   */
+  cookieStorage?: CookieStorage;
   /**
    * When set to `true`, the tracker will not attach the `client_session` context entity to events
    * when running inside a mobile WebView (i.e. when a Snowplow V2 WebView interface is detected).

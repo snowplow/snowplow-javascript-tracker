@@ -180,8 +180,9 @@ export function Tracker(
         };
       };
 
-    // Create a new cookie storage instance with synchronous cookie write if configured
-    const cookieStorage = trackerConfiguration.synchronousCookieWrite ? syncCookieStorage : asyncCookieStorage;
+    const cookieStorage =
+      trackerConfiguration.cookieStorage ??
+      (trackerConfiguration.synchronousCookieWrite ? syncCookieStorage : asyncCookieStorage);
 
     // Get all injected plugins
     browserPlugins.push(getBrowserDataPlugin());
