@@ -2,6 +2,12 @@
   "name": "@snowplow/browser-tracker",
   "entries": [
     {
+      "version": "4.10.3",
+      "tag": "@snowplow/browser-tracker_v4.10.3",
+      "date": "Fri, 06 Nov 2026 13:06:41 GMT",
+      "comments": {}
+    },
+    {
       "version": "4.10.2",
       "tag": "@snowplow/browser-tracker_v4.10.2",
       "date": "Wed, 09 Sep 2026 11:40:39 GMT",

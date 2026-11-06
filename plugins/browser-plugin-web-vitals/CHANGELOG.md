@@ -1,6 +1,13 @@
 # Change Log - @snowplow/browser-plugin-web-vitals
 
-This log was last generated on Wed, 09 Sep 2026 11:40:39 GMT and should not be manually modified.
+This log was last generated on Fri, 06 Nov 2026 13:06:41 GMT and should not be manually modified.
+
+## 4.10.3
+Fri, 06 Nov 2026 13:06:41 GMT
+
+### Patches
+
+- Pin the default Web Vitals script source to an exact version and add a Subresource Integrity hash, hardening against CDN/supply-chain compromise
 
 ## 4.10.2
 Wed, 09 Sep 2026 11:40:39 GMT
