@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Pin the default Web Vitals script source to an exact version and add a Subresource Integrity hash, hardening against CDN/supply-chain compromise",
+      "type": "patch",
+      "packageName": "@snowplow/browser-plugin-web-vitals"
+    }
+  ],
+  "packageName": "@snowplow/browser-plugin-web-vitals",
+  "email": "security@snowplowanalytics.com"
+}
