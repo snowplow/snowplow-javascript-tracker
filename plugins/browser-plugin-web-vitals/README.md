@@ -42,7 +42,7 @@ newTracker('sp1', '{{collector}}', { plugins: [ WebVitalsPlugin(/* pluginOptions
  * Available plugin options `WebVitalsPluginOptions`:
  * {
  *  loadWebVitalsScript: Should the plugin immediately load the Core Web Vitals measurement script from UNPKG CDN.
- *  webVitalsSource: The URL endpoint the Web Vitals script should be loaded from. Defaults to the UNPKG CDN.
+ *  webVitalsSource: The URL endpoint the Web Vitals script should be loaded from. Defaults to a pinned version on the UNPKG CDN, loaded with a Subresource Integrity check.
  *  context: Array of entity objects or entity-generating functions (the web_vitals payload is passed as a parameter) to attach to the web_vitals event.
  * }
  */
@@ -50,9 +50,9 @@ newTracker('sp1', '{{collector}}', { plugins: [ WebVitalsPlugin(/* pluginOptions
 
 ### Choosing a Web Vitals measurement source
 
-The default Web Vitals measurement script is loaded from the [UNPKG](https://www.unpkg.com/) CDN. This choice is chosen as a default but you should consider your own setup when choosing the script source. Selecting a script source from a CDN which might already be used in your website might save you from yet another connection startup time (_Queueing_,_DNS lookup_,_TCP_, _SSL_).
+The default Web Vitals measurement script is loaded from the [UNPKG](https://www.unpkg.com/) CDN, pinned to an exact `web-vitals` version and verified with a [Subresource Integrity](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity) hash. If you set a custom `webVitalsSource`, the plugin loads it without an integrity check, so prefer a self-hosted copy or a URL pinned to an exact version. This choice is chosen as a default but you should consider your own setup when choosing the script source. Selecting a script source from a CDN which might already be used in your website might save you from yet another connection startup time (_Queueing_,_DNS lookup_,_TCP_, _SSL_).
 
-Another reasonable choice could be [jsDelivr](https://cdn.jsdelivr.net/npm/web-vitals@3/dist/web-vitals.iife.js).
+Another reasonable choice could be [jsDelivr](https://cdn.jsdelivr.net/npm/web-vitals@4.2.4/dist/web-vitals.iife.js).
 
 ## Copyright and license
 
