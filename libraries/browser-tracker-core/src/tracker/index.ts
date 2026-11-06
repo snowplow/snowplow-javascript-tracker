@@ -1025,6 +1025,7 @@ export function Tracker(
           );
           if (
             configSessionContext &&
+            configStateStorageStrategy != 'none' &&
             (!configAnonymousTracking || configAnonymousSessionTracking) &&
             !(configDisableSessionInWebView && isInWebView())
           ) {

@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Omit the client_session entity when stateStorageStrategy is none, instead of emitting empty userId and sessionId values that fail schema validation (close #1298)",
+      "type": "patch",
+      "packageName": "@snowplow/browser-tracker-core"
+    }
+  ],
+  "packageName": "@snowplow/browser-tracker-core",
+  "email": "153192858+RaphaelFakhri@users.noreply.github.com"
+}
