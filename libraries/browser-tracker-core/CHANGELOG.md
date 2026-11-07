@@ -1,6 +1,11 @@
 # Change Log - @snowplow/browser-tracker-core
 
-This log was last generated on Wed, 09 Sep 2026 11:40:39 GMT and should not be manually modified.
+This log was last generated on Sat, 07 Nov 2026 08:41:31 GMT and should not be manually modified.
+
+## 4.10.3
+Sat, 07 Nov 2026 08:41:31 GMT
+
+_Version update only_
 
 ## 4.10.2
 Wed, 09 Sep 2026 11:40:39 GMT
