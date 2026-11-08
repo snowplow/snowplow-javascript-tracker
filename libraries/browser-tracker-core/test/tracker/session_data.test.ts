@@ -213,6 +213,46 @@ describe('Tracker API: ', () => {
     tracker?.trackPageView();
   });
 
+  it("Doesn't add the client session context entity when stateStorageStrategy is none", () => {
+    let context: string | undefined;
+    const tracker = createTracker({
+      contexts: { session: true },
+      encodeBase64: false,
+      stateStorageStrategy: 'none',
+      plugins: [
+        {
+          afterTrack: (payload) => {
+            context = payload.co as string;
+          },
+        },
+      ],
+    });
+
+    tracker?.trackPageView();
+    expect(context).toContain('web_page');
+    expect(context).not.toContain('client_session');
+  });
+
+  it("Doesn't add the client session context entity after switching stateStorageStrategy to none", () => {
+    let context: string | undefined;
+    const tracker = createTracker({
+      contexts: { session: true },
+      encodeBase64: false,
+      plugins: [
+        {
+          afterTrack: (payload) => {
+            context = payload.co as string;
+          },
+        },
+      ],
+    });
+
+    tracker?.enableAnonymousTracking({ options: false, stateStorageStrategy: 'none' });
+    tracker?.trackPageView();
+    expect(context).toContain('web_page');
+    expect(context).not.toContain('client_session');
+  });
+
   describe('disableSessionContextWithinWebView', () => {
     afterEach(() => {
       delete (window as any).ReactNativeWebView;
