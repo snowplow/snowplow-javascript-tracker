@@ -2,6 +2,18 @@
   "name": "@snowplow/browser-plugin-web-vitals",
   "entries": [
     {
+      "version": "4.10.3",
+      "tag": "@snowplow/browser-plugin-web-vitals_v4.10.3",
+      "date": "Sat, 07 Nov 2026 08:41:31 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Pin the default Web Vitals script source to an exact version and add a Subresource Integrity hash, hardening against CDN/supply-chain compromise"
+          }
+        ]
+      }
+    },
+    {
       "version": "4.10.2",
       "tag": "@snowplow/browser-plugin-web-vitals_v4.10.2",
       "date": "Wed, 09 Sep 2026 11:40:39 GMT",

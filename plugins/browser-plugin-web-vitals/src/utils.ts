@@ -30,12 +30,17 @@ export function attachWebVitalsPageListeners(callback: () => void) {
 /**
  *
  * @param {string} webVitalsSource Web Vitals script source.
+ * @param {string} [integrity] Subresource Integrity hash to set on the script tag, if available for the source.
  * @returns {string} The script element of the Web Vitals script. Used for attaching listeners on it.
  */
-export function createWebVitalsScript(webVitalsSource: string) {
+export function createWebVitalsScript(webVitalsSource: string, integrity?: string) {
   const webVitalsScript = document.createElement('script');
   webVitalsScript.setAttribute('src', webVitalsSource);
   webVitalsScript.setAttribute('async', '1');
+  if (integrity) {
+    webVitalsScript.setAttribute('integrity', integrity);
+    webVitalsScript.setAttribute('crossorigin', 'anonymous');
+  }
   webVitalsScript.addEventListener('error', () => {
     LOG.error(`Failed to load ${webVitalsSource}`);
   });

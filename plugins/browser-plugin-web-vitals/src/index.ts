@@ -4,7 +4,8 @@ import { WEB_VITALS_SCHEMA } from './schemata';
 import { attachWebVitalsPageListeners, createWebVitalsScript, webVitalsListener } from './utils';
 
 const _trackers: Record<string, BrowserTracker> = {};
-const WEB_VITALS_SOURCE = 'https://unpkg.com/web-vitals@4/dist/web-vitals.iife.js';
+const WEB_VITALS_SOURCE = 'https://unpkg.com/web-vitals@4.2.4/dist/web-vitals.iife.js';
+const WEB_VITALS_INTEGRITY = 'sha384-mfknU/5RXdvBJDftA9q3VBj6BImlZ7kqzvO30nq+H3CQLXcV7d+MaWniRPhLaT4h';
 let listenersAttached = false;
 
 interface WebVitalsPluginOptions {
@@ -23,7 +24,7 @@ const defaultPluginOptions = {
  * Adds Web Vitals measurement events
  *
  * @param pluginOptions.loadWebVitalsScript - Should the plugin immediately load the Core Web Vitals measurement script from UNPKG CDN.
- * @param pluginOptions.webVitalsSource - The URL endpoint the Web Vitals script should be loaded from. Defaults to the UNPKG CDN.
+ * @param pluginOptions.webVitalsSource - The URL endpoint the Web Vitals script should be loaded from. Defaults to a pinned version on the UNPKG CDN, loaded with a Subresource Integrity check. A custom source is loaded without an integrity check.
  * @remarks
  */
 export function WebVitalsPlugin(pluginOptions: WebVitalsPluginOptions = defaultPluginOptions): BrowserPlugin {
@@ -54,7 +55,8 @@ export function WebVitalsPlugin(pluginOptions: WebVitalsPluginOptions = defaultP
       }
 
       if (options.loadWebVitalsScript) {
-        webVitalsScript = createWebVitalsScript(options.webVitalsSource);
+        const integrity = options.webVitalsSource === WEB_VITALS_SOURCE ? WEB_VITALS_INTEGRITY : undefined;
+        webVitalsScript = createWebVitalsScript(options.webVitalsSource, integrity);
       }
 
       /*
