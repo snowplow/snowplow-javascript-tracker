@@ -37,7 +37,7 @@ import {
   updatePageActivity,
   setUserId,
 } from '@snowplow/browser-tracker';
-import { BrowserTracker, addTracker, isFunction, getTrackers } from '@snowplow/browser-tracker-core';
+import { BrowserTracker, addTracker, isFunction, getTrackers, addEventListener } from '@snowplow/browser-tracker-core';
 
 jest.mock('@snowplow/browser-tracker');
 jest.mock('@snowplow/browser-tracker-core');
@@ -243,5 +243,37 @@ describe('Snowplow callback', () => {
       1,
       2,
     ]);
+  });
+});
+
+describe('Commands queued while a plugin loads', () => {
+  const mockAddEventListener = addEventListener as jest.Mock<void>;
+
+  const loadPlugin = (src: string) => {
+    const script = Array.from(document.head.querySelectorAll('script')).find((s) => s.getAttribute('src') === src);
+    window.QueuePlugin = { QueuePlugin: () => ({}) };
+    script!.dispatchEvent(new Event('load'));
+  };
+
+  beforeEach(() => {
+    mockTrackPageView.mockReset();
+    mockAddEventListener.mockImplementation((element: HTMLElement, type: string, listener: EventListener) =>
+      element.addEventListener(type, listener)
+    );
+  });
+
+  it('are dispatched once, not again when a later plugin finishes loading', () => {
+    const asyncQueue = InQueueManager('queue', [['newTracker', 'sp1', 'endpoint']]);
+
+    asyncQueue.push(['addPlugin', '/first.js', ['QueuePlugin', 'QueuePlugin']]);
+    asyncQueue.push(['trackPageView']);
+    expect(mockTrackPageView).not.toHaveBeenCalled();
+
+    loadPlugin('/first.js');
+    expect(mockTrackPageView).toHaveBeenCalledTimes(1);
+
+    asyncQueue.push(['addPlugin', '/second.js', ['QueuePlugin', 'QueuePlugin']]);
+    loadPlugin('/second.js');
+    expect(mockTrackPageView).toHaveBeenCalledTimes(1);
   });
 });
