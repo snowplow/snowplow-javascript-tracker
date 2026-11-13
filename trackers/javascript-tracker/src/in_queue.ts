@@ -109,7 +109,8 @@ export function InQueueManager(functionName: string, asyncQueue: Array<unknown>)
 
   function tryProcessQueue() {
     if (Object.keys(pendingPlugins).length === 0) {
-      pendingQueue.forEach((q) => {
+      // Empty the queue before dispatching, otherwise the next plugin load replays every earlier command
+      pendingQueue.splice(0).forEach((q) => {
         let fnParameters = q[1];
         if (
           typeof availableFunctions[q[0]] !== 'undefined' &&

@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Stop replaying earlier queued commands each time a plugin loaded from a URL finishes loading, which sent duplicate events with new event IDs",
+      "type": "patch",
+      "packageName": "@snowplow/javascript-tracker"
+    }
+  ],
+  "packageName": "@snowplow/javascript-tracker",
+  "email": "james.borlase@snowplowanalytics.com"
+}
