@@ -18,7 +18,11 @@ export interface BotSignalPluginOptions {
 // bot-signal automation kinds that exist in the standard schema's `kind` enum. Everything else
 // (playwright, puppeteer, lightpanda, curl, python, ...) is reported as 'unknown',
 // because that schema is closed (enum + additionalProperties: false).
-const SCHEMA_KINDS: Record<string, BotKind> = { selenium: 'selenium', phantomjs: 'phantomjs' };
+const SCHEMA_KINDS = new Map<string, BotKind>([
+  ['selenium', 'selenium'],
+  ['phantomjs', 'phantomjs'],
+  ['nightmare', 'nightmarejs'],
+]);
 
 let context: { schema: string; data: Record<string, unknown> } | undefined;
 let detectionStarted = false;
@@ -33,7 +37,7 @@ export function BotSignalPlugin(options: BotSignalPluginOptions = {}): BrowserPl
     activateBrowserPlugin: () => {
       if (!detectionStarted) {
         detectionStarted = true;
-        detectInstantClientAsync(window)
+        detectInstantClientAsync(window as unknown as Parameters<typeof detectInstantClientAsync>[0])
           .then((r) => {
             const rawKind = r.automation && r.automation.kind ? String(r.automation.kind) : null;
             if (pilot) {
@@ -47,7 +51,7 @@ export function BotSignalPlugin(options: BotSignalPluginOptions = {}): BrowserPl
             } else {
               const data: BotDetectionContextData = r.isLegitClient
                 ? { bot: false, kind: null }
-                : { bot: true, kind: (rawKind && SCHEMA_KINDS[rawKind]) || 'unknown' };
+                : { bot: true, kind: (rawKind && SCHEMA_KINDS.get(rawKind)) || 'unknown' };
               context = { schema: CLIENT_SIDE_BOT_DETECTION_SCHEMA, data };
             }
           })

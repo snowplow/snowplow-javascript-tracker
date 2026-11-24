@@ -14,6 +14,7 @@ jest.mock('bot-signal/browser', () => ({
 const SCHEMA = 'iglu:com.snowplowanalytics.snowplow/client_side_bot_detection/jsonschema/1-0-0';
 
 function run(expectCx: (cx: any) => void, options?: { mode: 'pilot' }) {
+  expect.hasAssertions();
   const { BotSignalPlugin } = require('../src');
   const plugin = BotSignalPlugin(options);
   const core = trackerCore({
@@ -58,7 +59,7 @@ describe('BotSignalPlugin', () => {
   });
 
   it('reports unknown when not legit and no automation kind', async () => {
-    mockResult = { isLegitClient: false, suspicionScore: 0.5, signals: [], automation: null };
+    mockResult = { isLegitClient: false, suspicionScore: 0.5, signals: [], automation: undefined };
     const core = run((cx) => expect(cx.data).toEqual([{ schema: SCHEMA, data: { bot: true, kind: 'unknown' } }]));
     await flushPromises();
     core.track(buildLinkClick({ targetUrl: 'https://example.com' }));
