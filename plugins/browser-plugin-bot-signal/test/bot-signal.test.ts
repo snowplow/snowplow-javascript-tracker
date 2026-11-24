@@ -11,7 +11,7 @@ jest.mock('bot-signal/browser', () => ({
   detectInstantClientAsync: () => (mockReject ? Promise.reject(mockReject) : Promise.resolve(mockResult)),
 }));
 
-const SCHEMA = 'iglu:com.flipto/client_side_bot_signal/jsonschema/1-0-0';
+const SCHEMA = 'iglu:com.snowplowanalytics.snowplow/client_side_bot_detection/jsonschema/1-0-0';
 
 function run(expectCx: (cx: any) => void) {
   const { BotSignalPlugin } = require('../src');
@@ -31,7 +31,7 @@ describe('BotSignalPlugin', () => {
     mockResult = { isLegitClient: true, suspicionScore: 0, signals: [], automation: { kind: null } };
   });
 
-  it('attaches a bot context with the fired signals', async () => {
+  it('maps an automation kind outside the schema enum to unknown', async () => {
     mockResult = {
       isLegitClient: false,
       suspicionScore: 0.9,
@@ -43,16 +43,30 @@ describe('BotSignalPlugin', () => {
     };
     const core = run((cx) =>
       expect(cx.data).toEqual([
-        { schema: SCHEMA, data: { bot: true, score: 0.9, kind: 'playwright', signals: ['webdriver'] } },
+        { schema: SCHEMA, data: { bot: true, kind: 'unknown' } },
       ])
     );
     await flushPromises();
     core.track(buildLinkClick({ targetUrl: 'https://example.com' }));
   });
 
+  it('passes through automation kinds that exist in the schema enum', async () => {
+    mockResult = { isLegitClient: false, suspicionScore: 1, signals: [], automation: { kind: 'selenium' } };
+    const core = run((cx) => expect(cx.data).toEqual([{ schema: SCHEMA, data: { bot: true, kind: 'selenium' } }]));
+    await flushPromises();
+    core.track(buildLinkClick({ targetUrl: 'https://example.com' }));
+  });
+
+  it('reports unknown when not legit and no automation kind', async () => {
+    mockResult = { isLegitClient: false, suspicionScore: 0.5, signals: [], automation: null };
+    const core = run((cx) => expect(cx.data).toEqual([{ schema: SCHEMA, data: { bot: true, kind: 'unknown' } }]));
+    await flushPromises();
+    core.track(buildLinkClick({ targetUrl: 'https://example.com' }));
+  });
+
   it('attaches a no-bot context for a legit client', async () => {
     const core = run((cx) =>
-      expect(cx.data).toEqual([{ schema: SCHEMA, data: { bot: false, score: 0, kind: null, signals: [] } }])
+      expect(cx.data).toEqual([{ schema: SCHEMA, data: { bot: false, kind: null } }])
     );
     await flushPromises();
     core.track(buildLinkClick({ targetUrl: 'https://example.com' }));
