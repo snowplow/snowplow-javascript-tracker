@@ -1,0 +1,34 @@
+{
+  "$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#",
+  "description": "PILOT DRAFT, not registered anywhere. bot-signal instant-check result with the score and fired signal ids, to calibrate against server-side bot flags.",
+  "self": {
+    "vendor": "com.flipto",
+    "name": "client_side_bot_signal_pilot",
+    "format": "jsonschema",
+    "version": "1-0-0"
+  },
+  "type": "object",
+  "properties": {
+    "bot": {
+      "description": "true when bot-signal judged the client not legitimate",
+      "type": "boolean"
+    },
+    "score": {
+      "description": "bot-signal suspicion score",
+      "type": "number"
+    },
+    "kind": {
+      "description": "bot-signal automation kind (playwright, puppeteer, selenium, curl, ...), null when none",
+      "type": ["string", "null"],
+      "maxLength": 64
+    },
+    "signals": {
+      "description": "ids of the signals that fired",
+      "type": "array",
+      "items": { "type": "string", "maxLength": 64 },
+      "maxItems": 64
+    }
+  },
+  "required": ["bot", "score"],
+  "additionalProperties": false
+}

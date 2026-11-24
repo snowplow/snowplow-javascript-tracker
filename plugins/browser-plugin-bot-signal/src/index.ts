@@ -1,41 +1,59 @@
 import { BrowserPlugin } from '@snowplow/browser-tracker-core';
 import { LOG } from '@snowplow/tracker-core';
 import { detectInstantClientAsync } from 'bot-signal/browser';
-import { CLIENT_SIDE_BOT_DETECTION_SCHEMA } from './schemata';
-import { BotDetectionContextData, BotKind } from './types';
+import { CLIENT_SIDE_BOT_DETECTION_SCHEMA, CLIENT_SIDE_BOT_SIGNAL_PILOT_SCHEMA } from './schemata';
+import { BotDetectionContextData, BotKind, BotSignalPilotContextData } from './types';
 
-export { BotDetectionContextData, BotKind } from './types';
+export { BotDetectionContextData, BotKind, BotSignalPilotContextData } from './types';
 
-// bot-signal automation kinds that exist in the schema's `kind` enum. Everything else
+export interface BotSignalPluginOptions {
+  /**
+   * 'standard' (default): the Snowplow `client_side_bot_detection` 1-0-0 entity (`bot`, `kind`), no new schema.
+   * 'pilot': a custom entity that also carries the score and fired signal ids. Needs its schema
+   * (`schema/client_side_bot_signal_pilot.json`) registered in Iglu before use, or events fail validation.
+   */
+  mode?: 'standard' | 'pilot';
+}
+
+// bot-signal automation kinds that exist in the standard schema's `kind` enum. Everything else
 // (playwright, puppeteer, lightpanda, curl, python, ...) is reported as 'unknown',
-// because the schema is closed (enum + additionalProperties: false).
+// because that schema is closed (enum + additionalProperties: false).
 const SCHEMA_KINDS: Record<string, BotKind> = { selenium: 'selenium', phantomjs: 'phantomjs' };
 
-let contextData: BotDetectionContextData | undefined;
+let context: { schema: string; data: Record<string, unknown> } | undefined;
 let detectionStarted = false;
 
 /**
- * Runs bot-signal's instant (non-behavioral) checks once and attaches the result as the
- * standard Snowplow `client_side_bot_detection` entity, so no new schema is needed.
- * Events fired before detection resolves carry no context.
+ * Runs bot-signal's instant (non-behavioral) checks once and attaches the result to every event
+ * after it resolves. Events fired before then carry no context.
  */
-export function BotSignalPlugin(): BrowserPlugin {
+export function BotSignalPlugin(options: BotSignalPluginOptions = {}): BrowserPlugin {
+  const pilot = options.mode === 'pilot';
   return {
     activateBrowserPlugin: () => {
       if (!detectionStarted) {
         detectionStarted = true;
         detectInstantClientAsync(window)
           .then((r) => {
-            if (r.isLegitClient) {
-              contextData = { bot: false, kind: null };
+            const rawKind = r.automation && r.automation.kind ? String(r.automation.kind) : null;
+            if (pilot) {
+              const data: BotSignalPilotContextData = {
+                bot: !r.isLegitClient,
+                score: r.suspicionScore,
+                kind: rawKind,
+                signals: (r.signals || []).filter((s) => s.triggered).map((s) => s.id),
+              };
+              context = { schema: CLIENT_SIDE_BOT_SIGNAL_PILOT_SCHEMA, data };
             } else {
-              const kind = r.automation ? String(r.automation.kind) : '';
-              contextData = { bot: true, kind: SCHEMA_KINDS[kind] || 'unknown' };
+              const data: BotDetectionContextData = r.isLegitClient
+                ? { bot: false, kind: null }
+                : { bot: true, kind: (rawKind && SCHEMA_KINDS[rawKind]) || 'unknown' };
+              context = { schema: CLIENT_SIDE_BOT_DETECTION_SCHEMA, data };
             }
           })
           .catch((err) => LOG.error('BotSignalPlugin: detection failed', err));
       }
     },
-    contexts: () => (contextData ? [{ schema: CLIENT_SIDE_BOT_DETECTION_SCHEMA, data: contextData }] : []),
+    contexts: () => (context ? [context] : []),
   };
 }

@@ -13,9 +13,9 @@ jest.mock('bot-signal/browser', () => ({
 
 const SCHEMA = 'iglu:com.snowplowanalytics.snowplow/client_side_bot_detection/jsonschema/1-0-0';
 
-function run(expectCx: (cx: any) => void) {
+function run(expectCx: (cx: any) => void, options?: { mode: 'pilot' }) {
   const { BotSignalPlugin } = require('../src');
-  const plugin = BotSignalPlugin();
+  const plugin = BotSignalPlugin(options);
   const core = trackerCore({
     corePlugins: [plugin],
     callback: (pb) => expectCx(pb.getJson().filter((e) => e.keyIfEncoded === 'cx')[0]?.json),
@@ -67,6 +67,30 @@ describe('BotSignalPlugin', () => {
   it('attaches a no-bot context for a legit client', async () => {
     const core = run((cx) =>
       expect(cx.data).toEqual([{ schema: SCHEMA, data: { bot: false, kind: null } }])
+    );
+    await flushPromises();
+    core.track(buildLinkClick({ targetUrl: 'https://example.com' }));
+  });
+
+  it('pilot mode emits the custom schema with score and fired signals', async () => {
+    mockResult = {
+      isLegitClient: false,
+      suspicionScore: 0.9,
+      signals: [
+        { id: 'webdriver', weight: 1, triggered: true },
+        { id: 'plugins', weight: 0.2, triggered: false },
+      ],
+      automation: { kind: 'playwright' },
+    };
+    const core = run(
+      (cx) =>
+        expect(cx.data).toEqual([
+          {
+            schema: 'iglu:com.flipto/client_side_bot_signal_pilot/jsonschema/1-0-0',
+            data: { bot: true, score: 0.9, kind: 'playwright', signals: ['webdriver'] },
+          },
+        ]),
+      { mode: 'pilot' }
     );
     await flushPromises();
     core.track(buildLinkClick({ targetUrl: 'https://example.com' }));

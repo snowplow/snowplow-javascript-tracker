@@ -23,3 +23,11 @@ export interface BotDetectionContextData {
   bot: boolean;
   kind: BotKind | null;
 }
+
+export interface BotSignalPilotContextData {
+  [key: string]: unknown;
+  bot: boolean;
+  score: number;
+  kind: string | null;
+  signals: string[];
+}
