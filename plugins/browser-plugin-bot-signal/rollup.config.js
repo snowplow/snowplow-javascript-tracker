@@ -26,7 +26,7 @@ export default [
   },
   {
     input: './src/index.ts',
-    external: [...builtinModules, ...Object.keys(pkg.dependencies), ...Object.keys(pkg.devDependencies)],
+    external: (id) => [...builtinModules, ...Object.keys(pkg.dependencies), ...Object.keys(pkg.devDependencies)].some((d) => id === d || id.indexOf(d + '/') === 0),
     plugins: [
       ts(), // so Rollup can convert TypeScript to JavaScript
       banner(),
